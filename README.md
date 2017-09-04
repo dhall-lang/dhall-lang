@@ -4,28 +4,30 @@
   <meta charset="UTF-8">
 </head> 
 
-Dhall is a total functional programming language specialized to configuration
-files
+Dhall is a programmable configuration language that is not Turing-complete
+
+You can think of Dhall as: JSON + functions + types
 
 ## Table of contents
 
 * [Features](#features)
+* [Documentation](#documentation)
 * [Integrations](#integrations)
-  * [Interpreter](#interpreter)
-  * [Language Bindings](#language-bindings)
-    * [Haskell](#haskell)
-    * [Nix](#nix)
-  * [Compilers](#compilers)
-    * [JSON and YAML](#json-and-yaml)
-    * [Bash](#bash)
-    * [Text](#text)
+    * [Interpreter](#interpreter)
+    * [Language Bindings](#language-bindings)
+        * [Haskell](#haskell)
+        * [Nix](#nix)
+    * [Compilers](#compilers)
+        * [JSON and YAML](#json-and-yaml)
+        * [Bash](#bash)
+        * [Text](#text)
 * [Design Philosophy](#design-philosophy)
 * [Development Status](#development-status)
 * [Name](#name)
 
 ## Features:
 
-* Total - Evaluation always terminates and never hangs
+* Total - Evaluation always terminates and never hangs or infinitely loops
 * Safe - Evaluation never crashes or throw exceptions
 * Distributed - Expressions can reference other expressions by URL or path
 * Strongly normalizing - All expressions (even functions) have a normal form
@@ -33,18 +35,7 @@ files
 * Strongly typed - No coercions, casts or subtyping
 * Built-in data types - Includes lists, anonymous records and anonymous unions
 
-## Integrations
-
-You can use Dhall in one of three ways:
-
-*   **Interpreter:** You can install a language-independent command-line program
-    that can type-check and interpret Dhall expressions
-*   **Language binding:** You can use a language-specific library to load
-    Dhall configuration files into your programs
-*   **Compilers:** You can compile Dhall expressions to several common
-    configuration file formats using command-line utilities
-
-The following sections tour each of these use cases in more detail
+## Documentation
 
 The Dhall language originated as a Haskell-specific configuration file format
 and is expanding to support more languages and file formats.  Consequently, the
@@ -54,96 +45,182 @@ Haskell package for Dhall still hosts the official tutorial and language manual:
 
 ... which will eventually become a language-agnostic tutorial
 
+You can also read about the original motivation behind the language here:
+
+* [Dhall - A non-Turing-complete configuration language][dhall-haskell-post]
+
+## Integrations
+
+You can use Dhall in one of three ways:
+
+*   **Interpreter:** You can install a language-independent command-line program
+    that can import, type-check and evaluate Dhall expressions
+*   **Language binding:** You can use a language-specific library to load
+    Dhall configuration files into your programs
+*   **Compilers:** You can compile Dhall expressions to several common
+    configuration file formats using command-line utilities
+
+The following sections tour each of these use cases in more detail
+
 ### Interpreter
 
-You can install a Dhall interpreter that can and type-check Dhall expressions at
-the command line.  This interpreter comes in handy when first learning the
-language:
+You can install a Dhall interpreter that can type-check and evaluate Dhall
+expressions from the command line.  You can use this interpreter to:
 
-```bash
-$ dhall <<< 'True && False'
-Bool
+*   **Learn how the language works:**
 
-False
-```
+    ```bash
+    $ dhall <<< 'True && False'
+    Bool
 
-Infer the type of an expression:
+    False
+    ```
 
-```bash
-$ dhall <<< 'List/length'
-∀(a : Type) → List a → Natural
+    The first line of output shows the inferred type of an expression:
 
-List/length
-```
+    ```bash
+    $ dhall <<< 'List/length'
+    ∀(a : Type) → List a → Natural
 
-Validate a configuration file against a schema:
+    List/length
+    ```
 
-```bash
-$ cat config
-{ foo = List/length Integer [2, 3, 5], bar = True && False }
-```
+    The second line of output shows the fully evaluated normal form of an
+    expression:
 
-```bash
-$ cat schema
-{ foo : Natural, bar : Bool }
-```
+    ```bash
+    $ dhall <<< 'λ(x : Text) → let y = True in if y != False then x else "?"'
+    ∀(x : Text) → Text
 
-```bash
-$ dhall <<< './config : ./schema'
-{ bar : Bool, foo : Natural }
+    λ(x : Text) → x
+    ```
 
-{ bar = False, foo = +3 }
-```
+*   **Validate a configuration file against a schema:**
 
-Detect type errors:
+    ```bash
+    $ cat config
+    { foo = List/length Integer [2, 3, 5], bar = True && False }
+    ```
 
-```bash
-$ dhall <<< 'λ(x : Integer) → x && True'
+    ```bash
+    $ cat schema
+    { foo : Natural, bar : Bool }
+    ```
 
-Use "dhall --explain" for detailed errors
+    Dhall lets you import expressions and types by their path:
 
-Error: ❰&&❱ only works on ❰Bool❱s
+    ```bash
+    $ dhall <<< './config : ./schema'
+    { bar : Bool, foo : Natural }
 
-x && True
+    { bar = False, foo = +3 }
+    ```
 
-(stdin):1:18
-```
+    Schema validation is the same thing as a type annotation
 
-Resolve remote expressions:
+*   **Detect type errors:**
 
-```bash
-dhall <<< 'https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate'
+    ```bash
+    $ dhall <<< 'λ(x : Integer) → x && True'
 
-∀(n : Natural) → ∀(a : Type) → ∀(x : a) → List a
+    Use "dhall --explain" for detailed errors
 
-λ(n : Natural) → λ(a : Type) → λ(x : a) → List/build a (λ(list : Type) → λ(cons : a → list → list) → Natural/fold n list (cons x))
-```
+    Error: ❰&&❱ only works on ❰Bool❱s
 
-Reduce an expression to normal form:
+    x && True
 
-```bash
-$ cat normal
-    let replicate = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate
+    (stdin):1:18
+    ```
 
-in  let exclaim = λ(t : Text) → t ++ "!"
+    You can ask the type checker to go into more detail using the `--explain`
+    flag:
 
-in  λ(x : Text) → replicate +3 Text (exclaim x)
-```
+    ```bash
+    $ dhall --explain <<< 'λ(x : Integer) → x && True'
+    
+    
+    x : Integer
+    
+    Error: ❰&&❱ only works on ❰Bool❱s
+    
+    Explanation: The ❰&&❱ operator expects two arguments that have type ❰Bool❱
+                                                                                    
+    For example, this is a valid use of ❰&&❱:                           
+                                                                                    
+                                                                                    
+        ┌───────────────┐                                                           
+        │ True && False │                                               
+        └───────────────┘                                                           
+                                                                                    
+                                                                                    
+    You provided this argument:                                                     
+                                                                                    
+    ↳ x                                                                
+                                                                                    
+    ... which does not have type ❰Bool❱ but instead has type:                       
+                                                                                    
+    ↳ Integer                                                                
+    
+    ────────────────────────────────────────────────────────────────────────────────
+    
+    x && True
+    
+    (stdin):1:18
+    ```
 
-```bash
-$ dhall <<< './normal'
-∀(x : Text) → List Text
+*   Resolve remote expressions:
 
-λ(x : Text) → [x ++ "!", x ++ "!", x ++ "!"] : List Text
-```
+    ```bash
+    dhall <<< 'https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate'
 
-To learn more:
+    ∀(n : Natural) → ∀(a : Type) → ∀(x : a) → List a
+
+    λ(n : Natural) → λ(a : Type) → λ(x : a) → List/build a (λ(list : Type) → λ(cons : a → list → list) → Natural/fold n list (cons x))
+    ```
+
+    You can import arbitrary expressions URL, too.  In fact, the Dhall Prelude
+    is hosted this way:
+
+    * [Dhall Prelude][dhall-prelude]
+
+*   Reduce an expression to normal form:
+
+    ```bash
+    $ cat ./example
+        let replicate = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate
+
+    in  let exclaim = λ(t : Text) → t ++ "!"
+
+    in  λ(x : Text) → replicate +3 Text (exclaim x)
+    ```
+
+    You can reduce functions to normal form, even when they haven't been
+    applied to all of their arguments
+
+    ```bash
+    $ dhall <<< './example'
+    ∀(x : Text) → List Text
+
+    λ(x : Text) → [x ++ "!", x ++ "!", x ++ "!"] : List Text
+    ```
+
+    The normal form is equivalent to the original program except stripped of
+    all imports and indirection
+
+Learn more:
 
 * [GitHub repository][dhall-haskell]
 * [Language guide][dhall-haskell-tutorial]
 * [Blog post][dhall-haskell-post]
 
 ### Language Bindings
+
+You can use Dhall to configure programs written in other languages.  Dhall
+Dhall is most commonly used as a type-safe and non-Turing-complete configuration
+language used to configure a program written in another language.  Currently
+You can use Dhall to configure programs in a limited set of languages.  This is
+the most common use case for Dhall: a type-safe and non-Turing-complete
+configuration language 
 
 Dhall currently supports two complete language bindings:
 
@@ -213,14 +290,14 @@ $ cat ./config
 }
 ```
 
-... then the program produces this output:
+... and prints the configuration:
 
 ```bash
 $ ./example
 Example {foo = 1, bar = [3.0,4.0,5.0]}
 ```
 
-To learn more:
+Learn more:
 
 * [GitHub repository][dhall-haskell]
 * [Tutorial][dhall-haskell-tutorial]
@@ -258,7 +335,7 @@ in
 }
 ```
 
-To learn more:
+Learn more:
 
 * [`dhallToNix` function][dhallToNix]
 * [GitHub repository][dhall-nix]
@@ -298,7 +375,7 @@ baz:
 bar: true
 ```
 
-To learn more:
+Learn more:
 
 * [GitHub repository][dhall-json]
 * [Tutorial][dhall-json-tutorial]
@@ -325,7 +402,7 @@ $ echo ${FOO[baz]}
 ABC
 ```
 
-To learn more:
+Learn more:
 
 * [GitHub repository][dhall-bash]
 * [Tutorial][dhall-bash-tutorial]
@@ -375,7 +452,7 @@ You have just won 10000.0 dollars!
 Well, 6000.0 dollars, after taxes
 ```
 
-To learn more:
+Learn more:
 
 * [GitHub repository and tutorial][dhall-text]
 * [Blog post][dhall-text-post]
@@ -471,3 +548,4 @@ who belongs to a faction obsessed with death (termination).
 [dhall-text-post]: http://www.haskellforall.com/2017/06/dhall-is-now-template-engine.html
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
+[dhall-prelude]: https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude
