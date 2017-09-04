@@ -337,7 +337,7 @@ in
   baz = xs:
     (t: xs: t: cons:
       builtins.foldl' (f: y: ys: f (cons y ys)) (ys: ys) xs
-    ) {} xs {} (x: y: x + y) ""
+    ) {} xs {} (x: y: x + y) "";
 }
 ```
 
