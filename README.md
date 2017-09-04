@@ -7,6 +7,22 @@
 Dhall is a total functional programming language specialized to configuration
 files
 
+## Table of contents
+
+* [Features](#features)
+* [Integrations](#integrations)
+  * [Interpreter](#interpreter)
+  * [Language Bindings](#language-bindings)
+    * [Haskell](#haskell)
+    * [Nix](#nix)
+  * [Compilers](#compilers)
+    * [JSON and YAML](#json-and-yaml)
+    * [Bash](#bash)
+    * [Text](#text)
+* [Design Philosophy](#design-philosophy)
+* [Development Status](#development-status)
+* [Name](#name)
+
 ## Features:
 
 * Total - Evaluation always terminates and never hangs
@@ -25,7 +41,7 @@ You can use Dhall in one of three ways:
     that can type-check and interpret Dhall expressions
 *   **Language binding:** You can use a language-specific library to load
     Dhall configuration files into your programs
-*   **Compiler:** You can compile Dhall expressions to several common
+*   **Compilers:** You can compile Dhall expressions to several common
     configuration file formats using command-line utilities
 
 The following sections tour each of these use cases in more detail
@@ -127,7 +143,7 @@ To learn more:
 * [Language guide][dhall-haskell-tutorial]
 * [Blog post][dhall-haskell-post]
 
-### Language binding
+### Language Bindings
 
 Dhall currently supports two complete language bindings:
 
