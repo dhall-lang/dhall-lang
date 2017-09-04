@@ -12,7 +12,7 @@ You can think of Dhall as: JSON + functions + types
 
 * [Features](#features)
 * [Documentation](#documentation)
-* [Integrations](#integrations)
+* [Overview](#overview)
     * [Interpreter](#interpreter)
     * [Language Bindings](#language-bindings)
         * [Haskell](#haskell)
@@ -49,16 +49,25 @@ You can also read about the original motivation behind the language here:
 
 * [Dhall - A non-Turing-complete configuration language][dhall-haskell-post]
 
-## Integrations
+## Overview
 
 You can use Dhall in one of three ways:
 
 *   **Interpreter:** You can install a language-independent command-line program
     that can import, type-check and evaluate Dhall expressions
 *   **Language binding:** You can use a language-specific library to load
-    Dhall configuration files into your programs
+    Dhall configuration files directly into your programs
 *   **Compilers:** You can compile Dhall expressions to several common
     configuration file formats using command-line utilities
+
+I recommend the following progression for adopting Dhall:
+
+* Install the interpreter to learn more about the language
+* If you like what you see, then:
+    * If your preferred programming language supports Dhall:
+        * Use the language binding to configure your programs using Dhall
+    * If your language does not yet support Dhall
+        * Compile Dhall to a supported configuration format (such as JSON)
 
 The following sections tour each of these use cases in more detail
 
@@ -95,7 +104,7 @@ expressions from the command line.  You can use this interpreter to:
     λ(x : Text) → x
     ```
 
-*   **Validate a configuration file against a schema:**
+*   **Validate a configuration file ahead of time against a schema:**
 
     ```bash
     $ cat config
@@ -168,7 +177,7 @@ expressions from the command line.  You can use this interpreter to:
     (stdin):1:18
     ```
 
-*   Resolve remote expressions:
+*   **Resolve remote expressions:**
 
     ```bash
     dhall <<< 'https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate'
@@ -183,7 +192,7 @@ expressions from the command line.  You can use this interpreter to:
 
     * [Dhall Prelude][dhall-prelude]
 
-*   Reduce an expression to normal form:
+*   **Reduce an expression to normal form:**
 
     ```bash
     $ cat ./example
@@ -215,11 +224,8 @@ Learn more:
 
 ### Language Bindings
 
-You can use Dhall to configure programs written in other languages.  Dhall
-Dhall is most commonly used as a type-safe and non-Turing-complete configuration
-language used to configure a program written in another language.  Currently
-You can use Dhall to configure programs in a limited set of languages.  This is
-the most common use case for Dhall: a type-safe and non-Turing-complete
+You can use Dhall to configure programs written in other languages. This is the
+most common use case for Dhall: a type-safe and non-Turing-complete
 configuration language 
 
 Dhall currently supports two complete language bindings:
@@ -375,6 +381,10 @@ baz:
 bar: true
 ```
 
+Some configuration file formats are supersets of JSON such as the
+[HashiCorp configuration language][hcl] (Used to configure `terraform`) so you
+can compile Dhall expressions to these configuration file formats, too.
+
 Learn more:
 
 * [GitHub repository][dhall-json]
@@ -402,6 +412,10 @@ $ echo ${FOO[baz]}
 ABC
 ```
 
+```bash
+
+```
+
 Learn more:
 
 * [GitHub repository][dhall-bash]
@@ -416,12 +430,12 @@ For example, given this template:
 
 ```bash
 $ cat function
-    \(record : { name        : Text
+    λ(record : { name        : Text
                , value       : Double
                , taxed_value : Double
                , in_ca       : Bool
                }
-     ) ->  ''
+     ) → ''
 Hello ${record.name}
 You have just won ${Double/show record.value} dollars!
 ${ if record.in_ca
@@ -549,3 +563,4 @@ who belongs to a faction obsessed with death (termination).
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
 [dhall-prelude]: https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude
+[hcl]: https://github.com/hashicorp/hcl
