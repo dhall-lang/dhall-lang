@@ -545,21 +545,21 @@ The language is named after a
 who belongs to a faction obsessed with death (termination).  The logo represents
 his quill and inkwell
 
-[dhall-haskell]: https://github.com/dhall-lang/Haskell-Dhall-Library
+[dhall-haskell]: https://github.com/dhall-lang/dhall-haskell
 [dhall-haskell-tutorial]: https://hackage.haskell.org/package/dhall/docs/Dhall-Tutorial.html
 [dhall-haskell-post]: http://www.haskellforall.com/2016/12/dhall-non-turing-complete-configuration.html
-[dhall-nix]: https://github.com/dhall-lang/Haskell-Dhall-Nix-Library
+[dhall-nix]: https://github.com/dhall-lang/dhall-nix
 [dhall-nix-tutorial]: https://hackage.haskell.org/package/dhall-nix/docs/Dhall-Nix.html
 [dhall-nix-post]: http://www.haskellforall.com/2017/01/typed-nix-programming-using-dhall.html
-[dhall-scala]: https://github.com/dhall-lang/Haskell-Dhall-Library
+[dhall-scala]: https://github.com/amarpotghan/dhall-scala
 [dhall-rust]: https://github.com/nanotech/dhall-rs
-[dhall-json]: https://github.com/dhall-lang/Haskell-Dhall-JSON-Library/
+[dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
 [dhall-json-post]: http://www.haskellforall.com/2017/02/program-json-and-yaml-with-dhall.html
-[dhall-bash]: https://github.com/dhall-lang/Haskell-Dhall-Bash-Library
+[dhall-bash]: https://github.com/dhall-lang/dhall-bash
 [dhall-bash-tutorial]: https://hackage.haskell.org/package/dhall-bash/docs/Dhall-Bash.html
 [dhall-bash-post]: http://www.haskellforall.com/2017/04/use-dhall-to-configure-bash-programs.html
-[dhall-text]: https://github.com/dhall-lang/Haskell-Dhall-Text-Library
+[dhall-text]: https://github.com/dhall-lang/dhall-text
 [dhall-text-post]: http://www.haskellforall.com/2017/06/dhall-is-now-template-engine.html
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
