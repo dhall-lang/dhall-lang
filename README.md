@@ -542,7 +542,8 @@ issue tracker.
 
 The language is named after a
 [Dustman from the game Planescape: Torment][dhall-name]
-who belongs to a faction obsessed with death (termination).
+who belongs to a faction obsessed with death (termination).  The logo represents
+his quill and inkwell
 
 [dhall-haskell]: https://github.com/dhall-lang/Haskell-Dhall-Library
 [dhall-haskell-tutorial]: https://hackage.haskell.org/package/dhall/docs/Dhall-Tutorial.html
