@@ -1,4 +1,4 @@
-# Dhall
+![](./img/dhall-logo.png)
 
 <head>
   <meta charset="UTF-8">
