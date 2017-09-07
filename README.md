@@ -28,7 +28,7 @@ You can think of Dhall as: JSON + functions + types
 ## Features:
 
 * Total - Evaluation always terminates and never hangs or infinitely loops
-* Safe - Evaluation never crashes or throw exceptions
+* Safe - Evaluation never crashes or throws exceptions
 * Distributed - Expressions can reference other expressions by URL or path
 * Strongly normalizing - All expressions (even functions) have a normal form
 * Statically typed - Configurations can be validated ahead-of-time
