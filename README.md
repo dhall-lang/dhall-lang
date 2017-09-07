@@ -49,6 +49,10 @@ You can also read about the original motivation behind the language here:
 
 * [Dhall - A non-Turing-complete configuration language][dhall-haskell-post]
 
+Finally, we have a cheatsheet for a very condensed overview and quick lookup:
+
+* [Dhall Cheatsheet](./cheatsheet.md)
+
 ## Overview
 
 You can use Dhall in one of three ways:
