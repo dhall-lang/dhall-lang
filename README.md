@@ -551,7 +551,7 @@ his quill and inkwell
 [dhall-nix]: https://github.com/dhall-lang/Haskell-Dhall-Nix-Library
 [dhall-nix-tutorial]: https://hackage.haskell.org/package/dhall-nix/docs/Dhall-Nix.html
 [dhall-nix-post]: http://www.haskellforall.com/2017/01/typed-nix-programming-using-dhall.html
-[dhall-scala]: https://github.com/dhall-lang/Haskell-Dhall-Library
+[dhall-scala]: https://github.com/amarpotghan/dhall-scala
 [dhall-rust]: https://github.com/nanotech/dhall-rs
 [dhall-json]: https://github.com/dhall-lang/Haskell-Dhall-JSON-Library/
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
