@@ -28,7 +28,7 @@ You can think of Dhall as: JSON + functions + types
 ## Features:
 
 * Total - Evaluation always terminates and never hangs or infinitely loops
-* Safe - Evaluation never crashes or throw exceptions
+* Safe - Evaluation never crashes or throws exceptions
 * Distributed - Expressions can reference other expressions by URL or path
 * Strongly normalizing - All expressions (even functions) have a normal form
 * Statically typed - Configurations can be validated ahead-of-time
@@ -48,6 +48,10 @@ Haskell package for Dhall still hosts the official tutorial and language manual:
 You can also read about the original motivation behind the language here:
 
 * [Dhall - A non-Turing-complete configuration language][dhall-haskell-post]
+
+Finally, we have a cheatsheet for a very condensed overview and quick lookup:
+
+* [Dhall Cheatsheet](./cheatsheet.md)
 
 ## Overview
 
