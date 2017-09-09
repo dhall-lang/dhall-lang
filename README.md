@@ -419,7 +419,7 @@ use of comments.
 
 ---
 
-**User:** "I can't type Unicode characters like `'λ'` and `'→'`
+**User:** *"I can't type Unicode characters like `'λ'` and `'→'`"*
 
 Dhall supports ASCII equivalents of all Unicode characters, such as `\` instead
 of `λ` and `->` instead of `→`.  However, this tutorial will use Unicode
