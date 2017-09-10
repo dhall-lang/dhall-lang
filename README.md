@@ -414,7 +414,23 @@ in  [   {   name    = "dhall"
 ```
 
 Now we can easily tell at a glance which license each package uses without the
-use of comments.
+use of comments
+
+Dhall supports anonymous functions using the following syntax:
+
+```haskell
+λ(inputName : inputType) → output
+```
+
+For example:
+
+```
+  The name of the function input is "args", short for "arguments"
+  ↓
+λ(args : { year : Integer, author : Text }) → ...
+         ↑
+         "args" is a record with two fields named "year" and "author"
+```
 
 ---
 
