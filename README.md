@@ -511,7 +511,7 @@ files, like this:
 ''
 ```
 
-... and then reference these files within our original configuration:
+... and then refer to these files within our original configuration:
 
 ```haskell
 -- example2.dhall
