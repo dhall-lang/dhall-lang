@@ -126,9 +126,9 @@ HE USE OR OTHER DEALINGS IN THE SOFTWARE.\n"
 edit?"*
 
 The above configuration file is difficult to read because of the large
-license texts formatted as long uninterrupted lines.  We can improve the
-legibility by converting the JSON configuration file to a Dhall configuration
-file, which supports multi-line string literals (like YAML):
+license texts formatted as long uninterrupted lines.  We can make the
+configuration more readable by converting the JSON configuration file to a Dhall
+configuration file, which supports multi-line string literals (like YAML):
 
 ```haskell
 -- example0.dhall
