@@ -694,7 +694,7 @@ let map : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
 * The first argument is the element type of the input list
 * The second argument is the element type of the output list
 * The third argument is the function to apply to each element of the list
-* The fourt argument is the input list
+* The fourth argument is the input list
 
 ... and the result is the output list
 
