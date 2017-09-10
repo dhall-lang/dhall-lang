@@ -436,6 +436,16 @@ Dhall supports ASCII equivalents of all Unicode characters, such as `\` instead
 of `λ` and `->` instead of `→`.  However, this tutorial will use Unicode
 everywhere because it's prettier.
 
+If you would like to try to type Unicode characters, you can follow these
+instructions for various platforms:
+
+* [Unicode input](https://en.wikipedia.org/wiki/Unicode_input)
+
+The Unicode code points for the above symbols are:
+
+* `λ (U+03BB)`
+* `→ (U+2192)`
+
 ---
 
 **User:** *"The license text is still too distracting.  Could we move it out of
