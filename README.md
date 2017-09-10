@@ -882,11 +882,11 @@ main = do
     print (twice 5) -- prints: "[5,5]"
 ```
 
-... and other features, too, like sum types
+... and other features, too, like unions
 
 ---
 
-**User:** *"What's a sum type?"*
+**User:** *"What's a union?"*
 
 At this point you should read the [language manual](dhall-haskell-tutorial) ☺
 
