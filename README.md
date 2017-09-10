@@ -529,6 +529,9 @@ files, like this:
 ]
 ```
 
+Files containing Dhall expressions don't have to end with a `.dhall` file
+extension.  This is purely a convention
+
 ---
 
 **User:** *"There's still some duplication: there is an unspoken invariant that
