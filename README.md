@@ -277,8 +277,7 @@ $ dhall-to-json --pretty <<< 'example0.dhall'
 
 ---
 
-**User:** *"I still can't tell at a glance which license is which.  I can only
-recognize licenses by their name and not by their text"*
+**User:** *"I still can't tell at a glance which license is which"*
 
 We could add comments with the name of each license (since Dhall, unlike JSON,
 supports comments):
