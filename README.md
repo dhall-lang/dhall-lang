@@ -517,7 +517,7 @@ files, like this:
 -- example2.dhall
 
 [   {   name    = "dhall"
-    ,   author  = "Gabrel Gonzalez"
+    ,   author  = "Gabriel Gonzalez"
     ,   license = ./BSD-3-Clause.dhall { year = 2017, author = "Gabriel Gonzalez" }
     }
 ,   {   name    = "conduit"
