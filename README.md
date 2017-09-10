@@ -644,16 +644,11 @@ in  map
     ]
 ```
 
----
+You can import functions, values, and types from URLs the same way that you
+import them from paths and this is how Dhall distributes the Prelude
 
-**User:** *"How am I supposed to even know that there is a `map` function or
-what arguments the function expects?"*
-
-We can browse the Prelude online here:
-
-* [Prelude](https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude)
-
-... and every function has documentation, examples, and a type signature:
+Every function from the Prelude has documentation, examples, and a type
+signature:
 
 ```bash
 $ curl https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/map
@@ -697,6 +692,32 @@ let map : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
 * The fourth argument is the input list
 
 ... and the result is the output list
+
+Dhall distributes the Prelude over IPFS for two main reason:
+
+* IPFS guarantees that the contents of URLs never change
+* You can mount IPFS on your filesystem to permanently cache downloads locally
+
+You can learn more about IPFS here:
+
+* [IPFS - The Permanent Web](https://github.com/ipfs/ipfs)
+
+You also don't have to memorize the long IPFS URL to find the Dhall Prelude.
+You can browse the latest version of the Prelude online by visiting:
+
+* [http://prelude.dhall-lang.org/](http://prelude.dhall-lang.org)
+
+You can even import Prelude functions using the above URL:
+
+```haskell
+    let map = http://prelude.dhall-lang.org/List/map
+
+in  ...
+```
+
+... although be cautious when doing so since this URL is mutable and you can't
+guarantee that you get the same result every time.  You also can't safely
+cache the result permanently like you can with an IPFS URL
 
 ---
 
