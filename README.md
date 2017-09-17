@@ -28,6 +28,12 @@ You can think of Dhall as: JSON + functions + types + imports
 
 ## Case study
 
+Expand the details below for an example motivating the use of Dhall:
+
+<details>
+
+<summary>Detailed example of using Dhall</summary>
+
 Let's motivate Dhall by considering the following JSON configuration
 representing Haskell package metadata (wrapped to 80 columns):
 
@@ -891,6 +897,8 @@ main = do
 At this point you should read the [language manual](dhall-haskell-tutorial) ☺
 
 Or you can continue reading to learn about Dhall's feature set
+
+</details>
 
 ## Features:
 
