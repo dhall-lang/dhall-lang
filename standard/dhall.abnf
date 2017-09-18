@@ -6,16 +6,16 @@
 ;
 ; For simplicity this supports Unix and Windows line-endings, which are the most
 ; common
-end-of-line
-    = %x0A     ; "\n"
+end-of-line =
+      %x0A     ; "\n"
     / %x0D.0A  ; "\r\n"
 
 tab = %x09  ; "\t"
 
-not-end-of-line = %x20-%7E / tab
+not-end-of-line = %x20-7E / tab
 
-not-brace
-    = %x20-7A
+not-brace =
+      %x20-7A
         ; %x7B = "{"
     / %x7C
         ; %x7D = "}"
@@ -26,14 +26,14 @@ not-brace
 block-comment = "{" *not-brace *(block-comment *not-brace) "}"
 
 ; TODO: Support Unicode in comments?
-comment
+comment =
     ; NOTE: Slightly different from Haskell-style single-line comments because this
     ; does not require a space after the dashes
-    = "--" *(not-end-of-line) end-of-line
+      "--" *(not-end-of-line) end-of-line
     / block-comment
 
-whitespace-chunk
-    = " "
+whitespace-chunk =
+      " "
     / tab
     / end-of-line
     / comment
@@ -51,8 +51,8 @@ simple-label = (letter / "_") *(letter / digit / "-" / "/" / "_")
 ; TODO: Support Unicode for labels?
 label = ("`" simple-label "`" / simple-label) white-space
 
-double-quote-chunk
-    = "${" expression "}"     ; Interpolation
+double-quote-chunk =
+      "${" expression "}"     ; Interpolation
     / "''${"                  ; Escape interpolation
     / "\\"
     / '\"'
@@ -67,23 +67,23 @@ double-quote-chunk
     / %x5D-7E
 
 ; All printable characters except single quote, and newlines and tabs
-not-a-single-quote
-    = %x20-26
+not-a-single-quote =
+      %x20-26
         ; %x27 = "'"
     / %x27-7E
     / tab
     / end-of-line
 
 ; NOTE: You cannot end a "double-single-quote" string literal with a single quote
-single-quote-chunk
-    = "'''"                   ; Escape two single quotes
+single-quote-chunk =
+      "'''"                   ; Escape two single quotes
     / "${" expression "}"     ; Interpolation
     / "''${"                  ; Escape interpolation
     / "'" not-a-single-quote
     / not-a-single-quote
 
-text-literal-raw
-    = '"'  *double-quote-chunk '"'
+text-literal-raw =
+      '"'  *double-quote-chunk '"'
     / "''" *single-quote-chunk "''"
 
 text-literal = text-literal-raw whitespace
@@ -175,9 +175,9 @@ var = label [ at natural-literal ]
 ;
 ; Excluding those characters ensures that paths don't have to end with trailing
 ; whitespace most of the time
-head-path-character
+head-path-character =
         ; %x20 = " "
-    = %x21-27
+      %x21-27
         ; %x28 = "("
         ; %x29 = ")"
     / %x2A-2E
@@ -200,8 +200,8 @@ path-character = head-path-character / "\" / "/"
 
 ; The first character of an absolute path cannot be a forward slash or
 ; back-slash since that conflicts with the "/\" and "//" operators
-file-raw
-    = "/" head-path-character *path-character
+file-raw =
+      "/" head-path-character *path-character
     / "./" *path-character
     / "~/" *path-character
 
@@ -222,9 +222,9 @@ import = path-type [ as Text ]
 ; NOTE: Every rule past this point should only reference rules that end with
 ; whitespace in order to ensure consistent handling of whitespace
 
-expression
+expression =
     ; "λ(x : a) → b"
-    = lambda open-parens label colon expression close-parens arrow expression
+      lambda open-parens label colon expression close-parens arrow expression
 
     ; "if a then b else c"
     / if expression then expression else expression
@@ -241,10 +241,10 @@ expression
 
     / annotated-expression
 
-annotated-expression
+annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-    = merge selector-expression selector-expression [ colon application-expression ]
+      merge selector-expression selector-expression [ colon application-expression ]
 
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -275,9 +275,9 @@ application-expression = 1*selector-expression
 
 selector-expression = primitive-expression *(dot label)
 
-primitive-expression
+primitive-expression =
     ; "2.0"
-    = double-literal
+      double-literal
 
     ; "+2"
     / natural-literal
@@ -349,27 +349,27 @@ primitive-expression
     / open-parens expression close-parens
 
 ; TODO: This doesn't support trailing commas
-record-type-or-literal
-    = equal                             ; Empty record literal
+record-type-or-literal =
+      equal                             ; Empty record literal
     / non-empty-record-type-or-literal
     / ""                                ; Empty record type
 
-non-empty-record-type-or-literal
-    = label (non-empty-record-literal / non-empty-record-type)
+non-empty-record-type-or-literal =
+    label (non-empty-record-literal / non-empty-record-type)
 
 non-empty-record-type    = colon expression *(comma label colon expression)
 non-empty-record-literal = equal expression *(comma label equal expression)
 
 ; TODO: This doesn't support trailing bars
-union-type-or-literal
-    = non-empty-union-type-or-literal
+union-type-or-literal =
+      non-empty-union-type-or-literal
     / ""                               ; Empty union type
 
-non-empty-union-type-or-literal
-    = label
-      ( equal expression *(bar label colon expression)
-      / colon expression (bar non-empty-union-type-or-literal / "")
-      )
+non-empty-union-type-or-literal =
+    label
+    ( equal expression *(bar label colon expression)
+    / colon expression (bar non-empty-union-type-or-literal / "")
+    )
 
 ; TODO: This doesn't support trailing commas
 non-empty-list-literal = open-bracket expression *(comma expression) close-bracket
