@@ -55,7 +55,7 @@ double-quote-chunk =
       "${" expression "}"  ; Interpolation
     / "''${"               ; Escape interpolation
     / "\\"
-    / %x5C.22              ;'\"'
+    / %x5C.22              ; '\"'
     / "\n"
     / "\r"
     / "\t"
@@ -79,8 +79,8 @@ single-quote-chunk =
       "'''"                   ; Escape two single quotes
     / "${" expression "}"     ; Interpolation
     / "''${"                  ; Escape interpolation
-    / "'" not-a-single-quote
-    / not-a-single-quote
+    / "'" 1*not-a-single-quote
+    / 1*not-a-single-quote
 
 text-literal-raw =
       %x22 *double-quote-chunk %x22
@@ -154,11 +154,11 @@ close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
 
-combine = ( %xE2.88.A7 / "/\"               ) whitespace  ; U+2227
-prefer  = ( %xE2.AB.BD / "//"               ) whitespace  ; U+2AFD
-lambda  = ( %xCE.BB    / "\"                ) whitespace  ; U+03BB
-forall  = ( %xE2.88.80 / %x66.6f.72.61.6c.6c) whitespace  ; U+2200
-arrow   = ( %xE2.86.92 / "->"               ) whitespace  ; U+2192
+combine = ( %xE2.88.A7 / "/\"                ) whitespace  ; U+2227
+prefer  = ( %xE2.AB.BD / "//"                ) whitespace  ; U+2AFD
+lambda  = ( %xCE.BB    / "\"                 ) whitespace  ; U+03BB
+forall  = ( %xE2.88.80 / %x66.6f.72.61.6c.6c ) whitespace  ; U+2200
+arrow   = ( %xE2.86.92 / "->"                ) whitespace  ; U+2192
 
 exponent = ("e" / "E") [ "+" / "-" ] 1*digit
 
@@ -169,7 +169,7 @@ integer-literal = [ "-" ] 1*digit whitespace
 
 natural-literal = "+" integer-literal whitespace
 
-var = label [ at natural-literal ]
+identifier = label [ at natural-literal ]
 
 ; Printable characters other than " ()[]{}<>/\"
 ;
@@ -288,7 +288,7 @@ primitive-expression =
     ; '"ABC"'
     / text-literal
 
-    ; "{ foo = 1, bar = True }"
+    ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
     / open-brace record-type-or-literal close-brace
 
@@ -343,7 +343,7 @@ primitive-expression =
 
     ; "x"
     ; "x@2"
-    / var
+    / identifier
 
     ; "( e )"
     / open-parens expression close-parens
