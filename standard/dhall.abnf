@@ -154,11 +154,11 @@ close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
 
-combine = ( %xE2.88.A7 / "/\"               ) whitespace  ; UTF8 "∧" (U+2227)
-prefer  = ( %xE2.AB.BD / "//"               ) whitespace  ; UTF8 "⫽" (U+2AFD)
-lambda  = ( %xCE.BB    / "\"                ) whitespace  ; UTF8 "λ" (U+03BB)
-forall  = ( %xE2.88.80 / %x66.6f.72.61.6c.6c) whitespace  ; UTF8 "∀" (U+2200)
-arrow   = ( %xE2.86.92 / "->"               ) whitespace  ; UTF8 "→" (U+2192)
+combine = ( %xE2.88.A7 / "/\"               ) whitespace  ; U+2227
+prefer  = ( %xE2.AB.BD / "//"               ) whitespace  ; U+2AFD
+lambda  = ( %xCE.BB    / "\"                ) whitespace  ; U+03BB
+forall  = ( %xE2.88.80 / %x66.6f.72.61.6c.6c) whitespace  ; U+2200
+arrow   = ( %xE2.86.92 / "->"               ) whitespace  ; U+2192
 
 exponent = ("e" / "E") [ "+" / "-" ] 1*digit
 
@@ -223,7 +223,7 @@ import = path-type [ as Text ]
 ; whitespace in order to ensure consistent handling of whitespace
 
 expression =
-    ; "λ(x : a) → b"
+    ; "\(x : a) -> b"
       lambda open-parens label colon expression close-parens arrow expression
 
     ; "if a then b else c"
@@ -233,10 +233,10 @@ expression =
     ; "let x     = e1 in e2"
     / let label [ colon expression ] equal expression in expression
 
-    ; "∀(x : a) → b"
+    ; "forall (x : a) -> b"
     / forall open-parens label colon expression close-parens arrow expression
 
-    ; "a → b"
+    ; "a -> b"
     / operator-expression arrow expression
 
     / annotated-expression
