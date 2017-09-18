@@ -182,7 +182,7 @@ head-path-character =
         ; %x29 = ")"
     / %x2A-2E
         ; %x2F = "/"
-    / %x2G-3B
+    / %x30-3B
         ; %x3C = "<"
     / %x3D
         ; %x3E = ">"
