@@ -162,10 +162,10 @@ arrow   = ( %xE2.86.92 / "->"               ) whitespace  ; U+2192
 
 exponent = ("e" / "E") [ "+" / "-" ] 1*digit
 
-double-literal = 1*digit ( "." 1*digit [ exponent ] / exponent)
+double-literal = [ "-" ] 1*digit ( "." 1*digit [ exponent ] / exponent)
 
 ; TODO: Perhaps this should require a non-zero starting digit
-integer-literal = 1*digit whitespace
+integer-literal = [ "-" ] 1*digit whitespace
 
 natural-literal = "+" integer-literal whitespace
 
