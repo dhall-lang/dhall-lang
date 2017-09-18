@@ -52,10 +52,10 @@ simple-label = (letter / "_") *(letter / digit / "-" / "/" / "_")
 label = ("`" simple-label "`" / simple-label) white-space
 
 double-quote-chunk =
-      "${" expression "}"     ; Interpolation
-    / "''${"                  ; Escape interpolation
+      "${" expression "}"  ; Interpolation
+    / "''${"               ; Escape interpolation
     / "\\"
-    / '\"'
+    / %x5C.22              ;'\"'
     / "\n"
     / "\r"
     / "\t"
@@ -83,7 +83,7 @@ single-quote-chunk =
     / not-a-single-quote
 
 text-literal-raw =
-      '"'  *double-quote-chunk '"'
+      %x22 *double-quote-chunk %x22
     / "''" *single-quote-chunk "''"
 
 text-literal = text-literal-raw whitespace
