@@ -46,35 +46,76 @@ letter = %x41-5A / %x61-7A
 ; ASCII digit
 digit = %x30-39  ; 0-9
 
+hex = digit / "A" / "B" / "C" / "D" / "E" / "F"
+
 simple-label = (letter / "_") *(letter / digit / "-" / "/" / "_")
 
 ; TODO: Support Unicode for labels?
 label = ("`" simple-label "`" / simple-label) white-space
 
+; Dhall's double-quoted strings are equivalent to JSON strings except with support; for string interpolation (and escaping string interpolation)
+;
+; Dhall uses the same escaping rules as JSON (RFC7159):
+;
+; > The representation of strings is similar to conventions used in the C
+; > family of programming languages.  A string begins and ends with
+; > quotation marks.  All Unicode characters may be placed within the
+; > quotation marks, except for the characters that must be escaped:
+; > quotation mark, reverse solidus, and the control characters (U+0000
+; > through U+001F).
+; > 
+; > Any character may be escaped.  If the character is in the Basic
+; > Multilingual Plane (U+0000 through U+FFFF), then it may be
+; > represented as a six-character sequence: a reverse solidus, followed
+; > by the lowercase letter u, followed by four hexadecimal digits that
+; > encode the character's code point.  The hexadecimal letters A though
+; > F can be upper or lower case.  So, for example, a string containing
+; > only a single reverse solidus character may be represented as
+; > "\u005C".
+; > 
+; > Alternatively, there are two-character sequence escape
+; > representations of some popular characters.  So, for example, a
+; > string containing only a single reverse solidus character may be
+; > represented more compactly as "\\".
+; > 
+; > To escape an extended character that is not in the Basic Multilingual
+; > Plane, the character is represented as a 12-character sequence,
+; > encoding the UTF-16 surrogate pair.  So, for example, a string
+; > containing only the G clef character (U+1D11E) may be represented as
+; > "\uD834\uDD1E".
 double-quote-chunk =
       "${" expression "}"  ; Interpolation
     / "''${"               ; Escape interpolation
-    / "\\"
-    / %x5C.22              ; '\"'
-    / "\n"
-    / "\r"
-    / "\t"
+    / %x22                 ; '\'    Beginning of escape sequence
+      ( %x22               ; '"'    quotation mark  U+0022
+      / %x5C               ; '\'    reverse solidus U+005C
+      / %x2F               ; '/'    solidus         U+002F
+      / %x62               ; 'b'    backspace       U+0008
+      / %x66               ; 'f'    form feed       U+000C
+      / %x6E               ; 'n'    line feed       U+000A
+      / %x72               ; 'r'    carriage return U+000D
+      / %x74               ; 't'    tab             U+0009
+      / %x75 4hex          ; 'uXXXX'                U+XXXX
+      )
     ; Printable characters except double quote and backslash
     / %x20-21
         ; %x22 = '"'
     / %x23-5B
         ; %x5C = "\"
-    / %x5D-7E
+    / %x5D-10FFFF
 
-; All printable characters except single quote, and newlines and tabs
+; All printable Unicode characters except single quote, and newlines and tabs
+;
+; Note that double-single-quote strings support fewer escape sequences because
+; they are supposed to be as close to raw text as possible
 not-a-single-quote =
       %x20-26
         ; %x27 = "'"
-    / %x27-7E
+    / %x27-10FFFF
     / tab
     / end-of-line
 
-; NOTE: You cannot end a "double-single-quote" string literal with a single quote
+; NOTE: You cannot end a double-single-quote string literal with a single quote
 single-quote-chunk =
       "'''"                   ; Escape two single quotes
     / "${" expression "}"     ; Interpolation
