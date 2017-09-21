@@ -391,7 +391,6 @@ primitive-expression =
     ; "( e )"
     / open-parens expression close-parens
 
-; TODO: This doesn't support trailing commas
 record-type-or-literal =
       equal                             ; Empty record literal
     / non-empty-record-type-or-literal
@@ -403,7 +402,6 @@ non-empty-record-type-or-literal =
 non-empty-record-type    = colon expression *(comma label colon expression)
 non-empty-record-literal = equal expression *(comma label equal expression)
 
-; TODO: This doesn't support trailing bars
 union-type-or-literal =
       non-empty-union-type-or-literal
     / ""                               ; Empty union type
@@ -414,7 +412,6 @@ non-empty-union-type-or-literal =
     / colon expression (bar non-empty-union-type-or-literal / "")
     )
 
-; TODO: This doesn't support trailing commas
 non-empty-list-literal = open-bracket expression *(comma expression) close-bracket
 
 ; All expressions end with trailing whitespace.  This just adds a final
