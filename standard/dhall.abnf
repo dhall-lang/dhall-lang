@@ -43,14 +43,14 @@ whitespace-chunk =
 whitespace = *whitespace-chunk
 
 ; Uppercase or lowercase ASCII letter
-letter = %x41-5A / %x61-7A
+ALPHA = %x41-5A / %x61-7A
 
 ; ASCII digit
-digit = %x30-39  ; 0-9
+DIGIT = %x30-39  ; 0-9
 
-hex = digit / "A" / "B" / "C" / "D" / "E" / "F"
+HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
-simple-label = (letter / "_") *(letter / digit / "-" / "/" / "_")
+simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 ; TODO: Support Unicode for labels?
 label = ("`" simple-label "`" / simple-label) white-space
@@ -97,7 +97,7 @@ double-quote-chunk =
       / %x6E               ; 'n'    line feed       U+000A
       / %x72               ; 'r'    carriage return U+000D
       / %x74               ; 't'    tab             U+0009
-      / %x75 4hex          ; 'uXXXX'                U+XXXX
+      / %x75 4HEXDIG       ; 'uXXXX'                U+XXXX
       )
     ; Printable characters except double quote and backslash
     / %x20-21
@@ -203,12 +203,12 @@ lambda  = ( %x3BB  / "\"                 ) whitespace
 forall  = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
 arrow   = ( %x2192 / "->"                ) whitespace
 
-exponent = "e" [ "+" / "-" ] 1*digit
+exponent = "e" [ "+" / "-" ] 1*DIGIT
 
-double-literal = [ "-" ] 1*digit ( "." 1*digit [ exponent ] / exponent)
+double-literal = [ "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
 ; TODO: Perhaps this should require a non-zero starting digit
-integer-literal = [ "-" ] 1*digit whitespace
+integer-literal = [ "-" ] 1*DIGIT whitespace
 
 natural-literal = "+" integer-literal whitespace
 
@@ -250,15 +250,70 @@ file-raw =
 
 file = file-raw whitespace
 
+; `http[s]` URI grammar based on RFC7230 and RFC 3986
+
 scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
-; TODO: Parse URLs more precisely
-url = scheme "://" *path-character whitespace [ using path-type ]
+http-raw = scheme "://" authority path-abempty [ "?" query ] [ "#" fragment ]
+
+authority = [ userinfo "@" ] host [ ":" port ]
+
+userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+
+host = IP-literal / IPv4address / reg-name
+
+port = *DIGIT
+
+IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+
+IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+IPv6address =                            6( h16 ":" ) ls32
+            /                       "::" 5( h16 ":" ) ls32
+            / [               h16 ] "::" 4( h16 ":" ) ls32
+            / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+            / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+            / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+            / [ *4( h16 ":" ) h16 ] "::"              ls32
+            / [ *5( h16 ":" ) h16 ] "::"              h16
+            / [ *6( h16 ":" ) h16 ] "::"
+
+h16 = 1*4HEXDIG
+
+ls32 = ( h16 ":" h16 ) / IPv4address
+
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+
+dec-octet = DIGIT              ; 0-9
+          / %x31-39 DIGIT      ; 10-99
+          / "1" 2DIGIT         ; 100-199
+          / "2" %x30-34 DIGIT  ; 200-249
+          / "25" %x30-35       ; 250-255
+
+reg-name = *( unreserved / pct-encoded / sub-delims )
+
+path-abempty = *( "/" segment )
+
+segment = *pchar
+
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+
+query = *( pchar / "/" / "?" )
+
+fragment = *( pchar / "/" / "?" )
+
+pct-encoded = "%" HEXDIG HEXDIG
+
+unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+
+http = http-raw whitespace [ using path-type ]
 
 ; TODO: Possibly restrict permissible environment variable names
 env = "env:" 1*pathChar whitespace
 
-path-type = file / url / env
+path-type = file / http / env
 
 import = path-type [ as Text ]
 
