@@ -1,5 +1,7 @@
 ; ABNF syntax based on RFC 5234
 
+; The character encoding for Dhall is UTF-8
+
 ; NOTE: There are many line endings in the wild
 ;
 ; See: https://en.wikipedia.org/wiki/Newline
@@ -154,13 +156,13 @@ close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
 
-combine = ( %xE2.88.A7 / "/\"                ) whitespace  ; U+2227
-prefer  = ( %xE2.AB.BD / "//"                ) whitespace  ; U+2AFD
-lambda  = ( %xCE.BB    / "\"                 ) whitespace  ; U+03BB
-forall  = ( %xE2.88.80 / %x66.6f.72.61.6c.6c ) whitespace  ; U+2200
-arrow   = ( %xE2.86.92 / "->"                ) whitespace  ; U+2192
+combine = ( %x2227 / "/\"                ) whitespace
+prefer  = ( %x2AFD / "//"                ) whitespace
+lambda  = ( %x3BB  / "\"                 ) whitespace
+forall  = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
+arrow   = ( %x2192 / "->"                ) whitespace
 
-exponent = ("e" / "E") [ "+" / "-" ] 1*digit
+exponent = "e" [ "+" / "-" ] 1*digit
 
 double-literal = [ "-" ] 1*digit ( "." 1*digit [ exponent ] / exponent)
 
