@@ -309,8 +309,12 @@ sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http = http-raw whitespace [ using path-type ]
 
-; TODO: Possibly restrict permissible environment variable names
-env = "env:" 1*pathChar whitespace
+; The grammar for environment variable imports is based on the set of
+; environment variable names that Bash accepts.  From the Bash `man` page:
+;
+; > A word consisting only of  alphanumeric  characters  and  under-scores,  and
+; > beginning with an alphabetic character or an under-score
+env = "env:" (ALPHA / "_") *(ALPHA / DIGIT / "_")
 
 path-type = file / http / env
 
