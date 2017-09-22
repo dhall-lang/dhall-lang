@@ -207,7 +207,6 @@ exponent = "e" [ "+" / "-" ] 1*digit
 
 double-literal = [ "-" ] 1*digit ( "." 1*digit [ exponent ] / exponent)
 
-; TODO: Perhaps this should require a non-zero starting digit
 integer-literal = [ "-" ] 1*digit whitespace
 
 natural-literal = "+" integer-literal whitespace
