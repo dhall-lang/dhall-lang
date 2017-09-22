@@ -51,7 +51,6 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
-; TODO: Support Unicode for labels?
 label = ("`" simple-label "`" / simple-label) white-space
 
 ; Dhall's double-quoted strings are equivalent to JSON strings except with support; for string interpolation (and escaping string interpolation)
