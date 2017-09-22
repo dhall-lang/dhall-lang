@@ -255,7 +255,6 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 ; TODO: Parse URLs more precisely
 url = scheme "://" *path-character whitespace [ using path-type ]
 
-; TODO: Possibly restrict permissible environment variable names
 ; The grammar for environment variable imports is based on the set of
 ; environment variable names that Bash accepts.  From the Bash `man` page:
 ;
