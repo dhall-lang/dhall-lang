@@ -14,20 +14,19 @@ end-of-line =
 
 tab = %x09  ; "\t"
 
-not-end-of-line = %x20-7E / tab
+not-end-of-line = %x20-10FFFF / tab
 
 not-brace =
       %x20-7A
         ; %x7B = "{"
     / %x7C
         ; %x7D = "}"
-    / %x7E
+    / %x10FFFF
     / tab
     / end-of-line
 
 block-comment = "{" *not-brace *(block-comment *not-brace) "}"
 
-; TODO: Support Unicode in comments?
 comment =
     ; NOTE: Slightly different from Haskell-style single-line comments because this
     ; does not require a space after the dashes
@@ -43,16 +42,15 @@ whitespace-chunk =
 whitespace = *whitespace-chunk
 
 ; Uppercase or lowercase ASCII letter
-letter = %x41-5A / %x61-7A
+ALPHA = %x41-5A / %x61-7A
 
 ; ASCII digit
-digit = %x30-39  ; 0-9
+DIGIT = %x30-39  ; 0-9
 
-hex = digit / "A" / "B" / "C" / "D" / "E" / "F"
+HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
-simple-label = (letter / "_") *(letter / digit / "-" / "/" / "_")
+simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
-; TODO: Support Unicode for labels?
 label = ("`" simple-label "`" / simple-label) white-space
 
 ; Dhall's double-quoted strings are equivalent to JSON strings except with support; for string interpolation (and escaping string interpolation)
@@ -97,7 +95,7 @@ double-quote-chunk =
       / %x6E               ; 'n'    line feed       U+000A
       / %x72               ; 'r'    carriage return U+000D
       / %x74               ; 't'    tab             U+0009
-      / %x75 4hex          ; 'uXXXX'                U+XXXX
+      / %x75 4HEXDIG       ; 'uXXXX'                U+XXXX
       )
     ; Printable characters except double quote and backslash
     / %x20-21
@@ -203,11 +201,11 @@ lambda  = ( %x3BB  / "\"                 ) whitespace
 forall  = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
 arrow   = ( %x2192 / "->"                ) whitespace
 
-exponent = "e" [ "+" / "-" ] 1*digit
+exponent = "e" [ "+" / "-" ] 1*DIGIT
 
-double-literal = [ "-" ] 1*digit ( "." 1*digit [ exponent ] / exponent)
+double-literal = [ "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
-integer-literal = [ "-" ] 1*digit whitespace
+integer-literal = [ "-" ] 1*DIGIT whitespace
 
 natural-literal = "+" integer-literal whitespace
 
@@ -249,15 +247,74 @@ file-raw =
 
 file = file-raw whitespace
 
+; `http[s]` URI grammar based on RFC7230 and RFC 3986
+
 scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
-; TODO: Parse URLs more precisely
-url = scheme "://" *path-character whitespace [ using path-type ]
+http-raw = scheme "://" authority path-abempty [ "?" query ] [ "#" fragment ]
 
-; TODO: Possibly restrict permissible environment variable names
-env = "env:" 1*pathChar whitespace
+authority = [ userinfo "@" ] host [ ":" port ]
 
-path-type = file / url / env
+userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+
+host = IP-literal / IPv4address / reg-name
+
+port = *DIGIT
+
+IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+
+IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+IPv6address =                            6( h16 ":" ) ls32
+            /                       "::" 5( h16 ":" ) ls32
+            / [               h16 ] "::" 4( h16 ":" ) ls32
+            / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+            / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+            / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+            / [ *4( h16 ":" ) h16 ] "::"              ls32
+            / [ *5( h16 ":" ) h16 ] "::"              h16
+            / [ *6( h16 ":" ) h16 ] "::"
+
+h16 = 1*4HEXDIG
+
+ls32 = ( h16 ":" h16 ) / IPv4address
+
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+
+dec-octet = DIGIT              ; 0-9
+          / %x31-39 DIGIT      ; 10-99
+          / "1" 2DIGIT         ; 100-199
+          / "2" %x30-34 DIGIT  ; 200-249
+          / "25" %x30-35       ; 250-255
+
+reg-name = *( unreserved / pct-encoded / sub-delims )
+
+path-abempty = *( "/" segment )
+
+segment = *pchar
+
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+
+query = *( pchar / "/" / "?" )
+
+fragment = *( pchar / "/" / "?" )
+
+pct-encoded = "%" HEXDIG HEXDIG
+
+unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+
+http = http-raw whitespace [ using path-type ]
+
+; The grammar for environment variable imports is based on the set of
+; environment variable names that Bash accepts.  From the Bash `man` page:
+;
+; > A word consisting only of  alphanumeric  characters  and  under-scores,  and
+; > beginning with an alphabetic character or an under-score
+env = "env:" (ALPHA / "_") *(ALPHA / DIGIT / "_")
+
+path-type = file / http / env
 
 import = path-type [ as Text ]
 
@@ -390,7 +447,6 @@ primitive-expression =
     ; "( e )"
     / open-parens expression close-parens
 
-; TODO: This doesn't support trailing commas
 record-type-or-literal =
       equal                             ; Empty record literal
     / non-empty-record-type-or-literal
@@ -402,7 +458,6 @@ non-empty-record-type-or-literal =
 non-empty-record-type    = colon expression *(comma label colon expression)
 non-empty-record-literal = equal expression *(comma label equal expression)
 
-; TODO: This doesn't support trailing bars
 union-type-or-literal =
       non-empty-union-type-or-literal
     / ""                               ; Empty union type
@@ -413,7 +468,6 @@ non-empty-union-type-or-literal =
     / colon expression (bar non-empty-union-type-or-literal / "")
     )
 
-; TODO: This doesn't support trailing commas
 non-empty-list-literal = open-bracket expression *(comma expression) close-bracket
 
 ; All expressions end with trailing whitespace.  This just adds a final
