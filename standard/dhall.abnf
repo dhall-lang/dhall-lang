@@ -309,7 +309,10 @@ http = http-raw whitespace [ using path-type ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
-env = "env:" (bash-environment-variable / %x22 posix-environment-variable %x22)
+env = "env:"
+    ( bash-environment-variable
+    / %x22 posix-environment-variable %x22
+    )
 
 ; Bash supports a restricted subset of POSIX environment variables.  From the
 ; Bash `man` page, an environment variable name is:
