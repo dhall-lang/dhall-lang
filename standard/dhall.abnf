@@ -307,12 +307,66 @@ sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http = http-raw whitespace [ using path-type ]
 
-; The grammar for environment variable imports is based on the set of
-; environment variable names that Bash accepts.  From the Bash `man` page:
+; Dhall supports unquoted environment variables that are Bash-compliant or
+; quoted environment variables that are POSIX-compliant
+env = "env:" (bash-environment-variable / %x22 posix-environment-variable %x22)
+
+; Bash supports a restricted subset of POSIX environment variables.  From the
+; Bash `man` page, an environment variable name is:
 ;
 ; > A word consisting only of  alphanumeric  characters  and  under-scores,  and
 ; > beginning with an alphabetic character or an under-score
-env = "env:" (ALPHA / "_") *(ALPHA / DIGIT / "_")
+bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
+
+; The POSIX standard is significantly more flexible about legal environment
+; variable names, which can contain alerts (i.e. '\a'), whitespace, or
+; punctuation, for example.  The POSIX standard says about environment variable
+; names:
+;
+; > The value of an environment variable is a string of characters. For a
+; > C-language program, an array of strings called the environment shall be made
+; > available when a process begins. The array is pointed to by the external
+; > variable environ, which is defined as:
+; >
+; >     extern char **environ;
+; >
+; > These strings have the form name=value; names shall not contain the
+; > character '='. For values to be portable across systems conforming to IEEE
+; > Std 1003.1-2001, the value shall be composed of characters from the portable
+; > character set (except NUL and as indicated below).
+;
+; Note that the standard does not explicitly state that the name must have at
+; least one character, but `env` does not appear to support this and `env`
+; claims to be POSIX-compliant.  To be safe, Dhall requires at least one
+; character like `env`
+posix-environment-variable = 1*posix-environment-variable-character
+
+; These are all the characters from the POSIX Portable Character Set except for 
+; '\0' (NUL) and '='.  Note that the POSIX standard does not explicitly state
+; that environment variable names cannot have NUL.  However, this is implicit
+; in the fact that environment variables are passed to the program as
+; NUL-terminated `name=value` strings, which implies that the `name` portion of
+; the string cannot have NUL characters
+posix-environment-variable-character =
+    / %x22                 ; '\'    Beginning of escape sequence
+      ( %x22               ; '"'    quotation mark  U+0022
+      / %x5C               ; '\'    reverse solidus U+005C
+      / %x61               ; 'a'    alert           U+0007
+      / %x62               ; 'b'    backspace       U+0008
+      / %x66               ; 'f'    form feed       U+000C
+      / %x6E               ; 'n'    line feed       U+000A
+      / %x72               ; 'r'    carriage return U+000D
+      / %x74               ; 't'    tab             U+0009
+      / %x76               ; 'v'    vertical tab    U+000B
+      )
+    ; Printable characters except double quote, backslash and equals
+    / %x20-21
+        ; %x22 = '"'
+    / %x23-3C
+        ; %x3D = '='
+    / %x3E-5B
+        ; %x5C = "\"
+    / %x5D-7E
 
 path-type = file / http / env
 
