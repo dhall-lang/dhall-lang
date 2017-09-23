@@ -313,6 +313,7 @@ env = "env:"
     ( bash-environment-variable
     / %x22 posix-environment-variable %x22
     )
+    whitespace
 
 ; Bash supports a restricted subset of POSIX environment variables.  From the
 ; Bash `man` page, an environment variable name is:
