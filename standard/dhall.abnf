@@ -211,7 +211,7 @@ integer-literal = [ "-" ] natural-raw whitespace
 
 natural-literal = "+" natural-raw whitespace
 
-identifier = label [ at natural-literal ]
+identifier = label [ at natural-raw ]
 
 ; Printable characters other than " ()[]{}<>/\"
 ;
