@@ -205,9 +205,11 @@ exponent = "e" [ "+" / "-" ] 1*DIGIT
 
 double-literal = [ "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
-integer-literal = [ "-" ] 1*DIGIT whitespace
+natural-raw = 1*DIGIT
 
-natural-literal = "+" integer-literal whitespace
+integer-literal = [ "-" ] natural-raw whitespace
+
+natural-literal = "+" natural-raw whitespace
 
 identifier = label [ at natural-literal ]
 
