@@ -51,7 +51,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
-label = ("`" simple-label "`" / simple-label) white-space
+label = ("`" simple-label "`" / simple-label) whitespace
 
 ; Dhall's double-quoted strings are equivalent to JSON strings except with support; for string interpolation (and escaping string interpolation)
 ;
@@ -111,7 +111,7 @@ double-quote-chunk =
 not-a-single-quote =
       %x20-26
         ; %x27 = "'"
-    / %x27-10FFFF
+    / %x28-10FFFF
     / tab
     / end-of-line
 
