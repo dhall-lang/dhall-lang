@@ -21,7 +21,7 @@ not-brace =
         ; %x7B = "{"
     / %x7C
         ; %x7D = "}"
-    / %x10FFFF
+    / %x7E-10FFFF
     / tab
     / end-of-line
 
