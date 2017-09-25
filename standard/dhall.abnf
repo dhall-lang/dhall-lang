@@ -27,17 +27,16 @@ not-brace =
 
 block-comment = "{" *not-brace *(block-comment *not-brace) "}"
 
-comment =
-    ; NOTE: Slightly different from Haskell-style single-line comments because this
-    ; does not require a space after the dashes
-      "--" *(not-end-of-line) end-of-line
-    / block-comment
+; NOTE: Slightly different from Haskell-style single-line comments because this
+; does not require a space after the dashes
+line-comment = "--" *(not-end-of-line) end-of-line
 
 whitespace-chunk =
       " "
     / tab
     / end-of-line
-    / comment
+    / line-comment
+    / block-comment
 
 whitespace = *whitespace-chunk
 
