@@ -86,7 +86,7 @@ label = ("`" simple-label "`" / simple-label) whitespace
 double-quote-chunk =
       "${" expression "}"  ; Interpolation
     / "''${"               ; Escape interpolation
-    / %x22                 ; '\'    Beginning of escape sequence
+    / %x5C                 ; '\'    Beginning of escape sequence
       ( %x22               ; '"'    quotation mark  U+0022
       / %x5C               ; '\'    reverse solidus U+005C
       / %x2F               ; '/'    solidus         U+002F
