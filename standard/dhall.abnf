@@ -53,7 +53,8 @@ simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 label = ("`" simple-label "`" / simple-label) whitespace
 
-; Dhall's double-quoted strings are equivalent to JSON strings except with support; for string interpolation (and escaping string interpolation)
+; Dhall's double-quoted strings are equivalent to JSON strings except with
+; support for string interpolation (and escaping string interpolation)
 ;
 ; Dhall uses the same escaping rules as JSON (RFC7159):
 ;
@@ -104,30 +105,23 @@ double-quote-chunk =
         ; %x5C = "\"
     / %x5D-10FFFF
 
-; All printable Unicode characters except single quote, and newlines and tabs
-;
-; Note that double-single-quote strings support fewer escape sequences because
-; they are supposed to be as close to raw text as possible
-not-a-single-quote =
-      %x20-26
-        ; %x27 = "'"
-    / %x28-10FFFF
-    / tab
-    / end-of-line
+double-quote-literal = %x22 *double-quote-chunk %x22
 
-; NOTE: You cannot end a double-single-quote string literal with a single quote
+; NOTE: The only way to end a single-quote string literal with a single quote is
+; to interpolate the single quote, like this:
+;
+;     ''ABC${"'"}''
 single-quote-chunk =
       "'''"                   ; Escape two single quotes
     / "${" expression "}"     ; Interpolation
     / "''${"                  ; Escape interpolation
-    / "'" 1*not-a-single-quote
-    / 1*not-a-single-quote
+    / %x20-10FFFF
+    / tab
+    / end-of-line
 
-text-literal-raw =
-      %x22 *double-quote-chunk %x22
-    / "''" *single-quote-chunk "''"
+single-quote-literal = "''" *single-quote-chunk "''"
 
-text-literal = text-literal-raw whitespace
+text-literal = (double-quote-literal / single-quote-literal) / whitespace
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using hex
 ; instead for case-sensitive strings
