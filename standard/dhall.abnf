@@ -56,7 +56,10 @@ label = ("`" simple-label "`" / simple-label) whitespace
 ; Dhall's double-quoted strings are equivalent to JSON strings except with
 ; support for string interpolation (and escaping string interpolation)
 ;
-; Dhall uses the same escaping rules as JSON (RFC7159):
+; Dhall uses almost the same escaping rules as JSON (RFC7159) with one
+; exception: Dhall adds a new `\$` escape sequence for dollar signs.  This
+; additional escape sequences lets you escape string interpolation by writing
+; `\${`
 ;
 ; > The representation of strings is similar to conventions used in the C
 ; > family of programming languages.  A string begins and ends with
@@ -89,6 +92,7 @@ double-quote-chunk =
     / "''${"               ; Escape interpolation
     / %x5C                 ; '\'    Beginning of escape sequence
       ( %x22               ; '"'    quotation mark  U+0022
+      / %x24               ; '$'    dollar sign     U+0024
       / %x5C               ; '\'    reverse solidus U+005C
       / %x2F               ; '/'    solidus         U+002F
       / %x62               ; 'b'    backspace       U+0008
