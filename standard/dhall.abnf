@@ -354,7 +354,7 @@ posix-environment-variable = 1*posix-environment-variable-character
 ; NUL-terminated `name=value` strings, which implies that the `name` portion of
 ; the string cannot have NUL characters
 posix-environment-variable-character =
-    / %x5C                 ; '\'    Beginning of escape sequence
+      %x5C                 ; '\'    Beginning of escape sequence
       ( %x22               ; '"'    quotation mark  U+0022
       / %x5C               ; '\'    reverse solidus U+005C
       / %x61               ; 'a'    alert           U+0007
