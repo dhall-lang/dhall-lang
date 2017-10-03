@@ -419,16 +419,16 @@ non-empty-optional = expression close-bracket colon Optional selector-expression
 
 operator-expression = or-expression
 
-or-expression          = plus-expression        *(or          plus-expression       )
-plus-expression        = text-append-expression *(plus        text-append-expression)
-text-append-expression = list-append-expression *(text-append list-append-expression)
-list-append-expression = and-expression         *(list-append and-expression        )
-and-expression         = combine-expression     *(and         combine-expression    )
-combine-expression     = prefer-expression      *(combine     prefer-expression     )
-prefer-expression      = times-expression       *(prefer      times-expression      )
-times-expression       = equal-expression       *(times       equal-expression      )
-equal-expression       = not-equal-expression   *(equal       not-equal-expression  )
-not-equal-expression   = application-expression *(not-equal   application-expression)
+or-expression          = plus-expression        *(or           plus-expression       )
+plus-expression        = text-append-expression *(plus         text-append-expression)
+text-append-expression = list-append-expression *(text-append  list-append-expression)
+list-append-expression = and-expression         *(list-append  and-expression        )
+and-expression         = combine-expression     *(and          combine-expression    )
+combine-expression     = prefer-expression      *(combine      prefer-expression     )
+prefer-expression      = times-expression       *(prefer       times-expression      )
+times-expression       = equal-expression       *(times        equal-expression      )
+equal-expression       = not-equal-expression   *(double-equal not-equal-expression  )
+not-equal-expression   = application-expression *(not-equal    application-expression)
 
 application-expression = 1*selector-expression
 
