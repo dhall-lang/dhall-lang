@@ -109,21 +109,23 @@ double-quote-chunk =
 
 double-quote-literal = %x22 *double-quote-chunk %x22
 
-single-quote-chunk =
-      "'''"                   ; Escape two single quotes
-    / "${" expression "}"     ; Interpolation
-    / "''${"                  ; Escape interpolation
-    / %x20-26
-        ; %x27 = "'"
-    / %x28-10FFFF
-    / tab
-    / end-of-line
-
 ; NOTE: The only way to end a single-quote string literal with a single quote is
 ; to interpolate the single quote, like this:
 ;
 ;     ''ABC${"'"}''
-single-quote-literal = "''" *single-quote-chunk *("'" 1*single-quote-chunk) "''"
+;
+; ... otherwise if you end the string literal with a single quote then you
+; get "'''" which is interpreted as an escaped pair of single quotes
+single-quote-continue =
+      "'''"               single-quote-continue  ; Escape two single quotes
+    / "${" expression "}" single-quote-continue  ; Interpolation
+    / "''${"              single-quote-continue  ; Escape interpolation
+    / "''"                                       ; End literal
+    / %x20-10FFFF         single-quote-continue
+    / tab                 single-quote-continue
+    / end-of-line         single-quote-continue
+
+single-quote-literal = "''" single-quote-continue
 
 text-literal = (double-quote-literal / single-quote-literal) / whitespace
 
