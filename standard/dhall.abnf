@@ -14,18 +14,17 @@ end-of-line =
 
 tab = %x09  ; "\t"
 
-not-end-of-line = %x20-10FFFF / tab
+block-comment = "{-" block-comment-continue
 
-not-brace =
-      %x20-7A
-        ; %x7B = "{"
-    / %x7C
-        ; %x7D = "}"
-    / %x7E-10FFFF
+block-comment-chunk =
+      block-comment
+    / %x20-10FFFF
     / tab
     / end-of-line
 
-block-comment = "{" *not-brace *(block-comment *not-brace) "}"
+block-comment-continue = "-}" / block-comment-chunk block-comment-continue
+
+not-end-of-line = %x20-10FFFF / tab
 
 ; NOTE: Slightly different from Haskell-style single-line comments because this
 ; does not require a space after the dashes
