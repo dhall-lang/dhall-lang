@@ -1,6 +1,77 @@
 ; ABNF syntax based on RFC 5234
-
+;
 ; The character encoding for Dhall is UTF-8
+;
+; Some notes on implementing this grammar:
+;
+; First, do not use a lexer to tokenize the file before parsing.  Instead, treat
+; the individual characters of the file as the tokens to feed into the parser.
+; You should not use a lexer because Dhall's grammar supports two features which; cannot be correctly supported by a lexer:
+;
+; * String interpolation (i.e. "foo ${Natural/toInteger bar} baz")
+; * Nested block comments (i.e. "{- foo {- bar -} baz -}")
+;
+; Second, this grammar assumes that your parser can backtrack and/or try
+; multiple parses simultaneously.  For example, consider this expression:
+;
+;     List ./MyType
+;
+; A parser might first try to parse the period as the beginning of a field
+; selector, only to realize immediately afterwards that `/MyType` is not a valid; name for a field.  A conforming parser must backtrack so that the expression
+; `./MyType` can instead be correctly interpreted as a relative path
+;
+; Third, if there are multiple valid parses then prefer the first parse
+; according to the ordering of alternatives.  For example, the  grammar for
+; single quoted string literals is:
+;
+;     single-quote-continue =
+;           "'''"               single-quote-continue
+;         / "${" expression "}" single-quote-continue
+;         / "''${"              single-quote-continue
+;         / "''"
+;         / %x20-10FFFF         single-quote-continue
+;         / tab                 single-quote-continue
+;         / end-of-line         single-quote-continue
+;
+;         single-quote-literal = "''" single-quote-continue
+;
+; ... which permits valid parses for the following code:
+;
+;     "''''''''''''''''"
+;
+; If you tried to parse all alternatives then there are at least two valid
+; interpretations for the above code:
+;
+; * A single quoted literal with four escape sequences of the form "'''"
+;     * i.e. "''" followed by "'''"  four times in a row followed by "''"
+; * Four empty single quoted literals
+;     * i.e. "''''" four times in a row
+;
+; The correct interpretation is the first one because parsing the escape
+; sequence "'''" takes precedence over parsing the termination sequence "''",
+; according to the order of the alternatives in the `single-quote-continue`
+; rule.
+;
+; Some parsing libraries do not backtrack by default but allow the user to
+; selectively backtrack in certain parts of the grammar.  Usually parsing
+; libraries do this to improve efficiency and error messages.  Dhall's grammar
+; takes that into account by minimizing the number of rules that require the
+; parser to backtrack and comments below will highlight where you need to
+; explicitly backtrack
+;
+; Specifically, if you see an uninterrupted literal in a grammar rule such as:
+;
+;     "->"
+;
+; ... or:
+;
+;     %x66.6f.72.61.6c.6c
+;
+; ... then that string literal is parsed as a single unit, meaning that you
+; should backtrack if you parse only part of the literal
+;
+; In all other cases you can assume that you do not need to backtrack unless
+; there is a comment explicitly asking you to backtrack
 
 ; NOTE: There are many line endings in the wild
 ;
@@ -28,7 +99,7 @@ not-end-of-line = %x20-10FFFF / tab
 
 ; NOTE: Slightly different from Haskell-style single-line comments because this
 ; does not require a space after the dashes
-line-comment = "--" *(not-end-of-line) end-of-line
+line-comment = "--" *not-end-of-line end-of-line
 
 whitespace-chunk =
       " "
@@ -47,9 +118,54 @@ DIGIT = %x30-39  ; 0-9
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
+; NOTE: If your parser requires explicit backtracking then you must add logic
+; to reject any labels that match any of the following reserved keywords:
+;
+; * if
+; * then
+; * else
+; * let
+; * in
+; * as
+; * using
+; * merge
+; * Natural-fold
+; * Natural-build
+; * Natural-isZero
+; * Natural-even
+; * Natural-odd
+; * Natural-toInteger
+; * Natural-show
+; * Integer-show
+; * Double-show
+; * List-build
+; * List-fold
+; * List-length
+; * List-head
+; * List-last
+; * List-indexed
+; * List-reverse
+; * Optional-fold
+; * Optional-build
+; * Bool
+; * Optional
+; * Natural
+; * Integer
+; * Double
+; * Text
+; * List
+; * True
+; * False
+; * Type
+; * Kind
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
-label = ("`" simple-label "`" / simple-label) whitespace
+; Identical to simple-label except that reserved keywords are allowed
+quoted-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
+
+; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
+; for code obfuscation
+label = ("`" quoted-label "`" / simple-label) whitespace
 
 ; Dhall's double-quoted strings are equivalent to JSON strings except with
 ; support for string interpolation (and escaping string interpolation)
@@ -110,17 +226,24 @@ double-quote-chunk =
 double-quote-literal = %x22 *double-quote-chunk %x22
 
 ; NOTE: The only way to end a single-quote string literal with a single quote is
-; to interpolate the single quote, like this:
+; to either interpolate the single quote, like this:
 ;
 ;     ''ABC${"'"}''
 ;
-; ... otherwise if you end the string literal with a single quote then you
-; get "'''" which is interpreted as an escaped pair of single quotes
+; ... or concatenate another string, like this:
+;
+;     ''ABC'' ++ "'"
+;
+; If you try to end the string literal with a single quote then you get "'''",
+; which is interpreted as an escaped pair of single quotes
 single-quote-continue =
-      "'''"               single-quote-continue  ; Escape two single quotes
-    / "${" expression "}" single-quote-continue  ; Interpolation
-    / "''${"              single-quote-continue  ; Escape interpolation
-    / "''"                                       ; End literal
+      ; Escape two single quotes (i.e. replace this sequence with "''")
+      "'''"               single-quote-continue
+      ; Interpolation
+    / "${" expression "}" single-quote-continue
+      ; Escape interpolation (i.e. replace this sequence with "${")
+    / "''${"              single-quote-continue
+    / "''"                                       ; End of text literal
     / %x20-10FFFF         single-quote-continue
     / tab                 single-quote-continue
     / end-of-line         single-quote-continue
@@ -129,11 +252,11 @@ single-quote-literal = "''" single-quote-continue
 
 text-literal = (double-quote-literal / single-quote-literal) / whitespace
 
-; RFC 5234 interprets string literals as case-insensitive and recommends using hex
-; instead for case-sensitive strings
+; RFC 5234 interprets string literals as case-insensitive and recommends using
+; hex instead for case-sensitive strings
 ;
-; If you don't feel like reading hex, these are all the same as the rule name, except
-; converting dashes in the rule name to forward slashes
+; If you don't feel like reading hex, these are all the same as the rule name,
+; except converting dashes in the rule name to forward slashes
 if                = %x69.66                                              whitespace
 then              = %x74.68.65.6e                                        whitespace
 else              = %x65.6c.73.65                                        whitespace
@@ -243,6 +366,11 @@ path-character = head-path-character / "\" / "/"
 ; The first character of an absolute path cannot be a forward slash or
 ; back-slash since that conflicts with the "/\" and "//" operators
 file-raw =
+      ; NOTE: Backtrack if parsing this first alternative fails
+      ;
+      ; This is because the second character might be "/" or "\", indicating
+      ; that this should have been parsed as an operator instead of an absolute
+      ; path
       "/" head-path-character *path-character
     / "./"  *path-character
     / "../" *path-character
@@ -256,6 +384,7 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 http-raw = scheme "://" authority path-abempty [ "?" query ] [ "#" fragment ]
 
+; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
 
 userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
@@ -380,7 +509,8 @@ path-type = file / http / env
 import = path-type [ as Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
-; whitespace in order to ensure consistent handling of whitespace
+; whitespace.  This ensures consistent handling of whitespace in the absence of
+; a separate lexing step
 
 expression =
     ; "\(x : a) -> b"
@@ -397,6 +527,8 @@ expression =
     / forall open-parens label colon expression close-parens arrow expression
 
     ; "a -> b"
+    ;
+    ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression arrow expression
 
     / annotated-expression
@@ -409,6 +541,10 @@ annotated-expression =
     ; "[]  : List     t"
     ; "[]  : Optional t"
     ; "[x] : Optional t"
+    ;
+    ; NOTE: Backtrack if parsing this alternative fails since we can't tell
+    ; from the opening bracket whether or not this will be an empty list or
+    ; non-empty list
     / open-bracket (empty-collection / non-empty-optional)
 
     ; "x : t"
@@ -433,8 +569,14 @@ not-equal-expression   = application-expression *(not-equal    application-expre
 
 application-expression = 1*selector-expression
 
+; NOTE: Backtrack when parsing the `*(dot label)`.  The reason why is that you
+; can't tell from parsing just the period whether "foo." will become "foo.bar"
+; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
+; the function `foo` to the relative path `./bar`)
 selector-expression = primitive-expression *(dot label)
 
+; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
+; literals).  This is because they share leading characters in common
 primitive-expression =
     ; "2.0"
       double-literal
