@@ -18,7 +18,8 @@
 ;     List ./MyType
 ;
 ; A parser might first try to parse the period as the beginning of a field
-; selector, only to realize immediately afterwards that `/MyType` is not a valid; name for a field.  A conforming parser must backtrack so that the expression
+; selector, only to realize immediately afterwards that `/MyType` is not a valid
+; name for a field.  A conforming parser must backtrack so that the expression
 ; `./MyType` can instead be correctly interpreted as a relative path
 ;
 ; Third, if there are multiple valid parses then prefer the first parse
