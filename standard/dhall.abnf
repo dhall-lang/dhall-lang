@@ -205,7 +205,6 @@ label = ("`" quoted-label "`" / simple-label) whitespace
 ; > "\uD834\uDD1E".
 double-quote-chunk =
       "${" expression "}"  ; Interpolation
-    / "''${"               ; Escape interpolation
     / %x5C                 ; '\'    Beginning of escape sequence
       ( %x22               ; '"'    quotation mark  U+0022
       / %x24               ; '$'    dollar sign     U+0024
