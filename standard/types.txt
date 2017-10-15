@@ -1,0 +1,1097 @@
+## Summary
+
+Dhall's type system is System Fω implemented using a pure type system.  Type
+abstraction and type application are explicit and not inferred.  Dhall also
+supports additional built-in functions, operators, and constants for efficiency
+
+## Expressions
+
+The following notation is a simplified version of the syntax found in
+`./dhall.abnf`.  This simplified notation is used for type judgments:
+
+```
+m, n = 0 / n + 1             ; Natural numbers
+
+d = n / -n                   ; Integers
+
+x, y                         ; Variables
+
+; Mnemonics:
+;
+; Terms are lowercase:
+;
+;     a    = input term whose type is "A"
+;     b    = output term whose type is "B"
+;     f    = "f"unction
+;     l, r = "l"eft and "r"ight term that share the same type
+;     e    = term whose type is "E"
+;     t    = term whose type is "T"
+;     u    = term whose type is "U"
+;
+; Types are uppercase:
+;
+;     A  = type of the input term "a"
+;     B  = type of the output term "b"
+;     L  = type of the input term "l"
+;     R  = type of the output term "r"
+;     E  = type of the term "e"
+;     T  = type of the term "t"
+;     U  = type of the term "u"
+;
+; Kinds are lowercase:
+;
+;     k = "k"ind
+;     i = kind of a function's "i"nput type
+;     o = kind of a function's "o"utput type
+;
+a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
+  = x@n                      ; Identifier
+                             ; (`x` is short-hand for `x@0`)
+  / λ(x : A) → b             ; Anonymous function
+  / ∀(x : A) → B             ; Function type
+                             ; (`A → B` is short-hand for `∀(_ : A) → B`)
+  / let x : A = a in b       ; Let expression with type annotation
+  / let x     = a in b       ; Let expression without type annotation
+  / if t then l else r       ; If-Then-Else expression
+  / merge t u : T            ; Union elimination with type annotation
+  / merge t u                ; Union elimination
+  / [] : List T              ; Empty list literals with type annotation
+  / [ t, … ]                 ; Non-empty list literals
+  / [   ] : Optional T       ; Empty optional literal
+  / [ t ] : Optional T       ; Non-empty optional literal
+  / t : T                    ; Type annotation
+  / l || r                   ; Boolean or
+  / l + r                    ; Natural addition
+  / l ++ r                   ; Text append
+  / l # r                    ; List append
+  / l && r                   ; Boolean and
+  / l ∧ r                    ; Recursive record merge
+  / l ⫽ r                    ; Non-recursive right-biased record merge
+  / l * r                    ; Natural multiplication
+  / l == r                   ; Boolean equality
+  / l != r                   ; Boolean inequality
+  / f a                      ; Function application
+  / n.n                      ; Double-precision floating point literal
+  / +n                       ; Natural number literal
+  / n                        ; Integer literal
+  / "…"                      ; Text literal
+  / { x : T, … }             ; Record type
+  / { x = t, … }             ; Non-empty record literal
+  / < x : T | … >            ; Non-empty union type
+  / < x = t | y : T | … >    ; Union literal
+  / Natural/build            ; Natural introduction
+  / Natural/fold             ; Natural elimination
+  / Natural/isZero           ; Test if zero
+  / Natural/even             ; Test if even
+  / Natural/odd              ; Test if odd
+  / Natural/toInteger        ; Convert Natural to Integer
+  / Natural/show             ; Convert Natural to Text
+  / Integer/show             ; Convert Integer to Text
+  / Double/show              ; Convert Double to Text
+  / List/build               ; List introduction
+  / List/fold                ; List elimination
+  / List/length              ; Length of list
+  / List/head                ; First element of list
+  / List/last                ; Last element of list
+  / List/indexed             ; Tag elements with index
+  / List/reverse             ; Reverse list
+  / Optional/fold            ; Optional introduction
+  / Optional/build           ; Optional elimination
+  / Bool                     ; Bool type
+  / Optional                 ; Optional type
+  / Natural                  ; Natural type
+  / Integer                  ; Integer type
+  / Double                   ; Double type
+  / Text                     ; Text type
+  / List                     ; List type
+  / True                     ; True term
+  / False                    ; False term
+  / Type                     ; Type of terms
+  / Kind                     ; Type of types
+```
+
+Carefully note that the syntax does not include imports because you cannot infer
+the type of a Dhall expression that has unresolved imports.  In other words,
+import resolution is a distinct phase that must precede type checking and type
+inference.
+
+## Shift
+
+Dhall allows variables to reference shadowed variables of the same name using De
+Bruijn indices.  For example:
+
+
+                                  ┌──refers to──┐
+                                  │             │
+                                  v             │
+    λ(x : Type) → λ(y : Type) → λ(x : Type) → x@0
+
+    ┌─────────────────refers to─────────────────┐
+    │                                           │
+    v                                           │
+    λ(x : Type) → λ(y : Type) → λ(x : Type) → x@1
+
+
+If a variable does not specify the De Bruijn index (i.e. `x`) then the De Bruijn
+index defaults to 0 (i.e. `x@0`), like this:
+
+
+                                  ┌─refers to─┐
+                                  │           │
+                                  v           │
+    λ(x : Type) → λ(y : Type) → λ(x : Type) → x
+
+
+
+Dhall uses a shift function internally to avoid variable capture in the
+implementation De Bruijn indices.  This function increases or decreases the
+indices of variables within an expression if they match two criteria:
+
+* The variable name matches the specified name
+* The variable index is greater than or equal to a specific number
+
+This shift function has the form:
+
+    ↑(x, m, d, e₀) = e₁
+
+... where:
+
+* `x` is is the name of the variable to shift
+    * variables with this name may have their indices shifted if their indices
+      are large enough
+    * variables with a different name are unaffected by the shift function
+* `m` is the minimum index to shift
+    * variables with a lower index are unaffected by the shift function
+    * this minimum bound is used to prevent bound variables from being shifted
+* `d` is the amount to add to the variable indices
+    * `d` may be negative, which will decrease matching variable indices
+* `e₀` is the expression to shift
+* `e₁` is the shifted expression
+
+The first rule is that the shift function will increase the index of any
+variable if the variable name matches and the variable's index is greater than
+or equal to the minimum index to shift:
+
+
+    ───────────────────────────  ; m <= n
+    ↑(d, x, m, x@n) = x@(n + d)
+
+
+We don't shift the index if the index falls short of the lower bound or if the
+variable name does not match:
+
+
+    ─────────────────────  ; m >  n
+    ↑(d, x, m, x@n) = x@n
+
+
+    ─────────────────────  ; x ≠ y
+    ↑(d, x, m, x@n) = y@n
+
+
+The shift operation is designed to shift only free variables.  This implies that
+we must increment the minimum bound when we descend into a lambda expression
+that binds a variable of the same name in order to avoid shifting the bound
+variable:
+
+
+    ↑(d, x, m, A₀) = A₁   ↑(d, x, m + 1, b₀) = b₁
+    ─────────────────────────────────────────────
+    ↑(d, x, m, λ(x : A₀) → b₀) = λ(x : A₁) → b₁
+
+
+... otherwise we descend as normal if the bound variable name does not match:
+
+
+    ↑(d, x, m, A₀) = A₁   ↑(d, x, m, b₀) = b₁
+    ───────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, λ(y : A₀) → b₀) = λ(y : A₁) → b₁
+
+
+Similarly, we increase the minimum bound when we descend into a function type
+that binds a variable of the same name:
+
+
+    ↑(d, x, m, A₀) = A₁   ↑(d, x, m + 1, B₀) = B₁
+    ─────────────────────────────────────────────
+    ↑(d, x, m, ∀(x : A₀) → B₀) = ∀(x : A₁) → B₁
+
+
+... otherwise we descend as normal if the bound variable name does not match:
+
+
+    ↑(d, x, m, A₀) = A₁   ↑(d, x, m, B₀) = B₁
+    ───────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, ∀(y : A₀) → B₀) = ∀(y : A₁) → B₁
+
+
+Similarly, we increase the minimum bound when descending into a `let` expression
+that binds a variable of the same name:
+
+
+    ↑(d, x, m, A₀) = A₁   ↑(d, x, m, a₀) = a₁   ↑(d, x, m + 1, b₀) = b₁
+    ───────────────────────────────────────────────────────────────────
+    ↑(d, x, m, let x : A₀ = a₀ in b₀) = let x : A₁ = a₁ in b₁
+
+
+    ↑(d, x, m, a₀) = a₁   ↑(d, x, m + 1, b₀) = b₁
+    ────────────────────────────────────────────────────
+    ↑(d, x, m, let x = a₀ in b₀) = let x : A₁ = a₁ in b₁
+
+
+... otherwise we descend as normal if the bound variable name does not match:
+
+
+    ↑(d, x, m, A₀) = A₁   ↑(d, x, m, a₀) = a₁   ↑(d, x, m, b₀) = b₁
+    ───────────────────────────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, let y : A₀ = a₀ in b₀) = let y : A₁ = a₁ in b₁
+
+
+    ↑(d, x, m, a₀) = a₁   ↑(d, x, m, b₀) = b₁
+    ───────────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
+
+
+Note that Dhall's `let` expressions are not recursive so the bound variable is
+not in scope for the right-hand side of the assignment.  Therefore we do not
+need to shift the minimum index when descending into the right-hand side.
+
+No other Dhall expressions bind variables, so the remaining rules just descend
+as normal:
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ───────────────────────────────────────────────────────────────
+    ↑(d, x, m, if t₀ then l₀ else r₀) = if t₁ then l₁ else r₁
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, u₀) = u₁   ↑(d, x, m, T₀) = T₁
+    ───────────────────────────────────────────────────────────────
+    ↑(d, x, m, merge t₀ u₀ : T₀) = merge t₁ u₁ : T₁
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, u₀) = u₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, merge t₀ u₀) = merge t₁ u₁
+
+
+    ↑(d, x, m, T₀) = T₁
+    ───────────────────────────────────────
+    ↑(d, x, m, [] : List T₀) = [] : List T₁
+
+
+    ↑(d, x, m, t₀) = t₁   …
+    ─────────────────────────────────
+    ↑(d, x, m, [ t₀, … ]) = [ t₁, … ]
+
+
+    ↑(d, x, m, T₀) = T₁
+    ───────────────────────────────────────────────
+    ↑(d, x, m, [] : Optional T₀) = [] : Optional T₁
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁
+    ───────────────────────────────────────────────────────
+    ↑(d, x, m, [ t₀ ] : Optional T₀) = [ t₁ ] : Optional T₁
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, t₀ : T₀) = t₁ : T₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ || r₀) = l₁ || r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ + r₀) = l₁ + r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ ++ r₀) = l₁ ++ r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ # r₀) = l₁ # r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ && r₀) = l₁ && r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ ∧ r₀) = l₁ ∧ r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ ⫽ r₀) = l₁ ⫽ r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ * r₀) = l₁ * r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ == r₀) = l₁ == r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ != r₀) = l₁ != r₁
+
+
+    ↑(d, x, m, f₀) = f₁   ↑(d, x, m, a₀) = a₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, f₀ a₀) = f₁ a₁
+
+
+    ─────────────────────
+    ↑(d, x, m, n.n) = n.n
+
+
+    ───────────────────
+    ↑(d, x, m, +n) = +n
+
+
+    ─────────────────
+    ↑(d, x, m, n) = n
+
+
+    ─────────────────────
+    ↑(d, x, m, "…") = "…"
+
+
+    ↑(d, x, m, T₀) = T₁   …
+    ─────────────────────────────────────────
+    ↑(d, x, m, { x : T₀, … }) = { x : T₁, … }
+
+
+    ↑(d, x, m, t₀) = t₁   …
+    ─────────────────────────────────────────
+    ↑(d, x, m, { x = t₀, … }) = { x = t₁, … }
+
+
+    ↑(d, x, m, T₀) = T₁   …
+    ───────────────────────────────────────────
+    ↑(d, x, m, < x : T₀ | … >) = < x : T₁ | … >
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁   …
+    ─────────────────────────────────────────────────────────────
+    ↑(d, x, m, < x = t₀ | y : T₀ | … >) = < x = t₁ | y : T₁ | … >
+
+
+    ─────────────────────────────────────────
+    ↑(d, x, m, Natural/build) = Natural/build
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, Natural/fold) = Natural/fold
+
+
+    ───────────────────────────────────────────
+    ↑(d, x, m, Natural/isZero) = Natural/isZero
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, Natural/even) = Natural/even
+
+
+    ─────────────────────────────────────
+    ↑(d, x, m, Natural/odd) = Natural/odd
+
+
+    ─────────────────────────────────────────────────
+    ↑(d, x, m, Natural/toInteger) = Natural/toInteger
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, Natural/show) = Natural/show
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, Integer/show) = Integer/show
+
+
+    ─────────────────────────────────────
+    ↑(d, x, m, Double/show) = Double/show
+
+
+    ───────────────────────────────────
+    ↑(d, x, m, List/build) = List/build
+
+
+    ─────────────────────────────────
+    ↑(d, x, m, List/fold) = List/fold
+
+
+    ─────────────────────────────────────
+    ↑(d, x, m, List/length) = List/length
+
+
+    ─────────────────────────────────
+    ↑(d, x, m, List/head) = List/head
+
+
+    ─────────────────────────────────
+    ↑(d, x, m, List/last) = List/last
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, List/indexed) = List/indexed
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, List/reverse) = List/reverse
+
+
+    ─────────────────────────────────────────
+    ↑(d, x, m, Optional/fold) = Optional/fold
+
+
+    ───────────────────────────────────────────
+    ↑(d, x, m, Optional/build) = Optional/build
+
+
+    ───────────────────────
+    ↑(d, x, m, Bool) = Bool
+
+
+    ───────────────────────────────
+    ↑(d, x, m, Optional) = Optional
+
+
+    ─────────────────────────────
+    ↑(d, x, m, Natural) = Natural
+
+
+    ─────────────────────────────
+    ↑(d, x, m, Integer) = Integer
+
+
+    ───────────────────────────
+    ↑(d, x, m, Double) = Double
+
+
+    ───────────────────────
+    ↑(d, x, m, Text) = Text
+
+
+    ───────────────────────
+    ↑(d, x, m, List) = List
+
+
+    ───────────────────────
+    ↑(d, x, m, True) = True
+
+
+    ─────────────────────────
+    ↑(d, x, m, False) = False
+
+
+    ───────────────────────
+    ↑(d, x, m, Type) = Type
+
+
+    ───────────────────────
+    ↑(d, x, m, Kind) = Kind
+
+
+## Contexts
+
+The syntax of contexts is:
+
+    Γ = ε         ; The empty context
+      / Γ, x : E  ; A context extended with a type annotation for a variable
+
+Contexts are ordered and there can be multiple type annotations in the context
+for the same variable
+
+## Shift context
+
+You can also shift a context by shifting each expression in that context:
+
+    ─────────────────
+    ↑(d, x, m, ε) = ε
+
+
+    ↑(d, x, m, Γ₀) = Γ₁   ↑(d, x, m, E₀) = E₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, (Γ₀, x : E₁)) = Γ₁, x : E₁
+
+
+## Substitution
+
+β-reduction requires support for substitution, which is represented by the
+following form:
+
+    b[x@n ≔ a]
+
+... where:
+
+* `b` is the expression that you want to transform
+* `x@n` is the variable that you want to substitute
+* `a` is the expression that you want to substitute `x@n` with
+
+The rules for substitution are:
+
+
+    ────────────────
+    x@n[x@n ≔ e] = e
+
+
+    ──────────────────  ; x@n ≠ y@m
+    y@m[x@n ≔ e] = y@m
+
+
+    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + 1) ≔ e₁] = b₁
+    ────────────────────────────────────────────────────────────────
+    (λ(x : A₀) → b₀)[x@n ≔ e₀] = λ(x : A₁) → b₁
+
+
+    A₀[x@n ≔ e] = A₁   ↑(1, y, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
+    ──────────────────────────────────────────────────────────  ; x ≠ y
+    (λ(y : A₀) → b₀)[x@n ≔ e₀] = λ(y : A₁) → b₁
+
+
+    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(n + 1) ≔ e₁] = B₁
+    ────────────────────────────────────────────────────────────────
+    (∀(x : A₀) → B₀)[x@n ≔ e₀] = ∀(x : A₁) → B₁
+
+
+    A₀[x@n ≔ e] = A₁   ↑(1, y, 0, e₀) = e₁   B₀[x@n ≔ e₁] = B₁
+    ──────────────────────────────────────────────────────────  ; x ≠ y
+    (∀(y : A₀) → B₀)[x@n ≔ e₀] = ∀(y : A₁) → B₁
+
+
+    A₀[x@n ≔ e] = A₁
+    a₀[x@n ≔ e] = a₁
+    ↑(1, x, 0, e₀) = e₁
+    b₀[x@(n + 1) ≔ e₁] = b₁
+    ─────────────────────────────────────────────────────────
+    (let x : A₀ = a₀ in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ in b₁
+
+
+    A₀[x@n ≔ e] = A₁
+    a₀[x@n ≔ e] = a₁
+    ↑(1, x, 0, e₀) = e₁
+    b₀[x@n ≔ e₁] = b₁
+    ─────────────────────────────────────────────────────────  ; x ≠ y
+    (let y : A₀ = a₀ in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ in b₁
+
+
+    a₀[x@n ≔ e] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + 1) ≔ e₁] = b₁
+    ────────────────────────────────────────────────────────────────
+    (let x = a₀ in b₀)[x@n ≔ e₀] = let x = a₁ in b₁
+
+
+    a₀[x@n ≔ e] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
+    ──────────────────────────────────────────────────────────  ; x ≠ y
+    (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
+
+
+No other Dhall expressions bind variables, so the remaining rules just descend
+as normal:
+
+
+    t₀[x@n ≔ e] = t₁   l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ────────────────────────────────────────────────────────
+    (if t₀ then l₀ else r₀)[x@n ≔ e] = if t₁ then l₁ else r₁
+
+
+    t₀[x@n ≔ e] = t₁   u₀[x@n ≔ e] = u₁   T₀[x@n ≔ e] = T₁
+    ──────────────────────────────────────────────────────
+    (merge t₀ u₀ : T₀)[x@n ≔ e] = merge t₁ u₁ : T₁
+
+
+    t₀[x@n ≔ e] = t₁   u₀[x@n ≔ e] = u₁
+    ────────────────────────────────────
+    (merge t₀ u₀)[x@n ≔ e] = merge t₁ u₁
+
+
+    T₀[x@n ≔ e] = T₁
+    ──────────────────────────────────────
+    ([] : List T₀)[x@n ≔ e] = [] : List T₁
+
+
+    t₀[x@n ≔ e] = t₁   …
+    ────────────────────────────────
+    ([ t₀, … ])[x@n ≔ e] = [ t₁, … ]
+
+
+    T₀[x@n ≔ e] = T₁
+    ──────────────────────────────────────────────
+    ([] : Optional T₀)[x@n ≔ e] = [] : Optional T₁
+
+
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
+    ──────────────────────────────────────────────────────
+    ([ t₀ ] : Optional T₀)[x@n ≔ e] = [ t₁ ] : Optional T₁
+
+
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
+    ───────────────────────────────────
+    (t₀ : T₀)[x@n ≔ e] = t₁ : T₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ || r₀)[x@n ≔ e] = l₁ || r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ + r₀)[x@n ≔ e] = l₁ + r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ ++ r₀)[x@n ≔ e] = l₁ ++ r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ # r₀)[x@n ≔ e] = l₁ # r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ && r₀)[x@n ≔ e] = l₁ && r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ ∧ r₀)[x@n ≔ e] = l₁ ∧ r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ ⫽ r₀)[x@n ≔ e] = l₁ ⫽ r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ * r₀)[x@n ≔ e] = l₁ * r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ == r₀)[x@n ≔ e] = l₁ == r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ != r₀)[x@n ≔ e] = l₁ != r₁
+
+
+    f₀[x@n ≔ e] = f₁   a₀[x@n ≔ e] = a₁
+    ───────────────────────────────────
+    (f₀ a₀)[x@n ≔ e] = f₁ a₁
+
+
+    ──────────────────
+    n.n[x@n ≔ e] = n.n
+
+
+    ────────────────
+    +n[x@n ≔ e] = +n
+
+
+    ──────────────
+    n[x@n ≔ e] = n
+
+
+    ──────────────────
+    "…"[x@n ≔ e] = "…"
+
+
+    T₀[x@n ≔ e] = T₁   …
+    ──────────────────────────────────────
+    { x : T₀, … }[x@n ≔ e] = { x : T₁, … }
+
+
+    t₀[x@n ≔ e] = t₁   …
+    ──────────────────────────────────────
+    { x = t₀, … }[x@n ≔ e] = { x = t₁, … }
+
+
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁   …
+    ──────────────────────────────────────────────────────────
+    < x = t₀ | y : T₀ | … >[x@n ≔ e] = < x = t₁ | y : T₁ | … >
+
+
+    ──────────────────────────────────────
+    Natural/build[x@n ≔ e] = Natural/build
+
+
+    ────────────────────────────────────
+    Natural/fold[x@n ≔ e] = Natural/fold
+
+
+    ────────────────────────────────────────
+    Natural/isZero[x@n ≔ e] = Natural/isZero
+
+
+    ────────────────────────────────────
+    Natural/even[x@n ≔ e] = Natural/even
+
+
+    ──────────────────────────────────
+    Natural/odd[x@n ≔ e] = Natural/odd
+
+
+    ──────────────────────────────────────────────
+    Natural/toInteger[x@n ≔ e] = Natural/toInteger
+
+
+    ────────────────────────────────────
+    Natural/show[x@n ≔ e] = Natural/show
+
+
+    ────────────────────────────────────
+    Integer/show[x@n ≔ e] = Integer/show
+
+
+    ──────────────────────────────────
+    Double/show[x@n ≔ e] = Double/show
+
+
+    ────────────────────────────────
+    List/build[x@n ≔ e] = List/build
+
+
+    ──────────────────────────────
+    List/fold[x@n ≔ e] = List/fold
+
+
+    ──────────────────────────────────
+    List/length[x@n ≔ e] = List/length
+
+
+    ──────────────────────────────
+    List/head[x@n ≔ e] = List/head
+
+
+    ──────────────────────────────
+    List/last[x@n ≔ e] = List/last
+
+
+    ────────────────────────────────────
+    List/indexed[x@n ≔ e] = List/indexed
+
+
+    ────────────────────────────────────
+    List/reverse[x@n ≔ e] = List/reverse
+
+
+    ──────────────────────────────────────
+    Optional/fold[x@n ≔ e] = Optional/fold
+
+
+    ────────────────────────────────────────
+    Optional/build[x@n ≔ e] = Optional/build
+
+
+    ────────────────────
+    Bool[x@n ≔ e] = Bool
+
+
+    ────────────────────────────
+    Optional[x@n ≔ e] = Optional
+
+
+    ──────────────────────────
+    Natural[x@n ≔ e] = Natural
+
+
+    ─────────────────────────
+    Intger[x@n ≔ e] = Integer
+
+
+    ────────────────────────
+    Double[x@n ≔ e] = Double
+
+
+    ────────────────────
+    Text[x@n ≔ e] = Text
+
+
+    ────────────────────
+    List[x@n ≔ e] = List
+
+
+    ────────────────────
+    True[x@n ≔ e] = True
+
+
+    ──────────────────────
+    False[x@n ≔ e] = False
+
+
+    ────────────────────
+    Type[x@n ≔ e] = Type
+
+
+    ────────────────────
+    Kind[x@n ≔ e] = Kind
+
+
+## Type inference
+
+Type inference is a judgment of the form:
+
+    Γ ⊢ t : T
+
+... where:
+
+* `Γ` is the type inference context which relates identifiers to their types
+* `t` is the term to infer the type of
+* `T` is the inferred type
+
+To infer the type of a closed expression, supply an empty context:
+
+    ε ⊢ t : T
+
+### Reduction
+
+There is an additional judgment for inferring a type reduced to weak head
+normal form:
+
+
+    Γ ⊢ a : A   A ↠ B
+    ─────────────────
+    Γ ⊢ a :↠ B
+
+### Types and Kinds
+
+The first rule is that the inferred type of `Type` is `Kind`, no matter the
+context:
+
+
+    ───────────────
+    ε ⊢ Type : Kind
+
+
+In other words, `Kind` is the "type of types" and `Kind` serves as the
+foundation of the type system.  Note that you cannot infer the type of `Kind`
+as there is nothing above `Kind` in the type system's hierarchy.  Inferring the
+type of `Kind` is a type error
+
+### Variables
+
+You can infer the type of a variable by looking up the variable's type in the
+context:
+
+
+    Γ ⊢ T : k
+    ──────────────────
+    Γ, x : T ⊢ x@0 : T
+
+
+Since `x` is a synonym for `x@0`, you can shorten this rule to:
+
+
+    Γ ⊢ T : k
+    ──────────────────
+    Γ, x : T ⊢ x : T
+
+
+The order of types in the context matters because there can be multiple type
+annotations in the context for the same variable.  The natural number associated
+with each variable disambiguates which type annotation in the context to use:
+
+
+    Γ ⊢ A : k   Γ ⊢ x@n : T
+    ────────────────────────  ; 0 < n
+    Γ, x : A ⊢ x@(n + 1) : T
+
+
+    Γ ⊢ A : k   Γ ⊢ x@n : T
+    ───────────────────────  ; x ≠ y
+    Γ, y : A ⊢ x@n : T
+
+
+If the natural number associated with the variable is greater than or equal to
+the number of type annotations in the context matching the variable then that is
+a type error
+
+Carefully note that the above two rules imply that each type stored in the
+context must be well-typed.  This restriction ensures that we can safely
+normalize any type retrieved from the context since well-typed terms will not
+infinitely loop if normalized.
+
+### Lambdas
+
+You can create new (anonymous) functions using a lambda:
+
+
+    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
+    ─────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+
+
+The type of a lambda is a function type whose input type (`A`) is the same as
+the type of the bound variable and whose output type (`B`) is the same as the
+inferred type of the body of the lambda (`b`).
+
+Carefully note that the above rule requires that the inferred function type must
+be well-typed.  The type-checking step for the function type disallows certain
+types of functions.
+
+### Function types
+
+A function type is only well-typed if the input and output type are well-typed:
+
+
+    Γ₀ ⊢ A :↠ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :↠ o   ⊢ i ↝ o
+    ──────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ ∀(x : A) → B : o
+
+
+... and if the inferred kinds of the input and output type are allowed.  This
+kind check disallows dependent function types.
+
+The unquantified function type `A → B` is a short-hand for `∀(_ : A) → B`.  Note
+that the `_` does **NOT** denote some unused type variable but rather denotes
+the specific variable named `_` (which is a valid variable name and this
+variable named `_` may in fact be present within `B`).  For example, this is a
+well-typed judgment:
+
+    ε ⊢ Type → _ : Kind
+
+... because it is equivalent to:
+
+    ε ⊢ ∀(_ : Type) → _ : Kind
+
+### Kind check
+
+The kind check permits all function types except functions from terms to types
+(a.k.a. dependent function types)
+
+
+    ─────────────  ; Functions from terms to terms are allowed
+    ⊢ Type ↝ Type  ; These are "term-level functions"
+
+
+    ─────────────  ; Functions from types to terms are allowed
+    ⊢ Kind ↝ Type  ; These are "polymorphic functions"
+
+
+    ─────────────  ; Functions from types to types are allowed
+    ⊢ Kind ↝ Kind  ; These are "type-level functions"
+
+
+There is no rule for `⊢ Type ↝ Kind` because that would permit dependent
+function types.  Dhall does not support dependent function types because that
+would entail supporting non-trivial definitional equalities
+
+### Function application
+
+The type system ensures that function application is well-typed, meaning that
+the input type that a function expects matches the inferred type of the
+function's argument:
+
+
+    Γ ⊢ f :↠ ∀(x : A₀) → B₀
+    Γ ⊢ a : A₁
+    A₀ =ᵦ A₁
+    ↑(1, x, 0, a₀) = a₁
+    B₀[x ≔ a₁] = B₁
+    ↑(-1, x, 0, B₁) = B₂
+    ────────────────────────────────────────────
+    Γ ⊢ f a₀ : B₂
+
+
+If the inferred input type of the function does not match the inferred type of
+the function argument then that is a type error
+
+Carefully note that you should not check `A₀ =ᵦ A₁` until you have first checked
+the two other preconditions.  This is because a β-equivalence check might not
+terminate if one of `A₀` or `A₁` is not well-typed
+
+### β-equivalence
+
+Two types are equal if they are α-equivalent and β-equivalent.  We only focus
+on β-equivalence in this section:
+
+
+    Γ ⊢ t : A   Γ ⊢ T : k   A =ᵦ T
+    ──────────────────────────────
+    Γ ⊢ t : T
+
+
+β-equivalence is defined as:
+
+
+    ↑(1, x, 0, a₀) = a₁   b₀[x ≔ a₁] = b₁   ↑(-1, x, 0, b₁) = b₂
+    ────────────────────────────────────────────────────────────
+    (λ(x : A) → b₀) a₀ =ᵦ b₂
+
+
+In practice, you usually check for this equivalence by normalizing both types
+(i.e. β-reducing everything) and then checking for α-equivalence
+
+### `let` expressions
+
+
+    Γ₀ ⊢ a₀ : A₁
+    Γ₀ ⊢ A₀ :↠ i
+    A₀ =ᵦ A₁
+    ↑(1, x, 0, (Γ₀, x : A₀)) = Γ₁
+    Γ₁ ⊢ b : B₀
+    Γ₁ ⊢ B₀ :↠ o
+    ⊢ i ↝ o
+    ↑(1, x, 0, a₀) = a₁
+    B₀[x ≔ a₁]) = B₁
+    ↑(-1, x, 0, B₁) = B₂
+    ──────────────────────────────
+    Γ₀ ⊢ let x : A₀ = a₀ in b : B₂
+
+
+    Γ₀ ⊢ a₀ : A
+    Γ₀ ⊢ A :↠ i
+    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁
+    Γ₁ ⊢ b : B₀
+    Γ₁ ⊢ B ₀:↠ o
+    ⊢ i ↝ o
+    ↑(1, x, 0, a₀) = a₁
+    B₀[x ≔ a₁] = B₁
+    ↑(-1, x, 0, B₁) = B₂
+    ────────────────────────────
+    Γ₀ ⊢ let x = a₀ in b : B₂
+
+
+### `if`/`then`/`else`
+
+
+    Γ ⊢ t :↠ Bool
+    Γ ⊢ l : L
+    Γ ⊢ r : R
+    Γ ⊢ L :↠ Type
+    Γ ⊢ R :↠ Type
+    L =ᵦ R
+    ──────────────────────────
+    Γ ⊢ if t then l else r : L
+
+
+### `merge`
+
+
+
+
+# TODO
+
+* Document the judgment for weak head normal form
+* Update Dhall's type-checker to only use WHNF
+* Document shifting
+* Reference Henk paper
