@@ -16,7 +16,7 @@ The following notation is a simplified version of the syntax found in
 `./dhall.abnf`.  This simplified notation is used for type judgments:
 
 ```
-m, n = 0 / n + 1             ; Natural numbers
+m, n = +0 / n + +1           ; Natural numbers
 
 d = n / -n                   ; Integers
 
@@ -622,8 +622,8 @@ following rules where the index to substitute is incremented for the expression
 that the bound variable scopes over:
 
 
-    …   b₀[x@(n + 1) ≔ e₁] = b₁   …
-    ────────────────────────────────────────────────────────────────
+    …   b₀[x@(n + +1) ≔ e₁] = b₁   …
+    ────────────────────────────────
     …
 
 
@@ -644,8 +644,8 @@ variable, like this:
 All of the following rules cover expressions that can bind variables:
 
 
-    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + 1) ≔ e₁] = b₁
-    ────────────────────────────────────────────────────────────────
+    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
+    ─────────────────────────────────────────────────────────────────
     (λ(x : A₀) → b₀)[x@n ≔ e₀] = λ(x : A₁) → b₁
 
 
@@ -654,8 +654,8 @@ All of the following rules cover expressions that can bind variables:
     (λ(y : A₀) → b₀)[x@n ≔ e₀] = λ(y : A₁) → b₁
 
 
-    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(n + 1) ≔ e₁] = B₁
-    ────────────────────────────────────────────────────────────────
+    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(n + +1) ≔ e₁] = B₁
+    ─────────────────────────────────────────────────────────────────
     (∀(x : A₀) → B₀)[x@n ≔ e₀] = ∀(x : A₁) → B₁
 
 
@@ -667,7 +667,7 @@ All of the following rules cover expressions that can bind variables:
     A₀[x@n ≔ e] = A₁
     a₀[x@n ≔ e] = a₁
     ↑(1, x, 0, e₀) = e₁
-    b₀[x@(n + 1) ≔ e₁] = b₁
+    b₀[x@(n + +1) ≔ e₁] = b₁
     ─────────────────────────────────────────────────────────
     (let x : A₀ = a₀ in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ in b₁
 
@@ -680,8 +680,8 @@ All of the following rules cover expressions that can bind variables:
     (let y : A₀ = a₀ in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ in b₁
 
 
-    a₀[x@n ≔ e] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + 1) ≔ e₁] = b₁
-    ────────────────────────────────────────────────────────────────
+    a₀[x@n ≔ e] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
+    ─────────────────────────────────────────────────────────────────
     (let x = a₀ in b₀)[x@n ≔ e₀] = let x = a₁ in b₁
 
 
@@ -943,14 +943,12 @@ as normal:
 Type-checking depends on reducing expressions to weak head normal form using
 a function of the following form:
 
-
-    e₀ ↠ e₁
-
+    t₀ ↠ t₁
 
 ... where
 
-* `e₀` is the expression we want to reduce to weak head normal form
-* `e₁` is the reduced expression in weak head normal form
+* `t₀` is the expression we want to reduce to weak head normal form
+* `t₁` is the reduced expression in weak head normal form
 
 For example:
 
@@ -977,20 +975,19 @@ Otherwise weak-head normal form does nothing and does not recurse structurally:
 
 
     ─────  ; All other cases
-    e ↠ e
+    t ↠ t
 
 
 ## Normalization
 
-
 Normalization is a function of the following form:
 
-    e₀ ⇥ e₁
+    t₀ ⇥ t₁
 
 ... where:
 
-* `e₀` is the expression to normalize
-* `e₁` is the normalized expression
+* `t₀` is the expression to normalize
+* `t₁` is the normalized expression
 
 Normalization evaluates all β-reducible expression:
 
@@ -1011,26 +1008,154 @@ semantics and a conforming implementation can select any evaluation strategy.
 The first normalization rule specifies how β-reduction behaves:
 
 
+    t ⇥ f a₀
     f ⇥ λ(x : A) → b₀
     ↑(1, x, 0, a₀) = a₁
     b₀[x ≔ a₁] = b₁
     ↑(-1, x, 0, b₁) = b₂
     b₂ ⇥ b₃
-    ────────────────────────────────────────────────────────────
-    f a₀ ⇥ b₃
+    ────────────────────
+    t ⇥ b₃
 
 
-With only a few exceptions, all built-in functions are only 
-You can normalize the `Natural/fold` function if the function is fully
-saturated:
+The remaining functions are all built-in functions that conforming
+implementations must support.  Implementations are free to implement the
+following functions in more efficient ways as long as the result of
+normalization is the same.
+
+The `Natural/fold` function is the canonical elimination function for natural
+numbers:
 
 
-    f (f (...(f (f a)) ... )) ⇥ e  ; Apply `f` `n` times
-    ────────────────────────────────────────────────────────────
-    Natural/fold +n T f a ⇥ e
+    t₀ ↠ Natural/fold m T f a   m ↠ +0   a ⇥ t₁
+    ───────────────────────────────────────────
+    t₀ ⇥ t₁
 
 
-You can
+    t₀ ↠ Natural/fold m T f a   m ↠ n + +1   f (Natural/fold n T f) ⇥ t₁
+    ────────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₁
+
+
+`Natural/build` is the canonical introduction function for `Natural` numbers.
+`Natural/build` is the inverse of `Natural/fold`, which leads to the following
+rules:
+
+
+    t₀ ↠ Natural/build t₁
+    t₁ ↠ Natural/fold t₂
+    t₂ ⇥ t₃
+    ─────────────────────
+    t₀ ⇥ t₃
+
+
+    t₀ ↠ Natural/fold t₁
+    t₁ ↠ Natural/build t₂
+    t₂ ⇥ t₃
+    ─────────────────────
+    t₀ ⇥ t₃
+
+
+In the absence of fusion, `Natural/build` falls back on the following rule:
+
+
+    t₀ ↠ Natural/build f   f Natural (λ(x : Natural) → x + +1) +0 ⇥ t₁
+    ──────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₁
+
+
+`Natural/isZero` detects whether or not a `Natural` number is `+0`:
+
+
+    t₀ ↠ Natural/isZero t₁   t₁ ↠ +0
+    ────────────────────────────────
+    t₀ ⇥ True
+
+
+    t₀ ↠ Natural/isZero t₁   t₁ ↠ n + +1
+    ────────────────────────────────────
+    t₀ ⇥ False
+
+
+`Natural/even` detects whether or not a `Natural` number is even:
+
+
+    t₀ ↠ Natural/even t₁   t₁ ↠ +0
+    ──────────────────────────────
+    t₀ ⇥ True
+
+
+    t₀ ↠ Natural/even t₁   t₁ ↠ +1
+    ──────────────────────────────
+    t₀ ⇥ False
+
+
+    t₀ ↠ Natural/even t₁   t₁ ↠ t₂ + +1   Natural/odd t₂ ⇥ t₃
+    ─────────────────────────────────────────────────────────
+    t₀ ⇥ t₃
+
+
+`Natural/odd` detects whether or not a `Natural` number is off:
+
+
+    t₀ ↠ Natural/odd t₁   t₁ ↠ +0
+    ──────────────────────────────
+    t₀ ⇥ False
+
+
+    t₀ ↠ Natural/odd t₁   t₁ ↠ +1
+    ──────────────────────────────
+    t₀ ⇥ True
+
+
+    t₀ ↠ Natural/odd t₁   t₁ ↠ t₂ + +1   Natural/even t₂ ⇥ t₃
+    ─────────────────────────────────────────────────────────
+    t₀ ⇥ t₃
+
+
+`Natural/toInteger` transforms a `Natural` number into the corresponding
+`Integer`:
+
+
+    t₀ ↠ Natural/toInteger t₁   t₁ ↠ +n
+    ───────────────────────────────────
+    t₀ ⇥ n
+
+
+`Natural/show` transforms a `Natural` number into a `Text` literal representing
+valid Dhall code for representing that `Natural` number:
+
+
+    t₀ ↠ Natural/show t₁   t₁ → +n
+    ──────────────────────────────
+    t₀ ⇥ "+n"
+
+
+`Integer/show` transforms an `Integer` into a `Text` literal representing valid
+Dhall code for representing that `Integer` number:
+
+
+    t₀ ↠ Integer/show t₁   t₁ ↠ n
+    ─────────────────────────────
+    t₀ ⇥ "n"
+
+
+`Double/show` transforms a `Double` into a `Text` literal representing valid
+Dhall code for representing that `Double` number:
+
+
+    t₀ ⇥ Double/show t₁   t₁ → n.n
+    ──────────────────────────────
+    t₀ ⇥ "n.n"
+
+
+`List/fold` is the canonical elimination function for `List`s:
+
+
+    t₀ ⇥ List/fold A₀ ([] : List A₁) f a   a ⇥ t₁
+    ─────────────────────────────────────────────
+    t₀ ⇥ t₁
+
 
 ## αβ-equivalence
 
@@ -1178,8 +1303,8 @@ with each variable disambiguates which type annotation in the context to use:
 
 
     Γ ⊢ A : k   Γ ⊢ x@n : T
-    ────────────────────────  ; 0 < n
-    Γ, x : A ⊢ x@(n + 1) : T
+    ─────────────────────────  ; 0 < n
+    Γ, x : A ⊢ x@(n + +1) : T
 
 
     Γ ⊢ A : k   Γ ⊢ x@n : T
@@ -1315,6 +1440,8 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 * Double-check whether or not WHNF needs to normalize non-lambda functions
 * Fix `=ᵦ` to include `α`
+* Fix weak head normal form to evaluate built-in functions instead of just
+  β-reductions
 * Flesh out αβ-equivalence in more detail
 * Does the valid context optimization from the Henk paper work?  If so, simplify
   typing judgments
