@@ -1,8 +1,14 @@
+# Type-checking and normalization
+
 ## Summary
 
 Dhall's type system is System Fω implemented using a pure type system.  Type
 abstraction and type application are explicit and not inferred.  Dhall also
 supports additional built-in functions, operators, and constants for efficiency
+
+Dhall also supports referencing shadowed variables through the use of DeBruijn
+indices.  This document spells out in detail how to implement these
+DeBruijn-like variable references.
 
 ## Expressions
 
@@ -123,12 +129,13 @@ Bruijn indices.  For example:
 
                                   ┌──refers to──┐
                                   │             │
-                                  v             │
+                                  ↓             │
     λ(x : Type) → λ(y : Type) → λ(x : Type) → x@0
+
 
     ┌─────────────────refers to─────────────────┐
     │                                           │
-    v                                           │
+    ↓                                           │
     λ(x : Type) → λ(y : Type) → λ(x : Type) → x@1
 
 
@@ -138,13 +145,13 @@ index defaults to 0 (i.e. `x@0`), like this:
 
                                   ┌─refers to─┐
                                   │           │
-                                  v           │
+                                  ↓           │
     λ(x : Type) → λ(y : Type) → λ(x : Type) → x
 
 
 
 Dhall uses a shift function internally to avoid variable capture in the
-implementation De Bruijn indices.  This function increases or decreases the
+implementation of De Bruijn indices.  This function increases or decreases the
 indices of variables within an expression if they match two criteria:
 
 * The variable name matches the specified name
@@ -152,10 +159,12 @@ indices of variables within an expression if they match two criteria:
 
 This shift function has the form:
 
-    ↑(x, m, d, e₀) = e₁
+    ↑(d, x, m, e₀) = e₁
 
 ... where:
 
+* `d` is the amount to add to the variable indices
+    * `d` may be negative, which will decrease matching variable indices
 * `x` is is the name of the variable to shift
     * variables with this name may have their indices shifted if their indices
       are large enough
@@ -163,10 +172,22 @@ This shift function has the form:
 * `m` is the minimum index to shift
     * variables with a lower index are unaffected by the shift function
     * this minimum bound is used to prevent bound variables from being shifted
-* `d` is the amount to add to the variable indices
-    * `d` may be negative, which will decrease matching variable indices
 * `e₀` is the expression to shift
 * `e₁` is the shifted expression
+
+For example:
+
+    ↑(1, x, 0, x) = x@1
+
+    ↑(1, x, 1, x) = x
+
+    ↑(1, x, 0, y) = y
+
+    ↑(-1, x, 0, x@1) = x
+
+    ↑(1, x, 0, List x) = List x@1
+
+### Variables
 
 The first rule is that the shift function will increase the index of any
 variable if the variable name matches and the variable's index is greater than
@@ -181,7 +202,7 @@ We don't shift the index if the index falls short of the lower bound or if the
 variable name does not match:
 
 
-    ─────────────────────  ; m >  n
+    ─────────────────────  ; m > n
     ↑(d, x, m, x@n) = x@n
 
 
@@ -189,10 +210,15 @@ variable name does not match:
     ↑(d, x, m, x@n) = y@n
 
 
-The shift operation is designed to shift only free variables.  This implies that
-we must increment the minimum bound when we descend into a lambda expression
-that binds a variable of the same name in order to avoid shifting the bound
-variable:
+### Bound variables
+
+The shift operation is designed to shift only free variables.  For example:
+
+    ↑(1, x, 0, λ(x : Type) → x) = λ(x : Type) → x
+
+This implies that we must increment the minimum bound when we descend into a
+λ-expression that binds a variable of the same name in order to avoid shifting
+the bound variable:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m + 1, b₀) = b₁
@@ -253,8 +279,11 @@ that binds a variable of the same name:
 
 
 Note that Dhall's `let` expressions are not recursive so the bound variable is
-not in scope for the right-hand side of the assignment.  Therefore we do not
-need to shift the minimum index when descending into the right-hand side.
+not in scope for the right-hand side of the assignment (i.e. `a₀` in the above
+rules).  Therefore we do not need to shift the minimum index when descending
+into the right-hand side.
+
+### Induction
 
 No other Dhall expressions bind variables, so the remaining rules just descend
 as normal:
@@ -532,8 +561,7 @@ You can also shift a context by shifting each expression in that context:
 
 ## Substitution
 
-β-reduction requires support for substitution, which is represented by the
-following form:
+β-reduction requires support for substitution, which has the following form:
 
     b[x@n ≔ a]
 
@@ -543,7 +571,21 @@ following form:
 * `x@n` is the variable that you want to substitute
 * `a` is the expression that you want to substitute `x@n` with
 
-The rules for substitution are:
+`b[x ≔ a]` is short-hand for `b[x@0 ≔ a]`
+
+For example:
+
+    x[x ≔ Bool] = Bool
+
+    y[x ≔ Bool] = y
+
+    (List x)[x ≔ Bool] = List Bool
+
+### Variables
+
+Like shifting, we only need to pay special attention to the cases where we
+bind variables or reference variables.  The first two rules govern when we can
+substitute a variable with the specified expression:
 
 
     ────────────────
@@ -552,6 +594,54 @@ The rules for substitution are:
 
     ──────────────────  ; x@n ≠ y@m
     y@m[x@n ≔ e] = y@m
+
+
+In other words, we substitute the expression if the variable name and index
+exactly match, but otherwise we do not substitute and leave the variable as-is.
+
+### Bound variables
+
+The substitution function is designed to only substitute free variables and
+ignore bound variables.  The following few examples can help build an intuition
+for how substitution uses the numeric index of the variable that we are
+substituting for:
+
+    (λ(x : Type) → x)[x ≔ Bool] = λ(x : Type) → x
+
+    (λ(y : Type) → x)[x ≔ Bool] = λ(x : Type) → Bool
+
+    (λ(x : Type) → x@1)[x ≔ Bool] = λ(x : Type) → Bool
+
+    (λ(x : Type) → x@2)[x@1 ≔ Bool] = λ(x : Type) → Bool
+
+    (λ(x : Type) → λ(x : Type) → x@3)[x@1 ≔ Bool] = λ(x : Type) → Bool
+
+We increment the index of the variable that we substitute every time we descend
+past a bound variable that has the same name.  You will see this in the
+following rules where the index to substitute is incremented for the expression
+that the bound variable scopes over:
+
+
+    …   b₀[x@(n + 1) ≔ e₁] = b₁   …
+    ────────────────────────────────────────────────────────────────
+    …
+
+
+We also take care to avoid variable capture by shifting variables within the
+expression that we substitute, like this:
+
+    (λ(x : Type) → y)[y ≔ x] = λ(x : Type) → x@1
+
+We avoid capture by shifting the expression any time we descend past a bound
+variable, like this:
+
+
+    …   ↑(1, x, 0, e₀) = e₁   …
+    ────────────────────────────────────────────────────────────────
+    …
+
+
+All of the following rules cover expressions that can bind variables:
 
 
     A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + 1) ≔ e₁] = b₁
@@ -599,6 +689,8 @@ The rules for substitution are:
     ──────────────────────────────────────────────────────────  ; x ≠ y
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
+
+### Induction
 
 No other Dhall expressions bind variables, so the remaining rules just descend
 as normal:
@@ -846,6 +938,175 @@ as normal:
     Kind[x@n ≔ e] = Kind
 
 
+## Weak head normal form
+
+Type-checking depends on reducing expressions to weak head normal form using
+a function of the following form:
+
+
+    e₀ ↠ e₁
+
+
+... where
+
+* `e₀` is the expression we want to reduce to weak head normal form
+* `e₁` is the reduced expression in weak head normal form
+
+For example:
+
+    (λ(x : Bool) → x) True ↠ True
+
+    List ((λ(a : Type) → a) Bool) ↠ List ((λ(a : Type) → a) Bool)
+
+    λ(x : Bool) → (λ(y : Bool) → y) True ↠ λ(x : Bool) → (λ(y : Bool) → y) True
+
+Weak head normal form only β-reduces expressions enough to discern the outermost
+function or constant:
+
+
+    f ↠ λ(x : A) → b₀
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ↠ b₃
+    ───────────────────────
+    f a₀ ↠ b₃
+
+
+Otherwise weak-head normal form does nothing and does not recurse structurally:
+
+
+    ─────  ; All other cases
+    e ↠ e
+
+
+## Normalization
+
+
+Normalization is a function of the following form:
+
+    e₀ ⇥ e₁
+
+... where:
+
+* `e₀` is the expression to normalize
+* `e₁` is the normalized expression
+
+Normalization evaluates all β-reducible expression:
+
+    (λ(x : Bool) → x != False) True ⇥ False
+
+Normalization also evaluates all built-in functions:
+
+    List/length Integer [1, 2, 3] ⇥ +3
+
+Normalization works under λ, meaning that the body of an unapplied λ-expression
+can be normalized:
+
+    λ(x : Bool) → List/length Integer [1, 2, 3] ⇥ λ(x : Bool) → +3
+
+Dhall is a total language, so evaluation order has no effect on the language
+semantics and a conforming implementation can select any evaluation strategy.
+
+The first normalization rule specifies how β-reduction behaves:
+
+
+    f ⇥ λ(x : A) → b₀
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ────────────────────────────────────────────────────────────
+    f a₀ ⇥ b₃
+
+
+With only a few exceptions, all built-in functions are only 
+You can normalize the `Natural/fold` function if the function is fully
+saturated:
+
+
+    f (f (...(f (f a)) ... )) ⇥ e  ; Apply `f` `n` times
+    ────────────────────────────────────────────────────────────
+    Natural/fold +n T f a ⇥ e
+
+
+You can
+
+## αβ-equivalence
+
+αβ-equivalence is a relationship between two expression of the form:
+
+    e₀ =ᵦ e₁
+
+Expressions are αβ-equivalent if they are α-equivalent when fully β-reduced.
+You can fully β-reduce an expression by applying the following β-reduction rule
+anywhere within the expression until no β-reducible expressions remain:
+
+
+    ↑(1, x, 0, a₀) = a₁   b₀[x ≔ a₁] = b₁   ↑(-1, x, 0, b₁) = b₂
+    ────────────────────────────────────────────────────────────
+    (λ(x : A) → b₀) a₀ =ᵦ b₂
+
+
+The order in which you β-reduce expressions does not matter
+Two expression are both α
+
+## Kind check
+
+The kind check governs which types of functions that our pure type system
+permits
+
+Dhall forbids dependent function types, but permits all other function
+types 
+
+The following rule enables support for functions from terms to terms (i.e.
+"term-level" functions):
+
+
+    ─────────────
+    ⊢ Type ↝ Type
+
+
+For example, these are term-level functions:
+
+    Natural/even
+
+    λ(x : Bool) → x != False
+
+
+The following rule enables support for functions from types to terms (i.e.
+"polymorphic" functions):
+
+
+    ─────────────
+    ⊢ Kind ↝ Type
+
+
+For example, these are polymorphic functions:
+
+    List/head
+
+    λ(a : Type) → λ(x : a) → x
+
+THe following rule enables support for functions from types to types (i.e.
+"type-level" functions):
+
+
+    ─────────────
+    ⊢ Kind ↝ Kind
+
+
+For example, these are type-level functions:
+
+    List
+
+    λ(m : Type) → [m] → m
+
+
+However, Dhall does not support dependently-typed functions, so there is no rule
+for `⊢ Type ↝ Kind`.  Dhall omits support for dependent function types because
+that would entail detecting non-trivial type-level equalities.
+
 ## Type inference
 
 Type inference is a judgment of the form:
@@ -864,13 +1125,18 @@ To infer the type of a closed expression, supply an empty context:
 
 ### Reduction
 
-There is an additional judgment for inferring a type reduced to weak head
-normal form:
+Additionally, there is a separate helper judgment for inferring a type reduced
+to weak head normal form:
 
 
     Γ ⊢ a : A   A ↠ B
     ─────────────────
     Γ ⊢ a :↠ B
+
+
+This judgment is essentially identical to the judgment for type inference except
+that this judgment guarantees that the inferred type is in weak head normal
+form.
 
 ### Types and Kinds
 
@@ -885,7 +1151,7 @@ context:
 In other words, `Kind` is the "type of types" and `Kind` serves as the
 foundation of the type system.  Note that you cannot infer the type of `Kind`
 as there is nothing above `Kind` in the type system's hierarchy.  Inferring the
-type of `Kind` is a type error
+type of `Kind` is a type error.
 
 ### Variables
 
@@ -932,7 +1198,7 @@ infinitely loop if normalized.
 
 ### Lambdas
 
-You can create new (anonymous) functions using a lambda:
+You can create new (anonymous) functions using a λ:
 
 
     ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
@@ -940,9 +1206,9 @@ You can create new (anonymous) functions using a lambda:
     Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
 
 
-The type of a lambda is a function type whose input type (`A`) is the same as
-the type of the bound variable and whose output type (`B`) is the same as the
-inferred type of the body of the lambda (`b`).
+The type of a λ-expression is a function type whose input type (`A`) is the same
+as the type of the bound variable and whose output type (`B`) is the same as the
+inferred type of the body of the λ-expression (`b`).
 
 Carefully note that the above rule requires that the inferred function type must
 be well-typed.  The type-checking step for the function type disallows certain
@@ -973,28 +1239,6 @@ well-typed judgment:
 
     ε ⊢ ∀(_ : Type) → _ : Kind
 
-### Kind check
-
-The kind check permits all function types except functions from terms to types
-(a.k.a. dependent function types)
-
-
-    ─────────────  ; Functions from terms to terms are allowed
-    ⊢ Type ↝ Type  ; These are "term-level functions"
-
-
-    ─────────────  ; Functions from types to terms are allowed
-    ⊢ Kind ↝ Type  ; These are "polymorphic functions"
-
-
-    ─────────────  ; Functions from types to types are allowed
-    ⊢ Kind ↝ Kind  ; These are "type-level functions"
-
-
-There is no rule for `⊢ Type ↝ Kind` because that would permit dependent
-function types.  Dhall does not support dependent function types because that
-would entail supporting non-trivial definitional equalities
-
 ### Function application
 
 The type system ensures that function application is well-typed, meaning that
@@ -1018,28 +1262,6 @@ the function argument then that is a type error
 Carefully note that you should not check `A₀ =ᵦ A₁` until you have first checked
 the two other preconditions.  This is because a β-equivalence check might not
 terminate if one of `A₀` or `A₁` is not well-typed
-
-### β-equivalence
-
-Two types are equal if they are α-equivalent and β-equivalent.  We only focus
-on β-equivalence in this section:
-
-
-    Γ ⊢ t : A   Γ ⊢ T : k   A =ᵦ T
-    ──────────────────────────────
-    Γ ⊢ t : T
-
-
-β-equivalence is defined as:
-
-
-    ↑(1, x, 0, a₀) = a₁   b₀[x ≔ a₁] = b₁   ↑(-1, x, 0, b₁) = b₂
-    ────────────────────────────────────────────────────────────
-    (λ(x : A) → b₀) a₀ =ᵦ b₂
-
-
-In practice, you usually check for this equivalence by normalizing both types
-(i.e. β-reducing everything) and then checking for α-equivalence
 
 ### `let` expressions
 
@@ -1091,7 +1313,11 @@ In practice, you usually check for this equivalence by normalizing both types
 
 # TODO
 
+* Double-check whether or not WHNF needs to normalize non-lambda functions
+* Fix `=ᵦ` to include `α`
+* Flesh out αβ-equivalence in more detail
+* Does the valid context optimization from the Henk paper work?  If so, simplify
+  typing judgments
 * Document the judgment for weak head normal form
 * Update Dhall's type-checker to only use WHNF
-* Document shifting
 * Reference Henk paper
