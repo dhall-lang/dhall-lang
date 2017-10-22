@@ -614,7 +614,7 @@ substituting for:
 
     (λ(x : Type) → x@2)[x@1 ≔ Bool] = λ(x : Type) → Bool
 
-    (λ(x : Type) → λ(x : Type) → x@3)[x@1 ≔ Bool] = λ(x : Type) → Bool
+    (λ(x : Type) → λ(x : Type) → x@3)[x@1 ≔ Bool] = λ(x : Type) → λ(x : Type) → Bool
 
 We increment the index of the variable that we substitute every time we descend
 past a bound variable that has the same name.  You will see this in the
@@ -637,7 +637,7 @@ variable, like this:
 
 
     …   ↑(1, x, 0, e₀) = e₁   …
-    ────────────────────────────────────────────────────────────────
+    ───────────────────────────
     …
 
 
@@ -989,7 +989,7 @@ Normalization is a function of the following form:
 * `t₀` is the expression to normalize
 * `t₁` is the normalized expression
 
-Normalization evaluates all β-reducible expression:
+Normalization evaluates all β-reducible expressions:
 
     (λ(x : Bool) → x != False) True ⇥ False
 
@@ -1008,8 +1008,7 @@ semantics and a conforming implementation can select any evaluation strategy.
 The first normalization rule specifies how β-reduction behaves:
 
 
-    t ⇥ f a₀
-    f ⇥ λ(x : A) → b₀
+    t ⇥ (λ(x : A) → b₀) a₀
     ↑(1, x, 0, a₀) = a₁
     b₀[x ≔ a₁] = b₁
     ↑(-1, x, 0, b₁) = b₂
@@ -1027,19 +1026,19 @@ The `Natural/fold` function is the canonical elimination function for natural
 numbers:
 
 
-    t₀ ↠ Natural/fold m T f a   m ↠ +0   a ⇥ t₁
+    t₀ ↠ Natural/fold m B f b   m ↠ +0   b ⇥ t₁
     ───────────────────────────────────────────
     t₀ ⇥ t₁
 
 
-    t₀ ↠ Natural/fold m T f a   m ↠ n + +1   f (Natural/fold n T f) ⇥ t₁
-    ────────────────────────────────────────────────────────────────────
+    t₀ ↠ Natural/fold m B f b   m ↠ n + +1   f (Natural/fold n B f b) ⇥ t₁
+    ──────────────────────────────────────────────────────────────────────
     t₀ ⇥ t₁
 
 
-`Natural/build` is the canonical introduction function for `Natural` numbers.
-`Natural/build` is the inverse of `Natural/fold`, which leads to the following
-rules:
+`Natural/build` is the canonical introduction function for `Natural` numbers and
+is the inverse of `Natural/fold`, which leads to the following rules for
+`build/fold` fusion:
 
 
     t₀ ↠ Natural/build t₁
@@ -1126,7 +1125,7 @@ In the absence of fusion, `Natural/build` falls back on the following rule:
 valid Dhall code for representing that `Natural` number:
 
 
-    t₀ ↠ Natural/show t₁   t₁ → +n
+    t₀ ↠ Natural/show t₁   t₁ ↠ +n
     ──────────────────────────────
     t₀ ⇥ "+n"
 
@@ -1144,7 +1143,7 @@ Dhall code for representing that `Integer` number:
 Dhall code for representing that `Double` number:
 
 
-    t₀ ⇥ Double/show t₁   t₁ → n.n
+    t₀ ↠ Double/show t₁   t₁ ↠ n.n
     ──────────────────────────────
     t₀ ⇥ "n.n"
 
@@ -1152,9 +1151,119 @@ Dhall code for representing that `Double` number:
 `List/fold` is the canonical elimination function for `List`s:
 
 
-    t₀ ⇥ List/fold A₀ ([] : List A₁) f a   a ⇥ t₁
-    ─────────────────────────────────────────────
-    t₀ ⇥ t₁
+    t₀ ↠ List/fold A₀ t₁ B f b   t₁ ↠ [] : List A₁   b ⇥ t₂
+    ───────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+    t₀ ⇥ List/fold A₀ t₁ B f b   t₁ ↠ [ a, … ]   f a (List/fold A₀ … B f b) ⇥ t₂
+    ────────────────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`List/build` is the canonical introduction function for `List`s and is the
+inverse of `List/fold`, which leads to the following rules for `build/fold`
+fusion:
+
+
+    t₀ ↠ List/fold A₀ t₁   t₁ ↠ List/build A₁ t₂   t₂ ⇥ t₃
+    ──────────────────────────────────────────────────────
+    t₀ ⇥ t₃
+
+
+    t₀ ↠ List/build A₀ t₁   t₁ ↠ List/fold A₁ t₂   t₂ ⇥ t₃
+    ──────────────────────────────────────────────────────
+    t₀ ⇥ t₃
+
+
+
+In the absence of fusion, `List/build` falls back on the following rule:
+
+
+    t₀ ↠ List/build A t₁
+    t₁ (List A) (λ(a : A) → λ(as : List a) → [a] # as) ([] : List A) ⇥ t₂
+    ─────────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`List/length` returns the length of a list:
+
+
+    t₀ ↠ List/length A₀ t₁   t₁ ↠ [] : List A₁
+    ──────────────────────────────────────────
+    t₀ ⇥ +0
+
+
+    t₀ ↠ List/length A₀ t₁   t₁ ↠ [ a, … ]   +1 + List/length A₀ … ⇥ t₂
+    ───────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`List/head` returns the first element of a list:
+
+
+    t₀ ↠ List/head A₀ t₁   t₁ ↠ [] : List A₁   [] : Optional A₀ ⇥ t₂
+    ────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+    t₀ ↠ List/head A₀ t₁   t₁ ↠ [ a, … ]   [ a ] : Optional A₀ ⇥ t₂
+    ───────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`List/last` returns the last element of a list:
+
+
+    t₀ ↠ List/last A₀ t₁   t₁ ↠ [] : List A₁   [] : Optional A₀ ⇥ t₂
+    ────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+    t₀ ↠ List/last A₀ t₁   t₁ ↠ [ …, a ]   [ a ] : Optional A₀ ⇥ t₂
+    ───────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`List/indexed` tags each element of the list with the element's index:
+
+
+    t₀ ↠ List/indexed A₀ t₁
+    t₁ ↠ [] : List A₁
+    [] : List { index : Natural, value : A₀ } ⇥ t₂
+    ──────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+    t₀ ↠ List/indexed A₀ t₁
+    t₁ ↠ [ a₀, … ]
+    [ { index = +0, value = a₀ }, … ] : List { index : Natural, value : A₀ } ⇥ t₂
+    ─────────────────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`List/reverse` reverses the elements of the list:
+
+
+    t₀ ↠ List/reverse A₀ t₁   t₁ ↠ [] : List A₁   [] : List A₀ ⇥ t₂
+    ───────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+    t₀ ↠ List/reverse A₀ t₁   t₁ ↠ [ a, … ]   [ …, a ] : List A₀ ⇥ t₂
+    ─────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
+`Optional/fold` is the canonical elimination function for `Optional` values:
+
+
+    t₀ ↠ Optional/fold A₀ t₁ B₀ f b   t₁ ⇥ [ a ] : Optional A₁   f a ⇥ t₂
+    ─────────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+    t₀ ↠ Optional/fold A₀ t₁ B₀ f b   t₁ ↠ [] : Optional A₁   b ⇥ t₂
+    ────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
 
 
 ## αβ-equivalence
