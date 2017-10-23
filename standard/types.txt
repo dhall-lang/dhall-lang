@@ -1017,6 +1017,9 @@ The first normalization rule specifies how β-reduction behaves:
     t ⇥ b₃
 
 
+The Boolean "and" and "or" operator behave in the usual way:
+
+    t
 The remaining functions are all built-in functions that conforming
 implementations must support.  Implementations are free to implement the
 following functions in more efficient ways as long as the result of
@@ -1181,8 +1184,8 @@ In the absence of fusion, `List/build` falls back on the following rule:
 
 
     t₀ ↠ List/build A t₁
-    t₁ (List A) (λ(a : A) → λ(as : List a) → [a] # as) ([] : List A) ⇥ t₂
-    ─────────────────────────────────────────────────────────────────────
+    t₁ (List A) (λ(a : A) → λ(as : List a) → [ a ] # as) ([] : List A) ⇥ t₂
+    ───────────────────────────────────────────────────────────────────────
     t₀ ⇥ t₂
 
 
@@ -1266,6 +1269,30 @@ In the absence of fusion, `List/build` falls back on the following rule:
     t₀ ⇥ t₂
 
 
+`Optional/build` is the canonical introduction function for `Optional` values and
+is the inverse of `Optional/fold`, which leads to the following rules for
+`build/fold` fusion:
+
+
+    t₀ ↠ Optional/fold A₀ t₁   t₁ ↠ Optional/build A₁ t₂   t₂ ⇥ t₃
+    ──────────────────────────────────────────────────────────────
+    t₀ ⇥ t₃
+
+
+    t₀ ↠ Optional/build A₀ t₁   t₁ ↠ Optional/fold A₁ t₂   t₂ ⇥ t₃
+    ──────────────────────────────────────────────────────────────
+    t₀ ⇥ t₃
+
+
+In the absence of fusion, `Optional/build` falls back on the following rule:
+
+
+    t₀ ↠ Optional/build A t₁
+    t₁ (Optional A) (λ(a : A) → [ a ] : Optional A) ([] : Optional A) ⇥ t₂
+    ─────────────────────────────────────────────────────────────────────
+    t₀ ⇥ t₂
+
+
 ## αβ-equivalence
 
 αβ-equivalence is a relationship between two expression of the form:
@@ -1334,7 +1361,7 @@ For example, these are type-level functions:
 
     List
 
-    λ(m : Type) → [m] → m
+    λ(m : Type) → [ m ] → m
 
 
 However, Dhall does not support dependently-typed functions, so there is no rule
