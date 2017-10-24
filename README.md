@@ -894,7 +894,7 @@ main = do
 
 **User:** *"What's a union?"*
 
-At this point you should read the [language manual](dhall-haskell-tutorial) ☺
+At this point you should read the [language manual][dhall-haskell-tutorial] ☺
 
 Or you can continue reading to learn about Dhall's feature set
 
