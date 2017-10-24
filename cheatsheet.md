@@ -41,7 +41,7 @@ True, False : Bool
 
 ### Text
 
-1. normal double-quoted strings, Haskell style escaping (`"\"abc\"\ndef"`)
+1. normal double-quoted strings, JSON-style escaping (`"\"abc\"\ndef"`)
 2. nix-style interpolated, multi-line strings
     * newline stripping
 
