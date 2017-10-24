@@ -10,13 +10,18 @@ Pipe file to `dhall` to typecheck/evaluate.
 # Syntax
 
 * `value : type`
+
 * here we use `,` to separate multiple values, which is not valid dhall
+
 * `-- this is a dhall comment`
+
 * multi line comment
-```
-{- this is multiline
-   comment example -}
-```
+
+  ```
+  {- this is a multiline
+     comment example -}
+  ```
+  
 * let-syntax
   
   ```
