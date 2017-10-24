@@ -442,7 +442,7 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
-http = http-raw whitespace [ using path-type ]
+http = http-raw whitespace [ using path-hashed ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -511,7 +511,11 @@ posix-environment-variable-character =
 
 path-type = file / http / env
 
-import = path-type [ as Text ]
+hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
+
+path-hashed = path-type [ hash ]
+
+import = path-hashed [ as Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
 ; whitespace.  This ensures consistent handling of whitespace in the absence of
