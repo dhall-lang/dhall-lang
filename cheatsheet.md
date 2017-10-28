@@ -67,11 +67,12 @@ True, False : Bool
     * interpolation
 
       ```
-      let template = 
-            \(name : Text) ->
-            \(age : Integer) ->
-              ''${name} is ${Integer/show age} years old''
-      in template "bilbo" 24
+          let template =
+            λ(name : Text)
+          → λ(age : Integer)
+          → name ++ " is " ++ Integer/show age ++ " years old"
+
+      in  template "bilbo" 24
       ```
 
       outputs `"bilbo is 24 years old"`
@@ -108,20 +109,19 @@ True, False : Bool
 ### Union
 
 ```
-let 
-  a : < A : Text | B : Natural | Foo : Text >
-      = < B = +42 | A : Text | Foo : Text >
-in let
-  b : < A : Text | B : Natural | Foo : Text >
-      = < Foo = "hello" | A : Text | B : Natural >
-in let
-  handlers =
-    { A   = \(a : Text)    -> False
-    , B   = \(i : Natural) -> Natural/even i
-    , Foo = \(t : Text)    -> True && False }
-in
-  (merge handlers a : Bool)
-    == True
+    let a
+        : < A : Text | B : Natural | Foo : Text >
+        = < B = +42 | A : Text | Foo : Text >
+
+in  let b
+        : < A : Text | B : Natural | Foo : Text >
+        = < Foo = "hello" | A : Text | B : Natural >
+
+in  let handlers =
+          { A   = λ(a : Text) → False
+          , B   = λ(i : Natural) → Natural/even i
+          , Foo = λ(t : Text) → True && False
+          }
 ```
 
 * tagged unions
@@ -136,10 +136,12 @@ in
 ## Functions
 
 ```
-let f = \(firstArgument : Text) ->
-        \(secondArgument : Integer) ->
-        "some text ${firstArgument} and int ${secondArgument}"
-in f "my text" 5
+    let f =
+            λ(firstArgument : Text)
+          → λ(secondArgument : Integer)
+          → "some text " ++ firstArgument ++ " and int " ++ secondArgument ++ ""
+
+in  f "my text" 5
 ```
 
 * types of input arguments are required (not inferred)
@@ -154,19 +156,11 @@ in f "my text" 5
 ## Polymorphism
 
 ```
-let
-  const = \(t1 : Type) ->
-          \(x : t1) ->
-          \(t2 : Type) ->
-          \(_ : t2) ->
-            x
-in let
-  id = \(t : Type) ->
-       \(x : t) ->
-         x
-in 
-  const Bool False Text "text"
-    == id Bool False
+    let const = λ(t1 : Type) → λ(x : t1) → λ(t2 : Type) → λ(_ : t2) → x
+
+in  let id = λ(t : Type) → λ(x : t) → x
+
+in  const Bool False Text "text" == id Bool False
 ```
 
 * specification of type variables happens explicitely as arguments
