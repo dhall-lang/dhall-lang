@@ -75,7 +75,7 @@ True, False : Bool
           let template =
             λ(name : Text)
           → λ(age : Integer)
-          → name ++ " is " ++ Integer/show age ++ " years old"
+          → "${name} is ${Integer/show age} years old"
 
       in  template "bilbo" 24
       ```
@@ -144,7 +144,7 @@ in  let handlers =
     let f =
             λ(firstArgument : Text)
           → λ(secondArgument : Integer)
-          → "some text " ++ firstArgument ++ " and int " ++ secondArgument ++ ""
+          → "some text ${firstArgument} and int ${Integer/show secondArgument}"
 
 in  f "my text" 5
 ```
