@@ -57,7 +57,7 @@ True, False : Bool
       ''
       ```
 
-      is `"\nfoo\nbar\n"`
+      is `"foo\nbar\n"`
 
     * no newlines & escaping `''`
 
