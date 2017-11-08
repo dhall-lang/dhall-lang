@@ -251,7 +251,7 @@ single-quote-continue =
 
 single-quote-literal = "''" single-quote-continue
 
-text-literal = (double-quote-literal / single-quote-literal) / whitespace
+text-literal = (double-quote-literal / single-quote-literal) whitespace
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
