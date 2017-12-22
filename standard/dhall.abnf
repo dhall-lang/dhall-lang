@@ -6,7 +6,8 @@
 ;
 ; First, do not use a lexer to tokenize the file before parsing.  Instead, treat
 ; the individual characters of the file as the tokens to feed into the parser.
-; You should not use a lexer because Dhall's grammar supports two features which; cannot be correctly supported by a lexer:
+; You should not use a lexer because Dhall's grammar supports two features which
+; cannot be correctly supported by a lexer:
 ;
 ; * String interpolation (i.e. "foo ${Natural/toInteger bar} baz")
 ; * Nested block comments (i.e. "{- foo {- bar -} baz -}")
@@ -17,7 +18,8 @@
 ;     List ./MyType
 ;
 ; A parser might first try to parse the period as the beginning of a field
-; selector, only to realize immediately afterwards that `/MyType` is not a valid; name for a field.  A conforming parser must backtrack so that the expression
+; selector, only to realize immediately afterwards that `/MyType` is not a valid
+; name for a field.  A conforming parser must backtrack so that the expression
 ; `./MyType` can instead be correctly interpreted as a relative path
 ;
 ; Third, if there are multiple valid parses then prefer the first parse
@@ -129,24 +131,24 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * as
 ; * using
 ; * merge
-; * Natural-fold
-; * Natural-build
-; * Natural-isZero
-; * Natural-even
-; * Natural-odd
-; * Natural-toInteger
-; * Natural-show
-; * Integer-show
-; * Double-show
-; * List-build
-; * List-fold
-; * List-length
-; * List-head
-; * List-last
-; * List-indexed
-; * List-reverse
-; * Optional-fold
-; * Optional-build
+; * Natural/fold
+; * Natural/build
+; * Natural/isZero
+; * Natural/even
+; * Natural/odd
+; * Natural/toInteger
+; * Natural/show
+; * Integer/show
+; * Double/show
+; * List/build
+; * List/fold
+; * List/length
+; * List/head
+; * List/last
+; * List/indexed
+; * List/reverse
+; * Optional/fold
+; * Optional/build
 ; * Bool
 ; * Optional
 ; * Natural
@@ -203,7 +205,6 @@ label = ("`" quoted-label "`" / simple-label) whitespace
 ; > "\uD834\uDD1E".
 double-quote-chunk =
       "${" expression "}"  ; Interpolation
-    / "''${"               ; Escape interpolation
     / %x5C                 ; '\'    Beginning of escape sequence
       ( %x22               ; '"'    quotation mark  U+0022
       / %x24               ; '$'    dollar sign     U+0024
@@ -250,7 +251,7 @@ single-quote-continue =
 
 single-quote-literal = "''" single-quote-continue
 
-text-literal = (double-quote-literal / single-quote-literal) / whitespace
+text-literal = (double-quote-literal / single-quote-literal) whitespace
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
@@ -336,7 +337,7 @@ natural-literal = "+" natural-raw whitespace
 
 identifier = label [ at natural-raw ]
 
-; Printable characters other than " ()[]{}<>/\"
+; Printable characters other than " ()[]{}<>/\,"
 ;
 ; Excluding those characters ensures that paths don't have to end with trailing
 ; whitespace most of the time
@@ -345,7 +346,9 @@ head-path-character =
       %x21-27
         ; %x28 = "("
         ; %x29 = ")"
-    / %x2A-2E
+    / %x2A-2B
+        ; %x2C = ","
+    / %x2D-2E
         ; %x2F = "/"
     / %x30-3B
         ; %x3C = "<"
@@ -397,6 +400,7 @@ IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
 
 IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
 
+; NOTE: Backtrack when parsing each alternative
 IPv6address =                            6( h16 ":" ) ls32
             /                       "::" 5( h16 ":" ) ls32
             / [               h16 ] "::" 4( h16 ":" ) ls32
@@ -413,6 +417,7 @@ ls32 = ( h16 ":" h16 ) / IPv4address
 
 IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
 
+; NOTE: Backtrack when parsing these alternatives and try them in reverse order
 dec-octet = DIGIT              ; 0-9
           / %x31-39 DIGIT      ; 10-99
           / "1" 2DIGIT         ; 100-199
@@ -437,7 +442,7 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
-http = http-raw whitespace [ using path-type ]
+http = http-raw whitespace [ using path-hashed ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -506,7 +511,11 @@ posix-environment-variable-character =
 
 path-type = file / http / env
 
-import = path-type [ as Text ]
+hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
+
+path-hashed = path-type [ hash ]
+
+import = path-hashed [ as Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
 ; whitespace.  This ensures consistent handling of whitespace in the absence of
