@@ -4,7 +4,7 @@
 
 Dhall's type system is System Fω implemented using a pure type system.  Type
 abstraction and type application are explicit and not inferred.  Dhall also
-supports additional built-in functions, operators, and constants for efficiency
+supports additional built-in functions, operators, and constants for efficiency.
 
 Dhall also supports referencing shadowed variables through the use of DeBruijn
 indices.  This document spells out in detail how to implement these
@@ -13,7 +13,8 @@ DeBruijn-like variable references.
 ## Expressions
 
 The following notation is a simplified version of the syntax found in
-`./dhall.abnf`.  This simplified notation is used for type judgments:
+`./dhall.abnf`.  This simplified notation is used for all of the following
+judgments:
 
 ```
 m, n = +0 / n + +1           ; Natural numbers
@@ -50,6 +51,10 @@ x, y                         ; Variables
 ;     i = kind of a function's "i"nput type
 ;     o = kind of a function's "o"utput type
 ;
+; Note that these are only informal mnemonics.  Dhall is a pure type system,
+; which means that many places in the syntax permit types, terms, and kinds.
+; The typing judgments are the authoritative rules for what expressions are
+; permitted and forbidden.
 a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
   = x@n                      ; Identifier
                              ; (`x` is short-hand for `x@0`)
@@ -83,7 +88,7 @@ a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
   / "…"                      ; Text literal
   / { x : T, … }             ; Record type
   / { x = t, … }             ; Non-empty record literal
-  / < x : T | … >            ; Non-empty union type
+  / < x : T | … >            ; Union type
   / < x = t | y : T | … >    ; Union literal
   / Natural/build            ; Natural introduction
   / Natural/fold             ; Natural elimination
@@ -133,14 +138,17 @@ Bruijn indices.  For example:
     λ(x : Type) → λ(y : Type) → λ(x : Type) → x@0
 
 
-    ┌─────────────────refers to─────────────────┐
-    │                                           │
-    ↓                                           │
+      ┌────────────────refers to────────────────┐
+      │                                         │
+      ↓                                         │
     λ(x : Type) → λ(y : Type) → λ(x : Type) → x@1
 
 
-If a variable does not specify the De Bruijn index (i.e. `x`) then the De Bruijn
-index defaults to 0 (i.e. `x@0`), like this:
+To be precise, `x@n` refers to the "nth" bound variable named `x` counting
+outwards from where the variable is referenced.
+
+If a variable does not specify the De Bruijn index (i.e. just `x`) then the De
+Bruijn index defaults to 0 (i.e. `x@0`), like this:
 
 
                                   ┌─refers to─┐
@@ -152,10 +160,7 @@ index defaults to 0 (i.e. `x@0`), like this:
 
 Dhall uses a shift function internally to avoid variable capture in the
 implementation of De Bruijn indices.  This function increases or decreases the
-indices of variables within an expression if they match two criteria:
-
-* The variable name matches the specified name
-* The variable index is greater than or equal to a specific number
+indices of free variables within an expression.
 
 This shift function has the form:
 
@@ -164,14 +169,14 @@ This shift function has the form:
 ... where:
 
 * `d` is the amount to add to the variable indices
-    * `d` may be negative, which will decrease matching variable indices
-* `x` is is the name of the variable to shift
-    * variables with this name may have their indices shifted if their indices
-      are large enough
+    * `d` is always `-1` or `1`
+* `x` is is the name of the free variable(s) to shift
     * variables with a different name are unaffected by the shift function
 * `m` is the minimum index to shift
-    * variables with a lower index are unaffected by the shift function
-    * this minimum bound is used to prevent bound variables from being shifted
+    * `m` always starts out at `0`
+    * `m` increases by one when descending past a bound variable named `x`
+    * variables with an index lower than `m` are unaffected by the shift
+      function
 * `e₀` is the expression to shift
 * `e₁` is the shifted expression
 
@@ -212,7 +217,8 @@ variable name does not match:
 
 ### Bound variables
 
-The shift operation is designed to shift only free variables.  For example:
+The shift function is designed to shift only free variables.  For example, the
+shift function should have no effect on a closed expression:
 
     ↑(1, x, 0, λ(x : Type) → x) = λ(x : Type) → x
 
@@ -261,8 +267,8 @@ that binds a variable of the same name:
 
 
     ↑(d, x, m, a₀) = a₁   ↑(d, x, m + 1, b₀) = b₁
-    ────────────────────────────────────────────────────
-    ↑(d, x, m, let x = a₀ in b₀) = let x : A₁ = a₁ in b₁
+    ───────────────────────────────────────────────
+    ↑(d, x, m, let x = a₀ in b₀) = let x = a₁ in b₁
 
 
 ... otherwise we descend as normal if the bound variable name does not match:
@@ -278,10 +284,10 @@ that binds a variable of the same name:
     ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
 
 
-Note that Dhall's `let` expressions are not recursive so the bound variable is
-not in scope for the right-hand side of the assignment (i.e. `a₀` in the above
-rules).  Therefore we do not need to shift the minimum index when descending
-into the right-hand side.
+Note that Dhall's `let` expressions do not allow recursive definitions so the
+bound variable is not in scope for the right-hand side of the assignment (i.e.
+`a₀` in the above rules).  Therefore we do not need to shift the minimum index
+when descending into the right-hand side of the `let` expression.
 
 ### Induction
 
