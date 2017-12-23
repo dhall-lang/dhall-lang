@@ -1033,6 +1033,10 @@ equivalence:
     if t then l else r₀ ⇥ r₁
 
 
+    t₀ ⇥ t₁   l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────────────────────────────────  ; If no other rule matches
+    if t₀ then l₀ else r₀ ⇥ if t₁ then l₁ else r₁
+
 `merge` expressions are the canonical way to eliminate a union literal.  The
 first argument to `merge` is a record of handlers and the second argument is a
 union value.  You apply the handler of the same label to the selected value of
@@ -1044,25 +1048,40 @@ the union literal:
     merge t u : T ⇥ e
 
 
+    t₀ ⇥ t₁   u₀ ⇥ u₁   T₀ ⇥ T₁
+    ───────────────────────────────────  ; If no other rule matches
+    merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
+
+
     t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
     ──────────────────────────────────────────────────────
     merge t u ⇥ e
 
 
+    t₀ ⇥ t₁   u₀ ⇥ u₁
+    ─────────────────────────  ; If no other rule matches
+    merge t₀ u₀ ⇥ merge t₁ u₁
+
+
 Normalizing a type annotation is the same as removing the type annotation:
 
 
-    t ⇥ e
-    ─────────
-    t : T ⇥ e
+    t₀ ⇥ t₁
+    ───────────
+    t₀ : T ⇥ t₁
 
 
 Boolean operators behave in the standard way:
 
 
-    l ⇥ False   r ⇥ e
-    ─────────────────
-    l || r ⇥ e
+    l ⇥ False   r₀ ⇥ r₁
+    ───────────────────
+    l || r₀ ⇥ r₁
+
+
+    r ⇥ False   l₀ ⇥ l₁
+    ───────────────────
+    l₀ || r ⇥ l₁
 
 
     l ⇥ True
@@ -1070,9 +1089,24 @@ Boolean operators behave in the standard way:
     l || r ⇥ True
 
 
-    l ⇥ True   r ⇥ e
-    ────────────────
-    l && r ⇥ e
+    r ⇥ True
+    ─────────────
+    l || r ⇥ True
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ───────────────────  ; If no other rule matches
+    l₀ || r₀ ⇥ l₁ || r₁
+
+
+    l ⇥ True   r₀ ⇥ r₁
+    ──────────────────
+    l && r₀ ⇥ r₁
+
+
+    r ⇥ True   l₀ ⇥ l₁
+    ──────────────────
+    l₀ && r ⇥ l₁
 
 
     l ⇥ False
@@ -1080,23 +1114,43 @@ Boolean operators behave in the standard way:
     l && r ⇥ False
 
 
-
-Natural number addition is defined via induction, but you will probably want to
-use machine arithmetic in a real implementation for efficiency:
-
-
-    l ⇥ +0   r ⇥ e
+    r ⇥ False
     ──────────────
-    l + r ⇥ e
+    l && r ⇥ False
 
 
-    l₀ ⇥ +1 + l₁   l₁ + r ⇥ e
-    ─────────────────────────
-    l₀ + r ⇥ +1 + e
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ───────────────────  ; If no other rule matches
+    l₀ && r₀ ⇥ l₁ && r₁
 
 
-Natural number multiplication is also defined via induction, but you will
-probably want to use machine arithmetic here, too:
+Natural number operators uses machine arithmetic if both arguments are `Natural`
+literals, and also include rewrite rules for algebraic identities:
+
+
+    l ⇥ +m   r ⇥ +n
+    ───────────────  ; "+m + +n" means "use machine addition"
+    l + r ⇥ +m + +n
+
+
+    l ⇥ +0   r₀ ⇥ r₁
+    ────────────────
+    l + r₀ ⇥ r₁
+
+
+    r ⇥ +0   l₀ ⇥ l₁
+    ────────────────
+    l₀ + r ⇥ l₁
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────  ; If no other rule matches
+    l₀ + r₀ ⇥ l₁ + r₁
+
+
+    l ⇥ +m   r ⇥ +n
+    ───────────────  ; "+m * +n" means "use machine addition"
+    l + r ⇥ +m * +n
 
 
     l ⇥ +0
@@ -1104,28 +1158,53 @@ probably want to use machine arithmetic here, too:
     l * r ⇥ +0
 
 
-    l₀ ⇥ +1 + l₁   r₀ ⇥ r₁   l₁ * r₀ ⇥ e
-    ────────────────────────────────────
-    l₀ * r₀ ⇥ r₁ + e
+    r ⇥ +0
+    ──────────
+    l * r ⇥ +0
 
 
-String concatenation is also defined via induction, but real implementations
-will use a more efficient approach:
+    l ⇥ +1   r₀ ⇥ r₁
+    ────────────────
+    l * r₀ ⇥ r₁
 
 
-    r ⇥ e
-    ───────────
-    "" ++ r ⇥ e
+    r ⇥ +1   l₀ ⇥ l₁
+    ────────────────
+    l₀ * r ⇥ l₁
 
 
-    l ++ r ⇥ e
-    ──────────────────────────
-    ("." ++ l) ++ r ⇥ "." ++ e
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────  ; If no other rule matches
+    l₀ * r₀ ⇥ l₁ * r₁
 
+
+Text concatenation uses machine concatenation if both arguments are `Text`
+literals, and also includes rewrite rules for algebraic identities:
+
+
+    l ⇥ ""   r₀ ⇥ r₁
+    ────────────────
+    l ++ r₀ ⇥ r₁
+
+
+    r ⇥ ""   l₀ ⇥ l₁
+    ────────────────
+    l₀ ++ r ⇥ l₁
+
+
+    l ⇥ "l…"   r ⇥ "r…"
+    ─────────────────────  ; "l…" ++ "r…" means "use machine concatenation"
+    l ++ r ⇥ "l…" ++ "r…"
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ───────────────────  ; If no other rule matches
+    l₀ ++ r₀ ⇥ l₁ ++ r₁
 
 Normalizing a list normalizes each field.  Lists are defined via induction as
 if they were linked lists, but a real implementation might represent them using
-another data structure under the hood:
+another data structure under the hood.  Dhall does not impose any time
+complexity requirements on list operations.
 
 
     T₀ ⇥ T₁
@@ -1133,22 +1212,35 @@ another data structure under the hood:
     [] : List T₀ ⇥ [] : List T₁
 
 
-    x₀ ⇥ x₁   xs₀ ⇥ xs₁
+    x₀ ⇥ x₁   xs₀… ⇥ xs₁…
     ───────────────────────────
     [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
 
 
-`List` concatenation is also defined via induction:
+List concatenation uses machine concatenation if both arguments are `List`
+literals, and also includes rewrite rules for algebraic identities:
 
 
-    ls ⇥ [] : List T   rs ⇥ es
-    ──────────────────────────
-    ls # rs ⇥ es
+    ls₀ ⇥ [ l₁, ls₁… ]
+    rs₀ ⇥ [ r₁, rs₁… ]
+    [ l₁, ls₁… ] # [ r₁, rs₁… ] ⇥ t
+    ──────────────────────────────   ;  "[ l₁, ls₁… ] # [ r₁, rs₁… ]" means
+    ls₀ # rs₀ ⇥ t                    ;  "use machine concatenation"
 
 
-    ls₀ ⇥ [ l₁, ls₁… ]   l₁ ⇥ l₂   ls₁… # rs ⇥ es
-    ─────────────────────────────────────────────
-    ls₀ # rs ⇥ [ l₂ ] # es
+    ls ⇥ [] : List T   rs₀ ⇥ rs₁
+    ────────────────────────────
+    ls # rs₀ ⇥ rs₁
+
+
+    rs ⇥ [] : List T   ls₀ ⇥ ls₁
+    ────────────────────────────
+    ls₀ # rs ⇥ ls₁
+
+
+    ls₀ ⇥ ls₁   rs₀ ⇥ rs₁
+    ─────────────────────   ; If no other rule matches
+    ls₀ # rs₀ ⇥ ls₁ # rs₁
 
 
 Normalizing a record normalizes each field:
@@ -1167,19 +1259,32 @@ Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
 
 
-    r ⇥ e
-    ──────────
-    {} ∧ r ⇥ e
+    l ⇥ {}   r₀ ⇥ r₁
+    ────────────────
+    l ∧ r₀ ⇥ r₁
 
 
-    a ∧ b ⇥ t   l… ∧ r… ⇥ u
-    ─────────────────────────────────────
-    { x = a, l… } ∧ { x = b, r… } ⇥ t ∧ u
+    r ⇥ {}   l₀ ⇥ l₁
+    ────────────────
+    l₀ ∧ r ⇥ l₁
 
 
-    a₀ ⇥ a₁   l… ∧ r ⇥ u
-    ──────────────────────────────────  ; x ∉ r
-    { x = a₀, l… } ∧ r ⇥ { x = a₁, u }
+    ls₀ ⇥ { x = l₁, ls₁… }
+    rs₀ ⇥ { x = r₁, rs₁… }
+    l₁ ∧ r₁ ⇥ t
+    ls₁… ∧ rs₁… ⇥ ts…
+    ──────────────────────────
+    ls₀ ∧ rs₀ ⇥ { x = t, ts… }
+
+
+    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ∧ rs ⇥ ls₂…
+    ─────────────────────────────────────────  ; x ∉ rs
+    ls₀ ∧ rs ⇥ { x = l₁, ls₂… }
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────   ; If no other rule matches
+    l₀ ∧ r₀ ⇥ l₁ ∧ r₁
 
 
 Right-biased record merge is non-recursive.  Field collisions are resolved by
@@ -1192,14 +1297,19 @@ from the left record:
     {} ⫽ r ⇥ e
 
 
-    b₀ ⇥ b₁   l ∧ r ⇥ t
-    ────────────────────────────────────────────
-    { x = a, l } ∧ { x = b₀, r } ⇥ { x = b₁, t }
+    ls₀ ⇥ { x = l₁, ls₁… }   rs₀ ⇥ { x = r₁, rs₁… }   ls₁… ⫽ rs₁… ⇥ ts…
+    ───────────────────────────────────────────────────────────────────
+    ls₀ ⫽ rs₀ ⇥ { x = r₁, ts… }
 
 
-    a₀ ⇥ a₁   l ∧ r ⇥ t
-    ─────────────────────────────────  ; x ∉ r
-    { x = a₀, l } ∧ r ⇥ { x = a₁, t }
+    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ⫽ rs ⇥ ls₂…
+    ─────────────────────────────────────────  ; x ∉ rs
+    ls₀ ⫽ rs ⇥ { x = l₁, ls₂… }
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────   ; If no other rule matches
+    l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
 
 The `Natural/fold` function is the canonical elimination function for natural
@@ -1469,7 +1579,7 @@ the above function application rules apply:
 
 
     f₀ ⇥ f₁   a₀ ⇥ a₁
-    ─────────────────  ; No other function application rule applies
+    ─────────────────  ; If no other rule matches
     f₀ a₀ ⇥ f₁ a₁
 
 
