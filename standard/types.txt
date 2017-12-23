@@ -17,11 +17,13 @@ The following notation is a simplified version of the syntax found in
 judgments:
 
 ```
-m, n = +0 / n + +1           ; Natural numbers
+m, n = +0 / +1 + n     ; Natural numbers
 
-d = n / -n                   ; Integers
+d = n / -n             ; Integers
 
-x, y                         ; Variables
+"…" = "" / "." ++ "…"  ; Text ("." is any character and "…" is any string)
+
+x, y                   ; Variables
 
 ; Mnemonics:
 ;
@@ -630,7 +632,7 @@ We ensure that we only substitute free variables by increasing the index when a
 new bound variable of the same name is in scope:
 
 
-    …   b₀[x@(n + +1) ≔ e₁] = b₁   …
+    …   b₀[x@(+1 + n) ≔ e₁] = b₁   …
     ────────────────────────────────
     …
 
@@ -652,7 +654,7 @@ bound variable is in scope, like this:
 All of the following rules cover expressions that can bind variables:
 
 
-    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
+    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(+1 + n) ≔ e₁] = b₁
     ──────────────────────────────────────────────────────────────────
     (λ(x : A₀) → b₀)[x@n ≔ e₀] = λ(x : A₁) → b₁
 
@@ -662,7 +664,7 @@ All of the following rules cover expressions that can bind variables:
     (λ(y : A₀) → b₀)[x@n ≔ e₀] = λ(y : A₁) → b₁
 
 
-    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(n + +1) ≔ e₁] = B₁
+    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(+1 + n) ≔ e₁] = B₁
     ──────────────────────────────────────────────────────────────────
     (∀(x : A₀) → B₀)[x@n ≔ e₀] = ∀(x : A₁) → B₁
 
@@ -675,7 +677,7 @@ All of the following rules cover expressions that can bind variables:
     A₀[x@n ≔ e₀] = A₁
     a₀[x@n ≔ e₀] = a₁
     ↑(1, x, 0, e₀) = e₁
-    b₀[x@(n + +1) ≔ e₁] = b₁
+    b₀[x@(+1 + n) ≔ e₁] = b₁
     ─────────────────────────────────────────────────────────
     (let x : A₀ = a₀ in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ in b₁
 
@@ -688,7 +690,7 @@ All of the following rules cover expressions that can bind variables:
     (let y : A₀ = a₀ in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ in b₁
 
 
-    a₀[x@n ≔ e₀] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
+    a₀[x@n ≔ e₀] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(+1 + n) ≔ e₁] = b₁
     ──────────────────────────────────────────────────────────────────
     (let x = a₀ in b₀)[x@n ≔ e₀] = let x = a₁ in b₁
 
@@ -946,46 +948,6 @@ as normal:
     Kind[x@n ≔ e] = Kind
 
 
-## Weak head normal form
-
-Type-checking depends on reducing expressions to weak head normal form using
-a function of the following form:
-
-    t₀ ↠ t₁
-
-... where
-
-* `t₀` is the expression we want to reduce to weak head normal form
-* `t₁` is the reduced expression in weak head normal form
-
-For example:
-
-    (λ(x : Bool) → x) True ↠ True
-
-    List ((λ(a : Type) → a) Bool) ↠ List ((λ(a : Type) → a) Bool)
-
-    λ(x : Bool) → (λ(y : Bool) → y) True ↠ λ(x : Bool) → (λ(y : Bool) → y) True
-
-Weak head normal form only β-reduces expressions enough to discern the outermost
-function or constant:
-
-
-    f ↠ λ(x : A) → b₀
-    ↑(1, x, 0, a₀) = a₁
-    b₀[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ↠ b₃
-    ───────────────────────
-    f a₀ ↠ b₃
-
-
-Otherwise weak-head normal form does nothing and does not recurse structurally:
-
-
-    ─────  ; All other cases
-    t ↠ t
-
-
 ## Normalization
 
 Normalization is a function of the following form:
@@ -1001,7 +963,7 @@ Normalization evaluates all β-reducible expressions:
 
     (λ(x : Bool) → x != False) True ⇥ False
 
-Normalization also evaluates all built-in functions:
+Normalization also evaluates all built-in functions if they are fully saturated:
 
     List/length Integer [1, 2, 3] ⇥ +3
 
@@ -1010,28 +972,235 @@ can be normalized:
 
     λ(x : Bool) → List/length Integer [1, 2, 3] ⇥ λ(x : Bool) → +3
 
-Dhall is a total language, so evaluation order has no effect on the language
-semantics and a conforming implementation can select any evaluation strategy.
+Dhall is a total language that is strongly normalizing, so evaluation order has
+no effect on the language semantics and a conforming implementation can select
+any evaluation strategy.
+
+Also, note that the semantics specifies several built-in functions and operators
+that conforming implementations must support.  Implementations are encouraged to
+implement the following functions and operators in more efficient ways than the
+following reduction rules so long as the result of normalization is the same.
 
 The first normalization rule specifies how β-reduction behaves:
 
-
-    t ⇥ (λ(x : A) → b₀) a₀
+    f ⇥ λ(x : A) → b₀
     ↑(1, x, 0, a₀) = a₁
     b₀[x ≔ a₁] = b₁
     ↑(-1, x, 0, b₁) = b₂
     b₂ ⇥ b₃
-    ────────────────────
-    t ⇥ b₃
+    ──────────────────────
+    f a₀ ⇥ b₃
 
 
-The Boolean "and" and "or" operator behave in the usual way:
+An expression of the form:
 
-    t
-The remaining functions are all built-in functions that conforming
-implementations must support.  Implementations are free to implement the
-following functions in more efficient ways as long as the result of
-normalization is the same.
+    let x : A = a₀ in b₀
+
+... is semantically identical to:
+
+    (λ(x : A) → b₀) a₀
+
+... and the normalization rules for `let` expressions reflect that semantic
+equivalence:
+
+
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ─────────────────────────
+    let x : A = a₀ in b₀ ⇥ b₃
+
+
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ─────────────────────
+    let x = a₀ in b₀ ⇥ b₃
+
+
+`if` expressions are the canonical way to eliminate a `Bool`:
+
+
+    t ⇥ True   l₀ ⇥ l₁
+    ────────────────────────
+    if t then l₀ else r ⇥ l₁
+
+
+    t ⇥ False   r₀ ⇥ r₁
+    ────────────────────────
+    if t then l else r₀ ⇥ r₁
+
+
+`merge` expressions are the canonical way to eliminate a union literal.  The
+first argument to `merge` is a record of handlers and the second argument is a
+union value.  You apply the handler of the same label to the selected value of
+the union literal:
+
+
+    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
+    ──────────────────────────────────────────────────────
+    merge t u : T ⇥ e
+
+
+    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
+    ──────────────────────────────────────────────────────
+    merge t u ⇥ e
+
+
+Normalizing a type annotation is the same as removing the type annotation:
+
+
+    t ⇥ e
+    ─────────
+    t : T ⇥ e
+
+
+Boolean operators behave in the standard way:
+
+
+    l ⇥ False   r ⇥ e
+    ─────────────────
+    l || r ⇥ e
+
+
+    l ⇥ True
+    ─────────────
+    l || r ⇥ True
+
+
+    l ⇥ True   r ⇥ e
+    ────────────────
+    l && r ⇥ e
+
+
+    l ⇥ False
+    ──────────────
+    l && r ⇥ False
+
+
+
+Natural number addition is defined via induction, but you will probably want to
+use machine arithmetic in a real implementation for efficiency:
+
+
+    l ⇥ +0   r ⇥ e
+    ──────────────
+    l + r ⇥ e
+
+
+    l₀ ⇥ +1 + l₁   l₁ + r ⇥ e
+    ─────────────────────────
+    l₀ + r ⇥ +1 + e
+
+
+Natural number multiplication is also defined via induction, but you will
+probably want to use machine arithmetic here, too:
+
+
+    l ⇥ +0
+    ──────────
+    l * r ⇥ +0
+
+
+    l₀ ⇥ +1 + l₁   r₀ ⇥ r₁   l₁ * r₀ ⇥ e
+    ────────────────────────────────────
+    l₀ * r₀ ⇥ r₁ + e
+
+
+String concatenation is also defined via induction, but real implementations
+will use a more efficient approach:
+
+
+    r ⇥ e
+    ───────────
+    "" ++ r ⇥ e
+
+
+    l ++ r ⇥ e
+    ──────────────────────────
+    ("." ++ l) ++ r ⇥ "." ++ e
+
+
+Normalizing a list normalizes each field.  Lists are defined via induction as
+if they were linked lists, but a real implementation might represent them using
+another data structure under the hood:
+
+
+    T₀ ⇥ T₁
+    ──────────────────────────
+    [] : List T₀ ⇥ [] : List T₁
+
+
+    x₀ ⇥ x₁   xs₀ ⇥ xs₁
+    ──────────────────────────
+    [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
+
+
+`List` concatenation is also defined via induction:
+
+
+    ls ⇥ [] : List T   rs ⇥ es
+    ─────────────────────────
+    ls # rs ⇥ es
+
+
+    ls₀ ⇥ [ l₁, ls₁… ]   l₁ ⇥ l₂  ls₁… # rs ⇥ es
+    ───────────────────────────────────────
+    ls₀ # rs ⇥ [ l₂ ] # es
+
+
+Normalizing a record normalizes each field:
+
+
+    ───────
+    {} ⇥ {}
+
+
+    t₀ ⇥ t₁   r₀… ⇥ r₁…
+    ───────────────────────────────
+    { x = t₀, r₀… } ⇥ { x = t₁, r₁… }
+
+
+Recursive record merge combines two records, recursively merging any fields that
+collide.  The type system ensures that colliding fields must be records:
+
+
+    r ⇥ e
+    ──────────
+    {} ∧ r ⇥ e
+
+
+    a ∧ b ⇥ t   l… ∧ r… ⇥ u
+    ─────────────────────────────────────
+    { x = a, l… } ∧ { x = b, r… } ⇥ t ∧ u
+
+
+    a₀ ⇥ a₁   l… ∧ r ⇥ u
+    ──────────────────────────────────  ; x ∉ r
+    { x = a₀, l… } ∧ r ⇥ { x = a₁, u }
+
+
+Right-biased record merge is non-recursive.  Field collisions are resolved by
+preferring the field from the right record and discarding the colliding field
+from the left record:
+
+
+    r ⇥ e
+    ──────────
+    {} ⫽ r ⇥ e
+
+
+    b₀ ⇥ b₁   l ∧ r ⇥ t
+    ────────────────────────────────────────────
+    { x = a, l } ∧ { x = b₀, r } ⇥ { x = b₁, t }
+
+
+    a₀ ⇥ a₁   l ∧ r ⇥ t
+    ─────────────────────────────────  ; x ∉ r
+    { x = a₀, l } ∧ r ⇥ { x = a₁, t }
+
 
 The `Natural/fold` function is the canonical elimination function for natural
 numbers:
@@ -1042,7 +1211,7 @@ numbers:
     t₀ ⇥ t₁
 
 
-    t₀ ↠ Natural/fold m B f b   m ↠ n + +1   f (Natural/fold n B f b) ⇥ t₁
+    t₀ ↠ Natural/fold m B f b   m ↠ +1 + n   f (Natural/fold n B f b) ⇥ t₁
     ──────────────────────────────────────────────────────────────────────
     t₀ ⇥ t₁
 
@@ -1082,7 +1251,7 @@ In the absence of fusion, `Natural/build` falls back on the following rule:
     t₀ ⇥ True
 
 
-    t₀ ↠ Natural/isZero t₁   t₁ ↠ n + +1
+    t₀ ↠ Natural/isZero t₁   t₁ ↠ +1 + n
     ────────────────────────────────────
     t₀ ⇥ False
 
@@ -1448,7 +1617,7 @@ with each variable disambiguates which type annotation in the context to use:
 
     Γ ⊢ A : k   Γ ⊢ x@n : T
     ─────────────────────────  ; 0 < n
-    Γ, x : A ⊢ x@(n + +1) : T
+    Γ, x : A ⊢ x@(+1 + n) : T
 
 
     Γ ⊢ A : k   Γ ⊢ x@n : T
@@ -1582,13 +1751,9 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 # TODO
 
-* Double-check whether or not WHNF needs to normalize non-lambda functions
+* Use … notation more precisely
 * Fix `=ᵦ` to include `α`
-* Fix weak head normal form to evaluate built-in functions instead of just
-  β-reductions
 * Flesh out αβ-equivalence in more detail
 * Does the valid context optimization from the Henk paper work?  If so, simplify
   typing judgments
-* Document the judgment for weak head normal form
-* Update Dhall's type-checker to only use WHNF
 * Reference Henk paper
