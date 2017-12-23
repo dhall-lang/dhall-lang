@@ -550,7 +550,7 @@ The syntax of contexts is:
       / Γ, x : E  ; A context extended with a type annotation for a variable
 
 Contexts are ordered and there can be multiple type annotations in the context
-for the same variable
+for the same variable.
 
 ## Shift context
 
@@ -562,22 +562,24 @@ You can also shift a context by shifting each expression in that context:
 
     ↑(d, x, m, Γ₀) = Γ₁   ↑(d, x, m, E₀) = E₁
     ─────────────────────────────────────────
-    ↑(d, x, m, (Γ₀, x : E₁)) = Γ₁, x : E₁
+    ↑(d, x, m, (Γ₀, x : E₀)) = Γ₁, x : E₁
 
 
 ## Substitution
 
 β-reduction requires support for substitution, which has the following form:
 
-    b[x@n ≔ a]
+    e₀[x@n ≔ a] = e₁
 
 ... where:
 
-* `b` is the expression that you want to transform
-* `x@n` is the variable that you want to substitute
+* `e₀` is the expression that you want to transform
+* `x@n` is the variable that you want to substitute with another expression
 * `a` is the expression that you want to substitute `x@n` with
+* `e₁` is transformed expression where all occurrences of `x@n` have been
+  replaced with `a`
 
-`b[x ≔ a]` is short-hand for `b[x@0 ≔ a]`
+`e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 
 For example:
 
@@ -590,8 +592,10 @@ For example:
 ### Variables
 
 Like shifting, we only need to pay special attention to the cases where we
-bind variables or reference variables.  The first two rules govern when we can
-substitute a variable with the specified expression:
+bind variables or reference variables.
+
+The first two rules govern when we can substitute a variable with the specified
+expression:
 
 
     ────────────────
@@ -612,20 +616,18 @@ ignore bound variables.  The following few examples can help build an intuition
 for how substitution uses the numeric index of the variable that we are
 substituting for:
 
-    (λ(x : Type) → x)[x ≔ Bool] = λ(x : Type) → x
+    (λ(x : Text) → x)[x ≔ True] = λ(x : Text) → x
 
-    (λ(y : Type) → x)[x ≔ Bool] = λ(x : Type) → Bool
+    (λ(y : Text) → x)[x ≔ True] = λ(x : Text) → True
 
-    (λ(x : Type) → x@1)[x ≔ Bool] = λ(x : Type) → Bool
+    (λ(x : Text) → x@1)[x ≔ True] = λ(x : Text) → True
 
-    (λ(x : Type) → x@2)[x@1 ≔ Bool] = λ(x : Type) → Bool
+    (λ(x : Text) → x@2)[x@1 ≔ True] = λ(x : Text) → True
 
-    (λ(x : Type) → λ(x : Type) → x@3)[x@1 ≔ Bool] = λ(x : Type) → λ(x : Type) → Bool
+    (λ(x : Text) → λ(x : Text) → x@3)[x@1 ≔ True] = λ(x : Text) → λ(x : Text) → True
 
-We increment the index of the variable that we substitute every time we descend
-past a bound variable that has the same name.  You will see this in the
-following rules where the index to substitute is incremented for the expression
-that the bound variable scopes over:
+We ensure that we only substitute free variables by increasing the index when a
+new bound variable of the same name is in scope:
 
 
     …   b₀[x@(n + +1) ≔ e₁] = b₁   …
@@ -638,8 +640,8 @@ expression that we substitute, like this:
 
     (λ(x : Type) → y)[y ≔ x] = λ(x : Type) → x@1
 
-We avoid capture by shifting the expression any time we descend past a bound
-variable, like this:
+We avoid variable capture by shifting the expression to substitute when any new
+bound variable is in scope, like this:
 
 
     …   ↑(1, x, 0, e₀) = e₁   …
@@ -650,49 +652,49 @@ variable, like this:
 All of the following rules cover expressions that can bind variables:
 
 
-    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
-    ─────────────────────────────────────────────────────────────────
+    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
+    ──────────────────────────────────────────────────────────────────
     (λ(x : A₀) → b₀)[x@n ≔ e₀] = λ(x : A₁) → b₁
 
 
-    A₀[x@n ≔ e] = A₁   ↑(1, y, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
-    ──────────────────────────────────────────────────────────  ; x ≠ y
+    A₀[x@n ≔ e₀] = A₁   ↑(1, y, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
+    ───────────────────────────────────────────────────────────  ; x ≠ y
     (λ(y : A₀) → b₀)[x@n ≔ e₀] = λ(y : A₁) → b₁
 
 
-    A₀[x@n ≔ e] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(n + +1) ≔ e₁] = B₁
-    ─────────────────────────────────────────────────────────────────
+    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(n + +1) ≔ e₁] = B₁
+    ──────────────────────────────────────────────────────────────────
     (∀(x : A₀) → B₀)[x@n ≔ e₀] = ∀(x : A₁) → B₁
 
 
-    A₀[x@n ≔ e] = A₁   ↑(1, y, 0, e₀) = e₁   B₀[x@n ≔ e₁] = B₁
-    ──────────────────────────────────────────────────────────  ; x ≠ y
+    A₀[x@n ≔ e₀] = A₁   ↑(1, y, 0, e₀) = e₁   B₀[x@n ≔ e₁] = B₁
+    ───────────────────────────────────────────────────────────  ; x ≠ y
     (∀(y : A₀) → B₀)[x@n ≔ e₀] = ∀(y : A₁) → B₁
 
 
-    A₀[x@n ≔ e] = A₁
-    a₀[x@n ≔ e] = a₁
+    A₀[x@n ≔ e₀] = A₁
+    a₀[x@n ≔ e₀] = a₁
     ↑(1, x, 0, e₀) = e₁
     b₀[x@(n + +1) ≔ e₁] = b₁
     ─────────────────────────────────────────────────────────
     (let x : A₀ = a₀ in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ in b₁
 
 
-    A₀[x@n ≔ e] = A₁
-    a₀[x@n ≔ e] = a₁
-    ↑(1, x, 0, e₀) = e₁
+    A₀[x@n ≔ e₀] = A₁
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, y, 0, e₀) = e₁
     b₀[x@n ≔ e₁] = b₁
     ─────────────────────────────────────────────────────────  ; x ≠ y
     (let y : A₀ = a₀ in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ in b₁
 
 
-    a₀[x@n ≔ e] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
-    ─────────────────────────────────────────────────────────────────
+    a₀[x@n ≔ e₀] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(n + +1) ≔ e₁] = b₁
+    ──────────────────────────────────────────────────────────────────
     (let x = a₀ in b₀)[x@n ≔ e₀] = let x = a₁ in b₁
 
 
-    a₀[x@n ≔ e] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
-    ──────────────────────────────────────────────────────────  ; x ≠ y
+    a₀[x@n ≔ e₀] = a₁   ↑(1, y, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
+    ───────────────────────────────────────────────────────────  ; x ≠ y
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
