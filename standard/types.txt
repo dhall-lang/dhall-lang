@@ -69,7 +69,7 @@ a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
   / merge t u : T            ; Union elimination with type annotation
   / merge t u                ; Union elimination
   / [] : List T              ; Empty list literals with type annotation
-  / [ t, … ]                 ; Non-empty list literals
+  / [ t, ts… ]               ; Non-empty list literals
   / [   ] : Optional T       ; Empty optional literal
   / [ t ] : Optional T       ; Non-empty optional literal
   / t : T                    ; Type annotation
@@ -90,8 +90,8 @@ a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
   / "…"                      ; Text literal
   / { x : T, … }             ; Record type
   / { x = t, … }             ; Non-empty record literal
-  / < x : T | … >            ; Union type
-  / < x = t | y : T | … >    ; Union literal
+  / < x : T | xs… >          ; Union type
+  / < x = t | y : T | ys… >  ; Union literal
   / Natural/build            ; Natural introduction
   / Natural/fold             ; Natural elimination
   / Natural/isZero           ; Test if zero
@@ -317,9 +317,9 @@ as normal:
     ↑(d, x, m, [] : List T₀) = [] : List T₁
 
 
-    ↑(d, x, m, t₀) = t₁   …
-    ─────────────────────────────────
-    ↑(d, x, m, [ t₀, … ]) = [ t₁, … ]
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, ts₀…) = ts₁…
+    ─────────────────────────────────────────────
+    ↑(d, x, m, [ t₀, ts₀… ]) = [ t₁, ts₁… ]
 
 
     ↑(d, x, m, T₀) = T₁
@@ -408,24 +408,24 @@ as normal:
     ↑(d, x, m, "…") = "…"
 
 
-    ↑(d, x, m, T₀) = T₁   …
-    ─────────────────────────────────────────
-    ↑(d, x, m, { x : T₀, … }) = { x : T₁, … }
+    ↑(d, x, m, T₀) = T₁   ↑(d, x, m, xs₀…) = xs₁…
+    ───────────────────────────────────────────────
+    ↑(d, x, m, { x : T₀, xs₀… }) = { x : T₁, xs₁… }
 
 
-    ↑(d, x, m, t₀) = t₁   …
-    ─────────────────────────────────────────
-    ↑(d, x, m, { x = t₀, … }) = { x = t₁, … }
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, xs₀…) = xs₁…
+    ───────────────────────────────────────────────
+    ↑(d, x, m, { x = t₀, xs₀… }) = { x = t₁, xs₁… }
 
 
-    ↑(d, x, m, T₀) = T₁   …
-    ───────────────────────────────────────────
-    ↑(d, x, m, < x : T₀ | … >) = < x : T₁ | … >
+    ↑(d, x, m, T₀) = T₁   ↑(d, x, m, xs₀…) = xs₁…
+    ─────────────────────────────────────────────────
+    ↑(d, x, m, < x : T₀ | xs₀… >) = < x : T₁ | xs₁… >
 
 
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁   …
-    ─────────────────────────────────────────────────────────────
-    ↑(d, x, m, < x = t₀ | y : T₀ | … >) = < x = t₁ | y : T₁ | … >
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁   ↑(d, x, m, ys₀…) = ys₁…
+    ───────────────────────────────────────────────────────────────────
+    ↑(d, x, m, < x = t₀ | y : T₀ | ys₀… >) = < x = t₁ | y : T₁ | ys₁… >
 
 
     ─────────────────────────────────────────
@@ -726,9 +726,9 @@ as normal:
     ([] : List T₀)[x@n ≔ e] = [] : List T₁
 
 
-    t₀[x@n ≔ e] = t₁   …
-    ────────────────────────────────
-    ([ t₀, … ])[x@n ≔ e] = [ t₁, … ]
+    t₀[x@n ≔ e] = t₁   ts₀…[x@n ≔ e] = ts₁…
+    ───────────────────────────────────────
+    ([ t₀, ts₀… ])[x@n ≔ e] = [ t₁, ts₁… ]
 
 
     T₀[x@n ≔ e] = T₁
@@ -817,19 +817,19 @@ as normal:
     "…"[x@n ≔ e] = "…"
 
 
-    T₀[x@n ≔ e] = T₁   …
-    ──────────────────────────────────────
-    { x : T₀, … }[x@n ≔ e] = { x : T₁, … }
+    T₀[x@n ≔ e] = T₁   xs₀…[x@n ≔ e] = xs₁…
+    ──────────────────────────────────────────────
+    { x₀ : T₀, xs₀… }[x@n ≔ e] = { x₀ : T₁, xs₁… }
 
 
-    t₀[x@n ≔ e] = t₁   …
-    ──────────────────────────────────────
-    { x = t₀, … }[x@n ≔ e] = { x = t₁, … }
+    t₀[x@n ≔ e] = t₁   xs₀…[x@n ≔ e] = xs₁…
+    ──────────────────────────────────────────────
+    { x₀ = t₀, xs₀… }[x@n ≔ e] = { x₀ = t₁, xs₁… }
 
 
-    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁   …
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁   ys₀…[x@n ≔ e] = ys₁…
     ──────────────────────────────────────────────────────────
-    < x = t₀ | y : T₀ | … >[x@n ≔ e] = < x = t₁ | y : T₁ | … >
+    < x₀ = t₀ | y : T₀ | ys₀… >[x@n ≔ e] = < x₀ = t₁ | y : T₁ | ys₁… >
 
 
     ──────────────────────────────────────
@@ -1134,7 +1134,7 @@ another data structure under the hood:
 
 
     x₀ ⇥ x₁   xs₀ ⇥ xs₁
-    ──────────────────────────
+    ───────────────────────────
     [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
 
 
@@ -1142,12 +1142,12 @@ another data structure under the hood:
 
 
     ls ⇥ [] : List T   rs ⇥ es
-    ─────────────────────────
+    ──────────────────────────
     ls # rs ⇥ es
 
 
-    ls₀ ⇥ [ l₁, ls₁… ]   l₁ ⇥ l₂  ls₁… # rs ⇥ es
-    ───────────────────────────────────────
+    ls₀ ⇥ [ l₁, ls₁… ]   l₁ ⇥ l₂   ls₁… # rs ⇥ es
+    ─────────────────────────────────────────────
     ls₀ # rs ⇥ [ l₂ ] # es
 
 
@@ -1158,9 +1158,9 @@ Normalizing a record normalizes each field:
     {} ⇥ {}
 
 
-    t₀ ⇥ t₁   r₀… ⇥ r₁…
-    ───────────────────────────────
-    { x = t₀, r₀… } ⇥ { x = t₁, r₁… }
+    t₀ ⇥ t₁   xs₀… ⇥ xs₁…
+    ───────────────────────────────────
+    { x = t₀, xs₀… } ⇥ { x = t₁, xs₁… }
 
 
 Recursive record merge combines two records, recursively merging any fields that
@@ -1206,14 +1206,14 @@ The `Natural/fold` function is the canonical elimination function for natural
 numbers:
 
 
-    t₀ ↠ Natural/fold m B f b   m ↠ +0   b ⇥ t₁
-    ───────────────────────────────────────────
-    t₀ ⇥ t₁
+    f ⇥ Natural/fold +0 B g   b ⇥ t₁
+    ────────────────────────────────
+    f b ⇥ t₁
 
 
-    t₀ ↠ Natural/fold m B f b   m ↠ +1 + n   f (Natural/fold n B f b) ⇥ t₁
-    ──────────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₁
+    f ⇥ Natural/fold (+1 + n) B g   g (Natural/fold n B g b) ⇥ t₁
+    ─────────────────────────────────────────────────────────────
+    f b ⇥ t₁
 
 
 `Natural/build` is the canonical introduction function for `Natural` numbers and
@@ -1221,124 +1221,120 @@ is the inverse of `Natural/fold`, which leads to the following rules for
 `build/fold` fusion:
 
 
-    t₀ ↠ Natural/build t₁
-    t₁ ↠ Natural/fold t₂
-    t₂ ⇥ t₃
-    ─────────────────────
-    t₀ ⇥ t₃
+    f ⇥ Natural/build   a ⇥ Natural/fold b
+    ──────────────────────────────────────
+    f a ⇥ b
 
 
-    t₀ ↠ Natural/fold t₁
-    t₁ ↠ Natural/build t₂
-    t₂ ⇥ t₃
-    ─────────────────────
-    t₀ ⇥ t₃
+    f ⇥ Natural/fold   a ⇥ Natural/build b
+    ──────────────────────────────────────
+    f a ⇥ b
 
 
 In the absence of fusion, `Natural/build` falls back on the following rule:
 
 
-    t₀ ↠ Natural/build f   f Natural (λ(x : Natural) → x + +1) +0 ⇥ t₁
-    ──────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₁
+    f ⇥ Natural/build   g Natural (λ(x : Natural) → x + +1) +0 ⇥ b
+    ──────────────────────────────────────────────────────────────
+    f g ⇥ b
 
 
 `Natural/isZero` detects whether or not a `Natural` number is `+0`:
 
 
-    t₀ ↠ Natural/isZero t₁   t₁ ↠ +0
-    ────────────────────────────────
-    t₀ ⇥ True
+    f ⇥ Natural/isZero   a ⇥ +0
+    ───────────────────────────
+    f a ⇥ True
 
 
-    t₀ ↠ Natural/isZero t₁   t₁ ↠ +1 + n
-    ────────────────────────────────────
-    t₀ ⇥ False
+    f ⇥ Natural/isZero   a ⇥ +1 + n
+    ───────────────────────────────
+    f a ⇥ False
 
 
 `Natural/even` detects whether or not a `Natural` number is even:
 
 
-    t₀ ↠ Natural/even t₁   t₁ ↠ +0
-    ──────────────────────────────
-    t₀ ⇥ True
+    f ⇥ Natural/even   a ⇥ +0
+    ─────────────────────────
+    f a ⇥ True
 
 
-    t₀ ↠ Natural/even t₁   t₁ ↠ +1
-    ──────────────────────────────
-    t₀ ⇥ False
+    f ⇥ Natural/even   a ⇥ +1
+    ─────────────────────────
+    f a ⇥ False
 
 
-    t₀ ↠ Natural/even t₁   t₁ ↠ t₂ + +1   Natural/odd t₂ ⇥ t₃
-    ─────────────────────────────────────────────────────────
-    t₀ ⇥ t₃
+    f ⇥ Natural/even   a ⇥ n + +1   Natural/odd n ⇥ b
+    ─────────────────────────────────────────────────
+    f a ⇥ b
 
 
 `Natural/odd` detects whether or not a `Natural` number is off:
 
 
-    t₀ ↠ Natural/odd t₁   t₁ ↠ +0
-    ──────────────────────────────
-    t₀ ⇥ False
+    f ⇥ Natural/odd   a ⇥ +0
+    ────────────────────────
+    f a ⇥ False
 
 
-    t₀ ↠ Natural/odd t₁   t₁ ↠ +1
-    ──────────────────────────────
-    t₀ ⇥ True
+    f ⇥ Natural/odd   a ⇥ +1
+    ────────────────────────
+    f a ⇥ True
 
 
-    t₀ ↠ Natural/odd t₁   t₁ ↠ t₂ + +1   Natural/even t₂ ⇥ t₃
-    ─────────────────────────────────────────────────────────
-    t₀ ⇥ t₃
+    f ⇥ Natural/odd   a ⇥ n + +1   Natural/even n ⇥ b
+    ─────────────────────────────────────────────────
+    f a ⇥ b
 
 
 `Natural/toInteger` transforms a `Natural` number into the corresponding
 `Integer`:
 
 
-    t₀ ↠ Natural/toInteger t₁   t₁ ↠ +n
-    ───────────────────────────────────
-    t₀ ⇥ n
+    f ⇥ Natural/toInteger   a ⇥ +n
+    ──────────────────────────────
+    f a ⇥ n
 
 
 `Natural/show` transforms a `Natural` number into a `Text` literal representing
 valid Dhall code for representing that `Natural` number:
 
 
-    t₀ ↠ Natural/show t₁   t₁ ↠ +n
-    ──────────────────────────────
-    t₀ ⇥ "+n"
+    f ⇥ Natural/show   a ⇥ +n
+    ─────────────────────────
+    f a ⇥ "+n"
 
 
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
 
 
-    t₀ ↠ Integer/show t₁   t₁ ↠ n
-    ─────────────────────────────
-    t₀ ⇥ "n"
+    f ⇥ Integer/show   a ⇥ n
+    ────────────────────────
+    f a ⇥ "n"
 
 
 `Double/show` transforms a `Double` into a `Text` literal representing valid
 Dhall code for representing that `Double` number:
 
 
-    t₀ ↠ Double/show t₁   t₁ ↠ n.n
-    ──────────────────────────────
-    t₀ ⇥ "n.n"
+    f ⇥ Double/show   a ⇥ n.n
+    ─────────────────────────
+    f a ⇥ "n.n"
 
 
 `List/fold` is the canonical elimination function for `List`s:
 
 
-    t₀ ↠ List/fold A₀ t₁ B f b   t₁ ↠ [] : List A₁   b ⇥ t₂
-    ───────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/fold A₀ ([] : List A₁) B g   b₀ ⇥ b₁
+    ─────────────────────────────────────────────
+    f b₀ ⇥ b₁
 
 
-    t₀ ⇥ List/fold A₀ t₁ B f b   t₁ ↠ [ a, … ]   f a (List/fold A₀ … B f b) ⇥ t₂
-    ────────────────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/fold A₀ [ a, as… ] B g   g a (List/fold A₀ as… B g b₀) ⇥ b₁
+    ────────────────────────────────────────────────────────────────────
+    f b₀ ⇥ b₁
 
 
 `List/build` is the canonical introduction function for `List`s and is the
@@ -1346,130 +1342,154 @@ inverse of `List/fold`, which leads to the following rules for `build/fold`
 fusion:
 
 
-    t₀ ↠ List/fold A₀ t₁   t₁ ↠ List/build A₁ t₂   t₂ ⇥ t₃
-    ──────────────────────────────────────────────────────
-    t₀ ⇥ t₃
+    f ⇥ List/fold A₀   a ⇥ List/build A₁ b
+    ──────────────────────────────────────
+    f a ⇥ b
 
 
-    t₀ ↠ List/build A₀ t₁   t₁ ↠ List/fold A₁ t₂   t₂ ⇥ t₃
-    ──────────────────────────────────────────────────────
-    t₀ ⇥ t₃
+    f ⇥ List/build A₀   a ⇥ List/fold A₁ b
+    ──────────────────────────────────────
+    f a ⇥ b
 
 
 
 In the absence of fusion, `List/build` falls back on the following rule:
 
 
-    t₀ ↠ List/build A t₁
-    t₁ (List A) (λ(a : A) → λ(as : List a) → [ a ] # as) ([] : List A) ⇥ t₂
+    f ⇥ List/build A
+    g (List A) (λ(a : A) → λ(as : List A) → [ a ] # as) ([] : List A) ⇥ b
     ───────────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f g ⇥ b
 
 
 `List/length` returns the length of a list:
 
 
-    t₀ ↠ List/length A₀ t₁   t₁ ↠ [] : List A₁
-    ──────────────────────────────────────────
-    t₀ ⇥ +0
+    f ⇥ List/length A₀   a ⇥ [] : List A₁
+    ─────────────────────────────────────
+    f a ⇥ +0
 
 
-    t₀ ↠ List/length A₀ t₁   t₁ ↠ [ a, … ]   +1 + List/length A₀ … ⇥ t₂
-    ───────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/length A₀   as₀ ⇥ [ a, as₁… ]   +1 + List/length A₀ as₁… ⇥ n
+    ─────────────────────────────────────────────────────────────────────
+    f as₀ ⇥ n
 
 
 `List/head` returns the first element of a list:
 
 
-    t₀ ↠ List/head A₀ t₁   t₁ ↠ [] : List A₁   [] : Optional A₀ ⇥ t₂
-    ────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/head A₀   as ⇥ [] : List A₁
+    ────────────────────────────────────
+    f as ⇥ [] : Optional A₀
 
 
-    t₀ ↠ List/head A₀ t₁   t₁ ↠ [ a, … ]   [ a ] : Optional A₀ ⇥ t₂
-    ───────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/head A₀   as ⇥ [ a, … ]
+    ────────────────────────────────
+    f as ⇥ [ a ] : Optional A₀
 
 
 `List/last` returns the last element of a list:
 
 
-    t₀ ↠ List/last A₀ t₁   t₁ ↠ [] : List A₁   [] : Optional A₀ ⇥ t₂
-    ────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/last A₀   as ⇥ [] : List A₁
+    ────────────────────────────────────
+    f as ⇥ [] : Optional A₀
 
 
-    t₀ ↠ List/last A₀ t₁   t₁ ↠ [ …, a ]   [ a ] : Optional A₀ ⇥ t₂
-    ───────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/last A₀   as ⇥ [ …, a ]
+    ────────────────────────────────
+    f as ⇥ [ a ] : Optional A₀
 
 
 `List/indexed` tags each element of the list with the element's index:
 
 
-    t₀ ↠ List/indexed A₀ t₁
-    t₁ ↠ [] : List A₁
-    [] : List { index : Natural, value : A₀ } ⇥ t₂
-    ──────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/indexed A₀   as ⇥ [] : List A₁
+    ───────────────────────────────────────────────
+    f as ⇥ [] : List { index : Natural, value : A₀ }
 
 
-    t₀ ↠ List/indexed A₀ t₁
-    t₁ ↠ [ a₀, … ]
-    [ { index = +0, value = a₀ }, … ] : List { index : Natural, value : A₀ } ⇥ t₂
-    ─────────────────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/indexed A₀   as ⇥ [ a₀, a₁, …, ]
+    ────────────────────────────────────────────────────────────────────
+    f as ⇥ [ { index = +0, value = a₀ }, { index = +1, value = a₁ }, … ]
 
 
 `List/reverse` reverses the elements of the list:
 
 
-    t₀ ↠ List/reverse A₀ t₁   t₁ ↠ [] : List A₁   [] : List A₀ ⇥ t₂
-    ───────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ List/reverse A₀   as ⇥ [] : List A₁
+    ───────────────────────────────────────
+    f as ⇥ [] : List A₁
 
-    t₀ ↠ List/reverse A₀ t₁   t₁ ↠ [ a, … ]   [ …, a ] : List A₀ ⇥ t₂
-    ─────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+
+    f ⇥ List/reverse A₀   as ⇥ [ a₀, a₁, … ]
+    ────────────────────────────────────────
+    f as ⇥ [ …, a₁, a₀ ]
 
 
 `Optional/fold` is the canonical elimination function for `Optional` values:
 
 
-    t₀ ↠ Optional/fold A₀ t₁ B₀ f b   t₁ ⇥ [ a ] : Optional A₁   f a ⇥ t₂
-    ─────────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
-
-    t₀ ↠ Optional/fold A₀ t₁ B₀ f b   t₁ ↠ [] : Optional A₁   b ⇥ t₂
-    ────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ Optional/fold A₀ ([ a ] : Optional A₁) B₀ g   g a ⇥ b₁
+    ──────────────────────────────────────────────────────────
+    f b₀ ⇥ b₁
 
 
-`Optional/build` is the canonical introduction function for `Optional` values and
-is the inverse of `Optional/fold`, which leads to the following rules for
+    f ⇥ Optional/fold A₀ ([] : Optional A₁) B₀ g   b₀ ⇥ b₁
+    ─────────────────────────────────────────────────────
+    f b₀ ⇥ b₁
+
+
+`Optional/build` is the canonical introduction function for `Optional` values
+and is the inverse of `Optional/fold`, which leads to the following rules for
 `build/fold` fusion:
 
 
-    t₀ ↠ Optional/fold A₀ t₁   t₁ ↠ Optional/build A₁ t₂   t₂ ⇥ t₃
-    ──────────────────────────────────────────────────────────────
-    t₀ ⇥ t₃
+    f ⇥ Optional/fold A₀   a ⇥ Optional/build A₁ b
+    ──────────────────────────────────────────────
+    f a ⇥ b
 
 
-    t₀ ↠ Optional/build A₀ t₁   t₁ ↠ Optional/fold A₁ t₂   t₂ ⇥ t₃
-    ──────────────────────────────────────────────────────────────
-    t₀ ⇥ t₃
+    f ⇥ Optional/build A₀   a ⇥ Optional/fold A₁ b
+    ──────────────────────────────────────────────
+    f a ⇥ b
 
 
 In the absence of fusion, `Optional/build` falls back on the following rule:
 
 
-    t₀ ↠ Optional/build A t₁
-    t₁ (Optional A) (λ(a : A) → [ a ] : Optional A) ([] : Optional A) ⇥ t₂
-    ─────────────────────────────────────────────────────────────────────
-    t₀ ⇥ t₂
+    f ⇥ Optional/build A
+    g (Optional A) (λ(a : A) → [ a ] : Optional A) ([] : Optional A) ⇥ b
+    ────────────────────────────────────────────────────────────────────
+    f g ⇥ b
 
 
+Function application falls back on normalizing both sub-expressions if none of
+the above function application rules apply:
+
+
+    f₀ ⇥ f₁   a₀ ⇥ a₁
+    ─────────────────  ; No other function application rule applies
+    f₀ a₀ ⇥ f₁ a₁
+
+
+The remaining rules also just descend as normal:
+
+
+    ─────────
+    x@n ⇥ x@n
+
+
+    A₀ → A₁   b₀ → b₁
+    ───────────────────────────────
+    λ(x : A₀) → b₀ ⇥ λ(x : A₁) → b₁
+
+
+    A₀ → A₁   b₀ → b₁
+    ───────────────────────────────
+    ∀(x : A₀) → b₀ ⇥ ∀(x : A₁) → b₁
+
+    
 ## αβ-equivalence
 
 αβ-equivalence is a relationship between two expression of the form:
@@ -1564,17 +1584,16 @@ To infer the type of a closed expression, supply an empty context:
 ### Reduction
 
 Additionally, there is a separate helper judgment for inferring a type reduced
-to weak head normal form:
+to normal form:
 
 
-    Γ ⊢ a : A   A ↠ B
+    Γ ⊢ a : A   A ⇥ B
     ─────────────────
-    Γ ⊢ a :↠ B
+    Γ ⊢ a :⇥ B
 
 
 This judgment is essentially identical to the judgment for type inference except
-that this judgment guarantees that the inferred type is in weak head normal
-form.
+that this judgment guarantees that the inferred type is in normal form.
 
 ### Types and Kinds
 
@@ -1657,7 +1676,7 @@ types of functions.
 A function type is only well-typed if the input and output type are well-typed:
 
 
-    Γ₀ ⊢ A :↠ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :↠ o   ⊢ i ↝ o
+    Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   ⊢ i ↝ o
     ──────────────────────────────────────────────────────────────────
     Γ₀ ⊢ ∀(x : A) → B : o
 
@@ -1684,7 +1703,7 @@ the input type that a function expects matches the inferred type of the
 function's argument:
 
 
-    Γ ⊢ f :↠ ∀(x : A₀) → B₀
+    Γ ⊢ f :⇥ ∀(x : A₀) → B₀
     Γ ⊢ a : A₁
     A₀ =ᵦ A₁
     ↑(1, x, 0, a₀) = a₁
@@ -1705,11 +1724,11 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 
     Γ₀ ⊢ a₀ : A₁
-    Γ₀ ⊢ A₀ :↠ i
+    Γ₀ ⊢ A₀ :⇥ i
     A₀ =ᵦ A₁
     ↑(1, x, 0, (Γ₀, x : A₀)) = Γ₁
     Γ₁ ⊢ b : B₀
-    Γ₁ ⊢ B₀ :↠ o
+    Γ₁ ⊢ B₀ :⇥ o
     ⊢ i ↝ o
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁]) = B₁
@@ -1719,10 +1738,10 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 
     Γ₀ ⊢ a₀ : A
-    Γ₀ ⊢ A :↠ i
+    Γ₀ ⊢ A :⇥ i
     ↑(1, x, 0, (Γ₀, x : A)) = Γ₁
     Γ₁ ⊢ b : B₀
-    Γ₁ ⊢ B ₀:↠ o
+    Γ₁ ⊢ B ₀:⇥ o
     ⊢ i ↝ o
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
@@ -1734,11 +1753,11 @@ terminate if one of `A₀` or `A₁` is not well-typed
 ### `if`/`then`/`else`
 
 
-    Γ ⊢ t :↠ Bool
+    Γ ⊢ t :⇥ Bool
     Γ ⊢ l : L
     Γ ⊢ r : R
-    Γ ⊢ L :↠ Type
-    Γ ⊢ R :↠ Type
+    Γ ⊢ L :⇥ Type
+    Γ ⊢ R :⇥ Type
     L =ᵦ R
     ──────────────────────────
     Γ ⊢ if t then l else r : L
@@ -1751,6 +1770,8 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 # TODO
 
+* Add fallback rules for all of the normalization rules
+* Consistently use + prefix for natural numbers
 * Use … notation more precisely
 * Fix `=ᵦ` to include `α`
 * Flesh out αβ-equivalence in more detail
