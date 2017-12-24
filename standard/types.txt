@@ -976,10 +976,11 @@ Dhall is a total language that is strongly normalizing, so evaluation order has
 no effect on the language semantics and a conforming implementation can select
 any evaluation strategy.
 
-Also, note that the semantics specifies several built-in functions and operators
-that conforming implementations must support.  Implementations are encouraged to
-implement the following functions and operators in more efficient ways than the
-following reduction rules so long as the result of normalization is the same.
+Also, note that the semantics specifies several built-in types, functions and
+operators that conforming implementations must support.  Implementations are
+encouraged to implement the following functions and operators in more efficient
+ways than the following reduction rules so long as the result of normalization
+is the same.
 
 The first normalization rule specifies how β-reduction behaves:
 
@@ -1124,6 +1125,46 @@ Boolean operators behave in the standard way:
     l₀ && r₀ ⇥ l₁ && r₁
 
 
+    l ⇥ True   r₀ ⇥ r₁
+    ──────────────────
+    l == r₀ ⇥ r₁
+
+
+    r ⇥ True   l₀ ⇥ l₁
+    ──────────────────
+    l₀ == r ⇥ l₁
+
+
+    l ⇥ False   r ⇥ False
+    ─────────────────────
+    l == r ⇥ True
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ───────────────────  ; If no other rule matches
+    l₀ == r₀ ⇥ l₁ == r₁
+
+
+    l ⇥ False   r₀ ⇥ r₁
+    ───────────────────
+    l != r₀ ⇥ r₁
+
+
+    r ⇥ False   l₀ ⇥ l₁
+    ───────────────────
+    l₀ != r ⇥ l₁
+
+
+    l ⇥ True   r ⇥ True
+    ───────────────────
+    l != r ⇥ False
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ───────────────────  ; If no other rule matches
+    l₀ != r₀ ⇥ l₁ != r₁
+
+
 Natural number operators uses machine arithmetic if both arguments are `Natural`
 literals, and also include rewrite rules for algebraic identities:
 
@@ -1200,21 +1241,6 @@ literals, and also includes rewrite rules for algebraic identities:
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ───────────────────  ; If no other rule matches
     l₀ ++ r₀ ⇥ l₁ ++ r₁
-
-Normalizing a list normalizes each field.  Lists are defined via induction as
-if they were linked lists, but a real implementation might represent them using
-another data structure under the hood.  Dhall does not impose any time
-complexity requirements on list operations.
-
-
-    T₀ ⇥ T₁
-    ──────────────────────────
-    [] : List T₀ ⇥ [] : List T₁
-
-
-    x₀ ⇥ x₁   xs₀… ⇥ xs₁…
-    ───────────────────────────
-    [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
 
 
 List concatenation uses machine concatenation if both arguments are `List`
@@ -1434,6 +1460,22 @@ Dhall code for representing that `Double` number:
     f a ⇥ "n.n"
 
 
+Normalizing a `List` normalizes each field.  Lists are defined here via
+induction as if they were linked lists, but a real implementation might
+represent them using another data structure under the hood.  Dhall does not
+impose any time complexity requirements on list operations.
+
+
+    T₀ ⇥ T₁
+    ──────────────────────────
+    [] : List T₀ ⇥ [] : List T₁
+
+
+    x₀ ⇥ x₁   xs₀… ⇥ xs₁…
+    ───────────────────────────
+    [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
+
+
 `List/fold` is the canonical elimination function for `List`s:
 
 
@@ -1599,7 +1641,160 @@ The remaining rules also just descend as normal:
     ───────────────────────────────
     ∀(x : A₀) → b₀ ⇥ ∀(x : A₁) → b₁
 
-    
+
+    T₀ ⇥ T₁
+    ───────────────────────────────────
+    [] : Optional T₀ ⇥ [] : Optional T₁
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁
+    ───────────────────────────────────────────
+    [ t₀ ] : Optional T₀ ⇥ [ t₁ ] : Optional T₁
+
+
+    ─────────
+    n.n ⇥ n.n
+
+
+    ───────
+    +n ⇥ +n
+
+
+    ─────────
+    "…" ⇥ "…"
+
+
+    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
+    ───────────────────────────────────
+    { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
+
+
+    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
+    ─────────────────────────────────────
+    < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁   ys₀… ⇥ ys₁…
+    ───────────────────────────────────────────────────────
+    < x = t₀ | y : T₀ | ys₀… > ⇥ < x = t₁ | y : T₁ | ys₁… >
+
+
+    ─────────────────────────────
+    Natural/build ⇥ Natural/build
+
+
+    ───────────────────────────
+    Natural/fold ⇥ Natural/fold
+
+
+    ───────────────────────────────
+    Natural/isZero ⇥ Natural/isZero
+
+
+    ───────────────────────────
+    Natural/even ⇥ Natural/even
+
+
+    ─────────────────────────
+    Natural/odd ⇥ Natural/odd
+
+
+    ─────────────────────────────────────
+    Natural/toInteger ⇥ Natural/toInteger
+
+
+    ───────────────────────────
+    Natural/show ⇥ Natural/show
+
+
+    ───────────────────────────
+    Integer/show ⇥ Integer/show
+
+
+    ─────────────────────────
+    Double/show ⇥ Double/show
+
+
+    ───────────────────────
+    List/build ⇥ List/build
+
+
+    ─────────────────────
+    List/fold ⇥ List/fold
+
+
+    ─────────────────────────
+    List/length ⇥ List/length
+
+
+    ─────────────────────
+    List/head ⇥ List/head
+
+
+    ─────────────────────
+    List/last ⇥ List/last
+
+
+    ───────────────────────────
+    List/indexed ⇥ List/indexed
+
+
+    ───────────────────────────
+    List/reverse ⇥ List/reverse
+
+
+    ─────────────────────────────
+    Optional/fold ⇥ Optional/fold
+
+
+    ───────────────────────────────
+    Optional/build ⇥ Optional/build
+
+
+    ───────────
+    Bool ⇥ Bool
+
+
+    ───────────────────
+    Optional ⇥ Optional
+
+
+    ─────────────────
+    Natural ⇥ Natural
+
+
+    ─────────────────
+    Integer ⇥ Integer
+
+
+    ───────────────
+    Double ⇥ Double
+
+
+    ───────────
+    Text ⇥ Text
+
+
+    ───────────
+    List ⇥ List
+
+
+    ───────────
+    True ⇥ True
+
+
+    ─────────────
+    False ⇥ False
+
+
+    ───────────
+    Type ⇥ Type
+
+
+    ───────────
+    Kind ⇥ Kind
+
+
 ## αβ-equivalence
 
 αβ-equivalence is a relationship between two expression of the form:
