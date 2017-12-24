@@ -84,6 +84,7 @@ a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
   / l == r                   ; Boolean equality
   / l != r                   ; Boolean inequality
   / f a                      ; Function application
+  / e.x                      ; Field selection
   / n.n                      ; Double-precision floating point literal
   / +n                       ; Natural number literal
   / n                        ; Integer literal
@@ -390,6 +391,11 @@ as normal:
     ↑(d, x, m, f₀) = f₁   ↑(d, x, m, a₀) = a₁
     ─────────────────────────────────────────
     ↑(d, x, m, f₀ a₀) = f₁ a₁
+
+
+    ↑(d, x, m, e₀) = e₁
+    ──────────────────────
+    ↑(d, x, m, e.x) = e₁.x
 
 
     ─────────────────────
@@ -801,6 +807,11 @@ as normal:
     (f₀ a₀)[x@n ≔ e] = f₁ a₁
 
 
+    e₀[x@n ≔ e] = e₁
+    ────────────────────────
+    (e₀.x₀)[x@n ≔ e] = e₁.x₀
+
+
     ──────────────────
     n.n[x@n ≔ e] = n.n
 
@@ -982,46 +993,37 @@ encouraged to implement the following functions and operators in more efficient
 ways than the following reduction rules so long as the result of normalization
 is the same.
 
-The first normalization rule specifies how β-reduction behaves:
+### Variables
 
-    f ⇥ λ(x : A) → b₀
-    ↑(1, x, 0, a₀) = a₁
-    b₀[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ──────────────────────
-    f a₀ ⇥ b₃
+Variables are already in normal form:
 
 
-An expression of the form:
-
-    let x : A = a₀ in b₀
-
-... is semantically identical to:
-
-    (λ(x : A) → b₀) a₀
-
-... and the normalization rules for `let` expressions reflect that semantic
-equivalence:
+    ─────────
+    x@n ⇥ x@n
 
 
-    ↑(1, x, 0, a₀) = a₁
-    b₀[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────
-    let x : A = a₀ in b₀ ⇥ b₃
+### `Bool`
 
 
-    ↑(1, x, 0, a₀) = a₁
-    b₀[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────
-    let x = a₀ in b₀ ⇥ b₃
+The `Bool` type is in normal form:
 
 
-`if` expressions are the canonical way to eliminate a `Bool`:
+    ───────────
+    Bool ⇥ Bool
+
+
+The `Bool` constructors are in normal form:
+
+
+    ───────────
+    True ⇥ True
+
+
+    ─────────────
+    False ⇥ False
+
+
+Simplify an `if` expression if the predicate normalizes to a `Bool` literal:
 
 
     t ⇥ True   l₀ ⇥ l₁
@@ -1034,45 +1036,28 @@ equivalence:
     if t then l else r₀ ⇥ r₁
 
 
+Also, simplify an `if` expression if the expression trivially returns the
+predicate:
+
+
+    l ⇥ True   r ⇥ False   t₀ ⇥ t₁
+    ──────────────────────────────
+    if t₀ then l else r ⇥ t₁
+
+
+Otherwise, you normalize the predicate and both branches of the `if` expression:
+
+
     t₀ ⇥ t₁   l₀ ⇥ l₁   r₀ ⇥ r₁
     ─────────────────────────────────────────────  ; If no other rule matches
     if t₀ then l₀ else r₀ ⇥ if t₁ then l₁ else r₁
 
-`merge` expressions are the canonical way to eliminate a union literal.  The
-first argument to `merge` is a record of handlers and the second argument is a
-union value.  You apply the handler of the same label to the selected value of
-the union literal:
 
+Even though `True`, `False`, and `if` expression suffice for all `Bool` logic,
+Dhall also supports logical operators for convenience.
 
-    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
-    ──────────────────────────────────────────────────────
-    merge t u : T ⇥ e
-
-
-    t₀ ⇥ t₁   u₀ ⇥ u₁   T₀ ⇥ T₁
-    ───────────────────────────────────  ; If no other rule matches
-    merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
-
-
-    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
-    ──────────────────────────────────────────────────────
-    merge t u ⇥ e
-
-
-    t₀ ⇥ t₁   u₀ ⇥ u₁
-    ─────────────────────────  ; If no other rule matches
-    merge t₀ u₀ ⇥ merge t₁ u₁
-
-
-Normalizing a type annotation is the same as removing the type annotation:
-
-
-    t₀ ⇥ t₁
-    ───────────
-    t₀ : T ⇥ t₁
-
-
-Boolean operators behave in the standard way:
+Simplify the logical "or" operator so long as at least one argument normalizes
+to a `Bool` literal:
 
 
     l ⇥ False   r₀ ⇥ r₁
@@ -1095,9 +1080,16 @@ Boolean operators behave in the standard way:
     l || r ⇥ True
 
 
+Otherwise, you normalize each argument:
+
+
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ───────────────────  ; If no other rule matches
     l₀ || r₀ ⇥ l₁ || r₁
+
+
+Simplify the logical "and" operator so long as at least one argument normalizes
+to a `Bool` literal:
 
 
     l ⇥ True   r₀ ⇥ r₁
@@ -1120,9 +1112,16 @@ Boolean operators behave in the standard way:
     l && r ⇥ False
 
 
+Otherwise, you normalize each argument:
+
+
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ───────────────────  ; If no other rule matches
     l₀ && r₀ ⇥ l₁ && r₁
+
+
+Simplify the logical "equal" operator if one argument normalizes to a `True`
+literal:
 
 
     l ⇥ True   r₀ ⇥ r₁
@@ -1135,14 +1134,24 @@ Boolean operators behave in the standard way:
     l₀ == r ⇥ l₁
 
 
+... or if both arguments normalize to a `False` literal:
+
+
     l ⇥ False   r ⇥ False
     ─────────────────────
     l == r ⇥ True
 
 
+Otherwise, you normalize each argument:
+
+
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ───────────────────  ; If no other rule matches
     l₀ == r₀ ⇥ l₁ == r₁
+
+
+Simplify the logical "not equal" operator if one argument normalizes to a
+`False` literal:
 
 
     l ⇥ False   r₀ ⇥ r₁
@@ -1155,9 +1164,15 @@ Boolean operators behave in the standard way:
     l₀ != r ⇥ l₁
 
 
+... or if both arguments normalize to a `True` literal:
+
+
     l ⇥ True   r ⇥ True
     ───────────────────
     l != r ⇥ False
+
+
+Otherwise, you normalize each argument:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -1165,177 +1180,20 @@ Boolean operators behave in the standard way:
     l₀ != r₀ ⇥ l₁ != r₁
 
 
-Natural number operators uses machine arithmetic if both arguments are `Natural`
-literals, and also include rewrite rules for algebraic identities:
+### `Natural`
+
+The `Natural` number type is in normal form:
 
 
-    l ⇥ +m   r ⇥ +n
-    ───────────────  ; "+m + +n" means "use machine addition"
-    l + r ⇥ +m + +n
+    ─────────────────
+    Natural ⇥ Natural
 
 
-    l ⇥ +0   r₀ ⇥ r₁
-    ────────────────
-    l + r₀ ⇥ r₁
-
-
-    r ⇥ +0   l₀ ⇥ l₁
-    ────────────────
-    l₀ + r ⇥ l₁
-
-
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────  ; If no other rule matches
-    l₀ + r₀ ⇥ l₁ + r₁
-
-
-    l ⇥ +m   r ⇥ +n
-    ───────────────  ; "+m * +n" means "use machine addition"
-    l + r ⇥ +m * +n
-
-
-    l ⇥ +0
-    ──────────
-    l * r ⇥ +0
-
-
-    r ⇥ +0
-    ──────────
-    l * r ⇥ +0
-
-
-    l ⇥ +1   r₀ ⇥ r₁
-    ────────────────
-    l * r₀ ⇥ r₁
-
-
-    r ⇥ +1   l₀ ⇥ l₁
-    ────────────────
-    l₀ * r ⇥ l₁
-
-
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────  ; If no other rule matches
-    l₀ * r₀ ⇥ l₁ * r₁
-
-
-Text concatenation uses machine concatenation if both arguments are `Text`
-literals, and also includes rewrite rules for algebraic identities:
-
-
-    l ⇥ ""   r₀ ⇥ r₁
-    ────────────────
-    l ++ r₀ ⇥ r₁
-
-
-    r ⇥ ""   l₀ ⇥ l₁
-    ────────────────
-    l₀ ++ r ⇥ l₁
-
-
-    l ⇥ "l…"   r ⇥ "r…"
-    ─────────────────────  ; "l…" ++ "r…" means "use machine concatenation"
-    l ++ r ⇥ "l…" ++ "r…"
-
-
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ───────────────────  ; If no other rule matches
-    l₀ ++ r₀ ⇥ l₁ ++ r₁
-
-
-List concatenation uses machine concatenation if both arguments are `List`
-literals, and also includes rewrite rules for algebraic identities:
-
-
-    ls₀ ⇥ [ l₁, ls₁… ]
-    rs₀ ⇥ [ r₁, rs₁… ]
-    [ l₁, ls₁… ] # [ r₁, rs₁… ] ⇥ t
-    ──────────────────────────────   ;  "[ l₁, ls₁… ] # [ r₁, rs₁… ]" means
-    ls₀ # rs₀ ⇥ t                    ;  "use machine concatenation"
-
-
-    ls ⇥ [] : List T   rs₀ ⇥ rs₁
-    ────────────────────────────
-    ls # rs₀ ⇥ rs₁
-
-
-    rs ⇥ [] : List T   ls₀ ⇥ ls₁
-    ────────────────────────────
-    ls₀ # rs ⇥ ls₁
-
-
-    ls₀ ⇥ ls₁   rs₀ ⇥ rs₁
-    ─────────────────────   ; If no other rule matches
-    ls₀ # rs₀ ⇥ ls₁ # rs₁
-
-
-Normalizing a record normalizes each field:
+`Natural` number literals are in normal form:
 
 
     ───────
-    {} ⇥ {}
-
-
-    t₀ ⇥ t₁   xs₀… ⇥ xs₁…
-    ───────────────────────────────────
-    { x = t₀, xs₀… } ⇥ { x = t₁, xs₁… }
-
-
-Recursive record merge combines two records, recursively merging any fields that
-collide.  The type system ensures that colliding fields must be records:
-
-
-    l ⇥ {}   r₀ ⇥ r₁
-    ────────────────
-    l ∧ r₀ ⇥ r₁
-
-
-    r ⇥ {}   l₀ ⇥ l₁
-    ────────────────
-    l₀ ∧ r ⇥ l₁
-
-
-    ls₀ ⇥ { x = l₁, ls₁… }
-    rs₀ ⇥ { x = r₁, rs₁… }
-    l₁ ∧ r₁ ⇥ t
-    ls₁… ∧ rs₁… ⇥ ts…
-    ──────────────────────────
-    ls₀ ∧ rs₀ ⇥ { x = t, ts… }
-
-
-    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ∧ rs ⇥ ls₂…
-    ─────────────────────────────────────────  ; x ∉ rs
-    ls₀ ∧ rs ⇥ { x = l₁, ls₂… }
-
-
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────   ; If no other rule matches
-    l₀ ∧ r₀ ⇥ l₁ ∧ r₁
-
-
-Right-biased record merge is non-recursive.  Field collisions are resolved by
-preferring the field from the right record and discarding the colliding field
-from the left record:
-
-
-    r ⇥ e
-    ──────────
-    {} ⫽ r ⇥ e
-
-
-    ls₀ ⇥ { x = l₁, ls₁… }   rs₀ ⇥ { x = r₁, rs₁… }   ls₁… ⫽ rs₁… ⇥ ts…
-    ───────────────────────────────────────────────────────────────────
-    ls₀ ⫽ rs₀ ⇥ { x = r₁, ts… }
-
-
-    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ⫽ rs ⇥ ls₂…
-    ─────────────────────────────────────────  ; x ∉ rs
-    ls₀ ⫽ rs ⇥ { x = l₁, ls₂… }
-
-
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────   ; If no other rule matches
-    l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
+    +n ⇥ +n
 
 
 The `Natural/fold` function is the canonical elimination function for natural
@@ -1375,6 +1233,85 @@ In the absence of fusion, `Natural/build` falls back on the following rule:
     f g ⇥ b
 
 
+Even though `Natural/fold` and `Natural/build` suffice for all `Natural` number
+programming, Dhall also supports `Natural` number literals and built-in
+functions and operators on `Natural` numbers, both for convenience and
+efficiency.
+
+Use machine addition to simplify the "plus" operator if both arguments normalize
+to `Natural` literals:
+
+
+    l ⇥ +m   r ⇥ +n
+    ───────────────  ; "+m + +n" means "use machine addition"
+    l + r ⇥ +m + +n
+
+
+Also, simplify the "plus" operator if either argument normalizes to a `+0`
+literal:
+
+
+    l ⇥ +0   r₀ ⇥ r₁
+    ────────────────
+    l + r₀ ⇥ r₁
+
+
+    r ⇥ +0   l₀ ⇥ l₁
+    ────────────────
+    l₀ + r ⇥ l₁
+
+
+Otherwise, normalize each argument:
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────  ; If no other rule matches
+    l₀ + r₀ ⇥ l₁ + r₁
+
+
+Use machine multiplication to simplify the "times" operator if both arguments
+normalize to a `Natural` literal:
+
+
+    l ⇥ +m   r ⇥ +n
+    ───────────────  ; "+m * +n" means "use machine addition"
+    l + r ⇥ +m * +n
+
+
+    l ⇥ +0
+    ──────────
+    l * r ⇥ +0
+
+
+Also, simplify the "plus" operator if either argument normalizes to either a
+`+0` literal:
+
+    r ⇥ +0
+    ──────────
+    l * r ⇥ +0
+
+
+    l ⇥ +1   r₀ ⇥ r₁
+    ────────────────
+    l * r₀ ⇥ r₁
+
+
+... or a `+1` literal:
+
+
+    r ⇥ +1   l₀ ⇥ l₁
+    ────────────────
+    l₀ * r ⇥ l₁
+
+
+Otherwise, normalize each argument:
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────  ; If no other rule matches
+    l₀ * r₀ ⇥ l₁ * r₁
+
+
 `Natural/isZero` detects whether or not a `Natural` number is `+0`:
 
 
@@ -1384,11 +1321,13 @@ In the absence of fusion, `Natural/build` falls back on the following rule:
 
 
     f ⇥ Natural/isZero   a ⇥ +1 + n
-    ───────────────────────────────
-    f a ⇥ False
+    ───────────────────────────────  ; "+1 + n" means "a `Natural` literal
+    f a ⇥ False                      ; greater than `+0`"
 
 
-`Natural/even` detects whether or not a `Natural` number is even:
+`Natural/even` detects whether or not a `Natural` number is even.  You should
+implement this using a more efficient machine operation even though this
+function is defined using induction:
 
 
     f ⇥ Natural/even   a ⇥ +0
@@ -1401,12 +1340,16 @@ In the absence of fusion, `Natural/build` falls back on the following rule:
     f a ⇥ False
 
 
-    f ⇥ Natural/even   a ⇥ n + +1   Natural/odd n ⇥ b
-    ─────────────────────────────────────────────────
+    f ⇥ Natural/even
+    a ⇥ +1 + n
+    Natural/odd n ⇥ b
+    ─────────────────  ; "+1 + n" means "a `Natural` literal greater than `+0`"
     f a ⇥ b
 
 
-`Natural/odd` detects whether or not a `Natural` number is off:
+`Natural/odd` detects whether or not a `Natural` number is odd.  You should
+implement this using a more efficient machine operation even though this is
+function is defined using induction:
 
 
     f ⇥ Natural/odd   a ⇥ +0
@@ -1419,8 +1362,10 @@ In the absence of fusion, `Natural/build` falls back on the following rule:
     f a ⇥ True
 
 
-    f ⇥ Natural/odd   a ⇥ n + +1   Natural/even n ⇥ b
-    ─────────────────────────────────────────────────
+    f ⇥ Natural/odd
+    a ⇥ +1 + n
+    Natural/even n ⇥ b
+    ──────────────────  ; "+1 + n" means "a `Natural` literal greater than `+0`"
     f a ⇥ b
 
 
@@ -1442,28 +1387,98 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "+n"
 
 
-`Integer/show` transforms an `Integer` into a `Text` literal representing valid
-Dhall code for representing that `Integer` number:
+Carefully note that the rendered `Natural` number should include a leading
+`+` sign.
+
+All of the built-in functions on `Natural` numbers are in normal form:
 
 
-    f ⇥ Integer/show   a ⇥ n
-    ────────────────────────
-    f a ⇥ "n"
+    ─────────────────────────────
+    Natural/build ⇥ Natural/build
 
 
-`Double/show` transforms a `Double` into a `Text` literal representing valid
-Dhall code for representing that `Double` number:
+    ───────────────────────────
+    Natural/fold ⇥ Natural/fold
 
 
-    f ⇥ Double/show   a ⇥ n.n
+    ───────────────────────────────
+    Natural/isZero ⇥ Natural/isZero
+
+
+    ───────────────────────────
+    Natural/even ⇥ Natural/even
+
+
     ─────────────────────────
-    f a ⇥ "n.n"
+    Natural/odd ⇥ Natural/odd
 
 
-Normalizing a `List` normalizes each field.  Lists are defined here via
-induction as if they were linked lists, but a real implementation might
-represent them using another data structure under the hood.  Dhall does not
-impose any time complexity requirements on list operations.
+    ─────────────────────────────────────
+    Natural/toInteger ⇥ Natural/toInteger
+
+
+    ───────────────────────────
+    Natural/show ⇥ Natural/show
+
+
+### `Text`
+
+The `Text` type is in normal form:
+
+
+    ───────────
+    Text ⇥ Text
+
+
+`Text` literals are in normal form:
+
+
+    ─────────
+    "…" ⇥ "…"
+
+
+Use machine concatenation to simplify the "text concatenation" operator if both
+arguments normalize to `Text` literals:
+
+
+    l ⇥ "l…"   r ⇥ "r…"
+    ─────────────────────  ; "l…" ++ "r…" means "use machine concatenation"
+    l ++ r ⇥ "l…" ++ "r…"
+
+
+Also, simplify the "text concatenation" operator if either argument normalizes
+to a `""` literal:
+
+
+    l ⇥ ""   r₀ ⇥ r₁
+    ────────────────
+    l ++ r₀ ⇥ r₁
+
+
+    r ⇥ ""   l₀ ⇥ l₁
+    ────────────────
+    l₀ ++ r ⇥ l₁
+
+
+Otherwise, normalize each argument:
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ───────────────────  ; If no other rule matches
+    l₀ ++ r₀ ⇥ l₁ ++ r₁
+
+
+### `List`
+
+The `List` type is in normal form:
+
+
+    ───────────
+    List ⇥ List
+
+
+Normalizing a `List` normalizes each field and the type annotation (for an
+empty list):
 
 
     T₀ ⇥ T₁
@@ -1475,6 +1490,10 @@ impose any time complexity requirements on list operations.
     ───────────────────────────
     [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
 
+
+Lists are defined here via induction as if they were linked lists, but a real
+implementation might represent them using another data structure under the hood.
+Dhall does not impose time complexity requirements on list operations.
 
 `List/fold` is the canonical elimination function for `List`s:
 
@@ -1504,7 +1523,6 @@ fusion:
     f a ⇥ b
 
 
-
 In the absence of fusion, `List/build` falls back on the following rule:
 
 
@@ -1512,6 +1530,43 @@ In the absence of fusion, `List/build` falls back on the following rule:
     g (List A) (λ(a : A) → λ(as : List A) → [ a ] # as) ([] : List A) ⇥ b
     ───────────────────────────────────────────────────────────────────────
     f g ⇥ b
+
+
+Even though `List/build` and `List/fold` suffice for all `List` operations,
+Dhall also supports built-in functions and operators on `List`s, both for
+convenience and efficiency.
+
+Use machine concatenation to simplify the "list concatenation" operator if both
+arguments normalize to `List` literals:
+
+
+    ls₀ ⇥ [ l₁, ls₁… ]
+    rs₀ ⇥ [ r₁, rs₁… ]
+    [ l₁, ls₁… ] # [ r₁, rs₁… ] ⇥ t
+    ──────────────────────────────   ;  "[ l₁, ls₁… ] # [ r₁, rs₁… ]" means
+    ls₀ # rs₀ ⇥ t                    ;  "use machine concatenation"
+
+
+Also, simplify the "list concatenation" operator if either argument normalizes
+to an empty `List`:
+
+
+    ls ⇥ [] : List T   rs₀ ⇥ rs₁
+    ────────────────────────────
+    ls # rs₀ ⇥ rs₁
+
+
+    rs ⇥ [] : List T   ls₀ ⇥ ls₁
+    ────────────────────────────
+    ls₀ # rs ⇥ ls₁
+
+
+Otherwise, normalize each argument:
+
+
+    ls₀ ⇥ ls₁   rs₀ ⇥ rs₁
+    ─────────────────────   ; If no other rule matches
+    ls₀ # rs₀ ⇥ ls₁ # rs₁
 
 
 `List/length` returns the length of a list:
@@ -1579,6 +1634,60 @@ In the absence of fusion, `List/build` falls back on the following rule:
     f as ⇥ [ …, a₁, a₀ ]
 
 
+All of the built-in functions on `List`s are in normal form:
+
+
+    ───────────────────────
+    List/build ⇥ List/build
+
+
+    ─────────────────────
+    List/fold ⇥ List/fold
+
+
+    ─────────────────────────
+    List/length ⇥ List/length
+
+
+    ─────────────────────
+    List/head ⇥ List/head
+
+
+    ─────────────────────
+    List/last ⇥ List/last
+
+
+    ───────────────────────────
+    List/indexed ⇥ List/indexed
+
+
+    ───────────────────────────
+    List/reverse ⇥ List/reverse
+
+
+### `Optional`
+
+The `Optional` type is already in normal form:
+
+
+    ───────────────────
+    Optional ⇥ Optional
+
+
+Normalizing an `Optional` literal normalizes the type annotation and the value,
+if present:
+
+
+    T₀ ⇥ T₁
+    ───────────────────────────────────
+    [] : Optional T₀ ⇥ [] : Optional T₁
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁
+    ───────────────────────────────────────────
+    [ t₀ ] : Optional T₀ ⇥ [ t₁ ] : Optional T₁
+
+
 `Optional/fold` is the canonical elimination function for `Optional` values:
 
 
@@ -1616,131 +1725,7 @@ In the absence of fusion, `Optional/build` falls back on the following rule:
     f g ⇥ b
 
 
-Function application falls back on normalizing both sub-expressions if none of
-the above function application rules apply:
-
-
-    f₀ ⇥ f₁   a₀ ⇥ a₁
-    ─────────────────  ; If no other rule matches
-    f₀ a₀ ⇥ f₁ a₁
-
-
-The remaining rules also just descend as normal:
-
-
-    ─────────
-    x@n ⇥ x@n
-
-
-    A₀ → A₁   b₀ → b₁
-    ───────────────────────────────
-    λ(x : A₀) → b₀ ⇥ λ(x : A₁) → b₁
-
-
-    A₀ → A₁   b₀ → b₁
-    ───────────────────────────────
-    ∀(x : A₀) → b₀ ⇥ ∀(x : A₁) → b₁
-
-
-    T₀ ⇥ T₁
-    ───────────────────────────────────
-    [] : Optional T₀ ⇥ [] : Optional T₁
-
-
-    t₀ ⇥ t₁   T₀ ⇥ T₁
-    ───────────────────────────────────────────
-    [ t₀ ] : Optional T₀ ⇥ [ t₁ ] : Optional T₁
-
-
-    ─────────
-    n.n ⇥ n.n
-
-
-    ───────
-    +n ⇥ +n
-
-
-    ─────────
-    "…" ⇥ "…"
-
-
-    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
-    ───────────────────────────────────
-    { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
-
-
-    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
-    ─────────────────────────────────────
-    < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
-
-
-    t₀ ⇥ t₁   T₀ ⇥ T₁   ys₀… ⇥ ys₁…
-    ───────────────────────────────────────────────────────
-    < x = t₀ | y : T₀ | ys₀… > ⇥ < x = t₁ | y : T₁ | ys₁… >
-
-
-    ─────────────────────────────
-    Natural/build ⇥ Natural/build
-
-
-    ───────────────────────────
-    Natural/fold ⇥ Natural/fold
-
-
-    ───────────────────────────────
-    Natural/isZero ⇥ Natural/isZero
-
-
-    ───────────────────────────
-    Natural/even ⇥ Natural/even
-
-
-    ─────────────────────────
-    Natural/odd ⇥ Natural/odd
-
-
-    ─────────────────────────────────────
-    Natural/toInteger ⇥ Natural/toInteger
-
-
-    ───────────────────────────
-    Natural/show ⇥ Natural/show
-
-
-    ───────────────────────────
-    Integer/show ⇥ Integer/show
-
-
-    ─────────────────────────
-    Double/show ⇥ Double/show
-
-
-    ───────────────────────
-    List/build ⇥ List/build
-
-
-    ─────────────────────
-    List/fold ⇥ List/fold
-
-
-    ─────────────────────────
-    List/length ⇥ List/length
-
-
-    ─────────────────────
-    List/head ⇥ List/head
-
-
-    ─────────────────────
-    List/last ⇥ List/last
-
-
-    ───────────────────────────
-    List/indexed ⇥ List/indexed
-
-
-    ───────────────────────────
-    List/reverse ⇥ List/reverse
+All of the built-in functions on `Optional` values are in normal form:
 
 
     ─────────────────────────────
@@ -1751,40 +1736,309 @@ The remaining rules also just descend as normal:
     Optional/build ⇥ Optional/build
 
 
-    ───────────
-    Bool ⇥ Bool
+### Record types
+
+Normalizing a record type normalizes the type of each field:
 
 
-    ───────────────────
-    Optional ⇥ Optional
+    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
+    ───────────────────────────────────
+    { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
 
 
-    ─────────────────
-    Natural ⇥ Natural
+### Record values
+
+Normalizing a record normalizes each field:
+
+
+    ───────
+    {} ⇥ {}
+
+
+    t₀ ⇥ t₁   xs₀… ⇥ xs₁…
+    ───────────────────────────────────
+    { x = t₀, xs₀… } ⇥ { x = t₁, xs₁… }
+
+
+Simplify a record selection if the argument is a record literal:
+
+
+    e ⇥ { x = t, … }
+    ────────────────
+    e.x ⇥  t
+
+
+The type system ensures that the selected field must be present.
+
+Otherwise, normalize the argument:
+
+    e₀ ⇥ e₁
+    ───────────  ; If no other rule matches
+    e₀.x ⇥ e₁.x
+
+
+Recursive record merge combines two records, recursively merging any fields that
+collide.  The type system ensures that colliding fields must be records:
+
+
+    l ⇥ {}   r₀ ⇥ r₁
+    ────────────────
+    l ∧ r₀ ⇥ r₁
+
+
+    r ⇥ {}   l₀ ⇥ l₁
+    ────────────────
+    l₀ ∧ r ⇥ l₁
+
+
+    ls₀ ⇥ { x = l₁, ls₁… }
+    rs₀ ⇥ { x = r₁, rs₁… }
+    l₁ ∧ r₁ ⇥ t
+    ls₁… ∧ rs₁… ⇥ ts…
+    ──────────────────────────
+    ls₀ ∧ rs₀ ⇥ { x = t, ts… }
+
+
+    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ∧ rs ⇥ ls₂…
+    ─────────────────────────────────────────  ; x ∉ rs
+    ls₀ ∧ rs ⇥ { x = l₁, ls₂… }
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────   ; If no other rule matches
+    l₀ ∧ r₀ ⇥ l₁ ∧ r₁
+
+
+Right-biased record merge is non-recursive.  Field collisions are resolved by
+preferring the field from the right record and discarding the colliding field
+from the left record:
+
+
+    r ⇥ e
+    ──────────
+    {} ⫽ r ⇥ e
+
+
+    ls₀ ⇥ { x = l₁, ls₁… }   rs₀ ⇥ { x = r₁, rs₁… }   ls₁… ⫽ rs₁… ⇥ ts…
+    ───────────────────────────────────────────────────────────────────
+    ls₀ ⫽ rs₀ ⇥ { x = r₁, ts… }
+
+
+    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ⫽ rs ⇥ ls₂…
+    ─────────────────────────────────────────  ; x ∉ rs
+    ls₀ ⫽ rs ⇥ { x = l₁, ls₂… }
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────   ; If no other rule matches
+    l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
+
+
+### Union types
+
+Normalizing a union type normalizes the type of each alternative:
+
+
+    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
+    ─────────────────────────────────────
+    < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
+
+
+### Union values
+
+Normalizing a union literal is the same as normalizing the specified value and
+the type of each alternative:
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁   ys₀… ⇥ ys₁…
+    ───────────────────────────────────────────────────────
+    < x = t₀ | y : T₀ | ys₀… > ⇥ < x = t₁ | y : T₁ | ys₁… >
+
+
+`merge` expressions are the canonical way to eliminate a union literal.  The
+first argument to `merge` is a record of handlers and the second argument is a
+union value.  You apply the handler of the same label to the selected value of
+the union literal:
+
+
+    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
+    ──────────────────────────────────────────────────────
+    merge t u : T ⇥ e
+
+
+    t₀ ⇥ t₁   u₀ ⇥ u₁   T₀ ⇥ T₁
+    ───────────────────────────────────  ; If no other rule matches
+    merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
+
+
+    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
+    ──────────────────────────────────────────────────────
+    merge t u ⇥ e
+
+
+    t₀ ⇥ t₁   u₀ ⇥ u₁
+    ─────────────────────────  ; If no other rule matches
+    merge t₀ u₀ ⇥ merge t₁ u₁
+
+
+### `Integer`
+
+The `Integer` type is already in normal form:
 
 
     ─────────────────
     Integer ⇥ Integer
 
 
+An `Integer` literal is already in normal form:
+
+
+    ─────
+    n ⇥ n
+
+
+`Integer/show` transforms an `Integer` into a `Text` literal representing valid
+Dhall code for representing that `Integer` number:
+
+
+    f ⇥ Integer/show   a ⇥ n
+    ────────────────────────
+    f a ⇥ "n"
+
+
+The `Integer/show` function is in normal form in isolation:
+
+
+    ───────────────────────────
+    Integer/show ⇥ Integer/show
+
+
+### `Double`
+
+The `Double` type is already in normal form:
+
+
     ───────────────
     Double ⇥ Double
 
 
+A `Double` literal is already in normal form:
+
+
+    ─────────
+    n.n ⇥ n.n
+
+
+`Double/show` transforms a `Double` into a `Text` literal representing valid
+Dhall code for representing that `Double` number:
+
+
+    f ⇥ Double/show   a ⇥ n.n
+    ─────────────────────────
+    f a ⇥ "n.n"
+
+
+The `Double/show` function is in normal form in isolation:
+
+
+    ─────────────────────────
+    Double/show ⇥ Double/show
+
+
+### Functions
+
+Normalizing an anonymous function normalizes the type of the bound variable and
+the body of the function:
+
+
+    A₀ → A₁   b₀ → b₁
+    ───────────────────────────────
+    λ(x : A₀) → b₀ ⇥ λ(x : A₁) → b₁
+
+
+You can eliminate an anonymous function through β-reduction:
+
+
+    f ⇥ λ(x : A) → b₀
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ──────────────────────
+    f a₀ ⇥ b₃
+
+
+Function application falls back on normalizing both sub-expressions if none of
+the preceding function application rules apply:
+
+
+    f₀ ⇥ f₁   a₀ ⇥ a₁
+    ─────────────────  ; If no other rule matches
+    f₀ a₀ ⇥ f₁ a₁
+
+
+### Function types
+
+Normalizing a function type normalizes the types of the input and output:
+
+
+    A₀ → A₁   B₀ → B₁
+    ───────────────────────────────
+    ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
+
+
+### `let` expressions
+
+An expression of the form:
+
+    let x : A = a₀ in b₀
+
+... is semantically identical to:
+
+    (λ(x : A) → b₀) a₀
+
+... and the normalization rules for `let` expressions reflect that semantic
+equivalence:
+
+
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ─────────────────────────
+    let x : A = a₀ in b₀ ⇥ b₃
+
+
+    ↑(1, x, 0, a₀) = a₁
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ─────────────────────
+    let x = a₀ in b₀ ⇥ b₃
+
+
+### Type annotations
+
+A type annotation of the form:
+
+    t : T
+
+... is semantically identical to:
+
+    (λ(x : T) → x) t
+
+... and the normalization rule for type annotations reflects that semantic
+equivalence:
+
+
+    t₀ ⇥ t₁
     ───────────
-    Text ⇥ Text
+    t₀ : T ⇥ t₁
 
 
-    ───────────
-    List ⇥ List
+### Constants
 
-
-    ───────────
-    True ⇥ True
-
-
-    ─────────────
-    False ⇥ False
+Type-checking constants are already in normal form:
 
 
     ───────────
