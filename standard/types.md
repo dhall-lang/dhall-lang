@@ -2096,7 +2096,7 @@ For example, these are polymorphic functions:
 
     λ(a : Type) → λ(x : a) → x
 
-THe following rule enables support for functions from types to types (i.e.
+The following rule enables support for functions from types to types (i.e.
 "type-level" functions):
 
 
@@ -2255,7 +2255,7 @@ function's argument:
 
     Γ ⊢ f :⇥ ∀(x : A₀) → B₀
     Γ ⊢ a : A₁
-    A₀ =ᵦ A₁
+    A₀ ≡ A₁
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
     ↑(-1, x, 0, B₁) = B₂
@@ -2266,7 +2266,7 @@ function's argument:
 If the inferred input type of the function does not match the inferred type of
 the function argument then that is a type error
 
-Carefully note that you should not check `A₀ =ᵦ A₁` until you have first checked
+Carefully note that you should not check `A₀ ≡ A₁` until you have first checked
 the two other preconditions.  This is because a β-equivalence check might not
 terminate if one of `A₀` or `A₁` is not well-typed
 
@@ -2275,7 +2275,7 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
     Γ₀ ⊢ a₀ : A₁
     Γ₀ ⊢ A₀ :⇥ i
-    A₀ =ᵦ A₁
+    A₀ ≡ A₁
     ↑(1, x, 0, (Γ₀, x : A₀)) = Γ₁
     Γ₁ ⊢ b : B₀
     Γ₁ ⊢ B₀ :⇥ o
@@ -2308,7 +2308,7 @@ terminate if one of `A₀` or `A₁` is not well-typed
     Γ ⊢ r : R
     Γ ⊢ L :⇥ Type
     Γ ⊢ R :⇥ Type
-    L =ᵦ R
+    L ≡ R
     ──────────────────────────
     Γ ⊢ if t then l else r : L
 
@@ -2320,11 +2320,8 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 # TODO
 
-* Add fallback rules for all of the normalization rules
 * Consistently use + prefix for natural numbers
 * Use … notation more precisely
-* Fix `=ᵦ` to include `α`
-* Flesh out αβ-equivalence in more detail
 * Does the valid context optimization from the Henk paper work?  If so, simplify
   typing judgments
 * Reference Henk paper
