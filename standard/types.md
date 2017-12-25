@@ -171,17 +171,17 @@ This shift function has the form:
 
 ... where:
 
-* `d` is the amount to add to the variable indices
+* `d` (an input) is the amount to add to the variable indices
     * `d` is always `-1` or `1`
-* `x` is is the name of the free variable(s) to shift
+* `x` (an input) is is the name of the free variable(s) to shift
     * variables with a different name are unaffected by the shift function
-* `m` is the minimum index to shift
+* `m` (an input) is the minimum index to shift
     * `m` always starts out at `0`
     * `m` increases by one when descending past a bound variable named `x`
     * variables with an index lower than `m` are unaffected by the shift
       function
-* `e₀` is the expression to shift
-* `e₁` is the shifted expression
+* `e₀` (an input) is the expression to shift
+* `e₁` (the output) is the shifted expression
 
 For example:
 
@@ -581,11 +581,12 @@ You can also shift a context by shifting each expression in that context:
 
 ... where:
 
-* `e₀` is the expression that you want to transform
-* `x@n` is the variable that you want to substitute with another expression
-* `a` is the expression that you want to substitute `x@n` with
-* `e₁` is transformed expression where all occurrences of `x@n` have been
-  replaced with `a`
+* `e₀` (an input) is the expression that you want to transform
+* `x@n` (an input) is the variable that you want to substitute with another
+  expression
+* `a` (an input) is the expression that you want to substitute `x@n` with
+* `e₁` (the output) is transformed expression where all occurrences of `x@n`
+  have been replaced with `a`
 
 `e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 
@@ -967,8 +968,8 @@ Normalization is a function of the following form:
 
 ... where:
 
-* `t₀` is the expression to normalize
-* `t₁` is the normalized expression
+* `t₀` (the input) is the expression to normalize
+* `t₁` (the output) is the normalized expression
 
 Normalization evaluates all β-reducible expressions:
 
@@ -995,7 +996,7 @@ is the same.
 
 ### Variables
 
-Variables are already in normal form:
+Variables are in normal form:
 
 
     ─────────
@@ -1477,8 +1478,7 @@ The `List` type is in normal form:
     List ⇥ List
 
 
-Normalizing a `List` normalizes each field and the type annotation (for an
-empty list):
+Normalizing a `List` normalizes each field and the type annotation:
 
 
     T₀ ⇥ T₁
@@ -1667,7 +1667,7 @@ All of the built-in functions on `List`s are in normal form:
 
 ### `Optional`
 
-The `Optional` type is already in normal form:
+The `Optional` type is in normal form:
 
 
     ───────────────────
@@ -1883,14 +1883,14 @@ the union literal:
 
 ### `Integer`
 
-The `Integer` type is already in normal form:
+The `Integer` type is in normal form:
 
 
     ─────────────────
     Integer ⇥ Integer
 
 
-An `Integer` literal is already in normal form:
+An `Integer` literal is in normal form:
 
 
     ─────
@@ -1906,7 +1906,7 @@ Dhall code for representing that `Integer` number:
     f a ⇥ "n"
 
 
-The `Integer/show` function is in normal form in isolation:
+The `Integer/show` function is in normal form:
 
 
     ───────────────────────────
@@ -1915,14 +1915,14 @@ The `Integer/show` function is in normal form in isolation:
 
 ### `Double`
 
-The `Double` type is already in normal form:
+The `Double` type is in normal form:
 
 
     ───────────────
     Double ⇥ Double
 
 
-A `Double` literal is already in normal form:
+A `Double` literal is in normal form:
 
 
     ─────────
@@ -1938,7 +1938,7 @@ Dhall code for representing that `Double` number:
     f a ⇥ "n.n"
 
 
-The `Double/show` function is in normal form in isolation:
+The `Double/show` function is in normal form:
 
 
     ─────────────────────────
@@ -2038,7 +2038,7 @@ equivalence:
 
 ### Constants
 
-Type-checking constants are already in normal form:
+Type-checking constants are in normal form:
 
 
     ───────────
@@ -2049,32 +2049,24 @@ Type-checking constants are already in normal form:
     Kind ⇥ Kind
 
 
-## αβ-equivalence
+## Equivalence
 
-αβ-equivalence is a relationship between two expression of the form:
+Equivalence is a relationship between two expression of the form:
 
-    e₀ =ᵦ e₁
+    e₀ ≡ e₁
 
-Expressions are αβ-equivalent if they are α-equivalent when fully β-reduced.
-You can fully β-reduce an expression by applying the following β-reduction rule
-anywhere within the expression until no β-reducible expressions remain:
+Two expressions are equivalent if they are α-equivalent when normalized.
 
-
-    ↑(1, x, 0, a₀) = a₁   b₀[x ≔ a₁] = b₁   ↑(-1, x, 0, b₁) = b₂
-    ────────────────────────────────────────────────────────────
-    (λ(x : A) → b₀) a₀ =ᵦ b₂
-
-
-The order in which you β-reduce expressions does not matter
-Two expression are both α
+Note that this notion of equivalence does not include η-equivalence, since
+normalization does not η-expand or η-reduce expressions.
 
 ## Kind check
 
 The kind check governs which types of functions that our pure type system
-permits
+permits.
 
 Dhall forbids dependent function types, but permits all other function
-types 
+types.
 
 The following rule enables support for functions from terms to terms (i.e.
 "term-level" functions):
@@ -2089,7 +2081,6 @@ For example, these are term-level functions:
     Natural/even
 
     λ(x : Bool) → x != False
-
 
 The following rule enables support for functions from types to terms (i.e.
 "polymorphic" functions):
@@ -2119,10 +2110,9 @@ For example, these are type-level functions:
 
     λ(m : Type) → [ m ] → m
 
-
 However, Dhall does not support dependently-typed functions, so there is no rule
 for `⊢ Type ↝ Kind`.  Dhall omits support for dependent function types because
-that would entail detecting non-trivial type-level equalities.
+that would entail robustly detecting non-trivial type-level equivalences.
 
 ## Type inference
 
@@ -2132,9 +2122,10 @@ Type inference is a judgment of the form:
 
 ... where:
 
-* `Γ` is the type inference context which relates identifiers to their types
-* `t` is the term to infer the type of
-* `T` is the inferred type
+* `Γ` (an input) is the type inference context which relates identifiers to
+  their types
+* `t` (an input) is the term to infer the type of
+* `T` (the output) is the inferred type
 
 To infer the type of a closed expression, supply an empty context:
 
