@@ -1194,7 +1194,7 @@ predicate:
     if t₀ then l else r ⇥ t₁
 
 
-Otherwise, you normalize the predicate and both branches of the `if` expression:
+Otherwise, normalize the predicate and both branches of the `if` expression:
 
 
     t₀ ⇥ t₁   l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -1229,7 +1229,7 @@ to a `Bool` literal:
     l || r ⇥ True
 
 
-Otherwise, you normalize each argument:
+Otherwise, normalize each argument:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -1261,7 +1261,7 @@ to a `Bool` literal:
     l && r ⇥ False
 
 
-Otherwise, you normalize each argument:
+Otherwise, normalize each argument:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -1291,7 +1291,7 @@ literal:
     l == r ⇥ True
 
 
-Otherwise, you normalize each argument:
+Otherwise, normalize each argument:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -1321,7 +1321,7 @@ Simplify the logical "not equal" operator if one argument normalizes to a
     l != r ⇥ False
 
 
-Otherwise, you normalize each argument:
+Otherwise, normalize each argument:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -2021,8 +2021,8 @@ the type of each alternative:
 
 `merge` expressions are the canonical way to eliminate a union literal.  The
 first argument to `merge` is a record of handlers and the second argument is a
-union value.  You apply the handler of the same label to the selected value of
-the union literal:
+union value.  Apply the handler of the same label to the selected value of the
+union literal:
 
 
     t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
@@ -2284,6 +2284,9 @@ To infer the type of a closed expression, supply an empty context:
 
     ε ⊢ t : T
 
+This judgment guarantees the invariant that the inferred type is safe to
+normalize.
+
 ### Reduction
 
 Additionally, there is a separate helper judgment for inferring a type reduced
@@ -2315,8 +2318,7 @@ in the type system's hierarchy.  Inferring the type of `Kind` is a type error.
 
 ### Variables
 
-You can infer the type of a variable by looking up the variable's type in the
-context:
+Infer the type of a variable by looking up the variable's type in the context:
 
 
     Γ ⊢ T : k
@@ -2519,12 +2521,13 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
+    Γ ⊢ T :⇥ Type
     ──────────────────────────
     Γ ⊢ ([] : List T) : List T
 
 
-    t : T₀   T₀ :⇥ Type   [ ts… ] :⇥ List T₁   T₁ :⇥ Type   T₀ ≡ T₁
-    ───────────────────────────────────────────────────────────────
+    t : T₀   T₀ :⇥ Type   [ ts… ] :⇥ List T₁   T₀ ≡ T₁
+    ──────────────────────────────────────────────────
     Γ ⊢ [t, ts…] : List T₀
 
 
@@ -2535,9 +2538,7 @@ same type and returns a `List` of the same type:
 
 
     Γ ⊢ x :⇥ List A₀
-    Γ ⊢ A₀ :⇥ Type
     Γ ⊢ y :⇥ List A₁
-    Γ ⊢ A₁ :⇥ Type
     A₀ ≡ A₁
     ───────────────────
     Γ ⊢ x # y : List A₀
@@ -2586,10 +2587,12 @@ The built-in functions on `List`s have the following types:
 An `Optional` literal's type is inferred from the mandatory type annotation:
 
 
+    Γ ⊢ A : Type
     ──────────────────────────────────
     Γ ⊢ ([] : Optional A) : Optional A
 
 
+    Γ ⊢ A : Type
     ─────────────────────────────────────
     Γ ⊢ ([ a ] : Optional A) : Optional A
 
@@ -2628,8 +2631,8 @@ fields).
 You can only select a field from the record if the field is present:
 
 
-    Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { as… } :⇥ Type
-    ─────────────────────────────────────────────
+    Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { a : A, as… } :⇥ Type
+    ────────────────────────────────────────────────────
     Γ ⊢ e.a : A
 
 
@@ -2647,6 +2650,7 @@ Recursive record merge requires that both arguments are records:
     Γ ⊢ l :⇥ { ls… }
     Γ ⊢ r :⇥ { a : A, rs… }
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    Γ ⊢ A :⇥ Type
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ∧ r : { a : A, ts… }
 
@@ -2654,7 +2658,8 @@ Recursive record merge requires that both arguments are records:
     Γ ⊢ l :⇥ { a : A₀, ls… }
     Γ ⊢ r :⇥ { a : A₁, rs… }
     Γ ⊢ l.a ∧ r.a : A₂
-    Γ ⊢ { ls… } ∧ { rs… } : { ts… }
+    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    Γ ⊢ A₂ :⇥ Type
     ───────────────────────────────
     Γ ⊢ l ∧ r : { a : A₂, ts… }
 
@@ -2673,13 +2678,15 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l :⇥ { ls… }
     Γ ⊢ r :⇥ { a : A, rs… }
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    Γ ⊢ A :⇥ Type
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⫽ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
     Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { ls… } ⫽ { rs… } : { ts… }
+    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    Γ ⊢ A₀ :⇥ Type
     ───────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₀, ts… }
 
@@ -2706,27 +2713,25 @@ A `merge` expression is well-typed if there is a one-to-one correspondence
 between the fields of the handler record and the alternatives of the union:
 
 
-    Γ ⊢ t :⇥ {=}   Γ ⊢ u :⇥ <>
-    ───────────────────────────────────
+    Γ ⊢ t :⇥ {}   Γ ⊢ u :⇥ <>   Γ ⊢ T :⇥ Type
+    ─────────────────────────────────────────
     Γ ⊢ (merge t u : T) : T
 
 
-    Γ ⊢ t :⇥ { k = f, ts… }
-    Γ ⊢ u :⇥ < k = x, us… >
-    Γ ⊢ f x : T₁
-    Γ ⊢ T₀ :⇥ Type
-    Γ ⊢ T₁ :⇥ Type
+    Γ ⊢ t :⇥ { y : ∀(x : A₀) → T₀, ts… }
+    Γ ⊢ u :⇥ < y : A₁ | us… >
+    Γ ⊢ (merge { ts… } < us… > : T₁) : T₂
+    A₀ ≡ A₁
     T₀ ≡ T₁
-    Γ ⊢ (merge { ts… } < us… > : T₀) : T₂
-    ─────────────────────────────────────
-    Γ ⊢ (merge t u : T₀) : T₀
+    ────────────────────────────────────  ; `x` not free in `T₀`
+    Γ ⊢ (merge t u : T₁) : T₁
 
 
-    Γ ⊢ t :⇥ { k = f, ts… }
-    Γ ⊢ u :⇥ < k = x, us… >
-    Γ ⊢ f x : T₀
-    Γ ⊢ (merge { ts… } < us… > : T₀) : T₂
-    ─────────────────────────────────────
+    Γ ⊢ t :⇥ { y : ∀(x : A₀) → T₀, ts… }
+    Γ ⊢ u :⇥ < y : A₁ | us… >
+    Γ ⊢ (merge { ts… } < us… > : T₀) : T₁
+    A₀ ≡ A₁
+    ────────────────────────────────────  ; `x` not free in `T₀`
     Γ ⊢ merge t u : T₀
 
 
@@ -2804,17 +2809,15 @@ judgment:
 
     ε ⊢ ∀(_ : Type) → ∀(x : _) → _ : Type
 
-You can create new (anonymous) functions using a λ:
+The type of a λ-expression is a function type whose input type (`A`) is the same
+as the type of the bound variable and whose output type (`B`) is the same as the
+inferred type of the body of the λ-expression (`b`).
 
 
     ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : c
     ─────────────────────────────────────────────────────────────────
     Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
 
-
-The type of a λ-expression is a function type whose input type (`A`) is the same
-as the type of the bound variable and whose output type (`B`) is the same as the
-inferred type of the body of the λ-expression (`b`).
 
 Note that the above rule requires that the inferred function type must be
 well-typed.  The type-checking step for the function type triggers a function
@@ -2826,7 +2829,7 @@ function's argument:
 
 
     Γ ⊢ f :⇥ ∀(x : A₀) → B₀
-    Γ ⊢ a : A₁
+    Γ ⊢ a₀ : A₁
     A₀ ≡ A₁
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
@@ -2839,7 +2842,6 @@ If the inferred input type of the function does not match the inferred type of
 the function argument then that is a type error.
 
 ### `let` expressions
-
 
 An expression of the form:
 
@@ -2888,8 +2890,8 @@ verifies that the annotation matches the inferred type of the annotated
 expression:
 
 
-    Γ ⊢ T₀ : i   Γ ⊢ t : T₁   Γ ⊢ T₁ : o   T₀ ≡ T₁
-    ────────────────────────────────────────────────────
+    Γ ⊢ T₀ : i   Γ ⊢ t : T₁   T₀ ≡ T₁
+    ─────────────────────────────────
     Γ ⊢ (t : T₀) : T₀
 
 
@@ -2898,7 +2900,4 @@ Note that the above rule permits kind annotations, such as `List : Type → Type
 # TODO
 
 * Explicitly document all possible kinds of type errors
-* No "you" or "we"
-* Ensure that all type equivalence checks are guarded by type-checking each
-  argument
 * Ensure that the typing judgments match the equivalent System-Fω
