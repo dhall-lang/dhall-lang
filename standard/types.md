@@ -2620,13 +2620,25 @@ names and types of their fields and the order of fields does not matter:
     Γ ⊢ {} : Type
 
 
-    Γ ⊢ A :⇥ Type   Γ ⊢ { as… } :⇥ Type
-    ───────────────────────────────────
-    Γ ⊢ { a : A, as… } : Type
+    Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ Type
+    ───────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Type
 
 
 Note that the above rule forbids storing types in records (i.e. no type-valued
 fields).
+
+Record values are also anonymous:
+
+
+    ────────────
+    Γ ⊢ {=} : {}
+
+
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ Type
+    ───────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x = t, xs… } : Type
+
 
 You can only select a field from the record if the field is present:
 
