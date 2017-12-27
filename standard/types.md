@@ -1753,6 +1753,10 @@ All of the built-in functions on `Optional` values are in normal form:
 Normalizing a record type normalizes the type of each field:
 
 
+    ───────
+    {} ⇥ {}
+
+
     T₀ ⇥ T₁   { xs₀… } ⇥ { xs₁… }
     ───────────────────────────────────
     { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
@@ -1761,8 +1765,8 @@ Normalizing a record type normalizes the type of each field:
 Normalizing a record value normalizes each field:
 
 
-    ───────
-    {} ⇥ {}
+    ─────────
+    {=} ⇥ {=}
 
 
     t₀ ⇥ t₁   { xs₀… } ⇥ { xs₁… }
@@ -2365,17 +2369,9 @@ non-empty) or from the type annotation (if empty):
     Γ ⊢ ([] : List A) : List A
 
 
-    x₀ : A₀
-    A₀ :⇥ Type
-    x₁ : A₁
-    A₁ :⇥ Type
-    A₀ ≡ A₁
-    x₂ : A₂
-    A₂ :⇥ Type
-    A₀ ≡ A₂
-    …
-    ─────────────────────────
-    Γ ⊢ [x₀, x₁, …] : List A₀
+    x : A₀   A₀ :⇥ Type   [ xs… ] :⇥ List A₁   A₁ :⇥ Type   A₀ ≡ A₁
+    ───────────────────────────────────────────────────────────────
+    Γ ⊢ [x, xs…] : List A₀
 
 
 Carefully note that you should not check `A₀ ≡ A₁` until you have first check
@@ -2538,43 +2534,100 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l ⫽ r : { a : A₀, ts… }
 
 
-### Lambdas
+### Unions
 
-You can create new (anonymous) functions using a λ:
-
-
-    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
-    ─────────────────────────────────────────────────────────────────
-    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+Union types are "anonymous", meaning that they are uniquely defined by the names
+and types of their alternatives and the order of fields does not matter:
 
 
-The type of a λ-expression is a function type whose input type (`A`) is the same
-as the type of the bound variable and whose output type (`B`) is the same as the
-inferred type of the body of the λ-expression (`b`).
-
-Carefully note that the above rule requires that the inferred function type must
-be well-typed.  The type-checking step for the function type triggers a kind
-check which disallows dependent function types.
-
-### Lambdas
-
-You can create new (anonymous) functions using a λ:
+    ─────────────
+    Γ ⊢ <> : Type
 
 
-    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
-    ─────────────────────────────────────────────────────────────────
-    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+    Γ ⊢ A :⇥ Type   Γ ⊢ < as… > :⇥ Type
+    ───────────────────────────────────
+    Γ ⊢ < a : A | as… > : Type
 
 
-The type of a λ-expression is a function type whose input type (`A`) is the same
-as the type of the bound variable and whose output type (`B`) is the same as the
-inferred type of the body of the λ-expression (`b`).
+Note that the above rule forbids storing types in unions (i.e. no type-valued
+alternatives).
 
-Carefully note that the above rule requires that the inferred function type must
-be well-typed.  The type-checking step for the function type disallows dependent
-function types.
+A `merge` expression is well-typed if there is a one-to-one correspondence
+between the fields of the handler record and the alternatives of the union:
 
-### Function types
+
+    Γ ⊢ t :⇥ {=}   Γ ⊢ u :⇥ <>
+    ───────────────────────────────────
+    Γ ⊢ (merge t u : T) : T
+
+
+    Γ ⊢ t :⇥ { k = f, ts… }
+    Γ ⊢ u :⇥ < k = x, us… >
+    Γ ⊢ f x : T₁
+    T₀ ≡ T₁
+    Γ ⊢ (merge { ts… } < us… > : T₀) : T₂
+    ─────────────────────────────────────
+    Γ ⊢ (merge t u : T₀) : T₀
+
+
+Note that you cannot `merge` an empty union if the type annotation is missing:
+
+
+    Γ ⊢ t :⇥ { k = f, ts… }
+    Γ ⊢ u :⇥ < k = x, us… >
+    Γ ⊢ f x : T₀
+    Γ ⊢ (merge { ts… } < us… > : T₀) : T₂
+    ─────────────────────────────────────
+    Γ ⊢ merge t u : T₀
+
+
+### `Integer`
+
+`Integer` is a type:
+
+
+    ──────────────────
+    Γ ⊢ Integer : Type
+
+
+`Integer` literals have type `Integer`:
+
+
+    ────────────────
+    Γ ⊢ n : Integer
+
+
+The built-in `Integer/show` function has the following type:
+
+
+    ─────────────────────────────────
+    Γ ⊢ Integer/show : Integer → Text
+
+
+### `Double`
+
+`Double` is a type:
+
+
+    ──────────────────
+    Γ ⊢ Double : Type
+
+
+`Double` literals have type `Double`:
+
+
+    ────────────────
+    Γ ⊢ n.n : Double
+
+
+The built-in `Double/show` function has the following type:
+
+
+    ───────────────────────────────
+    Γ ⊢ Double/show : Double → Text
+
+
+### Functions
 
 A function type is only well-typed if the input and output type are well-typed
 and if the inferred kinds of the input and output type are allowed by the kind
@@ -2601,7 +2654,21 @@ well-typed judgment:
 
     ε ⊢ ∀(_ : Type) → _ : Kind
 
-### Function application
+You can create new (anonymous) functions using a λ:
+
+
+    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
+    ─────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+
+
+The type of a λ-expression is a function type whose input type (`A`) is the same
+as the type of the bound variable and whose output type (`B`) is the same as the
+inferred type of the body of the λ-expression (`b`).
+
+Carefully note that the above rule requires that the inferred function type must
+be well-typed.  The type-checking step for the function type triggers a kind
+check which disallows dependent function types.
 
 The type system ensures that function application is well-typed, meaning that
 the input type that a function expects matches the inferred type of the
@@ -2660,13 +2727,20 @@ not terminate if one of `A₀` or `A₁` is not well-typed.
     Γ₀ ⊢ let x = a₀ in b : B₂
 
 
-### `merge`
+### Type annotations
 
 
+    Γ ⊢ T₀ : Type   Γ ⊢ t : T₁   T₀ ≡ T₁
+    ────────────────────────────────────
+    Γ ⊢ (t : T₀) : T₀
 
 
 # TODO
 
+* Ensure that all type equivalence checks are made explicit instead of implicit
+  through matching names in the judgment
+* Ensure that all type equivalence checks are guarded by type-checking each
+  argument
 * Fix union literals to not suggest that there is at least one alternative?
 * Make sure that derived typing rules use `:⇥` when appropriate
 * Consistently use + prefix for natural numbers
