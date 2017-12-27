@@ -23,7 +23,7 @@ d = n / -n             ; Integers
 
 x, y                   ; Variables
 
-; Mnemonics:
+; Mnemonics for the most commonly used labels:
 ;
 ; Terms are lowercase:
 ;
@@ -34,16 +34,16 @@ x, y                   ; Variables
 ;     e    = term whose type is "E"
 ;     t    = term whose type is "T"
 ;     u    = term whose type is "U"
+;     v    = "v"alue
 ;
 ; Types are uppercase:
 ;
 ;     A  = type of the input term "a"
 ;     B  = type of the output term "b"
-;     L  = type of the input term "l"
-;     R  = type of the output term "r"
 ;     E  = type of the term "e"
 ;     T  = type of the term "t"
 ;     U  = type of the term "u"
+;     V  = type of the term "v"
 ;
 ; Kinds are lowercase:
 ;
@@ -51,81 +51,137 @@ x, y                   ; Variables
 ;     i = kind of a function's "i"nput type
 ;     o = kind of a function's "o"utput type
 ;
+; Similar terms are distinguished by subscripts like `a₀`, `a₁`, …
+;
+; A term that represents zero or more values or key-value pairs ends with `s…`,
+; such as `as…`
+;
 ; Note that these are only informal mnemonics.  Dhall is a pure type system,
 ; which means that many places in the syntax permit types, terms, and kinds.
 ; The typing judgments are the authoritative rules for what expressions are
 ; permitted and forbidden.
-a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
-  = x@n                      ; Identifier
-                             ; (`x` is short-hand for `x@0`)
-  / λ(x : A) → b             ; Anonymous function
-  / ∀(x : A) → B             ; Function type
-                             ; (`A → B` is short-hand for `∀(_ : A) → B`)
-  / let x : A = a in b       ; Let expression with type annotation
-  / let x     = a in b       ; Let expression without type annotation
-  / if t then l else r       ; If-Then-Else expression
-  / merge t u : T            ; Union elimination with type annotation
-  / merge t u                ; Union elimination
-  / [] : List T              ; Empty list literals with type annotation
-  / [ t, ts… ]               ; Non-empty list literals
-  / [   ] : Optional T       ; Empty optional literal
-  / [ t ] : Optional T       ; Non-empty optional literal
-  / t : T                    ; Type annotation
-  / l || r                   ; Boolean or
-  / l + r                    ; Natural addition
-  / l ++ r                   ; Text append
-  / l # r                    ; List append
-  / l && r                   ; Boolean and
-  / l ∧ r                    ; Recursive record merge
-  / l ⫽ r                    ; Non-recursive right-biased record merge
-  / l * r                    ; Natural multiplication
-  / l == r                   ; Boolean equality
-  / l != r                   ; Boolean inequality
-  / f a                      ; Function application
-  / e.x                      ; Field selection
-  / n.n                      ; Double-precision floating point literal
-  / +n                       ; Natural number literal
-  / n                        ; Integer literal
-  / "…"                      ; Text literal
-  / { x : T, … }             ; Record type
-  / { x = t, … }             ; Non-empty record literal
-  / < x : T | xs… >          ; Union type
-  / < x = t | y : B | ys… >  ; Union literal
-  / Natural/build            ; Natural introduction
-  / Natural/fold             ; Natural elimination
-  / Natural/isZero           ; Test if zero
-  / Natural/even             ; Test if even
-  / Natural/odd              ; Test if odd
-  / Natural/toInteger        ; Convert Natural to Integer
-  / Natural/show             ; Convert Natural to Text
-  / Integer/show             ; Convert Integer to Text
-  / Double/show              ; Convert Double to Text
-  / List/build               ; List introduction
-  / List/fold                ; List elimination
-  / List/length              ; Length of list
-  / List/head                ; First element of list
-  / List/last                ; Last element of list
-  / List/indexed             ; Tag elements with index
-  / List/reverse             ; Reverse list
-  / Optional/fold            ; Optional introduction
-  / Optional/build           ; Optional elimination
-  / Bool                     ; Bool type
-  / Optional                 ; Optional type
-  / Natural                  ; Natural type
-  / Integer                  ; Integer type
-  / Double                   ; Double type
-  / Text                     ; Text type
-  / List                     ; List type
-  / True                     ; True term
-  / False                    ; False term
-  / Type                     ; Type of terms
-  / Kind                     ; Type of types
+a, b, f, l, r, e, t, u, A, B, E, T, U, k, i, o
+  = x@n                          ; Identifier
+                                 ; (`x` is short-hand for `x@0`)
+  / λ(x : A) → b                 ; Anonymous function
+  / ∀(x : A) → B                 ; Function type
+                                 ; (`A → B` is short-hand for `∀(_ : A) → B`)
+  / let x : A = a in b           ; Let expression with type annotation
+  / let x     = a in b           ; Let expression without type annotation
+  / if t then l else r           ; if-then-else expression
+  / merge t u : T                ; Union elimination with type annotation
+  / merge t u                    ; Union elimination
+  / [] : List T                  ; Empty list literals with type annotation
+  / [ t, ts… ]                   ; Non-empty list literals
+  / [   ] : Optional T           ; Empty optional literal
+  / [ t ] : Optional T           ; Non-empty optional literal
+  / t : T                        ; Type annotation
+  / l || r                       ; Boolean or
+  / l + r                        ; Natural addition
+  / l ++ r                       ; Text append
+  / l # r                        ; List append
+  / l && r                       ; Boolean and
+  / l ∧ r                        ; Recursive record merge
+  / l ⫽ r                        ; Non-recursive right-biased record merge
+  / l * r                        ; Natural multiplication
+  / l == r                       ; Boolean equality
+  / l != r                       ; Boolean inequality
+  / f a                          ; Function application
+  / t.x                          ; Field selection
+  / n.n                          ; Double-precision floating point literal
+  / +n                           ; Natural number literal
+  / n                            ; Integer literal
+  / "…"                          ; Text literal
+  / {}                           ; Empty record type
+  / { x : V, xs… }               ; Non-empty record type
+  / {=}                          ; Empty record literal
+  / { x = v, xs… }               ; Non-empty record literal
+  / <>                           ; Empty union type
+  / < x : V | xs… >              ; Non-empty union type
+  / < x = v >                    ; Union literal with one alternative
+  / < x₀ = v₀ | x₁ : V₁	| xs… >  ; Union literal with more than one alternative
+  / Natural/build                ; Natural introduction
+  / Natural/fold                 ; Natural elimination
+  / Natural/isZero               ; Test if zero
+  / Natural/even                 ; Test if even
+  / Natural/odd                  ; Test if odd
+  / Natural/toInteger            ; Convert Natural to Integer
+  / Natural/show                 ; Convert Natural to Text
+  / Integer/show                 ; Convert Integer to Text
+  / Double/show                  ; Convert Double to Text
+  / List/build                   ; List introduction
+  / List/fold                    ; List elimination
+  / List/length                  ; Length of list
+  / List/head                    ; First element of list
+  / List/last                    ; Last element of list
+  / List/indexed                 ; Tag elements with index
+  / List/reverse                 ; Reverse list
+  / Optional/fold                ; Optional introduction
+  / Optional/build               ; Optional elimination
+  / Bool                         ; Bool type
+  / Optional                     ; Optional type
+  / Natural                      ; Natural type
+  / Integer                      ; Integer type
+  / Double                       ; Double type
+  / Text                         ; Text type
+  / List                         ; List type
+  / True                         ; True term
+  / False                        ; False term
+  / Type                         ; Type of terms
+  / Kind                         ; Type of types
 ```
 
 Carefully note that the syntax does not include imports because you cannot infer
 the type of a Dhall expression that has unresolved imports.  In other words,
 import resolution is a distinct phase that must precede type checking and type
-inference.
+inference.  This document does not cover the semantics of Dhall's import system.
+
+## Notation for induction
+
+This document uses a non-standard `…` notation for distinguishing list elements
+or key-value pairs in records/unions from other expression types,
+records, and unions:
+
+```
+t          : Naked label which could be any type of expression.
+
+[ ts…  ]   : A list with 0 or more values.
+[ t, ts… ] : A list with 1 or more values.  The first value is `t`.
+
+{ xs… }        : A record type or record value with 0 or more fields.
+{ x : V, xs… } : A record type with 1 or more field-type pairs.  At least one
+                 field is named `x` with a type of `V`.
+{ x = v, xs… } : A record value with 1 or more field-value pairs.  At least one
+                 field is named `x` with a value of `v`.
+
+< xs… >                    : A union type with 0 or more alternative-type pairs.
+< x : V | xs… >            : A union type with 1 or more alternative-type pairs.
+                             At least one alternative is named `x` with a type
+                             of `V`.
+< x = v | xs… >            : A union literal with 0 or more alternative-type
+                             pairs.  The specified alternative is named `x` with
+                             value of `v`.
+< x₀ = v₀ | x₁ : V₁, xs… > : A union literal with 1 or more alternative-type
+                             pairs.  The specified alternative is named `x₀ with
+                             value of `v₀`.  At least one alternative is named
+                             `x₁` with a type of `V₁`.
+```
+
+You will see this notation in judgments that perform induction on lists,
+records, or unions.  For example, the following judgment for normalizing a
+non-empty list says that to normalize a list you normalize the head of the list
+and then normalize the tail:
+
+
+    x₀ ⇥ x₁   [ xs₀… ] ⇥ [ xs₁… ]
+    ─────────────────────────────
+    [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
+
+
+Note that this notation does not imply that implementations must use induction
+or inductive data structures (like linked lists) to implement lists, records, or
+unions.  Implementations may freely use more efficient data structures like
+arrays or dictionaries, so long as they behave the same.
 
 ## Shift
 
@@ -145,8 +201,8 @@ Bruijn indices.  For example:
     λ(x : Type) → λ(y : Type) → λ(x : Type) → x@1
 
 
-To be precise, `x@n` refers to the "nth" bound variable named `x` counting
-outwards from where the variable is referenced.
+`x@n` refers to the "nth" bound variable named `x` counting outwards from where
+the variable is referenced.
 
 If a variable does not specify the De Bruijn index (i.e. just `x`) then the De
 Bruijn index defaults to 0 (i.e. `x@0`), like this:
@@ -171,7 +227,7 @@ This shift function has the form:
 
 * `d` (an input integer) is the amount to add to the variable indices
     * `d` is always `-1` or `1`
-* `x` (an input variable name) is is the name of the free variable(s) to shift
+* `x` (an input variable name) is the name of the free variable(s) to shift
     * variables with a different name are unaffected by the shift function
 * `m` (an input natural number) is the minimum index to shift
     * `m` always starts out at `0`
@@ -181,35 +237,36 @@ This shift function has the form:
 * `e₀` (an input expression) is the expression to shift
 * `e₁` (the output expression) is the shifted expression
 
-For example:
-
-    ↑(1, x, 0, x) = x@1
-
-    ↑(1, x, 1, x) = x
-
-    ↑(1, x, 0, y) = y
-
-    ↑(-1, x, 0, x@1) = x
-
-    ↑(1, x, 0, List x) = List x@1
-
 ### Variables
 
 The first rule is that the shift function will increase the index of any
 variable if the variable name matches and the variable's index is greater than
-or equal to the minimum index to shift:
+or equal to the minimum index to shift.  For example:
+
+    ↑(1, x, 0, x) = x@1   ; `x = x@0` and increasing the index by 1 gives `x@1`
+
+    ↑(1, x, 1, x) = x     ; No shift, because the index was below the cutoff
+
+    ↑(1, x, 0, y) = y     ; No shift, because the variable name did not match
+
+    ↑(-1, x, 0, x@1) = x  ; Example of negative shift
+
+Formally, shift the variable if the name matches and the index is at least as
+large as the lower bound:
 
 
     ───────────────────────────  ; m <= n
     ↑(d, x, m, x@n) = x@(n + d)
 
 
-We don't shift the index if the index falls short of the lower bound or if the
-variable name does not match:
+Don't shift the index if the index falls short of the lower bound:
 
 
     ─────────────────────  ; m > n
     ↑(d, x, m, x@n) = x@n
+
+
+Also, don't shift the index if the variable name does not match:
 
 
     ─────────────────────  ; x ≠ y
@@ -218,14 +275,14 @@ variable name does not match:
 
 ### Bound variables
 
-The shift function is designed to shift only free variables.  For example, the
-shift function should have no effect on a closed expression:
+The shift function is designed to shift only free variables when `m = 0`.  For
+example, the following shift usage has no effect because `m = 0` and the
+expression is "closed" (i.e. no free variables):
 
     ↑(1, x, 0, λ(x : Type) → x) = λ(x : Type) → x
 
-This implies that we must increment the minimum bound when we descend into a
-λ-expression that binds a variable of the same name in order to avoid shifting
-the bound variable:
+Increment the minimum bound when we descend into a λ-expression that binds a
+variable of the same name in order to avoid shifting the bound variable:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m + 1, b₀) = b₁
@@ -233,7 +290,10 @@ the bound variable:
     ↑(d, x, m, λ(x : A₀) → b₀) = λ(x : A₁) → b₁
 
 
-... otherwise we descend as normal if the bound variable name does not match:
+Note that the bound variable, `x`, is not in scope for its own type, `A₀`, so
+do not increase the lower bound, `m`, when shifting the bound variable's type.
+
+Descend as normal if the bound variable name does not match:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m, b₀) = b₁
@@ -241,8 +301,8 @@ the bound variable:
     ↑(d, x, m, λ(y : A₀) → b₀) = λ(y : A₁) → b₁
 
 
-Similarly, we increase the minimum bound when we descend into a function type
-that binds a variable of the same name:
+Function types also introduce bound variables, so increase the minimum bound
+when descending past such a bound variable:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m + 1, B₀) = B₁
@@ -250,7 +310,10 @@ that binds a variable of the same name:
     ↑(d, x, m, ∀(x : A₀) → B₀) = ∀(x : A₁) → B₁
 
 
-... otherwise we descend as normal if the bound variable name does not match:
+Again, the bound variable, `x`, is not in scope for its own type, `A₀`, so do
+not increase the lower bound, `m`, when shifting the bound variable's type.
+
+Descend as normal if the bound variable name does not match:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m, B₀) = B₁
@@ -258,8 +321,8 @@ that binds a variable of the same name:
     ↑(d, x, m, ∀(y : A₀) → B₀) = ∀(y : A₁) → B₁
 
 
-Similarly, we increase the minimum bound when descending into a `let` expression
-that binds a variable of the same name:
+`let` expressions also introduce bound variables, so increase the minimum bound
+when descending past such a bound variable:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m, a₀) = a₁   ↑(d, x, m + 1, b₀) = b₁
@@ -272,7 +335,15 @@ that binds a variable of the same name:
     ↑(d, x, m, let x = a₀ in b₀) = let x = a₁ in b₁
 
 
-... otherwise we descend as normal if the bound variable name does not match:
+Again, the bound variable, `x`, is not in scope for its own type, `A₀`, so do
+not increase the lower bound, `m`, when shifting the bound variable's type.
+
+Note that Dhall's `let` expressions do not allow recursive definitions so the
+bound variable, `x`, is not in scope for the right-hand side of the assignment,
+`a₀`, so do not increase the lower bound, `m`, when shifting the right-hand side
+of the assignment.
+
+Descend as normal if the bound variable name does not match:
 
 
     ↑(d, x, m, A₀) = A₁   ↑(d, x, m, a₀) = a₁   ↑(d, x, m, b₀) = b₁
@@ -285,15 +356,10 @@ that binds a variable of the same name:
     ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
 
 
-Note that Dhall's `let` expressions do not allow recursive definitions so the
-bound variable is not in scope for the right-hand side of the assignment (i.e.
-`a₀` in the above rules).  Therefore we do not need to shift the minimum index
-when descending into the right-hand side of the `let` expression.
-
 ### Induction
 
-No other Dhall expressions bind variables, so the remaining rules just descend
-as normal:
+No other Dhall expressions bind variables, so the remaining rules descend as
+normal:
 
 
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
@@ -391,9 +457,9 @@ as normal:
     ↑(d, x, m, f₀ a₀) = f₁ a₁
 
 
-    ↑(d, x, m, e₀) = e₁
-    ──────────────────────
-    ↑(d, x, m, e.x) = e₁.x
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────
+    ↑(d, x, m, t₀.x) = t₁.x
 
 
     ─────────────────────
@@ -807,9 +873,9 @@ as normal:
     (f₀ a₀)[x@n ≔ e] = f₁ a₁
 
 
-    e₀[x@n ≔ e] = e₁
+    t₀[x@n ≔ e] = t₁
     ────────────────────────
-    (e₀.x₀)[x@n ≔ e] = e₁.x₀
+    (t₀.x₀)[x@n ≔ e] = t₁.x₀
 
 
     ──────────────────
@@ -1777,18 +1843,18 @@ Normalizing a record value normalizes each field:
 Simplify a record selection if the argument is a record literal:
 
 
-    e ⇥ { x = t, … }
+    t ⇥ { x = v, … }
     ────────────────
-    e.x ⇥  t
+    t.x ⇥  v
 
 
 The type system ensures that the selected field must be present.
 
 Otherwise, normalize the argument:
 
-    e₀ ⇥ e₁
+    t₀ ⇥ t₁
     ───────────  ; If no other rule matches
-    e₀.x ⇥ e₁.x
+    t₀.x ⇥ t₁.x
 
 
 Recursive record merge combines two records, recursively merging any fields that
@@ -2741,6 +2807,7 @@ not terminate if one of `A₀` or `A₁` is not well-typed.
   through matching names in the judgment
 * Ensure that all type equivalence checks are guarded by type-checking each
   argument
+* Ensure that the typing judgments match the equivalent System-Fω
 * Fix union literals to not suggest that there is at least one alternative?
 * Make sure that derived typing rules use `:⇥` when appropriate
 * Consistently use + prefix for natural numbers
