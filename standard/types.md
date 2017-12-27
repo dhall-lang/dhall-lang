@@ -2280,6 +2280,9 @@ Type inference is a judgment of the form:
 * `t` (an input expression) is the term to infer the type of
 * `T` (the output expression) is the inferred type
 
+Type inference also type-checks the input expression, too, to ensure that it is
+well-typed.
+
 To infer the type of a closed expression, supply an empty context:
 
     ε ⊢ t : T
@@ -2393,9 +2396,14 @@ An `if` expression takes a predicate of type `Bool` and returns either the
     Γ ⊢ if t then l else r : L
 
 
-Note that an `if` expression can only return a term.  For example, you cannot
-have an `if` expression that returns a type such as
-`if True then Text else Bool`.
+Note that an `if` expression can only return a term.  More generally, if the
+`if` expression returns a value whose type is not a `Type` then that is a type
+error.
+
+If the predicate is not a `Bool` then that is a type error.
+
+If the two branches of the `if` expression do not have the same type then that
+is a type error.
 
 All of the logical operators take arguments of type `Bool` and return a result
 of type `Bool`:
@@ -2420,6 +2428,8 @@ of type `Bool`:
     ───────────────────────────
     Γ ⊢ l != r : Bool
 
+
+If the operator arguments do not have type `Bool` then that is a type error.
 
 ### `Natural`
 
@@ -2450,6 +2460,8 @@ type `Natural`:
     ─────────────────────────────────
     Γ ⊢ x * y : Natural
 
+
+If the operator arguments do not have type `Natural` then that is a type error.
 
 The built-in functions on `Natural` numbers have the following types:
 
@@ -2508,6 +2520,8 @@ result of type `Text`:
     Γ ⊢ x ++ y : Text
 
 
+If the operator arguments do not have type `Text`, then that is a type error.
+
 ### `List`
 
 `List` is a function from a `Type` to another `Type`:
@@ -2531,7 +2545,12 @@ non-empty) or from the type annotation (if empty):
     Γ ⊢ [t, ts…] : List T₀
 
 
-Note that the above rules forbid `List` elements that are `Type`s.
+Note that the above rules forbid `List` elements that are `Type`s.  More
+generally, if the element type is not a `Type` then that is a type error.
+
+If the list elements do not all have the same type then that is a type error.
+
+If an empty list does not have a type annotation then that is a type error.
 
 The `List` concatenation operator takes arguments that are both `List`s of the
 same type and returns a `List` of the same type:
@@ -2543,6 +2562,10 @@ same type and returns a `List` of the same type:
     ───────────────────
     Γ ⊢ x # y : List A₀
 
+
+If the operator arguments are not `List`s, then that is a type error.
+
+If the arguments have different element types, then that is a type error.
 
 The built-in functions on `List`s have the following types:
 
@@ -2597,7 +2620,11 @@ An `Optional` literal's type is inferred from the mandatory type annotation:
     Γ ⊢ ([ a ] : Optional A) : Optional A
 
 
-Note that the above rules forbid an `Optional` elements that is a `Type`.
+Note that the above rules forbid an `Optional` elements that is a `Type`.  More
+generally, if the element type is not a `Type` then that is a type error.
+
+If the element is present and does not match the type annotation then that is a
+type error.
 
 The built-in functions on `Optional` values have the following types:
 
@@ -2626,7 +2653,10 @@ names and types of their fields and the order of fields does not matter:
 
 
 Note that the above rule forbids storing types in records (i.e. no type-valued
-fields).
+fields).  More generally, if the field type is not a `Type` then that is a
+type error.
+
+If two fields have the same name, then that is a type error.
 
 Record values are also anonymous:
 
@@ -2635,8 +2665,8 @@ Record values are also anonymous:
     Γ ⊢ {=} : {}
 
 
-    Γ ⊢ t : T   Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ Type
-    ───────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ t : T   Γ ⊢ { x : T, xs… } :⇥ Type
+    ──────────────────────────────────────
     Γ ⊢ { x = t, xs… } : Type
 
 
@@ -2647,6 +2677,9 @@ You can only select a field from the record if the field is present:
     ────────────────────────────────────────────────────
     Γ ⊢ e.a : A
 
+
+If you select a field from a value that is not a record, then that is a type
+error.
 
 If the field is absent from the record then that is a type error.
 
@@ -2662,7 +2695,6 @@ Recursive record merge requires that both arguments are records:
     Γ ⊢ l :⇥ { ls… }
     Γ ⊢ r :⇥ { a : A, rs… }
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    Γ ⊢ A :⇥ Type
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ∧ r : { a : A, ts… }
 
@@ -2671,10 +2703,11 @@ Recursive record merge requires that both arguments are records:
     Γ ⊢ r :⇥ { a : A₁, rs… }
     Γ ⊢ l.a ∧ r.a : A₂
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    Γ ⊢ A₂ :⇥ Type
     ───────────────────────────────
     Γ ⊢ l ∧ r : { a : A₂, ts… }
 
+
+If the operator arguments are not records then that is a type error.
 
 If they share a field in common that is not a record then that is a type error.
 
@@ -2690,7 +2723,6 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l :⇥ { ls… }
     Γ ⊢ r :⇥ { a : A, rs… }
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    Γ ⊢ A :⇥ Type
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⫽ r : { a : A, ts… }
 
@@ -2698,10 +2730,11 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l :⇥ { a : A₀, ls… }
     Γ ⊢ r :⇥ { a : A₁, rs… }
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    Γ ⊢ A₀ :⇥ Type
     ───────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₀, ts… }
 
+
+If the operator arguments are not records then that is a type error.
 
 ### Unions
 
@@ -2713,13 +2746,24 @@ and types of their alternatives and the order of fields does not matter:
     Γ ⊢ <> : Type
 
 
-    Γ ⊢ A :⇥ Type   Γ ⊢ < as… > :⇥ Type
-    ───────────────────────────────────
-    Γ ⊢ < a : A | as… > : Type
+    Γ ⊢ T :⇥ Type   Γ ⊢ < ts… > :⇥ Type
+    ───────────────────────────────────  ; t ∉ < ts… >
+    Γ ⊢ < t : T | ts… > : Type
 
 
 Note that the above rule forbids storing types in unions (i.e. no type-valued
-alternatives).
+alternatives).  More generally, if the alternative type is not a `Type` then
+that is a type error.
+
+If two alternatives share the same name then that is a type error.
+
+Union values are also anonymous:
+
+
+    Γ ⊢ t : T   Γ ⊢ < t : T | ts… > :⇥ Type
+    ───────────────────────────────────────
+    Γ ⊢ < x = t | ts… > : < x : T | ts… >
+
 
 A `merge` expression is well-typed if there is a one-to-one correspondence
 between the fields of the handler record and the alternatives of the union:
@@ -2747,7 +2791,30 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ merge t u : T₀
 
 
-Note that you cannot `merge` an empty union if the type annotation is missing.
+If the first argument of a `merge` expression is not a record then that is a
+type error.
+
+If the second argument of a `merge` expression is not a union then that is a
+type error.
+
+If you `merge` an empty union without a type annotation then that is a type
+
+If the `merge` expression has a type annotation that is not a `Type` then that
+is a type error.
+
+If there is a handler without a matching alternative then that is a type error.
+
+If there is an alternative without a matching handler then that is a type error.
+
+If a handler is not a function, then that is a type error.
+
+If the handler's input type does not match the corresponding alternative's type
+then that is a type error.
+
+If there are two handlers with different output types then that is a type error.
+
+If a `merge` expression has a type annotation that doesn't match every handler's
+output type then that is a type error.
 
 ### `Integer`
 
@@ -2806,8 +2873,12 @@ and if the inferred input and output type are allowed by the function check:
     Γ₀ ⊢ ∀(x : A) → B : o
 
 
+If the input or output type is neither a `Type` nor a `Kind` then that is a type
+error.
+
 The function check disallows dependent function types but allows all other
-function types.
+function types.  If the function type is a dependent function type then that is
+a type error.
 
 An unquantified function type `A → B` is a short-hand for `∀(_ : A) → B`.  Note
 that the `_` does *not* denote some unused type variable but rather denotes the
@@ -2849,6 +2920,8 @@ function's argument:
     ───────────────────────
     Γ ⊢ f a₀ : B₂
 
+
+If the function does not have a function type, then that is a type error.
 
 If the inferred input type of the function does not match the inferred type of
 the function argument then that is a type error.
@@ -2894,8 +2967,13 @@ equivalence:
     Γ₀ ⊢ let x = a₀ in b : B₂
 
 
-### Type annotations
+If the `let` expression has a type annotation that doesn't match the type of
+the right-hand side of the assignment then that is a type error.
 
+If the `let` expression desugars to an anonymous function with a dependent
+function type, then that is a type error.
+
+### Type annotations
 
 The inferred type of a type annotation is the annotation.  Type-checking also
 verifies that the annotation matches the inferred type of the annotated
@@ -2909,7 +2987,5 @@ expression:
 
 Note that the above rule permits kind annotations, such as `List : Type → Type`.
 
-# TODO
-
-* Explicitly document all possible kinds of type errors
-* Ensure that the typing judgments match the equivalent System-Fω
+If the inferred type of the annotated expression does not match the type
+annotation then that is a type error.
