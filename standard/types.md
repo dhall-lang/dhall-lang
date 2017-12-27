@@ -21,8 +21,6 @@ m, n = +0 / +1 + n     ; Natural numbers
 
 d = n / -n             ; Integers
 
-"…" = "" / "." ++ "…"  ; Text ("." is any character and "…" is any string)
-
 x, y                   ; Variables
 
 ; Mnemonics:
@@ -92,7 +90,7 @@ a, b, f, l, r, e, t, u, A, B, L, R, E, T, U, k, i, o
   / { x : T, … }             ; Record type
   / { x = t, … }             ; Non-empty record literal
   / < x : T | xs… >          ; Union type
-  / < x = t | y : T | ys… >  ; Union literal
+  / < x = t | y : B | ys… >  ; Union literal
   / Natural/build            ; Natural introduction
   / Natural/fold             ; Natural elimination
   / Natural/isZero           ; Test if zero
@@ -171,17 +169,17 @@ This shift function has the form:
 
 ... where:
 
-* `d` (an input) is the amount to add to the variable indices
+* `d` (an input integer) is the amount to add to the variable indices
     * `d` is always `-1` or `1`
-* `x` (an input) is is the name of the free variable(s) to shift
+* `x` (an input variable name) is is the name of the free variable(s) to shift
     * variables with a different name are unaffected by the shift function
-* `m` (an input) is the minimum index to shift
+* `m` (an input natural number) is the minimum index to shift
     * `m` always starts out at `0`
     * `m` increases by one when descending past a bound variable named `x`
     * variables with an index lower than `m` are unaffected by the shift
       function
-* `e₀` (an input) is the expression to shift
-* `e₁` (the output) is the shifted expression
+* `e₀` (an input expression) is the expression to shift
+* `e₁` (the output expression) is the shifted expression
 
 For example:
 
@@ -318,8 +316,8 @@ as normal:
     ↑(d, x, m, [] : List T₀) = [] : List T₁
 
 
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, ts₀…) = ts₁…
-    ─────────────────────────────────────────────
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, [ ts₀… ]) = [ ts₁… ]
+    ─────────────────────────────────────────────────────
     ↑(d, x, m, [ t₀, ts₀… ]) = [ t₁, ts₁… ]
 
 
@@ -414,24 +412,24 @@ as normal:
     ↑(d, x, m, "…") = "…"
 
 
-    ↑(d, x, m, T₀) = T₁   ↑(d, x, m, xs₀…) = xs₁…
-    ───────────────────────────────────────────────
+    ↑(d, x, m, T₀) = T₁   ↑(d, x, m, { xs₀… }) = { xs₁… }
+    ─────────────────────────────────────────────────────
     ↑(d, x, m, { x : T₀, xs₀… }) = { x : T₁, xs₁… }
 
 
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, xs₀…) = xs₁…
-    ───────────────────────────────────────────────
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, { xs₀… }) = { xs₁… }
+    ─────────────────────────────────────────────────────
     ↑(d, x, m, { x = t₀, xs₀… }) = { x = t₁, xs₁… }
 
 
-    ↑(d, x, m, T₀) = T₁   ↑(d, x, m, xs₀…) = xs₁…
-    ─────────────────────────────────────────────────
+    ↑(d, x, m, T₀) = T₁   ↑(d, x, m, < xs₀… >) = < xs₁… >
+    ─────────────────────────────────────────────────────
     ↑(d, x, m, < x : T₀ | xs₀… >) = < x : T₁ | xs₁… >
 
 
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁   ↑(d, x, m, ys₀…) = ys₁…
-    ───────────────────────────────────────────────────────────────────
-    ↑(d, x, m, < x = t₀ | y : T₀ | ys₀… >) = < x = t₁ | y : T₁ | ys₁… >
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, B₀) = T₁   ↑(d, x, m, < ys₀… > ) = < ys₁… >
+    ────────────────────────────────────────────────────────────────────────────
+    ↑(d, x, m, < x = t₀ | y : B₀ | ys₀… >) = < x = t₁ | y : B₁ | ys₁… >
 
 
     ─────────────────────────────────────────
@@ -581,12 +579,13 @@ You can also shift a context by shifting each expression in that context:
 
 ... where:
 
-* `e₀` (an input) is the expression that you want to transform
-* `x@n` (an input) is the variable that you want to substitute with another
-  expression
-* `a` (an input) is the expression that you want to substitute `x@n` with
-* `e₁` (the output) is transformed expression where all occurrences of `x@n`
-  have been replaced with `a`
+* `e₀` (an input expression) is the expression that you want to transform
+* `x@n` (an input variable) is the variable that you want to substitute with
+  another expression
+* `a` (an input expression) is the expression that you want to substitute `x@n`
+  with
+* `e₁` (the output expression) is transformed expression where all occurrences
+  of `x@n` have been replaced with `a`
 
 `e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 
@@ -733,8 +732,8 @@ as normal:
     ([] : List T₀)[x@n ≔ e] = [] : List T₁
 
 
-    t₀[x@n ≔ e] = t₁   ts₀…[x@n ≔ e] = ts₁…
-    ───────────────────────────────────────
+    t₀[x@n ≔ e] = t₁   [ ts₀… ][x@n ≔ e] = [ ts₁… ]
+    ───────────────────────────────────────────────
     ([ t₀, ts₀… ])[x@n ≔ e] = [ t₁, ts₁… ]
 
 
@@ -829,19 +828,19 @@ as normal:
     "…"[x@n ≔ e] = "…"
 
 
-    T₀[x@n ≔ e] = T₁   xs₀…[x@n ≔ e] = xs₁…
-    ──────────────────────────────────────────────
+    T₀[x@n ≔ e] = T₁   { xs₀… }[x@n ≔ e] = { xs₁… }
+    ───────────────────────────────────────────────
     { x₀ : T₀, xs₀… }[x@n ≔ e] = { x₀ : T₁, xs₁… }
 
 
-    t₀[x@n ≔ e] = t₁   xs₀…[x@n ≔ e] = xs₁…
-    ──────────────────────────────────────────────
+    t₀[x@n ≔ e] = t₁   { xs₀… }[x@n ≔ e] = { xs₁… }
+    ───────────────────────────────────────────────
     { x₀ = t₀, xs₀… }[x@n ≔ e] = { x₀ = t₁, xs₁… }
 
 
-    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁   ys₀…[x@n ≔ e] = ys₁…
-    ──────────────────────────────────────────────────────────
-    < x₀ = t₀ | y : T₀ | ys₀… >[x@n ≔ e] = < x₀ = t₁ | y : T₁ | ys₁… >
+    t₀[x@n ≔ e] = t₁   B₀[x@n ≔ e] = B₁   < ys₀… >[x@n ≔ e] = < ys₁… >
+    ──────────────────────────────────────────────────────────────────
+    < x₀ = t₀ | y : B₀ | ys₀… >[x@n ≔ e] = < x₀ = t₁ | y : B₁ | ys₁… >
 
 
     ──────────────────────────────────────
@@ -993,6 +992,19 @@ operators that conforming implementations must support.  Implementations are
 encouraged to implement the following functions and operators in more efficient
 ways than the following reduction rules so long as the result of normalization
 is the same.
+
+### Constants
+
+Type-checking constants are in normal form:
+
+
+    ───────────
+    Type ⇥ Type
+
+
+    ───────────
+    Kind ⇥ Kind
+
 
 ### Variables
 
@@ -1486,8 +1498,8 @@ Normalizing a `List` normalizes each field and the type annotation:
     [] : List T₀ ⇥ [] : List T₁
 
 
-    x₀ ⇥ x₁   xs₀… ⇥ xs₁…
-    ───────────────────────────
+    x₀ ⇥ x₁   [ xs₀… ] ⇥ [ xs₁… ]
+    ─────────────────────────────
     [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
 
 
@@ -1503,8 +1515,8 @@ Dhall does not impose time complexity requirements on list operations.
     f b₀ ⇥ b₁
 
 
-    f ⇥ List/fold A₀ [ a, as… ] B g   g a (List/fold A₀ as… B g b₀) ⇥ b₁
-    ────────────────────────────────────────────────────────────────────
+    f ⇥ List/fold A₀ [ a, as… ] B g   g a (List/fold A₀ [ as… ] B g b₀) ⇥ b₁
+    ────────────────────────────────────────────────────────────────────────
     f b₀ ⇥ b₁
 
 
@@ -1540,11 +1552,11 @@ Use machine concatenation to simplify the "list concatenation" operator if both
 arguments normalize to `List` literals:
 
 
-    ls₀ ⇥ [ l₁, ls₁… ]
-    rs₀ ⇥ [ r₁, rs₁… ]
-    [ l₁, ls₁… ] # [ r₁, rs₁… ] ⇥ t
-    ──────────────────────────────   ;  "[ l₁, ls₁… ] # [ r₁, rs₁… ]" means
-    ls₀ # rs₀ ⇥ t                    ;  "use machine concatenation"
+    ls₀ ⇥ [ ls₁… ]
+    rs₀ ⇥ [ rs₁… ]
+    [ ls₁… ] # [ rs₁… ] ⇥ t
+    ───────────────────────   ;  "[ l₁, ls₁… ] # [ r₁, rs₁… ]" means "use
+    ls₀ # rs₀ ⇥ t             ;  machine concatenation"
 
 
 Also, simplify the "list concatenation" operator if either argument normalizes
@@ -1577,8 +1589,8 @@ Otherwise, normalize each argument:
     f a ⇥ +0
 
 
-    f ⇥ List/length A₀   as₀ ⇥ [ a, as₁… ]   +1 + List/length A₀ as₁… ⇥ n
-    ─────────────────────────────────────────────────────────────────────
+    f ⇥ List/length A₀   as₀ ⇥ [ a, as₁… ]   +1 + List/length A₀ [ as₁… ] ⇥ n
+    ─────────────────────────────────────────────────────────────────────────
     f as₀ ⇥ n
 
 
@@ -1736,26 +1748,24 @@ All of the built-in functions on `Optional` values are in normal form:
     Optional/build ⇥ Optional/build
 
 
-### Record types
+### Records
 
 Normalizing a record type normalizes the type of each field:
 
 
-    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
+    T₀ ⇥ T₁   { xs₀… } ⇥ { xs₁… }
     ───────────────────────────────────
     { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
 
 
-### Record values
-
-Normalizing a record normalizes each field:
+Normalizing a record value normalizes each field:
 
 
     ───────
     {} ⇥ {}
 
 
-    t₀ ⇥ t₁   xs₀… ⇥ xs₁…
+    t₀ ⇥ t₁   { xs₀… } ⇥ { xs₁… }
     ───────────────────────────────────
     { x = t₀, xs₀… } ⇥ { x = t₁, xs₁… }
 
@@ -1794,13 +1804,13 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ⇥ { x = l₁, ls₁… }
     rs₀ ⇥ { x = r₁, rs₁… }
     l₁ ∧ r₁ ⇥ t
-    ls₁… ∧ rs₁… ⇥ ts…
-    ──────────────────────────
+    { ls₁… } ∧ { rs₁… } ⇥ { ts… }
+    ─────────────────────────────
     ls₀ ∧ rs₀ ⇥ { x = t, ts… }
 
 
-    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ∧ rs ⇥ ls₂…
-    ─────────────────────────────────────────  ; x ∉ rs
+    ls₀ ⇥ { x = l₁, ls₁… }   { ls₁… } ∧ rs ⇥ { ls₂… }
+    ─────────────────────────────────────────────────  ; x ∉ rs
     ls₀ ∧ rs ⇥ { x = l₁, ls₂… }
 
 
@@ -1819,13 +1829,15 @@ from the left record:
     {} ⫽ r ⇥ e
 
 
-    ls₀ ⇥ { x = l₁, ls₁… }   rs₀ ⇥ { x = r₁, rs₁… }   ls₁… ⫽ rs₁… ⇥ ts…
-    ───────────────────────────────────────────────────────────────────
+    ls₀ ⇥ { x = l₁, ls₁… }
+    rs₀ ⇥ { x = r₁, rs₁… }
+    { ls₁… } ⫽ { rs₁… } ⇥ { ts… }
+    ─────────────────────────────
     ls₀ ⫽ rs₀ ⇥ { x = r₁, ts… }
 
 
-    ls₀ ⇥ { x = l₁, ls₁… }   ls₁… ⫽ rs ⇥ ls₂…
-    ─────────────────────────────────────────  ; x ∉ rs
+    ls₀ ⇥ { x = l₁, ls₁… }   { ls₁… } ⫽ rs ⇥ { ls₂… }
+    ─────────────────────────────────────────────────  ; x ∉ rs
     ls₀ ⫽ rs ⇥ { x = l₁, ls₂… }
 
 
@@ -1834,25 +1846,23 @@ from the left record:
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
 
-### Union types
+### Unions
 
 Normalizing a union type normalizes the type of each alternative:
 
 
-    T₀ ⇥ T₁   xs₀… ⇥ xs₁…
+    T₀ ⇥ T₁   < xs₀… > ⇥ < xs₁… >
     ─────────────────────────────────────
     < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
 
 
-### Union values
-
-Normalizing a union literal is the same as normalizing the specified value and
+Normalizing a union value is the same as normalizing the specified value and
 the type of each alternative:
 
 
-    t₀ ⇥ t₁   T₀ ⇥ T₁   ys₀… ⇥ ys₁…
+    t₀ ⇥ t₁   B₀ ⇥ B₁   < ys₀… > ⇥ < ys₁… >
     ───────────────────────────────────────────────────────
-    < x = t₀ | y : T₀ | ys₀… > ⇥ < x = t₁ | y : T₁ | ys₁… >
+    < x = t₀ | y : B₀ | ys₀… > ⇥ < x = t₁ | y : B₁ | ys₁… >
 
 
 `merge` expressions are the canonical way to eliminate a union literal.  The
@@ -1861,7 +1871,7 @@ union value.  You apply the handler of the same label to the selected value of
 the union literal:
 
 
-    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
+    t ⇥ { x = f, … }   u ⇥ < x = a | y : B | … >   f a ⇥ e
     ──────────────────────────────────────────────────────
     merge t u : T ⇥ e
 
@@ -1871,7 +1881,7 @@ the union literal:
     merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
 
 
-    t ⇥ { x = f, … }   u ⇥ < x = a | y : T | … >   f a ⇥ e
+    t ⇥ { x = f, … }   u ⇥ < x = a | y : B | … >   f a ⇥ e
     ──────────────────────────────────────────────────────
     merge t u ⇥ e
 
@@ -1947,6 +1957,14 @@ The `Double/show` function is in normal form:
 
 ### Functions
 
+Normalizing a function type normalizes the types of the input and output:
+
+
+    A₀ → A₁   B₀ → B₁
+    ───────────────────────────────
+    ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
+
+
 Normalizing an anonymous function normalizes the type of the bound variable and
 the body of the function:
 
@@ -1975,16 +1993,6 @@ the preceding function application rules apply:
     f₀ ⇥ f₁   a₀ ⇥ a₁
     ─────────────────  ; If no other rule matches
     f₀ a₀ ⇥ f₁ a₁
-
-
-### Function types
-
-Normalizing a function type normalizes the types of the input and output:
-
-
-    A₀ → A₁   B₀ → B₁
-    ───────────────────────────────
-    ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
 
 
 ### `let` expressions
@@ -2036,26 +2044,14 @@ equivalence:
     t₀ : T ⇥ t₁
 
 
-### Constants
-
-Type-checking constants are in normal form:
-
-
-    ───────────
-    Type ⇥ Type
-
-
-    ───────────
-    Kind ⇥ Kind
-
-
 ## Equivalence
 
 Equivalence is a relationship between two expression of the form:
 
     e₀ ≡ e₁
 
-Two expressions are equivalent if they are α-equivalent when normalized.
+Two expressions are equivalent if they are α-equivalent when normalized.  This
+document does not include the semantics for checking α-equivalence.
 
 Note that this notion of equivalence does not include η-equivalence, since
 normalization does not η-expand or η-reduce expressions.
@@ -2122,10 +2118,10 @@ Type inference is a judgment of the form:
 
 ... where:
 
-* `Γ` (an input) is the type inference context which relates identifiers to
-  their types
-* `t` (an input) is the term to infer the type of
-* `T` (the output) is the inferred type
+* `Γ` (an input context) is the type inference context which relates
+  identifiers to their types
+* `t` (an input expression) is the term to infer the type of
+* `T` (the output expression) is the inferred type
 
 To infer the type of a closed expression, supply an empty context:
 
@@ -2145,20 +2141,21 @@ to normal form:
 This judgment is essentially identical to the judgment for type inference except
 that this judgment guarantees that the inferred type is in normal form.
 
-### Types and Kinds
+### Constants
 
 The first rule is that the inferred type of `Type` is `Kind`, no matter the
 context:
 
 
     ───────────────
-    ε ⊢ Type : Kind
+    Γ ⊢ Type : Kind
 
 
 In other words, `Kind` is the "type of types" and `Kind` serves as the
-foundation of the type system.  Note that you cannot infer the type of `Kind`
-as there is nothing above `Kind` in the type system's hierarchy.  Inferring the
-type of `Kind` is a type error.
+foundation of the type system.
+
+Note that you cannot infer the type of `Kind` as there is nothing above `Kind`
+in the type system's hierarchy.  Inferring the type of `Kind` is a type error.
 
 ### Variables
 
@@ -2196,12 +2193,350 @@ with each variable disambiguates which type annotation in the context to use:
 
 If the natural number associated with the variable is greater than or equal to
 the number of type annotations in the context matching the variable then that is
-a type error
+a type error.
 
-Carefully note that the above two rules imply that each type stored in the
-context must be well-typed.  This restriction ensures that we can safely
-normalize any type retrieved from the context since well-typed terms will not
-infinitely loop if normalized.
+Carefully note that the above rules imply that each type stored in the context
+must be well-typed.  This restriction ensures that we can safely normalize any
+type retrieved from the context since well-typed terms will not infinitely loop
+if normalized.
+
+### `Bool`
+
+`Bool` is a `Type`:
+
+
+    ───────────────
+    Γ ⊢ Bool : Type
+
+
+`True` and `False` have type `Bool`:
+
+
+    ───────────────
+    Γ ⊢ True : Type
+
+
+    ────────────────
+    Γ ⊢ False : Type
+
+
+An `if` expression takes a predicate of type `Bool` and returns either the
+`then` or `else` branch of the expression, both of which must be the same type:
+
+
+    Γ ⊢ t :⇥ Bool
+    Γ ⊢ l : L
+    Γ ⊢ r : R
+    Γ ⊢ L :⇥ Type
+    Γ ⊢ R :⇥ Type
+    L ≡ R
+    ──────────────────────────
+    Γ ⊢ if t then l else r : L
+
+
+Carefully note that an `if` expression can only return a term.  For example, you
+cannot have an `if` expression that returns a type.
+
+All of the logical operators take arguments of type `Bool` and return a result
+of type `Bool`:
+
+
+    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    ───────────────────────────
+    Γ ⊢ l || r : Bool
+
+
+    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    ───────────────────────────
+    Γ ⊢ l && r : Bool
+
+
+    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    ───────────────────────────
+    Γ ⊢ l == r : Bool
+
+
+    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    ───────────────────────────
+    Γ ⊢ l != r : Bool
+
+
+### `Natural`
+
+`Natural` is a type:
+
+
+    ──────────────────
+    Γ ⊢ Natural : Type
+
+
+`Natural` number literals have type `Natural`:
+
+
+    ────────────────
+    Γ ⊢ +n : Natural
+
+
+The arithmetic operators take arguments of type `Natural` and return a result of
+type `Natural`:
+
+
+    Γ ⊢ x :⇥ Natural   Γ ⊢ y :⇥ Natural
+    ─────────────────────────────────
+    Γ ⊢ x + y : Natural
+
+
+    Γ ⊢ x :⇥ Natural   Γ ⊢ y :⇥ Natural
+    ─────────────────────────────────
+    Γ ⊢ x * y : Natural
+
+
+The built-in functions on `Natural` numbers have the following types:
+
+
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ Natural/build : (∀(natural : Type) → ∀(succ : natural → natural) → ∀(zero : natural) → natural) → Natural
+
+
+    ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ Natural/fold : Natural → ∀(natural : Type) → ∀(succ : natural → natural) → ∀(zero : natural) → natural
+
+
+    ───────────────────────────────────
+    Γ ⊢ Natural/isZero : Natural → Bool
+
+
+    ─────────────────────────────────
+    Γ ⊢ Natural/even : Natural → Bool
+
+
+    ────────────────────────────────
+    Γ ⊢ Natural/odd : Natural → Bool
+
+
+    ─────────────────────────────────────────
+    Γ ⊢ Natural/toInteger : Natural → Integer
+
+
+    ─────────────────────────────────
+    Γ ⊢ Natural/show : Natural → Text
+
+
+### `Text`
+
+
+`Text` is a type:
+
+
+    ───────────────
+    Γ ⊢ Text : Type
+
+
+`Text` literals have type `Text`:
+
+
+    ──────────────
+    Γ ⊢ "…" : Text
+
+
+The `Text` concatenation operator takes arguments of type `Text` and returns a
+result of type `Text`:
+
+
+    Γ ⊢ x :⇥ Text   Γ ⊢ y :⇥ Text
+    ─────────────────────────────
+    Γ ⊢ x ++ y : Text
+
+
+### `List`
+
+`List` is a function from a `Type` to another `Type`:
+
+
+    ──────────────────────
+    Γ ⊢ List : Type → Type
+
+
+A `List` literal's type is inferred either from the type of the elements (if
+non-empty) or from the type annotation (if empty):
+
+
+    ──────────────────────────
+    Γ ⊢ ([] : List A) : List A
+
+
+    x₀ : A₀
+    A₀ :⇥ Type
+    x₁ : A₁
+    A₁ :⇥ Type
+    A₀ ≡ A₁
+    x₂ : A₂
+    A₂ :⇥ Type
+    A₀ ≡ A₂
+    …
+    ─────────────────────────
+    Γ ⊢ [x₀, x₁, …] : List A₀
+
+
+Carefully note that you should not check `A₀ ≡ A₁` until you have first check
+that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
+not terminate if one of `A₀` or `A₁` is not well-typed.
+
+The `List` concatenation operator takes arguments that are both `List`s of the
+same type and returns a `List` of the same type:
+
+
+    Γ ⊢ x :⇥ List A₀
+    Γ ⊢ A₀ :⇥ Type
+    Γ ⊢ y :⇥ List A₁
+    Γ ⊢ A₁ :⇥ Type
+    A₀ ≡ A₁
+    ───────────────────
+    Γ ⊢ x # y : List A₀
+
+
+Carefully note that you should not check `A₀ ≡ A₁` until you have first check
+that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
+not terminate if one of `A₀` or `A₁` is not well-typed.
+
+The built-in functions on `List`s have the following types:
+
+
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ List/build : ∀(a : Type) → (∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list) → List a
+
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ List/fold : ∀(a : Type) → List a → ∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list
+
+
+    ────────────────────────────────────────────────
+    Γ ⊢ List/length : ∀(a : Type) → List a → Natural
+
+
+    ───────────────────────────────────────────────
+    Γ ⊢ List/head ∀(a : Type) → List a → Optional a
+
+
+    ─────────────────────────────────────────────────
+    Γ ⊢ List/last : ∀(a : Type) → List a → Optional a
+
+
+    ─────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ List/indexed : ∀(a : Type) → List a → List { index : Natural, value : a }
+
+
+    ────────────────────────────────────────────────
+    Γ ⊢ List/reverse : ∀(a : Type) → List a → List a
+
+
+### `Optional`
+
+`Optional` is a function from a `Type` to another `Type`:
+
+
+    ──────────────────────────
+    Γ ⊢ Optional : Type → Type
+
+
+An `Optional` literal's type is inferred from the mandatory type annotation:
+
+
+    ──────────────────────────────────
+    Γ ⊢ ([] : Optional A) : Optional A
+
+
+    ─────────────────────────────────────
+    Γ ⊢ ([ a ] : Optional A) : Optional A
+
+
+The built-in functions on `Optional` values have the following types:
+
+
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ Optional/fold : ∀(a : Type) → Optional a → ∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional
+
+
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ Optional/build : ∀(a : Type) → (∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional) → Optional a
+
+
+### Records
+
+Record types are "anonymous", meaning that they are uniquely defined by the
+names and types of their fields and the order of fields does not matter:
+
+
+    ─────────────
+    Γ ⊢ {} : Type
+
+
+    Γ ⊢ A :⇥ Type   Γ ⊢ { as… } :⇥ Type
+    ───────────────────────────────────
+    Γ ⊢ { a : A, as… } : Type
+
+
+Note that the above rule forbids storing types in records (i.e. no type-valued
+fields).
+
+You can only select a field from the record if the field is present:
+
+
+    Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { as… } :⇥ Type
+    ─────────────────────────────────────────────
+    Γ ⊢ e.a : A
+
+
+If the field is absent from the record then that is a type error.
+
+Recursive record merge requires that both arguments are records:
+
+
+    Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ r :⇥ {}
+    ───────────────────
+    Γ ⊢ l ∧ r : { ls… }
+
+
+    Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ∧ r : { a : A, ts… }
+
+
+    Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ l.a ∧ r.a : A₂
+    Γ ⊢ { ls… } ∧ { rs… } : { ts… }
+    ───────────────────────────────
+    Γ ⊢ l ∧ r : { a : A₂, ts… }
+
+
+If they share a field in common that is not a record then that is a type error.
+
+Non-recursive right-biased merge also requires that both arguments are records:
+
+
+    Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ r :⇥ {}
+    ───────────────────
+    Γ ⊢ l ⫽ r : { ls… }
+
+
+    Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⫽ r : { a : A, ts… }
+
+
+    Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { ls… } ⫽ { rs… } : { ts… }
+    ───────────────────────────────
+    Γ ⊢ l ⫽ r : { a : A₀, ts… }
+
 
 ### Lambdas
 
@@ -2218,12 +2553,32 @@ as the type of the bound variable and whose output type (`B`) is the same as the
 inferred type of the body of the λ-expression (`b`).
 
 Carefully note that the above rule requires that the inferred function type must
-be well-typed.  The type-checking step for the function type disallows certain
-types of functions.
+be well-typed.  The type-checking step for the function type triggers a kind
+check which disallows dependent function types.
+
+### Lambdas
+
+You can create new (anonymous) functions using a λ:
+
+
+    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
+    ─────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+
+
+The type of a λ-expression is a function type whose input type (`A`) is the same
+as the type of the bound variable and whose output type (`B`) is the same as the
+inferred type of the body of the λ-expression (`b`).
+
+Carefully note that the above rule requires that the inferred function type must
+be well-typed.  The type-checking step for the function type disallows dependent
+function types.
 
 ### Function types
 
-A function type is only well-typed if the input and output type are well-typed:
+A function type is only well-typed if the input and output type are well-typed
+and if the inferred kinds of the input and output type are allowed by the kind
+check:
 
 
     Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   ⊢ i ↝ o
@@ -2231,10 +2586,10 @@ A function type is only well-typed if the input and output type are well-typed:
     Γ₀ ⊢ ∀(x : A) → B : o
 
 
-... and if the inferred kinds of the input and output type are allowed.  This
-kind check disallows dependent function types.
+The kind check disallows dependent function types but allows all other function
+types.
 
-The unquantified function type `A → B` is a short-hand for `∀(_ : A) → B`.  Note
+An unquantified function type `A → B` is a short-hand for `∀(_ : A) → B`.  Note
 that the `_` does **NOT** denote some unused type variable but rather denotes
 the specific variable named `_` (which is a valid variable name and this
 variable named `_` may in fact be present within `B`).  For example, this is a
@@ -2266,9 +2621,9 @@ function's argument:
 If the inferred input type of the function does not match the inferred type of
 the function argument then that is a type error
 
-Carefully note that you should not check `A₀ ≡ A₁` until you have first checked
-the two other preconditions.  This is because a β-equivalence check might not
-terminate if one of `A₀` or `A₁` is not well-typed
+Carefully note that you should not check `A₀ ≡ A₁` until you have first check
+that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
+not terminate if one of `A₀` or `A₁` is not well-typed.
 
 ### `let` expressions
 
@@ -2287,6 +2642,11 @@ terminate if one of `A₀` or `A₁` is not well-typed
     Γ₀ ⊢ let x : A₀ = a₀ in b : B₂
 
 
+Carefully note that you should not check `A₀ ≡ A₁` until you have first check
+that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
+not terminate if one of `A₀` or `A₁` is not well-typed.
+
+
     Γ₀ ⊢ a₀ : A
     Γ₀ ⊢ A :⇥ i
     ↑(1, x, 0, (Γ₀, x : A)) = Γ₁
@@ -2300,19 +2660,6 @@ terminate if one of `A₀` or `A₁` is not well-typed
     Γ₀ ⊢ let x = a₀ in b : B₂
 
 
-### `if`/`then`/`else`
-
-
-    Γ ⊢ t :⇥ Bool
-    Γ ⊢ l : L
-    Γ ⊢ r : R
-    Γ ⊢ L :⇥ Type
-    Γ ⊢ R :⇥ Type
-    L ≡ R
-    ──────────────────────────
-    Γ ⊢ if t then l else r : L
-
-
 ### `merge`
 
 
@@ -2320,6 +2667,8 @@ terminate if one of `A₀` or `A₁` is not well-typed
 
 # TODO
 
+* Fix union literals to not suggest that there is at least one alternative?
+* Make sure that derived typing rules use `:⇥` when appropriate
 * Consistently use + prefix for natural numbers
 * Use … notation more precisely
 * Does the valid context optimization from the Henk paper work?  If so, simplify
