@@ -2807,7 +2807,7 @@ judgment:
 You can create new (anonymous) functions using a λ:
 
 
-    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : k
+    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : c
     ─────────────────────────────────────────────────────────────────
     Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
 
@@ -2831,7 +2831,7 @@ function's argument:
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
     ↑(-1, x, 0, B₁) = B₂
-    ────────────────────────────────────────────
+    ───────────────────────
     Γ ⊢ f a₀ : B₂
 
 
@@ -2871,7 +2871,7 @@ equivalence:
     Γ₀ ⊢ A :⇥ i
     ↑(1, x, 0, (Γ₀, x : A)) = Γ₁
     Γ₁ ⊢ b : B₀
-    Γ₁ ⊢ B ₀:⇥ o
+    Γ₁ ⊢ B₀ :⇥ o
     i ↝ o
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
@@ -2899,15 +2899,6 @@ Note that the above rule permits kind annotations, such as `List : Type → Type
 
 * Explicitly document all possible kinds of type errors
 * No "you" or "we"
-* Ensure that all type equivalence checks are made explicit instead of implicit
-  through matching names in the judgment
 * Ensure that all type equivalence checks are guarded by type-checking each
   argument
 * Ensure that the typing judgments match the equivalent System-Fω
-* Fix union literals to not suggest that there is at least one alternative?
-* Make sure that derived typing rules use `:⇥` when appropriate
-* Consistently use + prefix for natural numbers
-* Use … notation more precisely
-* Does the valid context optimization from the Henk paper work?  If so, simplify
-  typing judgments
-* Reference Henk paper
