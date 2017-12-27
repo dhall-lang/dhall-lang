@@ -34,7 +34,6 @@ x, y                   ; Variables
 ;     e    = term whose type is "E"
 ;     t    = term whose type is "T"
 ;     u    = term whose type is "U"
-;     v    = "v"alue
 ;
 ; Types are uppercase:
 ;
@@ -43,7 +42,6 @@ x, y                   ; Variables
 ;     E  = type of the term "e"
 ;     T  = type of the term "t"
 ;     U  = type of the term "u"
-;     V  = type of the term "v"
 ;
 ; Kinds are lowercase:
 ;
@@ -93,13 +91,13 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, k, i, o
   / n                            ; Integer literal
   / "…"                          ; Text literal
   / {}                           ; Empty record type
-  / { x : V, xs… }               ; Non-empty record type
+  / { x : T, xs… }               ; Non-empty record type
   / {=}                          ; Empty record literal
-  / { x = v, xs… }               ; Non-empty record literal
+  / { x = t, xs… }               ; Non-empty record literal
   / <>                           ; Empty union type
-  / < x : V | xs… >              ; Non-empty union type
-  / < x = v >                    ; Union literal with one alternative
-  / < x₀ = v₀ | x₁ : V₁	| xs… >  ; Union literal with more than one alternative
+  / < x : T | xs… >              ; Non-empty union type
+  / < x = t >                    ; Union literal with one alternative
+  / < x₀ = t₀ | x₁ : T₁	| xs… >  ; Union literal with more than one alternative
   / Natural/build                ; Natural introduction
   / Natural/fold                 ; Natural elimination
   / Natural/isZero               ; Test if zero
@@ -149,22 +147,22 @@ t          : Naked label which could be any type of expression.
 [ t, ts… ] : A list with 1 or more values.  The first value is `t`.
 
 { xs… }        : A record type or record value with 0 or more fields.
-{ x : V, xs… } : A record type with 1 or more field-type pairs.  At least one
-                 field is named `x` with a type of `V`.
-{ x = v, xs… } : A record value with 1 or more field-value pairs.  At least one
-                 field is named `x` with a value of `v`.
+{ x : T, xs… } : A record type with 1 or more field-type pairs.  At least one
+                 field is named `x` with a type of `T`.
+{ x = t, xs… } : A record value with 1 or more field-value pairs.  At least one
+                 field is named `x` with a value of `t`.
 
 < xs… >                    : A union type with 0 or more alternative-type pairs.
-< x : V | xs… >            : A union type with 1 or more alternative-type pairs.
+< x : T | xs… >            : A union type with 1 or more alternative-type pairs.
                              At least one alternative is named `x` with a type
-                             of `V`.
-< x = v | xs… >            : A union literal with 0 or more alternative-type
+                             of `T`.
+< x = t | xs… >            : A union literal with 0 or more alternative-type
                              pairs.  The specified alternative is named `x` with
-                             value of `v`.
-< x₀ = v₀ | x₁ : V₁, xs… > : A union literal with 1 or more alternative-type
+                             value of `t`.
+< x₀ = t₀ | x₁ : T₁, xs… > : A union literal with 1 or more alternative-type
                              pairs.  The specified alternative is named `x₀ with
-                             value of `v₀`.  At least one alternative is named
-                             `x₁` with a type of `V₁`.
+                             value of `t₀`.  At least one alternative is named
+                             `x₁` with a type of `T₁`.
 ```
 
 You will see this notation in judgments that perform induction on lists,
@@ -281,7 +279,20 @@ expression is "closed" (i.e. no free variables):
 
     ↑(1, x, 0, λ(x : Type) → x) = λ(x : Type) → x
 
-Increment the minimum bound when we descend into a λ-expression that binds a
+    ↑(1, x, 0, ∀(x : Type) → x) = ∀(x : Type) → x
+
+    ↑(1, x, 0, let x = 1 in x) = let x = 1 in x
+
+... whereas the following shift usage has an effect on expressions with free
+variables:
+
+    ↑(1, x, 0, λ(y : Type) → x) = λ(y : Type) → x@1
+
+    ↑(1, x, 0, ∀(y : Type) → x) = ∀(y : Type) → x@1
+
+    ↑(1, x, 0, let y = 1 in x) = let y = 1 in x@1
+
+Increment the minimum bound when descending into a λ-expression that binds a
 variable of the same name in order to avoid shifting the bound variable:
 
 
@@ -356,10 +367,14 @@ Descend as normal if the bound variable name does not match:
     ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
 
 
-### Induction
+### Other
 
-No other Dhall expressions bind variables, so the remaining rules descend as
-normal:
+No other Dhall expressions bind variables, so the shift function descends into
+sub-expressions in those cases, like this:
+
+    ↑(1, x, 0, List x) = List x@1
+
+The remaining rules are:
 
 
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
@@ -478,9 +493,17 @@ normal:
     ↑(d, x, m, "…") = "…"
 
 
+    ───────────────────
+    ↑(d, x, m, {}) = {}
+
+
     ↑(d, x, m, T₀) = T₁   ↑(d, x, m, { xs₀… }) = { xs₁… }
     ─────────────────────────────────────────────────────
     ↑(d, x, m, { x : T₀, xs₀… }) = { x : T₁, xs₁… }
+
+
+    ─────────────────────
+    ↑(d, x, m, {=}) = {=}
 
 
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, { xs₀… }) = { xs₁… }
@@ -488,14 +511,24 @@ normal:
     ↑(d, x, m, { x = t₀, xs₀… }) = { x = t₁, xs₁… }
 
 
+    ───────────────────
+    ↑(d, x, m, <>) = <>
+
+
     ↑(d, x, m, T₀) = T₁   ↑(d, x, m, < xs₀… >) = < xs₁… >
     ─────────────────────────────────────────────────────
     ↑(d, x, m, < x : T₀ | xs₀… >) = < x : T₁ | xs₁… >
 
 
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, B₀) = T₁   ↑(d, x, m, < ys₀… > ) = < ys₁… >
-    ────────────────────────────────────────────────────────────────────────────
-    ↑(d, x, m, < x = t₀ | y : B₀ | ys₀… >) = < x = t₁ | y : B₁ | ys₁… >
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────────────────
+    ↑(d, x, m, < x = t₀ >) = < x = t₁ >
+
+
+    ↑(d, x, m, T₁₀) = T₁₁
+    ↑(d, x, m, < x₀ = t₀₀ | xs₀… > ) = < x₀ = t₀₁ | xs₁… >
+    ───────────────────────────────────────────────────────────────────────────
+    ↑(d, x, m, < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >) = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
     ─────────────────────────────────────────
@@ -619,22 +652,24 @@ normal:
 The syntax of contexts is:
 
     Γ = ε         ; The empty context
-      / Γ, x : E  ; A context extended with a type annotation for a variable
+      / Γ, x : T  ; A context extended with a type annotation for a variable
 
 Contexts are ordered and there can be multiple type annotations in the context
-for the same variable.
+for the same variable.  The DeBruijn index associated with each variable
+disambiguates which variable to refer to in the context.
 
 ## Shift context
 
 You can also shift a context by shifting each expression in that context:
 
+
     ─────────────────
     ↑(d, x, m, ε) = ε
 
 
-    ↑(d, x, m, Γ₀) = Γ₁   ↑(d, x, m, E₀) = E₁
+    ↑(d, x, m, Γ₀) = Γ₁   ↑(d, x, m, T₀) = T₁
     ─────────────────────────────────────────
-    ↑(d, x, m, (Γ₀, x : E₀)) = Γ₁, x : E₁
+    ↑(d, x, m, (Γ₀, x : T₀)) = Γ₁, x : T₁
 
 
 ## Substitution
@@ -653,20 +688,22 @@ You can also shift a context by shifting each expression in that context:
 * `e₁` (the output expression) is transformed expression where all occurrences
   of `x@n` have been replaced with `a`
 
-`e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
-
 For example:
 
     x[x ≔ Bool] = Bool
 
     y[x ≔ Bool] = y
 
+    x[x@1 ≔ Bool] = x
+
     (List x)[x ≔ Bool] = List Bool
+
+Note that `e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 
 ### Variables
 
-Like shifting, we only need to pay special attention to the cases where we
-bind variables or reference variables.
+Like shifting, pay special attention to the cases that bind variables or
+reference variables.
 
 The first two rules govern when we can substitute a variable with the specified
 expression:
@@ -690,18 +727,21 @@ ignore bound variables.  The following few examples can help build an intuition
 for how substitution uses the numeric index of the variable that we are
 substituting for:
 
+    ; Substitution has no effect on closed expressions without free variables
     (λ(x : Text) → x)[x ≔ True] = λ(x : Text) → x
 
+    ; Substitution can replace free variables
     (λ(y : Text) → x)[x ≔ True] = λ(x : Text) → True
 
+    ; A variable can be still be free if the DeBruijn index is large enough
     (λ(x : Text) → x@1)[x ≔ True] = λ(x : Text) → True
 
+    ; Descending past a matching bound variable increments the index to
+    ; substitute
     (λ(x : Text) → x@2)[x@1 ≔ True] = λ(x : Text) → True
 
-    (λ(x : Text) → λ(x : Text) → x@3)[x@1 ≔ True] = λ(x : Text) → λ(x : Text) → True
-
-We ensure that we only substitute free variables by increasing the index when a
-new bound variable of the same name is in scope:
+Substitution avoids bound variables by increasing the index when a new bound
+variable of the same name is in scope, like this:
 
 
     …   b₀[x@(+1 + n) ≔ e₁] = b₁   …
@@ -709,16 +749,16 @@ new bound variable of the same name is in scope:
     …
 
 
-We also take care to avoid variable capture by shifting variables within the
-expression that we substitute, like this:
+Substitution also avoids variable capture, like this:
 
     (λ(x : Type) → y)[y ≔ x] = λ(x : Type) → x@1
 
-We avoid variable capture by shifting the expression to substitute when any new
-bound variable is in scope, like this:
+Substitution variable capture by shifting the expression to substitute in when
+*any* new bound variable (not just the variable to substitute) is in scope, like
+ this:
 
 
-    …   ↑(1, x, 0, e₀) = e₁   …
+    …   ↑(1, y, 0, e₀) = e₁   …
     ───────────────────────────
     …
 
@@ -774,8 +814,12 @@ All of the following rules cover expressions that can bind variables:
 
 ### Induction
 
-No other Dhall expressions bind variables, so the remaining rules just descend
-as normal:
+No other Dhall expressions bind variables, so the substitution function descends
+into sub-expressions in those cases, like this:
+
+    (List x)[x ≔ Bool] = List Bool
+
+The remaining rules are:
 
 
     t₀[x@n ≔ e] = t₁   l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
@@ -894,9 +938,17 @@ as normal:
     "…"[x@n ≔ e] = "…"
 
 
+    ────────────────
+    {}[x@n ≔ e] = {}
+
+
     T₀[x@n ≔ e] = T₁   { xs₀… }[x@n ≔ e] = { xs₁… }
     ───────────────────────────────────────────────
     { x₀ : T₀, xs₀… }[x@n ≔ e] = { x₀ : T₁, xs₁… }
+
+
+    ──────────────────
+    {=}[x@n ≔ e] = {=}
 
 
     t₀[x@n ≔ e] = t₁   { xs₀… }[x@n ≔ e] = { xs₁… }
@@ -904,9 +956,23 @@ as normal:
     { x₀ = t₀, xs₀… }[x@n ≔ e] = { x₀ = t₁, xs₁… }
 
 
-    t₀[x@n ≔ e] = t₁   B₀[x@n ≔ e] = B₁   < ys₀… >[x@n ≔ e] = < ys₁… >
-    ──────────────────────────────────────────────────────────────────
-    < x₀ = t₀ | y : B₀ | ys₀… >[x@n ≔ e] = < x₀ = t₁ | y : B₁ | ys₁… >
+    ────────────────
+    <>[x@n ≔ e] = <>
+
+
+    T₀[x@n ≔ e] = T₁   < xs₀… >[x@n ≔ e] = < xs₁… >
+    ────────────────────────────────────────────────
+    < x₀ : T₀ | xs₀… >[x@n ≔ e] = < x₀ : T₁ | xs₁… >
+
+
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────────
+    < x₀ = t₀ >[x@n ≔ e] = < x₀ = t₁ >
+
+
+    T₁₀[x@n ≔ e] = T₁₁   < x₀ = t₀₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | xs₁… >
+    ────────────────────────────────────────────────────────────────────────
+    < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
     ──────────────────────────────────────
@@ -993,8 +1059,8 @@ as normal:
     Natural[x@n ≔ e] = Natural
 
 
-    ─────────────────────────
-    Intger[x@n ≔ e] = Integer
+    ──────────────────────────
+    Integer[x@n ≔ e] = Integer
 
 
     ────────────────────────
@@ -2803,6 +2869,7 @@ not terminate if one of `A₀` or `A₁` is not well-typed.
 
 # TODO
 
+* No "you" or "we"
 * Ensure that all type equivalence checks are made explicit instead of implicit
   through matching names in the judgment
 * Ensure that all type equivalence checks are guarded by type-checking each
