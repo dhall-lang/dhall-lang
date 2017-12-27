@@ -43,11 +43,11 @@ x, y                   ; Variables
 ;     T  = type of the term "t"
 ;     U  = type of the term "u"
 ;
-; Kinds are lowercase:
+; Constants that are either `Type` or `Kind` are lowercase:
 ;
-;     k = "k"ind
-;     i = kind of a function's "i"nput type
-;     o = kind of a function's "o"utput type
+;     c = "c"onstant
+;     i = function's "i"nput type
+;     o = function's "o"utput type
 ;
 ; Similar terms are distinguished by subscripts like `a₀`, `a₁`, …
 ;
@@ -58,7 +58,7 @@ x, y                   ; Variables
 ; which means that many places in the syntax permit types, terms, and kinds.
 ; The typing judgments are the authoritative rules for what expressions are
 ; permitted and forbidden.
-a, b, f, l, r, e, t, u, A, B, E, T, U, k, i, o
+a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   = x@n                          ; Identifier
                                  ; (`x` is short-hand for `x@0`)
   / λ(x : A) → b                 ; Anonymous function
@@ -129,9 +129,9 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, k, i, o
   / Kind                         ; Type of types
 ```
 
-Carefully note that the syntax does not include imports because you cannot infer
-the type of a Dhall expression that has unresolved imports.  In other words,
-import resolution is a distinct phase that must precede type checking and type
+Note that the syntax does not include imports because you cannot infer the type
+of a Dhall expression that has unresolved imports.  In other words, import
+resolution is a distinct phase that must precede type checking and type
 inference.  This document does not cover the semantics of Dhall's import system.
 
 ## Notation for induction
@@ -171,9 +171,9 @@ non-empty list says that to normalize a list you normalize the head of the list
 and then normalize the tail:
 
 
-    x₀ ⇥ x₁   [ xs₀… ] ⇥ [ xs₁… ]
+    t₀ ⇥ t₁   [ ts₀… ] ⇥ [ ts₁… ]
     ─────────────────────────────
-    [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
+    [ t₀, ts₀… ] ⇥ [ t₁, ts₁… ]
 
 
 Note that this notation does not imply that implementations must use induction
@@ -705,7 +705,7 @@ Note that `e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 Like shifting, pay special attention to the cases that bind variables or
 reference variables.
 
-The first two rules govern when we can substitute a variable with the specified
+The first two rules govern when to substitute a variable with the specified
 expression:
 
 
@@ -717,15 +717,14 @@ expression:
     y@m[x@n ≔ e] = y@m
 
 
-In other words, we substitute the expression if the variable name and index
-exactly match, but otherwise we do not substitute and leave the variable as-is.
+In other words, substitute the expression if the variable name and index exactly
+match, but otherwise do not substitute and leave the variable as-is.
 
 ### Bound variables
 
 The substitution function is designed to only substitute free variables and
 ignore bound variables.  The following few examples can help build an intuition
-for how substitution uses the numeric index of the variable that we are
-substituting for:
+for how substitution uses the numeric index of the variable to substitute:
 
     ; Substitution has no effect on closed expressions without free variables
     (λ(x : Text) → x)[x ≔ True] = λ(x : Text) → x
@@ -1106,14 +1105,19 @@ Normalization evaluates all β-reducible expressions:
 
     (λ(x : Bool) → x != False) True ⇥ False
 
-Normalization also evaluates all built-in functions if they are fully saturated:
+Normalization evaluates all built-in functions if they are fully saturated (i.e.
+no missing arguments):
 
     List/length Integer [1, 2, 3] ⇥ +3
+
+Normalization does not simplify partially applied built-in functions:
+
+    List/length Integer ⇥ List/length Integer
 
 Normalization works under λ, meaning that the body of an unapplied λ-expression
 can be normalized:
 
-    λ(x : Bool) → List/length Integer [1, 2, 3] ⇥ λ(x : Bool) → +3
+    λ(x : Integer) → List/length Integer [x, x, x] ⇥ λ(x : Integer) → +3
 
 Dhall is a total language that is strongly normalizing, so evaluation order has
 no effect on the language semantics and a conforming implementation can select
@@ -1198,7 +1202,7 @@ Otherwise, you normalize the predicate and both branches of the `if` expression:
     if t₀ then l₀ else r₀ ⇥ if t₁ then l₁ else r₁
 
 
-Even though `True`, `False`, and `if` expression suffice for all `Bool` logic,
+Even though `True`, `False`, and `if` expressions suffice for all `Bool` logic,
 Dhall also supports logical operators for convenience.
 
 Simplify the logical "or" operator so long as at least one argument normalizes
@@ -1341,23 +1345,8 @@ The `Natural` number type is in normal form:
     +n ⇥ +n
 
 
-The `Natural/fold` function is the canonical elimination function for natural
-numbers:
-
-
-    f ⇥ Natural/fold +0 B g   b ⇥ t₁
-    ────────────────────────────────
-    f b ⇥ t₁
-
-
-    f ⇥ Natural/fold (+1 + n) B g   g (Natural/fold n B g b) ⇥ t₁
-    ─────────────────────────────────────────────────────────────
-    f b ⇥ t₁
-
-
-`Natural/build` is the canonical introduction function for `Natural` numbers and
-is the inverse of `Natural/fold`, which leads to the following rules for
-`build/fold` fusion:
+`Natural/build` and `Natural/fold` are inverses of one another, which leads to
+the following fusion rules:
 
 
     f ⇥ Natural/build   a ⇥ Natural/fold b
@@ -1370,12 +1359,29 @@ is the inverse of `Natural/fold`, which leads to the following rules for
     f a ⇥ b
 
 
-In the absence of fusion, `Natural/build` falls back on the following rule:
+Otherwise, fall back on each function's respective implementation.
+
+`Natural/build` is the canonical introduction function for `Natural` numbers:
 
 
     f ⇥ Natural/build   g Natural (λ(x : Natural) → x + +1) +0 ⇥ b
     ──────────────────────────────────────────────────────────────
     f g ⇥ b
+
+
+`Natural/fold` function is the canonical elimination function for `Natural`
+numbers:
+
+
+    f ⇥ Natural/fold +0 B g   b ⇥ t₁
+    ────────────────────────────────
+    f b ⇥ t₁
+
+
+    f ⇥ Natural/fold (+1 + n) B g
+    g (Natural/fold n B g b) ⇥ t₁
+    ─────────────────────────────  ; "+1 + n" means "a `Natural` literal greater
+    f b ⇥ t₁                       ; than `+0`"
 
 
 Even though `Natural/fold` and `Natural/build` suffice for all `Natural` number
@@ -1419,8 +1425,12 @@ normalize to a `Natural` literal:
 
 
     l ⇥ +m   r ⇥ +n
-    ───────────────  ; "+m * +n" means "use machine addition"
+    ───────────────  ; "+m * +n" means "use machine multiplication"
     l + r ⇥ +m * +n
+
+
+Also, simplify the "plus" operator if either argument normalizes to either a
+`+0` literal:
 
 
     l ⇥ +0
@@ -1428,20 +1438,18 @@ normalize to a `Natural` literal:
     l * r ⇥ +0
 
 
-Also, simplify the "plus" operator if either argument normalizes to either a
-`+0` literal:
-
     r ⇥ +0
     ──────────
     l * r ⇥ +0
 
 
+
+... or a `+1` literal:
+
+
     l ⇥ +1   r₀ ⇥ r₁
     ────────────────
     l * r₀ ⇥ r₁
-
-
-... or a `+1` literal:
 
 
     r ⇥ +1   l₀ ⇥ l₁
@@ -1470,9 +1478,7 @@ Otherwise, normalize each argument:
     f a ⇥ False                      ; greater than `+0`"
 
 
-`Natural/even` detects whether or not a `Natural` number is even.  You should
-implement this using a more efficient machine operation even though this
-function is defined using induction:
+`Natural/even` detects whether or not a `Natural` number is even:
 
 
     f ⇥ Natural/even   a ⇥ +0
@@ -1492,9 +1498,7 @@ function is defined using induction:
     f a ⇥ b
 
 
-`Natural/odd` detects whether or not a `Natural` number is odd.  You should
-implement this using a more efficient machine operation even though this is
-function is defined using induction:
+`Natural/odd` detects whether or not a `Natural` number is odd:
 
 
     f ⇥ Natural/odd   a ⇥ +0
@@ -1532,8 +1536,8 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "+n"
 
 
-Carefully note that the rendered `Natural` number should include a leading
-`+` sign.
+Note that the `Text` representation of the rendered `Natural` number should
+include a leading `+` sign.
 
 All of the built-in functions on `Natural` numbers are in normal form:
 
@@ -1586,9 +1590,9 @@ Use machine concatenation to simplify the "text concatenation" operator if both
 arguments normalize to `Text` literals:
 
 
-    l ⇥ "l…"   r ⇥ "r…"
-    ─────────────────────  ; "l…" ++ "r…" means "use machine concatenation"
-    l ++ r ⇥ "l…" ++ "r…"
+    l ⇥ "…"₀   r ⇥ "…"₁
+    ─────────────────────  ; "…"₀ ++ "…"₁ means "use machine concatenation"
+    l ++ r ⇥ "…"₀ ++ "…"₁
 
 
 Also, simplify the "text concatenation" operator if either argument normalizes
@@ -1615,7 +1619,7 @@ Otherwise, normalize each argument:
 
 ### `List`
 
-The `List` type is in normal form:
+The `List` type-level function is in normal form:
 
 
     ───────────
@@ -1630,14 +1634,39 @@ Normalizing a `List` normalizes each field and the type annotation:
     [] : List T₀ ⇥ [] : List T₁
 
 
-    x₀ ⇥ x₁   [ xs₀… ] ⇥ [ xs₁… ]
+    t₀ ⇥ t₁   [ ts₀… ] ⇥ [ ts₁… ]
     ─────────────────────────────
-    [ x₀, xs₀… ] ⇥ [ x₁, xs₁… ]
+    [ t₀, ts₀… ] ⇥ [ t₁, ts₁… ]
 
 
 Lists are defined here via induction as if they were linked lists, but a real
 implementation might represent them using another data structure under the hood.
 Dhall does not impose time complexity requirements on list operations.
+
+`List/build` and `List/fold` are inverses of one another, which leads to the
+following fusion rules:
+
+
+    f ⇥ List/fold A₀   a ⇥ List/build A₁ b
+    ──────────────────────────────────────
+    f a ⇥ b
+
+
+    f ⇥ List/build A₀   a ⇥ List/fold A₁ b
+    ──────────────────────────────────────
+    f a ⇥ b
+
+
+Otherwise, fall back on each function's respective implementation.
+
+`List/build` is the canonical introduction function for `List`s:
+
+
+    f ⇥ List/build A
+    g (List A) (λ(a : A) → λ(as : List A) → [ a ] # as) ([] : List A) ⇥ b
+    ───────────────────────────────────────────────────────────────────────
+    f g ⇥ b
+
 
 `List/fold` is the canonical elimination function for `List`s:
 
@@ -1652,30 +1681,6 @@ Dhall does not impose time complexity requirements on list operations.
     f b₀ ⇥ b₁
 
 
-`List/build` is the canonical introduction function for `List`s and is the
-inverse of `List/fold`, which leads to the following rules for `build/fold`
-fusion:
-
-
-    f ⇥ List/fold A₀   a ⇥ List/build A₁ b
-    ──────────────────────────────────────
-    f a ⇥ b
-
-
-    f ⇥ List/build A₀   a ⇥ List/fold A₁ b
-    ──────────────────────────────────────
-    f a ⇥ b
-
-
-In the absence of fusion, `List/build` falls back on the following rule:
-
-
-    f ⇥ List/build A
-    g (List A) (λ(a : A) → λ(as : List A) → [ a ] # as) ([] : List A) ⇥ b
-    ───────────────────────────────────────────────────────────────────────
-    f g ⇥ b
-
-
 Even though `List/build` and `List/fold` suffice for all `List` operations,
 Dhall also supports built-in functions and operators on `List`s, both for
 convenience and efficiency.
@@ -1687,8 +1692,8 @@ arguments normalize to `List` literals:
     ls₀ ⇥ [ ls₁… ]
     rs₀ ⇥ [ rs₁… ]
     [ ls₁… ] # [ rs₁… ] ⇥ t
-    ───────────────────────   ;  "[ l₁, ls₁… ] # [ r₁, rs₁… ]" means "use
-    ls₀ # rs₀ ⇥ t             ;  machine concatenation"
+    ───────────────────────   ;  "[ ls₁… ] # [ rs₁… ]" means "use machine
+    ls₀ # rs₀ ⇥ t             ;  concatenation"
 
 
 Also, simplify the "list concatenation" operator if either argument normalizes
@@ -1811,7 +1816,7 @@ All of the built-in functions on `List`s are in normal form:
 
 ### `Optional`
 
-The `Optional` type is in normal form:
+The `Optional` type-level function is in normal form:
 
 
     ───────────────────
@@ -1832,23 +1837,8 @@ if present:
     [ t₀ ] : Optional T₀ ⇥ [ t₁ ] : Optional T₁
 
 
-`Optional/fold` is the canonical elimination function for `Optional` values:
-
-
-    f ⇥ Optional/fold A₀ ([ a ] : Optional A₁) B₀ g   g a ⇥ b₁
-    ──────────────────────────────────────────────────────────
-    f b₀ ⇥ b₁
-
-
-    f ⇥ Optional/fold A₀ ([] : Optional A₁) B₀ g   b₀ ⇥ b₁
-    ─────────────────────────────────────────────────────
-    f b₀ ⇥ b₁
-
-
-`Optional/build` is the canonical introduction function for `Optional` values
-and is the inverse of `Optional/fold`, which leads to the following rules for
-`build/fold` fusion:
-
+`Optional/build` and `Optional/fold` are inverses of one another, which leads to
+the following fusion rules:
 
     f ⇥ Optional/fold A₀   a ⇥ Optional/build A₁ b
     ──────────────────────────────────────────────
@@ -1860,13 +1850,26 @@ and is the inverse of `Optional/fold`, which leads to the following rules for
     f a ⇥ b
 
 
-In the absence of fusion, `Optional/build` falls back on the following rule:
+`Optional/build` is the canonical introduction function for `Optional` values:
 
 
     f ⇥ Optional/build A
     g (Optional A) (λ(a : A) → [ a ] : Optional A) ([] : Optional A) ⇥ b
     ────────────────────────────────────────────────────────────────────
     f g ⇥ b
+
+
+`Optional/fold` is the canonical elimination function for `Optional` values:
+
+
+    f ⇥ Optional/fold A₀ ([ a ] : Optional A₁) B₀ g   g a ⇥ b₁
+    ──────────────────────────────────────────────────────────
+    f b₀ ⇥ b₁
+
+
+    f ⇥ Optional/fold A₀ ([] : Optional A₁) B₀ g   b₀ ⇥ b₁
+    ─────────────────────────────────────────────────────
+    f b₀ ⇥ b₁
 
 
 All of the built-in functions on `Optional` values are in normal form:
@@ -1918,6 +1921,7 @@ The type system ensures that the selected field must be present.
 
 Otherwise, normalize the argument:
 
+
     t₀ ⇥ t₁
     ───────────  ; If no other rule matches
     t₀.x ⇥ t₁.x
@@ -1960,6 +1964,11 @@ preferring the field from the right record and discarding the colliding field
 from the left record:
 
 
+    l ⇥ e
+    ──────────
+    l ⫽ {} ⇥ e
+
+
     r ⇥ e
     ──────────
     {} ⫽ r ⇥ e
@@ -1987,6 +1996,10 @@ from the left record:
 Normalizing a union type normalizes the type of each alternative:
 
 
+    ───────
+    <> ⇥ <>
+
+
     T₀ ⇥ T₁   < xs₀… > ⇥ < xs₁… >
     ─────────────────────────────────────
     < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
@@ -1996,9 +2009,14 @@ Normalizing a union value is the same as normalizing the specified value and
 the type of each alternative:
 
 
-    t₀ ⇥ t₁   B₀ ⇥ B₁   < ys₀… > ⇥ < ys₁… >
-    ───────────────────────────────────────────────────────
-    < x = t₀ | y : B₀ | ys₀… > ⇥ < x = t₁ | y : B₁ | ys₁… >
+    t₀ ⇥ t₁
+    ───────────────────────
+    < x = t₀ > ⇥ < x = t₁ >
+
+
+    T₁₀ ⇥ T₁₁   < x₀ = t₀₀ | xs₀… > ⇥ < x₁ = t₀₁ | xs₁… >
+    ────────────────────────────────────────────────────────────────
+    < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… > ⇥ < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
 `merge` expressions are the canonical way to eliminate a union literal.  The
@@ -2007,9 +2025,9 @@ union value.  You apply the handler of the same label to the selected value of
 the union literal:
 
 
-    t ⇥ { x = f, … }   u ⇥ < x = a | y : B | … >   f a ⇥ e
-    ──────────────────────────────────────────────────────
-    merge t u : T ⇥ e
+    t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
+    ──────────────────────────────────────────────
+    merge t u : T ⇥ b
 
 
     t₀ ⇥ t₁   u₀ ⇥ u₁   T₀ ⇥ T₁
@@ -2017,9 +2035,9 @@ the union literal:
     merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
 
 
-    t ⇥ { x = f, … }   u ⇥ < x = a | y : B | … >   f a ⇥ e
-    ──────────────────────────────────────────────────────
-    merge t u ⇥ e
+    t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
+    ──────────────────────────────────────────────
+    merge t u ⇥ b
 
 
     t₀ ⇥ t₁   u₀ ⇥ u₁
@@ -2101,8 +2119,7 @@ Normalizing a function type normalizes the types of the input and output:
     ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
 
 
-Normalizing an anonymous function normalizes the type of the bound variable and
-the body of the function:
+You can introduce an anonymous function using a λ:
 
 
     A₀ → A₁   b₀ → b₁
@@ -2163,16 +2180,7 @@ equivalence:
 
 ### Type annotations
 
-A type annotation of the form:
-
-    t : T
-
-... is semantically identical to:
-
-    (λ(x : T) → x) t
-
-... and the normalization rule for type annotations reflects that semantic
-equivalence:
+Simplify a type annotation by removing the annotation:
 
 
     t₀ ⇥ t₁
@@ -2189,13 +2197,26 @@ Equivalence is a relationship between two expression of the form:
 Two expressions are equivalent if they are α-equivalent when normalized.  This
 document does not include the semantics for checking α-equivalence.
 
-Note that this notion of equivalence does not include η-equivalence, since
-normalization does not η-expand or η-reduce expressions.
+Note that this definition of equivalence does not include η-equivalence, since
+normalization does not η-expand or η-reduce expressions.  For example,
+`λ(f : Bool → Bool) → λ(x : Bool) → f x` and `λ(f : Bool → Bool) → f` are not
+equivalent.
 
-## Kind check
+## Function check
 
-The kind check governs which types of functions that our pure type system
+The function check governs which types of functions that our pure type system
 permits.
+
+This function check is a judgment of the form:
+
+    c₀ ↝ c₁
+
+... where:
+
+* `c₀` (an input constant, either `Type` or `Kind`) is the type of the
+  function's input type
+* `c₁` (an input constant, either `Type` or `Kind`) is the type of the
+  function's output type
 
 Dhall forbids dependent function types, but permits all other function
 types.
@@ -2204,11 +2225,11 @@ The following rule enables support for functions from terms to terms (i.e.
 "term-level" functions):
 
 
-    ─────────────
-    ⊢ Type ↝ Type
+    ───────────
+    Type ↝ Type
 
 
-For example, these are term-level functions:
+For example, these are term-level functions permitted by the above rule:
 
     Natural/even
 
@@ -2218,11 +2239,11 @@ The following rule enables support for functions from types to terms (i.e.
 "polymorphic" functions):
 
 
-    ─────────────
-    ⊢ Kind ↝ Type
+    ───────────
+    Kind ↝ Type
 
 
-For example, these are polymorphic functions:
+For example, these are polymorphic functions permitted by the above rule:
 
     List/head
 
@@ -2232,18 +2253,18 @@ The following rule enables support for functions from types to types (i.e.
 "type-level" functions):
 
 
-    ─────────────
-    ⊢ Kind ↝ Kind
+    ───────────
+    Kind ↝ Kind
 
 
-For example, these are type-level functions:
+For example, these are type-level functions permitted by the above rule:
 
     List
 
     λ(m : Type) → [ m ] → m
 
 However, Dhall does not support dependently-typed functions, so there is no rule
-for `⊢ Type ↝ Kind`.  Dhall omits support for dependent function types because
+for `Type ↝ Kind`.  Dhall omits support for dependent function types because
 that would entail robustly detecting non-trivial type-level equivalences.
 
 ## Type inference
@@ -2269,18 +2290,17 @@ Additionally, there is a separate helper judgment for inferring a type reduced
 to normal form:
 
 
-    Γ ⊢ a : A   A ⇥ B
-    ─────────────────
-    Γ ⊢ a :⇥ B
+    Γ ⊢ a : A₀   A₀ ⇥ A₁
+    ────────────────────
+    Γ ⊢ a :⇥ A₁
 
 
-This judgment is essentially identical to the judgment for type inference except
-that this judgment guarantees that the inferred type is in normal form.
+This judgment is identical to the judgment for type inference except that this
+judgment returns the inferred type in normal form.
 
 ### Constants
 
-The first rule is that the inferred type of `Type` is `Kind`, no matter the
-context:
+The first rule is that the inferred type of `Type` is `Kind`:
 
 
     ───────────────
@@ -2313,7 +2333,7 @@ Since `x` is a synonym for `x@0`, you can shorten this rule to:
 
 
 The order of types in the context matters because there can be multiple type
-annotations in the context for the same variable.  The natural number associated
+annotations in the context for the same variable.  The DeBruijn index associated
 with each variable disambiguates which type annotation in the context to use:
 
 
@@ -2334,7 +2354,8 @@ a type error.
 Carefully note that the above rules imply that each type stored in the context
 must be well-typed.  This restriction ensures that we can safely normalize any
 type retrieved from the context since well-typed terms will not infinitely loop
-if normalized.
+if normalized.  Every equivalence check is preceded by type checking both
+arguments in order to avoid infinite loops.
 
 ### `Bool`
 
@@ -2370,8 +2391,9 @@ An `if` expression takes a predicate of type `Bool` and returns either the
     Γ ⊢ if t then l else r : L
 
 
-Carefully note that an `if` expression can only return a term.  For example, you
-cannot have an `if` expression that returns a type.
+Note that an `if` expression can only return a term.  For example, you cannot
+have an `if` expression that returns a type such as
+`if True then Text else Bool`.
 
 All of the logical operators take arguments of type `Bool` and return a result
 of type `Bool`:
@@ -2498,17 +2520,15 @@ non-empty) or from the type annotation (if empty):
 
 
     ──────────────────────────
-    Γ ⊢ ([] : List A) : List A
+    Γ ⊢ ([] : List T) : List T
 
 
-    x : A₀   A₀ :⇥ Type   [ xs… ] :⇥ List A₁   A₁ :⇥ Type   A₀ ≡ A₁
+    t : T₀   T₀ :⇥ Type   [ ts… ] :⇥ List T₁   T₁ :⇥ Type   T₀ ≡ T₁
     ───────────────────────────────────────────────────────────────
-    Γ ⊢ [x, xs…] : List A₀
+    Γ ⊢ [t, ts…] : List T₀
 
 
-Carefully note that you should not check `A₀ ≡ A₁` until you have first check
-that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
-not terminate if one of `A₀` or `A₁` is not well-typed.
+Note that the above rules forbid `List` elements that are `Type`s.
 
 The `List` concatenation operator takes arguments that are both `List`s of the
 same type and returns a `List` of the same type:
@@ -2522,10 +2542,6 @@ same type and returns a `List` of the same type:
     ───────────────────
     Γ ⊢ x # y : List A₀
 
-
-Carefully note that you should not check `A₀ ≡ A₁` until you have first check
-that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
-not terminate if one of `A₀` or `A₁` is not well-typed.
 
 The built-in functions on `List`s have the following types:
 
@@ -2577,6 +2593,8 @@ An `Optional` literal's type is inferred from the mandatory type annotation:
     ─────────────────────────────────────
     Γ ⊢ ([ a ] : Optional A) : Optional A
 
+
+Note that the above rules forbid an `Optional` elements that is a `Type`.
 
 The built-in functions on `Optional` values have the following types:
 
@@ -2696,13 +2714,12 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ t :⇥ { k = f, ts… }
     Γ ⊢ u :⇥ < k = x, us… >
     Γ ⊢ f x : T₁
+    Γ ⊢ T₀ :⇥ Type
+    Γ ⊢ T₁ :⇥ Type
     T₀ ≡ T₁
     Γ ⊢ (merge { ts… } < us… > : T₀) : T₂
     ─────────────────────────────────────
     Γ ⊢ (merge t u : T₀) : T₀
-
-
-Note that you cannot `merge` an empty union if the type annotation is missing:
 
 
     Γ ⊢ t :⇥ { k = f, ts… }
@@ -2712,6 +2729,8 @@ Note that you cannot `merge` an empty union if the type annotation is missing:
     ─────────────────────────────────────
     Γ ⊢ merge t u : T₀
 
+
+Note that you cannot `merge` an empty union if the type annotation is missing.
 
 ### `Integer`
 
@@ -2762,29 +2781,28 @@ The built-in `Double/show` function has the following type:
 ### Functions
 
 A function type is only well-typed if the input and output type are well-typed
-and if the inferred kinds of the input and output type are allowed by the kind
-check:
+and if the inferred input and output type are allowed by the function check:
 
 
-    Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   ⊢ i ↝ o
-    ──────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   i ↝ o
+    ────────────────────────────────────────────────────────────────
     Γ₀ ⊢ ∀(x : A) → B : o
 
 
-The kind check disallows dependent function types but allows all other function
-types.
+The function check disallows dependent function types but allows all other
+function types.
 
 An unquantified function type `A → B` is a short-hand for `∀(_ : A) → B`.  Note
-that the `_` does **NOT** denote some unused type variable but rather denotes
-the specific variable named `_` (which is a valid variable name and this
-variable named `_` may in fact be present within `B`).  For example, this is a
-well-typed judgment:
+that the `_` does *not* denote some unused type variable but rather denotes the
+specific variable named `_` (which is a valid variable name and this variable
+named `_` may in fact be present within `B`).  For example, this is a well-typed
+judgment:
 
-    ε ⊢ Type → _ : Kind
+    ε ⊢ Type → ∀(x : _) → _ : Type
 
 ... because it is equivalent to:
 
-    ε ⊢ ∀(_ : Type) → _ : Kind
+    ε ⊢ ∀(_ : Type) → ∀(x : _) → _ : Type
 
 You can create new (anonymous) functions using a λ:
 
@@ -2798,8 +2816,8 @@ The type of a λ-expression is a function type whose input type (`A`) is the sam
 as the type of the bound variable and whose output type (`B`) is the same as the
 inferred type of the body of the λ-expression (`b`).
 
-Carefully note that the above rule requires that the inferred function type must
-be well-typed.  The type-checking step for the function type triggers a kind
+Note that the above rule requires that the inferred function type must be
+well-typed.  The type-checking step for the function type triggers a function
 check which disallows dependent function types.
 
 The type system ensures that function application is well-typed, meaning that
@@ -2818,13 +2836,21 @@ function's argument:
 
 
 If the inferred input type of the function does not match the inferred type of
-the function argument then that is a type error
-
-Carefully note that you should not check `A₀ ≡ A₁` until you have first check
-that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
-not terminate if one of `A₀` or `A₁` is not well-typed.
+the function argument then that is a type error.
 
 ### `let` expressions
+
+
+An expression of the form:
+
+    let x : A = a₀ in b₀
+
+... is semantically identical to:
+
+    (λ(x : A) → b₀) a₀
+
+... and the type-checking rules for `let` expressions reflect that semantic
+equivalence:
 
 
     Γ₀ ⊢ a₀ : A₁
@@ -2833,7 +2859,7 @@ not terminate if one of `A₀` or `A₁` is not well-typed.
     ↑(1, x, 0, (Γ₀, x : A₀)) = Γ₁
     Γ₁ ⊢ b : B₀
     Γ₁ ⊢ B₀ :⇥ o
-    ⊢ i ↝ o
+    i ↝ o
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁]) = B₁
     ↑(-1, x, 0, B₁) = B₂
@@ -2841,17 +2867,12 @@ not terminate if one of `A₀` or `A₁` is not well-typed.
     Γ₀ ⊢ let x : A₀ = a₀ in b : B₂
 
 
-Carefully note that you should not check `A₀ ≡ A₁` until you have first check
-that `A₀` and `A₁` are well-typed.  This is because a equivalence check might
-not terminate if one of `A₀` or `A₁` is not well-typed.
-
-
     Γ₀ ⊢ a₀ : A
     Γ₀ ⊢ A :⇥ i
     ↑(1, x, 0, (Γ₀, x : A)) = Γ₁
     Γ₁ ⊢ b : B₀
     Γ₁ ⊢ B ₀:⇥ o
-    ⊢ i ↝ o
+    i ↝ o
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
     ↑(-1, x, 0, B₁) = B₂
@@ -2862,13 +2883,21 @@ not terminate if one of `A₀` or `A₁` is not well-typed.
 ### Type annotations
 
 
-    Γ ⊢ T₀ : Type   Γ ⊢ t : T₁   T₀ ≡ T₁
-    ────────────────────────────────────
+The inferred type of a type annotation is the annotation.  Type-checking also
+verifies that the annotation matches the inferred type of the annotated
+expression:
+
+
+    Γ ⊢ T₀ : i   Γ ⊢ t : T₁   Γ ⊢ T₁ : o   T₀ ≡ T₁
+    ────────────────────────────────────────────────────
     Γ ⊢ (t : T₀) : T₀
 
 
+Note that the above rule permits kind annotations, such as `List : Type → Type`.
+
 # TODO
 
+* Explicitly document all possible kinds of type errors
 * No "you" or "we"
 * Ensure that all type equivalence checks are made explicit instead of implicit
   through matching names in the judgment
