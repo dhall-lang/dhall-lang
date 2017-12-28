@@ -320,7 +320,7 @@ Also, don't shift the index if the variable name does not match:
 
 
     ─────────────────────  ; x ≠ y
-    ↑(d, x, m, x@n) = y@n
+    ↑(d, x, m, y@n) = y@n
 
 
 ### Bound variables
