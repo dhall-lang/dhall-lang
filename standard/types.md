@@ -804,9 +804,9 @@ Substitution also avoids variable capture, like this:
 
     (λ(x : Type) → y)[y ≔ x] = λ(x : Type) → x@1
 
-Substitution variable capture by shifting the expression to substitute in when
-*any* new bound variable (not just the variable to substitute) is in scope, like
- this:
+Substitution prevents variable capture by shifting the expression to substitute
+in when *any* new bound variable (not just the variable to substitute) is in
+scope, like this:
 
 
     …   ↑(1, y, 0, e₀) = e₁   …
