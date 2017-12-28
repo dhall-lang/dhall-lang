@@ -782,7 +782,7 @@ for how substitution uses the numeric index of the variable to substitute:
     (λ(x : Text) → x)[x ≔ True] = λ(x : Text) → x
 
     ; Substitution can replace free variables
-    (λ(y : Text) → x)[x ≔ True] = λ(x : Text) → True
+    (λ(y : Text) → x)[x ≔ True] = λ(y : Text) → True
 
     ; A variable can be still be free if the DeBruijn index is large enough
     (λ(x : Text) → x@1)[x ≔ True] = λ(x : Text) → True
