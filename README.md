@@ -926,7 +926,7 @@ You can also read about the original motivation behind the language here:
 
 Finally, we have a cheatsheet for a very condensed overview and quick lookup:
 
-* [Dhall Cheatsheet](./cheatsheet.md)
+* [Dhall Cheatsheet](https://github.com/dhall-lang/dhall-lang/wiki/Cheatsheet)
 
 ## Overview
 
