@@ -1155,7 +1155,7 @@ Normalization is a function of the following form:
 
 Normalization evaluates all β-reducible expressions:
 
-    (λ(x : Bool) → x != False) True ⇥ False
+    (λ(x : Bool) → x == False) True ⇥ False
 
 Normalization evaluates all built-in functions if they are fully saturated (i.e.
 no missing arguments):
