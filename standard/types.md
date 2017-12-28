@@ -1,4 +1,56 @@
-# Type-checking and normalization
+# Semantics
+
+This document formalizes the semantics for type-checking and normalizing Dhall
+expressions.
+
+## Table of contents
+
+* [Summary](#summary)
+* [Expressions](#expressions)
+* [Notation for induction](#notation-for-induction)
+* [Shift](#shift)
+    * [Variables](#variables)
+    * [Bound variables](#bound-variables)
+    * [Other](#other)
+* [Contexts](#contexts)
+* [Shift context](#shift-context)
+* [Substitution](#substitution)
+    * [Variables](#variables-1)
+    * [Bound variables](#bound-variables-1)
+    * [Other](#other-1)
+* [Normalization](#normalization)
+    * [Constants](#constants)
+    * [Variables](#variables-2)
+    * [`Bool`](#bool)
+    * [`Natural`](#natural)
+    * [`Text`](#text)
+    * [`List`](#list)
+    * [`Optional`](#optional)
+    * [Records](#records)
+    * [Unions](#unions)
+    * [`Integer`](#integer)
+    * [`Double`](#double)
+    * [Functions](#functions)
+    * [`let` expressions](#let-expressions)
+    * [Type annotations](#type-annotations)
+* [Equivalence](#equivalence)
+* [Function check](#function-check)
+* [Type inference](#type-inference)
+    * [Reduction](#reduction)
+    * [Constants](#constants-1)
+    * [Variables](#variables-3)
+    * [`Bool`](#bool-1)
+    * [`Natural`](#natural-1)
+    * [`Text`](#text-1)
+    * [`List`](#list-1)
+    * [`Optional`](#optional-1)
+    * [Records](#records-1)
+    * [Unions](#unions-1)
+    * [`Integer`](#integer-1)
+    * [`Double`](#double-1)
+    * [Functions](#functions-1)
+    * [`let` expressions](#let-expressions-1)
+    * [Type annotations](#type-annotations-1)
 
 ## Summary
 
@@ -811,7 +863,7 @@ All of the following rules cover expressions that can bind variables:
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
-### Induction
+### Other
 
 No other Dhall expressions bind variables, so the substitution function descends
 into sub-expressions in those cases, like this:
@@ -2194,8 +2246,9 @@ Equivalence is a relationship between two expression of the form:
 
     e₀ ≡ e₁
 
-Two expressions are equivalent if they are α-equivalent when normalized.  This
-document does not include the semantics for checking α-equivalence.
+Two expressions are equivalent if they are α-equivalent when normalized (i.e.
+the same up to renaming bound variables).  This document does not include the
+semantics for checking α-equivalence.
 
 Note that this definition of equivalence does not include η-equivalence, since
 normalization does not η-expand or η-reduce expressions.  For example,
