@@ -2673,7 +2673,7 @@ An `Optional` literal's type is inferred from the mandatory type annotation:
     Γ ⊢ ([ a ] : Optional A) : Optional A
 
 
-Note that the above rules forbid an `Optional` elements that is a `Type`.  More
+Note that the above rules forbid an `Optional` element that is a `Type`.  More
 generally, if the element type is not a `Type` then that is a type error.
 
 If the element is present and does not match the type annotation then that is a
@@ -2792,7 +2792,7 @@ If the operator arguments are not records then that is a type error.
 ### Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
-and types of their alternatives and the order of fields does not matter:
+and types of their alternatives and the order of alternatives does not matter:
 
 
     ─────────────
@@ -2851,6 +2851,7 @@ If the second argument of a `merge` expression is not a union then that is a
 type error.
 
 If you `merge` an empty union without a type annotation then that is a type
+error.
 
 If the `merge` expression has a type annotation that is not a `Type` then that
 is a type error.
