@@ -2395,12 +2395,12 @@ annotations in the context for the same variable.  The DeBruijn index associated
 with each variable disambiguates which type annotation in the context to use:
 
 
-    Γ ⊢ A : k   Γ ⊢ x@n : T
+    Γ ⊢ x@n : T
     ─────────────────────────  ; 0 < n
     Γ, x : A ⊢ x@(+1 + n) : T
 
 
-    Γ ⊢ A : k   Γ ⊢ x@n : T
+    Γ ⊢ x@n : T
     ───────────────────────  ; x ≠ y
     Γ, y : A ⊢ x@n : T
 
@@ -2408,12 +2408,6 @@ with each variable disambiguates which type annotation in the context to use:
 If the natural number associated with the variable is greater than or equal to
 the number of type annotations in the context matching the variable then that is
 a type error.
-
-Carefully note that the above rules imply that each type stored in the context
-must be well-typed.  This restriction ensures that we can safely normalize any
-type retrieved from the context since well-typed terms will not infinitely loop
-if normalized.  Every equivalence check is preceded by type checking both
-arguments in order to avoid infinite loops.
 
 ### `Bool`
 
