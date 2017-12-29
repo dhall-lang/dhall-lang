@@ -2668,9 +2668,9 @@ An `Optional` literal's type is inferred from the mandatory type annotation:
     Γ ⊢ ([] : Optional A) : Optional A
 
 
-    Γ ⊢ A : Type
-    ─────────────────────────────────────
-    Γ ⊢ ([ a ] : Optional A) : Optional A
+    Γ ⊢ A₀ : Type   Γ ⊢ a : A₁   A₀ ≡ A₁
+    ───────────────────────────────────────
+    Γ ⊢ ([ a ] : Optional A₀) : Optional A₀
 
 
 Note that the above rules forbid an `Optional` element that is a `Type`.  More
@@ -2718,9 +2718,9 @@ Record values are also anonymous:
     Γ ⊢ {=} : {}
 
 
-    Γ ⊢ t : T   Γ ⊢ { x : T, xs… } :⇥ Type
-    ──────────────────────────────────────
-    Γ ⊢ { x = t, xs… } : Type
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ { ts… }
+    ──────────────────────────────────────────────────
+    Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
 
 You can only select a field from the record if the field is present:
@@ -2800,8 +2800,8 @@ and types of their alternatives and the order of alternatives does not matter:
 
 
     Γ ⊢ T :⇥ Type   Γ ⊢ < ts… > :⇥ Type
-    ───────────────────────────────────  ; t ∉ < ts… >
-    Γ ⊢ < t : T | ts… > : Type
+    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ < x : T | ts… > : Type
 
 
 Note that the above rule forbids storing types in unions (i.e. no type-valued
