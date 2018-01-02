@@ -2898,7 +2898,7 @@ A `constructors` expression is only well-formed if the argument normalizes to a
 union type literal:
 
 
-    Γ ⊢ u :⇥ <>
+    Γ ⊢ u : c   u ⇥ <>
     ───────────────────────
     Γ ⊢ constructors u : {}
 
