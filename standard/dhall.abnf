@@ -266,6 +266,7 @@ in                = %x69.6e                                              whitesp
 as                = %x61.73                                              whitespace
 using             = %x75.73.69.6e.67                                     whitespace
 merge             = %x6d.65.72.67.65                                     whitespace
+constructors      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73                whitespace
 Natural-fold      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64                whitespace
 Natural-build     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64             whitespace
 Natural-isZero    = %x4e.61.74.75.72.61.6c.2f.69.73.5a.65.72.6f          whitespace
@@ -576,7 +577,7 @@ times-expression       = equal-expression       *(times        equal-expression 
 equal-expression       = not-equal-expression   *(double-equal not-equal-expression  )
 not-equal-expression   = application-expression *(not-equal    application-expression)
 
-application-expression = 1*selector-expression
+application-expression = [ constructors ] 1*selector-expression
 
 ; NOTE: Backtrack when parsing the `*(dot label)`.  The reason why is that you
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"

@@ -150,6 +150,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / < x : T | xs… >              ; Non-empty union type
   / < x = t >                    ; Union literal with one alternative
   / < x₀ = t₀ | x₁ : T₁	| xs… >  ; Union literal with more than one alternative
+  / constructors u               ; Make record of constructors from union type
   / Natural/build                ; Natural introduction
   / Natural/fold                 ; Natural elimination
   / Natural/isZero               ; Test if zero
@@ -581,6 +582,11 @@ The remaining rules are:
     ↑(d, x, m, < x₀ = t₀₀ | xs₀… > ) = < x₀ = t₀₁ | xs₁… >
     ───────────────────────────────────────────────────────────────────────────
     ↑(d, x, m, < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >) = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
+
+
+    ↑(d, x, m, u₀) = u₁
+    ─────────────────────────────────────────────
+    ↑(d, x, m, constructors u₀) = constructors u₁
 
 
     ─────────────────────────────────────────
@@ -1024,6 +1030,11 @@ The remaining rules are:
     T₁₀[x@n ≔ e] = T₁₁   < x₀ = t₀₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | xs₁… >
     ────────────────────────────────────────────────────────────────────────
     < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
+
+
+    u₀[x@n ≔ e] = u₁
+    ──────────────────────────────────
+    (constructors u₀)[x@n ≔ e] = constructors u₁
 
 
     ──────────────────────────────────────
@@ -2097,6 +2108,25 @@ union literal:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
+`constructors` converts a union type literal to a record of constructors for
+each alternative:
+
+
+    u ⇥ <>
+    ────────────────────
+    constructors u ⇥ {=}
+
+
+    u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    constructors u ⇥ { x₀ = λ(x₀ : T₀) → < x₀ = x₀ | x₁ : T₁ | xs… >, x₁ = λ(x₁ : T₁) → < x₀ : T₀ | x₁ = x₁ | xs… >, … }
+
+
+    u₀ ⇥ u₁
+    ─────────────────────────────────  ; If no other rule matches
+    constructors u₀ ⇥ constructors u₁
+
+
 ### `Integer`
 
 The `Integer` type is in normal form:
@@ -2863,6 +2893,23 @@ If there are two handlers with different output types then that is a type error.
 
 If a `merge` expression has a type annotation that doesn't match every handler's
 output type then that is a type error.
+
+A `constructors` expression is only well-formed if the argument normalizes to a
+union type literal:
+
+
+    Γ ⊢ u : c   u ⇥ <>
+    ───────────────────────
+    Γ ⊢ constructors u : {}
+
+
+    Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ constructors u : { x₀ : ∀(x₀ : T₀) → < x₀ : T₀ | x₁ : T₁ | xs… >, x₁ : ∀(x₁ : T₁) → < x₀ : T₀ | x₁ : T₁ | xs… >, … }
+
+
+If the union argument is any other type of expression (including a variable)
+then that is a type error.
 
 ### `Integer`
 
