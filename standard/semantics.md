@@ -2232,7 +2232,7 @@ the preceding function application rules apply:
 
 ### `let` expressions
 
-An expression of the form:
+For the purposes of normalization, an expression of the form:
 
     let x : A = a₀ in b₀
 
@@ -3023,50 +3023,48 @@ the function argument then that is a type error.
 
 ### `let` expressions
 
-An expression of the form:
+For the purposes of type-checking, an expression of the form:
 
     let x : A = a₀ in b₀
 
-... is semantically identical to:
+... is **not** semantically identical to:
 
     (λ(x : A) → b₀) a₀
 
-... and the type-checking rules for `let` expressions reflect that semantic
-equivalence:
+`let` differs in behavior in order to support "type synonyms", such as:
+
+    let t = Integer in 1 : t
+
+If you were to desugar that to:
+
+    (λ(t : Integer) → 1 : t) Integer
+
+... then that would not be a well-typed expression, even though the `let`
+expression would be well-typed.
 
 
-    Γ₀ ⊢ a₀ : A₁
-    Γ₀ ⊢ A₀ :⇥ i
+    Γ ⊢ a₀ : A₁
+    Γ ⊢ A₀ : i
     A₀ ≡ A₁
-    ↑(1, x, 0, (Γ₀, x : A₀)) = Γ₁
-    Γ₁ ⊢ b : B₀
-    Γ₁ ⊢ B₀ :⇥ o
-    i ↝ o
     ↑(1, x, 0, a₀) = a₁
-    B₀[x ≔ a₁]) = B₁
-    ↑(-1, x, 0, B₁) = B₂
-    ──────────────────────────────
-    Γ₀ ⊢ let x : A₀ = a₀ in b : B₂
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    Γ ⊢ b₂ : B
+    ─────────────────────────────
+    Γ ⊢ let x : A₀ = a₀ in b₀ : B
 
 
-    Γ₀ ⊢ a₀ : A
-    Γ₀ ⊢ A :⇥ i
-    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁
-    Γ₁ ⊢ b : B₀
-    Γ₁ ⊢ B₀ :⇥ o
-    i ↝ o
+    Γ ⊢ a₀ : A
     ↑(1, x, 0, a₀) = a₁
-    B₀[x ≔ a₁] = B₁
-    ↑(-1, x, 0, B₁) = B₂
-    ────────────────────────────
-    Γ₀ ⊢ let x = a₀ in b : B₂
+    b₀[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    Γ ⊢ b₂ : B
+    ────────────────────────
+    Γ ⊢ let x = a₀ in b₀ : B
 
 
 If the `let` expression has a type annotation that doesn't match the type of
 the right-hand side of the assignment then that is a type error.
-
-If the `let` expression desugars to an anonymous function with a dependent
-function type, then that is a type error.
 
 ### Type annotations
 
