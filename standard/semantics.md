@@ -3046,8 +3046,9 @@ expression would be well-typed.
     Γ ⊢ a₀ : A₁
     Γ ⊢ A₀ : i
     A₀ ≡ A₁
-    ↑(1, x, 0, a₀) = a₁
-    b₀[x ≔ a₁] = b₁
+    a₀ ⇥ a₁
+    ↑(1, x, 0, a₁) = a₂
+    b₀[x ≔ a₂] = b₁
     ↑(-1, x, 0, b₁) = b₂
     Γ ⊢ b₂ : B
     ─────────────────────────────
@@ -3055,8 +3056,9 @@ expression would be well-typed.
 
 
     Γ ⊢ a₀ : A
-    ↑(1, x, 0, a₀) = a₁
-    b₀[x ≔ a₁] = b₁
+    a₀ ⇥ a₁
+    ↑(1, x, 0, a₁) = a₂
+    b₀[x ≔ a₂] = b₁
     ↑(-1, x, 0, b₁) = b₂
     Γ ⊢ b₂ : B
     ────────────────────────
