@@ -131,6 +131,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * as
 ; * using
 ; * merge
+; * constructors
 ; * Natural/fold
 ; * Natural/build
 ; * Natural/isZero
