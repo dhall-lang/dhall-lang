@@ -2452,11 +2452,11 @@ a type error.
 
 
     ───────────────
-    Γ ⊢ True : Type
+    Γ ⊢ True : Bool
 
 
     ────────────────
-    Γ ⊢ False : Type
+    Γ ⊢ False : Bool
 
 
 An `if` expression takes a predicate of type `Bool` and returns either the
