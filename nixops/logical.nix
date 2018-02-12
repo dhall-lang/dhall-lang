@@ -145,6 +145,8 @@
 
         listenHost = "127.0.0.1";
 
+        logo = ../img/dhall-logo.png;
+
         notificationSender = "noreply@dhall-lang.org";
       };
 
