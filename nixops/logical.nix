@@ -124,12 +124,6 @@
       in
         [ secureHydra fixSimple ];
 
-    security.acme.certs = {
-      "hydra.dhall-lang.org".email = "Gabriel439@gmail.com";
-
-      "cache.dhall-lang.org".email = "Gabriel439@gmail.com";
-    };
-
     services = {
       fail2ban.enable = true;
 
@@ -165,22 +159,38 @@
 
         recommendedTlsSettings = true;
 
-        virtualHosts."cache.dhall-lang.org" = {
+        virtualHosts."dhall-lang.org" = {
+          addSSL = true;
+
+          default = true;
+
           enableACME = true;
 
+          locations."/".extraConfig = ''
+            rewrite ^.*$ https://github.com/dhall-lang/dhall-lang/blob/master/README.md redirect;
+          '';
+        };
+
+        virtualHosts."cache.dhall-lang.org" = {
           addSSL = true;
+
+          enableACME = true;
 
           locations."/".proxyPass = "http://127.0.0.1:5000";
         };
 
         virtualHosts."hydra.dhall-lang.org" = {
-          default = true;
+          addSSL = true;
 
           enableACME = true;
 
-          addSSL = true;
-
           locations."/".proxyPass = "http://127.0.0.1:3000";
+        };
+
+        virtualHosts."prelude.dhall-lang.org" = {
+          locations."/".extraConfig = ''
+            rewrite ^/(.*)$ https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/$1 redirect;
+          '';
         };
       };
 
