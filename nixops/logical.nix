@@ -124,7 +124,11 @@
       in
         [ secureHydra fixSimple ];
 
-    security.acme.certs."hydra.dhall-lang.org".email = "Gabriel439@gmail.com";
+    security.acme.certs = {
+      "hydra.dhall-lang.org".email = "Gabriel439@gmail.com";
+
+      "cache.dhall-lang.org".email = "Gabriel439@gmail.com";
+    };
 
     services = {
       fail2ban.enable = true;
@@ -161,6 +165,14 @@
 
         recommendedTlsSettings = true;
 
+        virtualHosts."cache.dhall-lang.org" = {
+          enableACME = true;
+
+          addSSL = true;
+
+          locations."/".proxyPass = "http://127.0.0.1:5000";
+        };
+
         virtualHosts."hydra.dhall-lang.org" = {
           default = true;
 
@@ -173,6 +185,8 @@
       };
 
       nix-serve = {
+        bindAddress = "127.0.0.1";
+
         enable = true;
 
         secretKeyFile = "/etc/nix-serve/nix-serve.sec";
@@ -236,7 +250,7 @@
               fi
 
               if ! [ -e ${privateKey} ] || ! [ -e ${publicKey} ]; then
-                ${pkgs.nix}/bin/nix-store --generate-binary-cache-key hydra.dhall-lang.org ${privateKey} ${publicKey}
+                ${pkgs.nix}/bin/nix-store --generate-binary-cache-key cache.dhall-lang.org ${privateKey} ${publicKey}
               fi
 
               chown -R nix-serve:hydra /etc/nix-serve
