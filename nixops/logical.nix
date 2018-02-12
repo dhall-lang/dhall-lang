@@ -78,7 +78,7 @@
       systemPackages = [ pkgs.hydra ];
     };
 
-    networking.firewall.allowedTCPPorts = [ 22 80 443 ];
+    networking.firewall.allowedTCPPorts = [ 22 80 443 5000 ];
 
     nix = {
       autoOptimiseStore = true;
@@ -172,45 +172,80 @@
         };
       };
 
+      nix-serve = {
+        enable = true;
+
+        secretKeyFile = "/etc/nix-serve/nix-serve.sec";
+      };
+
       openssh.enable = true;
     };
 
-    systemd.services.generate-hydra-queue-runner-key-pair = {
-      script =
-        let
-          keyDirectory = "/etc/keys/hydra-queue-runner";
+    systemd.services = {
+      generate-hydra-queue-runner-key-pair = {
+        script =
+          let
+            keyDirectory = "/etc/keys/hydra-queue-runner";
 
-          user = "hydra-queue-runner";
+            user = "hydra-queue-runner";
 
-          group = "hydra";
+            group = "hydra";
 
-          privateKey = "${keyDirectory}/${user}_rsa";
+            privateKey = "${keyDirectory}/${user}_rsa";
 
-          publicKey = "${privateKey}.pub";
+            publicKey = "${privateKey}.pub";
 
-          authorizedKeysDirectory = "/etc/ssh/authorized_keys.d";
+            authorizedKeysDirectory = "/etc/ssh/authorized_keys.d";
 
-          authorizedKeysFile = "${authorizedKeysDirectory}/${user}";
-        in
-          ''
-            if ! [ -e ${privateKey} ] || ! [ -e ${publicKey} ]; then
-              mkdir -p ${keyDirectory}
+            authorizedKeysFile = "${authorizedKeysDirectory}/${user}";
+          in
+            ''
+              if ! [ -e ${privateKey} ] || ! [ -e ${publicKey} ]; then
+                mkdir -p ${keyDirectory}
 
-              ${pkgs.openssh}/bin/ssh-keygen -t rsa -N "" -f ${privateKey} -C "${user}@hydra" >/dev/null
+                ${pkgs.openssh}/bin/ssh-keygen -t rsa -N "" -f ${privateKey} -C "${user}@hydra" >/dev/null
 
-              chown -R ${user}:${group} ${keyDirectory}
-            fi
+                chown -R ${user}:${group} ${keyDirectory}
+              fi
 
-            if ! [ -e ${authorizedKeysFile} ]; then
-              mkdir -p "${authorizedKeysDirectory}"
+              if ! [ -e ${authorizedKeysFile} ]; then
+                mkdir -p "${authorizedKeysDirectory}"
 
-              cp ${publicKey} ${authorizedKeysFile}
-            fi
-          '';
+                cp ${publicKey} ${authorizedKeysFile}
+              fi
+            '';
 
-      serviceConfig.Type = "oneshot";
+        serviceConfig.Type = "oneshot";
 
-      wantedBy = [ "multi-user.target" ];
+        wantedBy = [ "multi-user.target" ];
+      };
+
+      nix-serve-keys = {
+        script =
+          let
+            keyDirectory = "/etc/nix-serve";
+
+            privateKey = "${keyDirectory}/nix-serve.sec";
+
+            publicKey = "${keyDirectory}/nix-serve.pub";
+
+          in
+            ''
+              if [ ! -e ${keyDirectory} ]; then
+                mkdir -p ${keyDirectory}
+              fi
+
+              if ! [ -e ${privateKey} ] || ! [ -e ${publicKey} ]; then
+                ${pkgs.nix}/bin/nix-store --generate-binary-cache-key hydra.dhall-lang.org ${privateKey} ${publicKey}
+              fi
+
+              chown -R nix-serve:hydra /etc/nix-serve
+            '';
+
+        serviceConfig.Type = "oneshot";
+
+        wantedBy = [ "multi-user.target" ];
+      };
     };
   };
 }
