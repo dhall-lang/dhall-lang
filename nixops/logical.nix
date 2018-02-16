@@ -64,7 +64,7 @@
             value = { text = builtins.toJSON (import ./project.nix suffix); };
           };
 
-          suffixes = [ "bash" "haskell" "json" "nix" "text" ];
+          suffixes = [ "bash" "haskell" "json" "nix" "text" "to-cabal" ];
 
         in
           builtins.listToAttrs (builtins.map toProject suffixes) // {
