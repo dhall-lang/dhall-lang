@@ -2729,9 +2729,14 @@ names and types of their fields and the order of fields does not matter:
     Γ ⊢ { x : T, xs… } : Type
 
 
-Note that the above rule forbids storing types in records (i.e. no type-valued
-fields).  More generally, if the field type is not a `Type` then that is a
-type error.
+    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Type
+    ───────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Type
+
+
+Note that the above rule allows storing both values, types, and type-level
+functions in records.  However, if the type of the field is not `Type` or `Kind`
+then that is a type error.
 
 If two fields have the same name, then that is a type error.
 
@@ -2743,6 +2748,11 @@ Record values are also anonymous:
 
 
     Γ ⊢ t : T   Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ { ts… }
+    ──────────────────────────────────────────────────
+    Γ ⊢ { x = t, xs… } : { x : T, ts… }
+
+
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ { ts… }
     ──────────────────────────────────────────────────
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
@@ -2828,8 +2838,13 @@ and types of their alternatives and the order of alternatives does not matter:
     Γ ⊢ < x : T | ts… > : Type
 
 
-Note that the above rule forbids storing types in unions (i.e. no type-valued
-alternatives).  More generally, if the alternative type is not a `Type` then
+    Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Type
+    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ < x : T | ts… > : Type
+
+
+Note that the above rule allows storing values, types, and type-level functions
+in unions.  However, if the type of the alternative is not `Type` or `Kind` then
 that is a type error.
 
 If two alternatives share the same name then that is a type error.
