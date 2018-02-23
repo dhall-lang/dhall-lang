@@ -30,6 +30,7 @@
           pin { name = date; path = "${src}/Prelude"; };
 
       services = [
+        (pin { name = "True"; path = builtins.toFile "True" "True\n"; })
         (pinPrelude { date = "2016-12-03"; })
         (pinPrelude { date = "2017-05-16"; })
         (pinPrelude { date = "2017-06-17"; })
