@@ -1707,12 +1707,7 @@ implementation might represent them using another data structure under the hood.
 Dhall does not impose time complexity requirements on list operations.
 
 `List/build` and `List/fold` are inverses of one another, which leads to the
-following fusion rules:
-
-
-    f ⇥ List/fold A₀   a ⇥ List/build A₁ b
-    ──────────────────────────────────────
-    f a ⇥ b
+following fusion rule:
 
 
     f ⇥ List/build A₀   a ⇥ List/fold A₁ b
@@ -1725,9 +1720,10 @@ Otherwise, fall back on each function's respective implementation.
 `List/build` is the canonical introduction function for `List`s:
 
 
-    f ⇥ List/build A
-    g (List A) (λ(a : A) → λ(as : List A) → [ a ] # as) ([] : List A) ⇥ b
-    ───────────────────────────────────────────────────────────────────────
+    f ⇥ List/build A₀
+    ↑(1, a, 0, A₀) = A₁
+    g (List A₀) (λ(a : A₀) → λ(as : List A₁) → [ a ] # as) ([] : List A₀) ⇥ b
+    ─────────────────────────────────────────────────────────────────────────
     f g ⇥ b
 
 
@@ -1901,11 +1897,7 @@ if present:
 
 
 `Optional/build` and `Optional/fold` are inverses of one another, which leads to
-the following fusion rules:
-
-    f ⇥ Optional/fold A₀   a ⇥ Optional/build A₁ b
-    ──────────────────────────────────────────────
-    f a ⇥ b
+the following fusion rule:
 
 
     f ⇥ Optional/build A₀   a ⇥ Optional/fold A₁ b
@@ -1916,9 +1908,10 @@ the following fusion rules:
 `Optional/build` is the canonical introduction function for `Optional` values:
 
 
-    f ⇥ Optional/build A
-    g (Optional A) (λ(a : A) → [ a ] : Optional A) ([] : Optional A) ⇥ b
-    ────────────────────────────────────────────────────────────────────
+    f ⇥ Optional/build A₀
+    ↑(1, a, 0, A₀) = A₁
+    g (Optional A₀) (λ(a : A₀) → [ a ] : Optional A₁) ([] : Optional A₀) ⇥ b
+    ────────────────────────────────────────────────────────────────────────
     f g ⇥ b
 
 
