@@ -1409,15 +1409,10 @@ The `Natural` number type is in normal form:
 
 
 `Natural/build` and `Natural/fold` are inverses of one another, which leads to
-the following fusion rules:
+the following fusion rule:
 
 
     f ⇥ Natural/build   a ⇥ Natural/fold b
-    ──────────────────────────────────────
-    f a ⇥ b
-
-
-    f ⇥ Natural/fold   a ⇥ Natural/build b
     ──────────────────────────────────────
     f a ⇥ b
 
