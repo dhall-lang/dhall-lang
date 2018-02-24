@@ -187,6 +187,21 @@ of a Dhall expression that has unresolved imports.  In other words, import
 resolution is a distinct phase that must precede type checking and type
 inference.  This document does not cover the semantics of Dhall's import system.
 
+You can treat string interpolation as syntactic sugar for `Text` concatenation.
+In other words, the following string:
+
+```
+"foo${bar}baz"
+```
+
+... would be equivalent to:
+
+```
+"foo" ++ bar ++ "baz"
+```
+
+... for both type-checking and normalization purposes.
+
 ## Notation for induction
 
 This document uses a non-standard `…` notation for distinguishing list elements
