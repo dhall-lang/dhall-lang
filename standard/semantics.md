@@ -1385,14 +1385,6 @@ literal:
     l₀ == r ⇥ l₁
 
 
-... or if both arguments normalize to a `False` literal:
-
-
-    l ⇥ False   r ⇥ False
-    ─────────────────────
-    l == r ⇥ True
-
-
 ... or if both arguments are equivalent:
 
 
@@ -1421,14 +1413,6 @@ Simplify the logical "not equal" operator if one argument normalizes to a
     r ⇥ False   l₀ ⇥ l₁
     ───────────────────
     l₀ != r ⇥ l₁
-
-
-... or if both arguments normalize to a `True` literal:
-
-
-    l ⇥ True   r ⇥ True
-    ───────────────────
-    l != r ⇥ False
 
 
 ... or if both arguments are equivalent:
