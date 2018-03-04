@@ -1272,6 +1272,14 @@ predicate:
     if t₀ then l else r ⇥ t₁
 
 
+Simplify `if` expressions where both alternatives are the same:
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    ───────────────────────────
+    if t then l₀ else r₀ ⇥ l₁
+
+
 Otherwise, normalize the predicate and both branches of the `if` expression:
 
 
@@ -1307,6 +1315,14 @@ to a `Bool` literal:
     l || r ⇥ True
 
 
+Normalize arguments that are equivalent
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    ───────────────────────────
+    l₀ || r₀ ⇥ l₁
+
+
 Otherwise, normalize each argument:
 
 
@@ -1339,6 +1355,14 @@ to a `Bool` literal:
     l && r ⇥ False
 
 
+Normalize arguments that are equivalent
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    ───────────────────────────
+    l₀ && r₀ ⇥ l₁
+
+
 Otherwise, normalize each argument:
 
 
@@ -1361,12 +1385,12 @@ literal:
     l₀ == r ⇥ l₁
 
 
-... or if both arguments normalize to a `False` literal:
+... or if both arguments are equivalent:
 
 
-    l ⇥ False   r ⇥ False
-    ─────────────────────
-    l == r ⇥ True
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    ───────────────────────────
+    l₀ == r₀ ⇥ True
 
 
 Otherwise, normalize each argument:
@@ -1391,12 +1415,12 @@ Simplify the logical "not equal" operator if one argument normalizes to a
     l₀ != r ⇥ l₁
 
 
-... or if both arguments normalize to a `True` literal:
+... or if both arguments are equivalent:
 
 
-    l ⇥ True   r ⇥ True
-    ───────────────────
-    l != r ⇥ False
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    ───────────────────────────
+    l₀ != r₀ ⇥ False
 
 
 Otherwise, normalize each argument:
