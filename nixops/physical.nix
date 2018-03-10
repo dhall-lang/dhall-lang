@@ -11,7 +11,7 @@ in
 
           inherit (resources.ec2KeyPairs) keyPair;
 
-          instanceType = "t2.nano";
+          instanceType = "t2.micro";
         };
       };
     };
