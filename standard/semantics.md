@@ -18,9 +18,13 @@ expressions.
     * [Variables](#variables-1)
     * [Bound variables](#bound-variables-1)
     * [Other](#other-1)
-* [Normalization](#normalization)
-    * [Constants](#constants)
+* [α-normalization](#α-normalization)
+    * [Bound variables](#bound-variables-2)
     * [Variables](#variables-2)
+    * [Other](#other-2)
+* [β-normalization](#β-normalization)
+    * [Constants](#constants)
+    * [Variables](#variables-3)
     * [`Bool`](#bool)
     * [`Natural`](#natural)
     * [`Text`](#text)
@@ -38,7 +42,7 @@ expressions.
 * [Type inference](#type-inference)
     * [Reduction](#reduction)
     * [Constants](#constants-1)
-    * [Variables](#variables-3)
+    * [Variables](#variables-4)
     * [`Bool`](#bool-1)
     * [`Natural`](#natural-1)
     * [`Text`](#text-1)
@@ -1168,9 +1172,384 @@ The remaining rules are:
     Kind[x@n ≔ e] = Kind
 
 
-## Normalization
+## α-normalization
 
-Normalization is a function of the following form:
+α-normalization is a function of the following form:
+
+    t₀ ↦ t₁
+
+... where:
+
+* `t₀` (the input) is the expression to α-normalize
+* `t₁` (the output) is the α-normalized expression
+
+α-normalization renames all bound variables within an expression to use De
+Bruijn indices.  For example, the following expression:
+
+    λ(a : Type) → λ(b : Type) → λ(x : a) → λ(y : b) → x
+
+... α-normalizes to:
+
+    λ(_ : Type) → λ(_ : Type) → λ(_ : _@1) → λ(_ : _@1) → _@1
+
+In other words, all bound variables are renamed to `_` and they used the
+variable index to disambiguate which variable they are referring to.  This is
+equivalent to De Bruijn indices.
+
+If two expressions are α-equivalent then they will be identical after
+α-normalization.
+
+Note that free variables are not transformed by α-normalization.  For example,
+the following expression:
+
+    λ(x : Type) → y
+
+... α-normalizes to:
+
+    λ(_ : Type) → y
+
+### Bound variables
+
+The only interesting part of α-normalization is expressions with bound
+variables.  Each of the following normalization rules renames the bound variable
+to `_`, substituting and shifting as necessary in order to avoid variable
+capture:
+
+
+    A₀ ↦ A₁
+    ↑(1, x, 0, _@0) = v
+    b₀[x ≔ v] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ↦ b₃
+    ───────────────────────────────
+    λ(x : A₀) → b₀ ↦ λ(_ : A₁) → b₃
+
+
+    A₀ ↦ A₁
+    ↑(1, x, 0, _@0) = v
+    B₀[x ≔ v] = B₁
+    ↑(-1, x, 0, B₁) = B₂
+    B₂ ↦ B₃
+    ───────────────────────────────
+    ∀(x : A₀) → B₀ ↦ ∀(_ : A₁) → B₃
+
+
+    a₀ ↦ a₁
+    A₀ ↦ A₁
+    ↑(1, x, 0, _@0) = v
+    b₀[x ≔ v] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ↦ b₃
+    ─────────────────────────────────────────────
+    let x = a₀ : A₀ in b₀ ↦ let _ = a₁ : A₁ in b₃
+
+
+    a₀ ↦ a₁
+    ↑(1, x, 0, _@0) = v
+    b₀[x ≔ v] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ↦ b₃
+    ───────────────────────────────────
+    let x = a₀ in b₀ ↦ let _ = a₁ in b₃
+
+### Variables
+
+Variables are already in α-normal form:
+
+
+    ─────────
+    x@n ↦ x@n
+
+
+If they are free variables then there is nothing to do because α-normalization
+does not affect free variables.  If they were originally bound variables there
+is still nothing to do because would have been renamed to `_` along the way by
+one of the preceding rules.
+
+### Other
+
+No other Dhall expressions bind variables, so α-normalization just descends into
+sub-expressions for the remaining rules:
+
+
+    t₀ ↦ t₁   l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────────────────────────────────
+    if t₀ then l₀ else r₀ ↦ if t₁ then l₁ else r₁
+
+
+
+    t₀ ↦ t₁   u₀ ↦ u₁   T₀ ↦ T₁
+    ───────────────────────────────────
+    merge t₀ u₀ : T₀ ↦ merge t₁ u₁ : T₁
+
+
+    t₀ ↦ t₁   u₀ ↦ u₁
+    ─────────────────────────
+    merge t₀ u₀ ↦ merge t₁ u₁
+
+
+    T₀ ↦ T₁
+    ───────────────────────────
+    [] : List T₀ ↦ [] : List T₁
+
+
+    t₀ ↦ t₁   [ ts₀… ] ↦ [ ts₁… ]
+    ─────────────────────────────
+    [ t₀, ts₀… ] ↦ [ t₁, ts₁… ]
+
+
+    T₀ ↦ T₁
+    ───────────────────────────────────
+    [] : Optional T₀ ↦ [] : Optional T₁
+
+
+    t₀ ↦ t₁   T₀ ↦ T₁
+    ───────────────────────────────────────────
+    [ t₀ ] : Optional T₀ ↦ [ t₁ ] : Optional T₁
+
+
+    t₀ ↦ t₁   T₀ ↦ T₁
+    ─────────────────
+    t₀ : T₀ ↦ t₁ : T₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ───────────────────
+    l₀ || r₀ = l₁ || r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────
+    l₀ + r₀ = l₁ + r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ───────────────────
+    l₀ ++ r₀ = l₁ ++ r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────
+    l₀ # r₀ = l₁ # r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ───────────────────
+    l₀ && r₀ = l₁ && r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────
+    l₀ ∧ r₀ = l₁ ∧ r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────
+    l₀ ⫽ r₀ = l₁ ⫽ r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────
+    l₀ * r₀ = l₁ * r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ───────────────────
+    l₀ == r₀ = l₁ == r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ───────────────────
+    l₀ != r₀ = l₁ != r₁
+
+
+    f₀ ↦ f₁   a₀ ↦ a₁
+    ─────────────────
+    f₀ a₀ = f₁ a₁
+
+
+    t₀ ↦ t₁
+    ───────────
+    t₀.x = t₁.x
+
+
+    ─────────
+    n.n ↦ n.n
+
+
+    ───────
+    +n ↦ +n
+
+
+    ─────
+    n ↦ n
+
+
+    ─────────
+    "…" ↦ "…"
+
+
+    ───────
+    {} ↦ {}
+
+
+    T₀ ↦ T₁   { xs₀… } ↦ { xs₁… }
+    ───────────────────────────────────
+    { x : T₀, xs₀… } ↦ { x : T₁, xs₁… }
+
+
+    ─────────
+    {=} ↦ {=}
+
+
+    t₀ ↦ t₁   { xs₀… } ↦ { xs₁… }
+    ───────────────────────────────────
+    { x = t₀, xs₀… } ↦ { x = t₁, xs₁… }
+
+
+    ───────
+    <> ↦ <>
+
+
+    T₀ ↦ T₁   < xs₀… > ↦ < xs₁… >
+    ─────────────────────────────────────
+    < x : T₀ | xs₀… > ↦ < x : T₁ | xs₁… >
+
+
+    t₀ ↦ t₁
+    ───────────────────────
+    < x = t₀ > ↦ < x = t₁ >
+
+
+    t₀ ↦ t₁   < xs₀… > ↦ < xs₁… >
+    ─────────────────────────────────────
+    < x = t₀ | xs₀… > ↦ < x = t₁ | xs₁… >
+
+
+    u₀ ↦ u₁
+    ─────────────────────────────────
+    constructors u₀ ↦ constructors u₁
+
+
+    ─────────────────────────────
+    Natural/build ↦ Natural/build
+
+
+    ───────────────────────────
+    Natural/fold ↦ Natural/fold
+
+
+    ───────────────────────────────
+    Natural/isZero ↦ Natural/isZero
+
+
+    ───────────────────────────
+    Natural/even ↦ Natural/even
+
+
+    ─────────────────────────
+    Natural/odd ↦ Natural/odd
+
+
+    ─────────────────────────────────────
+    Natural/toInteger ↦ Natural/toInteger
+
+
+    ───────────────────────────
+    Natural/show ↦ Natural/show
+
+
+    ───────────────────────────
+    Integer/show ↦ Integer/show
+
+
+    ─────────────────────────
+    Double/show ↦ Double/show
+
+
+    ───────────────────────
+    List/build ↦ List/build
+
+
+    ─────────────────────
+    List/fold ↦ List/fold
+
+
+    ─────────────────────────
+    List/length ↦ List/length
+
+
+    ─────────────────────
+    List/head ↦ List/head
+
+
+    ─────────────────────
+    List/last ↦ List/last
+
+
+    ───────────────────────────
+    List/indexed ↦ List/indexed
+
+
+    ───────────────────────────
+    List/reverse ↦ List/reverse
+
+
+    ─────────────────────────────
+    Optional/fold ↦ Optional/fold
+
+
+    ───────────────────────────────
+    Optional/build ↦ Optional/build
+
+
+    ───────────
+    Bool ↦ Bool
+
+
+    ───────────────────
+    Optional ↦ Optional
+
+
+    ─────────────────
+    Natural ↦ Natural
+
+
+    ─────────────────
+    Integer ↦ Integer
+
+
+    ───────────────
+    Double ↦ Double
+
+
+    ───────────
+    Text ↦ Text
+
+
+    ───────────
+    List ↦ List
+
+
+    ───────────
+    True ↦ True
+
+
+    ─────────────
+    False ↦ False
+
+
+    ───────────
+    Type ↦ Type
+
+
+    ───────────
+    Kind ↦ Kind
+
+
+## β-normalization
+
+β-normalization is a function of the following form:
 
     t₀ ⇥ t₁
 
@@ -1179,21 +1558,21 @@ Normalization is a function of the following form:
 * `t₀` (the input) is the expression to normalize
 * `t₁` (the output) is the normalized expression
 
-Normalization evaluates all β-reducible expressions:
+β-normalization evaluates all β-reducible expressions:
 
     (λ(x : Bool) → x == False) True ⇥ False
 
-Normalization evaluates all built-in functions if they are fully saturated (i.e.
-no missing arguments):
+β-normalization evaluates all built-in functions if they are fully saturated
+(i.e.  no missing arguments):
 
     List/length Integer [1, 2, 3] ⇥ +3
 
-Normalization does not simplify partially applied built-in functions:
+β-normalization does not simplify partially applied built-in functions:
 
     List/length Integer ⇥ List/length Integer
 
-Normalization works under λ, meaning that the body of an unapplied λ-expression
-can be normalized:
+β-normalization works under λ, meaning that the body of an unapplied
+λ-expression can be normalized:
 
     λ(x : Integer) → List/length Integer [x, x, x] ⇥ λ(x : Integer) → +3
 
@@ -2301,14 +2680,20 @@ Simplify a type annotation by removing the annotation:
 
 Equivalence is a relationship between two expression of the form:
 
-    e₀ ≡ e₁
 
-Two expressions are equivalent if they are α-equivalent when normalized (i.e.
-the same up to renaming bound variables).  This document does not include the
-semantics for checking α-equivalence.
+    l ≡ r
 
-Note that this definition of equivalence does not include η-equivalence, since
-normalization does not η-expand or η-reduce expressions.  For example,
+
+Two expressions are equivalent if they are identical when both are β-normalized
+and then α-normalized:
+
+
+    l₀ ⇥ l₁   l₁ ↦ e   r₀ ⇥ r₁   r₁ ↦ e
+    ───────────────────────────────────
+    l₀ ≡ r₀
+
+
+Note that this definition of equivalence does not include η-equivalence, so
 `λ(f : Bool → Bool) → λ(x : Bool) → f x` and `λ(f : Bool → Bool) → f` are not
 equivalent.
 
