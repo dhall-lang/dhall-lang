@@ -320,11 +320,12 @@ close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
 
-combine = ( %x2227 / "/\"                ) whitespace
-prefer  = ( %x2AFD / "//"                ) whitespace
-lambda  = ( %x3BB  / "\"                 ) whitespace
-forall  = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
-arrow   = ( %x2192 / "->"                ) whitespace
+combine       = ( %x2227 / "/\"                ) whitespace
+combine-types = ( %x2A53 / "//\\"              ) whitespace
+prefer        = ( %x2AFD / "//"                ) whitespace
+lambda        = ( %x3BB  / "\"                 ) whitespace
+forall        = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
+arrow         = ( %x2192 / "->"                ) whitespace
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
@@ -566,16 +567,17 @@ non-empty-optional = expression close-bracket colon Optional selector-expression
 
 operator-expression = or-expression
 
-or-expression          = plus-expression        *(or           plus-expression       )
-plus-expression        = text-append-expression *(plus         text-append-expression)
-text-append-expression = list-append-expression *(text-append  list-append-expression)
-list-append-expression = and-expression         *(list-append  and-expression        )
-and-expression         = combine-expression     *(and          combine-expression    )
-combine-expression     = prefer-expression      *(combine      prefer-expression     )
-prefer-expression      = times-expression       *(prefer       times-expression      )
-times-expression       = equal-expression       *(times        equal-expression      )
-equal-expression       = not-equal-expression   *(double-equal not-equal-expression  )
-not-equal-expression   = application-expression *(not-equal    application-expression)
+or-expression            = plus-expression          *(or            plus-expression         )
+plus-expression          = text-append-expression   *(plus          text-append-expression  )
+text-append-expression   = list-append-expression   *(text-append   list-append-expression  )
+list-append-expression   = and-expression           *(list-append   and-expression          )
+and-expression           = combine-expression       *(and           combine-expression      )
+combine-expression       = prefer-expression        *(combine       prefer-expression       )
+prefer-expression        = combine-types-expression *(prefer        combine-types-expression)
+combine-types-expression = times-expression         *(combine-types times-expression        )
+times-expression         = equal-expression         *(times         equal-expression        )
+equal-expression         = not-equal-expression     *(double-equal  not-equal-expression    )
+not-equal-expression     = application-expression   *(not-equal     application-expression  )
 
 application-expression = [ constructors ] 1*selector-expression
 

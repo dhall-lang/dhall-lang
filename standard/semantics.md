@@ -137,6 +137,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / l && r                       ; Boolean and
   / l ∧ r                        ; Recursive record merge
   / l ⫽ r                        ; Non-recursive right-biased record merge
+  / l ⩓ r                        ; Recursive record type merge
   / l * r                        ; Natural multiplication
   / l == r                       ; Boolean equality
   / l != r                       ; Boolean inequality
@@ -522,6 +523,11 @@ The remaining rules are:
     ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
     ─────────────────────────────────────────
     ↑(d, x, m, l₀ ⫽ r₀) = l₁ ⫽ r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ ⩓ r₀) = l₁ ⩓ r₁
 
 
     ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
@@ -975,6 +981,11 @@ The remaining rules are:
 
     l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
     ───────────────────────────────────
+    (l₀ ⩓ r₀)[x@n ≔ e] = l₁ ⩓ r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
     (l₀ * r₀)[x@n ≔ e] = l₁ * r₁
 
 
@@ -1346,6 +1357,11 @@ sub-expressions for the remaining rules:
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
     l₀ ⫽ r₀ = l₁ ⫽ r₁
+
+
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────
+    l₀ ⩓ r₀ = l₁ ⩓ r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
@@ -2400,13 +2416,13 @@ Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
 
 
-    l ⇥ {}   r₀ ⇥ r₁
-    ────────────────
+    l ⇥ {=}   r₀ ⇥ r₁
+    ─────────────────
     l ∧ r₀ ⇥ r₁
 
 
-    r ⇥ {}   l₀ ⇥ l₁
-    ────────────────
+    r ⇥ {=}   l₀ ⇥ l₁
+    ─────────────────
     l₀ ∧ r ⇥ l₁
 
 
@@ -2434,13 +2450,13 @@ from the left record:
 
 
     l ⇥ e
-    ──────────
-    l ⫽ {} ⇥ e
+    ───────────
+    l ⫽ {=} ⇥ e
 
 
     r ⇥ e
-    ──────────
-    {} ⫽ r ⇥ e
+    ───────────
+    {=} ⫽ r ⇥ e
 
 
     ls₀ ⇥ { x = l₁, ls₁… }
@@ -2458,6 +2474,39 @@ from the left record:
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ─────────────────   ; If no other rule matches
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
+
+
+Recursive record type merge combines two record types, recursively merging any
+fields that collide.  The type system ensures that colliding fields must be
+record types:
+
+
+    l ⇥ {}   r₀ ⇥ r₁
+    ────────────────
+    l ⩓ r₀ ⇥ r₁
+
+
+    r ⇥ {}   l₀ ⇥ l₁
+    ────────────────
+    l₀ ⩓ r ⇥ l₁
+
+
+    ls₀ ⇥ { x : l₁, ls₁… }
+    rs₀ ⇥ { x : r₁, rs₁… }
+    l₁ ⩓ r₁ ⇥ t
+    { ls₁… } ⩓ { rs₁… } ⇥ { ts… }
+    ─────────────────────────────
+    ls₀ ⩓ rs₀ ⇥ { x : t, ts… }
+
+
+    ls₀ ⇥ { x : l₁, ls₁… }   { ls₁… } ⩓ rs ⇥ { ls₂… }
+    ─────────────────────────────────────────────────  ; x ∉ rs
+    ls₀ ⩓ rs ⇥ { x : l₁, ls₂… }
+
+
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────   ; If no other rule matches
+    l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
 ### Unions
@@ -3234,6 +3283,42 @@ Non-recursive right-biased merge also requires that both arguments are records:
 
 
 If the operator arguments are not records then that is a type error.
+
+Recursive record type merge requires that both arguments are record type
+literals.  Similarly, any conflicting fields but be safe to recursively merge:
+
+
+    Γ ⊢ l : T₀
+    l ⇥ { ls… }
+    Γ ⊢ r : T₁
+    r ⇥ {}
+    ────────────────
+    Γ ⊢ l ⩓ r : Type
+
+
+    Γ ⊢ l : T₀
+    l ⇥ { ls… }
+    Γ ⊢ r : T₁
+    r ⇥ { a : A, rs… }
+    Γ ⊢ { ls… } ⩓ { rs… } : T₂
+    ──────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⩓ r : Type
+
+
+    Γ ⊢ l : T₀
+    l ⇥ { a : A₀, ls… }
+    Γ ⊢ r : T₁
+    r ⇥ { a : A₁, rs… }
+    Γ ⊢ l.a ⩓ r.a : T₂
+    Γ ⊢ { ls… } ⩓ { rs… } : T₃
+    ──────────────────────────
+    Γ ⊢ l ⩓ r : Type
+
+
+If the operator arguments are not record types then that is a type error.
+
+If they share a field in common that is not a record type then that is a type
+error.
 
 ### Unions
 
