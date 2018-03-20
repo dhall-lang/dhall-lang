@@ -616,10 +616,6 @@ primitive-expression =
     ; "env:FOO"
     / import
 
-    ; "x"
-    ; "x@2"
-    / identifier
-
     ; Built-in functions
     / Natural-fold
     / Natural-build
@@ -656,6 +652,10 @@ primitive-expression =
     ; Built-in type-checking constants
     / Type
     / Kind
+
+    ; "x"
+    ; "x@2"
+    / identifier
 
     ; "( e )"
     / open-parens expression close-parens
