@@ -3131,6 +3131,8 @@ The built-in functions on `Optional` values have the following types:
 Record types are "anonymous", meaning that they are uniquely defined by the
 names and types of their fields and the order of fields does not matter:
 
+A record can either store term-level values and functions:
+
 
     ─────────────
     Γ ⊢ {} : Type
@@ -3141,14 +3143,23 @@ names and types of their fields and the order of fields does not matter:
     Γ ⊢ { x : T, xs… } : Type
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Type
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Type
+... or store types (if it is non-empty):
 
 
-Note that the above rule allows storing both values, types, and type-level
-functions in records.  However, if the type of the field is not `Type` or `Kind`
-then that is a type error.
+    Γ ⊢ T :⇥ Kind   T ≡ Type
+    ────────────────────────
+    Γ ⊢ { x : T } : Kind
+
+
+    Γ ⊢ T :⇥ Kind   T ≡ Type   Γ ⊢ { xs… } :⇥ Kind
+    ──────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Kind
+
+
+... but not both.  If one field is a term-level value or function and another
+field is a type-level value or function then that is a type error.
+
+If the type of a field is not `Type` or `Kind` then that is a type error.
 
 If two fields have the same name, then that is a type error.
 
@@ -3159,13 +3170,18 @@ Record values are also anonymous:
     Γ ⊢ {=} : {}
 
 
-    Γ ⊢ t : T   Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ { ts… }
-    ──────────────────────────────────────────────────
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ { ts… }   Γ ⊢ { ts… } :⇥ Type
+    ────────────────────────────────────────────────────────────────────────
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
 
-    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ { ts… }
-    ──────────────────────────────────────────────────
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind
+    ─────────────────────────
+    Γ ⊢ { x = t } : { x : T }
+
+
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ { ts… }   Γ ⊢ { ts… } :⇥ Kind
+    ────────────────────────────────────────────────────────────────────────
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
 
@@ -3173,6 +3189,11 @@ You can only select a field from the record if the field is present:
 
 
     Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { a : A, as… } :⇥ Type
+    ────────────────────────────────────────────────────
+    Γ ⊢ e.a : A
+
+
+    Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { a : A, as… } :⇥ Kind
     ────────────────────────────────────────────────────
     Γ ⊢ e.a : A
 
