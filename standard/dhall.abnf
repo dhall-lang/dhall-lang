@@ -25,6 +25,7 @@
 ; Third, if there are multiple valid parses then prefer the first parse
 ; according to the ordering of alternatives. That is, the order of evaluation
 ; of the alternatives is left-to-right.
+;
 ; For example, the grammar for single quoted string literals is:
 ;
 ;     single-quote-continue =
@@ -121,47 +122,6 @@ DIGIT = %x30-39  ; 0-9
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
-; NOTE: If your parser requires explicit backtracking then you must add logic
-; to reject any labels that match any of the following reserved keywords:
-;
-; * if
-; * then
-; * else
-; * let
-; * in
-; * as
-; * using
-; * merge
-; * constructors
-; * Natural/fold
-; * Natural/build
-; * Natural/isZero
-; * Natural/even
-; * Natural/odd
-; * Natural/toInteger
-; * Natural/show
-; * Integer/show
-; * Double/show
-; * List/build
-; * List/fold
-; * List/length
-; * List/head
-; * List/last
-; * List/indexed
-; * List/reverse
-; * Optional/fold
-; * Optional/build
-; * Bool
-; * Optional
-; * Natural
-; * Integer
-; * Double
-; * Text
-; * List
-; * True
-; * False
-; * Type
-; * Kind
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 quoted-label = 1*(ALPHA / DIGIT / "-" / "/" / "_" / ":" / ".")
@@ -258,7 +218,8 @@ text-literal = (double-quote-literal / single-quote-literal) whitespace
 ; hex instead for case-sensitive strings
 ;
 ; If you don't feel like reading hex, these are all the same as the rule name,
-; except converting dashes in the rule name to forward slashes
+; except without the '-raw' ending, and converting dashes in the rule name
+; to forward slashes
 if-raw                = %x69.66
 then-raw              = %x74.68.65.6e
 else-raw              = %x65.6c.73.65
@@ -340,47 +301,22 @@ reserved-namespaced-raw =
   / Optional-fold-raw
   / Optional-build-raw
 
-reserved = reserved-raw whitespace
+reserved            = reserved-raw            whitespace
 reserved-namespaced = reserved-namespaced-raw whitespace
 
-if                = if-raw whitespace
-then              = then-raw whitespace
-else              = else-raw whitespace
-let               = let-raw whitespace
-in                = in-raw whitespace
-as                = as-raw whitespace
-using             = using-raw whitespace
-merge             = merge-raw whitespace
-constructors      = constructors-raw whitespace
-Natural-fold      = Natural-fold-raw whitespace
-Natural-build     = Natural-build-raw whitespace
-Natural-isZero    = Natural-isZero-raw whitespace
-Natural-even      = Natural-even-raw whitespace
-Natural-odd       = Natural-odd-raw whitespace
-Natural-toInteger = Natural-toInteger-raw whitespace
-Natural-show      = Natural-show-raw whitespace
-Integer-show      = Integer-show-raw whitespace
-Double-show       = Double-show-raw whitespace
-List-build        = List-build-raw whitespace
-List-fold         = List-fold-raw whitespace
-List-length       = List-length-raw whitespace
-List-head         = List-head-raw whitespace
-List-last         = List-last-raw whitespace
-List-indexed      = List-indexed-raw whitespace
-List-reverse      = List-reverse-raw whitespace
-Optional-fold     = Optional-fold-raw whitespace
-Optional-build    = Optional-build-raw whitespace
-Bool              = Bool-raw whitespace
-Optional          = Optional-raw whitespace
-Natural           = Natural-raw whitespace
-Integer           = Integer-raw whitespace
-Double            = Double-raw whitespace
-Text              = Text-raw whitespace
-List              = List-raw whitespace
-True              = True-raw whitespace
-False             = False-raw whitespace
-Type              = Type-raw whitespace
-Kind              = Kind-raw whitespace
+; Whitespaced rules for reserved words, to be used when matching expressions
+if           = if-raw           whitespace
+then         = then-raw         whitespace
+else         = else-raw         whitespace
+let          = let-raw          whitespace
+in           = in-raw           whitespace
+as           = as-raw           whitespace
+using        = using-raw        whitespace
+merge        = merge-raw        whitespace
+constructors = constructors-raw whitespace
+Optional     = Optional-raw     whitespace
+Text         = Text-raw         whitespace
+List         = List-raw         whitespace
 
 equal         = "="  whitespace
 or            = "||" whitespace
@@ -678,6 +614,15 @@ selector-expression = primitive-expression *(dot label)
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
+
+; NOTE: The reason why we have three different types of identifiers (that is:
+; identifier, identifier-reserved-prefix, identifier-reserved-namespaced-prefix)
+; is that it's the only way to parse correctly identifiers that start with reserved
+; words, other than using a lexer and use the longest match rule.
+;
+; Since reserved words can include themselves (e.g. 'List/build' includes 'List'),
+; we have to match the "namespaced" reserved words before the identifiers prefixed
+; by a reserved word.
 primitive-expression =
     ; "2.0"
       double-literal
