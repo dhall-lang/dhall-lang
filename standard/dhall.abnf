@@ -23,8 +23,9 @@
 ; `./MyType` can instead be correctly interpreted as a relative path
 ;
 ; Third, if there are multiple valid parses then prefer the first parse
-; according to the ordering of alternatives.  For example, the  grammar for
-; single quoted string literals is:
+; according to the ordering of alternatives. That is, the order of evaluation
+; of the alternatives is left-to-right.
+; For example, the grammar for single quoted string literals is:
 ;
 ;     single-quote-continue =
 ;           "'''"               single-quote-continue
