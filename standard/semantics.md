@@ -3306,34 +3306,61 @@ Non-recursive right-biased merge also requires that both arguments are records:
 If the operator arguments are not records then that is a type error.
 
 Recursive record type merge requires that both arguments are record type
-literals.  Similarly, any conflicting fields but be safe to recursively merge:
+literals.  Any conflicting fields must be safe to recursively merge:
 
 
-    Γ ⊢ l : T₀
+    Γ ⊢ l :⇥ Type
     l ⇥ { ls… }
-    Γ ⊢ r : T₁
+    Γ ⊢ r :⇥ Type
     r ⇥ {}
     ────────────────
     Γ ⊢ l ⩓ r : Type
 
 
-    Γ ⊢ l : T₀
+    Γ ⊢ l :⇥ Type
     l ⇥ { ls… }
-    Γ ⊢ r : T₁
+    Γ ⊢ r :⇥ Type
     r ⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ⩓ { rs… } : T₂
-    ──────────────────────────  ; a ∉ ls
+    Γ ⊢ { ls… } ⩓ { rs… } : T
+    ─────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⩓ r : Type
 
 
-    Γ ⊢ l : T₀
+    Γ ⊢ l :⇥ Type
     l ⇥ { a : A₀, ls… }
-    Γ ⊢ r : T₁
+    Γ ⊢ r :⇥ Type
     r ⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ⩓ r.a : T₂
-    Γ ⊢ { ls… } ⩓ { rs… } : T₃
-    ──────────────────────────
+    Γ ⊢ l.a ⩓ r.a : T₀
+    Γ ⊢ { ls… } ⩓ { rs… } : T₁
+    ─────────────────────────────
     Γ ⊢ l ⩓ r : Type
+
+
+    Γ ⊢ l :⇥ Kind
+    l ⇥ { ls… }
+    Γ ⊢ r :⇥ Kind
+    r ⇥ { a : A }
+    ────────────────
+    Γ ⊢ l ⩓ r : Kind
+
+
+    Γ ⊢ l :⇥ Kind
+    l ⇥ { ls… }
+    Γ ⊢ r :⇥ Kind
+    r ⇥ { a : A, rs… }
+    Γ ⊢ { ls… } ⩓ { rs… } : T
+    ─────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⩓ r : Kind
+
+
+    Γ ⊢ l :⇥ Kind
+    l ⇥ { a : A₀, ls… }
+    Γ ⊢ r :⇥ Kind
+    r ⇥ { a : A₁, rs… }
+    Γ ⊢ l.a ⩓ r.a : T₀
+    Γ ⊢ { ls… } ⩓ { rs… } : T₁
+    ─────────────────────────────
+    Γ ⊢ l ⩓ r : Kind
 
 
 If the operator arguments are not record types then that is a type error.
