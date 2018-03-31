@@ -679,7 +679,7 @@ primitive-expression =
     ; "( e )"
     / open-parens expression close-parens
 
-labels = open-brace (  label (comma label)* / "" ) close-brace
+labels = open-brace (  label *(comma label) / "" ) close-brace
 
 record-type-or-literal =
       equal                             ; Empty record literal
