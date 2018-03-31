@@ -143,6 +143,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / l != r                       ; Boolean inequality
   / f a                          ; Function application
   / t.x                          ; Field selection
+  / t.{ xs… }                    ; Field projection
   / n.n                          ; Double-precision floating point literal
   / +n                           ; Natural number literal
   / n                            ; Integer literal
@@ -553,6 +554,11 @@ The remaining rules are:
     ↑(d, x, m, t₀) = t₁
     ───────────────────────
     ↑(d, x, m, t₀.x) = t₁.x
+
+
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────────────────
+    ↑(d, x, m, t₀.{ xs… }) = t₁.{ xs… }
 
 
     ─────────────────────
@@ -1009,6 +1015,11 @@ The remaining rules are:
     (t₀.x₀)[x@n ≔ e] = t₁.x₀
 
 
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────────
+    (t₀.{ xs… })[x@n ≔ e] = t₁.{ xs… }
+
+
     ──────────────────
     n.n[x@n ≔ e] = n.n
 
@@ -1387,6 +1398,11 @@ sub-expressions for the remaining rules:
     t₀ ↦ t₁
     ───────────
     t₀.x = t₁.x
+
+
+    t₀ ↦ t₁
+    ───────────────────────
+    t₀.{ xs… } ↦ t₁.{ xs… }
 
 
     ─────────
@@ -2402,7 +2418,19 @@ Simplify a record selection if the argument is a record literal:
     t.x ⇥  v
 
 
-The type system ensures that the selected field must be present.
+You can also project out more than one field into a new record:
+
+
+    ──────────
+    t.{} ⇥  {}
+
+
+    t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥  { ys… }
+    ───────────────────────────────────────────────
+    t.{ x, xs… } ⇥  { x = v, ys… }
+
+
+The type system ensures that the selected field(s) must be present.
 
 Otherwise, normalize the argument:
 
@@ -3234,17 +3262,32 @@ Record values are also anonymous:
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
 
-You can only select a field from the record if the field is present:
+You can only select field(s) from the record if they are present:
 
 
-    Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { a : A, as… } :⇥ Type
+    Γ ⊢ e :⇥ { x : T, xs… }   Γ ⊢ { x : T, xs… } :⇥ Type
     ────────────────────────────────────────────────────
-    Γ ⊢ e.a : A
+    Γ ⊢ e.x : T
 
 
-    Γ ⊢ e :⇥ { a : A, as… }   Γ ⊢ { a : A, as… } :⇥ Kind
+    Γ ⊢ e :⇥ { x : T, xs… }   Γ ⊢ { x : T, xs… } :⇥ Kind
     ────────────────────────────────────────────────────
-    Γ ⊢ e.a : A
+    Γ ⊢ e.x : T
+
+
+    Γ ⊢ e :⇥ { ts… }   Γ ⊢ { ts… } :⇥ Type
+    ──────────────────────────────────────
+    Γ ⊢ e.{} : {}
+
+
+    Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Kind
+    ────────────────────────────────────────────────────
+    Γ ⊢ e.{ x } : { x : T }
+
+
+    Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥  { ts₁… }
+    ─────────────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ e.{ x, xs… } : { x : T, ts₁… }
 
 
 If you select a field from a value that is not a record, then that is a type

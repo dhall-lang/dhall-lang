@@ -608,11 +608,15 @@ not-equal-expression     = application-expression   *(not-equal     application-
 
 application-expression = [ constructors ] 1*selector-expression
 
-; NOTE: Backtrack when parsing the `*(dot label)`.  The reason why is that you
+; `record.field` extracts one field of a record
+;
+; `record.{ field₀, field₁, field₂ }` projects out several fields of a record
+;
+; NOTE: Backtrack when parsing the `*(dot ...)`.  The reason why is that you
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *(dot label)
+selector-expression = primitive-expression *(dot ( label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -674,6 +678,8 @@ primitive-expression =
 
     ; "( e )"
     / open-parens expression close-parens
+
+labels = open-brace (  label (comma label)* / "" ) close-brace
 
 record-type-or-literal =
       equal                             ; Empty record literal
