@@ -610,7 +610,7 @@ application-expression = [ constructors ] 1*selector-expression
 
 ; `record.field` extracts one field of a record
 ;
-; `record.{ field₀, field₁, field₂ }` projects out several fields of a record
+; `record.{ field0, field1, field2 }` projects out several fields of a record
 ;
 ; NOTE: Backtrack when parsing the `*(dot ...)`.  The reason why is that you
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
