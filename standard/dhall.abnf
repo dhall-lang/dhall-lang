@@ -393,11 +393,11 @@ path-character =
         ; %x7D = "}"
     / %x7E
 
-path-component = 1*path-character
+path-component = "/" 1*path-character
 
-directory = *("/" path-component)
+directory = *path-component
 
-file = "/" path-component
+file = path-component
 
 local-raw =
       ; NOTE: Backtrack if parsing this first alternative fails
