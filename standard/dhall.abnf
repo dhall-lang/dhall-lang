@@ -400,15 +400,15 @@ directory = *path-component
 file = path-component
 
 local-raw =
-      ; NOTE: Backtrack if parsing this first alternative fails
-      ;
-      ; This is because the first character of this alternative will be "/", but
-      ; if the second character is "/" or "\" then this should have been parsed
-      ; as an operator instead of a path
-           directory file ; Absolute path
-    / "."  directory file ; Relative path
-    / ".." directory file ; Relative path
-    / "~"  directory file ; Home-anchored path
+      ".." directory file  ; Relative path
+    / "."  directory file  ; Relative path
+    / "~"  directory file  ; Home-anchored path
+    ; NOTE: Backtrack if parsing this alternative fails
+    ;
+    ; This is because the first character of this alternative will be "/", but
+    ; if the second character is "/" or "\" then this should have been parsed
+    ; as an operator instead of a path
+    / directory file  ; Absolute path
 
 local = local-raw whitespace
 
