@@ -4124,7 +4124,7 @@ Import resolution is a function of the following form:
 
 * `Γ` (an input) is an unordered map from imports to expressions
 * `e₀` (an input) is the expression to resolve
-* `here` (an input) is the current path, used to resolve relative imports
+* `here` (an input) is the current import, used to resolve relative imports
 * `e₁` (the output) is the import-free resolved expression
 
 If an expression is an import (i.e. a URL, file path, or environment variable),
