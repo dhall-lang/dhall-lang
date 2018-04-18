@@ -4052,27 +4052,27 @@ If the child import begins with a "..", add that as a path component in between
 the parent and child directories:
 
 
-    path₀ </> .. = path₁   path₁ </> path₂ = path₃
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
     ──────────────────────────────────────────────
     path₀ file₀ </> .. path₂ file₁ = path₃ file₁
 
 
-    path₀ </> .. = path₁   path₁ </> path₂ = path₃
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
     ────────────────────────────────────────────────
     . path₀ file₀ </> .. path₂ file₁ = . path₃ file₁
 
 
-    path₀ </> .. = path₁   path₁ </> path₂ = path₃
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
     ──────────────────────────────────────────────────
     .. path₀ file₀ </> .. path₂ file₁ = .. path₃ file₁
 
 
-    path₀ </> .. = path₁   path₁ </> path₂ = path₃
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
     ────────────────────────────────────────────────
     ~ path₀ file₀ </> .. path₂ file₁ = ~ path₃ file₁
 
 
-    path₀ </> .. = path₁   path₁ </> path₂ = path₃
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
     ────────────────────────────────────────────────────────────────────────────────
     https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
 
