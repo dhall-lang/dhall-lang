@@ -4122,7 +4122,7 @@ Import resolution is a function of the following form:
 
 ... where
 
-* `Γ` (an input) is an unordered map from URL imports to expressions
+* `Γ` (an input) is an unordered map from imports to expressions
 * `e₀` (an input) is the expression to resolve
 * `here` (an input) is the current path, used to resolve relative imports
 * `e₁` (the output) is the import-free resolved expression
