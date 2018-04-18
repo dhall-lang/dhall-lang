@@ -4131,7 +4131,7 @@ If an expression is an import (i.e. a URL, file path, or environment variable),
 then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
-    here <//> import₀ = import₁
+    here </> import₀ = import₁
     canonicalize(import₁) = import₂
     Γ(import₂) = e₀                  ; Retrieve the expression
     Γ ⊢ e₀ @ import₂ ⇒ e₁
