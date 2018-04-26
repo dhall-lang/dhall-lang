@@ -202,7 +202,7 @@ single-quote-continue =
       ; Escape two single quotes (i.e. replace this sequence with "''")
       "'''"               single-quote-continue
       ; Interpolation
-    / "${" expression "}" single-quote-continue
+    / "${" complete-expression "}" single-quote-continue
       ; Escape interpolation (i.e. replace this sequence with "${")
     / "''${"              single-quote-continue
     / "''"                                       ; End of text literal
