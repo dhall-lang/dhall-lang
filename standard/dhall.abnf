@@ -370,7 +370,7 @@ identifier-reserved-namespaced-prefix =
 ;
 ; Excluding those characters ensures that paths don't have to end with trailing
 ; whitespace most of the time
-head-path-character =
+path-character =
         ; %x20 = " "
       %x21-27
         ; %x28 = "("
@@ -393,28 +393,33 @@ head-path-character =
         ; %x7D = "}"
     / %x7E
 
-path-character = head-path-character / "\" / "/"
+path-component = "/" 1*path-character
 
-; The first character of an absolute path cannot be a forward slash or
-; back-slash since that conflicts with the "/\" and "//" operators
-file-raw =
-      ; NOTE: Backtrack if parsing this first alternative fails
-      ;
-      ; This is because the second character might be "/" or "\", indicating
-      ; that this should have been parsed as an operator instead of an absolute
-      ; path
-      "/" head-path-character *path-character
-    / "./"  *path-character
-    / "../" *path-character
-    / "~/"  *path-character
+directory = *path-component
 
-file = file-raw whitespace
+file = path-component
 
-; `http[s]` URI grammar based on RFC7230 and RFC 3986
+local-raw =
+      ".." directory file  ; Relative path
+    / "."  directory file  ; Relative path
+    / "~"  directory file  ; Home-anchored path
+    ; NOTE: Backtrack if parsing this alternative fails
+    ;
+    ; This is because the first character of this alternative will be "/", but
+    ; if the second character is "/" or "\" then this should have been parsed
+    ; as an operator instead of a path
+    / directory file  ; Absolute path
+
+local = local-raw whitespace
+
+; `http[s]` URI grammar based on RFC7230 and RFC 3986 with some differences
+; noted below
 
 scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
-http-raw = scheme "://" authority path-abempty [ "?" query ] [ "#" fragment ]
+; NOTE: This does not match the official grammar for a URI.  Specifically, this
+; replaces `path-abempty` with `directory file`
+http-raw = scheme "://" authority directory file [ "?" query ] [ "#" fragment ]
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
@@ -454,10 +459,6 @@ dec-octet = DIGIT              ; 0-9
           / "25" %x30-35       ; 250-255
 
 reg-name = *( unreserved / pct-encoded / sub-delims )
-
-path-abempty = *( "/" segment )
-
-segment = *pchar
 
 pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
 
@@ -538,13 +539,13 @@ posix-environment-variable-character =
         ; %x5C = "\"
     / %x5D-7E
 
-path-type = file / http / env
+import-type = local / http / env
 
 hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
 
-path-hashed = path-type [ hash ]
+import-hashed = import-type [ hash ]
 
-import = path-hashed [ as Text ]
+import = import-hashed [ as Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
 ; whitespace.  This ensures consistent handling of whitespace in the absence of

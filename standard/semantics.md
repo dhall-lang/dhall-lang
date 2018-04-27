@@ -11,16 +11,19 @@ expressions.
 * [Shift](#shift)
     * [Variables](#variables)
     * [Bound variables](#bound-variables)
+    * [Imports](#imports)
     * [Other](#other)
 * [Contexts](#contexts)
 * [Shift context](#shift-context)
 * [Substitution](#substitution)
     * [Variables](#variables-1)
     * [Bound variables](#bound-variables-1)
+    * [Imports](#imports-1)
     * [Other](#other-1)
 * [α-normalization](#α-normalization)
     * [Bound variables](#bound-variables-2)
     * [Variables](#variables-2)
+    * [Imports](#imports-2)
     * [Other](#other-2)
 * [β-normalization](#β-normalization)
     * [Constants](#constants)
@@ -37,6 +40,7 @@ expressions.
     * [Functions](#functions)
     * [`let` expressions](#let-expressions)
     * [Type annotations](#type-annotations)
+    * [Imports](#imports-3)
 * [Equivalence](#equivalence)
 * [Function check](#function-check)
 * [Type inference](#type-inference)
@@ -55,6 +59,15 @@ expressions.
     * [Functions](#functions-1)
     * [`let` expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
+    * [Imports](#imports-4)
+* [Import resolution](#import-resolution)
+    * [Directories and files](#directories-and-files)
+    * [Canonicalization of directories](#canonicalization-of-directories)
+    * [Canonicalization of imports](#canonicalization-of-imports)
+    * [Chaining directories](#chaining-directories)
+    * [Chaining imports](#chaining-imports)
+    * [Duplicate imports](#duplicate-imports)
+    * [Import resolution judgment](#import-resolution-judgment)
 
 ## Summary
 
@@ -115,83 +128,86 @@ x, y                   ; Variables
 ; The typing judgments are the authoritative rules for what expressions are
 ; permitted and forbidden.
 a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
-  = x@n                          ; Identifier
-                                 ; (`x` is short-hand for `x@0`)
-  / λ(x : A) → b                 ; Anonymous function
-  / ∀(x : A) → B                 ; Function type
-                                 ; (`A → B` is short-hand for `∀(_ : A) → B`)
-  / let x : A = a in b           ; Let expression with type annotation
-  / let x     = a in b           ; Let expression without type annotation
-  / if t then l else r           ; if-then-else expression
-  / merge t u : T                ; Union elimination with type annotation
-  / merge t u                    ; Union elimination
-  / [] : List T                  ; Empty list literals with type annotation
-  / [ t, ts… ]                   ; Non-empty list literals
-  / [   ] : Optional T           ; Empty optional literal
-  / [ t ] : Optional T           ; Non-empty optional literal
-  / t : T                        ; Type annotation
-  / l || r                       ; Boolean or
-  / l + r                        ; Natural addition
-  / l ++ r                       ; Text append
-  / l # r                        ; List append
-  / l && r                       ; Boolean and
-  / l ∧ r                        ; Recursive record merge
-  / l ⫽ r                        ; Non-recursive right-biased record merge
-  / l ⩓ r                        ; Recursive record type merge
-  / l * r                        ; Natural multiplication
-  / l == r                       ; Boolean equality
-  / l != r                       ; Boolean inequality
-  / f a                          ; Function application
-  / t.x                          ; Field selection
-  / t.{ xs… }                    ; Field projection
-  / n.n                          ; Double-precision floating point literal
-  / +n                           ; Natural number literal
-  / n                            ; Integer literal
-  / "…"                          ; Text literal
-  / {}                           ; Empty record type
-  / { x : T, xs… }               ; Non-empty record type
-  / {=}                          ; Empty record literal
-  / { x = t, xs… }               ; Non-empty record literal
-  / <>                           ; Empty union type
-  / < x : T | xs… >              ; Non-empty union type
-  / < x = t >                    ; Union literal with one alternative
-  / < x₀ = t₀ | x₁ : T₁	| xs… >  ; Union literal with more than one alternative
-  / constructors u               ; Make record of constructors from union type
-  / Natural/build                ; Natural introduction
-  / Natural/fold                 ; Natural elimination
-  / Natural/isZero               ; Test if zero
-  / Natural/even                 ; Test if even
-  / Natural/odd                  ; Test if odd
-  / Natural/toInteger            ; Convert Natural to Integer
-  / Natural/show                 ; Convert Natural to Text
-  / Integer/show                 ; Convert Integer to Text
-  / Double/show                  ; Convert Double to Text
-  / List/build                   ; List introduction
-  / List/fold                    ; List elimination
-  / List/length                  ; Length of list
-  / List/head                    ; First element of list
-  / List/last                    ; Last element of list
-  / List/indexed                 ; Tag elements with index
-  / List/reverse                 ; Reverse list
-  / Optional/fold                ; Optional introduction
-  / Optional/build               ; Optional elimination
-  / Bool                         ; Bool type
-  / Optional                     ; Optional type
-  / Natural                      ; Natural type
-  / Integer                      ; Integer type
-  / Double                       ; Double type
-  / Text                         ; Text type
-  / List                         ; List type
-  / True                         ; True term
-  / False                        ; False term
-  / Type                         ; Type of terms
-  / Kind                         ; Type of types
+  = x@n                               ; Identifier
+                                      ; (`x` is short-hand for `x@0`)
+  / λ(x : A) → b                      ; Anonymous function
+  / ∀(x : A) → B                      ; Function type
+                                      ; (`A → B` is short-hand for `∀(_ : A) → B`)
+  / let x : A = a in b                ; Let expression with type annotation
+  / let x     = a in b                ; Let expression without type annotation
+  / if t then l else r                ; if-then-else expression
+  / merge t u : T                     ; Union elimination with type annotation
+  / merge t u                         ; Union elimination
+  / [] : List T                       ; Empty list literals with type annotation
+  / [ t, ts… ]                        ; Non-empty list literals
+  / [   ] : Optional T                ; Empty optional literal
+  / [ t ] : Optional T                ; Non-empty optional literal
+  / t : T                             ; Type annotation
+  / l || r                            ; Boolean or
+  / l + r                             ; Natural addition
+  / l ++ r                            ; Text append
+  / l # r                             ; List append
+  / l && r                            ; Boolean and
+  / l ∧ r                             ; Recursive record merge
+  / l ⫽ r                             ; Non-recursive right-biased record merge
+  / l ⩓ r                             ; Recursive record type merge
+  / l * r                             ; Natural multiplication
+  / l == r                            ; Boolean equality
+  / l != r                            ; Boolean inequality
+  / f a                               ; Function application
+  / t.x                               ; Field selection
+  / t.{ xs… }                         ; Field projection
+  / n.n                               ; Double-precision floating point literal
+  / +n                                ; Natural number literal
+  / n                                 ; Integer literal
+  / "…"                               ; Text literal
+  / {}                                ; Empty record type
+  / { x : T, xs… }                    ; Non-empty record type
+  / {=}                               ; Empty record literal
+  / { x = t, xs… }                    ; Non-empty record literal
+  / <>                                ; Empty union type
+  / < x : T | xs… >                   ; Non-empty union type
+  / < x = t >                         ; Union literal with one alternative
+  / < x₀ = t₀ | x₁ : T₁	| xs… >       ; Union literal with more than one
+                                      ; alternative
+  / constructors u                    ; Make record of constructors from union
+                                      ; type
+  / Natural/build                     ; Natural introduction
+  / Natural/fold                      ; Natural elimination
+  / Natural/isZero                    ; Test if zero
+  / Natural/even                      ; Test if even
+  / Natural/odd                       ; Test if odd
+  / Natural/toInteger                 ; Convert Natural to Integer
+  / Natural/show                      ; Convert Natural to Text
+  / Integer/show                      ; Convert Integer to Text
+  / Double/show                       ; Convert Double to Text
+  / List/build                        ; List introduction
+  / List/fold                         ; List elimination
+  / List/length                       ; Length of list
+  / List/head                         ; First element of list
+  / List/last                         ; Last element of list
+  / List/indexed                      ; Tag elements with index
+  / List/reverse                      ; Reverse list
+  / Optional/fold                     ; Optional introduction
+  / Optional/build                    ; Optional elimination
+  / Bool                              ; Bool type
+  / Optional                          ; Optional type
+  / Natural                           ; Natural type
+  / Integer                           ; Integer type
+  / Double                            ; Double type
+  / Text                              ; Text type
+  / List                              ; List type
+  / True                              ; True term
+  / False                             ; False term
+  / Type                              ; Type of terms
+  / Kind                              ; Type of types
+  / https://authority directory file  ; URL import
+  / path file                         ; Absolute file path import
+  / . path file                       ; Relative file path import
+  / .. path file                      ; Relative file path import
+  / ~ path file                       ; Home-anchored file path import
+  / env:x                             ; Environment variable import
 ```
-
-Note that the syntax does not include imports because you cannot infer the type
-of a Dhall expression that has unresolved imports.  In other words, import
-resolution is a distinct phase that must precede type checking and type
-inference.  This document does not cover the semantics of Dhall's import system.
 
 You can treat string interpolation as syntactic sugar for `Text` concatenation.
 In other words, the following string:
@@ -439,6 +455,37 @@ Descend as normal if the bound variable name does not match:
     ↑(d, x, m, a₀) = a₁   ↑(d, x, m, b₀) = b₁
     ───────────────────────────────────────────────  ; x ≠ y
     ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
+
+
+### Imports
+
+You can shift expressions with unresolved imports because the language enforces
+that imported values must be closed (i.e. no free variables) and shifting a
+closed expression has no effect:
+
+
+    ─────────────────────────────────
+    ↑(d, x, m, path file) = path file
+
+
+    ─────────────────────────────────────
+    ↑(d, x, m, . path file) = . path file
+
+
+    ───────────────────────────────────────
+    ↑(d, x, m, .. path file) = .. path file
+
+
+    ─────────────────────────────────────
+    ↑(d, x, m, ~ path file) = ~ path file
+
+
+    ─────────────────────────────────────────────────────────────────────
+    ↑(d, x, m, https://authority path file) = https://authority path file
+
+
+    ─────────────────────────
+    ↑(d, x, m, env:x) = env:x
 
 
 ### Other
@@ -900,6 +947,37 @@ All of the following rules cover expressions that can bind variables:
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
+### Imports
+
+You can substitute expressions with unresolved imports because the language
+enforces that imported values must be closed (i.e. no free variables) and
+substitution of a closed expression has no effect:
+
+
+    ────────────────────────────────
+    (path file)[x@n ≔ e] = path file
+
+
+    ────────────────────────────────────
+    (. path file)[x@n ≔ e] = . path file
+
+
+    ──────────────────────────────────────
+    (.. path file)[x@n ≔ e] = .. path file
+
+
+    ────────────────────────────────────
+    (~ path file)[x@n ≔ e] = ~ path file
+
+
+    ────────────────────────────────────────────────────────────────────
+    (https://authority path file)[x@n ≔ e] = https://authority path file
+
+
+    ────────────────────────
+    (env:x)[x@n ≔ e] = env:x
+
+
 ### Other
 
 No other Dhall expressions bind variables, so the substitution function descends
@@ -1287,6 +1365,10 @@ If they are free variables then there is nothing to do because α-normalization
 does not affect free variables.  If they were originally bound variables there
 is still nothing to do because would have been renamed to `_` along the way by
 one of the preceding rules.
+
+### Imports
+
+An expression with unresolved imports cannot be α-normalized.
 
 ### Other
 
@@ -2753,6 +2835,10 @@ Simplify a type annotation by removing the annotation:
     t₀ : T ⇥ t₁
 
 
+### Imports
+
+An expression with unresolved imports cannot be β-normalized.
+
 ## Equivalence
 
 Equivalence is a relationship between two expression of the form:
@@ -3687,3 +3773,390 @@ Note that the above rule permits kind annotations, such as `List : Type → Type
 
 If the inferred type of the annotated expression does not match the type
 annotation then that is a type error.
+
+### Imports
+
+An expression with unresolved imports cannot be type-checked
+
+## Import resolution
+
+You can embed external Dhall expressions using an inline URL, file, or
+environment variable.  For example:
+
+```
+    -- Expression imported from a URL
+    let concatSep = http://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
+
+in  { name = env:USER as Text  -- Expression imported from the environment
+    , age  = 23
+    , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
+    } : ./schema.dhall  -- Expression imported from a file
+```
+
+You can protect imports with integrity checks if you append SHA-256 hash (such
+as the `concatSep` import above) and you can also import a value as raw `Text`
+by appending `as Text` (such as the `env:USER` import above).
+
+Imported expressions can transitively import other expressions.  For example,
+the `./schema.dhall` file imported above might also import other files:
+
+```
+-- ./schema.dhall
+
+{ name : ./schema/name.dhall
+, age  : ./schema/age.dhall
+, hobbies : ./schema/hobbies.dhall
+}
+```
+
+... and if `./schema/hobbies.dhall` contained a relative import such as:
+
+```
+-- ./schema/hobbies.dhall
+
+List ./hobby.dhall
+```
+
+... then the relative import of `./hobby.dhall` would actually refer to
+`./schema/hobby.dhall`.  This is known as "import chaining": resolving imports
+relative to the current expression's location.
+
+### Directories and files
+
+A directory is a list of path components, represented using the following
+inductive notation:
+
+```
+directory =  ε                    ; 0 path components
+          /  directory/component  ; At least 1 path component
+```
+
+In a complete file path, the directory comprises all but the last path component
+and the last path component is the file.
+
+Here are some examples of imports highlighting which part is the directory and
+which part is the file:
+
+```
+directory
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+/ipfs/QmdtKd5Q7tebdo6rXfZed4kN6DXmErRQHJ4PsNCtca9GbB/Prelude/List/replicate
+                                                                 ↑↑↑↑↑↑↑↑↑↑
+                                                                 file
+
+
+  directory
+  ↓↓↓
+../../Monoid  ; The first ".." does not belong to the path, but the second ".."
+     ↑↑↑↑↑↑↑  ; does belong to the path
+     file
+
+
+directory = ε
+
+./map  ; The directory is empty and does not include the leading "."
+ ↑↑↑↑
+ file
+
+
+ directory
+ ↓↓↓↓↓↓↓↓
+~/.config/development.dhall
+         ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+         file
+
+
+                   directory
+                   ↓↓↓↓↓↓↓↓↓↓↓
+https://example.com/share/user/biography.dhall  ; URLs have directories, too
+                              ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+                              file
+```
+
+See the grammar for more details about where the directory and file begin and
+end.
+
+### Canonicalization of directories
+
+Canonicalization of directories is a function of the following form:
+
+    canonicalize(directory₀) = directory₁
+
+... where:
+
+* `directory₀` (the input) is the directory to canonicalize
+* `directory₁` (the output) is the canonicalized directory
+
+Canonicalization has no effect on the empty directory:
+
+
+    ───────────────────
+    canonicalize(ε) = ε
+
+
+Canonicalization removes path components named ".":
+
+
+    canonicalize(directory₀) = directory₁
+    ───────────────────────────────────────
+    canonicalize(directory₀/.) = directory₁
+
+
+Canonicalizing a path component named ".." removes that path component along
+with the parent path component:
+
+
+    canonicalize(directory₀) = directory₁/component
+    ───────────────────────────────────────────────
+    canonicalize(directory₀/..) = directory₁
+
+
+... unless there is no path component left to remove:
+
+
+    canonicalize(directory₀) = ε
+    ────────────────────────────
+    canonicalize(directory₀/..) = /..
+
+
+Canonicalization ignores directory components other than "." and "..":
+
+
+    canonicalize(directory₀) = directory₁
+    ─────────────────────────────────────────────────────────  ; If no other
+    canonicalize(directory₀/component) = directory₁/component  ; rule matches
+
+
+### Canonicalization of imports
+
+You can also canonicalize imports by canonicalizing their directories.
+
+Canonicalization of imports is a function of the following form:
+
+    canonicalize(import₀) = import₁
+
+... where:
+
+* `import₀` (the input) is the import to canonicalize
+* `import₁` (the output) is the canonicalized import
+
+To canonicalize an import, canonicalize any path components belonging to the
+directory:
+
+
+    canonicalize(path₀) = path₁
+    ─────────────────────────────────────
+    canonicalize(path₀ file) = path₁ file
+
+
+    canonicalize(path₀) = path₁
+    ─────────────────────────────────────────
+    canonicalize(. path₀ file) = . path₁ file
+
+
+    canonicalize(path₀) = path₁
+    ───────────────────────────────────────────
+    canonicalize(.. path₀ file) = .. path₁ file
+
+
+    canonicalize(path₀) = path₁
+    ─────────────────────────────────────────
+    canonicalize(~ path₀ file) = ~ path₁ file
+
+
+    canonicalize(path₀) = path₁
+    ─────────────────────────────────────────────────────────────────────────
+    canonicalize(https://authority path₀ file) = https://authority path₁ file
+
+
+    ───────────────────────────
+    canonicalize(env:x) = env:x
+
+
+Note that environment variables have no path components and are therefore
+already in canonical form.
+
+### Chaining directories
+
+Chaining imports requires the ability to chain directories, using a function of
+the following form:
+
+    directory₀ </> directory₁ = directory₂
+
+... where:
+
+* `directory₀` (an input) is a directory
+* `directory₁` (an input) is a directory
+* `directory₂` (the output) is the concatenation of the two input directories
+
+Chaining directories is the same as list concatenation of each input directory's
+path components:
+
+
+    ─────────────────
+    path </> ε = path
+
+
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────
+    path₀ </> path₁/component = path₂/component
+
+
+### Chaining imports
+
+The Dhall language supports absolute imports, such as URLs or absolute paths to
+files.  Chaining imports that mix absolute and relative imports involves
+computing the longest path relative to the last absolute import using a function
+of the following form:
+
+    import₀ </> import₁ = import₂
+
+... where:
+
+* `import₀` (an input) is the path of the parent relative to the current
+  location
+* `import₁` (an input) is the path of the child relative to the parent
+* `import₂` (the output) is the path of the child relative to the current
+  location
+
+If a parent file path imports a child via a relative file path then you chain
+their directories but prefer the file name of the child:
+
+
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────
+    path₀ file₀ </> . path₁ file₁ = path₂ file₁
+
+
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────────
+    . path₀ file₀ </> . path₁ file₁ = . path₂ file₁
+
+
+    path₀ </> path₁ = path₂
+    ─────────────────────────────────────────────────
+    .. path₀ file₀ </> . path₁ file₁ = .. path₂ file₁
+
+
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────────
+    ~ path₀ file₀ </> . path₁ file₁ = ~ path₂ file₁
+
+
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ </> . path₁ file₁ = https://authority path₂ file₁
+
+
+If the child import begins with a "..", add that as a path component in between
+the parent and child directories:
+
+
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ──────────────────────────────────────────────
+    path₀ file₀ </> .. path₂ file₁ = path₃ file₁
+
+
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ────────────────────────────────────────────────
+    . path₀ file₀ </> .. path₂ file₁ = . path₃ file₁
+
+
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ──────────────────────────────────────────────────
+    .. path₀ file₀ </> .. path₂ file₁ = .. path₃ file₁
+
+
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ────────────────────────────────────────────────
+    ~ path₀ file₀ </> .. path₂ file₁ = ~ path₃ file₁
+
+
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ────────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
+
+
+If the child is an absolute import, then the path to the parent import does not
+matter and you import the child directly:
+
+
+    ─────────────────────────────  ; If no other rule matches
+    import₀ </> import₁ = import₁
+
+
+### Duplicate imports
+
+Importing the same canonical path twice must always return the same result
+within a single run of the import resolution phase.  That means that import
+resolution for the following program:
+
+```
+[ ./integer.dhall, ./integer.dhall ]
+```
+
+... must replace both occurrences of `./integer.dhall` with the same
+expression if import resolution succeeds.
+
+A conforming impleentation can satisfy this obligation by caching imports, using
+the canonical path as the lookup key.  Then for a duplicate import the
+implementation can either:
+
+* reuse the cached import to avoid having to retrieve the path again, or:
+* retrieve the path again and fail import resolution if the result changed
+  since the last retrieval
+
+The following semantics model this by treating the context of importable
+expressions as a pure, lazy, and unordered map from canonical paths to
+expressions stored at those paths:
+
+### Import resolution judgment
+
+The import resolution phase replaces all imports with the expression located
+at that import, transitively resolving imports within the imported expression if
+necessary.
+
+Import resolution is a function of the following form:
+
+    Γ ⊢ e₀ @ here ⇒ e₁
+
+... where
+
+* `Γ` (an input) is an unordered map from imports to expressions
+* `e₀` (an input) is the expression to resolve
+* `here` (an input) is the current import, used to resolve relative imports
+* `e₁` (the output) is the import-free resolved expression
+
+If an expression is an import (i.e. a URL, file path, or environment variable),
+then you retrieve the expression from the canonicalized path and transitively
+resolve imports within the retrieved expression:
+
+    here </> import₀ = import₁
+    canonicalize(import₁) = import₂
+    Γ(import₂) = e₀                  ; Retrieve the expression
+    Γ ⊢ e₀ @ import₂ ⇒ e₁
+    ε ⊢ e₁ : T
+    ───────────────────────────────  ; `import₀` is a file, URL or environment
+    Γ ⊢ import₀ @ here ⇒ e₁          ; import
+
+
+Carefully note that the fully resolved import must successfully type-check with
+an empty context.  Imported expressions may not contain any free variables.
+
+For all other cases, recursively descend into sub-expressions:
+
+
+    ────────────────────
+    Γ ⊢ x@n @ here ⇒ x@n
+
+
+    Γ ⊢ A₀ @ here ⇒ A₁   Γ ⊢ b₀ @ here ⇒ b₁
+    ──────────────────────────────────────────
+    Γ ⊢ λ(x : A₀) → b₀ @ here ⇒ λ(x : A₁) → b₁
+
+
+    …
+
+
+    ──────────────────────
+    Γ ⊢ Kind @ here ⇒ Kind
