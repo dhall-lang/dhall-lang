@@ -354,7 +354,7 @@ double-literal = [ "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespa
 
 natural-raw = 1*DIGIT
 
-integer-literal = [ "+" / "-" ] natural-raw whitespace
+integer-literal = ( "+" / "-" ) natural-raw whitespace
 
 natural-literal = natural-raw whitespace
 
