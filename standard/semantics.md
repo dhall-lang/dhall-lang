@@ -86,11 +86,11 @@ The following notation is a simplified version of the syntax found in
 judgments:
 
 ```
-m, n = +0 / +1 + n     ; Natural numbers
+m, n = 0 / 1 + n  ; Natural numbers
 
-d = n / -n             ; Integers
+d = ±n            ; Integers
 
-x, y                   ; Variables
+x, y              ; Variables
 
 ; Mnemonics for the most commonly used labels:
 ;
@@ -158,8 +158,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / t.x                               ; Field selection
   / t.{ xs… }                         ; Field projection
   / n.n                               ; Double-precision floating point literal
-  / +n                                ; Natural number literal
-  / n                                 ; Integer literal
+  / n                                 ; Natural number literal
+  / ±n                                ; Integer literal
   / "…"                               ; Text literal
   / {}                                ; Empty record type
   / { x : T, xs… }                    ; Non-empty record type
@@ -612,12 +612,12 @@ The remaining rules are:
     ↑(d, x, m, n.n) = n.n
 
 
-    ───────────────────
-    ↑(d, x, m, +n) = +n
-
-
     ─────────────────
     ↑(d, x, m, n) = n
+
+
+    ───────────────────
+    ↑(d, x, m, ±n) = ±n
 
 
     ─────────────────────
@@ -879,8 +879,8 @@ Substitution avoids bound variables by increasing the index when a new bound
 variable of the same name is in scope, like this:
 
 
-    …   b₀[x@(+1 + n) ≔ e₁] = b₁   …
-    ────────────────────────────────
+    …   b₀[x@(1 + n) ≔ e₁] = b₁   …
+    ───────────────────────────────
     …
 
 
@@ -901,8 +901,8 @@ scope, like this:
 All of the following rules cover expressions that can bind variables:
 
 
-    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(+1 + n) ≔ e₁] = b₁
-    ──────────────────────────────────────────────────────────────────
+    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(1 + n) ≔ e₁] = b₁
+    ─────────────────────────────────────────────────────────────────
     (λ(x : A₀) → b₀)[x@n ≔ e₀] = λ(x : A₁) → b₁
 
 
@@ -911,8 +911,8 @@ All of the following rules cover expressions that can bind variables:
     (λ(y : A₀) → b₀)[x@n ≔ e₀] = λ(y : A₁) → b₁
 
 
-    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(+1 + n) ≔ e₁] = B₁
-    ──────────────────────────────────────────────────────────────────
+    A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(1 + n) ≔ e₁] = B₁
+    ─────────────────────────────────────────────────────────────────
     (∀(x : A₀) → B₀)[x@n ≔ e₀] = ∀(x : A₁) → B₁
 
 
@@ -924,7 +924,7 @@ All of the following rules cover expressions that can bind variables:
     A₀[x@n ≔ e₀] = A₁
     a₀[x@n ≔ e₀] = a₁
     ↑(1, x, 0, e₀) = e₁
-    b₀[x@(+1 + n) ≔ e₁] = b₁
+    b₀[x@(1 + n) ≔ e₁] = b₁
     ─────────────────────────────────────────────────────────
     (let x : A₀ = a₀ in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ in b₁
 
@@ -937,8 +937,8 @@ All of the following rules cover expressions that can bind variables:
     (let y : A₀ = a₀ in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ in b₁
 
 
-    a₀[x@n ≔ e₀] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(+1 + n) ≔ e₁] = b₁
-    ──────────────────────────────────────────────────────────────────
+    a₀[x@n ≔ e₀] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(1 + n) ≔ e₁] = b₁
+    ─────────────────────────────────────────────────────────────────
     (let x = a₀ in b₀)[x@n ≔ e₀] = let x = a₁ in b₁
 
 
@@ -1102,12 +1102,12 @@ The remaining rules are:
     n.n[x@n ≔ e] = n.n
 
 
-    ────────────────
-    +n[x@n ≔ e] = +n
-
-
     ──────────────
     n[x@n ≔ e] = n
+
+
+    ────────────────
+    ±n[x@n ≔ e] = ±n
 
 
     ──────────────────
@@ -1491,12 +1491,12 @@ sub-expressions for the remaining rules:
     n.n ↦ n.n
 
 
-    ───────
-    +n ↦ +n
-
-
     ─────
     n ↦ n
+
+
+    ───────
+    ±n ↦ ±n
 
 
     ─────────
@@ -1936,8 +1936,8 @@ The `Natural` number type is in normal form:
 `Natural` number literals are in normal form:
 
 
-    ───────
-    +n ⇥ +n
+    ─────
+    n ⇥ n
 
 
 `Natural/build` and `Natural/fold` are inverses of one another, which leads to
@@ -1954,8 +1954,8 @@ Otherwise, fall back on each function's respective implementation.
 `Natural/build` is the canonical introduction function for `Natural` numbers:
 
 
-    f ⇥ Natural/build   g Natural (λ(x : Natural) → x + +1) +0 ⇥ b
-    ──────────────────────────────────────────────────────────────
+    f ⇥ Natural/build   g Natural (λ(x : Natural) → x + 1) 0 ⇥ b
+    ────────────────────────────────────────────────────────────
     f g ⇥ b
 
 
@@ -1963,15 +1963,15 @@ Otherwise, fall back on each function's respective implementation.
 numbers:
 
 
-    f ⇥ Natural/fold +0 B g   b ⇥ t₁
-    ────────────────────────────────
+    f ⇥ Natural/fold 0 B g   b ⇥ t₁
+    ───────────────────────────────
     f b ⇥ t₁
 
 
-    f ⇥ Natural/fold (+1 + n) B g
+    f ⇥ Natural/fold (1 + n) B g
     g (Natural/fold n B g b) ⇥ t₁
-    ─────────────────────────────  ; "+1 + n" means "a `Natural` literal greater
-    f b ⇥ t₁                       ; than `+0`"
+    ─────────────────────────────  ; "1 + n" means "a `Natural` literal greater
+    f b ⇥ t₁                       ; than `0`"
 
 
 Even though `Natural/fold` and `Natural/build` suffice for all `Natural` number
@@ -1983,22 +1983,22 @@ Use machine addition to simplify the "plus" operator if both arguments normalize
 to `Natural` literals:
 
 
-    l ⇥ +m   r ⇥ +n
-    ───────────────  ; "+m + +n" means "use machine addition"
-    l + r ⇥ +m + +n
+    l ⇥ m   r ⇥ n
+    ─────────────  ; "m + n" means "use machine addition"
+    l + r ⇥ m + n
 
 
-Also, simplify the "plus" operator if either argument normalizes to a `+0`
+Also, simplify the "plus" operator if either argument normalizes to a `0`
 literal:
 
 
-    l ⇥ +0   r₀ ⇥ r₁
-    ────────────────
+    l ⇥ 0   r₀ ⇥ r₁
+    ───────────────
     l + r₀ ⇥ r₁
 
 
-    r ⇥ +0   l₀ ⇥ l₁
-    ────────────────
+    r ⇥ 0   l₀ ⇥ l₁
+    ───────────────
     l₀ + r ⇥ l₁
 
 
@@ -2014,36 +2014,36 @@ Use machine multiplication to simplify the "times" operator if both arguments
 normalize to a `Natural` literal:
 
 
-    l ⇥ +m   r ⇥ +n
-    ───────────────  ; "+m * +n" means "use machine multiplication"
-    l + r ⇥ +m * +n
+    l ⇥ m   r ⇥ n
+    ─────────────  ; "m * n" means "use machine multiplication"
+    l + r ⇥ m * n
 
 
 Also, simplify the "plus" operator if either argument normalizes to either a
-`+0` literal:
+`0` literal:
 
 
-    l ⇥ +0
-    ──────────
-    l * r ⇥ +0
+    l ⇥ 0
+    ─────────
+    l * r ⇥ 0
 
 
-    r ⇥ +0
-    ──────────
-    l * r ⇥ +0
+    r ⇥ 0
+    ─────────
+    l * r ⇥ 0
 
 
 
-... or a `+1` literal:
+... or a `1` literal:
 
 
-    l ⇥ +1   r₀ ⇥ r₁
-    ────────────────
+    l ⇥ 1   r₀ ⇥ r₁
+    ───────────────
     l * r₀ ⇥ r₁
 
 
-    r ⇥ +1   l₀ ⇥ l₁
-    ────────────────
+    r ⇥ 1   l₀ ⇥ l₁
+    ───────────────
     l₀ * r ⇥ l₁
 
 
@@ -2055,56 +2055,56 @@ Otherwise, normalize each argument:
     l₀ * r₀ ⇥ l₁ * r₁
 
 
-`Natural/isZero` detects whether or not a `Natural` number is `+0`:
+`Natural/isZero` detects whether or not a `Natural` number is `0`:
 
 
-    f ⇥ Natural/isZero   a ⇥ +0
+    f ⇥ Natural/isZero   a ⇥ 0
     ───────────────────────────
     f a ⇥ True
 
 
-    f ⇥ Natural/isZero   a ⇥ +1 + n
-    ───────────────────────────────  ; "+1 + n" means "a `Natural` literal
-    f a ⇥ False                      ; greater than `+0`"
+    f ⇥ Natural/isZero   a ⇥ 1 + n
+    ──────────────────────────────  ; "1 + n" means "a `Natural` literal greater
+    f a ⇥ False                     ; than `0`"
 
 
 `Natural/even` detects whether or not a `Natural` number is even:
 
 
-    f ⇥ Natural/even   a ⇥ +0
-    ─────────────────────────
+    f ⇥ Natural/even   a ⇥ 0
+    ────────────────────────
     f a ⇥ True
 
 
-    f ⇥ Natural/even   a ⇥ +1
-    ─────────────────────────
+    f ⇥ Natural/even   a ⇥ 1
+    ────────────────────────
     f a ⇥ False
 
 
     f ⇥ Natural/even
-    a ⇥ +1 + n
+    a ⇥ 1 + n
     Natural/odd n ⇥ b
-    ─────────────────  ; "+1 + n" means "a `Natural` literal greater than `+0`"
+    ─────────────────  ; "1 + n" means "a `Natural` literal greater than `0`"
     f a ⇥ b
 
 
 `Natural/odd` detects whether or not a `Natural` number is odd:
 
 
-    f ⇥ Natural/odd   a ⇥ +0
-    ────────────────────────
+    f ⇥ Natural/odd   a ⇥ 0
+    ───────────────────────
     f a ⇥ False
 
 
-    f ⇥ Natural/odd   a ⇥ +1
-    ────────────────────────
+    f ⇥ Natural/odd   a ⇥ 1
+    ───────────────────────
     f a ⇥ True
 
 
     f ⇥ Natural/odd
-    a ⇥ +1 + n
+    a ⇥ 1 + n
     Natural/even n ⇥ b
-    ──────────────────  ; "+1 + n" means "a `Natural` literal greater than `+0`"
+    ──────────────────  ; "1 + n" means "a `Natural` literal greater than `0`"
     f a ⇥ b
 
 
@@ -2112,22 +2112,19 @@ Otherwise, normalize each argument:
 `Integer`:
 
 
-    f ⇥ Natural/toInteger   a ⇥ +n
-    ──────────────────────────────
-    f a ⇥ n
+    f ⇥ Natural/toInteger   a ⇥ n
+    ─────────────────────────────
+    f a ⇥ +n
 
 
 `Natural/show` transforms a `Natural` number into a `Text` literal representing
 valid Dhall code for representing that `Natural` number:
 
 
-    f ⇥ Natural/show   a ⇥ +n
-    ─────────────────────────
-    f a ⇥ "+n"
+    f ⇥ Natural/show   a ⇥ n
+    ────────────────────────
+    f a ⇥ "n"
 
-
-Note that the `Text` representation of the rendered `Natural` number should
-include a leading `+` sign.
 
 All of the built-in functions on `Natural` numbers are in normal form:
 
@@ -2309,11 +2306,11 @@ Otherwise, normalize each argument:
 
     f ⇥ List/length A₀   a ⇥ [] : List A₁
     ─────────────────────────────────────
-    f a ⇥ +0
+    f a ⇥ 0
 
 
-    f ⇥ List/length A₀   as₀ ⇥ [ a, as₁… ]   +1 + List/length A₀ [ as₁… ] ⇥ n
-    ─────────────────────────────────────────────────────────────────────────
+    f ⇥ List/length A₀   as₀ ⇥ [ a, as₁… ]   1 + List/length A₀ [ as₁… ] ⇥ n
+    ────────────────────────────────────────────────────────────────────────
     f as₀ ⇥ n
 
 
@@ -2352,8 +2349,8 @@ Otherwise, normalize each argument:
 
 
     f ⇥ List/indexed A₀   as ⇥ [ a₀, a₁, …, ]
-    ────────────────────────────────────────────────────────────────────
-    f as ⇥ [ { index = +0, value = a₀ }, { index = +1, value = a₁ }, … ]
+    ──────────────────────────────────────────────────────────────────
+    f as ⇥ [ { index = 0, value = a₀ }, { index = 1, value = a₁ }, … ]
 
 
 `List/reverse` reverses the elements of the list:
@@ -2704,18 +2701,22 @@ The `Integer` type is in normal form:
 An `Integer` literal is in normal form:
 
 
-    ─────
-    n ⇥ n
+    ───────
+    ±n ⇥ ±n
 
 
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
 
 
-    f ⇥ Integer/show   a ⇥ n
-    ────────────────────────
-    f a ⇥ "n"
+    f ⇥ Integer/show   a ⇥ ±n
+    ─────────────────────────
+    f a ⇥ "±n"
 
+
+Note that the `Text` representation of the rendered `Integer` should include
+a leading `+` sign if the number is non-negative and a leading `-` sign if
+the number is negative.
 
 The `Integer/show` function is in normal form:
 
@@ -3001,8 +3002,8 @@ with each variable disambiguates which type annotation in the context to use:
 
 
     Γ ⊢ x@n : T
-    ─────────────────────────  ; 0 < n
-    Γ, x : A ⊢ x@(+1 + n) : T
+    ────────────────────────  ; 0 < n
+    Γ, x : A ⊢ x@(1 + n) : T
 
 
     Γ ⊢ x@n : T
@@ -3095,8 +3096,8 @@ If the operator arguments do not have type `Bool` then that is a type error.
 `Natural` number literals have type `Natural`:
 
 
-    ────────────────
-    Γ ⊢ +n : Natural
+    ───────────────
+    Γ ⊢ n : Natural
 
 
 The arithmetic operators take arguments of type `Natural` and return a result of
@@ -3613,7 +3614,7 @@ then that is a type error.
 
 
     ────────────────
-    Γ ⊢ n : Integer
+    Γ ⊢ ±n : Integer
 
 
 The built-in `Integer/show` function has the following type:

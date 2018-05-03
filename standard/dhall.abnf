@@ -354,9 +354,9 @@ double-literal = [ "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespa
 
 natural-raw = 1*DIGIT
 
-integer-literal = [ "-" ] natural-raw whitespace
+integer-literal = [ "+" / "-" ] natural-raw whitespace
 
-natural-literal = "+" natural-raw whitespace
+natural-literal = natural-raw whitespace
 
 identifier = label [ at natural-raw ] whitespace
 
@@ -634,10 +634,10 @@ primitive-expression =
     ; "2.0"
       double-literal
 
-    ; "+2"
+    ; "2"
     / natural-literal
 
-    ; "2"
+    ; "+2"
     / integer-literal
 
     ; '"ABC"'
