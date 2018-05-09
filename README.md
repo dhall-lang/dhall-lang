@@ -1424,6 +1424,9 @@ The language is named after a
 who belongs to a faction obsessed with death (termination).  The logo represents
 his quill and inkwell
 
+The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
+"dɔːl" for a UK speaker using the International Phonetic Alphabet).
+
 [dhall-haskell]: https://github.com/dhall-lang/dhall-haskell
 [dhall-haskell-tutorial]: https://hackage.haskell.org/package/dhall/docs/Dhall-Tutorial.html
 [dhall-haskell-post]: http://www.haskellforall.com/2016/12/dhall-non-turing-complete-configuration.html
