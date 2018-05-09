@@ -92,7 +92,10 @@
       let
         secureHydra = packagesNew: packagesOld: {
           hydra = packagesOld.hydra.overrideAttrs (oldAttributes: {
-              patches = (oldAttributes.patches or []) ++ [ ./hydra.patch ];
+              patches = (oldAttributes.patches or []) ++ [
+                ./hydra.patch
+                ./no-restrict-eval.patch
+              ];
             }
           );
         };
