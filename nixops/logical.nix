@@ -19,7 +19,7 @@
             };
           };
 
-      pinPrelude = { date }:
+      pinOldPrelude = { date }:
         let
           path = ./. + "/dhall/${date}.json";
 
@@ -29,13 +29,30 @@
         in
           pin { name = date; path = "${src}/Prelude"; };
 
+      pinNewPrelude = { date }:
+        let
+          path = ./. + "/dhall/${date}.json";
+
+          json = builtins.fromJSON (builtins.readFile path);
+
+          git = pkgs.fetchgit { inherit (json) url rev sha256; };
+
+          src = pkgs.runCommand "relocate" {} ''
+            ${pkgs.coreutils}/bin/mkdir -p $out
+            ${pkgs.coreutils}/bin/cp -r ${git} $out/Prelude
+          '';
+        in
+          pin { name = date; path = "${src}/Prelude"; };
+
       services = [
         (pin { name = "True"; path = builtins.toFile "True" "True\n"; })
-        (pinPrelude { date = "2016-12-03"; })
-        (pinPrelude { date = "2017-05-16"; })
-        (pinPrelude { date = "2017-06-17"; })
-        (pinPrelude { date = "2017-08-28"; })
-        (pinPrelude { date = "2018-03-04"; })
+        (pinOldPrelude { date = "2016-12-03"; })
+        (pinOldPrelude { date = "2017-05-16"; })
+        (pinOldPrelude { date = "2017-06-17"; })
+        (pinOldPrelude { date = "2017-08-28"; })
+        (pinOldPrelude { date = "2018-03-04"; })
+
+        (pinNewPrelude { date = "2018-05-12"; })
       ];
 
     in
@@ -196,7 +213,7 @@
 
         virtualHosts."prelude.dhall-lang.org" = {
           locations."/".extraConfig = ''
-            rewrite ^/(.*)$ https://ipfs.io/ipfs/QmdtKd5Q7tebdo6rXfZed4kN6DXmErRQHJ4PsNCtca9GbB/Prelude/$1 redirect;
+            rewrite ^/(.*)$ https://ipfs.io/ipfs/QmRXk8gc6mVLUFKa6qKjh9sNoqXSrCWbwBFXuguTozFoFa/Prelude/$1 redirect;
           '';
         };
       };
