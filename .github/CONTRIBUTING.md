@@ -75,6 +75,11 @@ your idea and if your idea is approved then you can ask somebody (including
 
 ## How do changes get approved?
 
+Changes only require approval if they change the [standard][standard].  Anybody
+with the "commit bit" (i.e. write access to this repository) can merge a pull
+request after a 24 hour waiting period.  See below for more details about how
+to obtain the commit bit.
+
 Language changes are voted on by actively maintained implementations of the
 Dhall language.  Each implementation gets one vote (but derived implementations
 do not count as extra votes).
@@ -96,6 +101,9 @@ Proposed changes require a response within 3 days and a vote within a week of
 submission.  The absence of a vote counts as a vote in favor.  The process is
 designed to be quick with a bias to action since if we make mistakes we can
 always roll them back with a new proposal.
+
+If the change is approved quickly, there is still a minimum 3-day waiting
+period before merging for changes to the standard.
 
 ## How do I get the "commit bit"?
 
