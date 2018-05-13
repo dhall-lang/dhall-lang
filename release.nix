@@ -47,6 +47,17 @@ let
 
   pkgs = import nixpkgs { config = {}; overlays = [ overlay ]; };
 
+  # Derivation that trivially depends on the current directory so that Hydra's
+  # pull request builder always posts a GitHub status on each revision
+  pwd = pkgs.runCommand "pwd" { here = ./.; } "touch $out";
+
 in
-  { inherit (pkgs) instaparse-accepts-grammar;
+  { all = pkgs.releaseTools.aggregate {
+      name = "all";
+
+      constituents = [
+        pkgs.instaparse-accepts-grammar
+        pwd
+      ];
+    };
   }
