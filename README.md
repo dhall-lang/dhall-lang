@@ -345,8 +345,8 @@ supports comments):
 ```haskell
 -- example1.dhall
 
-    let BSD-3-Clause = λ(args : { year : Integer, author : Text }) → ''
-            Copyright ${Integer/show args.year} ${args.author}
+    let BSD-3-Clause = λ(args : { year : Natural, author : Text }) → ''
+            Copyright ${Natural/show args.year} ${args.author}
     
             Redistribution and use in source and binary forms, with or without
             modification, are permitted provided that the following conditions are met:
@@ -374,8 +374,8 @@ supports comments):
             OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ''
 
-in  let MIT = λ(args : { year : Integer, author : Text }) → ''
-            Copyright ${Integer/show args.year} ${args.author}
+in  let MIT = λ(args : { year : Natural, author : Text }) → ''
+            Copyright ${Natural/show args.year} ${args.author}
             
             Permission is hereby granted, free of charge, to any person obtaining a copy of
             this software and associated documentation files (the "Software"), to deal in
@@ -429,7 +429,7 @@ For example:
 ```
   The name of the function input is "args", short for "arguments"
   ↓
-λ(args : { year : Integer, author : Text }) → ...
+λ(args : { year : Natural, author : Text }) → ...
          ↑
          "args" is a record with two fields named "year" and "author"
 ```
@@ -465,8 +465,8 @@ files, like this:
 ```haskell
 -- BSD-3-Clause.dhall
 
-λ(args : { year : Integer, author : Text }) → ''
-    Copyright ${Integer/show args.year} ${args.author}
+λ(args : { year : Natural, author : Text }) → ''
+    Copyright ${Natural/show args.year} ${args.author}
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -498,8 +498,8 @@ files, like this:
 ```haskell
 -- MIT.dhall
 
-λ(args : { year : Integer, author : Text }) → ''
-    Copyright ${Integer/show args.year} ${args.author}
+λ(args : { year : Natural, author : Text }) → ''
+    Copyright ${Natural/show args.year} ${args.author}
     
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -561,8 +561,8 @@ We can automate that away, too:
     let makePackage =
         λ(args : {   name        : Text
                  ,   author      : Text
-                 ,   year        : Integer
-                 ,   makeLicense : { year : Integer, author : Text } → Text
+                 ,   year        : Natural
+                 ,   makeLicense : { year : Natural, author : Text } → Text
                  }
         )
     →   {   name    = args.name
@@ -610,8 +610,8 @@ with the same function (such as `makePackage`):
 in  let makePackage =
         λ(args : {   name        : Text
                  ,   author      : Text
-                 ,   year        : Integer
-                 ,   makeLicense : { year : Integer, author : Text } → Text
+                 ,   year        : Natural
+                 ,   makeLicense : { year : Natural, author : Text } → Text
                  }
         )
     →   {   name    = args.name
@@ -623,8 +623,8 @@ in  map
 
     {   name        : Text
     ,   author      : Text
-    ,   year        : Integer
-    ,   makeLicense : { year : Integer, author : Text } → Text
+    ,   year        : Natural
+    ,   makeLicense : { year : Natural, author : Text } → Text
     }
 
     {   name    : Text
@@ -670,7 +670,7 @@ Tranform a list by applying a function to each element
 
 Examples:
 
-./map Natural Bool Natural/even ([+2, +3, +5] : List Natural)
+./map Natural Bool Natural/even ([2, 3, 5] : List Natural)
 = [True, False, False] : List Bool
 
 ./map Natural Bool Natural/even ([] : List Natural)
@@ -743,8 +743,8 @@ We can import types just like anything else in Dhall:
 -- Input.dhall
 {   name        : Text
 ,   author      : Text
-,   year        : Integer
-,   makeLicense : { year : Integer, author : Text } → Text
+,   year        : Natural
+,   makeLicense : { year : Natural, author : Text } → Text
 }
 ```
 
@@ -987,7 +987,7 @@ expressions from the command line.  You can use this interpreter to:
 
     ```bash
     $ cat config
-    { foo = List/length Integer [2, 3, 5], bar = True && False }
+    { foo = List/length Integer [+2, +3, +5], bar = True && False }
     ```
 
     ```bash
@@ -1001,7 +1001,7 @@ expressions from the command line.  You can use this interpreter to:
     $ dhall <<< './config : ./schema'
     { bar : Bool, foo : Natural }
 
-    { bar = False, foo = +3 }
+    { bar = False, foo = 3 }
     ```
 
     Schema validation is the same thing as a type annotation
@@ -1079,7 +1079,7 @@ expressions from the command line.  You can use this interpreter to:
 
     in  let exclaim = λ(t : Text) → t ++ "!"
 
-    in  λ(x : Text) → replicate +3 Text (exclaim x)
+    in  λ(x : Text) → replicate 3 Text (exclaim x)
     ```
 
     You can reduce functions to normal form, even when they haven't been
@@ -1170,7 +1170,7 @@ main = do
 
 ```bash
 $ cat ./config
-{ foo = 1
+{ foo = +1
 , bar = [3.0, 4.0, 5.0]
 }
 ```
@@ -1202,7 +1202,7 @@ let
 in
   pkgs.dhallToNix ''
     { foo = λ(x : Bool) → [x, x]
-    , bar = Natural/even +2
+    , bar = Natural/even 2
     , baz = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/Text/concat
     }
   ''
