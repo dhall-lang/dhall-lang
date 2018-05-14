@@ -936,6 +936,7 @@ work with the builtin types. Where to find it:
 
 * [Github repo](https://github.com/dhall-lang/Prelude)
 * [Mirror on IPFS](http://prelude.dhall-lang.org/)
+* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix): both `dhall` and `dhall.prelude` derivations are built, install the `Prelude` with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
 ## Overview
 
