@@ -731,7 +731,10 @@ in  ...
 
 ... although be cautious when doing so since this URL is mutable and you can't
 guarantee that you get the same result every time.  You also can't safely
-cache the result permanently like you can with an IPFS URL
+cache the result permanently like you can with an IPFS URL.
+
+Check out the [Standard Library](#standard-library) section for more ways to get
+the Prelude.
 
 ---
 
