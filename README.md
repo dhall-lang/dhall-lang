@@ -34,6 +34,14 @@ Expand the details below for an example motivating the use of Dhall:
 
 <summary>Detailed example of using Dhall</summary>
 
+> **NOTE**: The following examples require at least version `1.14.0` of [the
+> interpreter][dhall-haskell].  
+> For an example compatible with an older version you might want to refer
+to an [older revision][readme-before-nat-int-swap] of this document.  
+> For more details about the migration between versions, check [this wiki
+> page][migration-nat-int-swap].
+
+
 Let's motivate Dhall by considering the following JSON configuration
 representing Haskell package metadata (wrapped to 80 columns):
 
@@ -987,7 +995,7 @@ expressions from the command line.  You can use this interpreter to:
 
     ```bash
     $ cat config
-    { foo = List/length Integer [+2, +3, +5], bar = True && False }
+    { foo = List/length Natural [2, 3, 5], bar = True && False }
     ```
 
     ```bash
@@ -1155,7 +1163,7 @@ You can also decode Dhall expressions into Haskell types that derive
 
 import Dhall
 
-data Example = Example { foo :: Integer, bar :: Vector Double }
+data Example = Example { foo :: Natural, bar :: Vector Double }
     deriving (Generic, Show)
 
 instance Interpret Example
@@ -1170,7 +1178,7 @@ main = do
 
 ```bash
 $ cat ./config
-{ foo = +1
+{ foo = 1
 , bar = [3.0, 4.0, 5.0]
 }
 ```
@@ -1447,3 +1455,5 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
 [dhall-prelude]: https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude
 [hcl]: https://github.com/hashicorp/hcl
+[readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
+[migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
