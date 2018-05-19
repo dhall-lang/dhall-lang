@@ -1,0 +1,7 @@
+{
+  "url": "https://github.com/dhall-lang/Prelude.git",
+  "rev": "e44284bc37a5808861dacd4c8bd13d18411cb961",
+  "date": "2018-05-19T08:36:54-07:00",
+  "sha256": "1di6d1may0js4bq4ckpmvwi8chv2av1r7b9bi6rzv0ybx7w3h2xa",
+  "fetchSubmodules": true
+}

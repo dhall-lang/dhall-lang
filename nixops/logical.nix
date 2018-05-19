@@ -53,6 +53,7 @@
         (pinOldPrelude { date = "2018-03-04"; })
 
         (pinNewPrelude { date = "2018-05-12"; })
+        (pinNewPrelude { date = "2018-05-19"; })
       ];
 
     in
@@ -213,7 +214,7 @@
 
         virtualHosts."prelude.dhall-lang.org" = {
           locations."/".extraConfig = ''
-            rewrite ^/(.*)$ https://ipfs.io/ipfs/QmRXk8gc6mVLUFKa6qKjh9sNoqXSrCWbwBFXuguTozFoFa/Prelude/$1 redirect;
+            rewrite ^/(.*)$ https://ipfs.io/ipfs/QmV5MMfZehF4Z1EC4hK1s4yjE81kZV5hxypcuqfh9qcDMB/Prelude/$1 redirect;
           '';
         };
       };
