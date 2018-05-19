@@ -372,7 +372,9 @@ identifier-reserved-namespaced-prefix =
 ; whitespace most of the time
 path-character =
         ; %x20 = " "
-      %x21-27
+      %x21-22
+        ; %x23 = "#"
+    / %x24-27
         ; %x28 = "("
         ; %x29 = ")"
     / %x2A-2B
@@ -383,7 +385,8 @@ path-character =
         ; %x3C = "<"
     / %x3D
         ; %x3E = ">"
-    / %x3F-5A
+        ; %x3F = "?"
+    / %x40-5A
         ; %x5B = "["
         ; %x5C = "\"
         ; %x5D = "]"

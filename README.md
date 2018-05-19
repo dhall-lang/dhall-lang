@@ -13,6 +13,7 @@ You can think of Dhall as: JSON + functions + types + imports
 * [Case Study](#case-study)
 * [Features](#features)
 * [Documentation](#documentation)
+* [Standard Library](#standard-library)
 * [Overview](#overview)
     * [Interpreter](#interpreter)
     * [Language Bindings](#language-bindings)
@@ -738,7 +739,10 @@ in  ...
 
 ... although be cautious when doing so since this URL is mutable and you can't
 guarantee that you get the same result every time.  You also can't safely
-cache the result permanently like you can with an IPFS URL
+cache the result permanently like you can with an IPFS URL.
+
+Check out the [Standard Library](#standard-library) section for more ways to get
+the Prelude.
 
 ---
 
@@ -935,6 +939,15 @@ You can also read about the original motivation behind the language here:
 Finally, we have a cheatsheet for a very condensed overview and quick lookup:
 
 * [Dhall Cheatsheet](https://github.com/dhall-lang/dhall-lang/wiki/Cheatsheet)
+
+## Standard Library
+
+Dhall's Standard Library is called `Prelude`. It implements various utilities to 
+work with the builtin types. Where to find it:
+
+* [Github repo](https://github.com/dhall-lang/Prelude)
+* [Mirror on IPFS](http://prelude.dhall-lang.org/)
+* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix): both `dhall` and `dhall.prelude` derivations are built, install the `Prelude` with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
 ## Overview
 
