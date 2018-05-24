@@ -548,6 +548,9 @@ hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
 
 import-hashed = import-type [ hash ]
 
+; "http://example.com"
+; "./foo/bar"
+; "env:FOO"
 import = import-hashed [ as Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
@@ -610,7 +613,9 @@ times-expression         = equal-expression         *(times         equal-expres
 equal-expression         = not-equal-expression     *(double-equal  not-equal-expression    )
 not-equal-expression     = application-expression   *(not-equal     application-expression  )
 
-application-expression = [ constructors ] 1*selector-expression
+application-expression = [ constructors ] import-expression *(" " import-expression)
+
+import-expression = import / selector-expression
 
 ; `record.field` extracts one field of a record
 ;
@@ -656,11 +661,6 @@ primitive-expression =
 
     ; "[1, 2, 3]"
     / non-empty-list-literal  ; `annotated-expression` handles empty lists
-
-    ; "http://example.com"
-    ; "./foo/bar"
-    ; "env:FOO"
-    / import
 
     ; "List/foldWith"
     / identifier-reserved-namespaced-prefix
