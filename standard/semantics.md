@@ -3909,9 +3909,14 @@ Canonicalizing a path component named ".." removes that path component along
 with the parent path component:
 
 
+    canonicalize(directory₀) = directory₁/..
+    ──────────────────────────────────────────────
+    canonicalize(directory₀/..) = directory₁/../..
+
+
     canonicalize(directory₀) = directory₁/component
-    ───────────────────────────────────────────────
-    canonicalize(directory₀/..) = directory₁
+    ───────────────────────────────────────────────  ; If "component" is not
+    canonicalize(directory₀/..) = directory₁         ; ".."
 
 
 ... unless there is no path component left to remove:
