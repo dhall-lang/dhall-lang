@@ -613,7 +613,10 @@ times-expression         = equal-expression         *(times         equal-expres
 equal-expression         = not-equal-expression     *(double-equal  not-equal-expression    )
 not-equal-expression     = application-expression   *(not-equal     application-expression  )
 
-application-expression = [ constructors ] import-expression *(" " import-expression)
+; Import expressions need to be separated by some whitespace, otherwise there
+; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
+; or "apply the import `./a` to label `b`"
+application-expression = [ constructors ] import-expression *(whitespace-chunk import-expression)
 
 import-expression = import / selector-expression
 
