@@ -3645,7 +3645,7 @@ then that is a type error.
     Γ ⊢ ±n : Integer
 
 
-The built-in functions on `Integer/show` have the following types:
+The built-in functions on `Integer` have the following types:
 
 
     ─────────────────────────────────
