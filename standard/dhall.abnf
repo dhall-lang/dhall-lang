@@ -236,6 +236,7 @@ Natural-even-raw      = %x4e.61.74.75.72.61.6c.2f.65.76.65.6e
 Natural-odd-raw       = %x4e.61.74.75.72.61.6c.2f.6f.64.64
 Natural-toInteger-raw = %x4e.61.74.75.72.61.6c.2f.74.6f.49.6e.74.65.67.65.72
 Natural-show-raw      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
+Integer-toDouble-raw  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
 Integer-show-raw      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
 Double-show-raw       = %x44.6f.75.62.6c.65.2f.73.68.6f.77
 List-build-raw        = %x4c.69.73.74.2f.62.75.69.6c.64
@@ -289,6 +290,7 @@ reserved-namespaced-raw =
   / Natural-odd-raw
   / Natural-toInteger-raw
   / Natural-show-raw
+  / Integer-toDouble-raw
   / Integer-show-raw
   / Double-show-raw
   / List-build-raw

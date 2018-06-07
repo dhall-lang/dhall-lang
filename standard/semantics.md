@@ -179,6 +179,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
   / Natural/show                      ; Convert Natural to Text
+  / Integer/toDouble                  ; Convert Integer to Double
   / Integer/show                      ; Convert Integer to Text
   / Double/show                       ; Convert Double to Text
   / List/build                        ; List introduction
@@ -695,6 +696,10 @@ The remaining rules are:
     ↑(d, x, m, Natural/show) = Natural/show
 
 
+    ───────────────────────────────────────────────
+    ↑(d, x, m, Integer/toDouble) = Integer/toDouble
+
+
     ───────────────────────────────────────
     ↑(d, x, m, Integer/show) = Integer/show
 
@@ -1184,6 +1189,10 @@ The remaining rules are:
     Natural/show[x@n ≔ e] = Natural/show
 
 
+    ────────────────────────────────────────────
+    Integer/toDouble[x@n ≔ e] = Integer/toDouble
+
+
     ────────────────────────────────────
     Integer/show[x@n ≔ e] = Integer/show
 
@@ -1571,6 +1580,10 @@ sub-expressions for the remaining rules:
 
     ───────────────────────────
     Natural/show ↦ Natural/show
+
+
+    ───────────────────────────────────
+    Integer/toDouble ↦ Integer/toDouble
 
 
     ───────────────────────────
@@ -2705,6 +2718,14 @@ An `Integer` literal is in normal form:
     ±n ⇥ ±n
 
 
+`Integer/toDouble` transforms an `Integer` into the corresponding `Double`:
+
+
+    f ⇥ Natural/toDouble   a ⇥ ±n
+    ─────────────────────────────
+    f a ⇥ ±n.0
+
+
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
 
@@ -2718,11 +2739,16 @@ Note that the `Text` representation of the rendered `Integer` should include
 a leading `+` sign if the number is non-negative and a leading `-` sign if
 the number is negative.
 
-The `Integer/show` function is in normal form:
+All of the built-in functions on `Integer`s are in normal form:
 
 
     ───────────────────────────
     Integer/show ⇥ Integer/show
+
+
+    ───────────────────────────────────
+    Integer/toDouble ⇥ Integer/toDouble
+
 
 
 ### `Double`
@@ -3619,11 +3645,15 @@ then that is a type error.
     Γ ⊢ ±n : Integer
 
 
-The built-in `Integer/show` function has the following type:
+The built-in functions on `Integer/show` have the following types:
 
 
     ─────────────────────────────────
     Γ ⊢ Integer/show : Integer → Text
+
+
+    ───────────────────────────────────────
+    Γ ⊢ Integer/toDouble : Integer → Double
 
 
 ### `Double`
