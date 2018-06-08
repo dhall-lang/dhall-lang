@@ -340,6 +340,7 @@ open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
+import-alt    = "?"  whitespace
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
@@ -576,7 +577,9 @@ expression =
     ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression arrow expression
 
-    / annotated-expression
+    ;"./a ? b"
+
+    / annotated-expression *(import-alt annotated-expression)
 
 annotated-expression =
     ; "merge e1 e2 : t"
