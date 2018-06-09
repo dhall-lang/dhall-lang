@@ -577,9 +577,7 @@ expression =
     ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression arrow expression
 
-    ;"./a ? b"
-
-    / annotated-expression *(import-alt annotated-expression)
+    / annotated-expression
 
 annotated-expression =
     ; "merge e1 e2 : t"
@@ -602,8 +600,9 @@ empty-collection = close-bracket colon (List / Optional) selector-expression
 
 non-empty-optional = expression close-bracket colon Optional selector-expression
 
-operator-expression = or-expression
+operator-expression = import-alt-expression
 
+import-alt-expression    = or-expression            *(import-alt    or-expression)
 or-expression            = plus-expression          *(or            plus-expression         )
 plus-expression          = text-append-expression   *(plus          text-append-expression  )
 text-append-expression   = list-append-expression   *(text-append   list-append-expression  )
