@@ -475,7 +475,9 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
-http = http-raw whitespace [ using import-hashed ]
+http =
+    http-raw whitespace
+    [ using (import-hashed / open-parens import-hashed close-parens) ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
