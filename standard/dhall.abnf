@@ -228,6 +228,7 @@ in-raw                = %x69.6e
 as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
+missing-raw           = %x6d.69.73.73.69.6e.67
 constructors-raw      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73
 Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
 Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
@@ -268,6 +269,7 @@ reserved-raw =
   / as-raw
   / using-raw
   / merge-raw
+  / missing-raw
   / constructors-raw
   / Bool-raw
   / Optional-raw
