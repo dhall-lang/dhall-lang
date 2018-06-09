@@ -4145,7 +4145,17 @@ resolve imports within the retrieved expression:
     Γ ⊢ e₀ @ import₂ ⇒ e₁
     ε ⊢ e₁ : T
     ───────────────────────────────  ; `import₀` is a file, URL or environment
-    Γ ⊢ import₀ @ here ⇒ e₁          ; import
+    Γ ⊢ import₀ @ here ⇒ e₁          ; import and `import₀` is not `missing`
+
+
+    Γ ⊢ e₀ @ here ⇒ e₂
+    ─────────────────────────
+    Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
+
+
+    Γ ⊢ e₁ @ here ⇒ e₂
+    ─────────────────────────  ; if `e₀` fails to resolve
+    Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
 
 
 Carefully note that the fully resolved import must successfully type-check with
