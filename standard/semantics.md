@@ -201,12 +201,16 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / False                             ; False term
   / Type                              ; Type of terms
   / Kind                              ; Type of types
+  / missing                           ; Identity for import alternatives,
+                                      ; will always fail to resolve
+  / l ? r                             ; Alternative imports resolution
   / https://authority directory file  ; URL import
   / path file                         ; Absolute file path import
   / . path file                       ; Relative file path import
   / .. path file                      ; Relative file path import
   / ~ path file                       ; Home-anchored file path import
   / env:x                             ; Environment variable import
+
 ```
 
 You can treat string interpolation as syntactic sugar for `Text` concatenation.
@@ -591,6 +595,11 @@ The remaining rules are:
     ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
     ─────────────────────────────────────────
     ↑(d, x, m, l₀ != r₀) = l₁ != r₁
+
+
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ ? r₀) = l₁ ? r₁
 
 
     ↑(d, x, m, f₀) = f₁   ↑(d, x, m, a₀) = a₁
@@ -1081,6 +1090,11 @@ The remaining rules are:
     l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
     ───────────────────────────────────
     (l₀ != r₀)[x@n ≔ e] = l₁ != r₁
+
+
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ ? r₀)[x@n ≔ e] = l₁ ? r₁
 
 
     f₀[x@n ≔ e] = f₁   a₀[x@n ≔ e] = a₁
@@ -4146,6 +4160,14 @@ resolve imports within the retrieved expression:
     ε ⊢ e₁ : T
     ───────────────────────────────  ; `import₀` is a file, URL or environment
     Γ ⊢ import₀ @ here ⇒ e₁          ; import and `import₀` is not `missing`
+
+
+By using the `?` operator, expressions are alternatively resolved, in left-to-right order.
+Pure expressions are always resolved, `missing` never resolves, and imports
+might not resolve in cases like:
+- an environment variable is not defined
+- file doesn't exist
+- URL is not reachable
 
 
     Γ ⊢ e₀ @ here ⇒ e₂
