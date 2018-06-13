@@ -228,6 +228,7 @@ in-raw                = %x69.6e
 as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
+missing-raw           = %x6d.69.73.73.69.6e.67
 constructors-raw      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73
 Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
 Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
@@ -269,6 +270,7 @@ reserved-raw =
   / as-raw
   / using-raw
   / merge-raw
+  / missing-raw
   / constructors-raw
   / Bool-raw
   / Optional-raw
@@ -342,6 +344,7 @@ open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
+import-alt    = "?"  whitespace
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
@@ -601,8 +604,9 @@ empty-collection = close-bracket colon (List / Optional) selector-expression
 
 non-empty-optional = expression close-bracket colon Optional selector-expression
 
-operator-expression = or-expression
+operator-expression = import-alt-expression
 
+import-alt-expression    = or-expression            *(import-alt    or-expression)
 or-expression            = plus-expression          *(or            plus-expression         )
 plus-expression          = text-append-expression   *(plus          text-append-expression  )
 text-append-expression   = list-append-expression   *(text-append   list-append-expression  )
