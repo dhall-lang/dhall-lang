@@ -179,6 +179,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
   / Natural/show                      ; Convert Natural to Text
+  / Integer/toDouble                  ; Convert Integer to Double
   / Integer/show                      ; Convert Integer to Text
   / Double/show                       ; Convert Double to Text
   / List/build                        ; List introduction
@@ -201,12 +202,16 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / False                             ; False term
   / Type                              ; Type of terms
   / Kind                              ; Type of types
+  / missing                           ; Identity for import alternatives,
+                                      ; will always fail to resolve
+  / l ? r                             ; Alternative imports resolution
   / https://authority directory file  ; URL import
   / path file                         ; Absolute file path import
   / . path file                       ; Relative file path import
   / .. path file                      ; Relative file path import
   / ~ path file                       ; Home-anchored file path import
   / env:x                             ; Environment variable import
+
 ```
 
 You can treat string interpolation as syntactic sugar for `Text` concatenation.
@@ -593,6 +598,11 @@ The remaining rules are:
     ↑(d, x, m, l₀ != r₀) = l₁ != r₁
 
 
+    ↑(d, x, m, l₀) = l₁   ↑(d, x, m, r₀) = r₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, l₀ ? r₀) = l₁ ? r₁
+
+
     ↑(d, x, m, f₀) = f₁   ↑(d, x, m, a₀) = a₁
     ─────────────────────────────────────────
     ↑(d, x, m, f₀ a₀) = f₁ a₁
@@ -693,6 +703,10 @@ The remaining rules are:
 
     ───────────────────────────────────────
     ↑(d, x, m, Natural/show) = Natural/show
+
+
+    ───────────────────────────────────────────────
+    ↑(d, x, m, Integer/toDouble) = Integer/toDouble
 
 
     ───────────────────────────────────────
@@ -1083,6 +1097,11 @@ The remaining rules are:
     (l₀ != r₀)[x@n ≔ e] = l₁ != r₁
 
 
+    l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
+    ───────────────────────────────────
+    (l₀ ? r₀)[x@n ≔ e] = l₁ ? r₁
+
+
     f₀[x@n ≔ e] = f₁   a₀[x@n ≔ e] = a₁
     ───────────────────────────────────
     (f₀ a₀)[x@n ≔ e] = f₁ a₁
@@ -1182,6 +1201,10 @@ The remaining rules are:
 
     ────────────────────────────────────
     Natural/show[x@n ≔ e] = Natural/show
+
+
+    ────────────────────────────────────────────
+    Integer/toDouble[x@n ≔ e] = Integer/toDouble
 
 
     ────────────────────────────────────
@@ -1571,6 +1594,10 @@ sub-expressions for the remaining rules:
 
     ───────────────────────────
     Natural/show ↦ Natural/show
+
+
+    ───────────────────────────────────
+    Integer/toDouble ↦ Integer/toDouble
 
 
     ───────────────────────────
@@ -2705,6 +2732,14 @@ An `Integer` literal is in normal form:
     ±n ⇥ ±n
 
 
+`Integer/toDouble` transforms an `Integer` into the corresponding `Double`:
+
+
+    f ⇥ Natural/toDouble   a ⇥ ±n
+    ─────────────────────────────
+    f a ⇥ ±n.0
+
+
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
 
@@ -2718,11 +2753,16 @@ Note that the `Text` representation of the rendered `Integer` should include
 a leading `+` sign if the number is non-negative and a leading `-` sign if
 the number is negative.
 
-The `Integer/show` function is in normal form:
+All of the built-in functions on `Integer`s are in normal form:
 
 
     ───────────────────────────
     Integer/show ⇥ Integer/show
+
+
+    ───────────────────────────────────
+    Integer/toDouble ⇥ Integer/toDouble
+
 
 
 ### `Double`
@@ -3619,11 +3659,15 @@ then that is a type error.
     Γ ⊢ ±n : Integer
 
 
-The built-in `Integer/show` function has the following type:
+The built-in functions on `Integer` have the following types:
 
 
     ─────────────────────────────────
     Γ ⊢ Integer/show : Integer → Text
+
+
+    ───────────────────────────────────────
+    Γ ⊢ Integer/toDouble : Integer → Double
 
 
 ### `Double`
@@ -4145,7 +4189,25 @@ resolve imports within the retrieved expression:
     Γ ⊢ e₀ @ import₂ ⇒ e₁
     ε ⊢ e₁ : T
     ───────────────────────────────  ; `import₀` is a file, URL or environment
-    Γ ⊢ import₀ @ here ⇒ e₁          ; import
+    Γ ⊢ import₀ @ here ⇒ e₁          ; import and `import₀` is not `missing`
+
+
+By using the `?` operator, expressions are alternatively resolved, in left-to-right order.
+Pure expressions are always resolved, `missing` never resolves, and imports
+might not resolve in cases like:
+- an environment variable is not defined
+- file doesn't exist
+- URL is not reachable
+
+
+    Γ ⊢ e₀ @ here ⇒ e₂
+    ─────────────────────────
+    Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
+
+
+    Γ ⊢ e₁ @ here ⇒ e₂
+    ─────────────────────────  ; if `e₀` fails to resolve
+    Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
 
 
 Carefully note that the fully resolved import must successfully type-check with
