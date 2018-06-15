@@ -2715,6 +2715,38 @@ each alternative:
     ─────────────────────────────────  ; If no other rule matches
     constructors u₀ ⇥ constructors u₁
 
+Union extension combines two union types non-recursively.  Field collisions are
+resolved by preferring the field from the right union and discarding the
+colliding field from the left union:
+
+    l ⇥ e
+    ───────────
+    l \\\ <> ⇥ e
+    
+    
+    r ⇥ e
+    ────────────
+    <> \\\ r ⇥ e
+    
+    
+    ls₀ ⇥ < x : l₁ | ls₁… >
+    rs₀ ⇥ < x : r₁ | rs₁… >
+    < ls₁… > \\\ < rs₁… > ⇥ < ts… >
+    ───────────────────────────────
+    ls₀ \\\ rs₀ ⇥ < x : r₁ | ts… >
+    
+    
+    ls₀ ⇥ < x : l₁ | ls₁… >   < ls₁… > \\\ rs ⇥ < ls₂… >
+    ────────────────────────────────────────────────────  ; x ∉ rs
+    ls₀ \\\ rs ⇥ < x : l₁ | ls₂… >
+    
+    
+    l₀ ⇥ l₁   r₀ ⇥ r₁
+    ─────────────────────   ; If no other rule matches
+    l₀ \\\ r₀ ⇥ l₁ \\\ r₁
+    
+    
+
 
 ### `Integer`
 
@@ -3642,6 +3674,40 @@ union type literal:
 
 If the union argument is any other type of expression (including a variable)
 then that is a type error.
+
+Union type extension requires that both arguments are unions:
+
+    Γ ⊢ l :⇥ Type
+    l ⇥ < ls… >
+    Γ ⊢ r :⇥ Type
+    r ⇥ <>
+    ────────────────
+    Γ ⊢ l \\\ r : Type
+    
+    Γ ⊢ l :⇥ Type
+    l ⇥ < ls… >
+    Γ ⊢ r :⇥ Type
+    r ⇥ < a : A | rs… >
+    Γ ⊢ { ls… } \\\ { rs… } : T₁
+    ─────────────────────────────
+    Γ ⊢ l \\\ r : Type
+    
+    Γ ⊢ l :⇥ Kind
+    l ⇥ < ls… >
+    Γ ⊢ r :⇥ Kind
+    r ⇥ < a : A >
+    ────────────────
+    Γ ⊢ l \\\ r : Kind
+    
+    Γ ⊢ l :⇥ Kind
+    l ⇥ < ls… >
+    Γ ⊢ r :⇥ Kind
+    r ⇥ < a : A | rs… >
+    Γ ⊢ < ls… > \\\ { rs… } : T
+    ───────────────────────────── 
+    Γ ⊢ l \\\ r : Kind
+
+If the operator arguments are not unions then that is a type error.
 
 ### `Integer`
 
