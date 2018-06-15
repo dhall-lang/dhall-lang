@@ -228,6 +228,7 @@ in-raw                = %x69.6e
 as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
+missing-raw           = %x6d.69.73.73.69.6e.67
 constructors-raw      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73
 Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
 Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
@@ -236,6 +237,7 @@ Natural-even-raw      = %x4e.61.74.75.72.61.6c.2f.65.76.65.6e
 Natural-odd-raw       = %x4e.61.74.75.72.61.6c.2f.6f.64.64
 Natural-toInteger-raw = %x4e.61.74.75.72.61.6c.2f.74.6f.49.6e.74.65.67.65.72
 Natural-show-raw      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
+Integer-toDouble-raw  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
 Integer-show-raw      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
 Double-show-raw       = %x44.6f.75.62.6c.65.2f.73.68.6f.77
 List-build-raw        = %x4c.69.73.74.2f.62.75.69.6c.64
@@ -268,6 +270,7 @@ reserved-raw =
   / as-raw
   / using-raw
   / merge-raw
+  / missing-raw
   / constructors-raw
   / Bool-raw
   / Optional-raw
@@ -289,6 +292,7 @@ reserved-namespaced-raw =
   / Natural-odd-raw
   / Natural-toInteger-raw
   / Natural-show-raw
+  / Integer-toDouble-raw
   / Integer-show-raw
   / Double-show-raw
   / List-build-raw
@@ -340,6 +344,7 @@ open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
 colon         = ":"  whitespace
 at            = "@"  whitespace
+import-alt    = "?"  whitespace
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
@@ -475,7 +480,9 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
-http = http-raw whitespace [ using import-hashed ]
+http =
+    http-raw whitespace
+    [ using (import-hashed / open-parens import-hashed close-parens) ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -599,8 +606,9 @@ empty-collection = close-bracket colon (List / Optional) import-expression
 
 non-empty-optional = expression close-bracket colon Optional import-expression
 
-operator-expression = or-expression
+operator-expression = import-alt-expression
 
+import-alt-expression    = or-expression            *(import-alt    or-expression)
 or-expression            = plus-expression          *(or            plus-expression         )
 plus-expression          = text-append-expression   *(plus          text-append-expression  )
 text-append-expression   = list-append-expression   *(text-append   list-append-expression  )
