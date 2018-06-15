@@ -588,7 +588,7 @@ expression =
 annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-      merge selector-expression selector-expression [ colon application-expression ]
+      merge import-expression import-expression [ colon application-expression ]
 
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -602,9 +602,9 @@ annotated-expression =
     ; "x : t"
     / operator-expression (colon expression / "")
 
-empty-collection = close-bracket colon (List / Optional) selector-expression
+empty-collection = close-bracket colon (List / Optional) import-expression
 
-non-empty-optional = expression close-bracket colon Optional selector-expression
+non-empty-optional = expression close-bracket colon Optional import-expression
 
 operator-expression = import-alt-expression
 
