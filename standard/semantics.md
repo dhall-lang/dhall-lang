@@ -3688,25 +3688,10 @@ Union type extension requires that both arguments are unions:
     l ⇥ < ls… >
     Γ ⊢ r :⇥ Type
     r ⇥ < a : A | rs… >
-    Γ ⊢ { ls… } \\\ { rs… } : T₁
+    Γ ⊢ < ls… > \\\ < rs… > : T₁
     ─────────────────────────────
     Γ ⊢ l \\\ r : Type
     
-    Γ ⊢ l :⇥ Kind
-    l ⇥ < ls… >
-    Γ ⊢ r :⇥ Kind
-    r ⇥ < a : A >
-    ────────────────
-    Γ ⊢ l \\\ r : Kind
-    
-    Γ ⊢ l :⇥ Kind
-    l ⇥ < ls… >
-    Γ ⊢ r :⇥ Kind
-    r ⇥ < a : A | rs… >
-    Γ ⊢ < ls… > \\\ { rs… } : T
-    ───────────────────────────── 
-    Γ ⊢ l \\\ r : Kind
-
 If the operator arguments are not unions then that is a type error.
 
 ### `Integer`
