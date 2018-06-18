@@ -2715,9 +2715,9 @@ each alternative:
     ─────────────────────────────────  ; If no other rule matches
     constructors u₀ ⇥ constructors u₁
 
-Union extension combines two union types non-recursively.  Field collisions are
-resolved by preferring the field from the right union and discarding the
-colliding field from the left union:
+Union extension combines two union types non-recursively.  Collisions of
+alternatives are resolved by preferring the alternative from the right union and
+discarding the colliding alternative from the left union:
 
     l ⇥ e
     ───────────
