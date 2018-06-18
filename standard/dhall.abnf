@@ -1,5 +1,6 @@
 ; ABNF syntax based on RFC 5234
 ;
+;
 ; The character encoding for Dhall is UTF-8
 ;
 ; Some notes on implementing this grammar:
