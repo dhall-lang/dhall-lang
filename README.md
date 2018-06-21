@@ -614,7 +614,7 @@ with the same function (such as `makePackage`):
 ```haskell
 -- example4.dhall
 
-    let map = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/map
+    let map = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/map
 
 in  let makePackage =
         λ(args : {   name        : Text
@@ -673,7 +673,7 @@ Every function from the Prelude has documentation, examples, and a type
 signature:
 
 ```bash
-$ curl https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/map
+$ curl https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/map
 {-
 Tranform a list by applying a function to each element
 
@@ -715,21 +715,12 @@ let map : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
 
 ... and the result is the output list
 
-Dhall distributes the Prelude over IPFS for two main reason:
-
-* IPFS guarantees that the contents of URLs never change
-* You can mount IPFS on your filesystem to permanently cache downloads locally
-
-You can learn more about IPFS here:
-
-* [IPFS - The Permanent Web](https://github.com/ipfs/ipfs)
-
-You also don't have to memorize the long IPFS URL to find the Dhall Prelude.
 You can browse the latest version of the Prelude online by visiting:
 
-* [http://prelude.dhall-lang.org/](http://prelude.dhall-lang.org)
+* [https://github.com/dhall-lang/Prelude](https://github.com/dhall-lang/Prelude)
 
-You can even import Prelude functions using the above URL:
+You can also import functions from the latest version of the Prelude using the
+following convenience domain:
 
 ```haskell
     let map = http://prelude.dhall-lang.org/List/map
@@ -738,8 +729,7 @@ in  ...
 ```
 
 ... although be cautious when doing so since this URL is mutable and you can't
-guarantee that you get the same result every time.  You also can't safely
-cache the result permanently like you can with an IPFS URL.
+guarantee that you get the same result every time.
 
 Check out the [Standard Library](#standard-library) section for more ways to get
 the Prelude.
@@ -771,7 +761,7 @@ We can import types just like anything else in Dhall:
 ```haskell
 -- example5.dhall
 
-    let map = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/map
+    let map = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/map
 
 in  let makePackage =
         λ(args : ./Input.dhall)
@@ -1080,15 +1070,15 @@ expressions from the command line.  You can use this interpreter to:
 *   **Resolve remote expressions:**
 
     ```bash
-    dhall <<< 'https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate'
+    dhall <<< 'https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/replicate'
 
     ∀(n : Natural) → ∀(a : Type) → ∀(x : a) → List a
 
     λ(n : Natural) → λ(a : Type) → λ(x : a) → List/build a (λ(list : Type) → λ(cons : a → list → list) → Natural/fold n list (cons x))
     ```
 
-    You can import arbitrary expressions URL, too.  In fact, the Dhall Prelude
-    is hosted this way:
+    You can import arbitrary expressions by URL.  In fact, the Dhall Prelude
+    is hosted on GitHub to be imported in this way:
 
     * [Dhall Prelude][dhall-prelude]
 
@@ -1096,7 +1086,7 @@ expressions from the command line.  You can use this interpreter to:
 
     ```bash
     $ cat ./example
-        let replicate = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/List/replicate
+        let replicate = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/replicate
 
     in  let exclaim = λ(t : Text) → t ++ "!"
 
@@ -1224,7 +1214,7 @@ in
   pkgs.dhallToNix ''
     { foo = λ(x : Bool) → [x, x]
     , bar = Natural/even 2
-    , baz = https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude/Text/concat
+    , baz = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/Text/concat
     }
   ''
 ```
@@ -1466,7 +1456,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-text-post]: http://www.haskellforall.com/2017/06/dhall-is-now-template-engine.html
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
-[dhall-prelude]: https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude
+[dhall-prelude]: https://github.com/dhall-lang/Prelude
 [hcl]: https://github.com/hashicorp/hcl
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
 [migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
