@@ -157,7 +157,7 @@
 
         extraConfig = ''
           <githubstatus>
-            jobs = .*
+            jobs = .*:.*:dhall.*
             inputs = src
             authorization = dhall-lang
             context = hydra
