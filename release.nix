@@ -25,7 +25,7 @@ let
         (println "Grammar is syntactically correct."))
     '';
 
-    instaparse-accepts-grammar =
+    dhall-grammar =
       pkgsNew.runCommand
         "instaparse-accepts-grammar"
         { nativeBuildInputs = [
@@ -52,11 +52,11 @@ let
   pwd = pkgs.runCommand "pwd" { here = ./.; } "touch $out";
 
 in
-  { all = pkgs.releaseTools.aggregate {
-      name = "all";
+  { dhall-lang = pkgs.releaseTools.aggregate {
+      name = "dhall-lang";
 
       constituents = [
-        pkgs.instaparse-accepts-grammar
+        pkgs.dhall-grammar
         pwd
       ];
     };
