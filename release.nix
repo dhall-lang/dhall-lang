@@ -52,8 +52,8 @@ let
   pwd = pkgs.runCommand "pwd" { here = ./.; } "touch $out";
 
 in
-  { all = pkgs.releaseTools.aggregate {
-      name = "all";
+  { dhall-lang = pkgs.releaseTools.aggregate {
+      name = "dhall-lang";
 
       constituents = [
         pkgs.dhall-grammar
