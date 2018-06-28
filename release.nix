@@ -25,7 +25,7 @@ let
         (println "Grammar is syntactically correct."))
     '';
 
-    instaparse-accepts-grammar =
+    dhall-grammar =
       pkgsNew.runCommand
         "instaparse-accepts-grammar"
         { nativeBuildInputs = [
@@ -56,7 +56,7 @@ in
       name = "all";
 
       constituents = [
-        pkgs.instaparse-accepts-grammar
+        pkgs.dhall-grammar
         pwd
       ];
     };
