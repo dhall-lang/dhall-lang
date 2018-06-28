@@ -214,7 +214,8 @@
 
         virtualHosts."prelude.dhall-lang.org" = {
           locations."/".extraConfig = ''
-            rewrite ^/(.*)$ https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/$1 redirect;
+            rewrite ^/?$ https://github.com/dhall-lang/Prelude redirect;
+            rewrite ^/(.+)$ https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/$1 redirect;
           '';
         };
       };
