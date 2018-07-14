@@ -60,6 +60,7 @@ expressions.
     * [`let` expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
     * [Imports](#imports-4)
+* [Binary serialization](#binary-serialization)
 * [Import resolution](#import-resolution)
     * [Directories and files](#directories-and-files)
     * [Canonicalization of directories](#canonicalization-of-directories)
@@ -3824,6 +3825,594 @@ annotation then that is a type error.
 ### Imports
 
 An expression with unresolved imports cannot be type-checked
+
+## Binary serialization
+
+Dhall's import system requires a standard way to serialize expressions to a
+binary representation, for two reasons:
+
+* Imported expressions can be protected by a "semantic integrity check", which
+  is a hash of the binary representation of an expression's normal form
+
+* Imported expressions are also locally cached if they are protected by a
+  semantic integrity check and the local cache stores expressions using their
+  binary representation
+
+Dhall's semantics for binary serialization are defined in terms of CBOR
+([RFC 7049](https://tools.ietf.org/html/rfc7049)), which means that this
+section is divided into two parts:
+
+* A simplified grammar for the subset of CBOR that Dhall uses
+* Semantics for how to convert Dhall expressions to CBOR expressions
+
+Once you can convert a Dhall expression to a CBOR expression you can serialize
+that CBOR expression according to RFC 7049.  Note that an actual implementation
+will probably not serialize a Dhall expression by going through intermediate
+CBOR expression but will more likely serialize straight to binary.  These
+semantics only go through a hypothetical CBOR expression for simplicity.
+
+### CBOR expressions
+
+The following notation will be used for CBOR expressions in serialization
+judgments:
+
+```
+e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
+  /  -n              ; Negative integer    (Section 2.1, Major type = 1)
+  /  "…"             ; Text                (Section 2.1, Major type = 3)
+  /  [ e, es… ]      ; Heterogeneous array (Section 2.1, Major type = 4)
+  /  { e = e, es… }  ; Heterogeneous map   (Section 2.1, Major type = 5)
+  /  False           ; False               (Section 2.3, Value = 20)
+  /  True            ; True                (Section 2.3, Value = 21)
+  /  null            ; Null                (Section 2.3, Value = 22)
+  /  nn              ; Unsigned bignum     (Section 2.4, Tag = 2)
+  / -nn              ; Negative bignum     (Section 2.4, Tag = 3)
+  /  n.n             ; Decimal fraction    (Section 2.4, Tag = 4)
+```
+
+### Binary serialization judgment
+
+Binary serialization is a function of the following form:
+
+    encode(dhall) = cbor
+
+... where:
+
+* `dhall` (the input) is a Dhall expression
+* `cbor` (the output) is a CBOR expression
+
+The encoding judgment is specified in such a way that given the encoding you
+can uniquely determine the decoding rules.
+
+For example, most Dhall expressions are encoded as a heterogeneous array where
+the first element is an integer tag and the remaining elements are the
+expression contents.  However, variables are one exception and are encoded as 
+either a naked integer, naked text string or a heterogeneous array beginning
+with a text string.  No other Dhall expression overlaps with either of these
+encodings, so a decoder can safely decode them to a variable wherever the
+decoder expects to produce a Dhall expression.
+
+Also, the encoding uses tags less than 24 for language features that can
+survive `β`-normalization (such as a function type) since those tags fit in one
+byte.  Language features that don't survive normalization (such as a `let`
+expression) use tags of 24 or above.
+
+#### Variables
+
+The binary representation encodes variables as compactly as possible, because:
+
+* They occur frequently in Dhall expressions
+* Built-in constants are encoded the same as free variables
+
+A variable named `"_"` is encoded as its index, using the smallest numeric
+representation available:
+
+
+    ───────────────  ; n < 2^64
+    encode(_@n) = n
+
+
+    ────────────────  ; 2^64 <= n
+    encode(_@n) = nn
+
+
+The reason for this optimization is because expressions are commonly
+α-normalized before encoding them, such as when computing their semantic
+integrity check and also when caching them.
+
+A variable that is not named `"_"` with index `0` is encoded as a naked CBOR
+text string matching the variable's identifier:
+
+
+    ─────────────────  ; x ≠ "_"
+    encode(x@0) = "x"
+
+
+Otherwise a variable is stored as a two-element CBOR list where the first
+element is the identifier and the second element is the encoded index (using
+the smallest numeric representation available):
+
+
+    ────────────────────────  ; n < 2^64
+    encode(x@n) = [ "x", n ]
+
+
+    ─────────────────────────  ; 2^64 <= nn
+    encode(x@n) = [ "x", nn ]
+
+
+## Built-in constants
+
+All built-in constants (except boolean values) are encoded as a variable of the
+same name with an index of 0, which is equivalent to encoding them as a naked
+string matching their identifier.
+
+
+    ───────────────────────────────────────
+    encode(Natural/build) = "Natural/build"
+
+
+    ─────────────────────────────────────
+    encode(Natural/fold) = "Natural/fold"
+
+
+    ─────────────────────────────────────────
+    encode(Natural/isZero) = "Natural/isZero"
+
+
+    ─────────────────────────────────────
+    encode(Natural/even) = "Natural/even"
+
+
+    ───────────────────────────────────
+    encode(Natural/odd) = "Natural/odd"
+
+
+    ───────────────────────────────────────────────
+    encode(Natural/toInteger) = "Natural/toInteger"
+
+
+    ─────────────────────────────────────
+    encode(Natural/show) = "Natural/show"
+
+
+    ─────────────────────────────────────────────
+    encode(Integer/toDouble) = "Integer/toDouble"
+
+
+    ─────────────────────────────────────
+    encode(Integer/show) = "Integer/show"
+
+
+    ───────────────────────────────────
+    encode(Double/show) = "Double/show"
+
+
+    ─────────────────────────────────
+    encode(List/build) = "List/build"
+
+
+    ───────────────────────────────
+    encode(List/fold) = "List/fold"
+
+
+    ───────────────────────────────
+    encode(List/head) = "List/head"
+
+
+    ───────────────────────────────
+    encode(List/last) = "List/last"
+
+
+    ─────────────────────────────────────
+    encode(List/indexed) = "List/indexed"
+
+
+    ─────────────────────────────────────
+    encode(List/reverse) = "List/reverse"
+
+
+    ───────────────────────────────────────
+    encode(Optional/fold) = "Optional/fold"
+
+
+    ─────────────────────────────────────────
+    encode(Optional/build) = "Optional/build"
+
+
+    ─────────────────────
+    encode(Bool) = "Bool"
+
+
+    ─────────────────────────────
+    encode(Optional) = "Optional"
+
+
+    ───────────────────────────
+    encode(Natural) = "Natural"
+
+
+    ───────────────────────────
+    encode(Integer) = "Integer"
+
+
+    ─────────────────────────
+    encode(Double) = "Double"
+
+
+    ─────────────────────
+    encode(Text) = "Text"
+
+
+    ─────────────────────
+    encode(List) = "List"
+
+
+    ─────────────────────
+    encode(Type) = "Type"
+
+
+    ───────────────────────
+    encode(Kind) = "Kind"
+
+
+    ───────────────────────────
+    encode(missing) = "missing"
+
+
+### Function application
+
+Function application is encoded as a heterogeneous array where a function
+applied to multiple arguments is stored within a single array:
+
+
+    encode(f₀) = f₁   encode(a₀) = a₁   encode(b₀) = b₁   …
+    ───────────────────────────────────────────────────────
+    encode(f₀ a₀ b₀ …) = [ 0, f₁, a₁, b₁, … ]
+
+
+### Operators
+
+Operators are encoded as a function of the same name applied to both arguments
+using the ASCII representation of the operator:
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ || r₀) = [ 0, "||", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ────────────────────────────────────
+    encode(l₀ + r₀) = [ 0, "+", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ ++ r₀) = [ 0, "++", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ────────────────────────────────────
+    encode(l₀ # r₀) = [ 0, "#", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ && r₀) = [ 0, "&&", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ─────────────────────────────────────
+    encode(l₀ ∧ r₀) = [ 0, "/\", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ─────────────────────────────────────
+    encode(l₀ ⫽ r₀) = [ 0, "//", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ───────────────────────────────────────
+    encode(l₀ ⩓ r₀) = [ 0, "//\\", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ────────────────────────────────────
+    encode(l₀ * r₀) = [ 0, "*", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ == r₀) = [ 0, "==", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ != r₀) = [ 0, "!=", l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ ? r₀) = [ 0, "?", l₁, r₁ ]
+
+
+### Functions
+
+Functions that bind variables named `_` have a more compact representation:
+
+
+    encode(A₀) = A₁   encode(b₀) = b₁
+    ──────────────────────────────────────
+    encode(λ(_ : A₀) → b₀) = [ 1, A₁, b₁ ]
+
+
+... than functions that bind variables of other names:
+
+
+    encode(A₀) = A₁   encode(b₀) = b₁
+    ───────────────────────────────────────────  ; x ≠ "_"
+    encode(λ(x : A₀) → b₀) = [ 1, "x", A₁, b₁ ]
+
+
+Function types that bind variables named `_` also have a more compact
+representation:
+
+
+    encode(A₀) = A₁   encode(B₀) = B₁
+    ──────────────────────────────────────
+    encode(∀(_ : A₀) → B₀) = [ 2, A₁, B₁ ]
+
+
+... than function types that bind variables of other names:
+
+
+    encode(A₀) = A₁   encode(B₀) = B₁
+    ───────────────────────────────────────────  ; x ≠ "_"
+    encode(∀(x : A₀) → B₀) = [ 2, "x", A₁, B₁ ]
+
+
+### `List`
+
+Empty `List`s only store their type:
+
+
+    encode(T₀) = T₁
+    ───────────────────────────────
+    encode([] : List T) = [ 4, T₁ ]
+
+
+Non-empty `List`s don't store their type, but do store their elements inline:
+
+
+    encode(a₀) = a₁   encode(b₀) = b₁
+    ──────────────────────────────────────────────
+    encode([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
+
+
+### `Optional`
+
+Empty `Optional` literals only store their type:
+
+
+    encode(T₀) = T₁
+    ────────────────────────────────────
+    encode([] : Optional T₀) = [ 5, T₁ ]
+
+
+Non-empty `Optional` literals also store their value:
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ────────────────────────────────────────────
+    encode([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
+
+
+### `merge` expressions
+
+`merge` expressions differ in their encoding depending on whether or not they
+have a type annotation:
+
+
+    encode(t₀) = t₁   encode(u₀) = u₁
+    ───────────────────────────────────
+    encode(merge t₀ u₀) = [ 6, t₁, u₁ ]
+
+
+    encode(t₀) = t₁   encode(u₀) = u₁   encode(T₀) = T₁
+    ───────────────────────────────────────────────────
+    encode(merge t₀ u₀ : T) = [ 6, t₁, u₁, T₁ ]
+
+
+### Records
+
+Dhall record types translate to CBOR maps:
+
+
+    encode(T₀) = T₁
+    ──────────────────────────────────────────────
+    encode({ x : T₀, … }) = [ 7, { "x" = T₁, … } ]
+
+
+Dhall record literals translate to CBOR maps:
+
+
+    encode(t₀) = t₁
+    ──────────────────────────────────────────────
+    encode({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
+
+
+Field access:
+
+
+    encode(t₀) = t₁
+    ─────────────────────────────
+    encode(t₀.x) = [ 9, t₁, "x" ]
+
+
+... is encoded differently than record projection:
+
+
+    encode(t₀) = t₁
+    ──────────────────────────────────────────────
+    encode(t₀.{ x, y, … }) = [ 10, t₁, "x", "y" ]
+
+
+### Unions
+
+Dhall union types translate to CBOR maps:
+
+
+    encode(T₀) = T₁
+    ────────────────────────────────────────────────
+    encode(< x : T₀ | … >) = [ 11, { "x" = T₁, … } ]
+
+
+Dhall union literals translate to CBOR maps where the first pair in the map
+is the specified alternative and the remaining pairs in the map correspond to
+the remaining alternative types:
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ───────────────────────────────────────────────────────────────────
+    encode(< x = t₀ | y : T₀ | … >) = [ 12, { "x" = t₁, "y" = T₁, … } ]
+
+
+The `constructors` keyword is encoded as:
+
+
+    encode(u₀) = u₁
+    ──────────────────────────────────────────────────
+    encode(constructors u₀) = [ 13, u₁]
+
+
+### `Bool`
+
+Boolean literals are encoded using CBOR's built-in support for boolean values:
+
+
+    ───────────────────
+    encode(True) = True
+
+
+    ─────────────────────
+    encode(False) = False
+
+
+`if` expressions are encoded with a tag:
+
+
+    encode(a₀) = a₁   encode(A₀) = A₁   encode(b₀) = b₁
+    ───────────────────────────────────────────────────────
+    encode(let x : A₀ = a₀ in b₀) = [ 14, "x", A₁, a₁, b₁ ]
+
+### `Natural`
+
+`Natural` literals are encoded using the smallest available numeric
+representation:
+
+
+    ─────────────────────  ; n < 2^64
+    encode(n) = [ 15, n ]
+
+
+    ──────────────────────  ; 2^64 <= nn
+    encode(n) = [ 15, nn ]
+
+
+### `Integer`
+
+`Integer` literals are encoded using the smallest available numeric
+representation:
+
+
+    ────────────────────────  ; ±n < -2^64
+    encode(±n) = [ 16, -nn ]
+
+
+    ───────────────────────  ; -2^64 <= ±n < 0
+    encode(±n) = [ 16, -n ]
+
+
+    ──────────────────────  ; 0 <= ±n < 2^64
+    encode(±n) = [ 16, n ]
+
+
+    ───────────────────────  ; 2^64 <= ±n
+    encode(±n) = [ 16, nn ]
+
+
+### `Double`
+
+`Double`s are always encoded as CBOR decimal fractions in order to avoid loss
+of precision when converting to and from their textual representation:
+
+
+    ─────────────────────────
+    encode(n.n) = [ 17, n.n ]
+
+
+### `Text`
+
+`Text` literals are encoded as an alternation between their text chunks and
+any interpolated expressions:
+
+
+    encode(b₀) = b₁   encode(d₀) = d₁   …   encode(y₀) = y₁
+    ───────────────────────────────────────────────────────────────────────────────
+    encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
+
+Note that this encoding of a text literal always begins and ends with a string,
+even if the first or last chunk is the empty string.
+
+### Imports
+
+Imports are stored as their string representation:
+
+
+    ─────────────────────────────────────────────────────────────────────────────────────
+    encode(https://authority directory file) = [ 24, "https://authority/directory/file" ]
+
+
+    ────────────────────────────────────────
+    encode(path file) = [ 24, "/path/file" ]
+
+
+    ───────────────────────────────────────────
+    encode(. path file) = [ 24, "./path/file" ]
+
+
+    ───────────────────────────────────────────
+    encode(~ path file) = [ 24, "~/path/file" ]
+
+
+    ───────────────────────────────
+    encode(env:x) = [ 24, "env:x" ]
+
+
+### `let` expressions
+
+`let` expressions differ in their encoding depending on whether or not they have
+a type annotation:
+
+
+    encode(a₀) = a₁   encode(b₀) = b₁
+    ─────────────────────────────────────────────
+    encode(let x = a₀ in b₀) = [ 25, "x", a₁, b₁ ]
+
+
+    encode(a₀) = a₁   encode(A₀) = A₁   encode(b₀) = b₁
+    ──────────────────────────────────────────────────────
+    encode(let x : A₀ = a₀ in b₀) = [ 25, "x", A₁, a₁, b₁ ]
+
+
+### Type annotations
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ─────────────────────────────────
+    encode(t₀ : T₀) = [ 26, t₁, T₁ ]
+
 
 ## Import resolution
 
