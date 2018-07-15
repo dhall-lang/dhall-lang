@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes the Dhall language standard will be documented in this file.
+All notable changes to the Dhall language standard will be documented in this file.
 
 For more info about our versioning policy, see [VERSIONING.md](VERSIONING.md).
 
