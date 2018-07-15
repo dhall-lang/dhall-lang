@@ -1,6 +1,6 @@
 # Versioning Dhall
 
-In this document we describe how the Dhall language standard is versioned,
+This document describes how the Dhall language standard is versioned,
 and how new versions are released.
 
 ## What is a "version"
