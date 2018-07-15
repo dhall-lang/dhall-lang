@@ -15,14 +15,14 @@ A version of the Dhall language standard consists of a *git tag*
    - the `README.md` with the new version number
      ([here](https://github.com/dhall-lang/dhall-lang#development-status)).
    - the `CHANGELOG.md` with all the changes since the last version.  
-     N.B.: this includes also unreleased changes in the `Prelude`.  
+     **N.B.**: this includes also unreleased changes in the `Prelude`.  
      The changes in each version should be classified in three sections
      (Note: the subdivision reflects the [versioning scheme numbers](#versioning-scheme)):
      - `Breaking changes`
      - `New features`
      - `Other changes`
 3. The PR will sit there for the minimum review period of 3 days (no exceptions).  
-   This is to give time to merge the last things to master before cutting the new release.
+   This is to give time to merge the last things to `master` before cutting the new release.
 4. Once that is merged, create a git tag/GitHub release with the new version number
 5. Repeat the above step for the [Prelude repo](https://github.com/dhall-lang/Prelude) as well.  
    Note: the tagged version should be the same as the new version of the language standard.
