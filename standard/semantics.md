@@ -4071,72 +4071,6 @@ applied to multiple arguments is stored within a single array:
     encode(f₀ a₀ b₀ …) = [ 0, f₁, a₁, b₁, … ]
 
 
-### Operators
-
-Operators are encoded as a function of the same name applied to both arguments
-using the ASCII representation of the operator:
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ──────────────────────────────────────
-    encode(l₀ || r₀) = [ 0, "||", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ────────────────────────────────────
-    encode(l₀ + r₀) = [ 0, "+", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ──────────────────────────────────────
-    encode(l₀ ++ r₀) = [ 0, "++", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ────────────────────────────────────
-    encode(l₀ # r₀) = [ 0, "#", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ──────────────────────────────────────
-    encode(l₀ && r₀) = [ 0, "&&", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ─────────────────────────────────────
-    encode(l₀ ∧ r₀) = [ 0, "/\", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ─────────────────────────────────────
-    encode(l₀ ⫽ r₀) = [ 0, "//", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ───────────────────────────────────────
-    encode(l₀ ⩓ r₀) = [ 0, "//\\", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ────────────────────────────────────
-    encode(l₀ * r₀) = [ 0, "*", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ──────────────────────────────────────
-    encode(l₀ == r₀) = [ 0, "==", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ──────────────────────────────────────
-    encode(l₀ != r₀) = [ 0, "!=", l₁, r₁ ]
-
-
-    encode(l₀) = l₁   encode(r₀) = r₁
-    ──────────────────────────────────────
-    encode(l₀ ? r₀) = [ 0, "?", l₁, r₁ ]
-
-
 ### Functions
 
 Functions that bind variables named `_` have a more compact representation:
@@ -4170,6 +4104,71 @@ representation:
     encode(A₀) = A₁   encode(B₀) = B₁
     ───────────────────────────────────────────  ; x ≠ "_"
     encode(∀(x : A₀) → B₀) = [ 2, "x", A₁, B₁ ]
+
+
+### Operators
+
+Operators are encoded as tagged integers alongside their two arguments:
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ || r₀) = [ 3, 0, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ && r₀) = [ 3, 1, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ == r₀) = [ 3, 2, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ != r₀) = [ 3, 3, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ────────────────────────────────────
+    encode(l₀ + r₀) = [ 3, 4, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ────────────────────────────────────
+    encode(l₀ * r₀) = [ 3, 5, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ ++ r₀) = [ 3, 6, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ────────────────────────────────────
+    encode(l₀ # r₀) = [ 3, 7, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ─────────────────────────────────────
+    encode(l₀ ∧ r₀) = [ 3, 8, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ─────────────────────────────────────
+    encode(l₀ ⫽ r₀) = [ 3, 9, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ───────────────────────────────────────
+    encode(l₀ ⩓ r₀) = [ 3, 10, l₁, r₁ ]
+
+
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ──────────────────────────────────────
+    encode(l₀ ? r₀) = [ 3, 11, l₁, r₁ ]
 
 
 ### `List`
