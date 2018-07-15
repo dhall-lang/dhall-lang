@@ -947,7 +947,7 @@ The versioning policy is detailed in the [Versioning document](VERSIONING.md),
 and you can see the latest changes [here in the Changelog](CHANGELOG.md).
 
 There is an effort under way to formalize the language semantics for Dhall, to
-help with porting it to [other languages](#language-bindings).
+help with porting it to [other languages](#language-bindings).  
 If you would like to assist with either standardizing the language or creating
 new bindings just open a new issue or contribute to existing ones in the [issue
 tracker][issue-tracker].

@@ -14,47 +14,47 @@ A version of the Dhall language standard consists of a *git tag*
 2. Open a Pull Request that updates:
    - the `README.md` with the new version number
      ([here](https://github.com/dhall-lang/dhall-lang#development-status)).
-   - the `CHANGELOG.md` with all the changes since the last version.
-     N.B.: this includes also unreleased changes in the `Prelude`.
+   - the `CHANGELOG.md` with all the changes since the last version.  
+     N.B.: this includes also unreleased changes in the `Prelude`.  
      The changes in each version should be classified in three sections
      (Note: the subdivision reflects the [versioning scheme numbers](#versioning-scheme)):
      - `Breaking changes`
      - `New features`
      - `Other changes`
-3. The PR will sit there for the minimum review period of 3 days (no exceptions).
+3. The PR will sit there for the minimum review period of 3 days (no exceptions).  
    This is to give time to merge the last things to master before cutting the new release.
-3. Once that is merged, create a git tag/GitHub release with the new version number
-4. Repeat the above step for the [Prelude repo](https://github.com/dhall-lang/Prelude) as well.
+4. Once that is merged, create a git tag/GitHub release with the new version number
+5. Repeat the above step for the [Prelude repo](https://github.com/dhall-lang/Prelude) as well.  
    Note: the tagged version should be the same as the new version of the language standard.
 
 ## When are releases made
 
-Anybody can cut a release if:
-1. there is an unreleased change at least 1 month old,
-2. and no unreleased changes less than 3 days old.
+Anybody can cut a release if there is:
+1. an unreleased change *at least 1 month old*, and
+2. no unreleased changes *less than 3 days old*.
 
 The goal is to encourage releasing early and often and to give anybody permission
-to cut a release.
+to cut a release.  
 This includes people without the ["commit bit"](https://github.com/dhall-lang/dhall-lang/blob/master/.github/CONTRIBUTING.md#how-do-i-get-the-commit-bit)):
 they should be able to request that somebody cut a release on their behalf.
 
-This implies that the master branch of the specification should always be "release-ready".
+This implies that the `master` branch of the specification should always be "release-ready".
 
 ## Versioning scheme
 
 The specification for the language standard is versioned in the form `vX.Y.Z`,
 where `X`, `Y` and `Z` are Natural numbers.
 
-When introducing changes in a new release, they should change in the following way:
-- **A change to `X`** reflects a *backwards-incompatible** change to the specification
+When introducing changes in a new release, the version should change in the following way:
+- **A change to `X`** reflects a *backwards-incompatible* change to the specification
   - This means that Dhall code compatible with the previous version might not be
-    compatible with the new one.
+    compatible with the new one.  
     This is the only change that **needs action** from the user
     (to update the existing code to the new version).
 - **A change to `Y`** reflects a *new language feature*
   - This means that any Dhall code that depends the new language feature will not
     be compatible with the older specifications (so you wouldn't be able to
-    "downgrade" your interpreter)
+    "downgrade" your interpreter).
 - **A change to `Z`** is basically *semantics-preserving refactors* of the specification
   - i.e. documentation/whitespace changes or renaming terminals in the grammar, etc.
   - This means that some existing Dhall code compatible with the previous standard
@@ -66,4 +66,5 @@ The contract for a "non-breaking" change is that any code that
 parsed/resolved/type-checked/normalized successfully before must continue to do so
 (modulo imported resources changing - that is, if the imports are protected by
 their semantic hash they should not break as well).
+
 Carefully note that this does not include pretty-printing or formatting the code.
