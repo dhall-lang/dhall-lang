@@ -84,14 +84,23 @@
             value = { text = builtins.toJSON (import ./project.nix suffix); };
           };
 
-          suffixes = [ "bash" "haskell" "json" "lang" "nix" "text" "to-cabal" ];
+          suffixes = [
+            "bash"
+            "haskell"
+            "json"
+            "kubernetes"
+            "lang"
+            "nix"
+            "text"
+            "to-cabal"
+          ];
 
         in
           builtins.listToAttrs (builtins.map toProject suffixes) // {
             "hydra/jobsets.nix".text = builtins.readFile ./jobsets.nix;
 
             "hydra/machines".text = ''
-              hydra-queue-runner@hydra x86_64-linux /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 1 1 local
+              hydra-queue-runner@hydra x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 1 1 local
             '';
           };
 

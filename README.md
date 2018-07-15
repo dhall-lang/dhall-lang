@@ -10,6 +10,7 @@ You can think of Dhall as: JSON + functions + types + imports
 
 ## Table of contents
 
+* [Getting Started](#getting-started)
 * [Case Study](#case-study)
 * [Features](#features)
 * [Documentation](#documentation)
@@ -26,6 +27,14 @@ You can think of Dhall as: JSON + functions + types + imports
         * [Text](#text)
 * [Design Philosophy](#design-philosophy)
 * [Name](#name)
+
+## Getting started
+
+The easiest way to get started experimenting with Dhall is to install the
+`dhall-to-json` and/or `dhall-to-yaml` executables, which enable you to
+generate JSON and YAML, respectively, on the command line. Platform- and
+runtime-specific installation instructions can be found in [the Dhall
+wiki](https://github.com/dhall-lang/dhall-lang/wiki/Getting-started%3A-Generate-JSON-or-YAML).
 
 ## Case study
 
