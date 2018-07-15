@@ -14,6 +14,7 @@ You can think of Dhall as: JSON + functions + types + imports
 * [Features](#features)
 * [Documentation](#documentation)
 * [Standard Library](#standard-library)
+* [Development Status](#development-status)
 * [Overview](#overview)
     * [Interpreter](#interpreter)
     * [Language Bindings](#language-bindings)
@@ -24,7 +25,6 @@ You can think of Dhall as: JSON + functions + types + imports
         * [Bash](#bash)
         * [Text](#text)
 * [Design Philosophy](#design-philosophy)
-* [Development Status](#development-status)
 * [Name](#name)
 
 ## Case study
@@ -939,6 +939,19 @@ work with the builtin types. Where to find it:
 * [Mirror on IPFS](http://prelude.dhall-lang.org/)
 * [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix): both `dhall` and `dhall.prelude` derivations are built, install the `Prelude` with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
+## Development status
+
+Language version: `v1.0.0`.
+
+The versioning policy is detailed in the [Versioning document](VERSIONING.md),
+and you can see the latest changes [here in the Changelog](CHANGELOG.md).
+
+There is an effort under way to formalize the language semantics for Dhall, to
+help with porting it to [other languages](#language-bindings).
+If you would like to assist with either standardizing the language or creating
+new bindings just open a new issue or contribute to existing ones in the [issue
+tracker][issue-tracker].
+
 ## Overview
 
 You can use Dhall in one of three ways:
@@ -1421,13 +1434,6 @@ currently only Haskell bindings.  If you would like to contribute bindings to
 another language then go for it, otherwise I will do my best to contribute them
 as time permits.
 
-## Development status
-
-I am beginning to author a formal language standard for Dhall to help with
-porting Dhall to other languages.  If you would like to assist with either
-standardizing the language or creating new bindings just let me know through the
-issue tracker.
-
 ## Name
 
 The language is named after a
@@ -1460,3 +1466,4 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [hcl]: https://github.com/hashicorp/hcl
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
 [migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
+[issue-tracker]: https://github.com/dhall-lang/dhall-lang/issues
