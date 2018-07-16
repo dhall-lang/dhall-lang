@@ -4320,9 +4320,10 @@ Boolean literals are encoded using CBOR's built-in support for boolean values:
 `if` expressions are encoded with a tag:
 
 
-    encode(a₀) = a₁   encode(A₀) = A₁   encode(b₀) = b₁
+    encode(t₀) = t₁   encode(l₀) = l₁   encode(r₀) = r₁
     ───────────────────────────────────────────────────────
-    encode(let x : A₀ = a₀ in b₀) = [ 14, "x", A₁, a₁, b₁ ]
+    encode(if t₀ then l₀ else r₀) = [ 14, t₁, l₁, r₁ ]
+
 
 ### `Natural`
 
