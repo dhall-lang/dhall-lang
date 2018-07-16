@@ -61,6 +61,26 @@ expressions.
     * [Type annotations](#type-annotations-1)
     * [Imports](#imports-4)
 * [Binary serialization](#binary-serialization)
+    * [CBOR expressions](#cbor-expressions)
+    * [Binary serialization judgment)](#binary-serialization-judgment)
+    * [Variables](#variables-5)
+    * [Built-in constants](#built-in-constants)
+    * [Function application](#function-application)
+    * [Functions](#functions-2)
+    * [Operators](#operators)
+    * [`List`](#list-2)
+    * [`Optional`](#optional-2)
+    * [`merge`-expressions](#merge-expressions)
+    * [Records](#records-2)
+    * [Unions](#unions-2)
+    * [`Bool`](#bool-2)
+    * [`Natural`](#natural-2)
+    * [`Integer`](#integer-2)
+    * [`Double`](#double-2)
+    * [`Text`](#text-2)
+    * [Imports](#imports-5)
+    * [`let`-expressions](#let-expressions-2)
+    * [Type annotations](#type-annotations-2)
 * [Import resolution](#import-resolution)
     * [Directories and files](#directories-and-files)
     * [Canonicalization of directories](#canonicalization-of-directories)
@@ -3897,7 +3917,7 @@ survive `β`-normalization (such as a function type) since those tags fit in one
 byte.  Language features that don't survive normalization (such as a `let`
 expression) use tags of 24 or above.
 
-#### Variables
+### Variables
 
 The binary representation encodes variables as compactly as possible, because:
 
@@ -3941,7 +3961,7 @@ the smallest numeric representation available):
     encode(x@n) = [ "x", nn ]
 
 
-## Built-in constants
+### Built-in constants
 
 All built-in constants (except boolean values) are encoded as a variable of the
 same name with an index of 0, which is equivalent to encoding them as a naked
