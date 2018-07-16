@@ -4400,11 +4400,12 @@ order:
     * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
 * Then comes the file component
     * Also no slashes
-* Then comes the query component
+* Then comes one element for the the query component
     * If there is no query component then it is encoded as `null`
     * If there is a query component then it is stored without the `?`
-    * For example `?foo=1` is stored as `"foo=1"`
-* Then comes the fragment component
+    * A query component with internal `&` separators is still one element
+    * For example `?foo=1&bar=true` is stored as `"foo=1&bar=true"`
+* Then comes one element for the fragment component
     * If there is no fragment component then it is encoded as `null`
     * If there is a fragment component then it is stored without the `#`
     * For example, `#bar` is stored as `"bar"`
