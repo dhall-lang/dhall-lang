@@ -4287,14 +4287,13 @@ Dhall union types translate to CBOR maps:
     encode(< x : T₀ | … >) = [ 11, { "x" = T₁, … } ]
 
 
-Dhall union literals translate to CBOR maps where the first pair in the map
-is the specified alternative and the remaining pairs in the map correspond to
-the remaining alternative types:
+Dhall union literals store the specified alternative followed by the alternative
+types encoded as CBOR map:
 
 
-    encode(t₀) = t₁   encode(T₀) = T₁
+    encode(t₀) = t₁   encode(T₀) = T₁   …
     ───────────────────────────────────────────────────────────────────
-    encode(< x = t₀ | y : T₀ | … >) = [ 12, { "x" = t₁, "y" = T₁, … } ]
+    encode(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
 
 
 The `constructors` keyword is encoded as:
