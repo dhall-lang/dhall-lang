@@ -4366,27 +4366,77 @@ even if the first or last chunk is the empty string.
 
 ### Imports
 
-Imports are stored as their string representation:
+URL imports are encoded in a tokenized form with the following elements in
+order:
+
+* The first element is 0 (if the scheme is http) or 1 (if the scheme is https)
+* The next element is the authority
+    * This includes user information and port if present
+    * This does not include the preceding "//" or the following "/"
+    * For example, the authority of `http://user@host:port/foo` is encoded as
+      `"user@host:port"`
+* Then comes one element per path component
+    * The encoded path components do not include their separating slashes
+    * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
+* Then comes the file component
+    * Also no slashes
+* Then comes the query component
+    * If there is no query component then it is encoded as `null`
+    * If there is a query component then it is stored without the `?`
+    * For example `?foo=1` is stored as `"foo=1"`
+* Then comes the fragment component
+    * If there is no fragment component then it is encoded as `null`
+    * If there is a fragment component then it is stored without the `#`
+    * For example, `#bar` is stored as `"bar"`
+
+The full rules are:
 
 
-    ─────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority directory file) = [ 24, "https://authority/directory/file" ]
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
-    ────────────────────────────────────────
-    encode(path file) = [ 24, "/path/file" ]
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(http://authority/path₀/path₁/…/file) = [ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]
 
 
-    ───────────────────────────────────────────
-    encode(. path file) = [ 24, "./path/file" ]
+
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
-    ───────────────────────────────────────────
-    encode(~ path file) = [ 24, "~/path/file" ]
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(https://authority/path₀/path₁/…/file) = [ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]
 
 
-    ───────────────────────────────
-    encode(env:x) = [ 24, "env:x" ]
+Absolute file paths are tokenized in the same way:
+
+
+    ────────────────────────────────────────────────────────────────────
+    encode(/path₀/path₁/…/file) = [ 24, 2, "path₀", "path₁", …, "file" ]
+
+
+Each path type is treated as another "scheme" (i.e. they are distinguished by
+the second tag):
+
+
+    ─────────────────────────────────────────────────────────────────────
+    encode(./path₀/path₁/…/file) = [ 24, 3, "path₀", "path₁", …, "file" ]
+
+
+    ──────────────────────────────────────────────────────────────────────
+    encode(../path₀/path₁/…/file) = [ 24, 4, "path₀", "path₁", …, "file" ]
+
+
+    ─────────────────────────────────────────────────────────────────────
+    encode(~/path₀/path₁/…/file) = [ 24, 5, "path₀", "path₁", …, "file" ]
+
+
+Environment variables are also treated as another scheme:
+
+
+    ──────────────────────────────
+    encode(env:x) = [ 24, 6, "x" ]
 
 
 ### `let` expressions
