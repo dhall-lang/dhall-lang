@@ -4400,7 +4400,7 @@ order:
     * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
 * Then comes the file component
     * Also no slashes
-* Then comes one element for the the query component
+* Then comes one element for the query component
     * If there is no query component then it is encoded as `null`
     * If there is a query component then it is stored without the `?`
     * A query component with internal `&` separators is still one element
