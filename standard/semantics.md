@@ -4016,6 +4016,10 @@ string matching their identifier.
     encode(List/fold) = "List/fold"
 
 
+    ───────────────────────────────────
+    encode(List/length) = "List/length"
+
+
     ───────────────────────────────
     encode(List/head) = "List/head"
 
