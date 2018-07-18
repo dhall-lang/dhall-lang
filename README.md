@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 </head> 
 
-Dhall is a programmable configuration language that is not Turing-complete
+Dhall is a programmable configuration language that is *intentionally* not Turing-complete
 
 You can think of Dhall as: JSON + functions + types + imports
 
