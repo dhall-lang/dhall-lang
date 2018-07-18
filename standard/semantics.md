@@ -4240,7 +4240,7 @@ have a type annotation:
 
     encode(t₀) = t₁   encode(u₀) = u₁   encode(T₀) = T₁
     ───────────────────────────────────────────────────
-    encode(merge t₀ u₀ : T) = [ 6, t₁, u₁, T₁ ]
+    encode(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
 
 
 ### Records
