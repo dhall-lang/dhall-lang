@@ -3871,6 +3871,12 @@ will probably not serialize a Dhall expression by going through intermediate
 CBOR expression but will more likely serialize straight to binary.  These
 semantics only go through a hypothetical CBOR expression for simplicity.
 
+Also, all serialized Dhall expressions are encoded alongside a version number.
+The version number represents the version of the standard that the encoding is
+based on.  The following sections begin with a judgment for encoding a
+naked Dhall expression followed by a judgment that builds on top of that to
+encode a Dhall expression tagged with the version number.
+
 ### CBOR expressions
 
 The following notation will be used for CBOR expressions in serialization
@@ -3892,7 +3898,8 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
 
 ### Binary serialization judgment
 
-Binary serialization is a function of the following form:
+Binary serialization of a naked Dhall expression is a function of the following
+form:
 
     encode(dhall) = cbor
 
@@ -4490,6 +4497,37 @@ a type annotation:
     ─────────────────────────────────
     encode(t₀ : T₀) = [ 26, t₁, T₁ ]
 
+
+### Versioning judgment
+
+Binary serialization of a Dhall expression encoded with a version tag is a
+function of the following form:
+
+    encodeWithTag(dhall) = cbor
+
+... where:
+
+* `dhall` (the input) is a Dhall expression
+* `cbor` (the output) is a CBOR expression
+
+The rule is simple:
+
+
+    encode(e₀) = e₁
+    ───────────────────────────────────
+    encodeWithTag(e₀) = [ "X.Y.Z", e₁ ]
+
+
+... replacing `X.Y.Z` with the version number of the standard that the encoder
+is based on.
+
+The corresponding decoder should compare the expected version number of the
+standard that the decoder is based on with the actual decoded number.  A
+decoder is only required to decode an expression where the actual version
+exactly matches the expected version.  A decoder may support decoding other
+versions of the standard.  In particular, a decoder should support actual
+versions that only differ in the last version component (i.e.  `Z`) since that
+indicates a version of the standard that should be binary-compatible.
 
 ## Import resolution
 
