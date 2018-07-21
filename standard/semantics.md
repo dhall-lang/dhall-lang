@@ -4080,10 +4080,6 @@ string matching their identifier.
     encode(Kind) = "Kind"
 
 
-    ───────────────────────────
-    encode(missing) = "missing"
-
-
 ### Function application
 
 Function application is encoded as a heterogeneous array where a function
@@ -4462,6 +4458,13 @@ Environment variables are also treated as another scheme:
 
     ──────────────────────────────
     encode(env:x) = [ 24, 6, "x" ]
+
+
+The `missing` keyword is also treated as another import type:
+
+
+    ───────────────────────────
+    encode(missing) = [ 24, 7 ]
 
 
 ### `let` expressions
