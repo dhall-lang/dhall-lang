@@ -4204,8 +4204,8 @@ Empty `List`s only store their type:
 
 
     encode(T₀) = T₁
-    ───────────────────────────────
-    encode([] : List T) = [ 4, T₁ ]
+    ────────────────────────────────
+    encode([] : List T₀) = [ 4, T₁ ]
 
 
 Non-empty `List`s don't store their type, but do store their elements inline:
