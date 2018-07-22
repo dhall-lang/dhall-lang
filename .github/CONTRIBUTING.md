@@ -105,6 +105,18 @@ always roll them back with a new proposal.
 If the change is approved quickly, there is still a minimum 3-day waiting
 period before merging for changes to the standard.
 
+### Soundness of proposed changes
+
+For non-trivial changes there should be a proof-of-concept implementation as a
+sanity check. Moreover, changes to the type system need to have an informal proof
+sketch of the following four soundness rules:
+
+- Type-inference won't diverge
+- If an expression type-checks, normalizing that expression won't diverge
+- Normalizing an inferred type won't diverge
+- Normalizing an expression doesn't change its type
+
+
 ## How do I get the "commit bit"?
 
 Just ask!  I (@Gabriel439) hand out the commit bit freely to anybody who
