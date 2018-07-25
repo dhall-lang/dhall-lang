@@ -60,9 +60,9 @@ expressions.
     * [`let` expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
     * [Imports](#imports-4)
-* [Binary serialization](#binary-serialization)
+* [Binary encoding and decoding](#binary-encoding-and-decoding)
     * [CBOR expressions](#cbor-expressions)
-    * [Binary serialization judgment)](#binary-serialization-judgment)
+    * [Binary encoding judgment)](#binary-encoding-judgment)
     * [Variables](#variables-5)
     * [Built-in constants](#built-in-constants)
     * [Function application](#function-application)
@@ -3846,10 +3846,10 @@ annotation then that is a type error.
 
 An expression with unresolved imports cannot be type-checked
 
-## Binary serialization
+## Binary encoding and decoding
 
-Dhall's import system requires a standard way to serialize expressions to a
-binary representation, for two reasons:
+Dhall's import system requires a standard way to convert expressions to and from
+a binary representation, for two reasons:
 
 * Imported expressions can be protected by a "semantic integrity check", which
   is a hash of the binary representation of an expression's normal form
@@ -3859,23 +3859,134 @@ binary representation, for two reasons:
   binary representation
 
 Dhall's semantics for binary serialization are defined in terms of CBOR
-([RFC 7049](https://tools.ietf.org/html/rfc7049)), which means that this
-section is divided into two parts:
+([RFC 7049](https://tools.ietf.org/html/rfc7049)).  This means that this
+section first specifies a simplified grammar for the subset of CBOR that Dhall
+uses (i.e. "CBOR expressions") and then specifies how to convert Dhall
+expressions to and from these CBOR expressions.
 
-* A simplified grammar for the subset of CBOR that Dhall uses
-* Semantics for how to convert Dhall expressions to CBOR expressions
+The `encode` judgment in this section specifies how to convert a Dhall
+expression to a CBOR expression.  Once you have a CBOR expression you can
+serialize that CBOR expression to binary according to RFC 7049.
 
-Once you can convert a Dhall expression to a CBOR expression you can serialize
-that CBOR expression according to RFC 7049.  Note that an actual implementation
-will probably not serialize a Dhall expression by going through intermediate
-CBOR expression but will more likely serialize straight to binary.  These
-semantics only go through a hypothetical CBOR expression for simplicity.
+The `decode` judgment in this section specifies how to convert a CBOR expression
+to a Dhall expression.  That implies that if you can deserialize binary to a
+CBOR expression then you can further decode that CBOR expression to a Dhall
+expression.
 
-Also, all serialized Dhall expressions are encoded alongside a version number.
-The version number represents the version of the standard that the encoding is
-based on.  The following sections begin with a judgment for encoding a
-naked Dhall expression followed by a judgment that builds on top of that to
-encode a Dhall expression tagged with the version number.
+For efficiency reasons, an implementation can elect to not go through an
+intermediate CBOR expression and instead serialize to or deserialize from the
+binary representation directly.  These semantics only specify how to perform the
+conversion through a hypothetical CBOR expression for simplicity.
+
+### Versioning
+
+All serialized Dhall expressions are encoded alongside a version string.  This
+version string is only encoded once as a header for the entire Dhall expression,
+not for each subexpression.  This serialized version string is also not
+necessarily the same as the version string for the standard and this section
+will use the term "binary protocol version string" to refer to the version
+string used to tag binary-encoded Dhall expressions.
+
+This section provides two additional judgments to handle versioning Dhall
+expressions:
+
+* The `encodeWithVersion` judgment specifies how to encode a Dhall expression
+  tagged with a version number
+* The `decodeWithVersion` judgment specifies how to decode a Dhall expression
+  tagged with a version number
+
+For any given release of the standard the `encodeWithVersion` judgment emits
+exactly one version of the binary protocol.  The binary protocol version
+string is hard-coded directly into the `encodeWithVersion` judgment and is
+only updated via a new release of the standard (typically when the binary
+protocol changes).
+
+The corresponding `decodeWithVersion` judgment may decode more than one
+version of the protocol.  The standard guarantees that the `decodeWithVersion`
+judgment will decode at least the same version string that the `encodeWith
+Version` judgment emits but may also decode other version strings for
+backwards compatibility.
+
+For example, the `encodeWithVersion` judgment might specify a binary protocol
+version string of "1.1" while the `decodeWithVersion` judgment might specify how
+to decode Dhall expressions tagged with either the "1.0" or "1.1" binary
+protocol version strings.
+
+The version strings will typically be version numbers of the form "X.Y", where:
+
+* Changing the version from "X.Y" to "X.{Y + 1}" indicates a non-breaking change
+* Changing the version from "X.Y" to "{X + 1}.0" indicates a breaking change
+
+"X" is "major version number" and "Y" is the "minor version number".
+
+This versioning number convention is purely a fallible convention and is not
+necessarily enforced by the standardized semantics.  Whenever the version
+numbering convention conflicts with either the `encodeWithVersion` or the
+`decodeWithVersion` judgment the judgment is authoritative.
+
+### Protocol evolution
+
+The standardization process is fallible and this section addresses how to
+mitigate the following types of protocol specification errors:
+
+*   A new binary protocol version string misassigns the major or minor number
+
+    The major/minor numbering convention is purely a mnemonic convention for
+    humans to use when keeping track of versions.  This convention is not
+    necessarily enforced by the standardized judgments, given that the process
+    of assigning version numbers is fallible.
+
+    For example, a `decodeWithVersion` judgment that successfully decodes an
+    expression tagged with a binary protocol version string of "1.1" does not
+    necessarily decode expressions tagged with a binary protocol version
+    string of "1.0" unless explicitly standardized to do so.  This implies that
+    any backwards compatibility support has to be explicitly implemented in the
+    judgment by enumerating all the binary protocol version strings that
+    judgment is compatible with.
+
+    The `decodeWithJudgment` (and any standards-compliant implementation) must
+    only match on exact binary protocol version strings and must not match a
+    prefix of the version string, nor a version range, nor parse the string in
+    any way.
+
+    Implementations are required to do exact matching so that the binary
+    protocol version string is not constrained to be a version number.  For
+    example, in the future the version number could hypothetically become a
+    SHA-256 hash or a URI.  Such a change in the version string format would
+    cause no issues if implementations stick to exact string matching and don't
+    attempt to parse the string.
+
+    This also implies that the set of supported versions to decode need not be
+    contiguous.  For example, the `decodeWithVersion` judgment might specify how
+    to decode the protocol version "1.0" or "1.2" but not "1.1".  Similarly, the
+    same judgment might specify how to decode more than one major protocol
+    version (i.e. protocol version "1.4" or "2.0).
+
+*   There is a specification bug in the encoding logic
+
+    An protocol version that incorrectly specifies how to encode expressions
+    must be blacklisted and the fixed encoding logic must be released under
+    a new protocol version.  This is necessary since there is no way to fix all
+    possible encoded data once the encoding bug has been published.
+
+*   New encoding logic is published without changing the version number
+
+    Treat this the same as a specification bug in the encoding logic.  Blacklist
+    the old binary protocol version string and release the same logic under a
+    new binary protocol version string.
+
+*   There is a specification bug in the decoding logic
+
+    Decoding bugs can be fixed by releasing a new verson of the standard
+    fixing the error.  The binary protocol version does not need to be
+    blacklisted nor changed since decoding logic does not persist any data.
+
+*   The decoding logic is changed without changing the version number at all
+
+    Treat this the same as a specification bug in the decoding logic.  Publish
+    a new release of the standard fixing the version number that the logic
+    decodes, but there is no need to blacklist the old binary protocol version
+    since no invalid data was persisted.
 
 ### CBOR expressions
 
@@ -3896,7 +4007,7 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   /  n.n             ; Decimal fraction    (Section 2.4, Tag = 4)
 ```
 
-### Binary serialization judgment
+### Binary encoding judgment
 
 Binary serialization of a naked Dhall expression is a function of the following
 form:
@@ -4503,7 +4614,7 @@ a type annotation:
 Binary serialization of a Dhall expression encoded with a version tag is a
 function of the following form:
 
-    encodeWithTag(dhall) = cbor
+    encodeWithVersion(dhall) = cbor
 
 ... where:
 
@@ -4514,8 +4625,8 @@ The rule is simple:
 
 
     encode(e₀) = e₁
-    ───────────────────────────────────
-    encodeWithTag(e₀) = [ "X.Y.Z", e₁ ]
+    ───────────────────────────────────────
+    encodeWithVersion(e₀) = [ "X.Y.Z", e₁ ]
 
 
 ... replacing `X.Y.Z` with the version number of the standard that the encoder
