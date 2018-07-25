@@ -1706,7 +1706,7 @@ sub-expressions for the remaining rules:
 β-normalization evaluates all built-in functions if they are fully saturated
 (i.e.  no missing arguments):
 
-    List/length Integer [1, 2, 3] ⇥ +3
+    List/length Natural [1, 2, 3] ⇥ 3
 
 β-normalization does not simplify partially applied built-in functions:
 
@@ -1715,7 +1715,7 @@ sub-expressions for the remaining rules:
 β-normalization works under λ, meaning that the body of an unapplied
 λ-expression can be normalized:
 
-    λ(x : Integer) → List/length Integer [x, x, x] ⇥ λ(x : Integer) → +3
+    λ(x : Integer) → List/length Integer [x, x, x] ⇥ λ(x : Integer) → 3
 
 Dhall is a total language that is strongly normalizing, so evaluation order has
 no effect on the language semantics and a conforming implementation can select
