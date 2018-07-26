@@ -11,26 +11,46 @@ versions of the binary protocol.
 * [CBOR](#cbor)
 * [Versioning](#versioning)
 * [CBOR expressions](#cbor-expressions)
-* [Binary encoding judgment](#binary-encoding-judgment)
-* [Variables](#variables)
-* [Built-in constants](#built-in-constants)
-* [Function application](#function-application)
-* [Functions](#functions)
-* [Operators](#operators)
-* [`List`](#list)
-* [`Optional`](#optional)
-* [`merge`-expressions](#merge-expressions)
-* [Records](#records)
-* [Unions](#unions)
-* [`Bool`](#bool)
-* [`Natural`](#natural)
-* [`Integer`](#integer)
-* [`Double`](#double)
-* [`Text`](#text)
-* [Imports](#imports)
-* [`let`-expressions](#let-expressions)
-* [Type annotations](#type-annotations)
+* [Encoding judgment](#encoding-judgment)
+    * [Variables](#variables)
+    * [Built-in constants](#built-in-constants)
+    * [Function application](#function-application)
+    * [Functions](#functions)
+    * [Operators](#operators)
+    * [`List`](#list)
+    * [`Optional`](#optional)
+    * [`merge`-expressions](#merge-expressions)
+    * [Records](#records)
+    * [Unions](#unions)
+    * [`Bool`](#bool)
+    * [`Natural`](#natural)
+    * [`Integer`](#integer)
+    * [`Double`](#double)
+    * [`Text`](#text)
+    * [Imports](#imports)
+    * [`let`-expressions](#let-expressions)
+    * [Type annotations](#type-annotations)
+* [Decoding judgment](#decoding-judgment)
+    * [Built-in constants](#built-in-constants-1)
+    * [Variables](#variables-1)
+    * [Function application](#function-application-1)
+    * [Functions](#functions-1)
+    * [Operators](#operators-1)
+    * [`List`](#list-1)
+    * [`Optional`](#optional-1)
+    * [`merge`-expressions](#merge-expressions-1)
+    * [Records](#records-1)
+    * [Unions](#unions-1)
+    * [`Bool`](#bool-1)
+    * [`Natural`](#natural-1)
+    * [`Integer`](#integer-1)
+    * [`Double`](#double-1)
+    * [`Text`](#text-1)
+    * [Imports](#imports-1)
+    * [`let`-expressions](#let-expressions-1)
+    * [Type annotations](#type-annotations-1)
 * [Versioning judgment](#versioning-judgment)
+* [Protocol evolution](#protocol-evolution)
 
 ## Motivation
 
@@ -135,51 +155,6 @@ enumerated in the decoding judgments.  Implementations MUST NOT match a prefix
 of the version string and MUST NOT attempt to parse the protocol version string
 as a version number.
 
-## Protocol evolution
-
-The standardization process is fallible and this section addresses how to
-mitigate the following types of protocol specification errors:
-
-*   A new protocol version string misassigns the major or minor number
-
-    In theory, no action is required.  Standards compliant decoders are
-    unaffected if they match on the exact protocol version string and do not
-    attempt to interpret the protocol version string.  The only harm is that the
-    incorrect protocol version number is misleading to humans by incorrectly
-    suggesting the presence or absence of a breaking change.
-
-    In practice, you might want to publish a new release of the standard
-    correcting the version number and permanently removing standardized support
-    for encoding or decoding the incorrect version number (i.e. "blacklisting"
-    the number).
-
-*   There is a specification bug in the encoding logic
-
-    An protocol version that incorrectly specifies how to encode expressions
-    MUST be blacklisted and the fixed encoding logic MUST be released under
-    a new protocol version.  This is necessary since there is no way to fix all
-    possible encoded data once the encoding bug has been published.
-
-*   New encoding logic is published without changing the version number
-
-    Treat this the same as a specification bug in the encoding logic.  Blacklist
-    the old protocol version string and release the same logic under a new
-    protocol version string.
-
-*   There is a specification bug in the decoding logic
-
-    Decoding bugs MUST be fixed by releasing a new verson of the standard
-    fixing the error.  However, the corresponding protocol version string does
-    not need to be blacklisted nor changed since decoding logic does not
-    persist any data.
-
-*   The decoding logic is changed without changing the version number at all
-
-    Treat this the same as a specification bug in the decoding logic.  Publish
-    a new release of the standard fixing the version number that the logic
-    decodes, but there is no need to blacklist the old protocol version string
-    since no invalid data was persisted.
-
 ## CBOR expressions
 
 The following notation will be used for CBOR expressions in serialization
@@ -199,10 +174,9 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   /  n.n             ; Decimal fraction    (Section 2.4, Tag = 4)
 ```
 
-## Binary encoding judgment
+## Encoding judgment
 
-Binary serialization of a naked Dhall expression is a function of the following
-form:
+Encoding a naked Dhall expression is a function of the following form:
 
     encode-*(dhall) = cbor
 
@@ -219,7 +193,7 @@ survive `β`-normalization (such as a function type) since those tags fit in one
 byte.  Language features that don't survive normalization (such as a `let`
 expression) use tags of 24 or above.
 
-## Variables
+### Variables
 
 The binary representation encodes variables as compactly as possible, because:
 
@@ -263,7 +237,7 @@ the smallest numeric representation available):
     encode-1.0(x@n) = [ "x", nn ]
 
 
-## Built-in constants
+### Built-in constants
 
 All built-in constants (except boolean values) are encoded as a variable of the
 same name with an index of 0, which is equivalent to encoding them as a naked
@@ -382,7 +356,7 @@ string matching their identifier.
     encode-1.0(Kind) = "Kind"
 
 
-## Function application
+### Function application
 
 Function application is encoded as a heterogeneous array where a function
 applied to multiple arguments is stored within a single array:
@@ -393,7 +367,7 @@ applied to multiple arguments is stored within a single array:
     encode-1.0(f₀ a₀ b₀ …) = [ 0, f₁, a₁, b₁, … ]
 
 
-## Functions
+### Functions
 
 Functions that bind variables named `_` have a more compact representation:
 
@@ -428,7 +402,7 @@ representation:
     encode-1.0(∀(x : A₀) → B₀) = [ 2, "x", A₁, B₁ ]
 
 
-## Operators
+### Operators
 
 Operators are encoded as tagged integers alongside their two arguments:
 
@@ -493,7 +467,7 @@ Operators are encoded as tagged integers alongside their two arguments:
     encode-1.0(l₀ ? r₀) = [ 3, 11, l₁, r₁ ]
 
 
-## `List`
+### `List`
 
 Empty `List`s only store their type:
 
@@ -511,7 +485,7 @@ Non-empty `List`s don't store their type, but do store their elements inline:
     encode-1.0([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
 
 
-## `Optional`
+### `Optional`
 
 Empty `Optional` literals only store their type:
 
@@ -529,7 +503,7 @@ Non-empty `Optional` literals also store their value:
     encode-1.0([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
 
 
-## `merge` expressions
+### `merge` expressions
 
 `merge` expressions differ in their encoding depending on whether or not they
 have a type annotation:
@@ -545,12 +519,12 @@ have a type annotation:
     encode-1.0(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
 
 
-## Records
+### Records
 
 Dhall record types translate to CBOR maps:
 
 
-    encode-1.0(T₀) = T₁
+    encode-1.0(T₀) = T₁   …
     ──────────────────────────────────────────────────
     encode-1.0({ x : T₀, … }) = [ 7, { "x" = T₁, … } ]
 
@@ -558,7 +532,7 @@ Dhall record types translate to CBOR maps:
 Dhall record literals translate to CBOR maps:
 
 
-    encode-1.0(t₀) = t₁
+    encode-1.0(t₀) = t₁   …
     ──────────────────────────────────────────────────
     encode-1.0({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
 
@@ -566,7 +540,7 @@ Dhall record literals translate to CBOR maps:
 Field access:
 
 
-    encode-1.0(t₀) = t₁
+    encode-1.0(t₀) = t₁   …
     ─────────────────────────────────
     encode-1.0(t₀.x) = [ 9, t₁, "x" ]
 
@@ -574,17 +548,17 @@ Field access:
 ... is encoded differently than record projection:
 
 
-    encode-1.0(t₀) = t₁
+    encode-1.0(t₀) = t₁   …
     ────────────────────────────────────────────────────
     encode-1.0(t₀.{ x, y, … }) = [ 10, t₁, "x", "y", … ]
 
 
-## Unions
+### Unions
 
 Dhall union types translate to CBOR maps:
 
 
-    encode-1.0(T₀) = T₁
+    encode-1.0(T₀) = T₁   …
     ────────────────────────────────────────────────────
     encode-1.0(< x : T₀ | … >) = [ 11, { "x" = T₁, … } ]
 
@@ -606,7 +580,7 @@ The `constructors` keyword is encoded as:
     encode-1.0(constructors u₀) = [ 13, u₁]
 
 
-## `Bool`
+### `Bool`
 
 Boolean literals are encoded using CBOR's built-in support for boolean values:
 
@@ -627,7 +601,7 @@ Boolean literals are encoded using CBOR's built-in support for boolean values:
     encode-1.0(if t₀ then l₀ else r₀) = [ 14, t₁, l₁, r₁ ]
 
 
-## `Natural`
+### `Natural`
 
 `Natural` literals are encoded using the smallest available numeric
 representation:
@@ -641,7 +615,7 @@ representation:
     encode-1.0(n) = [ 15, nn ]
 
 
-## `Integer`
+### `Integer`
 
 `Integer` literals are encoded using the smallest available numeric
 representation:
@@ -663,7 +637,7 @@ representation:
     encode-1.0(±n) = [ 16, nn ]
 
 
-## `Double`
+### `Double`
 
 `Double`s are always encoded as CBOR decimal fractions in order to avoid loss
 of precision when converting to and from their textual representation:
@@ -673,7 +647,7 @@ of precision when converting to and from their textual representation:
     encode-1.0(n.n) = [ 17, n.n ]
 
 
-## `Text`
+### `Text`
 
 `Text` literals are encoded as an alternation between their text chunks and
 any interpolated expressions:
@@ -687,7 +661,7 @@ any interpolated expressions:
 Note that this encoding of a text literal always begins and ends with a string,
 even if the first or last chunk is the empty string.
 
-## Imports
+### Imports
 
 URL imports are encoded in a tokenized form with the following elements in
 order:
@@ -770,7 +744,7 @@ The `missing` keyword is also treated as another import type:
     encode-1.0(missing) = [ 24, 7 ]
 
 
-## `let` expressions
+### `let` expressions
 
 `let` expressions differ in their encoding depending on whether or not they have
 a type annotation:
@@ -786,7 +760,7 @@ a type annotation:
     encode-1.0(let x : A₀ = a₀ in b₀) = [ 25, "x", A₁, a₁, b₁ ]
 
 
-## Type annotations
+### Type annotations
 
 
     encode-1.0(t₀) = t₁   encode-1.0(T₀) = T₁
@@ -794,10 +768,577 @@ a type annotation:
     encode-1.0(t₀ : T₀) = [ 26, t₁, T₁ ]
 
 
+## Decoding judgment
+
+Decoding of a naked Dhall expression is a function of the following
+form:
+
+    decode-*(cbor) = dhall
+
+... where:
+
+* `cbor` (the output) is a CBOR expression
+* `dhall` (the input) is a Dhall expression
+
+... and replacing `*` with the protocol version string of the expression to
+encode.
+
+### Built-in constants
+
+A naked CBOR string could have been produced by encoding either a built-in
+identifier or a variable.  First, attempt to decode the string as a built-in
+identifier if it matches any of the following strings:
+
+
+    ───────────────────────────────────────────
+    decode-1.0("Natural/build") = Natural/build
+
+
+    ─────────────────────────────────────────
+    decode-1.0("Natural/fold") = Natural/fold
+
+
+    ─────────────────────────────────────────────
+    decode-1.0("Natural/isZero") = Natural/isZero
+
+
+    ─────────────────────────────────────────
+    decode-1.0("Natural/even") = Natural/even
+
+
+    ───────────────────────────────────────
+    decode-1.0("Natural/odd") = Natural/odd
+
+
+    ───────────────────────────────────────────────────
+    decode-1.0("Natural/toInteger") = Natural/toInteger
+
+
+    ─────────────────────────────────────────
+    decode-1.0("Natural/show") = Natural/show
+
+
+    ─────────────────────────────────────────────────
+    decode-1.0("Integer/toDouble") = Integer/toDouble
+
+
+    ─────────────────────────────────────────
+    decode-1.0("Integer/show") = Integer/show
+
+
+    ───────────────────────────────────────
+    decode-1.0("Double/show") = Double/show
+
+
+    ─────────────────────────────────────
+    decode-1.0("List/build") = List/build
+
+
+    ───────────────────────────────────
+    decode-1.0("List/fold") = List/fold
+
+
+    ───────────────────────────────────────
+    decode-1.0("List/length") = List/length
+
+
+    ───────────────────────────────────
+    decode-1.0("List/head") = List/head
+
+
+    ───────────────────────────────────
+    decode-1.0("List/last") = List/last
+
+
+    ─────────────────────────────────────────
+    decode-1.0("List/indexed") = List/indexed
+
+
+    ─────────────────────────────────────────
+    decode-1.0("List/reverse") = List/reverse
+
+
+    ───────────────────────────────────────────
+    decode-1.0("Optional/fold") = Optional/fold
+
+
+    ─────────────────────────────────────────────
+    decode-1.0("Optional/build") = Optional/build
+
+
+    ─────────────────────────
+    decode-1.0("Bool") = Bool
+
+
+    ─────────────────────────────────
+    decode-1.0("Optional") = Optional
+
+
+    ───────────────────────────────
+    decode-1.0("Natural") = Natural
+
+
+    ───────────────────────────────
+    decode-1.0("Integer") = Integer
+
+
+    ─────────────────────────────
+    decode-1.0("Double") = Double
+
+
+    ─────────────────────────
+    decode-1.0("Text") = Text
+
+
+    ─────────────────────────
+    decode-1.0("List") = List
+
+
+    ─────────────────────────
+    decode-1.0("Type") = Type
+
+
+    ─────────────────────────
+    decode-1.0("Kind") = Kind
+
+
+Otherwise, decode the CBOR string as an ordinary variable as outlined in the
+next section.
+
+### Variables
+
+Decode a naked CBOR string to a variable with an index of 0 if the string does
+not match a built-in identifier:
+
+
+    ─────────────────────  ; x ∉ reservedIdentifiers
+    decode-1.0("x") = x@0
+
+
+Only variables named `_` encode to a naked CBOR integer, so decoding turns a
+naked CBOR integer back into a variable named `_`:
+
+
+    ───────────────────
+    decode-1.0(n) = _@n
+
+
+    ────────────────────
+    decode-1.0(nn) = _@n
+
+
+A decoder MUST accept an integer that is not encoded using the most compact
+representation.  For example, a naked unsiged bignum storing `0` is valid, even
+though the `0` could have been stored in a single byte as as a compact unsigned
+integer instead.
+
+A CBOR list beginning with a string indicates a variable.  The list should only
+have two elements, the first of which is a string and the second of which is
+the variable index, which can be either a compact integer or a bignum:
+
+
+    ────────────────────────────
+    decode-1.0([ "x", n ]) = x@n
+
+
+    ─────────────────────────────
+    decode-1.0([ "x", nn ]) = x@n
+
+
+As before, the encoded integer need not be stored in the most compact
+representation.
+
+### Function application
+
+Decode a CBOR list beginning with `0` as function application, where the second
+element is the function and the remaining elements are the function arguments:
+
+
+    decode-1.0(f₁) = f₀   decode-1.0(a₁) = a₀   decode-1.0(b₁) = b₀   …
+    ───────────────────────────────────────────────────────────────────
+    decode-1.0([ 0, f₁, a₁, b₁, … ]) = f₀ a₀ b₀ …
+
+
+A decoder MUST require at least 1 function argument.  In other words, a decode
+MUST reject a CBOR list of of the form `[ 0, f₁ ]`.
+
+### Functions
+
+Decode a CBOR list beginning with a `1` as a λ-expression.  If the list has
+three elements then the bound variable is named `_`:
+
+
+    decode-1.0(A₁) = A₀   decode-1.0(b₁) = b₀
+    ──────────────────────────────────────────
+    decode-1.0([ 1, A₁, b₁ ]) = λ(_ : A₀) → b₀
+
+
+... otherwise if the list has four elements then the name of the bound variable
+is included in the list:
+
+
+    decode-1.0(A₁) = A₀   decode-1.0(b₁) = b₀
+    ───────────────────────────────────────────────  ; x ≠ "_"
+    decode-1.0([ 1, "x", A₁, b₁ ]) = λ(x : A₀) → b₀
+
+
+Decode a CBOR list beginning with a `2` as a ∀-expression.  If the list has
+three elements then the bound variable is named `_`:
+
+
+    decode-1.0(A₁) = A₀   decode-1.0(B₁) = B₀
+    ──────────────────────────────────────────
+    decode-1.0([ 2, A₁, B₁ ]) = ∀(_ : A₀) → B₀
+
+
+... otherwise if the list has four elements then the name of the bound variable
+is included in the list:
+
+
+    decode-1.0(A₁) = A₀   decode-1.0(B₁) = B₀
+    ───────────────────────────────────────────────  ; x ≠ "_"
+    decode-1.0([ 2, "x", A₁, B₁ ]) = ∀(x : A₀) → B₀
+
+
+### Operators
+
+Decode a CBOR list beginning with a `3` as an operator expression:
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 0, l₁, r₁ ]) = l₀ || r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 1, l₁, r₁ ]) = l₀ && r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 2, l₁, r₁ ]) = l₀ == r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 3, l₁, r₁ ]) = l₀ != r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 4, l₁, r₁ ]) = l₀ + r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 5, l₁, r₁ ]) = l₀ * r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 6, l₁, r₁ ]) = l₀ ++ r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 7, l₁, r₁ ]) = l₀ # r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 8, l₁, r₁ ]) = l₀ ∧ r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 9, l₁, r₁ ]) = l₀ ⫽ r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 10, l₁, r₁ ]) = l₀ ⩓ r₀
+
+
+    decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ─────────────────────────────────────────
+    decode-1.0([ 3, 11, l₁, r₁ ]) = l₀ ? r₀
+
+
+### `List`
+
+Decode a CBOR list beginning with a `4` as a `List` literal
+
+If the list is empty, then the type MUST be non-`null`:
+
+
+    decode-1.0(T₁) = T₀
+    ────────────────────────────────────
+    decode-1.0([ 4, T₁ ]) = [] : List T₀
+
+
+If the list is non-empty then the type MUST be `null`:
+
+
+    decode-1.0(a₁) = a₀   decode-1.0(b₁) = b₀
+    ──────────────────────────────────────────────────
+    decode-1.0([ 4, null, a₁, b₁, … ]) = [ a₀, b₀, … ]
+
+
+### `Optional`
+
+Decode a CBOR list beginning with a `5` as an `Optional` literal
+
+
+    decode-1.0(T₁) = T₀
+    ────────────────────────────────────────
+    decode-1.0([ 5, T₁ ]) = [] : Optional T₀
+
+
+    decode-1.0(t₁) = t₀   decode-1.0(T₁) = T₀
+    ────────────────────────────────────────────────
+    decode-1.0([ 5, T₁, t₁ ]) = [ t₀ ] : Optional T₀
+
+
+### `merge` expressions
+
+Decode a CBOR list beginning with a `6` as a `merge` expression:
+
+
+    decode-1.0(t₁) = t₀   decode-1.0(u₁) = u₀
+    ─────────────────────────────────────────
+    decode-1.0([ 6, t₁, u₁ ]) = merge t₀ u₀
+
+
+    decode-1.0(t₁) = t₀   decode-1.0(u₁) = u₀   decode-1.0(T₁) = T₀
+    ───────────────────────────────────────────────────────────────
+    decode-1.0([ 6, t₁, u₁, T₁ ]) = merge t₀ u₀ : T₀
+
+
+### Records
+
+Decode a CBOR list beginning with a `7` as a record type:
+
+
+    decode-1.0(T₁) = T₀   …
+    ──────────────────────────────────────────────────
+    decode-1.0([ 7, { "x" = T₁, … } ]) = { x : T₀, … }
+
+
+Decode a CBOR list beginning with a `8` as a record literal:
+
+
+    decode-1.0(t₁) = t₀   …
+    ──────────────────────────────────────────────────
+    decode-1.0([ 8, { "x" = t₁, … } ]) = { x = t₀, … }
+
+
+Decode a CBOR list beginning with a `9` as a field access:
+
+
+    decode-1.0(t₁) = t₀   …
+    ─────────────────────────────────
+    decode-1.0([ 9, t₁, "x" ]) = t₀.x
+
+
+Decode a CBOR list beginning with a `10` as a record projection:
+
+
+    decode-1.0(t₁) = t₀   …
+    ────────────────────────────────────────────────────
+    decode-1.0([ 10, t₁, "x", "y", … ]) = t₀.{ x, y, … }
+
+
+A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
+responsibility of the type-checking phase.
+
+### Unions
+
+Decode a CBOR list beginning with a `11` as a union type:
+
+
+    decode-1.0(T₁) = T₀   …
+    ────────────────────────────────────────────────────
+    decode-1.0([ 11, { "x" = T₁, … } ]) = < x : T₀ | … >
+
+
+Decode a CBOR list beginning with a `12` as a union type:
+
+
+    decode-1.0(t₁) = t₀   decode-1.0(T₁) = T₀   …
+    ──────────────────────────────────────────────────────────────────────
+    decode-1.0([ 12, "x", t₁, { "y" = T₁, … } ]) = < x = t₀ | y : T₀ | … >
+
+
+A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
+responsibility of the type-checking phase.
+
+Decode a CBOR list beginning with a `13` as a `constructors` application:
+
+
+    decode-1.0(u₁) = u₀
+    ───────────────────────────────────────
+    decode-1.0([ 13, u₁]) = constructors u₀
+
+
+### `Bool`
+
+Decode CBOR boolean values to Dhall boolean values:
+
+
+    ───────────────────────
+    decode-1.0(True) = True
+
+
+    ─────────────────────────
+    decode-1.0(False) = False
+
+
+Decode a CBOR list beginning with a `14` as an `if` expression:
+
+
+    decode-1.0(t₁) = t₀   decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
+    ───────────────────────────────────────────────────────────────
+    decode-1.0([ 14, t₁, l₁, r₁ ]) = if t₀ then l₀ else r₀
+
+
+### `Natural`
+
+Decode a CBOR list beginning with a `15` as a `Natural` literal:
+
+
+    ─────────────────────────
+    decode-1.0([ 15, n ]) = n
+
+
+    ──────────────────────────
+    decode-1.0([ 15, nn ]) = n
+
+
+A decoder MUST accept an integer that is not encoded using the most compact
+representation.
+
+### `Integer`
+
+Decode a CBOR list beginning with a `16` as an `Integer` literal:
+
+
+    ────────────────────────────
+    decode-1.0([ 16, -nn ]) = ±n
+
+
+    ───────────────────────────
+    decode-1.0([ 16, -n ]) = ±n
+
+
+    ──────────────────────────
+    decode-1.0([ 16, n ]) = ±n
+
+
+    ───────────────────────────
+    decode-1.0([ 16, nn ]) = ±n
+
+
+A decoder MUST accept an integer that is not encoded using the most compact
+representation.
+
+### `Double`
+
+Decode a CBOR list beginning with a `17` as an `Double` literal:
+
+
+    ─────────────────────────────
+    decode-1.0([ 17, n.n ]) = n.n
+
+
+A decoder MUST accept a decimal fraction that is not encoded using the most
+compact representation.
+
+### `Text`
+
+Decode a CBOR list beginning with a `18` as a `Text` literal:
+
+
+    decode-1.0(b₁) = b₀   decode-1.0(d₁) = d₀   …   decode-1.0(y₁) = y₀
+    ───────────────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]) = "a${b₀}c${d}e…x${y₀}z"
+
+
+### Imports
+
+Decode a CBOR list beginning with a `24` as an import
+
+The decoding rules are the exact opposite of the encoding rules:
+
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
+
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
+
+
+
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
+
+
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
+
+
+    ────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
+
+
+    ─────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
+
+
+    ──────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
+
+
+    ─────────────────────────────────────────────────────────────────────────
+    decode-1.0([ 24, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
+
+
+    ──────────────────────────────────
+    decode-1.0([ 24, 6, "x" ]) = env:x
+
+
+    ───────────────────────────────
+    decode-1.0([ 24, 7 ]) = missing
+
+
+### `let` expressions
+
+Decode a CBOR list beginning with a `25` as a `let` expression:
+
+
+    decode-1.0(a₁) = a₀   decode-1.0(b₁) = b₀
+    ──────────────────────────────────────────────────
+    decode-1.0([ 25, "x", a₁, b₁ ]) = let x = a₀ in b₀
+
+
+    decode-1.0(a₁) = a₀   decode-1.0(A₁) = A₀   decode-1.0(b₁) = b₀
+    ───────────────────────────────────────────────────────────────
+    decode-1.0([ 25, "x", A₁, a₁, b₁ ]) = let x : A₀ = a₀ in b₀
+
+
+### Type annotations
+
+
+    decode-1.0(t₁) = t₀   decode-1.0(T₁) = T₀
+    ─────────────────────────────────────────
+    decode-1.0([ 26, t₁, T₁ ]) = t₀ : T₀
+
+
 ## Versioning judgments
 
-Binary serialization of a Dhall expression encoded with a version tag is a
-function of the following form:
+Encoding a Dhall expression with a protocol version string is a function of the
+following form:
 
     encodeWithVersion-*(dhall) = cbor
 
@@ -809,9 +1350,71 @@ function of the following form:
 ... and replacing `*` with the protocol version string of the expression to
 encode.
 
-The rule is simple:
+Decoding a Dhall expression with a protocol version string is a function of the
+following form:
+
+    decodeWithVersion-*(cbor) = dhall
+
+... where:
+
+* `dhall` (the input) is a Dhall expression
+* `cbor` (the output) is a CBOR expression
+
+... and replacing `*` with the protocol version string of the expression to
+decode.
 
 
     encode-1.0(e₀) = e₁
-    ───────────────────────────────────────
+    ─────────────────────────────────────────
     encodeWithVersion-1.0(e₀) = [ "1.0", e₁ ]
+
+
+    decode-1.0(e₀) = e₁
+    ─────────────────────────────────────────
+    decodeWithVersion-1.0([ "1.0", e₁ ]) = e₀
+
+
+## Protocol evolution
+
+The standardization process is fallible and this section addresses how to
+mitigate the following types of protocol specification errors:
+
+*   A new protocol version string misassigns the major or minor number
+
+    In theory, no action is required.  Standards compliant decoders are
+    unaffected if they match on the exact protocol version string and do not
+    attempt to interpret the protocol version string.  The only harm is that the
+    incorrect protocol version number is misleading to humans by incorrectly
+    suggesting the presence or absence of a breaking change.
+
+    In practice, you might want to publish a new release of the standard
+    correcting the version number and permanently removing standardized support
+    for encoding or decoding the incorrect version number (i.e. "blacklisting"
+    the number).
+
+*   There is a specification bug in the encoding logic
+
+    An protocol version that incorrectly specifies how to encode expressions
+    SHOULD be blacklisted and the fixed encoding logic SHOULD be released under
+    a new protocol version.  This is necessary since there is no way to fix all
+    possible encoded data once the encoding bug has been published.
+
+*   New encoding logic is published without changing the version number
+
+    Treat this the same as a specification bug in the encoding logic.  Blacklist
+    the old protocol version string and release the same logic under a new
+    protocol version string.
+
+*   There is a specification bug in the decoding logic
+
+    Decoding bugs SHOULD be fixed by releasing a new verson of the standard
+    fixing the error.  However, the corresponding protocol version string does
+    not need to be blacklisted nor changed since decoding logic does not
+    persist any data.
+
+*   The decoding logic is changed without changing the version number at all
+
+    Treat this the same as a specification bug in the decoding logic.  Publish
+    a new release of the standard fixing the version number that the logic
+    decodes, but there is no need to blacklist the old protocol version string
+    since no invalid data was persisted.
