@@ -3,8 +3,8 @@
 This document formalizes the semantics for encoding and decoding Dhall
 expressions to and from a binary representation
 
-This is split into a separate document since this document will likely grow
-as the protocol evolves in order to specify how to encode and decode multiple
+This exists as a separate document since this will likely grow as the binary
+protocol evolves in order to specify how to encode and decode multiple
 versions of the binary protocol.
 
 * [Motivation](#motivation)
@@ -57,31 +57,40 @@ versions of the binary protocol.
 Dhall's import system requires a standard way to convert expressions to and from
 a binary representation, for two reasons:
 
-* Imported expressions can be protected by a "semantic integrity check", which
-  is a hash of the binary representation of an expression's normal form
+* Users can imported expressions protected by a "semantic integrity check",
+  which is a SHA-256 hash of the binary representation of an expression's
+  normal form
 
-* Imported expressions are also locally cached if they are protected by a
-  semantic integrity check and the local cache stores expressions using their
-  binary representation
+* Interpreters can locally cache imported expressions if the user protects them
+  with a semantic integrity check.  The local cache stores expressions using
+  the SHA-256 hash as the lookup key and the binary representation of the
+  expression as the cached value.
+
+Implementations also may want to support encoding and decoding multiple
+versions of the protocol for backwards compatibility.  An implementation that
+supports older protocol versions allows users to defer updating their semantic
+integrity checks or rebuilding their cache until they require newer language
+features.
 
 ## CBOR
 
-Dhall's semantics for binary serialization are defined in terms of CBOR
-([RFC 7049](https://tools.ietf.org/html/rfc7049)).  This means that this
-section first specifies a simplified grammar for the subset of CBOR that Dhall
-uses (i.e. "CBOR expressions") and then specifies how to convert Dhall
-expressions to and from these CBOR expressions.
+Dhall's semantics for binary serialization are defined in terms of the
+Concise Binary Object Representation (CBOR)
+([RFC 7049](https://tools.ietf.org/html/rfc7049)).  This section first specifies
+a simplified grammar for the subset of CBOR that Dhall uses
+(i.e. "CBOR expressions") and then specifies how to convert Dhall expressions to
+and from these CBOR expressions.
 
 The `encode` judgments in this section specify how to convert a Dhall
 expression to a CBOR expression.  Once you have a CBOR expression you can
-serialize that CBOR expression to binary according to RFC 7049.
+serialize that CBOR expression to a binary representation according to RFC 7049.
 
 The `decode` judgments in this section specify how to convert a CBOR
-expression to a Dhall expression.  That implies that if you can deserialize
-binary to a CBOR expression then you can further decode that CBOR expression to
-a Dhall expression.
+expression to a Dhall expression.  Once you deserialize a CBOR expression from
+a binary representation then you can further decode that CBOR expression to a
+Dhall expression.
 
-For efficiency reasons, an implementation can elect to not go through an
+For efficiency reasons, an implementation MAY elect to not go through an
 intermediate CBOR expression and instead serialize to or deserialize from the
 binary representation directly.  These semantics only specify how to perform the
 conversion through an intermediate CBOR expression for simplicity.
@@ -107,28 +116,30 @@ protocol version string).
 A compliant implementation MAY support encoding or decoding other versions of
 the protocol standardized within this document for backwards compatibility.
 
-The version strings will typically be version numbers of the form "X.Y", where:
+The protocol version strings will typically be version numbers of the form
+"X.Y", where:
 
 * Changing the version from "X.Y" to "X.{Y + 1}" indicates a non-breaking change
 * Changing the version from "X.Y" to "{X + 1}.0" indicates a breaking change
 
 "X" is "major version number" and "Y" is the "minor version number".
 
-This version number convention is purely a fallible convention and is not
-necessarily enforced by the standardized semantics.  Whenever the version
-numbering convention is inconsistent with the standardized encoding/decoding
-judgments, the judgments are authoritative.
+This version number convention is a convention and is not enforced by the
+standardized semantics.  Whenever the version numbering convention is
+inconsistent with the standardized encoding/decoding judgments, the judgments
+are authoritative.
 
 For example, a judgment that decodes expressions tagged with a protocol version
-string of "X.{Y + 1}" will not necessarily decode expressions tagged with a
-protocol version string of "X.Y".  In theory the decoder should be backwards
-compatible with expressions tagged with smaller minor numbers, but in practice
-it might not due to standardization errors.
+string of "X.{Y + 1}" should in theory also be able to decode expressions tagged
+with a protocol version string of "X.Y".  In practice a standardization error
+might cause the newer protocol version to be incompatible with the older
+protocol version despite sharing the same major version number.
 
-Backwards compatibility is not assumed and is always made explicit by the
-standardized judgments.  For example, if the decoder for protocol version string
-`X.Z` is backward compatible with protocol version string `X.Y` then you will
-see two judgments like this:
+Implementations MUST NOT assume backwards compatibility unless that
+compatibility is explicitly standardized.  For example, if the decoder for
+protocol version string `X.Z` is backward compatible with protocol version
+string `X.Y` then you will see two judgments making that compatibility
+explicit:
 
 
         decode-X.Z(e₀) = e₁
@@ -142,18 +153,17 @@ see two judgments like this:
 
 Notice that each judgment expects a different protocol version string but both
 judgments reuse the same decoding logic (for protocol version "X.Z" in this
-case) in order to avoid duplicate logic.
-
-If you do not see backwards compatibility standardized in this way then you
-should not assume backwards compatibility between two protocol versions, even if
-they share the same major version number.
+case) in order to avoid independently specifying the decoding logic for both
+protocol versions.
 
 The protocol version string format might change in the future.  For example,
 at some point the protocol version string might become a URI or a SHA256 hash.
 Therefore, implementations MUST only match on the exact protocol version strings
 enumerated in the decoding judgments.  Implementations MUST NOT match a prefix
-of the version string and MUST NOT attempt to parse the protocol version string
-as a version number.
+of the version string, MUST NOT attempt to parse the protocol version string
+as a version number, and MUST NOT attempt to interpret the protocol version
+string in any way other than to test the string for equality with an expected
+protocol version string.
 
 ## CBOR expressions
 
@@ -176,7 +186,7 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
 
 ## Encoding judgment
 
-Encoding a naked Dhall expression is a function of the following form:
+You can encode a naked Dhall expression using the following judgment:
 
     encode-*(dhall) = cbor
 
@@ -188,19 +198,28 @@ Encoding a naked Dhall expression is a function of the following form:
 ... and replacing `*` with the protocol version string of the expression to
 encode.
 
-Also, the encoding uses tags less than 24 for language features that can
-survive `β`-normalization (such as a function type) since those tags fit in one
-byte.  Language features that don't survive normalization (such as a `let`
-expression) use tags of 24 or above.
+The encoding logic includes several optimizations for more compactly encoding
+expressions that are fully resolved and αβ-normalized because expressions are
+fully interpreted before they are hashed or cached.  For example, the encoding
+uses tags less than 24 for language features that survive both import resolution
+and normalization (such as a function type) since those tags fit in one byte.
+Language features that don't survive full interpretation (such as a `let`
+expression or an import) use tags of 24 or above.  Similarly, the encoding using
+a more compact representation for variables named `_` because no other variable
+names remain after α-normalization.
+
+Do not construe these optimizations to mean that you need to resolve imports
+or αβ-normalize expressions.  You may encode or decode expressions that have
+not been resolved in any way.
 
 ### Variables
 
 The binary representation encodes variables as compactly as possible, because:
 
-* They occur frequently in Dhall expressions
-* Built-in constants are encoded the same as free variables
+* Variables occur frequently in Dhall expressions
+* Built-in constants occur frequently and they are encoded as free variables
 
-A variable named `"_"` is encoded as its index, using the smallest numeric
+Encode a variable named `"_"` as its index, using the smallest numeric
 representation available:
 
 
@@ -212,11 +231,15 @@ representation available:
     encode-1.0(_@n) = nn
 
 
+This optimization takes advantage of the fact that α-normalized expressions
+only use variables named `_`.  Encoding an α-normalized expression is equivalent
+to using De-Bruijn indices to label variables.
+
 The reason for this optimization is because expressions are commonly
 α-normalized before encoding them, such as when computing their semantic
 integrity check and also when caching them.
 
-A variable that is not named `"_"` with index `0` is encoded as a naked CBOR
+Encode a variable that is not named `"_"` with an index of `0` as a naked CBOR
 text string matching the variable's identifier:
 
 
@@ -224,9 +247,9 @@ text string matching the variable's identifier:
     encode-1.0(x@0) = "x"
 
 
-Otherwise a variable is stored as a two-element CBOR list where the first
-element is the identifier and the second element is the encoded index (using
-the smallest numeric representation available):
+Otherwise encode a variable as a two-element CBOR array where the first element
+is the identifier and the second element is the encoded index (using the
+smallest numeric representation available):
 
 
     ────────────────────────────  ; n < 2^64
@@ -239,7 +262,7 @@ the smallest numeric representation available):
 
 ### Built-in constants
 
-All built-in constants (except boolean values) are encoded as a variable of the
+Encode all built-in constants (except boolean values) as free variables of the
 same name with an index of 0, which is equivalent to encoding them as a naked
 string matching their identifier.
 
@@ -404,7 +427,7 @@ representation:
 
 ### Operators
 
-Operators are encoded as tagged integers alongside their two arguments:
+Operators are encoded as integer tags alongside their two arguments:
 
 
     encode-1.0(l₀) = l₁   encode-1.0(r₀) = r₁
@@ -572,7 +595,7 @@ types encoded as CBOR map:
     encode-1.0(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
 
 
-The `constructors` keyword is encoded as:
+Encode the `constructors` keyword as:
 
 
     encode-1.0(u₀) = u₁
@@ -582,7 +605,7 @@ The `constructors` keyword is encoded as:
 
 ### `Bool`
 
-Boolean literals are encoded using CBOR's built-in support for boolean values:
+Encode Boolean literals using CBOR's built-in support for Boolean values:
 
 
     ───────────────────────
@@ -603,8 +626,7 @@ Boolean literals are encoded using CBOR's built-in support for boolean values:
 
 ### `Natural`
 
-`Natural` literals are encoded using the smallest available numeric
-representation:
+Encode `Natural` literals using the smallest available numeric representation:
 
 
     ─────────────────────────  ; n < 2^64
@@ -617,8 +639,7 @@ representation:
 
 ### `Integer`
 
-`Integer` literals are encoded using the smallest available numeric
-representation:
+Encode `Integer` literals using the smallest available numeric representation:
 
 
     ────────────────────────────  ; ±n < -2^64
@@ -639,8 +660,8 @@ representation:
 
 ### `Double`
 
-`Double`s are always encoded as CBOR decimal fractions in order to avoid loss
-of precision when converting to and from their textual representation:
+Encode `Double`s as CBOR decimal fractions in order to avoid loss of precision
+when converting to and from their textual representation:
 
 
     ─────────────────────────────
@@ -649,8 +670,8 @@ of precision when converting to and from their textual representation:
 
 ### `Text`
 
-`Text` literals are encoded as an alternation between their text chunks and
-any interpolated expressions:
+Encode `Text` literals as an alternation between their text chunks and any
+interpolated expressions:
 
 
     encode-1.0(b₀) = b₁   encode-1.0(d₀) = d₁   …   encode-1.0(y₀) = y₁
@@ -658,13 +679,12 @@ any interpolated expressions:
     encode-1.0("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 
-Note that this encoding of a text literal always begins and ends with a string,
+Note that the encoding of a text literal always begins and ends with a string,
 even if the first or last chunk is the empty string.
 
 ### Imports
 
-URL imports are encoded in a tokenized form with the following elements in
-order:
+Encode URL imports in a tokenized form with the following elements in order:
 
 * The first element is 0 (if the scheme is http) or 1 (if the scheme is https)
 * The next element is the authority
@@ -770,8 +790,8 @@ a type annotation:
 
 ## Decoding judgment
 
-Decoding of a naked Dhall expression is a function of the following
-form:
+
+You can decode a Dhall expression using the following judgment:
 
     decode-*(cbor) = dhall
 
@@ -932,9 +952,9 @@ representation.  For example, a naked unsiged bignum storing `0` is valid, even
 though the `0` could have been stored in a single byte as as a compact unsigned
 integer instead.
 
-A CBOR list beginning with a string indicates a variable.  The list should only
-have two elements, the first of which is a string and the second of which is
-the variable index, which can be either a compact integer or a bignum:
+A CBOR array beginning with a string indicates a variable.  The array should
+only have two elements, the first of which is a string and the second of which
+is the variable index, which can be either a compact integer or a bignum:
 
 
     ────────────────────────────
@@ -950,7 +970,7 @@ representation.
 
 ### Function application
 
-Decode a CBOR list beginning with `0` as function application, where the second
+Decode a CBOR array beginning with `0` as function application, where the second
 element is the function and the remaining elements are the function arguments:
 
 
@@ -960,11 +980,11 @@ element is the function and the remaining elements are the function arguments:
 
 
 A decoder MUST require at least 1 function argument.  In other words, a decode
-MUST reject a CBOR list of of the form `[ 0, f₁ ]`.
+MUST reject a CBOR array of of the form `[ 0, f₁ ]`.
 
 ### Functions
 
-Decode a CBOR list beginning with a `1` as a λ-expression.  If the list has
+Decode a CBOR array beginning with a `1` as a λ-expression.  If the array has
 three elements then the bound variable is named `_`:
 
 
@@ -973,8 +993,8 @@ three elements then the bound variable is named `_`:
     decode-1.0([ 1, A₁, b₁ ]) = λ(_ : A₀) → b₀
 
 
-... otherwise if the list has four elements then the name of the bound variable
-is included in the list:
+... otherwise if the array has four elements then the name of the bound variable
+is included in the array:
 
 
     decode-1.0(A₁) = A₀   decode-1.0(b₁) = b₀
@@ -982,7 +1002,9 @@ is included in the list:
     decode-1.0([ 1, "x", A₁, b₁ ]) = λ(x : A₀) → b₀
 
 
-Decode a CBOR list beginning with a `2` as a ∀-expression.  If the list has
+A decoder MUST reject the latter form if the bound variable is named `_`
+
+Decode a CBOR array beginning with a `2` as a ∀-expression.  If the array has
 three elements then the bound variable is named `_`:
 
 
@@ -991,8 +1013,8 @@ three elements then the bound variable is named `_`:
     decode-1.0([ 2, A₁, B₁ ]) = ∀(_ : A₀) → B₀
 
 
-... otherwise if the list has four elements then the name of the bound variable
-is included in the list:
+... otherwise if the array has four elements then the name of the bound variable
+is included in the array:
 
 
     decode-1.0(A₁) = A₀   decode-1.0(B₁) = B₀
@@ -1000,9 +1022,11 @@ is included in the list:
     decode-1.0([ 2, "x", A₁, B₁ ]) = ∀(x : A₀) → B₀
 
 
+A decoder MUST reject the latter form if the bound variable is named `_`
+
 ### Operators
 
-Decode a CBOR list beginning with a `3` as an operator expression:
+Decode a CBOR array beginning with a `3` as an operator expression:
 
 
     decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
@@ -1067,7 +1091,7 @@ Decode a CBOR list beginning with a `3` as an operator expression:
 
 ### `List`
 
-Decode a CBOR list beginning with a `4` as a `List` literal
+Decode a CBOR array beginning with a `4` as a `List` literal
 
 If the list is empty, then the type MUST be non-`null`:
 
@@ -1087,7 +1111,7 @@ If the list is non-empty then the type MUST be `null`:
 
 ### `Optional`
 
-Decode a CBOR list beginning with a `5` as an `Optional` literal
+Decode a CBOR array beginning with a `5` as an `Optional` literal
 
 
     decode-1.0(T₁) = T₀
@@ -1102,7 +1126,7 @@ Decode a CBOR list beginning with a `5` as an `Optional` literal
 
 ### `merge` expressions
 
-Decode a CBOR list beginning with a `6` as a `merge` expression:
+Decode a CBOR array beginning with a `6` as a `merge` expression:
 
 
     decode-1.0(t₁) = t₀   decode-1.0(u₁) = u₀
@@ -1117,7 +1141,7 @@ Decode a CBOR list beginning with a `6` as a `merge` expression:
 
 ### Records
 
-Decode a CBOR list beginning with a `7` as a record type:
+Decode a CBOR array beginning with a `7` as a record type:
 
 
     decode-1.0(T₁) = T₀   …
@@ -1125,7 +1149,7 @@ Decode a CBOR list beginning with a `7` as a record type:
     decode-1.0([ 7, { "x" = T₁, … } ]) = { x : T₀, … }
 
 
-Decode a CBOR list beginning with a `8` as a record literal:
+Decode a CBOR array beginning with a `8` as a record literal:
 
 
     decode-1.0(t₁) = t₀   …
@@ -1133,7 +1157,7 @@ Decode a CBOR list beginning with a `8` as a record literal:
     decode-1.0([ 8, { "x" = t₁, … } ]) = { x = t₀, … }
 
 
-Decode a CBOR list beginning with a `9` as a field access:
+Decode a CBOR array beginning with a `9` as a field access:
 
 
     decode-1.0(t₁) = t₀   …
@@ -1141,7 +1165,7 @@ Decode a CBOR list beginning with a `9` as a field access:
     decode-1.0([ 9, t₁, "x" ]) = t₀.x
 
 
-Decode a CBOR list beginning with a `10` as a record projection:
+Decode a CBOR array beginning with a `10` as a record projection:
 
 
     decode-1.0(t₁) = t₀   …
@@ -1154,7 +1178,7 @@ responsibility of the type-checking phase.
 
 ### Unions
 
-Decode a CBOR list beginning with a `11` as a union type:
+Decode a CBOR array beginning with a `11` as a union type:
 
 
     decode-1.0(T₁) = T₀   …
@@ -1162,7 +1186,7 @@ Decode a CBOR list beginning with a `11` as a union type:
     decode-1.0([ 11, { "x" = T₁, … } ]) = < x : T₀ | … >
 
 
-Decode a CBOR list beginning with a `12` as a union type:
+Decode a CBOR array beginning with a `12` as a union type:
 
 
     decode-1.0(t₁) = t₀   decode-1.0(T₁) = T₀   …
@@ -1173,7 +1197,7 @@ Decode a CBOR list beginning with a `12` as a union type:
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
 responsibility of the type-checking phase.
 
-Decode a CBOR list beginning with a `13` as a `constructors` application:
+Decode a CBOR array beginning with a `13` as a `constructors` application:
 
 
     decode-1.0(u₁) = u₀
@@ -1194,7 +1218,7 @@ Decode CBOR boolean values to Dhall boolean values:
     decode-1.0(False) = False
 
 
-Decode a CBOR list beginning with a `14` as an `if` expression:
+Decode a CBOR array beginning with a `14` as an `if` expression:
 
 
     decode-1.0(t₁) = t₀   decode-1.0(l₁) = l₀   decode-1.0(r₁) = r₀
@@ -1204,7 +1228,7 @@ Decode a CBOR list beginning with a `14` as an `if` expression:
 
 ### `Natural`
 
-Decode a CBOR list beginning with a `15` as a `Natural` literal:
+Decode a CBOR array beginning with a `15` as a `Natural` literal:
 
 
     ─────────────────────────
@@ -1220,7 +1244,7 @@ representation.
 
 ### `Integer`
 
-Decode a CBOR list beginning with a `16` as an `Integer` literal:
+Decode a CBOR array beginning with a `16` as an `Integer` literal:
 
 
     ────────────────────────────
@@ -1244,7 +1268,7 @@ representation.
 
 ### `Double`
 
-Decode a CBOR list beginning with a `17` as an `Double` literal:
+Decode a CBOR array beginning with a `17` as an `Double` literal:
 
 
     ─────────────────────────────
@@ -1256,7 +1280,7 @@ compact representation.
 
 ### `Text`
 
-Decode a CBOR list beginning with a `18` as a `Text` literal:
+Decode a CBOR array beginning with a `18` as a `Text` literal:
 
 
     decode-1.0(b₁) = b₀   decode-1.0(d₁) = d₀   …   decode-1.0(y₁) = y₀
@@ -1266,7 +1290,7 @@ Decode a CBOR list beginning with a `18` as a `Text` literal:
 
 ### Imports
 
-Decode a CBOR list beginning with a `24` as an import
+Decode a CBOR array beginning with a `24` as an import
 
 The decoding rules are the exact opposite of the encoding rules:
 
@@ -1314,7 +1338,7 @@ The decoding rules are the exact opposite of the encoding rules:
 
 ### `let` expressions
 
-Decode a CBOR list beginning with a `25` as a `let` expression:
+Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
     decode-1.0(a₁) = a₀   decode-1.0(b₁) = b₀
@@ -1337,8 +1361,8 @@ Decode a CBOR list beginning with a `25` as a `let` expression:
 
 ## Versioning judgments
 
-Encoding a Dhall expression with a protocol version string is a function of the
-following form:
+You can encode a Dhall expression tagged with a protocol version string using
+the following judgment:
 
     encodeWithVersion-*(dhall) = cbor
 
@@ -1350,8 +1374,8 @@ following form:
 ... and replacing `*` with the protocol version string of the expression to
 encode.
 
-Decoding a Dhall expression with a protocol version string is a function of the
-following form:
+You can decode a Dhall expression tagged with a protocol version string using
+the following judgment:
 
     decodeWithVersion-*(cbor) = dhall
 
@@ -1387,17 +1411,16 @@ mitigate the following types of protocol specification errors:
     incorrect protocol version number is misleading to humans by incorrectly
     suggesting the presence or absence of a breaking change.
 
-    In practice, you might want to publish a new release of the standard
-    correcting the version number and permanently removing standardized support
-    for encoding or decoding the incorrect version number (i.e. "blacklisting"
-    the number).
+    In practice, you SHOULD publish a new release of the standard correcting the
+    version number and permanently removing standardized support for encoding or
+    decoding the incorrect version number (i.e. "blacklisting" the number).
 
 *   There is a specification bug in the encoding logic
 
-    An protocol version that incorrectly specifies how to encode expressions
+    A protocol version that incorrectly specifies how to encode expressions
     SHOULD be blacklisted and the fixed encoding logic SHOULD be released under
-    a new protocol version.  This is necessary since there is no way to fix all
-    possible encoded data once the encoding bug has been published.
+    a new protocol version.  This is because there is no way to fix all possible
+    encoded data once the encoding bug has been published.
 
 *   New encoding logic is published without changing the version number
 
@@ -1407,7 +1430,7 @@ mitigate the following types of protocol specification errors:
 
 *   There is a specification bug in the decoding logic
 
-    Decoding bugs SHOULD be fixed by releasing a new verson of the standard
+    Decoding bugs SHOULD be fixed by publishing a new verson of the standard
     fixing the error.  However, the corresponding protocol version string does
     not need to be blacklisted nor changed since decoding logic does not
     persist any data.
