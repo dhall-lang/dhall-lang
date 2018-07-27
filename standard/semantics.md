@@ -1317,19 +1317,23 @@ Bruijn indices.  For example, the following expression:
 
 In other words, all bound variables are renamed to `_` and they used the
 variable index to disambiguate which variable they are referring to.  This is
-equivalent to De Bruijn indices.
+equivalent to De Bruijn indices:
+
+    λ(a : Type) → λ(b : Type) → a ↦ λ(_ : Type) → λ(_ : Type) → _@1
+
+    λ(x : Type) → _ ↦ λ(_ : Type) → _@1
 
 If two expressions are α-equivalent then they will be identical after
-α-normalization.
+α-normalization.  For example:
 
-Note that free variables are not transformed by α-normalization.  For example,
-the following expression:
+    λ(a : Type) → a ↦ λ(_ : Type) → _
 
-    λ(x : Type) → y
+    λ(b : Type) → b ↦ λ(_ : Type) → _
 
-... α-normalizes to:
+Note that free variables are not transformed by α-normalization.  For
+example:
 
-    λ(_ : Type) → y
+    λ(x : Type) → y ↦ λ(_ : Type) → y
 
 ### Bound variables
 
