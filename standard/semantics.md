@@ -1318,19 +1318,23 @@ Bruijn indices.  For example, the following expression:
 
 In other words, all bound variables are renamed to `_` and they used the
 variable index to disambiguate which variable they are referring to.  This is
-equivalent to De Bruijn indices.
+equivalent to De Bruijn indices:
+
+    λ(a : Type) → λ(b : Type) → a ↦ λ(_ : Type) → λ(_ : Type) → _@1
+
+    λ(x : Type) → _ ↦ λ(_ : Type) → _@1
 
 If two expressions are α-equivalent then they will be identical after
-α-normalization.
+α-normalization.  For example:
 
-Note that free variables are not transformed by α-normalization.  For example,
-the following expression:
+    λ(a : Type) → a ↦ λ(_ : Type) → _
 
-    λ(x : Type) → y
+    λ(b : Type) → b ↦ λ(_ : Type) → _
 
-... α-normalizes to:
+Note that free variables are not transformed by α-normalization.  For
+example:
 
-    λ(_ : Type) → y
+    λ(x : Type) → y ↦ λ(_ : Type) → y
 
 ### Bound variables
 
@@ -1341,40 +1345,66 @@ capture:
 
 
     A₀ ↦ A₁
-    ↑(1, x, 0, _@0) = v
-    b₀[x ≔ v] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ↦ b₃
+    b₀ ↦ b₁
     ───────────────────────────────
-    λ(x : A₀) → b₀ ↦ λ(_ : A₁) → b₃
+    λ(_ : A₀) → b₀ ↦ λ(_ : A₁) → b₁
 
 
     A₀ ↦ A₁
-    ↑(1, x, 0, _@0) = v
-    B₀[x ≔ v] = B₁
-    ↑(-1, x, 0, B₁) = B₂
-    B₂ ↦ B₃
+    ↑(1, _, 0, b₀) = b₁
+    b₁[x ≔ _] = b₂
+    ↑(-1, x, 0, b₂) = b₃
+    b₃ ↦ b₄
+    ───────────────────────────────  x ≠ _
+    λ(x : A₀) → b₀ ↦ λ(_ : A₁) → b₄
+
+
+    A₀ ↦ A₁
+    B₀ ↦ B₁
     ───────────────────────────────
-    ∀(x : A₀) → B₀ ↦ ∀(_ : A₁) → B₃
+    ∀(_ : A₀) → B₀ ↦ ∀(_ : A₁) → B₁
+
+
+    A₀ ↦ A₁
+    ↑(1, _, 0, B₀) = B₁
+    B₁[x ≔ _] = B₂
+    ↑(-1, x, 0, B₂) = B₃
+    B₃ ↦ B₄
+    ───────────────────────────────  x ≠ _
+    ∀(x : A₀) → B₀ ↦ ∀(_ : A₁) → B₄
 
 
     a₀ ↦ a₁
     A₀ ↦ A₁
-    ↑(1, x, 0, _@0) = v
-    b₀[x ≔ v] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ↦ b₃
+    b₀ ↦ b₁
     ─────────────────────────────────────────────
-    let x = a₀ : A₀ in b₀ ↦ let _ = a₁ : A₁ in b₃
+    let _ = a₀ : A₀ in b₀ ↦ let _ = a₁ : A₁ in b₁
 
 
     a₀ ↦ a₁
-    ↑(1, x, 0, _@0) = v
-    b₀[x ≔ v] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ↦ b₃
+    A₀ ↦ A₁
+    ↑(1, _, 0, b₀) = b₁
+    b₁[x ≔ _] = b₂
+    ↑(-1, x, 0, b₂) = b₃
+    b₃ ↦ b₄
+    ─────────────────────────────────────────────  x ≠ _
+    let x = a₀ : A₀ in b₀ ↦ let _ = a₁ : A₁ in b₄
+
+
+    a₀ ↦ a₁
+    b₀ ↦ b₁
     ───────────────────────────────────
-    let x = a₀ in b₀ ↦ let _ = a₁ in b₃
+    let _ = a₀ in b₀ ↦ let _ = a₁ in b₁
+
+
+    a₀ ↦ a₁
+    ↑(1, _, 0, b₀) = b₁
+    b₁[x ≔ _] = b₂
+    ↑(-1, x, 0, b₂) = b₃
+    b₃ ↦ b₄
+    ───────────────────────────────────  x ≠ _
+    let x = a₀ in b₀ ↦ let _ = a₁ in b₄
+
 
 ### Variables
 
@@ -1707,7 +1737,7 @@ sub-expressions for the remaining rules:
 β-normalization evaluates all built-in functions if they are fully saturated
 (i.e.  no missing arguments):
 
-    List/length Integer [1, 2, 3] ⇥ +3
+    List/length Natural [1, 2, 3] ⇥ 3
 
 β-normalization does not simplify partially applied built-in functions:
 
@@ -1716,7 +1746,7 @@ sub-expressions for the remaining rules:
 β-normalization works under λ, meaning that the body of an unapplied
 λ-expression can be normalized:
 
-    λ(x : Integer) → List/length Integer [x, x, x] ⇥ λ(x : Integer) → +3
+    λ(x : Integer) → List/length Integer [x, x, x] ⇥ λ(x : Integer) → 3
 
 Dhall is a total language that is strongly normalizing, so evaluation order has
 no effect on the language semantics and a conforming implementation can select
