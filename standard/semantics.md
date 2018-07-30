@@ -60,6 +60,7 @@ expressions.
     * [`let` expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
     * [Imports](#imports-4)
+* [Binary encoding and decoding](#binary-encoding-and-decoding)
 * [Import resolution](#import-resolution)
     * [Directories and files](#directories-and-files)
     * [Canonicalization of directories](#canonicalization-of-directories)
@@ -3854,6 +3855,13 @@ annotation then that is a type error.
 ### Imports
 
 An expression with unresolved imports cannot be type-checked
+
+## Binary encoding and decoding
+
+You can find the binary encoding and decoding semantics in the following
+separate document:
+
+* [Binary semantics](./binary.md)
 
 ## Import resolution
 
