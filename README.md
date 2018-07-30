@@ -38,12 +38,6 @@ wiki](https://github.com/dhall-lang/dhall-lang/wiki/Getting-started%3A-Generate-
 
 ## Case study
 
-Expand the details below for an example motivating the use of Dhall:
-
-<details>
-
-<summary>Detailed example of using Dhall</summary>
-
 > **NOTE**: The following examples require at least version `1.14.0` of [the
 > interpreter][dhall-haskell].  
 > For an example compatible with an older version you might want to refer
@@ -908,8 +902,6 @@ main = do
 At this point you should read the [language manual][dhall-haskell-tutorial] ☺
 
 Or you can continue reading to learn about Dhall's feature set
-
-</details>
 
 ## Features:
 
