@@ -11,7 +11,7 @@ You can think of Dhall as: JSON + functions + types + imports
 ## Table of contents
 
 * [Getting Started](#getting-started)
-* [Case Study](#case-study)
+* [Example Configuration](#example-configuration)
 * [Features](#features)
 * [Documentation](#documentation)
 * [Standard Library](#standard-library)
@@ -34,882 +34,211 @@ The easiest way to get started experimenting with Dhall is to install the
 `dhall-to-json` and/or `dhall-to-yaml` executables, which enable you to
 generate JSON and YAML, respectively, on the command line. Platform- and
 runtime-specific installation instructions can be found in [the Dhall
-wiki](https://github.com/dhall-lang/dhall-lang/wiki/Getting-started%3A-Generate-JSON-or-YAML).
+wiki][dhall-json-tutorial-wiki].
 
-## Case study
+## Example Configuration
 
-Expand the details below for an example motivating the use of Dhall:
+```bash
+$ cat ./makeUser.dhall
+```
 
-<details>
+```haskell
+-- This is a single-line comment
 
-<summary>Detailed example of using Dhall</summary>
+{- This is a
+   block comment
+-}
 
-> **NOTE**: The following examples require at least version `1.14.0` of [the
-> interpreter][dhall-haskell].  
-> For an example compatible with an older version you might want to refer
-to an [older revision][readme-before-nat-int-swap] of this document.  
-> For more details about the migration between versions, check [this wiki
-> page][migration-nat-int-swap].
+-- This file stores an anonymous function (analogous to a "template")
 
+   -- ↓↓↓↓ The function's input is an argument named `user`
+    \(user : Text)
+          -- ↑↑↑↑ ... that has type `Text`
 
-Let's motivate Dhall by considering the following JSON configuration
-representing Haskell package metadata (wrapped to 80 columns):
+-- The remainder of this file is the function's output
+-- (a.k.a. "the body of the function")
+
+->   -- ↓↓↓ Use `let` to define intermediate variables
+        let homeDirectory = "/home/${user}"
+
+                           -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ String interpolation
+    in  let privateKeyFile = "${homeDirectory}/id_rsa"
+
+    in  let publicKeyFile = "${privateKeyFile}.pub"
+
+        -- Records begin with `{`, end with `}`, and separate fields with `,`
+    in  { homeDirectory  = homeDirectory
+        , privateKeyFile = privateKeyFile
+        , publicKeyFile  = publicKeyFile
+        } : ./User.dhall
+       -- ↑ The `:` symbol begins a type annotation (optional in this case)
+       --
+       -- We can store expressions (even types) in files (like `./User.dhall`)
+```
+
+```bash
+$ cat ./User.dhall
+```
+
+```haskell
+-- This file stores a Dhall type (analogous to a "schema")
+
+-- This is the type of a record which has three fields:
+--
+-- * The first field is named `homeDirectory` and has type `Text`
+-- * The second field is named `privateKeyFile` and has type `Text`
+-- * The third field is named `publicKeyFile` and has type `Text`
+--
+-- The order of fields does not matter
+{ homeDirectory  : Text
+, privateKeyFile : Text
+, publicKeyFile  : Text
+}
+```
+
+```bash
+$ cat ./configuration.dhall
+```
+
+```haskell
+-- This is our top-level configuration file
+
+    -- We can import any Dhall expression, even a function, from another file
+    let makeUser = ./makeUser.dhall
+
+    -- We can import Dhall expressions from URLs, too
+in  let generate =
+            http://prelude.dhall-lang.org/List/generate
+                -- ... and optionally protect them with integrity checks
+                sha256:77dbfc09daa00a7c6ba0c834863e8ee42e538af0f0600397a1c34923f11454b5
+
+            -- We can provide a fallback mirror if the first import fails
+          ? https://raw.githubusercontent.com/dhall-lang/Prelude/302881a17491f3c72238975a6c3e7aab603b9a96/List/generate
+
+            -- We can fall back to anything, like a local file
+          ? /usr/local/share/dhall/Prelude/List/generate
+
+    -- We can also define functions inline within the same file
+in  let makeBuildUser =
+          \(index : Natural) -> makeUser "build${Natural/show index}"
+
+    -- We can import types, too
+in  let User = ./User.dhall
+
+      -- Lists begin with `[`, end with `]` and separate elements with `,`
+in    [ -- We can inline the configuration for any given user
+        --
+        -- This is useful for users with a non-standard configuration
+        { homeDirectory  = "/home/jenkins"
+        , privateKeyFile = "/etc/jenkins/id_rsa"
+        , publicKeyFile  = "/etc/jenkins/id_rsa.pub"
+        }
+
+        -- We can use our `makeUser` function to stamp out users that follow
+        -- a standard pattern
+      , makeUser "john"
+
+      , makeUser "mary"
+
+      , makeUser "alice"
+
+      ]
+
+ -- ↓ This is the list concatenation operator
+    # ( -- Let's add the current $USER to the list, too
+
+                 -- ↓↓↓↓↓↓↓↓ We can import from environment variables, too
+        [ makeUser (env:USER as Text) ]
+                          -- ↑↑↑↑↑↑↑ Adding "as Text" imports raw Text instead
+                          --         of a Dhall expression
+
+        -- What if the `USER` environment variable is not set?
+        --
+        -- No problem; fall back to appending an empty list
+      ? ([] : List User)
+      )
+
+      -- Let's also generate 7 users using makeBuildUser
+    # generate 7 User makeBuildUser
+```
+
+```bash
+$ # Now convert to JSON
+$ dhall-to-json --pretty <<< './configuration.dhall'
+```
 
 ```json
 [
-    {
-        "name": "dhall",
-        "author": "Gabriel Gonzalez",
-        "license": "Copyright 2017 Gabriel Gonzalez\n\nRedistribution and use in
- source and binary forms, with or without\nmodification, are permitted provided 
-that the following conditions are met:\n\n1. Redistributions of source code must
- retain the above copyright notice, this\n   list of conditions and the followin
-g disclaimer.\n\n2. Redistributions in binary form must reproduce the above copy
-right notice,\n   this list of conditions and the following disclaimer in the do
-cumentation\n   and/or other materials provided with the distribution.\n\n3. Nei
-ther the name of the copyright holder nor the names of its contributors\n   may 
-be used to endorse or promote products derived from this software without\n   sp
-ecific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT H
-OLDERS AND CONTRIBUTORS \"AS IS\" AND\nANY EXPRESS OR IMPLIED WARRANTIES, INCLUD
-ING, BUT NOT LIMITED TO, THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND FITNESS 
-FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
- OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMP
-LARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF S
-UBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
-PTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRI
-CT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OU
-T OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAG
-E.\n"
-    },
-    {
-        "name": "conduit",
-        "author": "Michael Snoyman",
-        "license": "Copyright 2012 Michael Snoyman\n\nPermission is hereby grant
-ed, free of charge, to any person obtaining a copy of this software and associat
-ed documentation files (the \"Software\"), to deal in the Software without restr
-iction, including without limitation the rights to use, copy, modify, merge, pub
-lish, distribute, sublicense, and/or sell copies of the Software, and to permit 
-persons to whom the Software is furnished to do so, subject to the following con
-ditions:\n\nThe above copyright notice and this permission notice shall be inclu
-ded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PR
-OVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BU
-T NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PUR
-POSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRA
-CT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE O
-R THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n"
-    },
-    {
-        "name": "async",
-        "author": "Simon Marlow",
-        "license": "Copyright 2012 Simon Marlow\n\nRedistribution and use in sou
-rce and binary forms, with or without\nmodification, are permitted provided that
- the following conditions are met:\n\n1. Redistributions of source code must ret
-ain the above copyright notice, this\n   list of conditions and the following di
-sclaimer.\n\n2. Redistributions in binary form must reproduce the above copyrigh
-t notice,\n   this list of conditions and the following disclaimer in the docume
-ntation\n   and/or other materials provided with the distribution.\n\n3. Neither
- the name of the copyright holder nor the names of its contributors\n   may be u
-sed to endorse or promote products derived from this software without\n   specif
-ic prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDE
-RS AND CONTRIBUTORS \"AS IS\" AND\nANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
- BUT NOT LIMITED TO, THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
-CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY
-, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBST
-ITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTIO
-N) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT L
-IABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
- THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n
-"
-    },
-    {
-        "name": "system-filepath",
-        "author": "John Milikin",
-        "license": "Copyright 2010 John Milikin\n\nPermission is hereby granted,
- free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the \"Software\"), to deal in the Software without restrict
-ion, including without limitation the rights to use, copy, modify, merge, publis
-h, distribute, sublicense, and/or sell copies of the Software, and to permit per
-sons to whom the Software is furnished to do so, subject to the following condit
-ions:\n\nThe above copyright notice and this permission notice shall be included
- in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVI
-DED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT N
-OT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOS
-E AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIA
-BLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR T
-HE USE OR OTHER DEALINGS IN THE SOFTWARE.\n"
-    }
+  {
+    "homeDirectory": "/home/jenkins",
+    "privateKeyFile": "/etc/jenkins/id_rsa",
+    "publicKeyFile": "/etc/jenkins/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/john",
+    "privateKeyFile": "/home/john/id_rsa",
+    "publicKeyFile": "/home/john/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/mary",
+    "privateKeyFile": "/home/mary/id_rsa",
+    "publicKeyFile": "/home/mary/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/alice",
+    "privateKeyFile": "/home/alice/id_rsa",
+    "publicKeyFile": "/home/alice/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/gabriel",
+    "privateKeyFile": "/home/gabriel/id_rsa",
+    "publicKeyFile": "/home/gabriel/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build0",
+    "privateKeyFile": "/home/build0/id_rsa",
+    "publicKeyFile": "/home/build0/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build1",
+    "privateKeyFile": "/home/build1/id_rsa",
+    "publicKeyFile": "/home/build1/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build2",
+    "privateKeyFile": "/home/build2/id_rsa",
+    "publicKeyFile": "/home/build2/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build3",
+    "privateKeyFile": "/home/build3/id_rsa",
+    "publicKeyFile": "/home/build3/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build4",
+    "privateKeyFile": "/home/build4/id_rsa",
+    "publicKeyFile": "/home/build4/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build5",
+    "privateKeyFile": "/home/build5/id_rsa",
+    "publicKeyFile": "/home/build5/id_rsa.pub"
+  },
+  {
+    "homeDirectory": "/home/build6",
+    "privateKeyFile": "/home/build6/id_rsa",
+    "publicKeyFile": "/home/build6/id_rsa.pub"
+  }
 ]
 ```
 
----
+To learn more about core language features, read:
 
-**User:** *"How can I make the above configuration file easier to read and
-edit?"*
+* [Core language features][core-language-features]
 
-The above configuration file is difficult to read because of the large
-license texts formatted as long uninterrupted lines.  We can make the
-configuration more readable by converting the JSON configuration file to a Dhall
-configuration file, which supports multi-line string literals (like YAML):
+For an even longer hands-on tutorial, read:
 
-```haskell
--- example0.dhall
-
-[   {   name    = "dhall"
-    ,   author  = "Gabriel Gonzalez"
-    ,   license = ''
-            Copyright 2017 Gabriel Gonzalez
-
-            Redistribution and use in source and binary forms, with or without
-            modification, are permitted provided that the following conditions are met:
-
-            1. Redistributions of source code must retain the above copyright notice, this
-               list of conditions and the following disclaimer.
-
-            2. Redistributions in binary form must reproduce the above copyright notice,
-               this list of conditions and the following disclaimer in the documentation
-               and/or other materials provided with the distribution.
-
-            3. Neither the name of the copyright holder nor the names of its contributors
-               may be used to endorse or promote products derived from this software without
-               specific prior written permission.
-
-            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-            ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-            WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-            DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-            FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-            DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-            SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-            CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-            OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        ''
-    }
-,   {   name    = "conduit"
-    ,   author  = "Michael Snoyman"
-    ,   license = ''
-            Copyright 2012 Michael Snoyman
-            
-            Permission is hereby granted, free of charge, to any person obtaining a copy of
-            this software and associated documentation files (the "Software"), to deal in
-            the Software without restriction, including without limitation the rights to
-            use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-            of the Software, and to permit persons to whom the Software is furnished to do
-            so, subject to the following conditions:
-            
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
-            
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
-        ''
-    }
-,   {   name    = "async"
-    ,   author  = "Simon Marlow"
-    ,   license = ''
-            Copyright 2012 Simon Marlow
-            
-            Redistribution and use in source and binary forms, with or without
-            modification, are permitted provided that the following conditions are met:
-            
-            1. Redistributions of source code must retain the above copyright notice, this
-               list of conditions and the following disclaimer.
-            
-            2. Redistributions in binary form must reproduce the above copyright notice,
-               this list of conditions and the following disclaimer in the documentation
-               and/or other materials provided with the distribution.
-            
-            3. Neither the name of the copyright holder nor the names of its contributors
-               may be used to endorse or promote products derived from this software without
-               specific prior written permission.
-            
-            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-            ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-            WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-            DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-            FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-            DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-            SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-            CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-            OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        ''
-    }
-,   {   name    = "system-filepath"
-    ,   author  = "John Milikin"
-    ,   license = ''
-            Copyright 2010 John Milikin
-            
-            Permission is hereby granted, free of charge, to any person obtaining a copy of
-            this software and associated documentation files (the "Software"), to deal in
-            the Software without restriction, including without limitation the rights to
-            use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-            of the Software, and to permit persons to whom the Software is furnished to do
-            so, subject to the following conditions:
-            
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
-            
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
-        ''
-    }
-]
-```
-
-... which we can always convert back to the original JSON configuration by
-running:
-
-```
-$ dhall-to-json --pretty <<< 'example0.dhall'
-[
-    {
-        "name": "dhall",
-        "author": "Gabriel Gonzalez",
-        "license": "Copyright 2017 Gabriel Gonzalez\n\nRedistribution and us..."
-    },
-    {
-        "name": "conduit",
-        "author": "Michael Snoyman",
-        "license": "Copyright 2012 Michael Snoyman\n\nPermission is hereby g..."
-    },
-    {
-        "name": "async",
-        "author": "Simon Marlow",
-        "license": "Copyright 2012 Simon Marlow\n\nRedistribution and use in..."
-    },
-    {
-        "name": "system-filepath",
-        "author": "John Milikin",
-        "license": "Copyright 2010 John Milikin\n\nPermission is hereby gran..."
-    }
-]
-```
-
----
-
-**User:** *"I still can't tell at a glance which license is which"*
-
-We could add comments with the name of each license (since Dhall, unlike JSON,
-supports comments):
-
-```haskell
-[   {   name    = "dhall"
-    ,   author  = "Gabriel Gonzalez"
-
-        -- BSD 3-Clause
-    ,   license = ''
-            Copyright 2017 Gabriel Gonzalez
-
-            Redistribution and use in source and binary forms, with or without
-            ...
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        ''
-    }
-,   {   name    = "conduit"
-    ,   author  = "Michael Snoyman"
-
-        -- MIT
-    ,   license = ''
-            Copyright 2012 Michael Snoyman
-            
-            Permission is hereby granted, free of charge, to any person obtaining a copy of
-            ...
-            SOFTWARE.
-        ''
-    }
-,   {   name    = "async"
-    ,   author  = "Simon Marlow"
-
-        -- BSD 3-Clause
-    ,   license = ''
-            Copyright 2012 Simon Marlow
-            
-            Redistribution and use in source and binary forms, with or without
-            ...
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        ''
-    }
-,   {   name    = "system-filepath"
-    ,   author  = "John Milikin"
-
-        -- MIT
-    ,   license = ''
-            Copyright 2010 John Milikin
-            
-            Permission is hereby granted, free of charge, to any person obtaining a copy of
-            ...
-            SOFTWARE.
-        ''
-    }
-]
-```
-
-... or we could define named functions to build each type of license, like this:
-
-```haskell
--- example1.dhall
-
-    let BSD-3-Clause = λ(args : { year : Natural, author : Text }) → ''
-            Copyright ${Natural/show args.year} ${args.author}
-    
-            Redistribution and use in source and binary forms, with or without
-            modification, are permitted provided that the following conditions are met:
-    
-            1. Redistributions of source code must retain the above copyright notice, this
-               list of conditions and the following disclaimer.
-    
-            2. Redistributions in binary form must reproduce the above copyright notice,
-               this list of conditions and the following disclaimer in the documentation
-               and/or other materials provided with the distribution.
-    
-            3. Neither the name of the copyright holder nor the names of its contributors
-               may be used to endorse or promote products derived from this software without
-               specific prior written permission.
-    
-            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-            ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-            WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-            DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-            FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-            DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-            SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-            CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-            OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        ''
-
-in  let MIT = λ(args : { year : Natural, author : Text }) → ''
-            Copyright ${Natural/show args.year} ${args.author}
-            
-            Permission is hereby granted, free of charge, to any person obtaining a copy of
-            this software and associated documentation files (the "Software"), to deal in
-            the Software without restriction, including without limitation the rights to
-            use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-            of the Software, and to permit persons to whom the Software is furnished to do
-            so, subject to the following conditions:
-            
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
-            
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
-        ''
- 
-in  [   {   name    = "dhall"
-        ,   author  = "Gabriel Gonzalez"
-        ,   license = BSD-3-Clause { year = 2017, author = "Gabriel Gonzalez" }
-        }
-    ,   {   name    = "conduit"
-        ,   author  = "Michael Snoyman"
-        ,   license = MIT { year = 2012, author = "Michael Snoyman" }
-        }
-    ,   {   name    = "async"
-        ,   author  = "Simon Marlow"
-        ,   license = BSD-3-Clause { year = 2012, author = "Simon Marlow" }
-        }
-    ,   {   name    = "system-filepath"
-        ,   author  = "John Milikin"
-        ,   license = MIT { year = 2010, author = "John Milikin" }
-        }
-    ]
-```
-
-Now we can easily tell at a glance which license each package uses without the
-use of comments
-
-Dhall supports anonymous functions using the following syntax:
-
-```haskell
-λ(inputName : inputType) → output
-```
-
-For example:
-
-```
-  The name of the function input is "args", short for "arguments"
-  ↓
-λ(args : { year : Natural, author : Text }) → ...
-         ↑
-         "args" is a record with two fields named "year" and "author"
-```
-
----
-
-**User:** *"I can't type Unicode characters like `'λ'` and `'→'`"*
-
-Dhall supports ASCII equivalents of all Unicode characters, such as `\` instead
-of `λ` and `->` instead of `→`.  However, this tutorial will use Unicode
-everywhere because it's prettier.
-
-If you would like to try to type Unicode characters, you can follow these
-instructions for various platforms:
-
-* [Unicode input](https://en.wikipedia.org/wiki/Unicode_input)
-
-The Unicode code points for the above symbols are:
-
-* `λ (U+03BB)`
-* `→ (U+2192)`
-
----
-
-**User:** *"The license text is still too distracting.  Could we move it out of
-this configuration into another file?"*
-
-We can move anything in Dhall (values, functions, types) into separate files and
-they can refer to each other by their relative or absolute paths.  For example,
-we can factor out the `MIT` and `BSD-3-Clause` functions out into separate
-files, like this:
-
-```haskell
--- BSD-3-Clause.dhall
-
-λ(args : { year : Natural, author : Text }) → ''
-    Copyright ${Natural/show args.year} ${args.author}
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-
-    1. Redistributions of source code must retain the above copyright notice, this
-       list of conditions and the following disclaimer.
-
-    2. Redistributions in binary form must reproduce the above copyright notice,
-       this list of conditions and the following disclaimer in the documentation
-       and/or other materials provided with the distribution.
-
-    3. Neither the name of the copyright holder nor the names of its contributors
-       may be used to endorse or promote products derived from this software without
-       specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-''
-```
-
-```haskell
--- MIT.dhall
-
-λ(args : { year : Natural, author : Text }) → ''
-    Copyright ${Natural/show args.year} ${args.author}
-    
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-''
-```
-
-... and then refer to these files within our original configuration:
-
-```haskell
--- example2.dhall
-
-[   {   name    = "dhall"
-    ,   author  = "Gabriel Gonzalez"
-    ,   license = ./BSD-3-Clause.dhall { year = 2017, author = "Gabriel Gonzalez" }
-    }
-,   {   name    = "conduit"
-    ,   author  = "Michael Snoyman"
-    ,   license = ./MIT.dhall { year = 2012, author = "Michael Snoyman" }
-    }
-,   {   name    = "async"
-    ,   author  = "Simon Marlow"
-    ,   license = ./BSD-3-Clause.dhall { year = 2012, author = "Simon Marlow" }
-    }
-,   {   name    = "system-filepath"
-    ,   author  = "John Milikin"
-    ,   license = ./MIT.dhall { year = 2010, author = "John Milikin" }
-    }
-]
-```
-
-Files containing Dhall expressions don't have to end with a `.dhall` file
-extension.  This is purely a convention
-
----
-
-**User:** *"There's still some duplication: there is an unspoken invariant that
-the package author has to match the license author"*
-
-We can automate that away, too:
-
-```haskell
--- example3.dhall
-
-    let makePackage =
-        λ(args : {   name        : Text
-                 ,   author      : Text
-                 ,   year        : Natural
-                 ,   makeLicense : { year : Natural, author : Text } → Text
-                 }
-        )
-    →   {   name    = args.name
-        ,   author  = args.author
-        ,   license = args.makeLicense { year = args.year, author = args.author }
-        }
-
-in  [   makePackage {   name        = "dhall"
-                    ,   author      = "Gabriel Gonzalez"
-                    ,   year        = 2017
-                    ,   makeLicense = ./BSD-3-Clause.dhall
-                    }
-    ,   makePackage {   name        = "conduit"
-                    ,   author      = "Michael Snoyman"
-                    ,   year        = 2012
-                    ,   makeLicense = ./MIT.dhall
-                    }
-    ,   makePackage {   name        = "async"
-                    ,   author      = "Simon Marlow"
-                    ,   year        = 2012
-                    ,   makeLicense = ./BSD-3-Clause.dhall
-                    }
-    ,   makePackage {   name        = "system-filepath"
-                    ,   author      = "John Milikin"
-                    ,   year        = 2010
-                    ,   makeLicense = ./MIT.dhall
-                    }
-    ]
-```
-
----
-
-**User:** *"Still too much duplication.  I plan on adding a lot more entries and
-I don't want to type `makePackage` for every entry in the list"*
-
-Dhall provides a Prelude of utilities to automate common tasks.  For example,
-the Prelude provides a `map` function that transforms every element of the list
-with the same function (such as `makePackage`):
-
-```haskell
--- example4.dhall
-
-    let map = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/map
-
-in  let makePackage =
-        λ(args : {   name        : Text
-                 ,   author      : Text
-                 ,   year        : Natural
-                 ,   makeLicense : { year : Natural, author : Text } → Text
-                 }
-        )
-    →   {   name    = args.name
-        ,   author  = args.author
-        ,   license = args.makeLicense { year = args.year, author = args.author }
-        }
-
-in  map
-
-    {   name        : Text
-    ,   author      : Text
-    ,   year        : Natural
-    ,   makeLicense : { year : Natural, author : Text } → Text
-    }
-
-    {   name    : Text
-    ,   author  : Text
-    ,   license : Text
-    }
-
-    makePackage
-
-    [   {   name        = "dhall"
-        ,   author      = "Gabriel Gonzalez"
-        ,   year        = 2017
-        ,   makeLicense = ./BSD-3-Clause.dhall
-        }
-    ,   {   name        = "conduit"
-        ,   author      = "Michael Snoyman"
-        ,   year        = 2012
-        ,   makeLicense = ./MIT.dhall
-        }
-    ,   {   name        = "async"
-        ,   author      = "Simon Marlow"
-        ,   year        = 2012
-        ,   makeLicense = ./BSD-3-Clause.dhall
-        }
-    ,   {   name        = "system-filepath"
-        ,   author      = "John Milikin"
-        ,   year        = 2010
-        ,   makeLicense = ./MIT.dhall
-        }
-    ]
-```
-
-You can import functions, values, and types from URLs the same way that you
-import them from paths and this is how Dhall distributes the Prelude
-
-Every function from the Prelude has documentation, examples, and a type
-signature:
-
-```bash
-$ curl https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/map
-{-
-Tranform a list by applying a function to each element
-
-Examples:
-
-./map Natural Bool Natural/even ([2, 3, 5] : List Natural)
-= [True, False, False] : List Bool
-
-./map Natural Bool Natural/even ([] : List Natural)
-= [] : List Bool
--}
-let map : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
-    =   λ(a : Type)
-    →   λ(b : Type)
-    →   λ(f : a → b)
-    →   λ(xs : List a)
-    →   List/build
-        b
-        (   λ(list : Type)
-        →   λ(cons : b → list → list)
-        →   List/fold a xs list (λ(x : a) → cons (f x))
-        )
-
-in  map
-```
-
-The type signature for `map`:
-
-```haskell
-let map : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
-```
-
-... says that `map` takes four arguments:
-
-* The first argument is the element type of the input list
-* The second argument is the element type of the output list
-* The third argument is the function to apply to each element of the list
-* The fourth argument is the input list
-
-... and the result is the output list
-
-You can browse the latest version of the Prelude online by visiting:
-
-* [https://github.com/dhall-lang/Prelude](https://github.com/dhall-lang/Prelude)
-
-You can also import functions from the latest version of the Prelude using the
-following convenience domain:
-
-```haskell
-    let map = http://prelude.dhall-lang.org/List/map
-
-in  ...
-```
-
-... although be cautious when doing so since this URL is mutable and you can't
-guarantee that you get the same result every time.
-
-Check out the [Standard Library](#standard-library) section for more ways to get
-the Prelude.
-
----
-
-**User:** *"These types are still long and repetitive.  One type shows up twice
-in the source code"*
-
-We can import types just like anything else in Dhall:
-
-```haskell
--- Input.dhall
-{   name        : Text
-,   author      : Text
-,   year        : Natural
-,   makeLicense : { year : Natural, author : Text } → Text
-}
-```
-
-```haskell
--- Output.dhall
-{   name    : Text
-,   author  : Text
-,   license : Text
-}
-```
-
-```haskell
--- example5.dhall
-
-    let map = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/map
-
-in  let makePackage =
-        λ(args : ./Input.dhall)
-    →   {   name    = args.name
-        ,   author  = args.author
-        ,   license = args.makeLicense { year = args.year, author = args.author }
-        }
-
-in  map ./Input.dhall ./Output.dhall makePackage
-
-    [   {   name        = "dhall"
-        ,   author      = "Gabriel Gonzalez"
-        ,   year        = 2017
-        ,   makeLicense = ./BSD-3-Clause.dhall
-        }
-    ,   {   name        = "conduit"
-        ,   author      = "Michael Snoyman"
-        ,   year        = 2012
-        ,   makeLicense = ./MIT.dhall
-        }
-    ,   {   name        = "async"
-        ,   author      = "Simon Marlow"
-        ,   year        = 2012
-        ,   makeLicense = ./BSD-3-Clause.dhall
-        }
-    ,   {   name        = "system-filepath"
-        ,   author      = "John Milikin"
-        ,   year        = 2010
-        ,   makeLicense = ./MIT.dhall
-        }
-    ]
-```
-
----
-
-**User:** *"Why doesn't Dhall use JSON-like syntax?"*
-
-JSON isn't the only file format that Dhall supports.  For example, we can
-convert our Dhall configuration to YAML:
-
-```bash
-$ dhall-to-yaml <<< '/tmp/test/example3'
-- name: dhall
-  author: Gabriel Gonzalez
-  license: ! '
-    Copyright 2017 Gabriel Gonzalez
-
-
-    Redistribution and use in source and binary forms, with or without modification,
-    ...
-    OF THE POSSIBILITY OF SUCH DAMAGE.
-
-'
-- name: conduit
-  author: Michael Snoyman
-  license: ! '
-    Copyright 2012 Michael Snoyman
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    ...
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'
-- name: async
-  author: Simon Marlow
-  license: ! '
-    Copyright 2012 Simon Marlow
-
-    Redistribution and use in source and binary forms, with or without modification,
-    ...
-    OF THE POSSIBILITY OF SUCH DAMAGE.
-
-'
-- name: system-filepath
-  author: John Milikin
-  license: ! '
-
-    Copyright 2010 John Milikin
-
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    ...
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'
-```
-
-... or read our Dhall configuration directly into some programming languages
-(like Haskell) without going through a JSON intermediate:
-
-```haskell
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE OverloadedStrings #-}
-
-import Dhall
-
-data Package = Package
-    { name    :: Text
-    , author  :: Text
-    , license :: Text
-    } deriving (Generic, Interpret, Show)
-
-main :: IO ()
-main = do
-    packages <- input auto "./example.dhall"
-    print (packages :: Vector Package)
-```
-
----
-
-**User:** *"Why not just always go through a JSON intermediate?  Every language
-already supports JSON"*
-
-You can load more exotic things into the language (like functions) if the
-language integrates directly with Dhall:
-
-```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
-import Dhall
-
-main :: IO ()
-main = do
-    twice <- input auto "λ(x : Integer) → [x, x]" :: IO (Integer -> Vector Integer)
-    print (twice 5) -- prints: "[5,5]"
-```
-
-... and other features, too, like unions
-
----
-
-**User:** *"What's a union?"*
-
-At this point you should read the [language manual][dhall-haskell-tutorial] ☺
-
-Or you can continue reading to learn about Dhall's feature set
-
-</details>
+* [Getting started: Generate JSON or YAML][dhall-json-tutorial-wiki]
 
 ## Features:
 
@@ -1476,3 +805,5 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
 [migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
 [issue-tracker]: https://github.com/dhall-lang/dhall-lang/issues
+[core-language-features]: https://github.com/dhall-lang/dhall-lang/wiki/Core-language-features
+[dhall-json-tutorial-wiki]: https://github.com/dhall-lang/dhall-lang/wiki/Getting-started%3A-Generate-JSON-or-YAML
