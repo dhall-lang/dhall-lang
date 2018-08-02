@@ -128,7 +128,7 @@ in  let User = ./User.dhall
       -- Lists begin with `[`, end with `]` and separate elements with `,`
 in    [ -- We can inline the configuration for any given user
         --
-        -- This is useful for users with an non-standard configuration
+        -- This is useful for users with a non-standard configuration
         { homeDirectory  = "/home/jenkins"
         , privateKeyFile = "/etc/jenkins/id_rsa"
         , publicKeyFile  = "/etc/jenkins/id_rsa.pub"
