@@ -4243,9 +4243,9 @@ If the import is protected with a `sha256:base64Hash` integrity check, then:
 * the SHA-256 hash is base16-encoded
 * the base16-encoded result has to match the integrity check
 
-An implementation MUST cache imports protected with an integrity check using the
-hash as the lookup key.  An implementation that caches imports in this way so
-MUST:
+An implementation MUST attempt to cache imports protected with an integrity
+check using the hash as the lookup key.  An implementation that caches imports
+in this way so MUST:
 
 * Cache the fully resolved, αβ-normalized expression, and encoded expression
 * Store the cached expression in `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` if
@@ -4256,8 +4256,12 @@ MUST:
   defined and the path is readable and writeable
 * Otherwise, not cache the expression at all
 
-Similarly, MUST follow these steps when importing an expression protected by a
-semantic integrity check:
+An implementation SHOULD warn the user if the interpreter is unable to cache the
+expression due to the environment variables being unset or the filesystem paths
+not being readable or writeable.
+
+Similarly, an implementation MUST follow these steps when importing an
+expression protected by a semantic integrity check:
 
 * Check if there is a Dhall expression stored at either
   `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
