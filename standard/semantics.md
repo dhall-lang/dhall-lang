@@ -4208,29 +4208,128 @@ necessary.
 
 Import resolution is a function of the following form:
 
-    Γ ⊢ e₀ @ here ⇒ e₁
+    Γ₀ ⊢ e₀ @ here ⇒ e₁ ⊢ Γ₁
 
 ... where
 
-* `Γ` (an input) is an unordered map from imports to expressions
+* `Γ₀` (an input) is an unordered map from imports to expressions representing
+  the state of the filesystem/environment/web before the import
+    * `Γ₀(import)` means to retrieve the expression located at `import`
 * `e₀` (an input) is the expression to resolve
 * `here` (an input) is the current import, used to resolve relative imports
-* `e₁` (the output) is the import-free resolved expression
+* `e₁` (an output) is the import-free resolved expression
+* `Γ₁` (an output) is an unordered map from imports to expressions representing
+  the state of the filesystem/environment/web after the import
+    * `Γ₁, import = x` means to save `x` to the resource identified by `import`
 
 If an expression is an import (i.e. a URL, file path, or environment variable),
 then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
+
     here </> import₀ = import₁
     canonicalize(import₁) = import₂
     Γ(import₂) = e₀                  ; Retrieve the expression
-    Γ ⊢ e₀ @ import₂ ⇒ e₁
+    Γ₀ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     ───────────────────────────────  ; `import₀` is a file, URL or environment
-    Γ ⊢ import₀ @ here ⇒ e₁          ; import and `import₀` is not `missing`
+    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁    ; import and `import₀` is not `missing`
 
 
-By using the `?` operator, expressions are alternatively resolved, in left-to-right order.
+If the import is protected with a `sha256:base64Hash` integrity check, then:
+
+* the import's normal form is encoded to a binary representation
+* the binary representation is hashed using SHA-256
+* the SHA-256 hash is base16-encoded
+* the base16-encoded result has to match the integrity check
+
+An implementation MUST cache imports protected with an integrity check using the
+hash as the lookup key.  An implementation that caches imports in this way so
+MUST:
+
+* Cache the fully resolved, αβ-normalized expression, and encoded expression
+* Store the cached expression in `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` if
+  the `$XDG_CACHE_HOME` environment variable is defined and the path is readable
+  and writeable
+* Otherwise, store the cached expression in
+  `"${HOME}/.cache/dhall/${base16Hash}"` if the `$HOME` environment variable is
+  defined and the path is readable and writeable
+* Otherwise, not cache the expression at all
+
+Similarly, MUST follow these steps when importing an expression protected by a
+semantic integrity check:
+
+* Check if there is a Dhall expression stored at either
+  `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
+  `"${HOME}/.cache/dhall/${base16Hash}"`
+* If the file exists, decode the locally cached expression using the
+  `decode-1.0` judgment instead of importing the expression
+    * Verify the decoded expression's actual hash matches the expected hash
+* Otherwise, import the expression as normal
+
+Or in judgment form:
+
+
+    Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash                  ; Verify the hash
+    decode-1.0(binary) = e
+    ───────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
+    Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
+
+
+    Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash                  ; Verify the hash
+    decode-1.0(binary) = e
+    ───────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
+    Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
+
+
+    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    e₁ ↦ e₂
+    e₂ ⇥ e₃
+    encode-1.0(e₃) = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash  ; Verify the hash
+    ─────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
+    Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
+
+
+    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    e₁ ↦ e₂
+    e₂ ⇥ e₃
+    encode-1.0(e₃) = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash  ; Verify the hash
+    ──────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
+    Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
+
+
+    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    e₁ ↦ e₂
+    e₂ ⇥ e₃
+    encode-1.0(e₃) = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash              ; Verify the hash
+    ───────────────────────────────────────────────  ; Otherwise, don't cache
+    Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁
+
+
+... where:
+
+* The `sha256` judgment stands in for the the SHA-256 hashing algorithm
+  specified in
+  [RFC4634 - Section 8.2.2](https://tools.ietf.org/html/rfc4634#section-8.2.2),
+  treated as a pure function from an arbitrary byte array to a 64-byte array
+* The `base16Encode` judgement stands in for the base-16 encoding algorithm
+  specified in
+  [RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
+  as a pure function from a byte array to text
+
+By using the `?` operator, expressions are alternatively resolved, in
+left-to-right order:
+
 Pure expressions are always resolved, `missing` never resolves, and imports
 might not resolve in cases like:
 - an environment variable is not defined
@@ -4238,14 +4337,14 @@ might not resolve in cases like:
 - URL is not reachable
 
 
-    Γ ⊢ e₀ @ here ⇒ e₂
-    ─────────────────────────
-    Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
+    Γ₀ ⊢ e₀ @ here ⇒ e₂ ⊢ Γ₁
+    ───────────────────────────────
+    Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
 
 
-    Γ ⊢ e₁ @ here ⇒ e₂
-    ─────────────────────────  ; if `e₀` fails to resolve
-    Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
+    Γ₀ ⊢ e₁ @ here ⇒ e₂ ⊢ Γ₁
+    ───────────────────────────────  ; if `e₀` fails to resolve
+    Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
 
 
 Carefully note that the fully resolved import must successfully type-check with
@@ -4255,16 +4354,16 @@ For all other cases, recursively descend into sub-expressions:
 
 
     ────────────────────
-    Γ ⊢ x@n @ here ⇒ x@n
+    Γ₀ ⊢ x@n @ here ⇒ x@n ⊢ Γ₁
 
 
-    Γ ⊢ A₀ @ here ⇒ A₁   Γ ⊢ b₀ @ here ⇒ b₁
-    ──────────────────────────────────────────
-    Γ ⊢ λ(x : A₀) → b₀ @ here ⇒ λ(x : A₁) → b₁
+    Γ₀ ⊢ A₀ @ here ⇒ A₁ ⊢ Γ₁   Γ₁ ⊢ b₀ @ here ⇒ b₁ ⊢ Γ₂
+    ───────────────────────────────────────────────────
+    Γ₀ ⊢ λ(x : A₀) → b₀ @ here ⇒ λ(x : A₁) → b₁ ⊢ Γ₂
 
 
     …
 
 
-    ──────────────────────
-    Γ ⊢ Kind @ here ⇒ Kind
+    ────────────────────────────
+    Γ₀ ⊢ Kind @ here ⇒ Kind ⊢ Γ₁
