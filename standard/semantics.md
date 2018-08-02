@@ -4266,10 +4266,14 @@ expression protected by a semantic integrity check:
 * Check if there is a Dhall expression stored at either
   `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
   `"${HOME}/.cache/dhall/${base16Hash}"`
-* If the file exists and is readable, decode the locally cached expression using
-  the `decode-1.0` judgment instead of importing the expression
-    * Verify the decoded expression's actual hash matches the expected hash
+* If the file exists and is readable, verify the file's byte contents match the
+  hash and then decode the expression from the bytes using the `decode-1.0`
+  judgment instead of importing the expression
 * Otherwise, import the expression as normal
+
+An implementation MUST fail and alert the user if hash verification fails,
+either when importing an expression for the first time or importing from the
+local cache.
 
 Or in judgment form:
 
