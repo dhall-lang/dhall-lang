@@ -4236,7 +4236,7 @@ resolve imports within the retrieved expression:
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁    ; import and `import₀` is not `missing`
 
 
-If the import is protected with a `sha256:base64Hash` integrity check, then:
+If the import is protected with a `sha256:base16Hash` integrity check, then:
 
 * the import's normal form is encoded to a binary representation
 * the binary representation is hashed using SHA-256
