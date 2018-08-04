@@ -4295,8 +4295,8 @@ Or in judgment form:
 
 
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
-    e₁ ↦ e₂
-    e₂ ⇥ e₃
+    e₁ ⇥ e₂
+    e₂ ↦ e₃
     encode-1.0(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
@@ -4305,8 +4305,8 @@ Or in judgment form:
 
 
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
-    e₁ ↦ e₂
-    e₂ ⇥ e₃
+    e₁ ⇥ e₂
+    e₂ ↦ e₃
     encode-1.0(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
@@ -4315,8 +4315,8 @@ Or in judgment form:
 
 
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
-    e₁ ↦ e₂
-    e₂ ⇥ e₃
+    e₁ ⇥ e₂
+    e₂ ↦ e₃
     encode-1.0(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash              ; Verify the hash
