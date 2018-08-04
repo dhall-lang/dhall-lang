@@ -4295,6 +4295,7 @@ Or in judgment form:
 
 
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode-1.0(e₃) = binary
@@ -4305,6 +4306,7 @@ Or in judgment form:
 
 
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode-1.0(e₃) = binary
@@ -4315,6 +4317,7 @@ Or in judgment form:
 
 
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode-1.0(e₃) = binary
