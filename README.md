@@ -232,6 +232,50 @@ $ dhall-to-json --pretty <<< './configuration.dhall'
 ]
 ```
 
+```bash
+$ # ... or YAML
+$ dhall-to-yaml <<< './configuration.dhall'
+```
+
+```yaml
+- privateKeyFile: /etc/jenkins/id_rsa
+  publicKeyFile: /etc/jenkins/id_rsa.pub
+  homeDirectory: /home/jenkins
+- privateKeyFile: /home/john/id_rsa
+  publicKeyFile: /home/john/id_rsa.pub
+  homeDirectory: /home/john
+- privateKeyFile: /home/mary/id_rsa
+  publicKeyFile: /home/mary/id_rsa.pub
+  homeDirectory: /home/mary
+- privateKeyFile: /home/alice/id_rsa
+  publicKeyFile: /home/alice/id_rsa.pub
+  homeDirectory: /home/alice
+- privateKeyFile: /home/gabriel/id_rsa
+  publicKeyFile: /home/gabriel/id_rsa.pub
+  homeDirectory: /home/gabriel
+- privateKeyFile: /home/build0/id_rsa
+  publicKeyFile: /home/build0/id_rsa.pub
+  homeDirectory: /home/build0
+- privateKeyFile: /home/build1/id_rsa
+  publicKeyFile: /home/build1/id_rsa.pub
+  homeDirectory: /home/build1
+- privateKeyFile: /home/build2/id_rsa
+  publicKeyFile: /home/build2/id_rsa.pub
+  homeDirectory: /home/build2
+- privateKeyFile: /home/build3/id_rsa
+  publicKeyFile: /home/build3/id_rsa.pub
+  homeDirectory: /home/build3
+- privateKeyFile: /home/build4/id_rsa
+  publicKeyFile: /home/build4/id_rsa.pub
+  homeDirectory: /home/build4
+- privateKeyFile: /home/build5/id_rsa
+  publicKeyFile: /home/build5/id_rsa.pub
+  homeDirectory: /home/build5
+- privateKeyFile: /home/build6/id_rsa
+  publicKeyFile: /home/build6/id_rsa.pub
+  homeDirectory: /home/build6
+```
+
 To learn more about core language features, read:
 
 * [Core language features][core-language-features]
