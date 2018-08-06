@@ -4188,7 +4188,7 @@ resolution for the following program:
 ... must replace both occurrences of `./integer.dhall` with the same
 expression if import resolution succeeds.
 
-A conforming impleentation can satisfy this obligation by caching imports, using
+A conforming implementation can satisfy this obligation by caching imports, using
 the canonical path as the lookup key.  Then for a duplicate import the
 implementation can either:
 
@@ -4230,19 +4230,22 @@ resolve imports within the retrieved expression:
     Γ ⊢ import₀ @ here ⇒ e₁          ; import and `import₀` is not `missing`
 
 
-By using the `?` operator, expressions are alternatively resolved, in left-to-right order.
-Pure expressions are always resolved, `missing` never resolves, and imports
-might not resolve in cases like:
+Resolution of expressions might not be always successful: pure expressions are
+always resolved, the `missing` keyword never resolves, and imports might not 
+resolve in cases like:
 - an environment variable is not defined
 - file doesn't exist
 - URL is not reachable
+
+By using the `?` operator, expressions are alternatively resolved, in
+left-to-right order:
 
 
     Γ ⊢ e₀ @ here ⇒ e₂
     ─────────────────────────
     Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
-
-
+    
+    
     Γ ⊢ e₁ @ here ⇒ e₂
     ─────────────────────────  ; if `e₀` fails to resolve
     Γ ⊢ (e₀ ? e₁) @ here ⇒ e₂
