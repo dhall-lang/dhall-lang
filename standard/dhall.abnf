@@ -270,7 +270,6 @@ reserved-raw =
   / as-raw
   / using-raw
   / merge-raw
-  / missing-raw
   / constructors-raw
   / Bool-raw
   / Optional-raw
@@ -370,6 +369,8 @@ identifier-reserved-prefix =
 
 identifier-reserved-namespaced-prefix =
     reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw ] whitespace
+
+missing = missing-raw whitespace
 
 ; Printable characters other than " ()[]{}<>/\,"
 ;
@@ -549,7 +550,7 @@ posix-environment-variable-character =
         ; %x5C = "\"
     / %x5D-7E
 
-import-type = local / http / env
+import-type = missing / local / http / env
 
 hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
 
