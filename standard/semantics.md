@@ -3453,27 +3453,52 @@ error.
 
 If the field is absent from the record then that is a type error.
 
-Recursive record merge requires that both arguments are records:
+Recursive record merge requires that both arguments are both records of terms or
+records of types:
 
 
     Γ ⊢ l :⇥ { ls… }
+    { ls… } :⇥ Type
     Γ ⊢ r :⇥ {}
     ───────────────────
     Γ ⊢ l ∧ r : { ls… }
 
 
     Γ ⊢ l :⇥ { ls… }
+    { ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { a : A, rs… } :⇥ Type
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ∧ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ { a : A₀, ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { a : A₁, rs… } :⇥ Type
     Γ ⊢ l.a ∧ r.a : A₂
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ───────────────────────────────
+    ────────────────────────────────
+    Γ ⊢ l ∧ r : { a : A₂, ts… }
+
+
+    Γ ⊢ l :⇥ { ls… }
+    { ls… } :⇥ Kind
+    Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { a : A, rs… } :⇥ Kind
+    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ∧ r : { a : A, ts… }
+
+
+    Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ { a : A₀, ls… } :⇥ Kind
+    Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { a : A₁, rs… } :⇥ Kind
+    Γ ⊢ l.a ∧ r.a : A₂
+    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    ────────────────────────────────
     Γ ⊢ l ∧ r : { a : A₂, ts… }
 
 
@@ -3481,30 +3506,60 @@ If the operator arguments are not records then that is a type error.
 
 If they share a field in common that is not a record then that is a type error.
 
-Non-recursive right-biased merge also requires that both arguments are records:
+If one argument is a record of terms and the other argument is a record of types
+then that is a type error.
+
+Non-recursive right-biased merge also requires that both arguments are both
+records of terms or records of types:
 
 
     Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ { ls… } :⇥ Type
     Γ ⊢ r :⇥ {}
     ───────────────────
     Γ ⊢ l ⫽ r : { ls… }
 
 
     Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ { ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { a : A, rs… } :⇥ Type
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⫽ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ { a : A₀, ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { a : A₁, rs… } :⇥ Type
+    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    ───────────────────────────────
+    Γ ⊢ l ⫽ r : { a : A₀, ts… }
+
+
+    Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ { ls… } :⇥ Kind
+    Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { a : A, rs… } :⇥ Kind
+    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⫽ r : { a : A, ts… }
+
+
+    Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ { a : A₀, ls… } :⇥ Kind
+    Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { a : A₁, rs… } :⇥ Kind
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ───────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₀, ts… }
 
 
 If the operator arguments are not records then that is a type error.
+
+If one argument is a record of terms and the other argument is a record of types
+then that is a type error.
 
 Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
