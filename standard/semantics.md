@@ -41,6 +41,9 @@ expressions.
     * [`let` expressions](#let-expressions)
     * [Type annotations](#type-annotations)
     * [Imports](#imports-3)
+* [Text literals](#text-literals)
+    * [Canonicalization of text](#canonicalization-of-text)
+    * [Single-quote text literals](#single-quote-text-literals)
 * [Equivalence](#equivalence)
 * [Function check](#function-check)
 * [Type inference](#type-inference)
@@ -2223,12 +2226,8 @@ The `Text` type is in normal form:
     Text ⇥ Text
 
 
-`Text` literals are in normal form:
-
-
-    ─────────
-    "…" ⇥ "…"
-
+`Text` literals normalize to their
+[canonical encoding](#canonicalization-of-text).
 
 Use machine concatenation to simplify the "text concatenation" operator if both
 arguments normalize to `Text` literals:
@@ -2909,6 +2908,42 @@ Simplify a type annotation by removing the annotation:
 ### Imports
 
 An expression with unresolved imports cannot be β-normalized.
+
+## Text literals
+
+### Canonicalization of text
+
+Multiple text literals can encode the same sequence of code points, but every
+sequence of code points can be encoded as one unique canonical text literal. The
+canonical encoding of a code point is that code point itself, apart from the
+following code points:
+
+ * U+0008 (backspace) encodes to U+005C, U+0062 (`\b`).
+ * U+0009 (tab) encodes to U+005C, U+0074 (`\t`).
+ * U+000C (form feed) encodes to U+005C, U+0066 (`\f`).
+ * U+000A (line feed) encodes to U+005C, U+006E (`\n`).
+ * U+000D (carriage return) encodes to U+005C, U+0072 (`\r`).
+ * U+0022 (`"`) encodes to U+005C, U+0022 (`\"`).
+ * U+0024 (`$`) encodes to U+005C, U+0024 (`\$`).
+ * U+005C (<code>\</code>) encodes to U+005C, U+005C (<code>\\</code>).
+
+The canonical encoding of a sequence of code points is that sequence of code
+points surrounded by double quotes (`"`).
+
+
+    ────────────────────  ; Example of normalizing a \uXXXX escape sequence.
+    "\uD834\uDD1E" ⇥ "𝄞"
+
+
+    ───────────────  ; Newlines still need to be escaped.
+    "\u000A" ⇥ "\n"
+
+
+    ────────────  ; Single-quote text literals normalize to double-quote.
+    ''"'' ⇥ "\""
+
+### Single-quote text literals
+
 
 ## Equivalence
 
