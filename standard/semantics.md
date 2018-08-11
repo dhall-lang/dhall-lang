@@ -2942,7 +2942,57 @@ points surrounded by double quotes (`"`).
     ────────────  ; Single-quote text literals normalize to double-quote.
     ''"'' ⇥ "\""
 
+
 ### Single-quote text literals
+
+Single-quote text literals (surrounded by `''`) are subject to indentation
+stripping after interpreting escape codes. The sequence of code points that the
+literal represents is the one after stripping indents, and after removing a
+leading newline, if one exists. The canonical encoding of a single-quote text
+literal is the canonical double-quote encoding of the sequence of code points it
+represents.
+
+The *content start* of a sequence of code points is the first code point that is
+not a newline (U+000A) or a space (U+0020).
+
+The *indent* of a sequence of code points, is the subsequence of code points
+between the last newline before the content start, and the content start itself.
+The newline and content start are not included in the indent. If no newline
+occurs before the content start, the indent is empty.
+
+Stripping indents is done by, after every newline (U+000A), removing code points
+that form a prefix of the indent.
+
+
+    ────────────  ; The indent is empty, nothing is stripped.
+    ''...
+    '' ⇥ "...\n"
+
+
+    ────────────  ; The leading newline is stripped. The indent is empty.
+    ''
+    1
+    2'' ⇥ "1\n2"
+
+
+    ────────────  ; The leading newline is stripped. The indent is two spaces.
+    ''
+      1
+      2'' ⇥ "1\n2"
+
+
+    ────────────  ; The leading newline is stripped. The indent is two spaces.
+    ''
+      1
+        2
+    '' ⇥ "1\n  2\n"
+
+
+    ────────────  ; The leading newline is stripped. The indent is four spaces.
+    ''
+        1
+      2
+    '' ⇥ "1\n2\n" ; The two spaces in front of "2" were a prefix of the indent.
 
 
 ## Equivalence
