@@ -1,3 +1,4 @@
+{ src, ... }:
 let
   fetchNixpkgs = import ./nix/fetchNixpkgs.nix;
 
@@ -47,9 +48,12 @@ let
 
   pkgs = import nixpkgs { config = {}; overlays = [ overlay ]; };
 
-  # Derivation that trivially depends on the current directory so that Hydra's
-  # pull request builder always posts a GitHub status on each revision
-  pwd = pkgs.runCommand "pwd" { here = ./.; } "touch $out";
+  # Derivation that trivially depends on the input source code revision.
+  # As this is included in the "dhall-lang" aggregate, it forces every
+  # commit to have a corresponding GitHub status check, even if the
+  # commit doesn't make any changes (which can happen when merging
+  # master in).
+  rev = pkgs.runCommand "rev" {} ''echo "${src.rev}" > $out'';
 
 in
   { dhall-lang = pkgs.releaseTools.aggregate {
@@ -57,7 +61,7 @@ in
 
       constituents = [
         pkgs.dhall-grammar
-        pwd
+        rev
       ];
     };
   }
