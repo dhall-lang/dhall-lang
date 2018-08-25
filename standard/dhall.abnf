@@ -262,16 +262,7 @@ Type-raw              = %x54.79.70.65
 Kind-raw              = %x4b.69.6e.64
 
 reserved-raw =
-    if-raw
-  / then-raw
-  / else-raw
-  / let-raw
-  / in-raw
-  / as-raw
-  / using-raw
-  / merge-raw
-  / constructors-raw
-  / Bool-raw
+    Bool-raw
   / Optional-raw
   / Natural-raw
   / Integer-raw
@@ -308,16 +299,17 @@ reserved            = reserved-raw            whitespace
 reserved-namespaced = reserved-namespaced-raw whitespace
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
-if           = if-raw           whitespace
-then         = then-raw         whitespace
-else         = else-raw         whitespace
-let          = let-raw          whitespace
-in           = in-raw           whitespace
-as           = as-raw           whitespace
-using        = using-raw        whitespace
-merge        = merge-raw        whitespace
-constructors = constructors-raw whitespace
-Optional     = Optional-raw     whitespace
+if           = if-raw           whitespace-chunk
+then         = then-raw         whitespace-chunk
+else         = else-raw         whitespace-chunk
+let          = let-raw          whitespace-chunk
+in           = in-raw           whitespace-chunk
+as           = as-raw           whitespace-chunk
+using        = using-raw        whitespace-chunk
+merge        = merge-raw        whitespace-chunk
+constructors = constructors-raw whitespace-chunk
+Optional     = Optional-raw     whitespace-chunk
+
 Text         = Text-raw         whitespace
 List         = List-raw         whitespace
 
@@ -685,7 +677,6 @@ primitive-expression =
     / identifier-reserved-prefix
 
     ; "List"
-    ; "if"
     / reserved
 
     ; "x"
