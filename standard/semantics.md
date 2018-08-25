@@ -3629,7 +3629,7 @@ error.
 ### Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
-and types of their alternatives and the order of alternatives does not matter:
+and types of their alternatives:
 
 
     ─────────────
