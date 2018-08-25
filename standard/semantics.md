@@ -2523,7 +2523,8 @@ All of the built-in functions on `Optional` values are in normal form:
 
 ### Records
 
-Normalizing a record type normalizes the type of each field:
+Normalizing a record type sorts the fields and normalizes the type of each
+field:
 
 
     ───────
@@ -2535,7 +2536,7 @@ Normalizing a record type normalizes the type of each field:
     { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
 
 
-Normalizing a record value normalizes each field:
+Normalizing a record value sorts the fields and normalizes each field:
 
 
     ─────────
@@ -2676,7 +2677,8 @@ record types:
 
 ### Unions
 
-Normalizing a union type normalizes the type of each alternative:
+Normalizing a union type sorts the alternatives and normalizes the type of each
+alternative:
 
 
     ───────
@@ -2688,8 +2690,8 @@ Normalizing a union type normalizes the type of each alternative:
     < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
 
 
-Normalizing a union value is the same as normalizing the specified value and
-the type of each alternative:
+Normalizing a union value sorts the alternatives, normalizes the specified
+value, and normalizes the type of each alternative:
 
 
     t₀ ⇥ t₁
@@ -3364,7 +3366,7 @@ The built-in functions on `Optional` values have the following types:
 ### Records
 
 Record types are "anonymous", meaning that they are uniquely defined by the
-names and types of their fields and the order of fields does not matter:
+names and types of their fields.
 
 A record can either store term-level values and functions:
 
