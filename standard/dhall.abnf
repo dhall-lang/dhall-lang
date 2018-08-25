@@ -114,6 +114,8 @@ whitespace-chunk =
 
 whitespace = *whitespace-chunk
 
+nonempty-whitespace = 1*whitespace-chunk
+
 ; Uppercase or lowercase ASCII letter
 ALPHA = %x41-5A / %x61-7A
 
@@ -299,17 +301,17 @@ reserved            = reserved-raw            whitespace
 reserved-namespaced = reserved-namespaced-raw whitespace
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
-if           = if-raw           whitespace-chunk
-then         = then-raw         whitespace-chunk
-else         = else-raw         whitespace-chunk
-let          = let-raw          whitespace-chunk
-in           = in-raw           whitespace-chunk
-as           = as-raw           whitespace-chunk
-using        = using-raw        whitespace-chunk
-merge        = merge-raw        whitespace-chunk
-constructors = constructors-raw whitespace-chunk
-Optional     = Optional-raw     whitespace-chunk
+if           = if-raw           nonempty-whitespace
+then         = then-raw         nonempty-whitespace
+else         = else-raw         nonempty-whitespace
+let          = let-raw          nonempty-whitespace
+in           = in-raw           nonempty-whitespace
+as           = as-raw           nonempty-whitespace
+using        = using-raw        nonempty-whitespace
+merge        = merge-raw        nonempty-whitespace
+constructors = constructors-raw nonempty-whitespace
 
+Optional     = Optional-raw     whitespace
 Text         = Text-raw         whitespace
 List         = List-raw         whitespace
 
