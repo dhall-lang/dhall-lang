@@ -2931,8 +2931,8 @@ The canonical encoding of a sequence of code points is that sequence of code
 points surrounded by double quotes (`"`).
 
 
-    ────────────────────  ; Example of normalizing a \uXXXX escape sequence.
-    "\uD834\uDD1E" ⇥ "𝄞"
+    ──────────────  ; Example of normalizing a \uXXXX escape sequence.
+    "\u00E9" ⇥ "é"
 
 
     ───────────────  ; Newlines still need to be escaped.
