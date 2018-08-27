@@ -114,6 +114,8 @@ whitespace-chunk =
 
 whitespace = *whitespace-chunk
 
+nonempty-whitespace = 1*whitespace-chunk
+
 ; Uppercase or lowercase ASCII letter
 ALPHA = %x41-5A / %x61-7A
 
@@ -262,16 +264,7 @@ Type-raw              = %x54.79.70.65
 Kind-raw              = %x4b.69.6e.64
 
 reserved-raw =
-    if-raw
-  / then-raw
-  / else-raw
-  / let-raw
-  / in-raw
-  / as-raw
-  / using-raw
-  / merge-raw
-  / constructors-raw
-  / Bool-raw
+    Bool-raw
   / Optional-raw
   / Natural-raw
   / Integer-raw
@@ -308,15 +301,16 @@ reserved            = reserved-raw            whitespace
 reserved-namespaced = reserved-namespaced-raw whitespace
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
-if           = if-raw           whitespace
-then         = then-raw         whitespace
-else         = else-raw         whitespace
-let          = let-raw          whitespace
-in           = in-raw           whitespace
-as           = as-raw           whitespace
-using        = using-raw        whitespace
-merge        = merge-raw        whitespace
-constructors = constructors-raw whitespace
+if           = if-raw           nonempty-whitespace
+then         = then-raw         nonempty-whitespace
+else         = else-raw         nonempty-whitespace
+let          = let-raw          nonempty-whitespace
+in           = in-raw           nonempty-whitespace
+as           = as-raw           nonempty-whitespace
+using        = using-raw        nonempty-whitespace
+merge        = merge-raw        nonempty-whitespace
+constructors = constructors-raw nonempty-whitespace
+
 Optional     = Optional-raw     whitespace
 Text         = Text-raw         whitespace
 List         = List-raw         whitespace
@@ -685,7 +679,6 @@ primitive-expression =
     / identifier-reserved-prefix
 
     ; "List"
-    ; "if"
     / reserved
 
     ; "x"
