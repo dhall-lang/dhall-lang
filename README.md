@@ -323,7 +323,7 @@ work with the builtin types. Where to find it:
 
 ## Development status
 
-Language version: `v1.0.0`.
+Language version: `v2.0.0`.
 
 The versioning policy is detailed in the [Versioning document](VERSIONING.md),
 and you can see the latest changes [here in the Changelog](CHANGELOG.md).
