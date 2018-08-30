@@ -92,10 +92,10 @@ New features:
 
 * [Standardize semantics for serializing Dhall expressions](https://github.com/dhall-lang/dhall-lang/pull/194)
 * [Standardize semantics for hashing and caching](https://github.com/dhall-lang/dhall-lang/pull/208)
+* [Fix grammar for `missing`](https://github.com/dhall-lang/dhall-lang/pull/213)
 
 Other changes:
 
-* [Fix grammar for `missing`](https://github.com/dhall-lang/dhall-lang/pull/213)
 * [Fix Integer/Natural mismatch in β-normalization section](https://github.com/dhall-lang/dhall-lang/pull/204)
 * [Fix typos and formatting in semantics document](https://github.com/dhall-lang/dhall-lang/pull/212)
 
