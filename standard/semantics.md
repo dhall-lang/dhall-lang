@@ -2962,13 +2962,12 @@ The *content start* of a sequence of code points is the first code point that is
 not a newline (U+000A) or a space (U+0020). For the purposes of indentation,
 string interpolation counts as content.
 
-The *indent* of a sequence of code points, is the subsequence of code points
-between the last newline before the content start, and the content start itself.
-The newline and content start are not included in the indent. If no newline
-occurs before the content start, the indent is empty.
+The *indent* of a sequence of code points, is the shortest subsequence of spaces
+(U+0020) points after a newline (U+000A), or after the content start, across the
+text literal. The newline is not included in the indent. The indent might be
+empty.
 
-Stripping indents is done by, after every newline (U+000A), removing code points
-that form a prefix of the indent.
+Stripping indents is done by, after every newline (U+000A), removing the indent.
 
 
     ────────────  ; The indent is empty, nothing is stripped.
@@ -2995,11 +2994,11 @@ that form a prefix of the indent.
     '' ⇥ "1\n  2\n"
 
 
-    ────────────  ; The leading newline is stripped. The indent is four spaces.
+    ────────────  ; The leading newline is stripped. The indent is two spaces.
     ''
         1
       2
-    '' ⇥ "1\n2\n" ; The two spaces in front of "2" were a prefix of the indent.
+    '' ⇥ "  1\n2\n" ; The two spaces in front of "2" were a prefix of the indent.
 
 
 ## Equivalence
