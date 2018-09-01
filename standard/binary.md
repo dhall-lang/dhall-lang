@@ -904,6 +904,10 @@ identifier if it matches any of the following strings:
     decode-1.0("Optional") = Optional
 
 
+    ─────────────────────────
+    decode-1.0("None") = None
+
+
     ───────────────────────────────
     decode-1.0("Natural") = Natural
 
@@ -1132,6 +1136,11 @@ Decode a CBOR array beginning with a `5` as an `Optional` literal
     decode-1.0(t₁) = t₀   decode-1.0(T₁) = T₀
     ────────────────────────────────────────────────
     decode-1.0([ 5, T₁, t₁ ]) = [ t₀ ] : Optional T₀
+
+
+    decode-1.0(t₁) = t₀
+    ─────────────────────────────────────
+    decode-1.0([ 5, null, t₁ ]) = Some t₀
 
 
 ### `merge` expressions
