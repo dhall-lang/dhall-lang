@@ -42,6 +42,7 @@ expressions.
     * [Type annotations](#type-annotations)
     * [Imports](#imports-3)
 * [Text literals](#text-literals)
+    * [Interpolation](#interpolation)
     * [Canonicalization of text](#canonicalization-of-text)
     * [Single-quote text literals](#single-quote-text-literals)
 * [Equivalence](#equivalence)
@@ -2911,6 +2912,11 @@ An expression with unresolved imports cannot be β-normalized.
 
 ## Text literals
 
+### Interpolation
+
+Dhall supports text `"${expr}"`-style text interpolation. Text interpolation is
+a primitive language feature that survives normalization.
+
 ### Canonicalization of text
 
 Multiple text literals can encode the same sequence of code points, but every
@@ -2946,14 +2952,15 @@ points surrounded by double quotes (`"`).
 ### Single-quote text literals
 
 Single-quote text literals (surrounded by `''`) are subject to indentation
-stripping after interpreting escape codes. The sequence of code points that the
-literal represents is the one after stripping indents, and after removing a
-leading newline, if one exists. The canonical encoding of a single-quote text
-literal is the canonical double-quote encoding of the sequence of code points it
-represents.
+stripping after interpreting escape codes and before substituting interpolated
+values. The sequence of code points that the literal represents is the one after
+stripping indents, and after removing a leading newline, if one exists. The
+canonical encoding of a single-quote text literal is the canonical double-quote
+encoding of the sequence of code points it represents.
 
 The *content start* of a sequence of code points is the first code point that is
-not a newline (U+000A) or a space (U+0020).
+not a newline (U+000A) or a space (U+0020). For the purposes of indentation,
+string interpolation counts as content.
 
 The *indent* of a sequence of code points, is the subsequence of code points
 between the last newline before the content start, and the content start itself.
