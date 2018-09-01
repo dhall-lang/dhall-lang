@@ -351,6 +351,10 @@ string matching their identifier.
     encode-1.0(Optional) = "Optional"
 
 
+    ─────────────────────────
+    encode-1.0(None) = "None"
+
+
     ───────────────────────────────
     encode-1.0(Natural) = "Natural"
 
@@ -510,7 +514,8 @@ Non-empty `List`s don't store their type, but do store their elements inline:
 
 ### `Optional`
 
-Empty `Optional` literals only store their type:
+Empty `Optional` literals using the legacy `List`-like syntax only store their
+type:
 
 
     encode-1.0(T₀) = T₁
@@ -518,12 +523,17 @@ Empty `Optional` literals only store their type:
     encode-1.0([] : Optional T₀) = [ 5, T₁ ]
 
 
-Non-empty `Optional` literals also store their value:
+Non-empty `Optional` literals store the type (if present) and their value:
 
 
     encode-1.0(t₀) = t₁   encode-1.0(T₀) = T₁
     ────────────────────────────────────────────────
     encode-1.0([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
+
+
+    encode-1.0(t₀) = t₁
+    ─────────────────────────────────────
+    encode-1.0(Some t₀) = [ 5, null, t₁ ]
 
 
 ### `merge` expressions

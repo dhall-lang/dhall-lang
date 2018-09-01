@@ -173,6 +173,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
                                       ; alternative
   / constructors u                    ; Make record of constructors from union
                                       ; type
+  / Some a                            ; Constructor for a present Optional value
+  / None                              ; Constructor for an absent Optional value
   / Natural/build                     ; Natural introduction
   / Natural/fold                      ; Natural elimination
   / Natural/isZero                    ; Test if zero
@@ -678,6 +680,15 @@ The remaining rules are:
     ↑(d, x, m, constructors u₀) = constructors u₁
 
 
+    ↑(d, x, m, a₀) = a₁
+    ─────────────────────────────
+    ↑(d, x, m, Some a₀) = Some a₁
+
+
+    ───────────────────────
+    ↑(d, x, m, None) = None
+
+
     ─────────────────────────────────────────
     ↑(d, x, m, Natural/build) = Natural/build
 
@@ -1176,6 +1187,15 @@ The remaining rules are:
     (constructors u₀)[x@n ≔ e] = constructors u₁
 
 
+    a₀[x@n ≔ e] = a₁
+    ────────────────────────────
+    (Some a₀)[x@n ≔ e] = Some a₁
+
+
+    ────────────────────
+    None[x@n ≔ e] = None
+
+
     ──────────────────────────────────────
     Natural/build[x@n ≔ e] = Natural/build
 
@@ -1597,6 +1617,15 @@ sub-expressions for the remaining rules:
     u₀ ↦ u₁
     ─────────────────────────────────
     constructors u₀ ↦ constructors u₁
+
+
+    a₀ ↦ a₁
+    ─────────────────
+    Some a₀ ↦ Some a₁
+
+
+    ───────────
+    None ↦ None
 
 
     ─────────────────────────────
@@ -2377,12 +2406,12 @@ Otherwise, normalize each argument:
 
     f ⇥ List/head A₀   as ⇥ [] : List A₁
     ────────────────────────────────────
-    f as ⇥ [] : Optional A₀
+    f as ⇥ None A₀
 
 
     f ⇥ List/head A₀   as ⇥ [ a, … ]
     ────────────────────────────────
-    f as ⇥ [ a ] : Optional A₀
+    f as ⇥ Some a
 
 
 `List/last` returns the last element of a list:
@@ -2390,12 +2419,12 @@ Otherwise, normalize each argument:
 
     f ⇥ List/last A₀   as ⇥ [] : List A₁
     ────────────────────────────────────
-    f as ⇥ [] : Optional A₀
+    f as ⇥ None A₀
 
 
     f ⇥ List/last A₀   as ⇥ [ …, a ]
     ────────────────────────────────
-    f as ⇥ [ a ] : Optional A₀
+    f as ⇥ Some a
 
 
 `List/indexed` tags each element of the list with the element's index:
@@ -2464,18 +2493,30 @@ The `Optional` type-level function is in normal form:
     Optional ⇥ Optional
 
 
-Normalizing an `Optional` literal normalizes the type annotation and the value,
-if present:
+Normalizing an `Optional` literal using the legacy `List`-like representation
+converts the literal to the new `None` / `Some` representation:
 
 
-    T₀ ⇥ T₁
-    ───────────────────────────────────
-    [] : Optional T₀ ⇥ [] : Optional T₁
+    None T ⇥ e
+    ───────────────────
+    [] : Optional T ⇥ e
 
 
-    t₀ ⇥ t₁   T₀ ⇥ T₁
-    ───────────────────────────────────────────
-    [ t₀ ] : Optional T₀ ⇥ [ t₁ ] : Optional T₁
+    Some t ⇥ e
+    ──────────────────────
+    [ t ] : Optional T ⇥ e
+
+
+... which in turn normalize according to the following rules:
+
+
+    ───────────
+    None ⇥ None
+
+
+    t₀ ⇥ t₁
+    ─────────────────
+    Some t₀ ⇥ Some t₁
 
 
 `Optional/build` and `Optional/fold` are inverses of one another, which leads to
@@ -2491,22 +2532,21 @@ the following fusion rule:
 
 
     f ⇥ Optional/build A₀
-    ↑(1, a, 0, A₀) = A₁
-    g (Optional A₀) (λ(a : A₀) → [ a ] : Optional A₁) ([] : Optional A₀) ⇥ b
-    ────────────────────────────────────────────────────────────────────────
+    g (Optional A₀) (λ(a : A₀) → Some a) (None A₀) ⇥ b
+    ──────────────────────────────────────────────────
     f g ⇥ b
 
 
 `Optional/fold` is the canonical elimination function for `Optional` values:
 
 
-    f ⇥ Optional/fold A₀ ([ a ] : Optional A₁) B₀ g   g a ⇥ b₁
-    ──────────────────────────────────────────────────────────
+    f ⇥ Optional/fold A₀ (Some a) B₀ g   g a ⇥ b₁
+    ─────────────────────────────────────────────
     f b₀ ⇥ b₁
 
 
-    f ⇥ Optional/fold A₀ ([] : Optional A₁) B₀ g   b₀ ⇥ b₁
-    ─────────────────────────────────────────────────────
+    f ⇥ Optional/fold A₀ (None A₁) B₀ g   b₀ ⇥ b₁
+    ─────────────────────────────────────────────
     f b₀ ⇥ b₁
 
 
@@ -3333,7 +3373,8 @@ The built-in functions on `List`s have the following types:
     Γ ⊢ Optional : Type → Type
 
 
-An `Optional` literal's type is inferred from the mandatory type annotation:
+An `Optional` literal's type is inferred from the mandatory type annotation when
+the literal uses the legacy `List`-like syntax:
 
 
     Γ ⊢ A : Type
@@ -3346,11 +3387,27 @@ An `Optional` literal's type is inferred from the mandatory type annotation:
     Γ ⊢ ([ a ] : Optional A₀) : Optional A₀
 
 
-Note that the above rules forbid an `Optional` element that is a `Type`.  More
-generally, if the element type is not a `Type` then that is a type error.
-
 If the element is present and does not match the type annotation then that is a
 type error.
+
+The new `Some` constructor infers the type from the provided argument:
+
+
+    Γ ⊢ a : A   Γ ⊢ A : Type
+    ────────────────────────
+    Γ ⊢ Some a : Optional A
+
+
+... and the `None` constructor is an ordinary function that is typeable in
+isolation:
+
+
+    ───────────────────────────────────
+    Γ ⊢ None : ∀(A : Type) → Optional A
+
+
+Note that the above rules forbid an `Optional` element that is a `Type`.  More
+generally, if the element type is not a `Type` then that is a type error.
 
 The built-in functions on `Optional` values have the following types:
 
