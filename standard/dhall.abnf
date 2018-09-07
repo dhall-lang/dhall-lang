@@ -231,6 +231,7 @@ as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
 missing-raw           = %x6d.69.73.73.69.6e.67
+Some-raw              = %x53.6f.6d.65
 constructors-raw      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73
 Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
 Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
@@ -253,6 +254,7 @@ Optional-fold-raw     = %x4f.70.74.69.6f.6e.61.6c.2f.66.6f.6c.64
 Optional-build-raw    = %x4f.70.74.69.6f.6e.61.6c.2f.62.75.69.6c.64
 Bool-raw              = %x42.6f.6f.6c
 Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
+None-raw              = %x4e.6f.6e.65
 Natural-raw           = %x4e.61.74.75.72.61.6c
 Integer-raw           = %x49.6e.74.65.67.65.72
 Double-raw            = %x44.6f.75.62.6c.65
@@ -266,6 +268,7 @@ Kind-raw              = %x4b.69.6e.64
 reserved-raw =
     Bool-raw
   / Optional-raw
+  / None-raw
   / Natural-raw
   / Integer-raw
   / Double-raw
@@ -310,6 +313,7 @@ as           = as-raw           nonempty-whitespace
 using        = using-raw        nonempty-whitespace
 merge        = merge-raw        nonempty-whitespace
 constructors = constructors-raw nonempty-whitespace
+Some         = Some-raw         nonempty-whitespace
 
 Optional     = Optional-raw     whitespace
 Text         = Text-raw         whitespace
@@ -619,7 +623,8 @@ not-equal-expression     = application-expression   *(not-equal             appl
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
-application-expression = [ constructors ] import-expression *(whitespace-chunk import-expression)
+application-expression =
+    [ constructors / Some ] import-expression *(whitespace-chunk import-expression)
 
 import-expression = import / selector-expression
 
