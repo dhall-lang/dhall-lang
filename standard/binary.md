@@ -196,7 +196,7 @@ You can encode a naked Dhall expression using the following judgment:
 * `cbor` (the output) is a CBOR expression
 
 ... and replacing `*` with the protocol version string of the expression to
-encode.
+encode, or omitting the version for the latest protocol version string.
 
 The encoding logic includes several optimizations for more compactly encoding
 expressions that are fully resolved and αβ-normalized because expressions are
@@ -224,11 +224,11 @@ representation available:
 
 
     ───────────────────  ; n < 2^64
-    encode-1.1(_@n) = n
+    encode(_@n) = n
 
 
     ────────────────────  ; 2^64 <= n
-    encode-1.1(_@n) = nn
+    encode(_@n) = nn
 
 
 This optimization takes advantage of the fact that α-normalized expressions
@@ -244,7 +244,7 @@ text string matching the variable's identifier:
 
 
     ─────────────────────  ; x ≠ "_"
-    encode-1.1(x@0) = "x"
+    encode(x@0) = "x"
 
 
 Otherwise encode a variable as a two-element CBOR array where the first element
@@ -253,11 +253,11 @@ smallest numeric representation available):
 
 
     ────────────────────────────  ; n < 2^64
-    encode-1.1(x@n) = [ "x", n ]
+    encode(x@n) = [ "x", n ]
 
 
     ─────────────────────────────  ; 2^64 <= nn
-    encode-1.1(x@n) = [ "x", nn ]
+    encode(x@n) = [ "x", nn ]
 
 
 ### Built-in constants
@@ -268,119 +268,119 @@ string matching their identifier.
 
 
     ───────────────────────────────────────────
-    encode-1.1(Natural/build) = "Natural/build"
+    encode(Natural/build) = "Natural/build"
 
 
     ─────────────────────────────────────────
-    encode-1.1(Natural/fold) = "Natural/fold"
+    encode(Natural/fold) = "Natural/fold"
 
 
     ─────────────────────────────────────────────
-    encode-1.1(Natural/isZero) = "Natural/isZero"
+    encode(Natural/isZero) = "Natural/isZero"
 
 
     ─────────────────────────────────────────
-    encode-1.1(Natural/even) = "Natural/even"
+    encode(Natural/even) = "Natural/even"
 
 
     ───────────────────────────────────────
-    encode-1.1(Natural/odd) = "Natural/odd"
+    encode(Natural/odd) = "Natural/odd"
 
 
     ───────────────────────────────────────────────────
-    encode-1.1(Natural/toInteger) = "Natural/toInteger"
+    encode(Natural/toInteger) = "Natural/toInteger"
 
 
     ─────────────────────────────────────────
-    encode-1.1(Natural/show) = "Natural/show"
+    encode(Natural/show) = "Natural/show"
 
 
     ─────────────────────────────────────────────────
-    encode-1.1(Integer/toDouble) = "Integer/toDouble"
+    encode(Integer/toDouble) = "Integer/toDouble"
 
 
     ─────────────────────────────────────────
-    encode-1.1(Integer/show) = "Integer/show"
+    encode(Integer/show) = "Integer/show"
 
 
     ───────────────────────────────────────
-    encode-1.1(Double/show) = "Double/show"
+    encode(Double/show) = "Double/show"
 
 
     ─────────────────────────────────────
-    encode-1.1(List/build) = "List/build"
+    encode(List/build) = "List/build"
 
 
     ───────────────────────────────────
-    encode-1.1(List/fold) = "List/fold"
+    encode(List/fold) = "List/fold"
 
 
     ───────────────────────────────────────
-    encode-1.1(List/length) = "List/length"
+    encode(List/length) = "List/length"
 
 
     ───────────────────────────────────
-    encode-1.1(List/head) = "List/head"
+    encode(List/head) = "List/head"
 
 
     ───────────────────────────────────
-    encode-1.1(List/last) = "List/last"
+    encode(List/last) = "List/last"
 
 
     ─────────────────────────────────────────
-    encode-1.1(List/indexed) = "List/indexed"
+    encode(List/indexed) = "List/indexed"
 
 
     ─────────────────────────────────────────
-    encode-1.1(List/reverse) = "List/reverse"
+    encode(List/reverse) = "List/reverse"
 
 
     ───────────────────────────────────────────
-    encode-1.1(Optional/fold) = "Optional/fold"
+    encode(Optional/fold) = "Optional/fold"
 
 
     ─────────────────────────────────────────────
-    encode-1.1(Optional/build) = "Optional/build"
+    encode(Optional/build) = "Optional/build"
 
 
     ─────────────────────────
-    encode-1.1(Bool) = "Bool"
+    encode(Bool) = "Bool"
 
 
     ─────────────────────────────────
-    encode-1.1(Optional) = "Optional"
+    encode(Optional) = "Optional"
 
 
     ─────────────────────────
-    encode-1.1(None) = "None"
+    encode(None) = "None"
 
 
     ───────────────────────────────
-    encode-1.1(Natural) = "Natural"
+    encode(Natural) = "Natural"
 
 
     ───────────────────────────────
-    encode-1.1(Integer) = "Integer"
+    encode(Integer) = "Integer"
 
 
     ─────────────────────────────
-    encode-1.1(Double) = "Double"
+    encode(Double) = "Double"
 
 
     ─────────────────────────
-    encode-1.1(Text) = "Text"
+    encode(Text) = "Text"
 
 
     ─────────────────────────
-    encode-1.1(List) = "List"
+    encode(List) = "List"
 
 
     ─────────────────────────
-    encode-1.1(Type) = "Type"
+    encode(Type) = "Type"
 
 
     ─────────────────────────
-    encode-1.1(Kind) = "Kind"
+    encode(Kind) = "Kind"
 
 
 ### Function application
@@ -389,9 +389,9 @@ Function application is encoded as a heterogeneous array where a function
 applied to multiple arguments is stored within a single array:
 
 
-    encode-1.1(f₀) = f₁   encode-1.1(a₀) = a₁   encode-1.1(b₀) = b₁   …
+    encode(f₀) = f₁   encode(a₀) = a₁   encode(b₀) = b₁   …
     ───────────────────────────────────────────────────────────────────
-    encode-1.1(f₀ a₀ b₀ …) = [ 0, f₁, a₁, b₁, … ]
+    encode(f₀ a₀ b₀ …) = [ 0, f₁, a₁, b₁, … ]
 
 
 ### Functions
@@ -399,34 +399,34 @@ applied to multiple arguments is stored within a single array:
 Functions that bind variables named `_` have a more compact representation:
 
 
-    encode-1.1(A₀) = A₁   encode-1.1(b₀) = b₁
+    encode(A₀) = A₁   encode(b₀) = b₁
     ──────────────────────────────────────────
-    encode-1.1(λ(_ : A₀) → b₀) = [ 1, A₁, b₁ ]
+    encode(λ(_ : A₀) → b₀) = [ 1, A₁, b₁ ]
 
 
 ... than functions that bind variables of other names:
 
 
-    encode-1.1(A₀) = A₁   encode-1.1(b₀) = b₁
+    encode(A₀) = A₁   encode(b₀) = b₁
     ───────────────────────────────────────────────  ; x ≠ "_"
-    encode-1.1(λ(x : A₀) → b₀) = [ 1, "x", A₁, b₁ ]
+    encode(λ(x : A₀) → b₀) = [ 1, "x", A₁, b₁ ]
 
 
 Function types that bind variables named `_` also have a more compact
 representation:
 
 
-    encode-1.1(A₀) = A₁   encode-1.1(B₀) = B₁
+    encode(A₀) = A₁   encode(B₀) = B₁
     ──────────────────────────────────────────
-    encode-1.1(∀(_ : A₀) → B₀) = [ 2, A₁, B₁ ]
+    encode(∀(_ : A₀) → B₀) = [ 2, A₁, B₁ ]
 
 
 ... than function types that bind variables of other names:
 
 
-    encode-1.1(A₀) = A₁   encode-1.1(B₀) = B₁
+    encode(A₀) = A₁   encode(B₀) = B₁
     ───────────────────────────────────────────────  ; x ≠ "_"
-    encode-1.1(∀(x : A₀) → B₀) = [ 2, "x", A₁, B₁ ]
+    encode(∀(x : A₀) → B₀) = [ 2, "x", A₁, B₁ ]
 
 
 ### Operators
@@ -434,64 +434,64 @@ representation:
 Operators are encoded as integer tags alongside their two arguments:
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ || r₀) = [ 3, 0, l₁, r₁ ]
+    encode(l₀ || r₀) = [ 3, 0, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ && r₀) = [ 3, 1, l₁, r₁ ]
+    encode(l₀ && r₀) = [ 3, 1, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ == r₀) = [ 3, 2, l₁, r₁ ]
+    encode(l₀ == r₀) = [ 3, 2, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ != r₀) = [ 3, 3, l₁, r₁ ]
+    encode(l₀ != r₀) = [ 3, 3, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ + r₀) = [ 3, 4, l₁, r₁ ]
+    encode(l₀ + r₀) = [ 3, 4, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ * r₀) = [ 3, 5, l₁, r₁ ]
+    encode(l₀ * r₀) = [ 3, 5, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ ++ r₀) = [ 3, 6, l₁, r₁ ]
+    encode(l₀ ++ r₀) = [ 3, 6, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ # r₀) = [ 3, 7, l₁, r₁ ]
+    encode(l₀ # r₀) = [ 3, 7, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ ∧ r₀) = [ 3, 8, l₁, r₁ ]
+    encode(l₀ ∧ r₀) = [ 3, 8, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ ⫽ r₀) = [ 3, 9, l₁, r₁ ]
+    encode(l₀ ⫽ r₀) = [ 3, 9, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ ⩓ r₀) = [ 3, 10, l₁, r₁ ]
+    encode(l₀ ⩓ r₀) = [ 3, 10, l₁, r₁ ]
 
 
-    encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(l₀) = l₁   encode(r₀) = r₁
     ─────────────────────────────────────────
-    encode-1.1(l₀ ? r₀) = [ 3, 11, l₁, r₁ ]
+    encode(l₀ ? r₀) = [ 3, 11, l₁, r₁ ]
 
 
 ### `List`
@@ -499,17 +499,17 @@ Operators are encoded as integer tags alongside their two arguments:
 Empty `List`s only store their type:
 
 
-    encode-1.1(T₀) = T₁
+    encode(T₀) = T₁
     ────────────────────────────────────
-    encode-1.1([] : List T₀) = [ 4, T₁ ]
+    encode([] : List T₀) = [ 4, T₁ ]
 
 
 Non-empty `List`s don't store their type, but do store their elements inline:
 
 
-    encode-1.1(a₀) = a₁   encode-1.1(b₀) = b₁
+    encode(a₀) = a₁   encode(b₀) = b₁
     ──────────────────────────────────────────────────
-    encode-1.1([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
+    encode([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
 
 
 ### `Optional`
@@ -518,22 +518,22 @@ Empty `Optional` literals using the legacy `List`-like syntax only store their
 type:
 
 
-    encode-1.1(T₀) = T₁
+    encode(T₀) = T₁
     ────────────────────────────────────────
-    encode-1.1([] : Optional T₀) = [ 5, T₁ ]
+    encode([] : Optional T₀) = [ 5, T₁ ]
 
 
 Non-empty `Optional` literals store the type (if present) and their value:
 
 
-    encode-1.1(t₀) = t₁   encode-1.1(T₀) = T₁
+    encode(t₀) = t₁   encode(T₀) = T₁
     ────────────────────────────────────────────────
-    encode-1.1([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
+    encode([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
 
 
-    encode-1.1(t₀) = t₁
+    encode(t₀) = t₁
     ─────────────────────────────────────
-    encode-1.1(Some t₀) = [ 5, null, t₁ ]
+    encode(Some t₀) = [ 5, null, t₁ ]
 
 
 ### `merge` expressions
@@ -542,14 +542,14 @@ Non-empty `Optional` literals store the type (if present) and their value:
 have a type annotation:
 
 
-    encode-1.1(t₀) = t₁   encode-1.1(u₀) = u₁
+    encode(t₀) = t₁   encode(u₀) = u₁
     ─────────────────────────────────────────
-    encode-1.1(merge t₀ u₀) = [ 6, t₁, u₁ ]
+    encode(merge t₀ u₀) = [ 6, t₁, u₁ ]
 
 
-    encode-1.1(t₀) = t₁   encode-1.1(u₀) = u₁   encode-1.1(T₀) = T₁
+    encode(t₀) = t₁   encode(u₀) = u₁   encode(T₀) = T₁
     ───────────────────────────────────────────────────────────────
-    encode-1.1(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
+    encode(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
 
 
 ### Records
@@ -557,33 +557,33 @@ have a type annotation:
 Dhall record types translate to CBOR maps:
 
 
-    encode-1.1(T₀) = T₁   …
+    encode(T₀) = T₁   …
     ──────────────────────────────────────────────────
-    encode-1.1({ x : T₀, … }) = [ 7, { "x" = T₁, … } ]
+    encode({ x : T₀, … }) = [ 7, { "x" = T₁, … } ]
 
 
 Dhall record literals translate to CBOR maps:
 
 
-    encode-1.1(t₀) = t₁   …
+    encode(t₀) = t₁   …
     ──────────────────────────────────────────────────
-    encode-1.1({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
+    encode({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
 
 
 Field access:
 
 
-    encode-1.1(t₀) = t₁   …
+    encode(t₀) = t₁   …
     ─────────────────────────────────
-    encode-1.1(t₀.x) = [ 9, t₁, "x" ]
+    encode(t₀.x) = [ 9, t₁, "x" ]
 
 
 ... is encoded differently than record projection:
 
 
-    encode-1.1(t₀) = t₁   …
+    encode(t₀) = t₁   …
     ────────────────────────────────────────────────────
-    encode-1.1(t₀.{ x, y, … }) = [ 10, t₁, "x", "y", … ]
+    encode(t₀.{ x, y, … }) = [ 10, t₁, "x", "y", … ]
 
 
 ### Unions
@@ -591,26 +591,26 @@ Field access:
 Dhall union types translate to CBOR maps:
 
 
-    encode-1.1(T₀) = T₁   …
+    encode(T₀) = T₁   …
     ────────────────────────────────────────────────────
-    encode-1.1(< x : T₀ | … >) = [ 11, { "x" = T₁, … } ]
+    encode(< x : T₀ | … >) = [ 11, { "x" = T₁, … } ]
 
 
 Dhall union literals store the specified alternative followed by the alternative
 types encoded as CBOR map:
 
 
-    encode-1.1(t₀) = t₁   encode-1.1(T₀) = T₁   …
+    encode(t₀) = t₁   encode(T₀) = T₁   …
     ──────────────────────────────────────────────────────────────────────
-    encode-1.1(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
+    encode(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
 
 
 Encode the `constructors` keyword as:
 
 
-    encode-1.1(u₀) = u₁
+    encode(u₀) = u₁
     ───────────────────────────────────────
-    encode-1.1(constructors u₀) = [ 13, u₁]
+    encode(constructors u₀) = [ 13, u₁]
 
 
 ### `Bool`
@@ -619,19 +619,19 @@ Encode Boolean literals using CBOR's built-in support for Boolean values:
 
 
     ───────────────────────
-    encode-1.1(True) = True
+    encode(True) = True
 
 
     ─────────────────────────
-    encode-1.1(False) = False
+    encode(False) = False
 
 
 `if` expressions are encoded with a tag:
 
 
-    encode-1.1(t₀) = t₁   encode-1.1(l₀) = l₁   encode-1.1(r₀) = r₁
+    encode(t₀) = t₁   encode(l₀) = l₁   encode(r₀) = r₁
     ───────────────────────────────────────────────────────────────
-    encode-1.1(if t₀ then l₀ else r₀) = [ 14, t₁, l₁, r₁ ]
+    encode(if t₀ then l₀ else r₀) = [ 14, t₁, l₁, r₁ ]
 
 
 ### `Natural`
@@ -640,11 +640,11 @@ Encode `Natural` literals using the smallest available numeric representation:
 
 
     ─────────────────────────  ; n < 2^64
-    encode-1.1(n) = [ 15, n ]
+    encode(n) = [ 15, n ]
 
 
     ──────────────────────────  ; 2^64 <= nn
-    encode-1.1(n) = [ 15, nn ]
+    encode(n) = [ 15, nn ]
 
 
 ### `Integer`
@@ -653,19 +653,19 @@ Encode `Integer` literals using the smallest available numeric representation:
 
 
     ────────────────────────────  ; ±n < -2^64
-    encode-1.1(±n) = [ 16, -nn ]
+    encode(±n) = [ 16, -nn ]
 
 
     ───────────────────────────  ; -2^64 <= ±n < 0
-    encode-1.1(±n) = [ 16, -n ]
+    encode(±n) = [ 16, -n ]
 
 
     ──────────────────────────  ; 0 <= ±n < 2^64
-    encode-1.1(±n) = [ 16, n ]
+    encode(±n) = [ 16, n ]
 
 
     ───────────────────────────  ; 2^64 <= ±n
-    encode-1.1(±n) = [ 16, nn ]
+    encode(±n) = [ 16, nn ]
 
 
 ### `Double`
@@ -675,7 +675,7 @@ when converting to and from their textual representation:
 
 
     ─────────────────────────────
-    encode-1.1(n.n) = [ 17, n.n ]
+    encode(n.n) = [ 17, n.n ]
 
 
 ### `Text`
@@ -684,9 +684,9 @@ Encode `Text` literals as an alternation between their text chunks and any
 interpolated expressions:
 
 
-    encode-1.1(b₀) = b₁   encode-1.1(d₀) = d₁   …   encode-1.1(y₀) = y₁
+    encode(b₀) = b₁   encode(d₀) = d₁   …   encode(y₀) = y₁
     ───────────────────────────────────────────────────────────────────────────────────
-    encode-1.1("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
+    encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 
 Note that the encoding of a text literal always begins and ends with a string,
@@ -721,27 +721,27 @@ The full rules are:
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode-1.1(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode-1.1(http://authority/path₀/path₁/…/file) = [ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]
+    encode(http://authority/path₀/path₁/…/file) = [ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]
 
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode-1.1(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode-1.1(https://authority/path₀/path₁/…/file) = [ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]
+    encode(https://authority/path₀/path₁/…/file) = [ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]
 
 
 Absolute file paths are tokenized in the same way:
 
 
     ────────────────────────────────────────────────────────────────────────
-    encode-1.1(/path₀/path₁/…/file) = [ 24, 2, "path₀", "path₁", …, "file" ]
+    encode(/path₀/path₁/…/file) = [ 24, 2, "path₀", "path₁", …, "file" ]
 
 
 Each path type is treated as another "scheme" (i.e. they are distinguished by
@@ -749,29 +749,29 @@ the second tag):
 
 
     ─────────────────────────────────────────────────────────────────────────
-    encode-1.1(./path₀/path₁/…/file) = [ 24, 3, "path₀", "path₁", …, "file" ]
+    encode(./path₀/path₁/…/file) = [ 24, 3, "path₀", "path₁", …, "file" ]
 
 
     ──────────────────────────────────────────────────────────────────────────
-    encode-1.1(../path₀/path₁/…/file) = [ 24, 4, "path₀", "path₁", …, "file" ]
+    encode(../path₀/path₁/…/file) = [ 24, 4, "path₀", "path₁", …, "file" ]
 
 
     ─────────────────────────────────────────────────────────────────────────
-    encode-1.1(~/path₀/path₁/…/file) = [ 24, 5, "path₀", "path₁", …, "file" ]
+    encode(~/path₀/path₁/…/file) = [ 24, 5, "path₀", "path₁", …, "file" ]
 
 
 Environment variables are also treated as another scheme:
 
 
     ──────────────────────────────────
-    encode-1.1(env:x) = [ 24, 6, "x" ]
+    encode(env:x) = [ 24, 6, "x" ]
 
 
 The `missing` keyword is also treated as another import type:
 
 
     ───────────────────────────────
-    encode-1.1(missing) = [ 24, 7 ]
+    encode(missing) = [ 24, 7 ]
 
 
 ### `let` expressions
@@ -780,22 +780,22 @@ The `missing` keyword is also treated as another import type:
 a type annotation:
 
 
-    encode-1.1(a₀) = a₁   encode-1.1(b₀) = b₁
+    encode(a₀) = a₁   encode(b₀) = b₁
     ──────────────────────────────────────────────────
-    encode-1.1(let x = a₀ in b₀) = [ 25, "x", a₁, b₁ ]
+    encode(let x = a₀ in b₀) = [ 25, "x", a₁, b₁ ]
 
 
-    encode-1.1(a₀) = a₁   encode-1.1(A₀) = A₁   encode-1.1(b₀) = b₁
+    encode(a₀) = a₁   encode(A₀) = A₁   encode(b₀) = b₁
     ───────────────────────────────────────────────────────────────
-    encode-1.1(let x : A₀ = a₀ in b₀) = [ 25, "x", A₁, a₁, b₁ ]
+    encode(let x : A₀ = a₀ in b₀) = [ 25, "x", A₁, a₁, b₁ ]
 
 
 ### Type annotations
 
 
-    encode-1.1(t₀) = t₁   encode-1.1(T₀) = T₁
+    encode(t₀) = t₁   encode(T₀) = T₁
     ─────────────────────────────────────────
-    encode-1.1(t₀ : T₀) = [ 26, t₁, T₁ ]
+    encode(t₀ : T₀) = [ 26, t₁, T₁ ]
 
 
 ## Decoding judgment
@@ -811,7 +811,7 @@ You can decode a Dhall expression using the following judgment:
 * `dhall` (the input) is a Dhall expression
 
 ... and replacing `*` with the protocol version string of the expression to
-encode.
+encode, or omitting the version for the latest protocol version string.
 
 ### Built-in constants
 
@@ -821,119 +821,119 @@ identifier if it matches any of the following strings:
 
 
     ───────────────────────────────────────────
-    decode-1.1("Natural/build") = Natural/build
+    decode("Natural/build") = Natural/build
 
 
     ─────────────────────────────────────────
-    decode-1.1("Natural/fold") = Natural/fold
+    decode("Natural/fold") = Natural/fold
 
 
     ─────────────────────────────────────────────
-    decode-1.1("Natural/isZero") = Natural/isZero
+    decode("Natural/isZero") = Natural/isZero
 
 
     ─────────────────────────────────────────
-    decode-1.1("Natural/even") = Natural/even
+    decode("Natural/even") = Natural/even
 
 
     ───────────────────────────────────────
-    decode-1.1("Natural/odd") = Natural/odd
+    decode("Natural/odd") = Natural/odd
 
 
     ───────────────────────────────────────────────────
-    decode-1.1("Natural/toInteger") = Natural/toInteger
+    decode("Natural/toInteger") = Natural/toInteger
 
 
     ─────────────────────────────────────────
-    decode-1.1("Natural/show") = Natural/show
+    decode("Natural/show") = Natural/show
 
 
     ─────────────────────────────────────────────────
-    decode-1.1("Integer/toDouble") = Integer/toDouble
+    decode("Integer/toDouble") = Integer/toDouble
 
 
     ─────────────────────────────────────────
-    decode-1.1("Integer/show") = Integer/show
+    decode("Integer/show") = Integer/show
 
 
     ───────────────────────────────────────
-    decode-1.1("Double/show") = Double/show
+    decode("Double/show") = Double/show
 
 
     ─────────────────────────────────────
-    decode-1.1("List/build") = List/build
+    decode("List/build") = List/build
 
 
     ───────────────────────────────────
-    decode-1.1("List/fold") = List/fold
+    decode("List/fold") = List/fold
 
 
     ───────────────────────────────────────
-    decode-1.1("List/length") = List/length
+    decode("List/length") = List/length
 
 
     ───────────────────────────────────
-    decode-1.1("List/head") = List/head
+    decode("List/head") = List/head
 
 
     ───────────────────────────────────
-    decode-1.1("List/last") = List/last
+    decode("List/last") = List/last
 
 
     ─────────────────────────────────────────
-    decode-1.1("List/indexed") = List/indexed
+    decode("List/indexed") = List/indexed
 
 
     ─────────────────────────────────────────
-    decode-1.1("List/reverse") = List/reverse
+    decode("List/reverse") = List/reverse
 
 
     ───────────────────────────────────────────
-    decode-1.1("Optional/fold") = Optional/fold
+    decode("Optional/fold") = Optional/fold
 
 
     ─────────────────────────────────────────────
-    decode-1.1("Optional/build") = Optional/build
+    decode("Optional/build") = Optional/build
 
 
     ─────────────────────────
-    decode-1.1("Bool") = Bool
+    decode("Bool") = Bool
 
 
     ─────────────────────────────────
-    decode-1.1("Optional") = Optional
+    decode("Optional") = Optional
 
 
     ─────────────────────────
-    decode-1.1("None") = None
+    decode("None") = None
 
 
     ───────────────────────────────
-    decode-1.1("Natural") = Natural
+    decode("Natural") = Natural
 
 
     ───────────────────────────────
-    decode-1.1("Integer") = Integer
+    decode("Integer") = Integer
 
 
     ─────────────────────────────
-    decode-1.1("Double") = Double
+    decode("Double") = Double
 
 
     ─────────────────────────
-    decode-1.1("Text") = Text
+    decode("Text") = Text
 
 
     ─────────────────────────
-    decode-1.1("List") = List
+    decode("List") = List
 
 
     ─────────────────────────
-    decode-1.1("Type") = Type
+    decode("Type") = Type
 
 
     ─────────────────────────
-    decode-1.1("Kind") = Kind
+    decode("Kind") = Kind
 
 
 Otherwise, decode the CBOR string as an ordinary variable as outlined in the
@@ -946,7 +946,7 @@ not match a built-in identifier:
 
 
     ─────────────────────  ; x ∉ reservedIdentifiers
-    decode-1.1("x") = x@0
+    decode("x") = x@0
 
 
 Only variables named `_` encode to a naked CBOR integer, so decoding turns a
@@ -954,11 +954,11 @@ naked CBOR integer back into a variable named `_`:
 
 
     ───────────────────
-    decode-1.1(n) = _@n
+    decode(n) = _@n
 
 
     ────────────────────
-    decode-1.1(nn) = _@n
+    decode(nn) = _@n
 
 
 A decoder MUST accept an integer that is not encoded using the most compact
@@ -972,11 +972,11 @@ is the variable index, which can be either a compact integer or a bignum:
 
 
     ────────────────────────────
-    decode-1.1([ "x", n ]) = x@n
+    decode([ "x", n ]) = x@n
 
 
     ─────────────────────────────
-    decode-1.1([ "x", nn ]) = x@n
+    decode([ "x", nn ]) = x@n
 
 
 As before, the encoded integer need not be stored in the most compact
@@ -988,9 +988,9 @@ Decode a CBOR array beginning with `0` as function application, where the second
 element is the function and the remaining elements are the function arguments:
 
 
-    decode-1.1(f₁) = f₀   decode-1.1(a₁) = a₀   decode-1.1(b₁) = b₀   …
+    decode(f₁) = f₀   decode(a₁) = a₀   decode(b₁) = b₀   …
     ───────────────────────────────────────────────────────────────────
-    decode-1.1([ 0, f₁, a₁, b₁, … ]) = f₀ a₀ b₀ …
+    decode([ 0, f₁, a₁, b₁, … ]) = f₀ a₀ b₀ …
 
 
 A decoder MUST require at least 1 function argument.  In other words, a decode
@@ -1002,18 +1002,18 @@ Decode a CBOR array beginning with a `1` as a λ-expression.  If the array has
 three elements then the bound variable is named `_`:
 
 
-    decode-1.1(A₁) = A₀   decode-1.1(b₁) = b₀
+    decode(A₁) = A₀   decode(b₁) = b₀
     ──────────────────────────────────────────
-    decode-1.1([ 1, A₁, b₁ ]) = λ(_ : A₀) → b₀
+    decode([ 1, A₁, b₁ ]) = λ(_ : A₀) → b₀
 
 
 ... otherwise if the array has four elements then the name of the bound variable
 is included in the array:
 
 
-    decode-1.1(A₁) = A₀   decode-1.1(b₁) = b₀
+    decode(A₁) = A₀   decode(b₁) = b₀
     ───────────────────────────────────────────────  ; x ≠ "_"
-    decode-1.1([ 1, "x", A₁, b₁ ]) = λ(x : A₀) → b₀
+    decode([ 1, "x", A₁, b₁ ]) = λ(x : A₀) → b₀
 
 
 A decoder MUST reject the latter form if the bound variable is named `_`
@@ -1022,18 +1022,18 @@ Decode a CBOR array beginning with a `2` as a ∀-expression.  If the array has
 three elements then the bound variable is named `_`:
 
 
-    decode-1.1(A₁) = A₀   decode-1.1(B₁) = B₀
+    decode(A₁) = A₀   decode(B₁) = B₀
     ──────────────────────────────────────────
-    decode-1.1([ 2, A₁, B₁ ]) = ∀(_ : A₀) → B₀
+    decode([ 2, A₁, B₁ ]) = ∀(_ : A₀) → B₀
 
 
 ... otherwise if the array has four elements then the name of the bound variable
 is included in the array:
 
 
-    decode-1.1(A₁) = A₀   decode-1.1(B₁) = B₀
+    decode(A₁) = A₀   decode(B₁) = B₀
     ───────────────────────────────────────────────  ; x ≠ "_"
-    decode-1.1([ 2, "x", A₁, B₁ ]) = ∀(x : A₀) → B₀
+    decode([ 2, "x", A₁, B₁ ]) = ∀(x : A₀) → B₀
 
 
 A decoder MUST reject the latter form if the bound variable is named `_`
@@ -1043,64 +1043,64 @@ A decoder MUST reject the latter form if the bound variable is named `_`
 Decode a CBOR array beginning with a `3` as an operator expression:
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 0, l₁, r₁ ]) = l₀ || r₀
+    decode([ 3, 0, l₁, r₁ ]) = l₀ || r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 1, l₁, r₁ ]) = l₀ && r₀
+    decode([ 3, 1, l₁, r₁ ]) = l₀ && r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 2, l₁, r₁ ]) = l₀ == r₀
+    decode([ 3, 2, l₁, r₁ ]) = l₀ == r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 3, l₁, r₁ ]) = l₀ != r₀
+    decode([ 3, 3, l₁, r₁ ]) = l₀ != r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 4, l₁, r₁ ]) = l₀ + r₀
+    decode([ 3, 4, l₁, r₁ ]) = l₀ + r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 5, l₁, r₁ ]) = l₀ * r₀
+    decode([ 3, 5, l₁, r₁ ]) = l₀ * r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 6, l₁, r₁ ]) = l₀ ++ r₀
+    decode([ 3, 6, l₁, r₁ ]) = l₀ ++ r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 7, l₁, r₁ ]) = l₀ # r₀
+    decode([ 3, 7, l₁, r₁ ]) = l₀ # r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 8, l₁, r₁ ]) = l₀ ∧ r₀
+    decode([ 3, 8, l₁, r₁ ]) = l₀ ∧ r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 9, l₁, r₁ ]) = l₀ ⫽ r₀
+    decode([ 3, 9, l₁, r₁ ]) = l₀ ⫽ r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 10, l₁, r₁ ]) = l₀ ⩓ r₀
+    decode([ 3, 10, l₁, r₁ ]) = l₀ ⩓ r₀
 
 
-    decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(l₁) = l₀   decode(r₁) = r₀
     ─────────────────────────────────────────
-    decode-1.1([ 3, 11, l₁, r₁ ]) = l₀ ? r₀
+    decode([ 3, 11, l₁, r₁ ]) = l₀ ? r₀
 
 
 ### `List`
@@ -1110,17 +1110,17 @@ Decode a CBOR array beginning with a `4` as a `List` literal
 If the list is empty, then the type MUST be non-`null`:
 
 
-    decode-1.1(T₁) = T₀
+    decode(T₁) = T₀
     ────────────────────────────────────
-    decode-1.1([ 4, T₁ ]) = [] : List T₀
+    decode([ 4, T₁ ]) = [] : List T₀
 
 
 If the list is non-empty then the type MUST be `null`:
 
 
-    decode-1.1(a₁) = a₀   decode-1.1(b₁) = b₀
+    decode(a₁) = a₀   decode(b₁) = b₀
     ──────────────────────────────────────────────────
-    decode-1.1([ 4, null, a₁, b₁, … ]) = [ a₀, b₀, … ]
+    decode([ 4, null, a₁, b₁, … ]) = [ a₀, b₀, … ]
 
 
 ### `Optional`
@@ -1128,19 +1128,19 @@ If the list is non-empty then the type MUST be `null`:
 Decode a CBOR array beginning with a `5` as an `Optional` literal
 
 
-    decode-1.1(T₁) = T₀
+    decode(T₁) = T₀
     ────────────────────────────────────────
-    decode-1.1([ 5, T₁ ]) = [] : Optional T₀
+    decode([ 5, T₁ ]) = [] : Optional T₀
 
 
-    decode-1.1(t₁) = t₀   decode-1.1(T₁) = T₀
+    decode(t₁) = t₀   decode(T₁) = T₀
     ────────────────────────────────────────────────
-    decode-1.1([ 5, T₁, t₁ ]) = [ t₀ ] : Optional T₀
+    decode([ 5, T₁, t₁ ]) = [ t₀ ] : Optional T₀
 
 
-    decode-1.1(t₁) = t₀
+    decode(t₁) = t₀
     ─────────────────────────────────────
-    decode-1.1([ 5, null, t₁ ]) = Some t₀
+    decode([ 5, null, t₁ ]) = Some t₀
 
 
 ### `merge` expressions
@@ -1148,14 +1148,14 @@ Decode a CBOR array beginning with a `5` as an `Optional` literal
 Decode a CBOR array beginning with a `6` as a `merge` expression:
 
 
-    decode-1.1(t₁) = t₀   decode-1.1(u₁) = u₀
+    decode(t₁) = t₀   decode(u₁) = u₀
     ─────────────────────────────────────────
-    decode-1.1([ 6, t₁, u₁ ]) = merge t₀ u₀
+    decode([ 6, t₁, u₁ ]) = merge t₀ u₀
 
 
-    decode-1.1(t₁) = t₀   decode-1.1(u₁) = u₀   decode-1.1(T₁) = T₀
+    decode(t₁) = t₀   decode(u₁) = u₀   decode(T₁) = T₀
     ───────────────────────────────────────────────────────────────
-    decode-1.1([ 6, t₁, u₁, T₁ ]) = merge t₀ u₀ : T₀
+    decode([ 6, t₁, u₁, T₁ ]) = merge t₀ u₀ : T₀
 
 
 ### Records
@@ -1163,33 +1163,33 @@ Decode a CBOR array beginning with a `6` as a `merge` expression:
 Decode a CBOR array beginning with a `7` as a record type:
 
 
-    decode-1.1(T₁) = T₀   …
+    decode(T₁) = T₀   …
     ──────────────────────────────────────────────────
-    decode-1.1([ 7, { "x" = T₁, … } ]) = { x : T₀, … }
+    decode([ 7, { "x" = T₁, … } ]) = { x : T₀, … }
 
 
 Decode a CBOR array beginning with a `8` as a record literal:
 
 
-    decode-1.1(t₁) = t₀   …
+    decode(t₁) = t₀   …
     ──────────────────────────────────────────────────
-    decode-1.1([ 8, { "x" = t₁, … } ]) = { x = t₀, … }
+    decode([ 8, { "x" = t₁, … } ]) = { x = t₀, … }
 
 
 Decode a CBOR array beginning with a `9` as a field access:
 
 
-    decode-1.1(t₁) = t₀   …
+    decode(t₁) = t₀   …
     ─────────────────────────────────
-    decode-1.1([ 9, t₁, "x" ]) = t₀.x
+    decode([ 9, t₁, "x" ]) = t₀.x
 
 
 Decode a CBOR array beginning with a `10` as a record projection:
 
 
-    decode-1.1(t₁) = t₀   …
+    decode(t₁) = t₀   …
     ────────────────────────────────────────────────────
-    decode-1.1([ 10, t₁, "x", "y", … ]) = t₀.{ x, y, … }
+    decode([ 10, t₁, "x", "y", … ]) = t₀.{ x, y, … }
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
@@ -1200,17 +1200,17 @@ responsibility of the type-checking phase.
 Decode a CBOR array beginning with a `11` as a union type:
 
 
-    decode-1.1(T₁) = T₀   …
+    decode(T₁) = T₀   …
     ────────────────────────────────────────────────────
-    decode-1.1([ 11, { "x" = T₁, … } ]) = < x : T₀ | … >
+    decode([ 11, { "x" = T₁, … } ]) = < x : T₀ | … >
 
 
 Decode a CBOR array beginning with a `12` as a union type:
 
 
-    decode-1.1(t₁) = t₀   decode-1.1(T₁) = T₀   …
+    decode(t₁) = t₀   decode(T₁) = T₀   …
     ──────────────────────────────────────────────────────────────────────
-    decode-1.1([ 12, "x", t₁, { "y" = T₁, … } ]) = < x = t₀ | y : T₀ | … >
+    decode([ 12, "x", t₁, { "y" = T₁, … } ]) = < x = t₀ | y : T₀ | … >
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
@@ -1219,9 +1219,9 @@ responsibility of the type-checking phase.
 Decode a CBOR array beginning with a `13` as a `constructors` application:
 
 
-    decode-1.1(u₁) = u₀
+    decode(u₁) = u₀
     ───────────────────────────────────────
-    decode-1.1([ 13, u₁]) = constructors u₀
+    decode([ 13, u₁]) = constructors u₀
 
 
 ### `Bool`
@@ -1230,19 +1230,19 @@ Decode CBOR boolean values to Dhall boolean values:
 
 
     ───────────────────────
-    decode-1.1(True) = True
+    decode(True) = True
 
 
     ─────────────────────────
-    decode-1.1(False) = False
+    decode(False) = False
 
 
 Decode a CBOR array beginning with a `14` as an `if` expression:
 
 
-    decode-1.1(t₁) = t₀   decode-1.1(l₁) = l₀   decode-1.1(r₁) = r₀
+    decode(t₁) = t₀   decode(l₁) = l₀   decode(r₁) = r₀
     ───────────────────────────────────────────────────────────────
-    decode-1.1([ 14, t₁, l₁, r₁ ]) = if t₀ then l₀ else r₀
+    decode([ 14, t₁, l₁, r₁ ]) = if t₀ then l₀ else r₀
 
 
 ### `Natural`
@@ -1251,11 +1251,11 @@ Decode a CBOR array beginning with a `15` as a `Natural` literal:
 
 
     ─────────────────────────
-    decode-1.1([ 15, n ]) = n
+    decode([ 15, n ]) = n
 
 
     ──────────────────────────
-    decode-1.1([ 15, nn ]) = n
+    decode([ 15, nn ]) = n
 
 
 A decoder MUST accept an integer that is not encoded using the most compact
@@ -1267,19 +1267,19 @@ Decode a CBOR array beginning with a `16` as an `Integer` literal:
 
 
     ────────────────────────────
-    decode-1.1([ 16, -nn ]) = ±n
+    decode([ 16, -nn ]) = ±n
 
 
     ───────────────────────────
-    decode-1.1([ 16, -n ]) = ±n
+    decode([ 16, -n ]) = ±n
 
 
     ──────────────────────────
-    decode-1.1([ 16, n ]) = ±n
+    decode([ 16, n ]) = ±n
 
 
     ───────────────────────────
-    decode-1.1([ 16, nn ]) = ±n
+    decode([ 16, nn ]) = ±n
 
 
 A decoder MUST accept an integer that is not encoded using the most compact
@@ -1291,7 +1291,7 @@ Decode a CBOR array beginning with a `17` as an `Double` literal:
 
 
     ─────────────────────────────
-    decode-1.1([ 17, n.n ]) = n.n
+    decode([ 17, n.n ]) = n.n
 
 
 A decoder MUST accept a decimal fraction that is not encoded using the most
@@ -1302,9 +1302,9 @@ compact representation.
 Decode a CBOR array beginning with a `18` as a `Text` literal:
 
 
-    decode-1.1(b₁) = b₀   decode-1.1(d₁) = d₀   …   decode-1.1(y₁) = y₀
+    decode(b₁) = b₀   decode(d₁) = d₀   …   decode(y₁) = y₀
     ───────────────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]) = "a${b₀}c${d}e…x${y₀}z"
+    decode([ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]) = "a${b₀}c${d}e…x${y₀}z"
 
 
 ### Imports
@@ -1315,44 +1315,44 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
+    decode([ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
 
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
 
 
     ────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
+    decode([ 24, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
+    decode([ 24, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
+    decode([ 24, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────
-    decode-1.1([ 24, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
+    decode([ 24, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
 
 
     ──────────────────────────────────
-    decode-1.1([ 24, 6, "x" ]) = env:x
+    decode([ 24, 6, "x" ]) = env:x
 
 
     ───────────────────────────────
-    decode-1.1([ 24, 7 ]) = missing
+    decode([ 24, 7 ]) = missing
 
 
 ### `let` expressions
@@ -1360,22 +1360,22 @@ The decoding rules are the exact opposite of the encoding rules:
 Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
-    decode-1.1(a₁) = a₀   decode-1.1(b₁) = b₀
+    decode(a₁) = a₀   decode(b₁) = b₀
     ──────────────────────────────────────────────────
-    decode-1.1([ 25, "x", a₁, b₁ ]) = let x = a₀ in b₀
+    decode([ 25, "x", a₁, b₁ ]) = let x = a₀ in b₀
 
 
-    decode-1.1(a₁) = a₀   decode-1.1(A₁) = A₀   decode-1.1(b₁) = b₀
+    decode(a₁) = a₀   decode(A₁) = A₀   decode(b₁) = b₀
     ───────────────────────────────────────────────────────────────
-    decode-1.1([ 25, "x", A₁, a₁, b₁ ]) = let x : A₀ = a₀ in b₀
+    decode([ 25, "x", A₁, a₁, b₁ ]) = let x : A₀ = a₀ in b₀
 
 
 ### Type annotations
 
 
-    decode-1.1(t₁) = t₀   decode-1.1(T₁) = T₀
+    decode(t₁) = t₀   decode(T₁) = T₀
     ─────────────────────────────────────────
-    decode-1.1([ 26, t₁, T₁ ]) = t₀ : T₀
+    decode([ 26, t₁, T₁ ]) = t₀ : T₀
 
 
 ## Versioning judgments
@@ -1391,7 +1391,7 @@ the following judgment:
 * `cbor` (the output) is a CBOR expression
 
 ... and replacing `*` with the protocol version string of the expression to
-encode.
+encode, or omitting the version for the latest protocol version string.
 
 You can decode a Dhall expression tagged with a protocol version string using
 the following judgment:
@@ -1404,28 +1404,28 @@ the following judgment:
 * `cbor` (the output) is a CBOR expression
 
 ... and replacing `*` with the protocol version string of the expression to
-decode.
+decode, or omitting the version for the latest protocol version string.
 
 
-    encode-1.1(e₀) = e₁
+    encode(e₀) = e₁
     ─────────────────────────────────────────
-    encodeWithVersion-1.1(e₀) = [ "1.1", e₁ ]
+    encodeWithVersion(e₀) = [ "1.1", e₁ ]
 
 
-    decode-1.1(e₀) = e₁
+    decode(e₀) = e₁
     ─────────────────────────────────────────
-    decodeWithVersion-1.1([ "1.1", e₁ ]) = e₀
+    decodeWithVersion([ "1.1", e₁ ]) = e₀
 
 
 Version "1.1" is backwards compatible with Version "1.0":
 
 
-    encode-1.1(e₀) = e₁
+    encode(e₀) = e₁
     ─────────────────────────────────────────
     encodeWithVersion-1.0(e₀) = [ "1.0", e₁ ]
 
 
-    decode-1.1(e₀) = e₁
+    decode(e₀) = e₁
     ─────────────────────────────────────────
     decodeWithVersion-1.0([ "1.0", e₁ ]) = e₀
 
