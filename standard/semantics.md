@@ -2636,13 +2636,16 @@ collide.  The type system ensures that colliding fields must be records:
     rs₀ ⇥ { x = r₁, rs₁… }
     l₁ ∧ r₁ ⇥ t
     { ls₁… } ∧ { rs₁… } ⇥ { ts… }
+    { x = t, ts… } ⇥ e             ; To ensure the fields are sorted
     ─────────────────────────────
-    ls₀ ∧ rs₀ ⇥ { x = t, ts… }
+    ls₀ ∧ rs₀ ⇥ e
 
 
-    ls₀ ⇥ { x = l₁, ls₁… }   { ls₁… } ∧ rs ⇥ { ls₂… }
-    ─────────────────────────────────────────────────  ; x ∉ rs
-    ls₀ ∧ rs ⇥ { x = l₁, ls₂… }
+    ls₀ ⇥ { x = l₁, ls₁… }
+    { ls₁… } ∧ rs ⇥ { ls₂… }
+    { x = l₁, ls₂… } ⇥ e      ; To ensure the fields are sorted
+    ────────────────────────  ; x ∉ rs
+    ls₀ ∧ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -2668,13 +2671,16 @@ from the left record:
     ls₀ ⇥ { x = l₁, ls₁… }
     rs₀ ⇥ { x = r₁, rs₁… }
     { ls₁… } ⫽ { rs₁… } ⇥ { ts… }
+    { x = r₁, ts… } ⇥ e            ; To ensure the fields are sorted
     ─────────────────────────────
-    ls₀ ⫽ rs₀ ⇥ { x = r₁, ts… }
+    ls₀ ⫽ rs₀ ⇥ e
 
 
-    ls₀ ⇥ { x = l₁, ls₁… }   { ls₁… } ⫽ rs ⇥ { ls₂… }
-    ─────────────────────────────────────────────────  ; x ∉ rs
-    ls₀ ⫽ rs ⇥ { x = l₁, ls₂… }
+    ls₀ ⇥ { x = l₁, ls₁… }
+    { ls₁… } ⫽ rs ⇥ { ls₂… }
+    { x = l₁, ls₂… } ⇥ e      ;  To ensure the fields are sorted
+    ────────────────────────  ;  x ∉ rs
+    ls₀ ⫽ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -2701,13 +2707,16 @@ record types:
     rs₀ ⇥ { x : r₁, rs₁… }
     l₁ ⩓ r₁ ⇥ t
     { ls₁… } ⩓ { rs₁… } ⇥ { ts… }
+    { x : t, ts… } ⇥ e             ; To ensure the fields are sorted
     ─────────────────────────────
-    ls₀ ⩓ rs₀ ⇥ { x : t, ts… }
+    ls₀ ⩓ rs₀ ⇥ e
 
 
-    ls₀ ⇥ { x : l₁, ls₁… }   { ls₁… } ⩓ rs ⇥ { ls₂… }
-    ─────────────────────────────────────────────────  ; x ∉ rs
-    ls₀ ⩓ rs ⇥ { x : l₁, ls₂… }
+    ls₀ ⇥ { x : l₁, ls₁… }
+    { ls₁… } ⩓ rs ⇥ { ls₂… }
+    { x : l₁, ls₂… } ⇥ e      ; To ensure the fields are sorted
+    ────────────────────────  ; x ∉ rs
+    ls₀ ⩓ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
