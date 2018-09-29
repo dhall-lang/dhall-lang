@@ -108,7 +108,7 @@ $ cat ./configuration.dhall
 
     -- We can import Dhall expressions from URLs, too
 in  let generate =
-            http://prelude.dhall-lang.org/List/generate
+            https://prelude.dhall-lang.org/List/generate
                 -- ... and optionally protect them with integrity checks
                 sha256:77dbfc09daa00a7c6ba0c834863e8ee42e538af0f0600397a1c34923f11454b5
 
@@ -314,11 +314,11 @@ Finally, we have a cheatsheet for a very condensed overview and quick lookup:
 
 ## Standard Library
 
-Dhall's Standard Library is called `Prelude`. It implements various utilities to 
+Dhall's Standard Library is called `Prelude`. It implements various utilities to
 work with the builtin types. Where to find it:
 
+* [Official link - https://prelude.dhall-lang.org](https://prelude.dhall-lang.org)
 * [Github repo](https://github.com/dhall-lang/Prelude)
-* [Mirror on IPFS](http://prelude.dhall-lang.org/)
 * [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix): both `dhall` and `dhall.prelude` derivations are built, install the `Prelude` with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
 ## Development status
@@ -844,7 +844,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-text-post]: http://www.haskellforall.com/2017/06/dhall-is-now-template-engine.html
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
-[dhall-prelude]: https://github.com/dhall-lang/Prelude
+[dhall-prelude]: https://prelude.dhall-lang.org
 [hcl]: https://github.com/hashicorp/hcl
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
 [migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
