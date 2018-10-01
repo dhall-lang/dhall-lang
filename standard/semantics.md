@@ -3024,6 +3024,34 @@ For example, these are term-level functions permitted by the above rule:
 
     λ(x : Bool) → x != False
 
+The following rule enables support for functions from types to terms (i.e.
+"polymorphic" functions):
+
+
+    ───────────
+    Kind ↝ Type
+
+
+For example, these are polymorphic functions permitted by the above rule:
+
+    List/head
+
+    λ(a : Type) → λ(x : a) → x
+
+The following rule enables support for functions from types to types (i.e.
+"type-level" functions):
+
+
+    ───────────
+    Kind ↝ Kind
+
+
+For example, these are type-level functions permitted by the above rule:
+
+    List
+
+    λ(m : Type) → [ m ] → m
+
 The following rule enables support for functions from kinds to types (i.e.
 "kind-polymorphic" functions):
 
@@ -3034,9 +3062,9 @@ The following rule enables support for functions from kinds to types (i.e.
 
 For example, these are kind-polymorphic functions permitted by the above rule:
 
-    List/head
+    λ(a : Kind) → λ(x : a) → x
 
-    λ(a : Type) → λ(x : a) → x
+    λ(a : Kind) → a -> a -> Type
 
 The following rule enables support for functions from kinds to kinds (i.e.
 "kind-level" functions):
@@ -3046,11 +3074,9 @@ The following rule enables support for functions from kinds to kinds (i.e.
     Sort ↝ Sort
 
 
-For example, these are kind-level functions permitted by the above rule:
+For example, this is a kind-level function permitted by the above rule:
 
-    List
-
-    λ(m : Type) → [ m ] → m
+    λ(a : Kind) → a -> a
 
 However, Dhall does not support dependently-typed functions, so there are no
 rules for `Type ↝ Kind`, `Kind → Sort`, or `Type → Sort`.  Dhall omits support
