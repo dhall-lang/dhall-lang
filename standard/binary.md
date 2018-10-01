@@ -383,6 +383,10 @@ string matching their identifier.
     encode(Kind) = "Kind"
 
 
+    ─────────────────────────
+    encode(Sort) = "Sort"
+
+
 ### Function application
 
 Function application is encoded as a heterogeneous array where a function
@@ -934,6 +938,10 @@ identifier if it matches any of the following strings:
 
     ─────────────────────────
     decode("Kind") = Kind
+
+
+    ─────────────────────────
+    decode("Sort") = Sort
 
 
 Otherwise, decode the CBOR string as an ordinary variable as outlined in the
