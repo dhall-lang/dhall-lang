@@ -1322,7 +1322,7 @@ The remaining rules are:
 
 
     ────────────────────
-    Sort[x@n ≔ e] = Sorl
+    Sort[x@n ≔ e] = Sort
 
 
 ## α-normalization
@@ -3052,13 +3052,16 @@ For example, these are type-level functions permitted by the above rule:
 
     λ(m : Type) → [ m ] → m
 
-The following rule enables support for functions from kinds to types (i.e.
-"kind-polymorphic" functions):
+The following rules enable support for functions from kinds to types or terms
+(i.e. "kind-polymorphic" functions):
 
 
     ───────────
     Sort ↝ Kind
 
+
+    ───────────
+    Sort ↝ Type
 
 For example, these are kind-polymorphic functions permitted by the above rule:
 
@@ -3537,7 +3540,7 @@ Record values are also anonymous:
     Γ ⊢ { x = t } : { x : T }
 
 
-    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   T ≡ Type   Γ ⊢ { xs… } :⇥ { ts… }
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ { ts… }
     ─────────────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
@@ -3845,14 +3848,14 @@ and types of their alternatives:
     Γ ⊢ < x : T | ts… > : Type
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Type
-    ───────────────────────────────────  ; x ∉ < ts… >
-    Γ ⊢ < x : T | ts… > : Type
-
-
-    Γ ⊢ T :⇥ Sort   Γ ⊢ < ts… > :⇥ Kind
+    Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Kind
     ───────────────────────────────────  ; x ∉ < ts… >
     Γ ⊢ < x : T | ts… > : Kind
+
+
+    Γ ⊢ T :⇥ Sort   Γ ⊢ < ts… > :⇥ Sort
+    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ < x : T | ts… > : Sort
 
 
 Note that the above rule allows storing values, types, and kinds in unions.
