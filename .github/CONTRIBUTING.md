@@ -81,21 +81,30 @@ request after a 24 hour waiting period.  See below for more details about how
 to obtain the commit bit.
 
 Language changes are voted on by actively maintained implementations of the
-Dhall language.  Each implementation gets one vote (but derived implementations
-do not count as extra votes).
+Dhall language.  Each implementation gets one vote.
 
-For example, at the time of this writing the Haskell implementation of Dhall is
-the only actively maintained implementation of the Dhall standard so there is
-effectively only one vote.  Since @Gabriel439 leads that implementation that
-means that @Gabriel439 effectively authorizes changes to the language standard.
+At the time of this writing the two actively supported implementations of Dhall
+are:
+
+*   [`dhall-haskell` - Haskell bindings to Dhall](https://github.com/dhall-lang/dhall-haskell)
+
+    Led by @Gabriel439
+
+*   [`dhall-clj` - Clojure bindings to Dhall](https://github.com/f-f/dhall-clj)
+
+    Led by @f-f
+
+Each of those implementations get one vote cast by the lead contributor for each
+implementation.  In the case of a tie vote the proposal is still approved.
 
 Implementations do not need to be useful or widely used to get a vote.  If you
 create a complete implementation as a side project that nobody uses and does not
 integrate with anything, you still get to vote on changes to the standard.
 
-There are many integrations that are powered by the Haskell integration (such
-as `dhall-to-nix` and `dhall-to-json`), but they do not count as extra votes
-because they are not a separate reimplementation of the standard.
+Derived implementations do not count as a vote.  For example, there are many
+integrations that are powered by the Haskell integration (such as `dhall-to-nix`
+and `dhall-to-json`), but they do not count as extra votes because they are not
+a separate reimplementation of the standard.
 
 Proposed changes require a response within 3 days and a vote within a week of
 submission.  The absence of a vote counts as a vote in favor.  The process is

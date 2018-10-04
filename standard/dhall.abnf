@@ -76,6 +76,10 @@
 ;
 ; In all other cases you can assume that you do not need to backtrack unless
 ; there is a comment explicitly asking you to backtrack
+;
+; Whenever associativity is not specified you should assume left-associativity.
+; For example, function application is left-associative and all operators are
+; left-associative.
 
 ; NOTE: There are many line endings in the wild
 ;

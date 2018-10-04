@@ -692,9 +692,10 @@ interpolated expressions:
     ───────────────────────────────────────────────────────────────────────────────────
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
-
-Note that the encoding of a text literal always begins and ends with a string,
-even if the first or last chunk is the empty string.
+In other words: the amount of encoded elements is always an odd number, with the
+odd elements being strings and the even ones being interpolated expressions.  
+Note: this means that the first and the last encoded elements are always strings,
+even if they are empty strings.
 
 ### Imports
 
