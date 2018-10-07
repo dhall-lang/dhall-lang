@@ -57,7 +57,7 @@ versions of the binary protocol.
 Dhall's import system requires a standard way to convert expressions to and from
 a binary representation, for two reasons:
 
-* Users can imported expressions protected by a "semantic integrity check",
+* Users can import expressions protected by a "semantic integrity check",
   which is a SHA-256 hash of the binary representation of an expression's
   normal form
 
