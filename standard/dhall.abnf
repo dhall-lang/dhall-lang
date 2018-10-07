@@ -268,6 +268,7 @@ True-raw              = %x54.72.75.65
 False-raw             = %x46.61.6c.73.65
 Type-raw              = %x54.79.70.65
 Kind-raw              = %x4b.69.6e.64
+Sort-raw              = %x53.6f.72.74
 
 reserved-raw =
     Bool-raw
@@ -282,6 +283,7 @@ reserved-raw =
   / False-raw
   / Type-raw
   / Kind-raw
+  / Sort-raw
 
 reserved-namespaced-raw =
     Natural-fold-raw

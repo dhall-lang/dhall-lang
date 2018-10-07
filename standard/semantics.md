@@ -113,7 +113,7 @@ x, y              ; Variables
 ;     T  = type of the term "t"
 ;     U  = type of the term "u"
 ;
-; Constants that are either `Type` or `Kind` are lowercase:
+; Constants that are `Type`, `Kind`, or `Sort` are lowercase:
 ;
 ;     c = "c"onstant
 ;     i = function's "i"nput type
@@ -125,9 +125,9 @@ x, y              ; Variables
 ; such as `as…`
 ;
 ; Note that these are only informal mnemonics.  Dhall is a pure type system,
-; which means that many places in the syntax permit types, terms, and kinds.
-; The typing judgments are the authoritative rules for what expressions are
-; permitted and forbidden.
+; which means that many places in the syntax permit terms, types, kinds, and
+; sorts. The typing judgments are the authoritative rules for what expressions
+, are permitted and forbidden.
 a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   = x@n                               ; Identifier
                                       ; (`x` is short-hand for `x@0`)
@@ -205,6 +205,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / False                             ; False term
   / Type                              ; Type of terms
   / Kind                              ; Type of types
+  / Sort                              ; Type of kinds
   / missing                           ; Identity for import alternatives,
                                       ; will always fail to resolve
   / l ? r                             ; Alternative imports resolution
@@ -809,6 +810,10 @@ The remaining rules are:
     ↑(d, x, m, Kind) = Kind
 
 
+    ───────────────────────
+    ↑(d, x, m, Sort) = Sort
+
+
 ## Contexts
 
 The syntax of contexts is:
@@ -1316,6 +1321,10 @@ The remaining rules are:
     Kind[x@n ≔ e] = Kind
 
 
+    ────────────────────
+    Sort[x@n ≔ e] = Sort
+
+
 ## α-normalization
 
 α-normalization is a function of the following form:
@@ -1748,6 +1757,10 @@ sub-expressions for the remaining rules:
     Kind ↦ Kind
 
 
+    ───────────
+    Sort ↦ Sort
+
+
 ## β-normalization
 
 β-normalization is a function of the following form:
@@ -1798,6 +1811,10 @@ Type-checking constants are in normal form:
 
     ───────────
     Kind ⇥ Kind
+
+
+    ───────────
+    Sort ⇥ Sort
 
 
 ### Variables
@@ -2994,9 +3011,9 @@ This function check is a judgment of the form:
 
 ... where:
 
-* `c₀` (an input constant, either `Type` or `Kind`) is the type of the
+* `c₀` (an input constant, either `Type`, `Kind`, or `Sort`) is the type of the
   function's input type
-* `c₁` (an input constant, either `Type` or `Kind`) is the type of the
+* `c₁` (an input constant, either `Type`, `Kind`, or `Sort`) is the type of the
   function's output type
 
 Dhall forbids dependent function types, but permits all other function
@@ -3044,9 +3061,39 @@ For example, these are type-level functions permitted by the above rule:
 
     λ(m : Type) → [ m ] → m
 
-However, Dhall does not support dependently-typed functions, so there is no rule
-for `Type ↝ Kind`.  Dhall omits support for dependent function types because
-that would entail robustly detecting non-trivial type-level equivalences.
+The following rules enable support for functions from kinds to types or terms
+(i.e. "kind-polymorphic" functions):
+
+
+    ───────────
+    Sort ↝ Kind
+
+
+    ───────────
+    Sort ↝ Type
+
+For example, these are kind-polymorphic functions permitted by the above rule:
+
+    λ(a : Kind) → λ(x : a) → x
+
+    λ(a : Kind) → a -> a -> Type
+
+The following rule enables support for functions from kinds to kinds (i.e.
+"kind-level" functions):
+
+
+    ───────────
+    Sort ↝ Sort
+
+
+For example, this is a kind-level function permitted by the above rule:
+
+    λ(a : Kind) → a -> a
+
+However, Dhall does not support dependently-typed functions, so there are no
+rules for `Type ↝ Kind`, `Kind → Sort`, or `Type → Sort`.  Dhall omits support
+for dependent function types because that would entail robustly detecting
+non-trivial type-level equivalences.
 
 ## Type inference
 
@@ -3087,11 +3134,16 @@ judgment returns the inferred type in normal form.
 
 ### Constants
 
-The first rule is that the inferred type of `Type` is `Kind`:
+The first rules are that the inferred type of `Type` is `Kind` and the inferred
+type of `Kind` is `Sort`:
 
 
     ───────────────
     Γ ⊢ Type : Kind
+
+
+    ───────────────
+    Γ ⊢ Kind : Sort
 
 
 In other words, `Kind` is the "type of types" and `Kind` serves as the
@@ -3459,10 +3511,24 @@ A record can either store term-level values and functions:
     Γ ⊢ { x : T, xs… } : Kind
 
 
-... but not both.  If one field is a term-level value or function and another
-field is a type-level value or function then that is a type error.
+... or store kinds (if it is non-empty):
 
-If the type of a field is not `Type` or `Kind` then that is a type error.
+
+    Γ ⊢ T :⇥ Sort   T ≡ Kind
+    ────────────────────────
+    Γ ⊢ { x : T } : Sort
+
+
+    Γ ⊢ T :⇥ Sort   T ≡ Kind   Γ ⊢ { xs… } :⇥ Sort
+    ──────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Sort
+
+
+... but they can not be mixed.  If one field is a term-level value or function
+and another field is a type-level value or function then that is a type error.
+
+If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
+error.
 
 If two fields have the same name, then that is a type error.
 
@@ -3483,7 +3549,17 @@ Record values are also anonymous:
     Γ ⊢ { x = t } : { x : T }
 
 
-    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   T ≡ Type   Γ ⊢ { xs… } :⇥ { ts… }
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ { ts… }
+    ─────────────────────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x = t, xs… } : { x : T, ts… }
+
+
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Sort
+    ─────────────────────────
+    Γ ⊢ { x = t } : { x : T }
+
+
+    Γ ⊢ t : T   Γ ⊢ T :⇥ Sort   T ≡ Kind   Γ ⊢ { xs… } :⇥ { ts… }
     ─────────────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
@@ -3501,12 +3577,22 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e.x : T
 
 
+    Γ ⊢ e :⇥ { x : T, xs… }   Γ ⊢ { x : T, xs… } :⇥ Sort
+    ────────────────────────────────────────────────────
+    Γ ⊢ e.x : T
+
+
     Γ ⊢ e :⇥ { ts… }   Γ ⊢ { ts… } :⇥ Type
     ──────────────────────────────────────
     Γ ⊢ e.{} : {}
 
 
     Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Kind
+    ────────────────────────────────────────────────────
+    Γ ⊢ e.{ x } : { x : T }
+
+
+    Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Sort
     ────────────────────────────────────────────────────
     Γ ⊢ e.{ x } : { x : T }
 
@@ -3521,8 +3607,8 @@ error.
 
 If the field is absent from the record then that is a type error.
 
-Recursive record merge requires that both arguments are both records of terms or
-records of types:
+Recursive record merge requires that both arguments are records of terms,
+records of types, or records of kinds:
 
 
     Γ ⊢ l :⇥ { ls… }
@@ -3564,6 +3650,25 @@ records of types:
     Γ ⊢ { a : A₀, ls… } :⇥ Kind
     Γ ⊢ r :⇥ { a : A₁, rs… }
     Γ ⊢ { a : A₁, rs… } :⇥ Kind
+    Γ ⊢ l.a ∧ r.a : A₂
+    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    ────────────────────────────────
+    Γ ⊢ l ∧ r : { a : A₂, ts… }
+
+
+    Γ ⊢ l :⇥ { ls… }
+    { ls… } :⇥ Sort
+    Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { a : A, rs… } :⇥ Sort
+    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
+    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ∧ r : { a : A, ts… }
+
+
+    Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ { a : A₀, ls… } :⇥ Sort
+    Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { a : A₁, rs… } :⇥ Sort
     Γ ⊢ l.a ∧ r.a : A₂
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────
@@ -3619,6 +3724,24 @@ records of terms or records of types:
     Γ ⊢ { a : A₀, ls… } :⇥ Kind
     Γ ⊢ r :⇥ { a : A₁, rs… }
     Γ ⊢ { a : A₁, rs… } :⇥ Kind
+    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    ───────────────────────────────
+    Γ ⊢ l ⫽ r : { a : A₀, ts… }
+
+
+    Γ ⊢ l :⇥ { ls… }
+    Γ ⊢ { ls… } :⇥ Sort
+    Γ ⊢ r :⇥ { a : A, rs… }
+    Γ ⊢ { a : A, rs… } :⇥ Sort
+    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
+    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⫽ r : { a : A, ts… }
+
+
+    Γ ⊢ l :⇥ { a : A₀, ls… }
+    Γ ⊢ { a : A₀, ls… } :⇥ Sort
+    Γ ⊢ r :⇥ { a : A₁, rs… }
+    Γ ⊢ { a : A₁, rs… } :⇥ Sort
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ───────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₀, ts… }
@@ -3687,6 +3810,33 @@ literals.  Any conflicting fields must be safe to recursively merge:
     Γ ⊢ l ⩓ r : Kind
 
 
+    Γ ⊢ l :⇥ Sort
+    l ⇥ { ls… }
+    Γ ⊢ r :⇥ Sort
+    r ⇥ { a : A }
+    ────────────────
+    Γ ⊢ l ⩓ r : Sort
+
+
+    Γ ⊢ l :⇥ Sort
+    l ⇥ { ls… }
+    Γ ⊢ r :⇥ Sort
+    r ⇥ { a : A, rs… }
+    Γ ⊢ { ls… } ⩓ { rs… } : T
+    ─────────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⩓ r : Sort
+
+
+    Γ ⊢ l :⇥ Sort
+    l ⇥ { a : A₀, ls… }
+    Γ ⊢ r :⇥ Sort
+    r ⇥ { a : A₁, rs… }
+    Γ ⊢ l.a ⩓ r.a : T₀
+    Γ ⊢ { ls… } ⩓ { rs… } : T₁
+    ─────────────────────────────
+    Γ ⊢ l ⩓ r : Sort
+
+
 If the operator arguments are not record types then that is a type error.
 
 If they share a field in common that is not a record type then that is a type
@@ -3707,14 +3857,19 @@ and types of their alternatives:
     Γ ⊢ < x : T | ts… > : Type
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Type
+    Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Kind
     ───────────────────────────────────  ; x ∉ < ts… >
-    Γ ⊢ < x : T | ts… > : Type
+    Γ ⊢ < x : T | ts… > : Kind
 
 
-Note that the above rule allows storing values, types, and type-level functions
-in unions.  However, if the type of the alternative is not `Type` or `Kind` then
-that is a type error.
+    Γ ⊢ T :⇥ Sort   Γ ⊢ < ts… > :⇥ Sort
+    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ < x : T | ts… > : Sort
+
+
+Note that the above rule allows storing values, types, and kinds in unions.
+However, if the type of the alternative is not `Type` or `Kind` then that is a
+type error.
 
 If two alternatives share the same name then that is a type error.
 
@@ -3858,8 +4013,8 @@ and if the inferred input and output type are allowed by the function check:
     Γ₀ ⊢ ∀(x : A) → B : o
 
 
-If the input or output type is neither a `Type` nor a `Kind` then that is a type
-error.
+If the input or output type is neither a `Type`, a `Kind`, nor a `Sort` then
+that is a type error.
 
 The function check disallows dependent function types but allows all other
 function types.  If the function type is a dependent function type then that is
