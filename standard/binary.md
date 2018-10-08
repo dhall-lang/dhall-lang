@@ -3,13 +3,8 @@
 This document formalizes the semantics for encoding and decoding Dhall
 expressions to and from a binary representation
 
-This exists as a separate document since this will likely grow as the binary
-protocol evolves in order to specify how to encode and decode multiple
-versions of the binary protocol.
-
 * [Motivation](#motivation)
 * [CBOR](#cbor)
-* [Versioning](#versioning)
 * [CBOR expressions](#cbor-expressions)
 * [Encoding judgment](#encoding-judgment)
     * [Variables](#variables)
@@ -49,7 +44,7 @@ versions of the binary protocol.
     * [Imports](#imports-1)
     * [`let`-expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
-* [Versioning judgment](#versioning-judgment)
+* [Versioning](#versioning)
 * [Protocol evolution](#protocol-evolution)
 
 ## Motivation
@@ -65,12 +60,6 @@ a binary representation, for two reasons:
   with a semantic integrity check.  The local cache stores expressions using
   the SHA-256 hash as the lookup key and the binary representation of the
   expression as the cached value.
-
-Implementations also may want to support encoding and decoding multiple
-versions of the protocol for backwards compatibility.  An implementation that
-supports older protocol versions allows users to defer updating their semantic
-integrity checks or rebuilding their cache until they require newer language
-features.
 
 ## CBOR
 
@@ -95,76 +84,6 @@ intermediate CBOR expression and instead serialize to or deserialize from the
 binary representation directly.  These semantics only specify how to perform the
 conversion through an intermediate CBOR expression for simplicity.
 
-## Versioning
-
-All serialized Dhall expressions are encoded alongside a version string.  This
-version string is only encoded once as a header for the entire Dhall expression,
-not for each subexpression.  This serialized version string is also not
-necessarily the same as the version string for the standard and this section
-will use the term "protocol version string" to refer to the version string used
-to tag binary-encoded Dhall expressions.
-
-This document specifies how to encode and decode specific versions of the
-protocol.  The latest protocol version string is:
-
-    "1.1"
-
-A compliant implementation MUST be able to encode and decode the latest
-version of the protocol (i.e. an expression tagged with the above binary
-protocol version string).
-
-A compliant implementation MAY support encoding or decoding other versions of
-the protocol standardized within this document for backwards compatibility.
-
-The protocol version strings will typically be version numbers of the form
-"X.Y", where:
-
-* Changing the version from "X.Y" to "X.{Y + 1}" indicates a non-breaking change
-* Changing the version from "X.Y" to "{X + 1}.0" indicates a breaking change
-
-"X" is "major version number" and "Y" is the "minor version number".
-
-This version number convention is a convention and is not enforced by the
-standardized semantics.  Whenever the version numbering convention is
-inconsistent with the standardized encoding/decoding judgments, the judgments
-are authoritative.
-
-For example, a judgment that decodes expressions tagged with a protocol version
-string of "X.{Y + 1}" should in theory also be able to decode expressions tagged
-with a protocol version string of "X.Y".  In practice a standardization error
-might cause the newer protocol version to be incompatible with the older
-protocol version despite sharing the same major version number.
-
-Implementations MUST NOT assume backwards compatibility unless that
-compatibility is explicitly standardized.  For example, if the decoder for
-protocol version string `X.Z` is backward compatible with protocol version
-string `X.Y` then you will see two judgments making that compatibility
-explicit:
-
-
-        decode-X.Z(e₀) = e₁
-        ───────────────────────────────────────
-        decodeWithVersion-X.Y([ "X.Y", e₀) = e₁
-
-        decode-X.Z(e₀) = e₁
-        ───────────────────────────────────────
-        decodeWithVersion-X.Z([ "X.Z", e₀) = e₁
-
-
-Notice that each judgment expects a different protocol version string but both
-judgments reuse the same decoding logic (for protocol version "X.Z" in this
-case) in order to avoid independently specifying the decoding logic for both
-protocol versions.
-
-The protocol version string format might change in the future.  For example,
-at some point the protocol version string might become a URI or a SHA256 hash.
-Therefore, implementations MUST only match on the exact protocol version strings
-enumerated in the decoding judgments.  Implementations MUST NOT match a prefix
-of the version string, MUST NOT attempt to parse the protocol version string
-as a version number, and MUST NOT attempt to interpret the protocol version
-string in any way other than to test the string for equality with an expected
-protocol version string.
-
 ## CBOR expressions
 
 The following notation will be used for CBOR expressions in serialization
@@ -186,17 +105,14 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
 
 ## Encoding judgment
 
-You can encode a naked Dhall expression using the following judgment:
+You can encode an untagged Dhall expression using the following judgment:
 
-    encode-*(dhall) = cbor
+    encode(dhall) = cbor
 
 ... where:
 
 * `dhall` (the input) is a Dhall expression
 * `cbor` (the output) is a CBOR expression
-
-... and replacing `*` with the protocol version string of the expression to
-encode, or omitting the version for the latest protocol version string.
 
 The encoding logic includes several optimizations for more compactly encoding
 expressions that are fully resolved and αβ-normalized because expressions are
@@ -806,17 +722,14 @@ a type annotation:
 ## Decoding judgment
 
 
-You can decode a Dhall expression using the following judgment:
+You can decode an untagged Dhall expression using the following judgment:
 
-    decode-*(cbor) = dhall
+    decode(cbor) = dhall
 
 ... where:
 
 * `cbor` (the output) is a CBOR expression
 * `dhall` (the input) is a Dhall expression
-
-... and replacing `*` with the protocol version string of the expression to
-encode, or omitting the version for the latest protocol version string.
 
 ### Built-in constants
 
@@ -1387,98 +1300,52 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
 
 
-## Versioning judgments
+## Versioning
 
-You can encode a Dhall expression tagged with a protocol version string using
-the following judgment:
+You can find versioning information in the following separate document:
 
-    encodeWithVersion-*(dhall) = cbor
+* [Versioning](./versioning.md)
 
-... where:
+In particular, that document contains the `currentVersion` judgment referenced
+in this section.
 
-* `dhall` (the input) is a Dhall expression
-* `cbor` (the output) is a CBOR expression
+You can encode a Dhall expression tagged with a version string using the
+following judgment:
 
-... and replacing `*` with the protocol version string of the expression to
-encode, or omitting the version for the latest protocol version string.
-
-You can decode a Dhall expression tagged with a protocol version string using
-the following judgment:
-
-    decodeWithVersion-*(cbor) = dhall
+    encodeWithVersion(dhall) = cbor
 
 ... where:
 
 * `dhall` (the input) is a Dhall expression
 * `cbor` (the output) is a CBOR expression
 
-... and replacing `*` with the protocol version string of the expression to
-decode, or omitting the version for the latest protocol version string.
+You can decode a Dhall expression tagged with a version string using
+the following judgment:
+
+    decodeWithVersion(cbor) = dhall
+
+... where:
+
+* `dhall` (the input) is a Dhall expression
+* `cbor` (the output) is a CBOR expression
+
+`encodeWithVersion` and `decodeWithVersion` are both a wrappers around `encode`
+and `decode` that include/expect the current version tag, respectively:
+
+    currentVersion = v   encode(e₀) = e₁
+    ────────────────────────────────────
+    encodeWithVersion(e₀) = [ v, e₁ ]
 
 
-    encode(e₀) = e₁
-    ─────────────────────────────────────────
-    encodeWithVersion(e₀) = [ "1.1", e₁ ]
+    currentVersion = v   decode(e₀) = e₁
+    ────────────────────────────────────
+    decodeWithVersion([ v, e₁ ]) = e₀
 
-
-    decode(e₀) = e₁
-    ─────────────────────────────────────────
-    decodeWithVersion([ "1.1", e₁ ]) = e₀
-
-
-Version "1.1" is backwards compatible with Version "1.0":
-
-
-    encode(e₀) = e₁
-    ─────────────────────────────────────────
-    encodeWithVersion-1.0(e₀) = [ "1.0", e₁ ]
-
-
-    decode(e₀) = e₁
-    ─────────────────────────────────────────
-    decodeWithVersion-1.0([ "1.0", e₁ ]) = e₀
-
-
-## Protocol evolution
-
-The standardization process is fallible and this section addresses how to
-mitigate the following types of protocol specification errors:
-
-*   A new protocol version string misassigns the major or minor number
-
-    In theory, no action is required.  Standards compliant decoders are
-    unaffected if they match on the exact protocol version string and do not
-    attempt to interpret the protocol version string.  The only harm is that the
-    incorrect protocol version number is misleading to humans by incorrectly
-    suggesting the presence or absence of a breaking change.
-
-    In practice, you SHOULD publish a new release of the standard correcting the
-    version number and permanently removing standardized support for encoding or
-    decoding the incorrect version number (i.e. "blacklisting" the number).
-
-*   There is a specification bug in the encoding logic
-
-    A protocol version that incorrectly specifies how to encode expressions
-    SHOULD be blacklisted and the fixed encoding logic SHOULD be released under
-    a new protocol version.  This is because there is no way to fix all possible
-    encoded data once the encoding bug has been published.
-
-*   New encoding logic is published without changing the version number
-
-    Treat this the same as a specification bug in the encoding logic.  Blacklist
-    the old protocol version string and release the same logic under a new
-    protocol version string.
-
-*   There is a specification bug in the decoding logic
-
-    Decoding bugs SHOULD be fixed by publishing a new verson of the standard
-    fixing the error.  However, the corresponding protocol version string does
-    not need to be blacklisted nor changed since decoding logic does not
-    persist any data.
-
-*   The decoding logic is changed without changing the version number at all
-
-    Treat this the same as a specification bug in the decoding logic.  Publish
-    a new release of the standard fixing the version number that the logic
-    decodes, but there is no need to blacklist the old protocol version string
-    since no invalid data was persisted.
+The version string format might change in the future.  For example, at some
+point the version string might become a URI or a SHA256 hash.  Therefore,
+implementations MUST only match on the exact version string when
+implementing `decodeWithVersion`.  In particular, implementations MUST NOT match
+a prefix of the version string, MUST NOT attempt to parse the version string as
+a more structured version number, and MUST NOT attempt to interpret the version
+string in any way other than to test the string for exactly equality with the
+expected version string for the currently enabled version.
