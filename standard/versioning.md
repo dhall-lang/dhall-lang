@@ -99,6 +99,9 @@ integrity check, which always changes with a new release of the standard.
 
 ## Compliance
 
+The key words "MUST", "MUST NOT", "SHOULD", and "MAY" in this document are to
+be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt)
+
 An implementation MUST support the latest version of the standard, which is
 currently defined as:
 
