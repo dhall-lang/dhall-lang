@@ -3501,13 +3501,13 @@ A record can either store term-level values and functions:
 ... or store types (if it is non-empty):
 
 
-    Γ ⊢ T :⇥ Kind   T ≡ Type
-    ────────────────────────
+    Γ ⊢ T :⇥ Kind
+    ────────────────────
     Γ ⊢ { x : T } : Kind
 
 
-    Γ ⊢ T :⇥ Kind   T ≡ Type   Γ ⊢ { xs… } :⇥ Kind
-    ──────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Kind
+    ───────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x : T, xs… } : Kind
 
 
