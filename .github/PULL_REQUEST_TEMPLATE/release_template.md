@@ -1,7 +1,7 @@
 # Release checklist
 
-- [ ] compute the new version number by following the [versioning scheme][versioning-scheme]
-- [ ] update `README.md` with the new version number ([here][readme-version-number]).
+- [ ] compute the new version number by following the [versioning scheme][versioning]
+- [ ] update `binary.md` with the new version number ([here][versioning]).
 - [ ] update `CHANGELOG.md` with all the changes since the last version.  
       **N.B.**: this includes also unreleased changes in the `Prelude`.  
       The changes in each version should be classified in three sections
@@ -10,5 +10,4 @@
   - `New features`
   - `Other changes`
      
-[readme-version-number]: https://github.com/dhall-lang/dhall-lang#development-status
-[versioning-scheme]: https://github.com/dhall-lang/dhall-lang/blob/master/VERSIONING.md#versioning-scheme
+[versioning]: https://github.com/dhall-lang/dhall-lang/blob/master/standard/versioning.md

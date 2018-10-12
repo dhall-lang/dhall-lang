@@ -323,10 +323,9 @@ work with the builtin types. Where to find it:
 
 ## Development status
 
-Language version: `v2.0.0`.
-
-The versioning policy is detailed in the [Versioning document](VERSIONING.md),
-and you can see the latest changes [here in the Changelog](CHANGELOG.md).
+The current version and versioning policy is detailed in the
+[Versioning document](./standard/versioning.md), and you can see the latest
+changes [in the Changelog](CHANGELOG.md).
 
 There is an effort under way to formalize the language semantics for Dhall, to
 help with porting it to [other languages](#language-bindings).  
