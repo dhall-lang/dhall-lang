@@ -50,7 +50,7 @@ Breaking changes:
     example, the following code breaks as a result of this change:
 
     ```haskell
-    λ(Some : Type) → Some
+    λ(Sort : Type) → Sort
     ```
 
 *   [Update versioning policy for the standard and binary protocol](https://github.com/dhall-lang/dhall-lang/pull/243)
