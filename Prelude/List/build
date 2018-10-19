@@ -1,0 +1,32 @@
+{-
+`build` is the inverse of `fold`
+
+Examples:
+
+```
+./build
+Text
+(   λ(list : Type)
+→   λ(cons : Text → list → list)
+→   λ(nil : list)
+→   cons "ABC" (cons "DEF" nil)
+)
+= [ "ABC", "DEF" ]
+
+./build
+Text
+(   λ(list : Type)
+→   λ(cons : Text → list → list)
+→   λ(nil : list)
+→   nil
+)
+= [] : List Text
+```
+-}
+    let build
+        :   ∀(a : Type)
+          → (∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list)
+          → List a
+        = List/build
+
+in  build

@@ -1,0 +1,69 @@
+{-
+This is a convenient type-level function when using `dhall-to-json`'s support
+for preserving alternative names
+
+For example, this code:
+
+```
+    let map = ../List/map
+
+in  let Provisioner =
+          < shell :
+              { inline : List Text }
+          | file :
+              { source : Text, destination : Text }
+          >
+
+in  let provisioner = constructors Provisioner
+
+in  let Tagged = ./Tagged
+
+in  let nesting = constructors ./Nesting
+
+in  let wrap
+        : Provisioner → Tagged Provisioner
+        =   λ(x : Provisioner)
+          → { field = "type", nesting = nesting.Nested "params", contents = x }
+
+in  { provisioners =
+        map
+        Provisioner
+        (Tagged Provisioner)
+        wrap
+        [ provisioner.shell { inline = [ "echo foo" ] }
+        , provisioner.file
+          { source = "app.tar.gz", destination = "/tmp/app.tar.gz" }
+        ]
+    }
+```
+
+... produces this JSON:
+
+```
+{
+  "provisioners": [
+    {
+      "params": {
+        "inline": [
+          "echo foo"
+        ]
+      },
+      "type": "shell"
+    },
+    {
+      "params": {
+        "destination": "/tmp/app.tar.gz",
+        "source": "app.tar.gz"
+      },
+      "type": "file"
+    }
+  ]
+}
+```
+
+-}
+    let Tagged
+        : Type → Type
+        = λ(a : Type) → { field : Text, nesting : ./Nesting, contents : a }
+
+in  Tagged

@@ -1,0 +1,28 @@
+{-
+Flatten two `Optional` layers into a single `Optional` layer
+
+Examples:
+
+```
+./concat Natural (Some (Some 1))
+= Some 1
+
+./concat Natural (Some (None Natural))
+= None Natural
+
+./concat Natural (None (Optional Natural))
+= None Natural
+```
+-}
+    let concat
+        : ∀(a : Type) → Optional (Optional a) → Optional a
+        =   λ(a : Type)
+          → λ(x : Optional (Optional a))
+          → Optional/fold
+            (Optional a)
+            x
+            (Optional a)
+            (λ(y : Optional a) → y)
+            (None a)
+
+in  concat

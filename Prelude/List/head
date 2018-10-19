@@ -1,0 +1,12 @@
+{-
+Retrieve the first element of the list
+
+Examples:
+
+```
+./head Natural [ 0, 1, 2 ] = Some 0
+
+./head Natural ([] : List Natural) = None Natural
+```
+-}
+let head : ∀(a : Type) → List a → Optional a = List/head in head
