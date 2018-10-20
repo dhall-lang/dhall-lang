@@ -1,80 +1,4 @@
-{ ipfs = { pkgs, ... }:
-
-    let
-      pin = { name, path }:
-          { name = "pin-${name}";
-
-            value = {
-              path = [ pkgs.bash ];
-
-              script = ''
-                IPFS_PATH="/var/lib/ipfs/" ${pkgs.ipfs}/bin/ipfs add --quiet -w --recursive ${path}
-              '';
-
-              serviceConfig = {
-                Type = "oneshot";
-              };
-
-              wantedBy = [ "multi-user.target" ];
-            };
-          };
-
-      pinOldPrelude = { date }:
-        let
-          path = ./. + "/dhall/${date}.json";
-
-          json = builtins.fromJSON (builtins.readFile path);
-
-          src = pkgs.fetchgit { inherit (json) url rev sha256; };
-        in
-          pin { name = date; path = "${src}/Prelude"; };
-
-      pinNewPrelude = { date }:
-        let
-          path = ./. + "/dhall/${date}.json";
-
-          json = builtins.fromJSON (builtins.readFile path);
-
-          git = pkgs.fetchgit { inherit (json) url rev sha256; };
-
-          src = pkgs.runCommand "relocate" {} ''
-            ${pkgs.coreutils}/bin/mkdir -p $out
-            ${pkgs.coreutils}/bin/cp -r ${git} $out/Prelude
-          '';
-        in
-          pin { name = date; path = "${src}/Prelude"; };
-
-      services = [
-        (pin { name = "True"; path = builtins.toFile "True" "True\n"; })
-        (pinOldPrelude { date = "2016-12-03"; })
-        (pinOldPrelude { date = "2017-05-16"; })
-        (pinOldPrelude { date = "2017-06-17"; })
-        (pinOldPrelude { date = "2017-08-28"; })
-        (pinOldPrelude { date = "2018-03-04"; })
-
-        (pinNewPrelude { date = "2018-05-12"; })
-        (pinNewPrelude { date = "2018-05-19"; })
-      ];
-
-    in
-      { networking.firewall.allowedTCPPorts = [ 22 4001 ];
-
-        services = {
-          fail2ban.enable = true;
-
-          ipfs = {
-            enable = true;
-
-            enableGC = true;
-          };
-        };
-
-        systemd.services = builtins.listToAttrs services // {
-          ipfs.environment.IPFS_LOW_MEM = "1";
-        };
-      };
-
-  hydra = { pkgs, ... }: {
+{ hydra = { pkgs, ... }: {
     environment = {
       etc =
         let
@@ -100,7 +24,7 @@
             "hydra/jobsets.nix".text = builtins.readFile ./jobsets.nix;
 
             "hydra/machines".text = ''
-              hydra-queue-runner@hydra x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 1 1 local
+              hydra-queue-runner@hydra x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local
             '';
           };
 
@@ -222,6 +146,10 @@
         };
 
         virtualHosts."prelude.dhall-lang.org" = {
+          addSSL = true;
+
+          enableACME = true;
+
           locations."/".extraConfig = ''
             rewrite ^/?$ https://github.com/dhall-lang/Prelude redirect;
             rewrite ^/(.+)$ https://raw.githubusercontent.com/dhall-lang/Prelude/master/$1 redirect;
