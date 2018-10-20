@@ -1,17 +1,13 @@
 # Dhall infrastructure
 
 This directory contains a NixOps specification for hosting Dhall infrastructure,
-which currently consists of:
+which currently consists of a Hydra server for Dhall's continuous integration.
 
-* An IPFS mirror for the Dhall Prelude
-    * This can be deployed by anybody without any special credentials or
-      permissions as long as you're willing to pay for your own `t2.nano` AWS
-      instance
-* A Hydra server for Dhall CI
-    * This requires an account with read/write access to the Dhall repositories
-      and also requires access to the `hydra.dhall-lang.org` server.  This
-      exists mainly to document the current deployment, but you can adapt the
-      deployment to your own machines/projects/accounts if desired.
+Deploying the Hydra server requires an account with read/write access to the
+Dhall repositories and also requires non-interactive `root` SSH access to the
+`hydra.dhall-lang.org` server (currently provisioned out-of-band via Linode).
+This directory exists mainly to document the current deployment, but you can
+adapt the deployment to your own machines/projects/accounts if desired.
 
 You can deploy your own copy of this infrastructure using the following
 instructions:
@@ -24,19 +20,12 @@ instructions:
 
     ```bash
     $ nix-env --install --attr nixops
-    $ nix-env --install --attr awscli
     ```
 
     ... or transiently:
 
     ```bash
-    $ nix-shell --packages nixops awscli
-    ```
-
-*   Set up AWS credentials under the `default` profile:
-
-    ```bash
-    $ aws configure
+    $ nix-shell --packages nixops
     ```
 
 *   Deploy the infrastructure using `nixops`:
@@ -47,22 +36,16 @@ instructions:
     $ nixops create -d dhall logical.nix physical.nix
     ```
 
-    THen you can deploy the IPFS server by running:
-    ```bash
-    $ EC2_ACCESS_KEY=default nixops deploy -d dhall --include ipfs
-    ```
-
-    ... and deploy the Hydra server (if you have the credentials to do so) by
-    running:
+    Then you can deploy the Hydra server by running:
 
     ```bash
-    $ nixops deploy -d dhall --include hydra
+    $ nixops deploy --deployment dhall
     ```
 
 *   Create an administrative user for `hydra`:
 
     ```bash
-    $ nixops ssh -d dhall hydra hydra-create-user "${USERNAME}" --fullname "${FULL_NAME}" --email "${EMAIL}" --password "${PASSWORD}" --role admin
+    $ nixops ssh --deployment dhall hydra hydra-create-user "${USERNAME}" --fullname "${FULL_NAME}" --email "${EMAIL}" --password "${PASSWORD}" --role admin
     ```
 
 *   Get a personal access token for the
@@ -72,13 +55,13 @@ instructions:
     machine:
 
     ```bash
-    $ nixops ssh -d dhall hydra 'cat > /etc/hydra/authorization/dhall-lang' <<< "${TOKEN}"
+    $ nixops ssh --deployment dhall hydra 'cat > /etc/hydra/authorization/dhall-lang' <<< "${TOKEN}"
     ```
 
 *   Add `hydra` to the `hydra-queue-runner` user's known hosts:
 
     ```bash
-    $ nixops ssh -d dhall hydra 'sudo -u hydra-queue-runner ssh -i /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa hydra-queue-runner@hydra.dhall-lang.org'
+    $ nixops ssh --deployment dhall hydra 'sudo -u hydra-queue-runner ssh -i /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa hydra-queue-runner@hydra.dhall-lang.org'
     ```
 
 *   Log into [Hydra](https://hydra.dhall-lang.org) with the account created
