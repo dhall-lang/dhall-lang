@@ -1,0 +1,12 @@
+{-
+Retrieve the last element of the list
+
+Examples:
+
+```
+./last Natural [ 0, 1, 2 ] = Some 2
+
+./last Natural ([] : List Natural) = None Natural
+```
+-}
+let last : ∀(a : Type) → List a → Optional a = List/last in last

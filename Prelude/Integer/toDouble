@@ -1,0 +1,12 @@
+{-
+Convert an `Integer` to the corresponding `Double`
+
+Examples:
+
+```
+./toDouble -3 = -3.0
+
+./toDouble +2 = 2.0
+```
+-}
+let toDouble : Integer → Double = Integer/toDouble in toDouble

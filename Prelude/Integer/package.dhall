@@ -1,0 +1,1 @@
+{ show = ./show, toDouble = ./toDouble }

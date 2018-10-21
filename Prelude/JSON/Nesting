@@ -1,0 +1,32 @@
+{-
+This type is used as part of `dhall-json`'s support for preserving alternative
+names
+
+For example, this Dhall code:
+
+```
+    let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
+
+in  let example = constructors Example
+
+in  let Nesting = < Inline : {} | Nested : Text >
+
+in  let nesting = constructors Nesting
+
+in  { field    = "name"
+    , nesting  = nesting.Inline {=}
+    , contents = example.Left { foo = 2 }
+    }
+```
+
+... generates this JSON:
+
+```
+{
+  "foo": 2,
+  "name": "Left"
+ }
+```
+
+-}
+let Nesting : Type = < Inline : {} | Nested : Text > in Nesting

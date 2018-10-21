@@ -1,0 +1,17 @@
+{-
+Concatenate all the `Text` values in a `List`
+
+Examples:
+
+```
+./concat [ "ABC", "DEF", "GHI" ] = "ABCDEFGHI"
+
+./concat ([] : List Text) = ""
+```
+-}
+    let concat
+        : List Text → Text
+        =   λ(xs : List Text)
+          → List/fold Text xs Text (λ(x : Text) → λ(y : Text) → x ++ y) ""
+
+in  concat
