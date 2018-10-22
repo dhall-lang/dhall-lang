@@ -1,0 +1,12 @@
+{-
+Convert a `Natural` number to the corresponding `Integer`
+
+Examples:
+
+```
+./toInteger 3 = +3
+
+./toInteger 0 = +0
+```
+-}
+let toInteger : Natural → Integer = Natural/toInteger in toInteger

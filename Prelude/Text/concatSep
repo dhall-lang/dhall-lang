@@ -1,0 +1,44 @@
+{-
+Concatenate a `List` of `Text` values with a separator in between each value
+
+Examples:
+
+```
+./concatSep ", " [ "ABC", "DEF", "GHI" ] = "ABC, DEF, GHI"
+
+./concatSep ", " ([] : List Text) = ""
+```
+-}
+    let concatSep
+        : ∀(separator : Text) → ∀(elements : List Text) → Text
+        =   λ(separator : Text)
+          → λ(elements : List Text)
+          →     let status =
+                      List/fold
+                      Text
+                      elements
+                      < Empty : {} | NonEmpty : Text >
+                      (   λ(element : Text)
+                        → λ(status : < Empty : {} | NonEmpty : Text >)
+                        → merge
+                          { Empty =
+                              λ(_ : {}) → < NonEmpty = element | Empty : {} >
+                          , NonEmpty =
+                                λ(result : Text)
+                              → < NonEmpty =
+                                    element ++ separator ++ result
+                                | Empty :
+                                    {}
+                                >
+                          }
+                          status
+                          : < Empty : {} | NonEmpty : Text >
+                      )
+                      < Empty = {=} | NonEmpty : Text >
+            
+            in  merge
+                { Empty = λ(_ : {}) → "", NonEmpty = λ(result : Text) → result }
+                status
+                : Text
+
+in  concatSep

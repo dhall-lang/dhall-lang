@@ -1,0 +1,21 @@
+{-
+`fold` is the primitive function for consuming `Optional` values
+
+Examples:
+
+```
+./fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 = 2
+
+./fold Natural (None Natural) Natural (λ(x : Natural) → x) 0 = 0
+```
+-}
+    let fold
+        :   ∀(a : Type)
+          → Optional a
+          → ∀(optional : Type)
+          → ∀(some : a → optional)
+          → ∀(none : optional)
+          → optional
+        = Optional/fold
+
+in  fold

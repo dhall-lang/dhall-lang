@@ -1,0 +1,22 @@
+{-
+Returns `True` if there are an odd number of `True` elements in the list and
+returns `False` otherwise
+
+Examples:
+
+```
+./odd [ True, False, True ] = False
+
+./odd [ True, False ] = True
+
+./odd [ True ] = True
+
+./odd ([] : List Bool) = False
+```
+-}
+    let odd
+        : List Bool → Bool
+        =   λ(xs : List Bool)
+          → List/fold Bool xs Bool (λ(x : Bool) → λ(y : Bool) → x != y) False
+
+in  odd
