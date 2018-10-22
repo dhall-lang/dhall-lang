@@ -3968,7 +3968,7 @@ union type literal:
 If the union argument is any other type of expression (including a variable)
 then that is a type error.
 
-A constrcutor field can only be selected from a union if it is present:
+A constructor field can only be selected from a union if it is present:
 
 
     Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
