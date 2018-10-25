@@ -1,0 +1,12 @@
+{-
+Returns `True` if a number if even and returns `False` otherwise
+
+Examples:
+
+```
+./even 3 = False
+
+./even 0 = True
+```
+-}
+let even : Natural → Bool = Natural/even in even

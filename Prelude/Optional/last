@@ -1,0 +1,28 @@
+{-
+Returns the last non-empty `Optional` value in a `List`
+
+Examples:
+
+```
+./last Natural [ None Natural, Some 1, Some 2 ] = Some 2
+
+./last Natural [ None Natural, None Natural ] = None Natural
+
+./last Natural ([] : List (Optional Natural)) = None Natural
+```
+-}
+    let last
+        : ∀(a : Type) → List (Optional a) → Optional a
+        =   λ(a : Type)
+          → λ(xs : List (Optional a))
+          → List/fold
+            (Optional a)
+            xs
+            (Optional a)
+            (   λ(l : Optional a)
+              → λ(r : Optional a)
+              → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+            )
+            (None a)
+
+in  last

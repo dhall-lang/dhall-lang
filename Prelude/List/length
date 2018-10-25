@@ -1,0 +1,12 @@
+{-
+Returns the number of elements in a list
+
+Examples:
+
+```
+./length Natural [ 0, 1, 2 ] = 3
+
+./length Natural ([] : List Natural) = 0
+```
+-}
+let length : ∀(a : Type) → List a → Natural = List/length in length

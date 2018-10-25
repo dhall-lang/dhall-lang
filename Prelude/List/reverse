@@ -1,0 +1,12 @@
+{-
+Reverse a list
+
+Examples:
+
+```
+./reverse Natural [ 0, 1, 2 ] = [ 2, 1, 0 ] : List Natural
+
+./reverse Natural ([] : List Natural) = [] : List Natural
+```
+-}
+let reverse : ∀(a : Type) → List a → List a = List/reverse in reverse

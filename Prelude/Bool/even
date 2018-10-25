@@ -1,0 +1,22 @@
+{-
+Returns `True` if there are an even number of `False` elements in the list and
+returns `False` otherwise
+
+Examples:
+
+```
+./even [ False, True, False ] = True
+
+./even [ False, True ] = False
+
+./even [ False ] = False
+
+./even ([] : List Bool) = True
+```
+-}
+    let even
+        : List Bool → Bool
+        =   λ(xs : List Bool)
+          → List/fold Bool xs Bool (λ(x : Bool) → λ(y : Bool) → x == y) True
+
+in  even

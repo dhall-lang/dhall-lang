@@ -6,9 +6,7 @@ This repository hosts language-independent features of the Dhall ecosystem:
 
 * The [Dhall standard][standard] grammar and semantics
 * [Dhall infrastructure][infrastructure]
-
-The one exception is the [Prelude][prelude], which lives in a separate
-repository for ease of distribution.
+* The [Prelude][prelude] of shared utility functions
 
 Issues on this repository typically discuss language design and proposed
 changes to the language that are not specific to an integration.
@@ -75,10 +73,10 @@ your idea and if your idea is approved then you can ask somebody (including
 
 ## How do changes get approved?
 
-Changes only require approval if they change the [standard][standard].  Anybody
-with the "commit bit" (i.e. write access to this repository) can merge a pull
-request after a 24 hour waiting period.  See below for more details about how
-to obtain the commit bit.
+Changes only require approval if they change the [standard][standard] or
+[Prelude][prelude].  Anybody with the "commit bit" (i.e. write access to this
+repository) can merge a pull request after a 24 hour waiting period.  See below
+for more details about how to obtain the commit bit.
 
 Language changes are voted on by actively maintained implementations of the
 Dhall language.  Each implementation gets one vote.
@@ -140,9 +138,9 @@ Learn by doing and get your hands dirty!
 
 [infrastructure]: https://github.com/dhall-lang/dhall-lang/tree/master/nixops
 [standard]: https://github.com/dhall-lang/dhall-lang/tree/master/standard
+[prelude]: https://github.com/dhall-lang/dhall-lang/tree/master/Prelude
 [dhall-haskell-issues]: https://github.com/dhall-lang/dhall-haskell/issues
 [dhall-lang-issues]: https://github.com/dhall-lang/dhall-lang/issues
 [dhall-lang-pulls]: https://github.com/dhall-lang/dhall-lang/pulls
 [dhall-json-issues]: https://github.com/dhall-lang/dhall-json/issues
 [stack-overflow]: https://stackoverflow.com/
-[prelude]: https://github.com/dhall-lang/Prelude
