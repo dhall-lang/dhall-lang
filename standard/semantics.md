@@ -2814,6 +2814,22 @@ each alternative:
     ─────────────────────────────────  ; If no other rule matches
     constructors u₀ ⇥ constructors u₁
 
+You can also project out a union constructor to a function to the union literal:
+
+
+    u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
+    ───────────────────────────────────────────────
+    u.x₀ ⇥  λ(x₀ : T₀) → < x₀ = x₀ | x₁ : T₁ | xs… >
+
+
+The type system ensures that the selected constructor must be present.
+
+Otherwise, normalize the argument:
+
+
+    u₀ ⇥ u₁
+    ───────────  ; If no other rule matches
+    u₀.x ⇥ u₁.x
 
 ### `Integer`
 
@@ -3951,6 +3967,13 @@ union type literal:
 
 If the union argument is any other type of expression (including a variable)
 then that is a type error.
+
+A constructor field can only be selected from a union if it is present:
+
+
+    Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ u.x₀ : ∀(x₀ : T₀) → < x₀ : T₀ | x₁ : T₁ | xs… >
 
 ### `Integer`
 
