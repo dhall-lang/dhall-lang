@@ -366,13 +366,13 @@ integer-literal = ( "+" / "-" ) natural-raw whitespace
 
 natural-literal = natural-raw whitespace
 
-identifier = label [ at natural-raw ] whitespace
+identifier = label [ at natural-raw whitespace ]
 
 identifier-reserved-prefix =
-    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw ] whitespace
+    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw whitespace ]
 
 identifier-reserved-namespaced-prefix =
-    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw ] whitespace
+    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw whitespace ]
 
 missing = missing-raw whitespace
 
