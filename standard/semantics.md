@@ -2796,19 +2796,14 @@ union literal:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
-`[DEPRECTAED]` Union construction should be done through the `.` operator.
+`[DEPRECATED]` Union construction should be done through the `.` operator.
 `constructors` is equivalent to the identity operation and thus, returns
 the union type:
 
 
-    u ⇥ <>
+    t₀ ⇥ t₁
     ────────────────────
-    constructors u ⇥ <>
-
-
-    u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    constructors u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
+    constructors t₀ ⇥ t₁
 
 
     u₀ ⇥ u₁
