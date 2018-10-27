@@ -152,7 +152,7 @@
 
           locations."/".extraConfig = ''
             rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
-            rewrite ^/(.+)$ https://github.com/dhall-lang/dhall-lang/blob/1bc66b345c8e93579e16ac6f697c3473bb846baa/Prelude/$1 redirect;
+            rewrite ^/(.+)$ https://raw.githubusercontent.com/dhall-lang/dhall-lang/1bc66b345c8e93579e16ac6f697c3473bb846baa/Prelude/$1 redirect;
           '';
         };
       };
