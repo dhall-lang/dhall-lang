@@ -98,9 +98,11 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   /  False           ; False               (Section 2.3, Value = 20)
   /  True            ; True                (Section 2.3, Value = 21)
   /  null            ; Null                (Section 2.3, Value = 22)
+  /  n.n_h           ; Half float          (Section 2.3, Value = 25)
+  /  n.n_s           ; Single float        (Section 2.3, Value = 26)
+  /  n.n             ; Double float        (Section 2.3, Value = 27)
   /  nn              ; Unsigned bignum     (Section 2.4, Tag = 2)
   / -nn              ; Negative bignum     (Section 2.4, Tag = 3)
-  /  n.n             ; Decimal fraction    (Section 2.4, Tag = 4)
 ```
 
 ## Encoding judgment
@@ -590,13 +592,32 @@ Encode `Integer` literals using the smallest available numeric representation:
 
 ### `Double`
 
-Encode `Double`s as CBOR decimal fractions in order to avoid loss of precision
-when converting to and from their textual representation:
+Encode `Double` literals using the smallest available numeric representation.
+CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations.
 
 
-    ─────────────────────────────
-    encode(n.n) = [ 17, n.n ]
+    ─────────────────────────────  ; isNaN(n.n)
+    encode(n.n) = n.n_h(0x7e00)
 
+
+    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n AND NOT isNaN(n.n)
+    encode(n.n) = n.n
+
+
+    ─────────────────────────────  ; toDouble(toHalf(n.n)) ≠ n.n AND toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n)
+    encode(n.n) = n.n_s
+
+
+    ─────────────────────────────  ; toDouble(toHalf(n.n)) = n.n AND NOT isNaN(n.n)
+    encode(n.n) = n.n_h
+
+
+In other words: If n.n is a NaN, encode as a half (16-bit) float with the value 0x7e00.
+This ensures identical semantic hashes on different platforms. For all other values,
+convert to `Single` and back to `Double` and check for equality with the original.
+If they are the same, then there is no loss of precision using the smaller representation.
+Also convert to `Half` and back and check for equality with the original. Use the smallest
+of the three representations (Half, Single, Double) possible without losing precision.
 
 ### `Text`
 
@@ -1209,15 +1230,20 @@ representation.
 
 ### `Double`
 
-Decode a CBOR array beginning with a `17` as an `Double` literal:
+Decode a CBOR double, single, or half and convert to a `Double` literal:
 
 
     ─────────────────────────────
-    decode([ 17, n.n ]) = n.n
+    decode(n.n) = n.n
 
 
-A decoder MUST accept a decimal fraction that is not encoded using the most
-compact representation.
+    ─────────────────────────────
+    decode(n.n_s) = n.n
+
+
+    ─────────────────────────────
+    decode(n.n_h) = n.n
+
 
 ### `Text`
 
