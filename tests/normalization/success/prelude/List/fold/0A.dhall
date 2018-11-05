@@ -1,4 +1,4 @@
-(../../../../../Prelude/package.dhall).`List`.fold
+(../../../../../../Prelude/package.dhall).`List`.fold
 Natural
 [ 2, 3, 5 ]
 Natural

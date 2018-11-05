@@ -1,1 +1,1 @@
-../../../../../Prelude/Natural/isZero 0
+../../../../../../Prelude/Natural/isZero 0

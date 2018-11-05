@@ -1,1 +1,1 @@
-../../../../../Prelude/Natural/show 3
+../../../../../../Prelude/Natural/show 3

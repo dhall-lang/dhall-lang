@@ -1,1 +1,1 @@
-(../../../../../Prelude/package.dhall).`Natural`.product ([] : List Natural)
+(../../../../../../Prelude/package.dhall).`Natural`.product ([] : List Natural)

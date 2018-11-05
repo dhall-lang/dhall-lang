@@ -1,1 +1,1 @@
-../../../../../Prelude/Bool/and [ True, False, True ]
+../../../../../../Prelude/Bool/and [ True, False, True ]

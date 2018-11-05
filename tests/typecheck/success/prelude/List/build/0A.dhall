@@ -1,4 +1,4 @@
-../../../../../Prelude/List/build
+../../../../../../Prelude/List/build
 Text
 ( λ(list : Type)
 → λ(cons : Text → list → list)

@@ -1,1 +1,1 @@
-../../../../../Prelude/Natural/product [ 2, 3, 5 ]
+../../../../../../Prelude/Natural/product [ 2, 3, 5 ]

@@ -1,1 +1,1 @@
-../../../../../Prelude/Natural/sum ([] : List Natural)
+../../../../../../Prelude/Natural/sum ([] : List Natural)

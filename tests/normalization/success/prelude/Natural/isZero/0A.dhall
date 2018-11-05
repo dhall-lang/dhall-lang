@@ -1,1 +1,1 @@
-(../../../../../Prelude/package.dhall).`Natural`.isZero 2
+(../../../../../../Prelude/package.dhall).`Natural`.isZero 2
