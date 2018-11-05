@@ -669,6 +669,9 @@ primitive-expression =
     ; "+2"
     / integer-literal
 
+    ; "-Infinity"
+    / "-" Infinity-raw
+
     ; '"ABC"'
     / text-literal
 
@@ -695,9 +698,6 @@ primitive-expression =
 
     ; "List"
     / reserved
-
-    ; "-Infinity"
-    / "-" Infinity-raw
 
     ; "x"
     ; "x@2"
