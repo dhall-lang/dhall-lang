@@ -1,1 +1,1 @@
-(../../../../Prelude/package.dhall).`Natural`.product
+(../../../../../Prelude/package.dhall).`Natural`.product

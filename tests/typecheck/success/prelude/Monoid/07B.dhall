@@ -1,1 +1,1 @@
-../../../../Prelude/Monoid Natural
+../../../../../Prelude/Monoid Natural

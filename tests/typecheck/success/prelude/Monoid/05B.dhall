@@ -1,1 +1,1 @@
-∀(a : Type) → ../../../../Prelude/Monoid (List { index : Natural, value : a })
+∀(a : Type) → ../../../../../Prelude/Monoid (List { index : Natural, value : a })

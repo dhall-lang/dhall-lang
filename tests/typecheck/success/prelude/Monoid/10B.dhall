@@ -1,1 +1,1 @@
-../../../../Prelude/Monoid Text
+../../../../../Prelude/Monoid Text

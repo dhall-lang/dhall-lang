@@ -1,1 +1,1 @@
-../../../../Prelude/Monoid Bool
+../../../../../Prelude/Monoid Bool
