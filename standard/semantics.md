@@ -2854,6 +2854,12 @@ An `Integer` literal is in normal form:
     ─────────────────────────────
     f a ⇥ ±n.0
 
+Note that if `n` is greater than 2^53, `Integer/toDouble n` may result in loss
+of precision. The closest `Double` will be chosen even it is not an integer.
+When the magnitude of `n` is greater than or equal to a cutoff value it will
+round to `±Infinity`. This cutoff value is `DBL_MAX + 2^971 ≈ 1.8e308` where
+`DBL_MAX` is the largest number which can be represented by a 64-bit floating
+point value.
 
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
@@ -2910,6 +2916,19 @@ The `Double/show` function is in normal form:
 
     ─────────────────────────
     Double/show ⇥ Double/show
+
+
+The following 2 properties must hold for `Double/show`:
+
+```
+show (read (show (X : Double))) = show X
+
+read (show (read (Y : Text))) = read Y
+```
+
+where `show : Double → Text` is shorthand for `Double/show` and `read : Text →
+Double` is the function in the implementation of Dhall which takes a correctly
+formated text representation of a `Double` as input and outputs a `Double`.
 
 
 ### Functions
