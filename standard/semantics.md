@@ -2850,7 +2850,7 @@ An `Integer` literal is in normal form:
 `Integer/toDouble` transforms an `Integer` into the corresponding `Double`:
 
 
-    f ⇥ Natural/toDouble   a ⇥ ±n
+    f ⇥ Integer/toDouble   a ⇥ ±n
     ─────────────────────────────
     f a ⇥ ±n.0
 
