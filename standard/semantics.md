@@ -2854,12 +2854,11 @@ An `Integer` literal is in normal form:
     ─────────────────────────────
     f a ⇥ ±n.0
 
-Note that if `n` is greater than 2^53, `Integer/toDouble n` may result in loss
-of precision. The closest `Double` will be chosen even it is not an integer.
-When the magnitude of `n` is greater than or equal to a cutoff value it will
-round to `±Infinity`. This cutoff value is `DBL_MAX + 2^971 ≈ 1.8e308` where
-`DBL_MAX` is the largest number which can be represented by a 64-bit floating
-point value.
+Note that if the magnitude of `a` is greater than 2^53, `Integer/toDouble a`
+may result in loss of precision. A `Double` will be selected by rounding `a` to
+the nearest `Double`. Ties go to the `Double` with an even least significant
+bit. When the magnitude of `a` is greater than or equal to `c`, the magnitude
+will round to `Infinity`, where `c = 2^1024 - 2^970 ≈ 1.8e308`.
 
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
