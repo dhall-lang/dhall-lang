@@ -582,7 +582,8 @@ expression =
 
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
-    / let label [ colon expression ] equal expression in expression
+    ; "let x = e1 let y = e2 in e3"
+    / 1*(let label [ colon expression ] equal expression) in expression
 
     ; "forall (x : a) -> b"
     / forall open-parens label colon expression close-parens arrow expression

@@ -262,6 +262,10 @@ t          : Naked label which could be any type of expression.
                              pairs.  The specified alternative is named `x₀ with
                              value of `t₀`.  At least one alternative is named
                              `x₁` with a type of `T₁`.
+
+
+let xs… in b                : A `let` definition with at least one bindings
+let x : A = a let xs… in b  : A `let` definition with at least two bindings
 ```
 
 You will see this notation in judgments that perform induction on lists,
@@ -435,14 +439,30 @@ Descend as normal if the bound variable name does not match:
 when descending past such a bound variable:
 
 
-    ↑(d, x, m, A₀) = A₁   ↑(d, x, m, a₀) = a₁   ↑(d, x, m + 1, b₀) = b₁
-    ───────────────────────────────────────────────────────────────────
+    ↑(d, x, m, A₀) = A₁
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m + 1, b₀) = b₁
+    ─────────────────────────────────────────────────────────
     ↑(d, x, m, let x : A₀ = a₀ in b₀) = let x : A₁ = a₁ in b₁
 
 
-    ↑(d, x, m, a₀) = a₁   ↑(d, x, m + 1, b₀) = b₁
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m + 1, b₀) = b₁
     ───────────────────────────────────────────────
     ↑(d, x, m, let x = a₀ in b₀) = let x = a₁ in b₁
+
+
+    ↑(d, x, m, A₀) = A₁
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m + 1, let xs₀… in b₀) = let xs₁… in b₁
+    ───────────────────────────────────────────────────────────────────────────
+    ↑(d, x, m, let x : A₀ = a₀ let xs₀… in b₀) = let x : A₁ = a₁ let xs₁… in b₁
+
+
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m + 1, let xs₀… in b₀) = let xs₁… in b₁
+    ─────────────────────────────────────────────────────────────────
+    ↑(d, x, m, let x = a₀ let xs₀… in b₀) = let x = a₁ let xs₁… in b₁
 
 
 Again, the bound variable, `x`, is not in scope for its own type, `A₀`, so do
@@ -456,14 +476,31 @@ of the assignment.
 Descend as normal if the bound variable name does not match:
 
 
-    ↑(d, x, m, A₀) = A₁   ↑(d, x, m, a₀) = a₁   ↑(d, x, m, b₀) = b₁
-    ───────────────────────────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, A₀) = A₁
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m, b₀) = b₁
+    ─────────────────────────────────────────────────────────  ; x ≠ y
     ↑(d, x, m, let y : A₀ = a₀ in b₀) = let y : A₁ = a₁ in b₁
 
 
-    ↑(d, x, m, a₀) = a₁   ↑(d, x, m, b₀) = b₁
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m, b₀) = b₁
     ───────────────────────────────────────────────  ; x ≠ y
     ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
+
+
+    ↑(d, x, m, A₀) = A₁
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m, let ys₀… in b₀) = let ys₁… in b₁
+    ───────────────────────────────────────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, let y : A₀ = a₀ let ys₀… in b₀) = let y : A₁ = a₁ let ys₁… in b₁
+
+
+    ↑(d, x, m, a₀) = a₁
+    ↑(d, x, m, b₀) = b₁
+    ↑(d, x, m, let ys₀… in b₀) = let ys₁… in b₁
+    ─────────────────────────────────────────────────────────────────  ; x ≠ y
+    ↑(d, x, m, let y = a₀ let ys₀… in b₀) = let y = a₁ let ys₁… in b₁
 
 
 ### Imports
@@ -968,14 +1005,48 @@ All of the following rules cover expressions that can bind variables:
     (let y : A₀ = a₀ in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ in b₁
 
 
-    a₀[x@n ≔ e₀] = a₁   ↑(1, x, 0, e₀) = e₁   b₀[x@(1 + n) ≔ e₁] = b₁
-    ─────────────────────────────────────────────────────────────────
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, x, 0, e₀) = e₁
+    b₀[x@(1 + n) ≔ e₁] = b₁
+    ───────────────────────────────────────────────
     (let x = a₀ in b₀)[x@n ≔ e₀] = let x = a₁ in b₁
 
 
-    a₀[x@n ≔ e₀] = a₁   ↑(1, y, 0, e₀) = e₁   b₀[x@n ≔ e₁] = b₁
-    ───────────────────────────────────────────────────────────  ; x ≠ y
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, y, 0, e₀) = e₁
+    b₀[x@n ≔ e₁] = b₁
+    ──────────────────────────────────────────────  ; x ≠ y
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
+
+
+    A₀[x@n ≔ e₀] = A₁
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, x, 0, e₀) = e₁
+    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
+    ───────────────────────────────────────────────────────────────────────────
+    (let x : A₀ = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ let xs₁… in b₁
+
+
+    A₀[x@n ≔ e₀] = A₁
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, y, 0, e₀) = e₁
+    (let xs₀… in b₀)[x@n ≔ e₁] = let xs₁… in b₁
+    ───────────────────────────────────────────────────────────────────────────  ; x ≠ y
+    (let y : A₀ = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ let ys₁… in b₁
+
+
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, x, 0, e₀) = e₁
+    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
+    ─────────────────────────────────────────────────────────────────
+    (let x = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x = a₁ let xs₁… in b₁
+
+
+    a₀[x@n ≔ e₀] = a₁
+    ↑(1, y, 0, e₀) = e₁
+    (let ys₀… in b₀)[x@n ≔ e₁] = let ys₁… in b₁
+    ─────────────────────────────────────────────────────────────────  ; x ≠ y
+    (let y = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y = a₁ let ys₁… in b₁
 
 
 ### Imports
@@ -1433,6 +1504,38 @@ capture:
     b₃ ↦ b₄
     ───────────────────────────────────  x ≠ _
     let x = a₀ in b₀ ↦ let _ = a₁ in b₄
+
+
+    a₀ ↦ a₁
+    A₀ ↦ A₁
+    let xs₀… in b₀ ↦ let xs₁… in b₁
+    ───────────────────────────────────────────────────────────────
+    let _ = a₀ : A₀ let xs₀… in b₀ ↦ let _ = a₁ : A₁ let xs₁… in b₁
+
+
+    a₀ ↦ a₁
+    A₀ ↦ A₁
+    ↑(1, _, 0, b₀) = b₁
+    b₁[x ≔ _] = b₂
+    ↑(-1, x, 0, b₂) = b₃
+    let xs₀… in b₃ ↦ let xs₁… in b₄
+    ───────────────────────────────────────────────────────────────  x ≠ _
+    let x = a₀ : A₀ let xs₀… in b₀ ↦ let _ = a₁ : A₁ let xs₁… in b₄
+
+
+    a₀ ↦ a₁
+    let xs₀… in b₀ ↦ let xs₁… in b₁
+    ─────────────────────────────────────────────────────
+    let _ = a₀ let xs₀… in b₀ ↦ let _ = a₁ let xs₁… in b₁
+
+
+    a₀ ↦ a₁
+    ↑(1, _, 0, b₀) = b₁
+    b₁[x ≔ _] = b₂
+    ↑(-1, x, 0, b₂) = b₃
+    let xs₀… in b₃ ↦ let xs₁… in b₄
+    ─────────────────────────────────────────────────────  x ≠ _
+    let x = a₀ let xs₀… in b₀ ↦ let _ = a₁ let xs₁… in b₄
 
 
 ### Variables
@@ -2999,6 +3102,26 @@ equivalence:
     let x = a₀ in b₀ ⇥ b₃
 
 
+A `let` expression with multiple `let` bindings is equivalent to nested `let`
+expressions:
+
+
+    ↑(1, x, 0, a₀) = a₁
+    (let xs… in b₀)[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ─────────────────────────────────
+    let x : A = a₀ let xs… in b₀ ⇥ b₃
+
+
+    ↑(1, x, 0, a₀) = a₁
+    (let xs… in b₀)[x ≔ a₁] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    b₂ ⇥ b₃
+    ─────────────────────────────
+    let x = a₀ let xs… in b₀ ⇥ b₃
+
+
 ### Type annotations
 
 Simplify a type annotation by removing the annotation:
@@ -4153,6 +4276,32 @@ expression would be well-typed.
 
 If the `let` expression has a type annotation that doesn't match the type of
 the right-hand side of the assignment then that is a type error.
+
+A `let` expression with multiple `let` bindings is equivalent to nested `let`
+expressions:
+
+
+    Γ ⊢ a₀ : A₁
+    Γ ⊢ A₀ : i
+    A₀ ≡ A₁
+    a₀ ⇥ a₁
+    ↑(1, x, 0, a₁) = a₂
+    (let xs… in b₀)[x ≔ a₂] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    Γ ⊢ b₂ : B
+    ─────────────────────────────────────
+    Γ ⊢ let x : A₀ = a₀ let xs… in b₀ : B
+
+
+    Γ ⊢ a₀ : A
+    a₀ ⇥ a₁
+    ↑(1, x, 0, a₁) = a₂
+    (let xs… in b₀)[x ≔ a₂] = b₁
+    ↑(-1, x, 0, b₁) = b₂
+    Γ ⊢ b₂ : B
+    ────────────────────────────────
+    Γ ⊢ let x = a₀ let xs… in b₀ : B
+
 
 ### Type annotations
 
