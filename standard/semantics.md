@@ -2850,10 +2850,15 @@ An `Integer` literal is in normal form:
 `Integer/toDouble` transforms an `Integer` into the corresponding `Double`:
 
 
-    f ⇥ Natural/toDouble   a ⇥ ±n
+    f ⇥ Integer/toDouble   a ⇥ ±n
     ─────────────────────────────
     f a ⇥ ±n.0
 
+Note that if the magnitude of `a` is greater than 2^53, `Integer/toDouble a`
+may result in loss of precision. A `Double` will be selected by rounding `a` to
+the nearest `Double`. Ties go to the `Double` with an even least significant
+bit. When the magnitude of `a` is greater than or equal to `c`, the magnitude
+will round to `Infinity`, where `c = 2^1024 - 2^970 ≈ 1.8e308`.
 
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
@@ -2910,6 +2915,19 @@ The `Double/show` function is in normal form:
 
     ─────────────────────────
     Double/show ⇥ Double/show
+
+
+The following 2 properties must hold for `Double/show`:
+
+```
+show (read (show (X : Double))) = show X
+
+read (show (read (Y : Text))) = read Y
+```
+
+where `show : Double → Text` is shorthand for `Double/show` and `read : Text →
+Double` is the function in the implementation of Dhall which takes a correctly
+formated text representation of a `Double` as input and outputs a `Double`.
 
 
 ### Functions
