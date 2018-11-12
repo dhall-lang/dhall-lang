@@ -61,7 +61,7 @@ For simple changes, just begin by opening a [pull request][dhall-lang-pulls].
 You don't need the change to be pre-approved before opening a pull request
 since the discussion can happen directly on the pull request conversation.
 
-For more complex change, you might want the feature to be approved before
+For more complex changes, you might want the feature to be approved before
 spending time on creating a matching pull request.  You can open an
 [issue][dhall-lang-issues] discussing your idea first and if the issue is
 approved then you can proceed with a pull request.
@@ -70,6 +70,11 @@ You also don't have to understand how to translate your change to a formal
 grammar or type-checking judgments in order to propose the change.  Just propose
 your idea and if your idea is approved then you can ask somebody (including
 @Gabriel439) to formally standardize your change via a pull request for you.
+
+The proposed change should also include some examples that show how it should be 
+used, eventual caveats, etc.  These examples should end up in the [tests][dhall-lang-tests]
+folder, so that all the implementations can verify that their approach is 
+conformant with the changes to the typechecker, import system, etc.
 
 ## How do changes get approved?
 
@@ -142,5 +147,6 @@ Learn by doing and get your hands dirty!
 [dhall-haskell-issues]: https://github.com/dhall-lang/dhall-haskell/issues
 [dhall-lang-issues]: https://github.com/dhall-lang/dhall-lang/issues
 [dhall-lang-pulls]: https://github.com/dhall-lang/dhall-lang/pulls
+[dhall-lang-tests]: https://github.com/dhall-lang/dhall-lang/tree/master/tests
 [dhall-json-issues]: https://github.com/dhall-lang/dhall-json/issues
 [stack-overflow]: https://stackoverflow.com/
