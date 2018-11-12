@@ -72,9 +72,10 @@ expressions.
 
 ## Summary
 
-Dhall's type system is System Fω implemented using a pure type system.  Type
-abstraction and type application are explicit and not inferred.  Dhall also
-supports additional built-in functions, operators, and constants for efficiency.
+Dhall's type system is similar to CCω extended with one impredicative universe,
+implemented using a pure type system.  Type abstraction and type application are
+explicit and not inferred.  Dhall also supports additional built-in functions,
+operators, and constants for efficiency.
 
 Dhall also supports referencing shadowed variables through the use of DeBruijn
 indices.  This document spells out in detail how to implement these
@@ -3164,7 +3165,7 @@ permits.
 
 This function check is a judgment of the form:
 
-    c₀ ↝ c₁
+    c₀ ↝ c₁ : c₂
 
 ... where:
 
@@ -3172,16 +3173,22 @@ This function check is a judgment of the form:
   function's input type
 * `c₁` (an input constant, either `Type`, `Kind`, or `Sort`) is the type of the
   function's output type
+* `c₂` (an output constant, either `Type`, `Kind`, or `Sort`) is the type of
+  the function's type
 
-Dhall forbids dependent function types, but permits all other function
-types.
-
-The following rule enables support for functions from terms to terms (i.e.
-"term-level" functions):
+Functions that return terms are impredicative:
 
 
-    ───────────
-    Type ↝ Type
+    ───────────────
+    c ↝ Type : Type
+
+
+When `c = Type` you get functions from terms to terms (i.e.  "term-level"
+functions):
+
+
+    ──────────────────
+    Type ↝ Type : Type
 
 
 For example, these are term-level functions permitted by the above rule:
@@ -3190,26 +3197,44 @@ For example, these are term-level functions permitted by the above rule:
 
     λ(x : Bool) → x != False
 
-The following rule enables support for functions from types to terms (i.e.
-"polymorphic" functions):
+When `c = Kind` you get functions from types to terms (i.e.  "type-polymorphic"
+functions):
 
 
-    ───────────
-    Kind ↝ Type
+    ──────────────────
+    Kind ↝ Type : Type
 
 
-For example, these are polymorphic functions permitted by the above rule:
+For example, these are type-polymorphic functions permitted by the above rule:
 
     List/head
 
     λ(a : Type) → λ(x : a) → x
 
-The following rule enables support for functions from types to types (i.e.
+When `c = Sort` you get functions from sorts to terms:
+
+
+    ──────────────────
+    Sort ↝ Type : Type
+
+
+For example, this is a (trivial) function from a sort to a term:
+
+    λ(k : Kind) → 1
+
+All the remaining function types are predicative:
+
+
+    ────────────  c₁ ≥ c₀, c₂ = max(c₀, c₁), Type < Kind < Sort
+    c₀ ↝ c₁ : c₂
+
+
+When `c₀ = Kind` and `c₁ = Kind` you get functions from types to types (i.e.
 "type-level" functions):
 
 
-    ───────────
-    Kind ↝ Kind
+    ──────────────────
+    Kind ↝ Kind : Kind
 
 
 For example, these are type-level functions permitted by the above rule:
@@ -3218,34 +3243,29 @@ For example, these are type-level functions permitted by the above rule:
 
     λ(m : Type) → [ m ] → m
 
-The following rules enable support for functions from kinds to types or terms
-(i.e. "kind-polymorphic" functions):
+When `c₀ = Sort` and `c₁ = Kind` you get functions from kinds to types (i.e.
+"kind-polymorphic" functions):
 
 
-    ───────────
-    Sort ↝ Kind
+    ──────────────────
+    Sort ↝ Kind : Sort
 
 
-    ───────────
-    Sort ↝ Type
+For example, this is a kind-polymorphic function permitted by the above rules:
 
-For example, these are kind-polymorphic functions permitted by the above rule:
+    λ(k : Kind) → λ(a : k) → a
 
-    λ(a : Kind) → λ(x : a) → x
-
-    λ(a : Kind) → a -> a -> Type
-
-The following rule enables support for functions from kinds to kinds (i.e.
+When `c₀ = Sort` and `c₁ = Sort` you get functions from kinds to kinds (i.e.
 "kind-level" functions):
 
 
-    ───────────
-    Sort ↝ Sort
+    ──────────────────
+    Sort ↝ Sort : Sort
 
 
 For example, this is a kind-level function permitted by the above rule:
 
-    λ(a : Kind) → a -> a
+    λ(a : Kind) → a → a
 
 However, Dhall does not support dependently-typed functions, so there are no
 rules for `Type ↝ Kind`, `Kind → Sort`, or `Type → Sort`.  Dhall omits support
@@ -3660,12 +3680,12 @@ A record can either store term-level values and functions:
 
     Γ ⊢ T :⇥ Kind
     ────────────────────
-    Γ ⊢ { x : T } : Kind
+    Γ ⊢ { x : T } : Sort
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Kind
+    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Sort
     ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Kind
+    Γ ⊢ { x : T, xs… } : Sort
 
 
 ... or store kinds (if it is non-empty):
@@ -4172,9 +4192,9 @@ A function type is only well-typed if the input and output type are well-typed
 and if the inferred input and output type are allowed by the function check:
 
 
-    Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   i ↝ o
-    ────────────────────────────────────────────────────────────────
-    Γ₀ ⊢ ∀(x : A) → B : o
+    Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   i ↝ o : c
+    ────────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ ∀(x : A) → B : c
 
 
 If the input or output type is neither a `Type`, a `Kind`, nor a `Sort` then
