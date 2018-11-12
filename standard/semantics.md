@@ -1938,17 +1938,19 @@ specified twice.  For example, this rule alone:
 ... then we would need the following two additional rules:
 
 
-    (x || y) || z ⇥ e
-    ───────────────────
-    x || (y || z) ⇥ e
+    yz ⇥ y || z   (x || y) || z ⇥ e
+    ───────────────────────────────
+    x || yz ⇥ e
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁   x || l₁ ⇥ e
+    xl ⇥ x || l₀
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    x || l₁ ⇥ e
     ─────────────────────────────────────────  ; Due to associativity
-    (x || l₀) || r₀ ⇥ l₁
+    xl || r₀ ⇥ l₁
 
 
-You will see a "; Due to associativity" label every time there is a redundant
+You will see a "; Due to associativity" label every time there is a similar
 rule like this created for associativity-aware simplifications.
 
 ### Constants
@@ -2042,9 +2044,9 @@ Dhall also supports logical operators for convenience.
 The logical "or" operator is associative:
 
 
-    (x || y) || z ⇥ e
-    ─────────────────
-    x || (y || z) ⇥ e
+    yz ⇥ y || z   (x || y) || z ⇥ e
+    ───────────────────────────────
+    x || yz ⇥ e
 
 
 Simplify the logical "or" operator so long as at least one argument normalizes
@@ -2079,9 +2081,11 @@ Normalize arguments that are equivalent
     l₀ || r₀ ⇥ l₁
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁   x || l₁ ⇥ e
-    ─────────────────────────────────────────  ; Due to associativity
-    (x || l₀) || r₀ ⇥ e
+    xl ⇥ x || l₀
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    x || l₁ ⇥ e
+    ───────────────────────────  ; Due to associativity
+    xl || r₀ ⇥ e
 
 
 Otherwise, normalize each argument:
@@ -2095,9 +2099,9 @@ Otherwise, normalize each argument:
 The logical "and" operator is associative:
 
 
-    (x && y) && z ⇥ e
-    ─────────────────
-    x && (y && z) ⇥ e
+    yz ⇥ y && z   (x && y) && z ⇥ e
+    ───────────────────────────────
+    x && yz ⇥ e
 
 
 Simplify the logical "and" operator so long as at least one argument normalizes
@@ -2132,9 +2136,11 @@ Normalize arguments that are equivalent
     l₀ && r₀ ⇥ l₁
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁   x && l₁ ⇥ e
-    ─────────────────────────────────────────  ; Due to associativity
-    (x && l₀) && r₀ ⇥ e
+    xl ⇥ x && l₀
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    x && l₁ ⇥ e
+    ───────────────────────────  ; Due to associativity
+    xl && r₀ ⇥ e
 
 
 Otherwise, normalize each argument:
@@ -2148,9 +2154,9 @@ Otherwise, normalize each argument:
 The logical "equal" operator is associative:
 
 
-    (x == y) == z ⇥ e
-    ─────────────────
-    x == (y == z) ⇥ e
+    yz ⇥ y == z   (x == y) == z ⇥ e
+    ───────────────────────────────
+    x == yz ⇥ e
 
 
 Simplify the logical "equal" operator if one argument normalizes to a `True`
@@ -2175,9 +2181,11 @@ literal:
     l₀ == r₀ ⇥ True
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁   x₀ ⇥ x₁
-    ─────────────────────────────────────  ; Due to associativity
-    (x₀ == l₀) == r₀ ⇥ x₁
+    xl ⇥ x₀ == l₀
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    x₀ ⇥ x₁
+    ───────────────────────────  ; Due to associativity
+    xl == r₀ ⇥ x₁
 
 
 Otherwise, normalize each argument:
@@ -2191,9 +2199,9 @@ Otherwise, normalize each argument:
 The logical "not equal" operator is associative:
 
 
-    (x != y) != z ⇥ e
-    ─────────────────
-    x != (y != z) ⇥ e
+    yz ⇥ y != z   (x != y) != z ⇥ e
+    ───────────────────────────────
+    x != yz ⇥ e
 
 
 Simplify the logical "not equal" operator if one argument normalizes to a
@@ -2218,9 +2226,11 @@ Simplify the logical "not equal" operator if one argument normalizes to a
     l₀ != r₀ ⇥ False
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁   x₀ ⇥ x₁
-    ─────────────────────────────────────  ; Due to associativity
-    (x₀ != l₀) != r₀ ⇥ x₁
+    xl ⇥ x₀ != l₀
+    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
+    x₀ ⇥ x₁
+    ───────────────────────────  ; Due to associativity
+    xl != r₀ ⇥ x₁
 
 
 Otherwise, normalize each argument:
@@ -2289,9 +2299,9 @@ efficiency.
 The "plus" operator is associative:
 
 
-    (x + y) + z ⇥ e
-    ───────────────
-    x + (y + z) ⇥ e
+    yz ⇥ y + z   (x + y) + z ⇥ e
+    ────────────────────────────
+    x + yz ⇥ e
 
 
 Use machine addition to simplify the "plus" operator if both arguments normalize
@@ -2303,9 +2313,11 @@ to `Natural` literals:
     l + r ⇥ m + n
 
 
-    l ⇥ m   r ⇥ n   x + (m + n) ⇥ e
-    ───────────────────────────────  ; Due to associativity
-    (x + l) + r ⇥ e
+    xl ⇥ x + l
+    l ⇥ m   r ⇥ n
+    x + (m + n) ⇥ e
+    ───────────────  ; Due to associativity
+    xl + r ⇥ e
 
 
 Also, simplify the "plus" operator if either argument normalizes to a `0`
@@ -2333,9 +2345,9 @@ Otherwise, normalize each argument:
 The "times" operator is associative:
 
 
-    (x * y) * z ⇥ e
-    ───────────────
-    x * (y * z) ⇥ e
+    yz ⇥ y * z   (x * y) * z ⇥ e
+    ────────────────────────────
+    x * yz ⇥ e
 
 
 Use machine multiplication to simplify the "times" operator if both arguments
@@ -2347,9 +2359,11 @@ normalize to a `Natural` literal:
     l * r ⇥ m * n
 
 
-    l ⇥ m   r ⇥ n   x * (m * n) ⇥ e
-    ───────────────────────────────  ; Due to associativity
-    (x + l) * r ⇥ e
+    xl ⇥ x + l
+    l ⇥ m   r ⇥ n
+    x * (m * n) ⇥ e
+    ───────────────  ; Due to associativity
+    xl * r ⇥ e
 
 
 Also, simplify the "plus" operator if either argument normalizes to either a
@@ -2509,9 +2523,9 @@ The `Text` type is in normal form:
 The "text concatenation" operator is associative:
 
 
-    (x ++ y) ++ z ⇥ e
-    ─────────────────
-    x ++ (y ++ z) ⇥ e
+    yz ⇥ y ++ z   (x ++ y) ++ z ⇥ e
+    ───────────────────────────────
+    x ++ yz ⇥ e
 
 
 Use machine concatenation to simplify the "text concatenation" operator if both
@@ -2523,9 +2537,11 @@ arguments normalize to `Text` literals:
     l ++ r ⇥ "…"₀ ++ "…"₁
 
 
-    l ⇥ "…"₀   r ⇥ "…"₁   x ++ ("…"₀ ++ "…"₁) ⇥ e
-    ─────────────────────────────────────────────  ; Due to associativity
-    (x ++ l) ++ r ⇥ e
+    xl ⇥ x ++ l
+    l ⇥ "…"₀   r ⇥ "…"₁ 
+    x ++ ("…"₀ ++ "…"₁) ⇥ e
+    ───────────────────────  ; Due to associativity
+    xl ++ r ⇥ e
 
 
 Also, simplify the "text concatenation" operator if either argument normalizes
@@ -2617,9 +2633,9 @@ convenience and efficiency.
 The "list concatenation" operator is associative:
 
 
-    (x # y) # z ⇥ e
-    ───────────────
-    x # (y # z) ⇥ e
+    yz ⇥ y # z   (x # y) # z ⇥ e
+    ────────────────────────────
+    x # yz ⇥ e
 
 
 Use machine concatenation to simplify the "list concatenation" operator if both
@@ -2632,11 +2648,12 @@ arguments normalize to `List` literals:
     ls₀ # rs₀ ⇥ [ ls₁… ] # [ rs₁… ]   ; concatenation
 
 
+    xls ⇥ x # ls₀
     ls₀ ⇥ [ ls₁… ]
     rs₀ ⇥ [ rs₁… ]
     x # ([ ls₁… ] # [ rs₁… ]) ⇥ e
     ─────────────────────────────  ; Due to associativity
-    (x # ls₀) # rs₀ ⇥ e
+    xls # rs₀ ⇥ e
 
 
 Also, simplify the "list concatenation" operator if either argument normalizes
@@ -2894,9 +2911,9 @@ Otherwise, normalize the argument:
 The recursive record merge operator is associative:
 
 
-    (x ∧ y) ∧ z ⇥ e
-    ───────────────
-    x ∧ (y ∧ z) ⇥ e
+    yz ⇥ y ∧ z   (x ∧ y) ∧ z ⇥ e
+    ────────────────────────────
+    x ∧ yz ⇥ e
 
 
 Recursive record merge combines two records, recursively merging any fields that
@@ -2922,13 +2939,14 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ∧ rs₀ ⇥ e
 
 
+    als ⇥ a ∧ ls₀
     ls₀ ⇥ { x = l₁, ls₁… }
     rs₀ ⇥ { x = r₁, rs₁… }
     l₁ ∧ r₁ ⇥ t
     { ls₁… } ∧ { rs₁… } ⇥ { ts… }
     a ∧ { x = t, ts… } ⇥ e
     ─────────────────────────────  ; Due to associativity
-    (a ∧ ls₀) ∧ rs₀ ⇥ e
+    als ∧ rs₀ ⇥ e
 
 
     ls₀ ⇥ { x = l₁, ls₁… }
@@ -2938,11 +2956,12 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ∧ rs ⇥ e
 
 
+    als ⇥ a ∧ ls₀
     ls₀ ⇥ { x = l₁, ls₁… }
     { ls₁… } ∧ rs ⇥ { ls₂… }
     a ∧ { x = l₁, ls₂… } ⇥ e  ; Due to associativity
     ────────────────────────  ; x ∉ rs
-    (a ∧ ls₀) ∧ rs ⇥ e
+    als ∧ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -2953,9 +2972,9 @@ collide.  The type system ensures that colliding fields must be records:
 The right-biased record merge operator is associative:
 
 
-    (x ⫽ y) ⫽ z ⇥ e
-    ───────────────
-    x ⫽ (y ⫽ z) ⇥ e
+    yz ⇥ y ⫽ z   (x ⫽ y) ⫽ z ⇥ e
+    ────────────────────────────
+    x ⫽ yz ⇥ e
 
 
 Right-biased record merge is non-recursive.  Field collisions are resolved by
@@ -2981,12 +3000,13 @@ from the left record:
     ls₀ ⫽ rs₀ ⇥ e
 
 
+    als ⇥ a ⫽ ls₀
     ls₀ ⇥ { x = l₁, ls₁… }
     rs₀ ⇥ { x = r₁, rs₁… }
     { ls₁… } ⫽ { rs₁… } ⇥ { ts… }
     a ⫽ { x = r₁, ts… } ⇥ e
     ─────────────────────────────  ; Due to associativity
-    (a ⫽ ls₀) ⫽ rs₀ ⇥ e
+    als ⫽ rs₀ ⇥ e
 
 
     ls₀ ⇥ { x = l₁, ls₁… }
@@ -2996,11 +3016,12 @@ from the left record:
     ls₀ ⫽ rs ⇥ e
 
 
+    als ⇥ a ⫽ ls₀
     ls₀ ⇥ { x = l₁, ls₁… }
     { ls₁… } ⫽ rs ⇥ { ls₂… }
     a ⫽ { x = l₁, ls₂… } ⇥ e  ;  Due to associativity
     ────────────────────────  ;  x ∉ rs
-    (a ⫽ ls₀) ⫽ rs ⇥ e
+    als ⫽ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -3011,9 +3032,9 @@ from the left record:
 The record type merge operator is associative:
 
 
-    (x ⩓ y) ⩓ z ⇥ e
-    ───────────────
-    x ⩓ (y ⩓ z) ⇥ e
+    yz ⇥ y ⩓ z   (x ⩓ y) ⩓ z ⇥ e
+    ────────────────────────────
+    x ⩓ yz ⇥ e
 
 
 Recursive record type merge combines two record types, recursively merging any
@@ -3040,13 +3061,14 @@ record types:
     ls₀ ⩓ rs₀ ⇥ e
 
 
+    als ⇥ a ⩓ ls₀
     ls₀ ⇥ { x : l₁, ls₁… }
     rs₀ ⇥ { x : r₁, rs₁… }
     l₁ ⩓ r₁ ⇥ t
     { ls₁… } ⩓ { rs₁… } ⇥ { ts… }
     a ⩓ { x : t, ts… } ⇥ e
     ─────────────────────────────  ; Due to associativity
-    (a ⩓ ls₀) ⩓ rs₀ ⇥ e
+    als ⩓ rs₀ ⇥ e
 
 
     ls₀ ⇥ { x : l₁, ls₁… }
@@ -3056,11 +3078,12 @@ record types:
     ls₀ ⩓ rs ⇥ e
 
 
+    als ⇥ a ⩓ ls₀
     ls₀ ⇥ { x : l₁, ls₁… }
     { ls₁… } ⩓ rs ⇥ { ls₂… }
     a ⩓ { x : l₁, ls₂… } ⇥ e  ; Due to associativity
     ────────────────────────  ; x ∉ rs
-    (a ⩓ ls₀) ⩓ rs ⇥ e
+    als ⩓ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
