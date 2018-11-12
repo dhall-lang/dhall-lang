@@ -126,7 +126,8 @@ ALPHA = %x41-5A / %x61-7A
 ; ASCII digit
 DIGIT = %x30-39  ; 0-9
 
-HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+; decimal digit or uppercase A-F or lowercase a-f
+HEXDIG = DIGIT / %x41-46 / %x61-66
 
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
