@@ -718,18 +718,12 @@ The `missing` keyword is also treated as another import type:
 
 ### `let` expressions
 
-`let` expressions differ in their encoding depending on whether or not they have
-a type annotation:
+`let` expressions use three list elements per binding and also use a `null` to
+represent the absence of a type annotation:
 
-
-    encode(a₀) = a₁   encode(b₀) = b₁
-    ──────────────────────────────────────────────────
-    encode(let x = a₀ in b₀) = [ 25, "x", a₁, b₁ ]
-
-
-    encode(a₀) = a₁   encode(A₀) = A₁   encode(b₀) = b₁
-    ───────────────────────────────────────────────────────────────
-    encode(let x : A₀ = a₀ in b₀) = [ 25, "x", A₁, a₁, b₁ ]
+    encode(A₀) = A₁   encode(a₀) = a₁   encode(b₀) = b₁   ...   encode(z₀) = z₁
+    ──────────────────────────────────────────────────────────────────────────────────────────
+    encode(let x : A₀ = a₀ let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
 
 
 ### Type annotations
@@ -1308,14 +1302,9 @@ The decoding rules are the exact opposite of the encoding rules:
 Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
-    decode(a₁) = a₀   decode(b₁) = b₀
-    ──────────────────────────────────────────────────
-    decode([ 25, "x", a₁, b₁ ]) = let x = a₀ in b₀
-
-
-    decode(a₁) = a₀   decode(A₁) = A₀   decode(b₁) = b₀
-    ───────────────────────────────────────────────────────────────
-    decode([ 25, "x", A₁, a₁, b₁ ]) = let x : A₀ = a₀ in b₀
+    decode(A₁) = A₀   decode(a₁) = a₀   decode(b₁) = b₀   ...   decode(z₁) = z₀
+    ──────────────────────────────────────────────────────────────────────────────────────────
+    decode([ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]) = let x : A₀ = a₀ let y = b₀ ... in z₀
 
 
 ### Type annotations
