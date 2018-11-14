@@ -151,8 +151,8 @@
           enableACME = true;
 
           locations."/".extraConfig = ''
-            rewrite ^/?$ https://github.com/dhall-lang/Prelude redirect;
-            rewrite ^/(.+)$ https://raw.githubusercontent.com/dhall-lang/Prelude/master/$1 redirect;
+            rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
+            rewrite ^/(.+)$ https://raw.githubusercontent.com/dhall-lang/dhall-lang/1bc66b345c8e93579e16ac6f697c3473bb846baa/Prelude/$1 redirect;
           '';
         };
       };

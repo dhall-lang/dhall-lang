@@ -266,6 +266,8 @@ Text-raw              = %x54.65.78.74
 List-raw              = %x4c.69.73.74
 True-raw              = %x54.72.75.65
 False-raw             = %x46.61.6c.73.65
+NaN-raw               = %x4e.61.4e
+Infinity-raw          = %x49.6e.66.69.6e.69.74.79
 Type-raw              = %x54.79.70.65
 Kind-raw              = %x4b.69.6e.64
 Sort-raw              = %x53.6f.72.74
@@ -281,6 +283,8 @@ reserved-raw =
   / List-raw
   / True-raw
   / False-raw
+  / NaN-raw
+  / Infinity-raw
   / Type-raw
   / Kind-raw
   / Sort-raw
@@ -578,7 +582,8 @@ expression =
 
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
-    / let label [ colon expression ] equal expression in expression
+    ; "let x = e1 let y = e2 in e3"
+    / 1*(let label [ colon expression ] equal expression) in expression
 
     ; "forall (x : a) -> b"
     / forall open-parens label colon expression close-parens arrow expression
@@ -664,6 +669,9 @@ primitive-expression =
 
     ; "+2"
     / integer-literal
+
+    ; "-Infinity"
+    / "-" Infinity-raw
 
     ; '"ABC"'
     / text-literal
