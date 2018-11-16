@@ -1,0 +1,14 @@
+[
+  25,
+  "TypeSynonym",
+  null,
+  "Integer",
+  [
+    26,
+    [
+      15,
+      1
+    ],
+    "TypeSynonym"
+  ]
+]
