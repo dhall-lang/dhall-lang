@@ -1,0 +1,10 @@
+[
+  25,
+  "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/",
+  null,
+  [
+    15,
+    1
+  ],
+  "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/"
+]

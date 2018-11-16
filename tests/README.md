@@ -47,6 +47,17 @@ Some common subdivisions at this level:
 But how should every feature be exercised? The following sections detail what to
 run for each feature:
 
+### Running `parser` tests
+
+The tests should:
+- parse `A` and convert it to the JSON representation of the Dhall-CBOR encoding
+- read `B` and parse its contents as JSON
+- the results should match
+
+Where `A` and `B` are:
+- `A`: a Dhall expression as text
+- `B`: the JSON representation of the Dhall-CBOR-encoded expression
+
 ### Running `normalization` tests
 
 The tests should:
