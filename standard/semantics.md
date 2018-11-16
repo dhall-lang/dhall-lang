@@ -72,10 +72,10 @@ expressions.
 
 ## Summary
 
-Dhall's type system is similar to CCω extended with one impredicative universe,
-implemented using a pure type system.  Type abstraction and type application are
-explicit and not inferred.  Dhall also supports additional built-in functions,
-operators, and constants for efficiency.
+Dhall's type system is a variation on [CCω][ccw], implemented using a pure type
+system (see the ["Function check"](#function-check) section for more details).
+Type abstraction and type application are explicit and not inferred.  Dhall also
+supports additional built-in functions, operators, and constants for efficiency.
 
 Dhall also supports referencing shadowed variables through the use of DeBruijn
 indices.  This document spells out in detail how to implement these
@@ -3161,7 +3161,12 @@ equivalent.
 ## Function check
 
 The function check governs which types of functions that our pure type system
-permits.
+permits.  This is based on [CCω][ccw] with only three universes:
+
+* `Type` is an impredicative universe at the bottom of the hierarchy
+  (equivalent to `*` from the linked paper)
+* `Kind` is the first predicate universe (equivalent to `□₀`)
+* `Sort ` is the second predicate universe (equivalent to `□₁`)
 
 This function check is a judgment of the form:
 
@@ -4868,3 +4873,5 @@ For all other cases, recursively descend into sub-expressions:
 
     ────────────────────────────
     Γ₀ ⊢ Kind @ here ⇒ Kind ⊢ Γ₁
+
+[ccw]: https://hal.inria.fr/hal-01445835
