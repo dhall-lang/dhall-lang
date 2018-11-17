@@ -351,7 +351,7 @@ open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
 at            = "@"  whitespace
 import-alt    = "?"  whitespace
-colon         = nonempty-whitespace ":" nonempty-whitespace
+colon         = ":" nonempty-whitespace
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
