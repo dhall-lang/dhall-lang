@@ -1,1 +1,1 @@
-let a:Bool in a
+let a:Natural = 1 in a
