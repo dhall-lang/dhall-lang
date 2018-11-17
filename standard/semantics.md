@@ -3687,7 +3687,8 @@ and another field is a type-level value or function then that is a type error.
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
 error.
 
-If two fields have the same name, then that is a type error.
+If there are duplicated fields (that is, if two fields have the same name),
+then that is a type error.
 
 Record values are also anonymous:
 
