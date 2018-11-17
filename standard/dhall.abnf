@@ -349,9 +349,9 @@ bar           = "|"  whitespace
 comma         = ","  whitespace
 open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
-colon         = ":"  whitespace
 at            = "@"  whitespace
 import-alt    = "?"  whitespace
+colon         = nonempty-whitespace ":" nonempty-whitespace
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
