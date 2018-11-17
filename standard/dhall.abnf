@@ -80,9 +80,9 @@
 ; When parsing a repeated construct, prefer alternatives that parse as many
 ; repetitions as possible.  On in other words:
 ;
-;     [a] = a / ε
+;     [a] = a / ""
 ;
-;     a* = a* a / ε
+;     a* = a* a / ""
 ;
 ; Note that the latter rule also specifies that repetition produces
 ; left-associated expressions.  For example, function application is
@@ -92,7 +92,7 @@
 ; Additionally, try alternatives in an order that minimizes backtracking
 ; according to the following rule:
 ;
-;     (l₀ / l₁) (r₀ / r₁) = l₀ r₀ / l₀ r₁ / l₁ r₀ / l₁ r₁
+;     (a / b) (c / d) = a c / a d / b c / b d
 
 ; NOTE: There are many line endings in the wild
 ;
