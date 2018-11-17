@@ -3328,11 +3328,11 @@ type of `Kind` is `Sort`:
     Γ ⊢ Kind : Sort
 
 
-In other words, `Kind` is the "type of types" and `Kind` serves as the
+In other words, `Kind` is the "type of types" and `Sort` serves as the
 foundation of the type system.
 
-Note that you cannot infer the type of `Kind` as there is nothing above `Kind`
-in the type system's hierarchy.  Inferring the type of `Kind` is a type error.
+Note that you cannot infer the type of `Sort` as there is nothing above `Sort`
+in the type system's hierarchy.  Inferring the type of `Sort` is a type error.
 
 ### Variables
 
