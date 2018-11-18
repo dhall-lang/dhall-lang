@@ -351,7 +351,7 @@ open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
 at            = "@"  whitespace
 import-alt    = "?"  whitespace
-colon         = ":" nonempty-whitespace
+colon         = ":" nonempty-whitespace  ; To disambiguate `env:VARIABLE` from type annotations
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
