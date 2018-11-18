@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
 </head> 
 
-Dhall is a programmable configuration language that is not Turing-complete
+Dhall is like "[Elm][elm] but for [YAML][yaml]"
 
-You can think of Dhall as: JSON + functions + types + imports
+Dhall is a configuration language that combines:
+
+* the human-friendliness of YAML (multi-line strings and comments)
+* the maintainability of Elm (types, functions, and great error messages)
+* the safety of JSON (Dhall is not Turing-complete)
 
 ## Table of contents
 
@@ -844,9 +848,11 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
 [dhall-prelude]: https://prelude.dhall-lang.org
+[elm]: https://elm-lang.org/
 [hcl]: https://github.com/hashicorp/hcl
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
 [migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
 [issue-tracker]: https://github.com/dhall-lang/dhall-lang/issues
 [core-language-features]: https://github.com/dhall-lang/dhall-lang/wiki/Core-language-features
 [dhall-json-tutorial-wiki]: https://github.com/dhall-lang/dhall-lang/wiki/Getting-started%3A-Generate-JSON-or-YAML
+[yaml]: http://yaml.org/
