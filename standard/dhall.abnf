@@ -412,14 +412,14 @@ path-character =
     / %x7E
 
 quoted-path-character =
-      %x20-%x21
+      %x20-21
         ; %x22 = "\""
     / %x23-2E
         ; %x2F = "/"
     / %x30-7E
 
 
-path-component = "/" (1*path-character / %x22 1*quoted-path-character %x22)
+path-component = "/" ( 1*path-character / %x22 1*quoted-path-character %x22 )
 
 directory = *path-component
 
