@@ -1,0 +1,30 @@
+[
+  4,
+  null,
+  [
+    24,
+    2,
+    "absolute",
+    "path"
+  ],
+  [
+    24,
+    3,
+    "relative",
+    "path"
+  ],
+  [
+    24,
+    5,
+    "home",
+    "anchored",
+    "path"
+  ],
+  [
+    24,
+    2,
+    "ipfs",
+    "QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx",
+    "Prelude"
+  ]
+]
