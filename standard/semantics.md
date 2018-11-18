@@ -4693,6 +4693,22 @@ The following semantics model this by treating the context of importable
 expressions as a pure, lazy, and unordered map from canonical paths to
 expressions stored at those paths:
 
+### Quoted paths
+
+The grammar for imports permits quoted path components for both file paths:
+
+    /"foo"/bar/"baz qux"
+
+... and for URLs:
+
+    https://example.com/foo/"bar?baz"?qux
+
+To import a file path with quoted path components, drop the quotes.
+
+To import a URL with quoted path components, percent-encode each quoted
+path component according to
+[RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
+
 ### Import resolution judgment
 
 The import resolution phase replaces all imports with the expression located
