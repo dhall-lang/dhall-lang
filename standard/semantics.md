@@ -3685,12 +3685,12 @@ A record can either store term-level values and functions:
 
     Γ ⊢ T :⇥ Kind
     ────────────────────
-    Γ ⊢ { x : T } : Sort
+    Γ ⊢ { x : T } : Kind
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Sort
+    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Kind
     ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Sort
+    Γ ⊢ { x : T, xs… } : Kind
 
 
 ... or store kinds (if it is non-empty):
