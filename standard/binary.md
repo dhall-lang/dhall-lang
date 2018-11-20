@@ -1142,7 +1142,7 @@ Decode a CBOR array beginning with a `11` as a union type:
     decode([ 11, { "x" = T₁, … } ]) = < x : T₀ | … >
 
 
-Decode a CBOR array beginning with a `12` as a union type:
+Decode a CBOR array beginning with a `12` as a union literal:
 
 
     decode(t₁) = t₀   decode(T₁) = T₀   …
