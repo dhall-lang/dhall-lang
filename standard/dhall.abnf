@@ -30,7 +30,7 @@
 ;
 ;     single-quote-continue =
 ;           "'''"               single-quote-continue
-;         / "${" expression "}" single-quote-continue
+;         / "${" complete-expression "}" single-quote-continue
 ;         / "''${"              single-quote-continue
 ;         / "''"
 ;         / %x20-10FFFF         single-quote-continue
@@ -184,7 +184,7 @@ label = ("`" quoted-label "`" / simple-label) whitespace
 ; > containing only the G clef character (U+1D11E) may be represented as
 ; > "\uD834\uDD1E".
 double-quote-chunk =
-      "${" expression "}"  ; Interpolation
+      "${" complete-expression "}"  ; Interpolation
     / %x5C                 ; '\'    Beginning of escape sequence
       ( %x22               ; '"'    quotation mark  U+0022
       / %x24               ; '$'    dollar sign     U+0024
