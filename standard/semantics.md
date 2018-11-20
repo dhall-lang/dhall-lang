@@ -4730,6 +4730,9 @@ resolve imports within the retrieved expression:
     Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁    ; import and `import₀` is not `missing`
 
 
+Carefully note that the fully resolved import must successfully type-check with
+an empty context.  Imported expressions may not contain any free variables.
+
 If the import is protected with a `sha256:base16Hash` integrity check, then:
 
 * the import's normal form is encoded to a binary representation
@@ -4761,8 +4764,8 @@ expression protected by a semantic integrity check:
   `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
   `"${HOME}/.cache/dhall/${base16Hash}"`
 * If the file exists and is readable, verify the file's byte contents match the
-  hash and then decode the expression from the bytes using the `decode-1.0`
-  judgment instead of importing the expression
+  hash and then decode the expression from the bytes using the
+  `decodeWithVersion` judgment instead of importing the expression
 * Otherwise, import the expression as normal
 
 An implementation MUST fail and alert the user if hash verification fails,
@@ -4775,7 +4778,7 @@ Or in judgment form:
     Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
-    decode-1.0(binary) = e
+    decodeWithVersion(binary) = e
     ───────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
     Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
@@ -4783,7 +4786,7 @@ Or in judgment form:
     Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
-    decode-1.0(binary) = e
+    decodeWithVersion(binary) = e
     ───────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
     Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
@@ -4832,13 +4835,13 @@ Or in judgment form:
   [RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
   as a pure function from a byte array to text
 
-
 Resolution of expressions might not be always successful: pure expressions are
 always resolved, the `missing` keyword never resolves, and imports might not 
 resolve in cases like:
-- an environment variable is not defined
-- file doesn't exist
-- URL is not reachable
+
+* an environment variable is not defined
+* file doesn't exist
+* URL is not reachable
 
 By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
@@ -4853,9 +4856,6 @@ left-to-right order:
     ───────────────────────────────  ; if `e₀` fails to resolve
     Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
 
-
-Carefully note that the fully resolved import must successfully type-check with
-an empty context.  Imported expressions may not contain any free variables.
 
 For all other cases, recursively descend into sub-expressions:
 
@@ -4874,5 +4874,6 @@ For all other cases, recursively descend into sub-expressions:
 
     ────────────────────────────
     Γ₀ ⊢ Kind @ here ⇒ Kind ⊢ Γ₁
+
 
 [ccw]: https://hal.inria.fr/hal-01445835
