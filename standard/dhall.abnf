@@ -362,8 +362,8 @@ bar           = "|"  whitespace
 comma         = ","  whitespace
 open-parens   = "("  whitespace
 close-parens  = ")"  whitespace
-colon         = ":"  whitespace
 at            = "@"  whitespace
+colon         = ":"  nonempty-whitespace  ; To disambiguate `env:VARIABLE` from type annotations
 import-alt    = "?"  nonempty-whitespace  ; To disambiguate `http://a/a?a`
 
 combine       = ( %x2227 / "/\"                ) whitespace
