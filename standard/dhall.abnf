@@ -399,7 +399,8 @@ missing = missing-raw whitespace
 ; whitespace most of the time
 path-character =
         ; %x20 = " "
-      %x21-22
+      %x21
+        ; %x22 = "\""
         ; %x23 = "#"
     / %x24-27
         ; %x28 = "("
@@ -423,7 +424,15 @@ path-character =
         ; %x7D = "}"
     / %x7E
 
-path-component = "/" 1*path-character
+quoted-path-character =
+      %x20-21
+        ; %x22 = "\""
+    / %x23-2E
+        ; %x2F = "/"
+    / %x30-7E
+
+
+path-component = "/" ( 1*path-character / %x22 1*quoted-path-character %x22 )
 
 directory = *path-component
 
