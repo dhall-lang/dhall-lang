@@ -5,6 +5,196 @@ file.
 
 For more info about our versioning policy, see [VERSIONING.md](VERSIONING.md).
 
+## `v4.0.0`
+
+Breaking changes:
+
+*   [Specify CBOR encoding of Double and grammar rules for NaN and Infinity values](https://github.com/dhall-lang/dhall-lang/pull/263)
+
+    This changes Dhall to use double-precision floating point values for
+    the `Double` type.
+
+    The primary motivation for this is so that the name `Double` is an accurate
+    representation of the type's precision.
+
+    This is a breaking change because `Double` literals outside the permitted
+    range of IEEE-754 floating point values are no longer permitted.  For
+    example, the following expression used to be valid before the change but is
+    no longer valid afterwards:
+
+    ```haskell
+    1e1000
+    ```
+
+*   [Prevent Hurkens' paradox](https://github.com/dhall-lang/dhall-lang/pull/272)
+
+    This fixes a type-checking soundness bug that allowed non-terminating
+    expressions.
+
+    This is a breaking change for two reasons:
+
+    *   Some non-terminating expressions used to type check and now they don't
+
+        See the Dhall expression for Hurkens' paradox which used to type-check
+        and then fail to ever normalize:
+
+        * https://github.com/dhall-lang/dhall-lang/blob/993d2f43d4988009f2b6bbf546211686658c0ecb/tests/typecheck/failure/hurkensParadox.dhall
+
+        Now the expression fails to type check
+
+    *   This changes a record of types to be a kind instead of a type
+
+        In other words, before this change the following Dhall expression
+        would have this hierarchy of types:
+
+        ```haskell
+        { x = Bool } : { x : Type } : Kind
+        ```
+
+        ... whereas after this change it now has this hierarchy of types:
+
+        ```haskell
+        { x = Bool } : { x : Type } : Sort
+        ```
+
+*   The `#`/`?`/`:` operators now require non-empty trailing whitespace
+
+    This is a breaking change because expressions such as the following are no
+    longer valid:
+
+    ```haskell
+    [ 1 ]#[ 2 ]
+    ```
+
+    ```haskell
+    let a:Natural = 1 in a
+    ```
+
+    See:
+
+    * [Disambiguate `#`/`?` operators from HTTP fragments/queries](https://github.com/dhall-lang/dhall-lang/pull/288)
+    * [Require whitespace around the colon in type annotations ](https://github.com/dhall-lang/dhall-lang/pull/290)
+
+New features:
+
+*   [Add union constructor selection](https://github.com/dhall-lang/dhall-lang/pull/249)
+
+    This feature improves the ergonomics of using union types so that you no
+    longer need to use the `constructors` keyword to generate a record of
+    constructors.  Instead, you can use the `.` operator to access constructors
+    directly from the original union type.
+
+    In other words, instead of writing this:
+
+    ```haskell
+        let Example = < Left : Natural | Right : Bool >
+
+    in  let example = constructors Example
+
+    in  [ example.Left 1, example.Right True ]
+    ```
+
+    ... you can now write this:
+
+    ```haskell
+        let Example = < Left : Natural | Right : Bool >
+
+    in  [ Example.Left 1, Example.Right True ]
+    ```
+
+    This is phase 1 of the plan to deprecate the `constructors` keyword, which
+    you can find here:
+
+    * [Deprecate `constructors`](https://github.com/dhall-lang/dhall-lang/issues/244)
+
+*   [Add support for `let` expressions with multiple `let` bindings](https://github.com/dhall-lang/dhall-lang/pull/266)
+
+    You no longer need to nest `let` expressions in order to define multiple
+    values.  Instead, you can define multiple `let` bindings within a single
+    `let` expression.
+
+    In other words, instead of writing this:
+
+    ```haskell
+        let x = 1
+
+    in  let y = 2
+
+    in  x + y
+    ```
+
+    ... you can now write this:
+
+
+    ```haskell
+    let x = 1
+
+    let y = 2
+
+    in  x + y
+    ```
+
+    See also:
+
+    * [Standardize how to encode/decode multi-`let` expressions ](https://github.com/dhall-lang/dhall-lang/pull/271)
+
+*   [Add support for quoted path components](https://github.com/dhall-lang/dhall-lang/pull/293)
+
+    You can now quote path components for both file paths and URLs.
+
+    For example:
+
+    ```haskell
+    /"foo"/bar/"baz qux"
+    ```
+
+    ```haskell
+    https://example.com/foo/"bar?baz"?qux
+    ```
+
+    Quoted URL path components are automatically percent-encoded when URLs are
+    resolved.  For example, the above URL is translated to:
+
+    ```
+    https://example.com/foo/bar%3Fbaz?qux
+    ```
+
+Other changes:
+
+*   [Migrate Prelude into `dhall-lang` repository](https://github.com/dhall-lang/dhall-lang/pull/247)
+
+    The Prelude is now part of the standard and shares the same version as the
+    standard version
+
+*   [Add acceptance tests](https://github.com/dhall-lang/dhall-lang/pull/265)
+
+    The standard now includes acceptance tests that implementations can use to
+    check whether they conform to the standard.
+
+    See also:
+
+    * [Add normalization test for multiple let bindings](https://github.com/dhall-lang/dhall-lang/pull/270)
+    * [Add parser tests](https://github.com/dhall-lang/dhall-lang/pull/276)
+    * [Add failure test for duplicated record fields to typecheck suite](https://github.com/dhall-lang/dhall-lang/pull/278)
+    * [Fix `remoteSystems` normalization test](https://github.com/dhall-lang/dhall-lang/pull/284)
+    * [Fix specification for running import tests](https://github.com/dhall-lang/dhall-lang/pull/286)
+    * [Fix path termination parser tests](https://github.com/dhall-lang/dhall-lang/pull/294)
+
+*   [Remove grammar whitespace ambiguity](https://github.com/dhall-lang/dhall-lang/pull/251)
+
+    This clarifies the grammar to remove ambiguity in how to parse whitespace.
+
+*   [Allow for spaces before expression in interpolated string](https://github.com/dhall-lang/dhall-lang/pull/279)
+
+    This fixes a bug in the grammar that disallowed leading space in an
+    interpolated expression
+
+*   Small fixes to the prose:
+
+    * [Fix Sort / Kind mistake](https://github.com/dhall-lang/dhall-lang/pull/277)
+    * [Typo in binary.md](https://github.com/dhall-lang/dhall-lang/pull/283)
+    * [Small fixes to import semantics section](https://github.com/dhall-lang/dhall-lang/pull/289/files)
+
 ## `v3.0.0`
 
 Breaking changes:
