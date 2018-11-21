@@ -2900,25 +2900,21 @@ union literal:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
-`constructors` converts a union type literal to a record of constructors for
-each alternative:
+`[DEPRECATED]` Union construction should be done through the `.` operator.
+`constructors` is equivalent to the identity operation and thus, returns
+the union type:
 
 
-    u ⇥ <>
+    t₀ ⇥ t₁
     ────────────────────
-    constructors u ⇥ {=}
-
-
-    u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    constructors u ⇥ { x₀ = λ(x₀ : T₀) → < x₀ = x₀ | x₁ : T₁ | xs… >, x₁ = λ(x₁ : T₁) → < x₀ : T₀ | x₁ = x₁ | xs… >, … }
+    constructors t₀ ⇥ t₁
 
 
     u₀ ⇥ u₁
     ─────────────────────────────────  ; If no other rule matches
     constructors u₀ ⇥ constructors u₁
 
-You can also project out a union constructor to a function to the union literal:
+You can project out a union constructor to a function to the union literal:
 
 
     u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
