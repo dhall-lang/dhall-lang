@@ -56,7 +56,24 @@ Breaking changes:
         ```haskell
         { x = Bool } : { x : Type } : Sort
         ```
-        
+
+*   The `#`/`?`/`:` operators now require non-empty trailing whitespace
+
+    This is a breaking change because expressions such as the following are no
+    longer valid:
+
+    ```haskell
+    [ 1 ]#[ 2 ]
+    ```
+
+    ```haskell
+    let a:Natural = 1 in a
+    ```
+
+    See:
+
+    * [Disambiguate `#`/`?` operators from HTTP fragments/queries](https://github.com/dhall-lang/dhall-lang/pull/288)
+    * [Require whitespace around the colon in type annotations ](https://github.com/dhall-lang/dhall-lang/pull/290)
 
 New features:
 
@@ -121,6 +138,27 @@ New features:
 
     * [Standardize how to encode/decode multi-`let` expressions ](https://github.com/dhall-lang/dhall-lang/pull/271)
 
+*   [Add support for quoted path components](https://github.com/dhall-lang/dhall-lang/pull/293)
+
+    You can now quote path components for both file paths and URLs.
+
+    For example:
+
+    ```haskell
+    /"foo"/bar/"baz qux"
+    ```
+
+    ```haskell
+    https://example.com/foo/"bar?baz"?qux
+    ```
+
+    Quoted URL path components are automatically percent-encoded when URLs are
+    resolved.  For example, the above URL is translated to:
+
+    ```
+    https://example.com/foo/bar%3Fbaz?qux
+    ```
+
 Other changes:
 
 *   [Migrate Prelude into `dhall-lang` repository](https://github.com/dhall-lang/dhall-lang/pull/247)
@@ -137,14 +175,25 @@ Other changes:
 
     * [Add normalization test for multiple let bindings](https://github.com/dhall-lang/dhall-lang/pull/270)
     * [Add parser tests](https://github.com/dhall-lang/dhall-lang/pull/276)
+    * [Add failure test for duplicated record fields to typecheck suite](https://github.com/dhall-lang/dhall-lang/pull/278)
+    * [Fix `remoteSystems` normalization test](https://github.com/dhall-lang/dhall-lang/pull/284)
+    * [Fix specification for running import tests](https://github.com/dhall-lang/dhall-lang/pull/286)
+    * [Fix path termination parser tests](https://github.com/dhall-lang/dhall-lang/pull/294)
 
 *   [Remove grammar whitespace ambiguity](https://github.com/dhall-lang/dhall-lang/pull/251)
 
     This clarifies the grammar to remove ambiguity in how to parse whitespace.
 
-*   [Fix Sort / Kind mistake](https://github.com/dhall-lang/dhall-lang/pull/277)
+*   [Allow for spaces before expression in interpolated string](https://github.com/dhall-lang/dhall-lang/pull/279)
 
-    This fixes a typo in the prose of the standard
+    This fixes a bug in the grammar that disallowed leading space in an
+    interpolated expression
+
+*   Small fixes to the prose:
+
+    * [Fix Sort / Kind mistake](https://github.com/dhall-lang/dhall-lang/pull/277)
+    * [Typo in binary.md](https://github.com/dhall-lang/dhall-lang/pull/283)
+    * [Small fixes to import semantics section](https://github.com/dhall-lang/dhall-lang/pull/289/files)
 
 ## `v3.0.0`
 
