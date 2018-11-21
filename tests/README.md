@@ -92,6 +92,6 @@ The tests should:
 - the results should match
 
 Where `A` and `B` are:
-- `A`: normalized text
-- `B`: type of `A`
+- `A`: text with unresolved imports
+- `B`: text where all the imports have been resolved, normalized and replaced with their value
 
