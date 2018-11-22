@@ -141,6 +141,52 @@ DIGIT = %x30-39  ; 0-9
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
+; A simple label cannot be one of the following reserved names:
+;
+; * Bool
+; * Optional
+; * None
+; * Natural
+; * Integer
+; * Double
+; * Text
+; * List
+; * True
+; * False
+; * NaN
+; * Infinity
+; * Type
+; * Kind
+; * Sort
+; * Natural/fold
+; * Natural/build
+; * Natural/isZero
+; * Natural/even
+; * Natural/odd
+; * Natural/toInteger
+; * Natural/show
+; * Integer/toDouble
+; * Integer/show
+; * Double/show
+; * List/build
+; * List/fold
+; * List/length
+; * List/head
+; * List/last
+; * List/indexed
+; * List/reverse
+; * Optional/fold
+; * Optional/build
+; * if
+; * then
+; * else
+; * let
+; * in
+; * as
+; * using
+; * merge
+; * constructors
+; * Some
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 quoted-label = 1*(ALPHA / DIGIT / "-" / "/" / "_" / ":" / "." / "$")
