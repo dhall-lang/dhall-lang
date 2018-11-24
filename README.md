@@ -57,14 +57,15 @@ $ cat ./makeUser.dhall
 
 -- The remainder of this file is the function's output
 -- (a.k.a. "the body of the function")
+-> 
 
-->   -- ↓↓↓ Use `let` to define intermediate variables
-        let homeDirectory = "/home/${user}"
+ -- ↓↓↓ Use `let` to define intermediate variables
+    let homeDirectory = "/home/${user}"
 
                            -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ String interpolation
-    in  let privateKeyFile = "${homeDirectory}/id_rsa"
+    let privateKeyFile = "${homeDirectory}/id_rsa"
 
-    in  let publicKeyFile = "${privateKeyFile}.pub"
+    let publicKeyFile = "${privateKeyFile}.pub"
 
         -- Records begin with `{`, end with `}`, and separate fields with `,`
     in  { homeDirectory  = homeDirectory
