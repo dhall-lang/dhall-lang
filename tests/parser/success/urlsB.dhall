@@ -4,6 +4,7 @@
   [
     24,
     0,
+    0,
     "example.com",
     "someFile.dhall",
     null,
@@ -11,6 +12,7 @@
   ],
   [
     24,
+    0,
     1,
     "john:doe@example.com:8080",
     "foo",
@@ -21,6 +23,7 @@
   [
     24,
     0,
+    0,
     "prelude.dhall-lang.org",
     "package.dhall",
     null,
@@ -28,6 +31,7 @@
   ],
   [
     24,
+    0,
     1,
     "ipfs.io",
     "ipfs",
@@ -38,6 +42,7 @@
   ],
   [
     24,
+    0,
     1,
     "raw.githubusercontent.com",
     "dhall-lang",
@@ -50,6 +55,7 @@
   ],
   [
     24,
+    0,
     1,
     "127.0.0.1",
     "index.dhall",
@@ -58,6 +64,7 @@
   ],
   [
     24,
+    0,
     1,
     "[::]",
     "index.dhall",
@@ -66,6 +73,7 @@
   ],
   [
     24,
+    0,
     1,
     "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]",
     "tutorial.dhall",
@@ -74,6 +82,7 @@
   ],
   [
     24,
+    0,
     1,
     "-._~%2C!$&'()*+,;=:@-._~%2C!$&'()*+,;=:",
     "foo",

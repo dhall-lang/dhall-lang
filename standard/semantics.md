@@ -4745,6 +4745,17 @@ resolve imports within the retrieved expression:
 Carefully note that the fully resolved import must successfully type-check with
 an empty context.  Imported expressions may not contain any free variables.
 
+If an import ends with `as Text`, import the raw contents of the file as a
+`Text` value instead of importing the file a Dhall expression:
+
+
+    here </> import₀ = import₁
+    canonicalize(import₁) = import₂
+    Γ(import₂) = "…"                        ; Read the raw contents of the file
+    ────────────────────────────────────
+    Γ ⊢ import₀ as Text @ here ⇒ "…" ⊢ Γ
+
+
 If the import is protected with a `sha256:base16Hash` integrity check, then:
 
 * the import's normal form is encoded to a binary representation
