@@ -847,6 +847,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-scala]: https://github.com/amarpotghan/dhall-scala
 [dhall-rust]: https://github.com/nanotech/dhall-rs
+[dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
 [dhall-json-post]: http://www.haskellforall.com/2017/02/program-json-and-yaml-with-dhall.html
 [dhall-bash]: https://github.com/dhall-lang/dhall-bash
