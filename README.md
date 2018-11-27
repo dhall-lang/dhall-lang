@@ -518,11 +518,12 @@ Dhall currently supports two complete language bindings:
 * [Haskell][dhall-haskell]
 * [Nix][dhall-nix]
 
-... and three language bindings in progress:
+... and four language bindings in progress:
 
 * [Clojure][dhall-clj]
-* [PureScript][dhall-purescript]
 * [Java - via Eta][dhall-eta]
+* [PureScript][dhall-purescript]
+* [Python][dhall-python]
 
 #### Haskell
 
@@ -836,6 +837,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-clj]: https://github.com/f-f/dhall-clj
 [dhall-purescript]: https://github.com/MonoidMusician/dhall-purescript
 [dhall-eta]: https://github.com/eta-lang/dhall-eta/tree/java-types
+[dhall-python]: https://github.com/SupraSummus/dhall-python
 [dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
 [dhall-json-post]: http://www.haskellforall.com/2017/02/program-json-and-yaml-with-dhall.html
