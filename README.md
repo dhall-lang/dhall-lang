@@ -525,6 +525,12 @@ Dhall currently supports two complete language bindings:
 * [PureScript][dhall-purescript]
 * [Python][dhall-python]
 
+The following two bindings are not maintained but you may find them
+useful as a starting point:
+
+* [Scala][dhall-scala]
+* [Rust][dhall-rust]
+
 #### Haskell
 
 You can load Dhall expressions into Haskell using the `input` function:
@@ -839,6 +845,8 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-eta]: https://github.com/eta-lang/dhall-eta/tree/java-types
 [dhall-python]: https://github.com/SupraSummus/dhall-python
 [dhall-json]: https://github.com/dhall-lang/dhall-json
+[dhall-scala]: https://github.com/amarpotghan/dhall-scala
+[dhall-rust]: https://github.com/nanotech/dhall-rs
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
 [dhall-json-post]: http://www.haskellforall.com/2017/02/program-json-and-yaml-with-dhall.html
 [dhall-bash]: https://github.com/dhall-lang/dhall-bash
