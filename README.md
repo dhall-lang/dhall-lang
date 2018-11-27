@@ -844,7 +844,6 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-purescript]: https://github.com/MonoidMusician/dhall-purescript
 [dhall-eta]: https://github.com/eta-lang/dhall-eta/tree/java-types
 [dhall-python]: https://github.com/SupraSummus/dhall-python
-[dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-scala]: https://github.com/amarpotghan/dhall-scala
 [dhall-rust]: https://github.com/nanotech/dhall-rs
 [dhall-json]: https://github.com/dhall-lang/dhall-json
