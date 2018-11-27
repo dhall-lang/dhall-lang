@@ -1,5 +1,5 @@
 { example0 =
-    ../data/fieldOrder/1.dhall sha256:72791c3846cef2ec49baabe6a5d38ca25301ed30b45754dfa1c6b06bab8faaf6
+    ./../data/fieldOrder/1.dhall sha256:4a7866b88389e18cf481b525544fd7903325252faf3a86c8fdc981298c788a9b
 , example1 =
-    ../data/fieldOrder/2.dhall sha256:72791c3846cef2ec49baabe6a5d38ca25301ed30b45754dfa1c6b06bab8faaf6
+    ./../data/fieldOrder/2.dhall sha256:4a7866b88389e18cf481b525544fd7903325252faf3a86c8fdc981298c788a9b
 }
