@@ -57,14 +57,15 @@ $ cat ./makeUser.dhall
 
 -- The remainder of this file is the function's output
 -- (a.k.a. "the body of the function")
+-> 
 
-->   -- ↓↓↓ Use `let` to define intermediate variables
-        let homeDirectory = "/home/${user}"
+ -- ↓↓↓ Use `let` to define intermediate variables
+    let homeDirectory = "/home/${user}"
 
                            -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ String interpolation
-    in  let privateKeyFile = "${homeDirectory}/id_rsa"
+    let privateKeyFile = "${homeDirectory}/id_rsa"
 
-    in  let publicKeyFile = "${privateKeyFile}.pub"
+    let publicKeyFile = "${privateKeyFile}.pub"
 
         -- Records begin with `{`, end with `}`, and separate fields with `,`
     in  { homeDirectory  = homeDirectory
@@ -103,27 +104,27 @@ $ cat ./configuration.dhall
 ```haskell
 -- This is our top-level configuration file
 
-    -- We can import any Dhall expression, even a function, from another file
-    let makeUser = ./makeUser.dhall
+-- We can import any Dhall expression, even a function, from another file
+let makeUser = ./makeUser.dhall
 
-    -- We can import Dhall expressions from URLs, too
-in  let generate =
-            https://prelude.dhall-lang.org/List/generate
-                -- ... and optionally protect them with integrity checks
-                sha256:77dbfc09daa00a7c6ba0c834863e8ee42e538af0f0600397a1c34923f11454b5
+-- We can import Dhall expressions from URLs, too
+let generate =
+        https://prelude.dhall-lang.org/List/generate
+            -- ... and optionally protect them with integrity checks
+            sha256:3d7c09834af3d0657f070e6bb42c0c8e7e9f9e9649f47de52aed8a7c095daa80
 
-            -- We can provide a fallback mirror if the first import fails
-          ? https://raw.githubusercontent.com/dhall-lang/Prelude/302881a17491f3c72238975a6c3e7aab603b9a96/List/generate
+        -- We can provide a fallback mirror if the first import fails
+      ? https://raw.githubusercontent.com/dhall-lang/Prelude/302881a17491f3c72238975a6c3e7aab603b9a96/List/generate
 
-            -- We can fall back to anything, like a local file
-          ? /usr/local/share/dhall/Prelude/List/generate
+        -- We can fall back to anything, like a local file
+      ? /usr/local/share/dhall/Prelude/List/generate
 
-    -- We can also define functions inline within the same file
-in  let makeBuildUser =
-          \(index : Natural) -> makeUser "build${Natural/show index}"
+-- We can also define functions inline within the same file
+let makeBuildUser =
+      \(index : Natural) -> makeUser "build${Natural/show index}"
 
-    -- We can import types, too
-in  let User = ./User.dhall
+-- We can import types, too
+let User = ./User.dhall
 
       -- Lists begin with `[`, end with `]` and separate elements with `,`
 in    [ -- We can inline the configuration for any given user
@@ -480,9 +481,9 @@ expressions from the command line.  You can use this interpreter to:
 
     ```bash
     $ cat ./example
-        let replicate = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/replicate
+    let replicate = https://raw.githubusercontent.com/dhall-lang/Prelude/35deff0d41f2bf86c42089c6ca16665537f54d75/List/replicate
 
-    in  let exclaim = λ(t : Text) → t ++ "!"
+    let exclaim = λ(t : Text) → t ++ "!"
 
     in  λ(x : Text) → replicate 3 Text (exclaim x)
     ```
