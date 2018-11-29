@@ -3,18 +3,21 @@
   null,
   [
     24,
+    0,
     2,
     "absolute",
     "path"
   ],
   [
     24,
+    0,
     3,
     "relative",
     "path"
   ],
   [
     24,
+    0,
     5,
     "home",
     "anchored",
@@ -22,6 +25,7 @@
   ],
   [
     24,
+    0,
     2,
     "ipfs",
     "QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx",

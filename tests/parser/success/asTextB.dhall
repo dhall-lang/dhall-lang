@@ -1,0 +1,9 @@
+[
+  24,
+  1,
+  1,
+  "example.com",
+  "foo",
+  null,
+  null
+]
