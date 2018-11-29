@@ -4714,10 +4714,11 @@ necessary.
 
 Import resolution is a function of the following form:
 
-    Γ₀ ⊢ e₀ @ here ⇒ e₁ ⊢ Γ₁
+    Δ × Γ₀ ⊢ e₀ @ here ⇒ e₁ ⊢ Γ₁
 
 ... where
 
+* `Δ` (an input) is a set of visited imports used to detect import cycles
 * `Γ₀` (an input) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web before the import
     * `Γ₀(import)` means to retrieve the expression located at `import`
@@ -4735,15 +4736,19 @@ resolve imports within the retrieved expression:
 
     here </> import₀ = import₁
     canonicalize(import₁) = import₂
-    Γ(import₂) = e₀                  ; Retrieve the expression
-    Γ₀ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₁
+    Γ(import₂) = e₀                    ; Retrieve the expression
+    Δ, import₂ × Γ₀ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
-    ───────────────────────────────  ; `import₀` is a file, URL or environment
-    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁    ; import and `import₀` is not `missing`
+    ─────────────────────────────────  ; * import₂ ∉ Δ
+    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
 
 
 Carefully note that the fully resolved import must successfully type-check with
 an empty context.  Imported expressions may not contain any free variables.
+
+Also note that the `import₂ ∉ Δ` forbids cyclic imports to prevent
+non-termination from being (trivially) introduced via the import system.  An
+import cycle is an import resolution error.
 
 If an import ends with `as Text`, import the raw contents of the file as a
 `Text` value instead of importing the file a Dhall expression:
@@ -4751,9 +4756,9 @@ If an import ends with `as Text`, import the raw contents of the file as a
 
     here </> import₀ = import₁
     canonicalize(import₁) = import₂
-    Γ(import₂) = "…"                        ; Read the raw contents of the file
-    ────────────────────────────────────
-    Γ ⊢ import₀ as Text @ here ⇒ "…" ⊢ Γ
+    Γ(import₂) = "…"                         ; Read the raw contents of the file
+    ────────────────────────────────────────
+    Δ × Γ ⊢ import₀ as Text @ here ⇒ "…" ⊢ Γ
 
 
 If the import is protected with a `sha256:base16Hash` integrity check, then:
@@ -4803,7 +4808,7 @@ Or in judgment form:
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
     decodeWithVersion(binary) = e
     ───────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
-    Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
+    Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
 
     Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
@@ -4811,40 +4816,40 @@ Or in judgment form:
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
     decodeWithVersion(binary) = e
     ───────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
-    Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
+    Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
 
-    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode-1.0(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
-    ─────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
-    Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
+    Δ × Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
 
 
-    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode-1.0(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
-    ──────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
-    Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
+    ──────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
+    Δ × Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
 
 
-    Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode-1.0(e₃) = binary
     sha256(binary) = byteHash
-    base16Encode(byteHash) = base16Hash              ; Verify the hash
-    ───────────────────────────────────────────────  ; Otherwise, don't cache
-    Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁
+    base16Encode(byteHash) = base16Hash                 ; Verify the hash
+    ─────────────────────────────────────────────────── ; Otherwise, don't cache
+    Δ × Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁
 
 
 ... where:
@@ -4870,33 +4875,33 @@ By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
 
 
-    Γ₀ ⊢ e₀ @ here ⇒ e₂ ⊢ Γ₁
-    ───────────────────────────────
-    Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
+    Δ × Γ₀ ⊢ e₀ @ here ⇒ e₂ ⊢ Γ₁
+    ───────────────────────────────────
+    Δ × Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
 
 
-    Γ₀ ⊢ e₁ @ here ⇒ e₂ ⊢ Γ₁
-    ───────────────────────────────  ; if `e₀` fails to resolve
-    Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
+    Δ × Γ₀ ⊢ e₁ @ here ⇒ e₂ ⊢ Γ₁
+    ───────────────────────────────────  ; if `e₀` fails to resolve
+    Δ × Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
 
 
 For all other cases, recursively descend into sub-expressions:
 
 
-    ────────────────────
-    Γ₀ ⊢ x@n @ here ⇒ x@n ⊢ Γ₁
+    ──────────────────────────────
+    Δ × Γ₀ ⊢ x@n @ here ⇒ x@n ⊢ Γ₁
 
 
-    Γ₀ ⊢ A₀ @ here ⇒ A₁ ⊢ Γ₁   Γ₁ ⊢ b₀ @ here ⇒ b₁ ⊢ Γ₂
-    ───────────────────────────────────────────────────
-    Γ₀ ⊢ λ(x : A₀) → b₀ @ here ⇒ λ(x : A₁) → b₁ ⊢ Γ₂
+    Δ × Γ₀ ⊢ A₀ @ here ⇒ A₁ ⊢ Γ₁   Δ × Γ₁ ⊢ b₀ @ here ⇒ b₁ ⊢ Γ₂
+    ───────────────────────────────────────────────────────────
+    Δ × Γ₀ ⊢ λ(x : A₀) → b₀ @ here ⇒ λ(x : A₁) → b₁ ⊢ Γ₂
 
 
     …
 
 
-    ────────────────────────────
-    Γ₀ ⊢ Kind @ here ⇒ Kind ⊢ Γ₁
+    ────────────────────────────────
+    Δ × Γ₀ ⊢ Kind @ here ⇒ Kind ⊢ Γ₁
 
 
 [ccw]: https://hal.inria.fr/hal-01445835
