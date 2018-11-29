@@ -638,7 +638,8 @@ even if they are empty strings.
 
 Encode URL imports in a tokenized form with the following elements in order:
 
-* The first element is 0 (if the scheme is http) or 1 (if the scheme is https)
+* The second element is 0 (if importing code) or 1 (if importing raw text)
+* The third element is 0 (if the scheme is http) or 1 (if the scheme is https)
 * The next element is the authority
     * This includes user information and port if present
     * This does not include the preceding "//" or the following "/"
@@ -662,58 +663,66 @@ Encode URL imports in a tokenized form with the following elements in order:
 The full rules are:
 
 
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+
+
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(http://authority/path₀/path₁/…/file) = [ 24, 0, 0, "authority" "path₀", "path₁", …, "file", null, null ]
+
+
+
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]
-
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]
+    encode(https://authority/path₀/path₁/…/file) = [ 24, 0, 1, "authority" "path₀", "path₁", …, "file", null, null ]
 
 
 Absolute file paths are tokenized in the same way:
 
 
-    ────────────────────────────────────────────────────────────────────────
-    encode(/path₀/path₁/…/file) = [ 24, 2, "path₀", "path₁", …, "file" ]
+    ───────────────────────────────────────────────────────────────────────
+    encode(/path₀/path₁/…/file) = [ 24, 0, 2, "path₀", "path₁", …, "file" ]
 
 
 Each path type is treated as another "scheme" (i.e. they are distinguished by
-the second tag):
+the third element):
+
+
+    ────────────────────────────────────────────────────────────────────────
+    encode(./path₀/path₁/…/file) = [ 24, 0, 3, "path₀", "path₁", …, "file" ]
 
 
     ─────────────────────────────────────────────────────────────────────────
-    encode(./path₀/path₁/…/file) = [ 24, 3, "path₀", "path₁", …, "file" ]
+    encode(../path₀/path₁/…/file) = [ 24, 0, 4, "path₀", "path₁", …, "file" ]
 
 
-    ──────────────────────────────────────────────────────────────────────────
-    encode(../path₀/path₁/…/file) = [ 24, 4, "path₀", "path₁", …, "file" ]
-
-
-    ─────────────────────────────────────────────────────────────────────────
-    encode(~/path₀/path₁/…/file) = [ 24, 5, "path₀", "path₁", …, "file" ]
+    ────────────────────────────────────────────────────────────────────────
+    encode(~/path₀/path₁/…/file) = [ 24, 0, 5, "path₀", "path₁", …, "file" ]
 
 
 Environment variables are also treated as another scheme:
 
 
-    ──────────────────────────────────
-    encode(env:x) = [ 24, 6, "x" ]
+    ─────────────────────────────────
+    encode(env:x) = [ 24, 0, 6, "x" ]
 
 
 The `missing` keyword is also treated as another import type:
 
 
-    ───────────────────────────────
-    encode(missing) = [ 24, 7 ]
+    ──────────────────────────────
+    encode(missing) = [ 24, 0, 7 ]
+
+
+If you import `as Text`, then the second element is `1` instead of `0`:
+
+
+    encode(import) = [ 24, 0, xs… ]
+    ───────────────────────────────────────
+    encode(import as Text) = [ 24, 1, xs… ]
 
 
 ### `let` expressions
@@ -1257,44 +1266,49 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, 0, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
+    decode([ 24, 0, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
 
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, 0, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, 0, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
 
 
     ────────────────────────────────────────────────────────────────────────
-    decode([ 24, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
+    decode([ 24, 0, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────
-    decode([ 24, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
+    decode([ 24, 0, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────
-    decode([ 24, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
+    decode([ 24, 0, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────
-    decode([ 24, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
+    decode([ 24, 0, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
 
 
     ──────────────────────────────────
-    decode([ 24, 6, "x" ]) = env:x
+    decode([ 24, 0, 6, "x" ]) = env:x
 
 
     ───────────────────────────────
-    decode([ 24, 7 ]) = missing
+    decode([ 24, 0, 7 ]) = missing
+
+
+    decode([ 24, 0, xs… ]) = import
+    ───────────────────────────────────────
+    decode([ 24, 1, xs… ]) = import as Text
 
 
 ### `let` expressions
