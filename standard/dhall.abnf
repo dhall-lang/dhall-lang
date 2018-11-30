@@ -210,6 +210,7 @@ label = ("`" quoted-label "`" / simple-label) whitespace
 ; > quotation mark, reverse solidus, and the control characters (U+0000
 ; > through U+001F).
 ; > 
+; > Any character in the Basic Multilingual Plane may be escaped.  It can be
 ; > Any character may be escaped.  If the character is in the Basic
 ; > Multilingual Plane (U+0000 through U+FFFF), then it may be
 ; > represented as a six-character sequence: a reverse solidus, followed
@@ -223,12 +224,6 @@ label = ("`" quoted-label "`" / simple-label) whitespace
 ; > representations of some popular characters.  So, for example, a
 ; > string containing only a single reverse solidus character may be
 ; > represented more compactly as "\\".
-; > 
-; > To escape an extended character that is not in the Basic Multilingual
-; > Plane, the character is represented as a 12-character sequence,
-; > encoding the UTF-16 surrogate pair.  So, for example, a string
-; > containing only the G clef character (U+1D11E) may be represented as
-; > "\uD834\uDD1E".
 double-quote-chunk =
       "${" complete-expression "}"  ; Interpolation
     / %x5C                 ; '\'    Beginning of escape sequence

@@ -162,7 +162,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / n.n                               ; Double-precision floating point literal
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
-  / "…"                               ; Text literal
+  / "s"                               ; Uninterpolated text literal
+  / "s₀${t₀}ss…"                      ; Interpolated text literal
   / {}                                ; Empty record type
   / { x : T, xs… }                    ; Non-empty record type
   / {=}                               ; Empty record literal
@@ -267,6 +268,9 @@ t          : Naked label which could be any type of expression.
 
 let xs… in b                : A `let` definition with at least one bindings
 let x : A = a let xs… in b  : A `let` definition with at least two bindings
+
+"s"           : A `Text` literal without any interpolated expressions
+"s₀${t₀}ss…"  : A `Text` literal with at least one interpolated expression
 ```
 
 You will see this notation in judgments that perform induction on lists,
@@ -673,7 +677,12 @@ The remaining rules are:
 
 
     ─────────────────────
-    ↑(d, x, m, "…") = "…"
+    ↑(d, x, m, "s") = "s"
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, "ss₀…") = "ss₁…"
+    ─────────────────────────────────────────────────
+    ↑(d, x, m, "s₀${t₀}ss₀…") = "s₀${t₁}ss₁…"
 
 
     ───────────────────
@@ -1219,7 +1228,12 @@ The remaining rules are:
 
 
     ──────────────────
-    "…"[x@n ≔ e] = "…"
+    "s"[x@n ≔ e] = "s"
+
+
+    t₀[x@n ≔ e] = t₁   "ss₀…"[x@n ≔ e] = "ss₁…"
+    ───────────────────────────────────────────
+    "s₀${t₀}ss₀…"[x@n ≔ e] = "s₀${t₁}ss₁…"
 
 
     ────────────────
@@ -1687,7 +1701,12 @@ sub-expressions for the remaining rules:
 
 
     ─────────
-    "…" ↦ "…"
+    "s" ↦ "s"
+
+
+    "ss₀…" ↦ "ss₁…"   t₀ ↦ t₁
+    ─────────────────────────────
+    "s₀${t₀}ss₀…" ↦ "s₀${t₁}ss₁…"
 
 
     ───────
@@ -2374,24 +2393,29 @@ The `Text` type is in normal form:
     Text ⇥ Text
 
 
-`Text` literals are in normal form:
+Normalizing `Text` literals normalizes each interpolated expression:
 
 
     ─────────
-    "…" ⇥ "…"
+    "s" ⇥ "s"
+
+
+    "ss₀…" ⇥ "ss₁…"   t₀ ⇥ t₁
+    ─────────────────────────────
+    "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
 Use machine concatenation to simplify the "text concatenation" operator if both
-arguments normalize to `Text` literals:
+arguments normalize to uninterpolated `Text` literals:
 
 
-    l ⇥ "…"₀   r ⇥ "…"₁
-    ─────────────────────  ; "…"₀ ++ "…"₁ means "use machine concatenation"
-    l ++ r ⇥ "…"₀ ++ "…"₁
+    l ⇥ "s₀"   r ⇥ "s₁"
+    ─────────────────────  ; "s₀" ++ "s₁" means "use machine concatenation"
+    l ++ r ⇥ "s₀" ++ "s₁"
 
 
 Also, simplify the "text concatenation" operator if either argument normalizes
-to a `""` literal:
+to an empty `""` literal:
 
 
     l ⇥ ""   r₀ ⇥ r₁
@@ -3513,7 +3537,12 @@ The built-in functions on `Natural` numbers have the following types:
 
 
     ──────────────
-    Γ ⊢ "…" : Text
+    Γ ⊢ "s" : Text
+
+
+    Γ ⊢ t : Text   Γ ⊢ "ss…" : Text
+    ───────────────────────────────
+    Γ ⊢ "s${t}ss…" : Text
 
 
 The `Text` concatenation operator takes arguments of type `Text` and returns a
@@ -4751,9 +4780,9 @@ If an import ends with `as Text`, import the raw contents of the file as a
 
     here </> import₀ = import₁
     canonicalize(import₁) = import₂
-    Γ(import₂) = "…"                        ; Read the raw contents of the file
+    Γ(import₂) = "s"                        ; Read the raw contents of the file
     ────────────────────────────────────
-    Γ ⊢ import₀ as Text @ here ⇒ "…" ⊢ Γ
+    Γ ⊢ import₀ as Text @ here ⇒ "s" ⊢ Γ
 
 
 If the import is protected with a `sha256:base16Hash` integrity check, then:
