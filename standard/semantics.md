@@ -220,21 +220,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
 
 ```
 
-You can treat string interpolation as syntactic sugar for `Text` concatenation.
-In other words, the following string:
-
-```
-"foo${bar}baz"
-```
-
-... would be equivalent to:
-
-```
-"foo" ++ bar ++ "baz"
-```
-
-... for both type-checking and normalization purposes.
-
 ## Notation for induction
 
 This document uses a non-standard `…` notation for distinguishing list elements
@@ -271,6 +256,13 @@ let x : A = a let xs… in b  : A `let` definition with at least two bindings
 
 "s"           : A `Text` literal without any interpolated expressions
 "s${t}ss…"    : A `Text` literal with at least one interpolated expression
+
+''
+s''           : A multi-line `Text` literal with only one line
+
+''
+ss
+s''           : A multi-ine `Text` literal with more than one line
 ```
 
 You will see this notation in judgments that perform induction on lists,
@@ -288,6 +280,32 @@ Note that this notation does not imply that implementations must use induction
 or inductive data structures (like linked lists) to implement lists, records, or
 unions.  Implementations may freely use more efficient data structures like
 arrays or dictionaries, so long as they behave the same.
+
+## Multi-line string literals
+
+Dhall's grammar supports multi-line string literals, such as:
+
+    ''
+    foo
+    bar
+    ''
+
+These multi-line string literals are syntactic sugar for ordinary double-quoted
+string literals and the conversion from multi-line string literals double-quoted
+string literals occurs at parse time.
+
+For example, the above multi-line string literal is parsed as:
+
+    "foo\nbar\n"
+
+Because this conversion occurs at parse-time all of the following judgments
+only deal with double-quoted string literals.  Consequently, there are no
+separate rules for type-checking or normalizing multi-line string literals.
+
+You can find the logic for desugaring multi-line string literals to
+double-quoted string literals in the following separate document:
+
+* [Multi-line literal semantics](./multiline.md)
 
 ## Shift
 

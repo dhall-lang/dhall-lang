@@ -270,7 +270,7 @@ single-quote-continue =
     / tab                 single-quote-continue
     / end-of-line         single-quote-continue
 
-single-quote-literal = "''" single-quote-continue
+single-quote-literal = "''" end-of-line single-quote-continue
 
 text-literal = (double-quote-literal / single-quote-literal) whitespace
 
