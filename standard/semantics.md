@@ -163,7 +163,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
   / "s"                               ; Uninterpolated text literal
-  / "s₀${t₀}ss…"                      ; Interpolated text literal
+  / "s${t}ss…"                        ; Interpolated text literal
   / {}                                ; Empty record type
   / { x : T, xs… }                    ; Non-empty record type
   / {=}                               ; Empty record literal
@@ -270,7 +270,7 @@ let xs… in b                : A `let` definition with at least one bindings
 let x : A = a let xs… in b  : A `let` definition with at least two bindings
 
 "s"           : A `Text` literal without any interpolated expressions
-"s₀${t₀}ss…"  : A `Text` literal with at least one interpolated expression
+"s${t}ss…"    : A `Text` literal with at least one interpolated expression
 ```
 
 You will see this notation in judgments that perform induction on lists,
@@ -2393,15 +2393,26 @@ The `Text` type is in normal form:
     Text ⇥ Text
 
 
-Normalizing `Text` literals normalizes each interpolated expression:
+Normalizing `Text` literals normalizes each interpolated expression and inlines
+any interpolated expression that normalize to `Text` literals:
 
 
     ─────────
     "s" ⇥ "s"
 
 
-    "ss₀…" ⇥ "ss₁…"   t₀ ⇥ t₁
-    ─────────────────────────────
+    t₀ ⇥ "s₁"   "ss₀…" ⇥ "ss₂…"
+    ───────────────────────────
+    "s₀${t₀}ss₀…" ⇥ "s₀s₁ss₂…"
+
+
+    t₀ ⇥ "s₁${t₁}ss₁…"   "ss₀…" ⇥ "ss₂…"
+    ────────────────────────────────────
+    "s₀${t₀}ss₀…" ⇥ "s₀s₁${t₁}ss₁…ss₂…"
+
+
+    t₀ ⇥ t₁   "ss₀…" ⇥ "ss₁…"
+    ─────────────────────────────  ; If no other rule matches
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
@@ -2410,8 +2421,8 @@ arguments normalize to uninterpolated `Text` literals:
 
 
     l ⇥ "s₀"   r ⇥ "s₁"
-    ─────────────────────  ; "s₀" ++ "s₁" means "use machine concatenation"
-    l ++ r ⇥ "s₀" ++ "s₁"
+    ─────────────────────  ; "s₀s₁" means "use machine concatenation"
+    l ++ r ⇥ "s₀s₁"
 
 
 Also, simplify the "text concatenation" operator if either argument normalizes
