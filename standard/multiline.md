@@ -4,14 +4,14 @@ Multi-line literals are syntactic sugar for double-quoted literals.  For
 example, this expression:
 
     λ(x : Text) → ''
-      ${x}
+      ${x}    baz
           bar
         foo
         ''
 
 ... is syntactic sugar for this expression:
 
-    λ(x : Text) → "${x}\n    bar\n  foo\n  "
+    λ(x : Text) → "${x}    baz\n    bar\n  foo\n  "
 
 This document standardizes this conversion from a multi-line literal to a
 double-quoted literal.
@@ -74,13 +74,14 @@ interpolated expressions, which this case handles:
 
 ## Indentation
 
-Multi-line literals provide support for automatically stripping leading spaces
-from each line.  For example, this expression:
+Multi-line literals provide support for automatically stripping shared leading
+spaces from each line after the opening single quotes (including the line before
+the closing single quotes).  For example, this expression:
 
     ''
       foo
       bar
-    ''
+      ''
 
 ... is the same as this expression:
 
@@ -96,20 +97,21 @@ from each line.  For example, this expression:
     bar
     ''
 
-... but NOT the same as this expression:
-
-      ''
-    foo
-    bar
-      ''
-
-The first three examples are equivalent to:
+All three examples are equivalent to:
 
     "foo\nbar\n"
 
-... whereas the fourth example is equivalent to:
+However, the previous examples are NOT the same as:
 
-    "foo\nbar\n  "
+    ''
+      foo
+      bar
+    ''
+
+... which does not strip the two spaces before `foo` and `bar` because the
+spaces are not also present before the closing single quotes:
+
+    "  foo\n  bar\n"
 
 This feature only strips spaces (i.e. `\u0020`) and not any other form of
 whitespace.  For example, leading tabs are not stripped in this way.
@@ -138,7 +140,21 @@ preceding the final pair of single quotes:
 
 
 The grammar enforces this by requiring a mandatory newline after the opening
-single quotes.
+single quotes, which means that an expression like this is not allowed:
+
+    ''ABC''  -- Not legal
+
+Note that string interpolation interrupts leading indentation, so this
+multi-line literal:
+
+    ''
+    ${Natural/show 1}      foo
+      bar
+    ''
+
+... is the same as this double-quoted literal:
+
+    "${Natural/show 1}      foo\n  bar\n"
 
 A multi-line literal with more than one line takes the minimum indent over all
 lines:
