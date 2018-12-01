@@ -5,6 +5,7 @@
       5,
       [
         24,
+        null,
         0,
         3,
         "type.dhall"
@@ -14,6 +15,7 @@
       4,
       [
         24,
+        null,
         0,
         3,
         "type.dhall"

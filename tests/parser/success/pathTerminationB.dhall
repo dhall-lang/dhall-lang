@@ -3,6 +3,7 @@
   "x",
   [
     24,
+    null,
     0,
     3,
     "example"
@@ -12,6 +13,7 @@
     null,
     [
       24,
+      null,
       0,
       3,
       "example"
@@ -19,27 +21,30 @@
     [
       8,
       {
+        "qux": [
+          24,
+          null,
+          0,
+          3,
+          "example"
+        ],
         "bar": [
           12,
           "baz",
           [
             24,
+            null,
             0,
             3,
             "example"
           ],
           {}
-        ],
-        "qux": [
-          24,
-          0,
-          3,
-          "example"
         ]
       }
     ],
     [
       24,
+      null,
       0,
       3,
       "example"

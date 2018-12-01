@@ -636,21 +636,37 @@ even if they are empty strings.
 
 ### Imports
 
-Encode URL imports in a tokenized form with the following elements in order:
+Imports are encoded as a list where the first three elements are always:
 
-* The second element is 0 (if importing code) or 1 (if importing raw text)
-* The third element is 0 (if the scheme is http) or 1 (if the scheme is https)
-* The next element is the authority
+* `24` - To signal that this expression is an import
+* An optional integrity check
+    * The integrity check is represented as `null` if absent
+    * The integrity check is `[ protocol, hash ]` if present
+* An optional import type (such as `as Text`)
+    * The import type is `0` for when importing a Dhall expression (the default)
+    * The import type is `1` for importing `as Text`
+
+For example, if an import does not specify an integrity check or import type
+then the CBOR expression begins with:
+
+    [ 24, null, 0, … ]
+
+After that a URL import contains the following elements:
+
+* The scheme, which is 0 (if the scheme is http) or 1 (if the scheme is https)
+* An optional custom headers specification
+    * The specification is `null` if absent
+* The authority
     * This includes user information and port if present
     * This does not include the preceding "//" or the following "/"
     * For example, the authority of `http://user@host:port/foo` is encoded as
       `"user@host:port"`
-* Then comes one element per path component
+* Then one element per path component
     * The encoded path components do not include their separating slashes
     * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
-* Then comes the file component
+* Then the file component
     * Also no slashes
-* Then comes one element for the query component
+* Then one element for the query component
     * If there is no query component then it is encoded as `null`
     * If there is a query component then it is stored without the `?`
     * A query component with internal `&` separators is still one element
@@ -663,66 +679,94 @@ Encode URL imports in a tokenized form with the following elements in order:
 The full rules are:
 
 
-    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
-    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, 0, 0, "authority" "path₀", "path₁", …, "file", null, null ]
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null, null ]
 
 
 
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, 0, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
 
 
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, 0, 1, "authority" "path₀", "path₁", …, "file", null, null ]
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null, null ]
+
+
+If you import `using headers`, then the fourth element contains the import
+header:
+
+
+    encode(http://authority directory file) = [ 24, x, y, 0, null, xs… ]
+    encode(headers) = h
+    ───────────────────────────────────────────────────────────────────────────────
+    encode(http://authority directory file using headers) = [ 24, x, y, 0, h, xs… ]
+
+
+    encode(https://authority directory file) = [ 24, x, y, 1, null, xs… ]
+    encode(headers) = h
+    ────────────────────────────────────────────────────────────────────────────────
+    encode(https://authority directory file using headers) = [ 24, x, y, 1, h, xs… ]
 
 
 Absolute file paths are tokenized in the same way:
 
 
-    ───────────────────────────────────────────────────────────────────────
-    encode(/path₀/path₁/…/file) = [ 24, 0, 2, "path₀", "path₁", …, "file" ]
+    ─────────────────────────────────────────────────────────────────────────────
+    encode(/path₀/path₁/…/file) = [ 24, null, 0, 2, "path₀", "path₁", …, "file" ]
 
 
 Each path type is treated as another "scheme" (i.e. they are distinguished by
 the third element):
 
 
-    ────────────────────────────────────────────────────────────────────────
-    encode(./path₀/path₁/…/file) = [ 24, 0, 3, "path₀", "path₁", …, "file" ]
+    ──────────────────────────────────────────────────────────────────────────────
+    encode(./path₀/path₁/…/file) = [ 24, null, 0, 3, "path₀", "path₁", …, "file" ]
 
 
-    ─────────────────────────────────────────────────────────────────────────
-    encode(../path₀/path₁/…/file) = [ 24, 0, 4, "path₀", "path₁", …, "file" ]
+    ───────────────────────────────────────────────────────────────────────────────
+    encode(../path₀/path₁/…/file) = [ 24, null, 0, 4, "path₀", "path₁", …, "file" ]
 
 
-    ────────────────────────────────────────────────────────────────────────
-    encode(~/path₀/path₁/…/file) = [ 24, 0, 5, "path₀", "path₁", …, "file" ]
+    ──────────────────────────────────────────────────────────────────────────────
+    encode(~/path₀/path₁/…/file) = [ 24, null, 0, 5, "path₀", "path₁", …, "file" ]
 
 
 Environment variables are also treated as another scheme:
 
 
-    ─────────────────────────────────
-    encode(env:x) = [ 24, 0, 6, "x" ]
+    ───────────────────────────────────────
+    encode(env:x) = [ 24, null, 0, 6, "x" ]
 
 
 The `missing` keyword is also treated as another import type:
 
 
-    ──────────────────────────────
-    encode(missing) = [ 24, 0, 7 ]
+    ────────────────────────────────────
+    encode(missing) = [ 24, null, 0, 7 ]
 
 
-If you import `as Text`, then the second element is `1` instead of `0`:
+If an import has an integrity check, store that in the second element as a list
+of two elements containing the protocol name and the hash (as the original
+base16-encoded string):
 
 
-    encode(import) = [ 24, 0, xs… ]
-    ───────────────────────────────────────
-    encode(import as Text) = [ 24, 1, xs… ]
+    encode(import) = [ 24, null, x, xs… ]
+    ─────────────────────────────────────────────────────────────────────────────
+    encode(import sha256:base16Hash) = [ 24, [ "sha256", "base16Hash" ], x, xs… ]
+
+
+
+If you import `as Text`, then the third element encoding the import type is `1`
+instead of `0`:
+
+
+    encode(import) = [ 24, x, 0, xs… ]
+    ──────────────────────────────────────────
+    encode(import as Text) = [ 24, x, 1, xs… ]
 
 
 ### `let` expressions
@@ -1265,50 +1309,67 @@ Decode a CBOR array beginning with a `24` as an import
 The decoding rules are the exact opposite of the encoding rules:
 
 
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
 
 
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
+    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
 
 
 
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
+    ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
 
 
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
+    ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
 
 
-    ────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
+    ─────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
 
 
-    ─────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
+    ──────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
 
 
-    ──────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
+    ───────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
 
 
-    ─────────────────────────────────────────────────────────────────────────
-    decode([ 24, 0, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
+    ──────────────────────────────────────────────────────────────────────────────
+    decode([ 24, null, 0, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
 
 
-    ──────────────────────────────────
-    decode([ 24, 0, 6, "x" ]) = env:x
-
-
-    ───────────────────────────────
-    decode([ 24, 0, 7 ]) = missing
-
-
-    decode([ 24, 0, xs… ]) = import
     ───────────────────────────────────────
-    decode([ 24, 1, xs… ]) = import as Text
+    decode([ 24, null, 0, 6, "x" ]) = env:x
+
+
+    ────────────────────────────────────
+    decode([ 24, null, 0, 7 ]) = missing
+
+
+    decode([ 24, x, 0, xs… ]) = import
+    ──────────────────────────────────────────
+    decode([ 24, x, 1, xs… ]) = import as Text
+
+
+    decode([ 24, null, x, xs… ]) = import
+    ─────────────────────────────────────────────────────────────────────────────
+    decode([ 24, [ "sha256", "base16Hash" ], x, xs… ]) = import sha256:base16Hash
+
+
+    decode(headers₀) = headers₁
+    decode([ 24, x, y, 0, null, xs… ]) = http://authority directory file
+    ─────────────────────────────────────────────────────────────────────────────────────
+    decode([ 24, x, y, 0, headers₀, xs… ]) = http://authority directory file using headers₁
+
+
+    decode(headers₀) = headers₁
+    decode([ 24, x, y, 1, null, xs… ]) = https://authority directory file
+    ──────────────────────────────────────────────────────────────────────────────────────
+    decode([ 24, x, y, 1, headers₀, xs… ]) = https://authority directory file using headers₁
 
 
 ### `let` expressions

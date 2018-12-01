@@ -1,6 +1,8 @@
 [
   24,
+  null,
   1,
+  null,
   1,
   "example.com",
   "foo",
