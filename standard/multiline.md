@@ -27,7 +27,7 @@ sequences to double-quoted escape sequences:
 ... where
 
 * `s₀` (the input) is a double-quoted literal with multi-line escape sequences
-* `s₁` (the output) is a double-quoted literal with double-quoted escape
+* `s₁` (the output) is a double-quoted literal with double-quote escape
    sequences
 
 `re-escape` replaces the `''${` escape sequence with `\${`:
@@ -88,6 +88,28 @@ from each line.  For example, this expression:
     foo
     bar
     ''
+
+... which is also the same as this expression:
+
+      ''
+    foo
+    bar
+    ''
+
+... but NOT the same as this expression:
+
+      ''
+    foo
+    bar
+      ''
+
+The first three examples are equivalent to:
+
+    "foo\nbar\n"
+
+... whereas the fourth example is equivalent to:
+
+    "foo\nbar\n  "
 
 This feature only strips spaces (i.e. `\u0020`) and not any other form of
 whitespace.  For example, leading tabs are not stripped in this way.
@@ -179,6 +201,16 @@ double-quoted literal:
                ss'') = "s₀\nss₁"
 
 
+So, for example, this multi-line literal:
+
+    ''
+    foo
+    bar''
+
+... is the same as this double-quoted literal:
+
+    "foo\nbar"
+
 Then the `to-double-quotes` judgement combines `indent` with `flatten`:
 
     to-double-quotes(s₀) = s₁
@@ -192,6 +224,7 @@ Then the `to-double-quotes` judgement combines `indent` with `flatten`:
     indent(s₀) = n   flatten(n, s₀) = s₁
     ────────────────────────────────────
     to-double-quotes(s₀) = s₁
+
 
 The `to-double-quotes` judgment represents the logic for desugaring a
 multi-line literal to a double-quoted literal at parse time.
