@@ -13,6 +13,9 @@ example, this expression:
 
     λ(x : Text) → "${x}\n    bar\n  foo\n  "
 
+This document standardizes this conversion from a multi-line literal to a
+double-quoted literal.
+
 ## Escaping
 
 Multi-line literals use a different escaping mechanism than double-quoted
@@ -60,6 +63,15 @@ For all other characters, re-escape leaves them unmodified:
     re-escape("c₀ss₀…") = "c₀ss₁…"  ; be escaped
 
 
+Note that the double-quoted literal passed to `re-escape` may contain
+interpolated expressions, which this case handles:
+
+
+    re-escape("ss₀…") = "ss₁…"
+    ──────────────────────────────────
+    re-escape("${t}ss₀…") = "${t}ss₁…"
+
+
 ## Indentation
 
 Multi-line literals provide support for automatically stripping leading spaces
@@ -103,6 +115,9 @@ preceding the final pair of single quotes:
                           ; "␣␣␣n␣␣␣" is a short-hand for "n spaces"
 
 
+The grammar enforces this by requiring a mandatory newline after the opening
+single quotes.
+
 A multi-line literal with more than one line takes the minimum indent over all
 lines:
 
@@ -118,7 +133,7 @@ lines:
 
 ## Desugaring
 
-Once you can compute the leading indent, you can desugar the multi-line literal
+Once you can compute the leading indent, you can convert the multi-line literal
 into a double-quoted literal using the `flatten` judgment, which strips the
 leading indent and converts escape codes:
 
@@ -135,13 +150,20 @@ There is always at least one line in a multi-line literal:
 
     re-escape("s₀") = "s₁"
     ────────────────────     ; The "s" denotes everything after the first `n`
-    flatten(n, ''            ; spaces, which could be even more spaces
-    ␣␣␣␣␣n␣␣␣␣␣s₀'') = "s₁"
+    flatten(n, ''            ; spaces, which could be even more spaces if
+    ␣␣␣␣␣n␣␣␣␣␣s₀'') = "s₁"  ; not all lines shared the same indent
 
 
 ... but no newline is emitted in the corresponding double-quoted literal.  The
-newline after the opening `''` quotes is not preserved in the conversion to a
-double-quoted literal.
+first newline after the opening `''` quotes is not preserved in the conversion
+to a double-quoted literal.  For example, this multi-line literal:
+
+    ''
+    foo''
+
+... is equivalent to this double-quoted literal:
+
+    "foo"
 
 However, each line after the first line does add a newline in the corresponding
 double-quoted literal:
