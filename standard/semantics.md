@@ -4113,8 +4113,8 @@ If two alternatives share the same name then that is a type error.
 Union values are also anonymous:
 
 
-    Γ ⊢ t : T   Γ ⊢ < t : T | ts… > :⇥ Type
-    ───────────────────────────────────────
+    Γ ⊢ t : T   Γ ⊢ < x : T | ts… > :⇥ i
+    ─────────────────────────────────────
     Γ ⊢ < x = t | ts… > : < x : T | ts… >
 
 
