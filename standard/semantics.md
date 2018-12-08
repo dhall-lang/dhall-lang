@@ -4715,6 +4715,22 @@ the parent and child directories:
     https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
 
 
+Import chaining ignores any `using` clause on the parent import:
+
+
+    import₀ </> import₁ = import₂
+    ───────────────────────────────────────────
+    import₀ using headers </> import₁ = import₂
+
+
+... but does preserve the header clause on the child import:
+
+
+    import₀ </> import₁ = import₂
+    ─────────────────────────────────────────────────────────
+    import₀ </> import₁ using headers = import₂ using headers
+
+
 If the child is an absolute import, then the path to the parent import does not
 matter and you import the child directly:
 
@@ -4818,6 +4834,32 @@ If an import ends with `as Text`, import the raw contents of the file as a
     ────────────────────────────────────────
     Δ × Γ ⊢ import₀ as Text @ here ⇒ "s" ⊢ Γ
 
+
+If an import ends with `using headers`, resolve the `headers` import and use
+the resolved expression as additional headers supplied to the HTTP request:
+
+
+    Δ × Γ₀ ⊢ headers @ here ⇒ h₀ ⊢ Γ₁
+    ε ⊢ h₀ : List { header : Text, value : Text }
+    h₀ ⇥ h₁
+    here </> import₀ = import₁
+    canonicalize(import₁) = import₂
+    Γ₁(https://authority directory file) = e₀  ; Use h₁ for custom headers here
+    Δ, import₂ × Γ₁ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₂
+    ε ⊢ e₁ : T
+    ────────────────────────────────────────────────────────────────────────  ; * import₂ ∉ Δ
+    Δ × Γ₀ ⊢ https://authority directory file @ here using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
+
+
+For example, if `h₁` in the above judgment normalized to:
+
+    [ { header = "Authorization", value = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
+    ]
+
+... then the HTTPS request for `https://authority directory file` would
+include the following header line:
+
+    Authorization: token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4
 
 If the import is protected with a `sha256:base16Hash` integrity check, then:
 

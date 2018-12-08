@@ -3,6 +3,7 @@
   {
     "example0": [
       24,
+      null,
       0,
       2,
       "foo",
@@ -11,7 +12,9 @@
     ],
     "example1": [
       24,
+      null,
       0,
+      null,
       1,
       "example.com",
       "foo",
