@@ -162,7 +162,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / n.n                               ; Double-precision floating point literal
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
-  / "…"                               ; Text literal
+  / "s"                               ; Uninterpolated text literal
+  / "s${t}ss…"                        ; Interpolated text literal
   / {}                                ; Empty record type
   / { x : T, xs… }                    ; Non-empty record type
   / {=}                               ; Empty record literal
@@ -219,21 +220,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
 
 ```
 
-You can treat string interpolation as syntactic sugar for `Text` concatenation.
-In other words, the following string:
-
-```
-"foo${bar}baz"
-```
-
-... would be equivalent to:
-
-```
-"foo" ++ bar ++ "baz"
-```
-
-... for both type-checking and normalization purposes.
-
 ## Notation for induction
 
 This document uses a non-standard `…` notation for distinguishing list elements
@@ -267,6 +253,16 @@ t          : Naked label which could be any type of expression.
 
 let xs… in b                : A `let` definition with at least one bindings
 let x : A = a let xs… in b  : A `let` definition with at least two bindings
+
+"s"           : A `Text` literal without any interpolated expressions
+"s${t}ss…"    : A `Text` literal with at least one interpolated expression
+
+''
+s''           : A multi-line `Text` literal with only one line
+
+''
+ss
+s''           : A multi-ine `Text` literal with more than one line
 ```
 
 You will see this notation in judgments that perform induction on lists,
@@ -284,6 +280,32 @@ Note that this notation does not imply that implementations must use induction
 or inductive data structures (like linked lists) to implement lists, records, or
 unions.  Implementations may freely use more efficient data structures like
 arrays or dictionaries, so long as they behave the same.
+
+## Multi-line string literals
+
+Dhall's grammar supports multi-line string literals, such as:
+
+    ''
+    foo
+    bar
+    ''
+
+These multi-line string literals are syntactic sugar for ordinary double-quoted
+string literals and the conversion from multi-line string literals double-quoted
+string literals occurs at parse time.
+
+For example, the above multi-line string literal is parsed as:
+
+    "foo\nbar\n"
+
+Because this conversion occurs at parse-time all of the following judgments
+only deal with double-quoted string literals.  Consequently, there are no
+separate rules for type-checking or normalizing multi-line string literals.
+
+You can find the logic for desugaring multi-line string literals to
+double-quoted string literals in the following separate document:
+
+* [Multi-line literal semantics](./multiline.md)
 
 ## Shift
 
@@ -673,7 +695,12 @@ The remaining rules are:
 
 
     ─────────────────────
-    ↑(d, x, m, "…") = "…"
+    ↑(d, x, m, "s") = "s"
+
+
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, "ss₀…") = "ss₁…"
+    ─────────────────────────────────────────────────
+    ↑(d, x, m, "s₀${t₀}ss₀…") = "s₀${t₁}ss₁…"
 
 
     ───────────────────
@@ -1219,7 +1246,12 @@ The remaining rules are:
 
 
     ──────────────────
-    "…"[x@n ≔ e] = "…"
+    "s"[x@n ≔ e] = "s"
+
+
+    t₀[x@n ≔ e] = t₁   "ss₀…"[x@n ≔ e] = "ss₁…"
+    ───────────────────────────────────────────
+    "s₀${t₀}ss₀…"[x@n ≔ e] = "s₀${t₁}ss₁…"
 
 
     ────────────────
@@ -1687,7 +1719,12 @@ sub-expressions for the remaining rules:
 
 
     ─────────
-    "…" ↦ "…"
+    "s" ↦ "s"
+
+
+    "ss₀…" ↦ "ss₁…"   t₀ ↦ t₁
+    ─────────────────────────────
+    "s₀${t₀}ss₀…" ↦ "s₀${t₁}ss₁…"
 
 
     ───────
@@ -2374,24 +2411,40 @@ The `Text` type is in normal form:
     Text ⇥ Text
 
 
-`Text` literals are in normal form:
+Normalizing `Text` literals normalizes each interpolated expression and inlines
+any interpolated expression that normalize to `Text` literals:
 
 
     ─────────
-    "…" ⇥ "…"
+    "s" ⇥ "s"
+
+
+    t₀ ⇥ "s₁"   "ss₀…" ⇥ "ss₂…"
+    ───────────────────────────
+    "s₀${t₀}ss₀…" ⇥ "s₀s₁ss₂…"
+
+
+    t₀ ⇥ "s₁${t₁}ss₁…"   "ss₀…" ⇥ "ss₂…"
+    ────────────────────────────────────
+    "s₀${t₀}ss₀…" ⇥ "s₀s₁${t₁}ss₁…ss₂…"
+
+
+    t₀ ⇥ t₁   "ss₀…" ⇥ "ss₁…"
+    ─────────────────────────────  ; If no other rule matches
+    "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
 Use machine concatenation to simplify the "text concatenation" operator if both
-arguments normalize to `Text` literals:
+arguments normalize to uninterpolated `Text` literals:
 
 
-    l ⇥ "…"₀   r ⇥ "…"₁
-    ─────────────────────  ; "…"₀ ++ "…"₁ means "use machine concatenation"
-    l ++ r ⇥ "…"₀ ++ "…"₁
+    l ⇥ "s₀"   r ⇥ "s₁"
+    ─────────────────────  ; "s₀s₁" means "use machine concatenation"
+    l ++ r ⇥ "s₀s₁"
 
 
 Also, simplify the "text concatenation" operator if either argument normalizes
-to a `""` literal:
+to an empty `""` literal:
 
 
     l ⇥ ""   r₀ ⇥ r₁
@@ -3513,7 +3566,12 @@ The built-in functions on `Natural` numbers have the following types:
 
 
     ──────────────
-    Γ ⊢ "…" : Text
+    Γ ⊢ "s" : Text
+
+
+    Γ ⊢ t : Text   Γ ⊢ "ss…" : Text
+    ───────────────────────────────
+    Γ ⊢ "s${t}ss…" : Text
 
 
 The `Text` concatenation operator takes arguments of type `Text` and returns a
@@ -4756,9 +4814,9 @@ If an import ends with `as Text`, import the raw contents of the file as a
 
     here </> import₀ = import₁
     canonicalize(import₁) = import₂
-    Γ(import₂) = "…"                         ; Read the raw contents of the file
+    Γ(import₂) = "s"                         ; Read the raw contents of the file
     ────────────────────────────────────────
-    Δ × Γ ⊢ import₀ as Text @ here ⇒ "…" ⊢ Γ
+    Δ × Γ ⊢ import₀ as Text @ here ⇒ "s" ⊢ Γ
 
 
 If the import is protected with a `sha256:base16Hash` integrity check, then:
