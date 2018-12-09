@@ -113,8 +113,6 @@
 
         recommendedOptimisation = true;
 
-        recommendedProxySettings = true;
-
         recommendedTlsSettings = true;
 
         virtualHosts."dhall-lang.org" = {
@@ -140,6 +138,16 @@
         virtualHosts."hydra.dhall-lang.org" = {
           addSSL = true;
 
+          extraConfig = ''
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Server $host;
+            proxy_set_header Accept-Encoding "";
+          '';
+
           enableACME = true;
 
           locations."/".proxyPass = "http://127.0.0.1:3000";
@@ -150,10 +158,28 @@
 
           enableACME = true;
 
-          locations."/".extraConfig = ''
-            rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
-            rewrite ^/(.+)$ https://raw.githubusercontent.com/dhall-lang/dhall-lang/1bc66b345c8e93579e16ac6f697c3473bb846baa/Prelude/$1 redirect;
-          '';
+          locations."/" = {
+            extraConfig = ''
+              if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' "*";
+                add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                add_header 'Access-Control-Max-Age' 600;
+                add_header 'Content-Type' 'text/plain; charset=utf-8';
+                add_header 'Content-Length' 0;
+                return 204;
+              }
+              if ($request_method = 'GET') {
+                add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+              }
+
+              rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
+            '';
+
+            proxyPass = "https://raw.githubusercontent.com/dhall-lang/dhall-lang/1bc66b345c8e93579e16ac6f697c3473bb846baa/Prelude/";
+          };
         };
       };
 
