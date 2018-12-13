@@ -37,6 +37,8 @@
       autoOptimiseStore = true;
 
       gc.automatic = true;
+
+      useSandbox = false;
     };
 
     nixpkgs.overlays =
