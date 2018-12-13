@@ -117,16 +117,36 @@
 
         recommendedTlsSettings = true;
 
-        virtualHosts."dhall-lang.org" = {
-          addSSL = true;
+        virtualHosts."dhall-lang.org" =
+          let
+            json = builtins.fromJSON (builtins.readFile ./dhall-haskell.json);
 
-          default = true;
+            dhall-haskell =
+              pkgs.fetchFromGitHub {
+                owner = "dhall-lang";
 
-          enableACME = true;
+                repo = "dhall-haskell";
 
-          locations."/".extraConfig = ''
-            rewrite ^.*$ https://github.com/dhall-lang/dhall-lang/blob/master/README.md redirect;
-          '';
+                inherit (json) rev sha256;
+              };
+
+            dhall-haskell-derivations =
+              import "${dhall-haskell}/default.nix";
+
+            inherit (dhall-haskell-derivations) try-dhall;
+
+          in
+            { addSSL = true;
+
+              default = true;
+
+              enableACME = true;
+
+              locations."/" = {
+                index = "index.html";
+
+                root = "${try-dhall}";
+              };
         };
 
         virtualHosts."cache.dhall-lang.org" = {

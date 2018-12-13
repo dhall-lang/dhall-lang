@@ -1,0 +1,7 @@
+{
+  "url": "https://github.com/dhall-lang/dhall-haskell.git",
+  "rev": "60accef002b265531b97b2a633d706be32e6540a",
+  "date": "2018-12-13T08:53:34-08:00",
+  "sha256": "0mbv0yj3pyjlmdm6bwf0npd833ivgj39p4g4sq6dknpyxm7073gl",
+  "fetchSubmodules": false
+}
