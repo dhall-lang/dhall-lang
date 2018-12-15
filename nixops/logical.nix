@@ -136,7 +136,7 @@
             inherit (dhall-haskell-derivations) try-dhall;
 
           in
-            { addSSL = true;
+            { forceSSL = true;
 
               default = true;
 
@@ -150,7 +150,7 @@
         };
 
         virtualHosts."cache.dhall-lang.org" = {
-          addSSL = true;
+          forceSSL = true;
 
           enableACME = true;
 
@@ -158,7 +158,7 @@
         };
 
         virtualHosts."hydra.dhall-lang.org" = {
-          addSSL = true;
+          forceSSL = true;
 
           extraConfig = ''
             proxy_set_header Host $host;
@@ -176,7 +176,7 @@
         };
 
         virtualHosts."prelude.dhall-lang.org" = {
-          addSSL = true;
+          forceSSL = true;
 
           enableACME = true;
 
@@ -251,6 +251,16 @@
             '';
 
         serviceConfig.Type = "oneshot";
+
+        wantedBy = [ "multi-user.target" ];
+      };
+
+      kick-hydra-evaluator = {
+        script = ''
+          ${pkgs.systemd}/bin/systemctl restart hydra-evaluator
+        '';
+
+        startAt = "*:0/5";
 
         wantedBy = [ "multi-user.target" ];
       };
