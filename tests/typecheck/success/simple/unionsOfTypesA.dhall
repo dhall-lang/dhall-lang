@@ -1,0 +1,1 @@
+< Left = List | Right : Type >
