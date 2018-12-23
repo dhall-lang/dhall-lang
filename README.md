@@ -852,7 +852,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-bash]: https://github.com/dhall-lang/dhall-bash
 [dhall-bash-tutorial]: https://hackage.haskell.org/package/dhall-bash/docs/Dhall-Bash.html
 [dhall-bash-post]: http://www.haskellforall.com/2017/04/use-dhall-to-configure-bash-programs.html
-[dhall-text]: https://github.com/dhall-lang/dhall-text
+[dhall-text]: https://github.com/dhall-lang/dhall-haskell/tree/master/dhall-text
 [dhall-text-post]: http://www.haskellforall.com/2017/06/dhall-is-now-template-engine.html
 [dhallToNix]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/dhall-to-nix.nix
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
