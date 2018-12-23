@@ -5,6 +5,199 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v5.0.0`
+
+Breaking changes:
+
+*   [`constructors x = x`](https://github.com/dhall-lang/dhall-lang/pull/256)
+
+    This change the `constructors` keyword to behave like the identity function.
+    In other words, the `constructors` keyword returns the union type provided
+    as its argument.
+
+    The intermediate record of constructors is no longer necessary now that you
+    can access constructors directly from the original union type.  For example,
+    this code is unaffected by this change:
+
+    ```haskell
+    let Either = < Left : Natural | Right : Bool >
+
+    let either = constructors Either
+
+    in  [ either.Left 1, either.Right True ]
+    ```
+
+    ... because before this change the intermediate `either` value would be
+    a record with two fields named `Left` and `Right` and after this change
+    the intermediate `either` value would be the original `Either` type which
+    you can access the `Left` and `Right` constructors from directly.  This
+    code is now exactly equivalent to:
+
+    ```haskell
+    let Either = < Left : Natural | Right : Bool >
+
+    in  [ Either.Left 1, Either.Right True ]
+    ```
+
+    The rationale for this change is to improve performance for users who
+    haven't yet removed all occurrences of the `constructors` keyword from
+    their code.  Removing the intermediate record of constructors improves
+    type-checking and normalization speed while minimizing disruption.
+
+    This is still a breaking change for two reasons:
+
+    *   The most likely way this will break your code is you use record of
+        terms that contains a sub-record built by the `constructors` keyword,
+        like this:
+
+        ```haskell
+        { foo = 1, bar = constructors < Left : Natural | Right : Bool > }
+        ```
+
+        The above example was permitted before this change and is not permitted
+        after this change, since the `bar` field transforms from a term into a
+        type and records can't mix terms (like `foo`) and types (like `bar`)
+
+    *   A less likely way this will break your code is that you gave a type
+        annotation to the output of the `constructors` keyword, like this:
+
+        ```haskell
+        let Either = < Left : Natural | Right : Bool >
+
+        let either : { Left : Natural → Either, Right : Bool → Either }
+              = constructors Either
+
+        in  [ either.Left 1, either.Right True ]
+        ```
+
+        The above example would succeed before this change, but fail after this
+        change due to the type of `either` changing to `Type`.
+
+    This is phase 2 of the plan to deprecate the `constructors` keyword, which
+    you can find here:
+
+    * [Deprecate `constructors`](https://github.com/dhall-lang/dhall-lang/issues/244)
+
+*   [Disallow labels that match builtins or keywords](https://github.com/dhall-lang/dhall-lang/pull/299)
+
+    Before this change the following expression was technically legal, albeit
+    potentially confusing:
+
+    ```haskell
+    let if = 1 in if
+    ```
+
+    After this change the above expression is no longer legal.
+
+    One motivation for this change is to ensure better error messages.  Parsers
+    can more convincingly explain parse failures to users when they don't have
+    to consider the possibility that these keywords might have been variable
+    names.
+
+    Another motivation is to forbid users from writing misleading code by naming
+    things after keywords.
+
+New features:
+
+*   [Standardize support for multi-line literals](https://github.com/dhall-lang/dhall-lang/pull/307)
+
+    This is a feature that was part of the Haskell bindings to Dhall that has
+    been upstreamed into the standard.
+
+    The standard grammar specified how to parse multi-line string literals but
+    not how to interpret them as `Text` literals.  This change specifies how to
+    desugar them into ordinary double-quoted string literals.
+
+    For example, this multi-line string literal:
+
+    ```haskell
+    λ(x : Text) → ''
+      ${x}    baz
+          bar
+        foo
+        ''
+    ```
+
+    ... is syntactic sugar for this expression:
+
+    ```haskell
+    λ(x : Text) → "${x}    baz\n    bar\n  foo\n  " 
+    ```
+
+*   [Standardize support for `as Text`](https://github.com/dhall-lang/dhall-lang/pull/303)
+
+    This is a feature that was part of the Haskell bindings to Dhall that has
+    been upstreamed into the standard.
+
+    This allows an import to be imported as raw `Text` rather than being
+    interpreted as a Dhall expression.  For example:
+
+    ```
+    $ FOO=1 dhall <<< 'env:FOO'
+    1
+    $ FOO=1 dhall <<< 'env:FOO as Text'
+    "1"
+    ```
+
+    This can be used to read in text from imports without having to modify them
+    to pre-quote the contents.  This comes in handy when modifying the original
+    import is not an option.
+
+*   [Forbid import cycles](https://github.com/dhall-lang/dhall-lang/pull/306)
+
+    This is a feature that was part of the Haskell bindings to Dhall that has
+    been upstreamed into the standard.
+
+    This forbids import cycles, such as the following trivial cycle:
+
+    ```haskell
+    $ cat ./foo
+    ./bar
+
+    $ cat ./bar
+    ./foo
+    ```
+
+    More generally, no import may transitively depend on itself.
+
+    This is not treated as a breaking change since the code that this disallows
+    was already broken.  Conceptually, all this change does is improve the user
+    experience so that the program fails fast upon detecting a cycle instead of
+    getting stuck in an infinite import loop.
+
+*   [Allow nested records of types](https://github.com/dhall-lang/dhall-lang/pull/300)
+
+    Before this change you could have a record of types, but you could nest
+    another record of types within that record.  After this change, a record of
+    types counts as a type, meaning that you can mix it with other types within
+    a record.
+
+    For example, the following record was previously forbidden and is now legal:
+
+    ```haskell
+    { user = { name : Text, age : Natural }, region = Text }
+    ```
+
+Other changes:
+
+*   [Update versioning process](https://github.com/dhall-lang/dhall-lang/pull/328)
+
+    This changes the standard evolution process so that the `master` branch is
+    always release-ready with respect to the version number.  In other words,
+    each new change updates the version number as necessary instead of waiting
+    until cutting a release to update the version number.
+
+*   [Fix mistake in union typing judgment](https://github.com/dhall-lang/dhall-lang/pull/311)
+
+    The standard inconsistently allowed unions that store types and kinds in
+    some places, but not others.  This fixes the inconsistency by permitting
+    them to store types and kinds throughout all judgements.
+
+*   Fixes and improvements to tests:
+
+    * [Sync tests from `dhall-haskell`](https://github.com/dhall-lang/dhall-lang/pull/309)
+    * [Add additional type-checking tests for unions](https://github.com/dhall-lang/dhall-lang/pull/329)
+
 ## `v4.0.0`
 
 Breaking changes:
