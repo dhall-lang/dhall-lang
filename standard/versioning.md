@@ -9,7 +9,7 @@ The current version string is:
 
 
     ────────────────────────
-    currentVersion = "4.0.0"
+    currentVersion = "5.0.0"
 
 
 This version string is used by implementations to:
@@ -30,8 +30,6 @@ A version of the Dhall language standard consists of a *git tag*
 3. The PR will sit there for the minimum review period of 3 days (no exceptions).  
    This is to give time to merge the last things to `master` before cutting the new release.
 4. Once that is merged, create a git tag/GitHub release with the new version number
-5. Repeat the above step for the [Prelude repo](https://github.com/dhall-lang/Prelude) as well.  
-   Note: the tagged version should be the same as the new version of the language standard.
 
 ## When are releases made
 
