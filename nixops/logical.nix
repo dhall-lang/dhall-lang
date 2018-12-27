@@ -133,7 +133,7 @@
             dhall-haskell-derivations =
               import "${dhall-haskell}/default.nix";
 
-            inherit (dhall-haskell-derivations) try-dhall;
+            inherit (dhall-haskell-derivations) website;
 
           in
             { forceSSL = true;
@@ -145,7 +145,7 @@
               locations."/" = {
                 index = "index.html";
 
-                root = "${try-dhall}";
+                root = "${website}";
               };
         };
 
