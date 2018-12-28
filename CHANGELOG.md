@@ -167,7 +167,7 @@ New features:
 
 *   [Allow nested records of types](https://github.com/dhall-lang/dhall-lang/pull/300)
 
-    Before this change you could have a record of types, but you could nest
+    Before this change you could have a record of types, but you could not nest
     another record of types within that record.  After this change, a record of
     types counts as a type, meaning that you can mix it with other types within
     a record.
