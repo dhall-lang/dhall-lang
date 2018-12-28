@@ -197,6 +197,10 @@ Other changes:
 
     * [Sync tests from `dhall-haskell`](https://github.com/dhall-lang/dhall-lang/pull/309)
     * [Add additional type-checking tests for unions](https://github.com/dhall-lang/dhall-lang/pull/329)
+    
+*   Fixes to prose
+
+    * [Fix typos in multiplication semantics](https://github.com/dhall-lang/dhall-lang/pull/331)
 
 ## `v4.0.0`
 
