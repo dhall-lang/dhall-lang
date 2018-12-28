@@ -2261,10 +2261,10 @@ normalize to a `Natural` literal:
 
     l ⇥ m   r ⇥ n
     ─────────────  ; "m * n" means "use machine multiplication"
-    l + r ⇥ m * n
+    l * r ⇥ m * n
 
 
-Also, simplify the "plus" operator if either argument normalizes to either a
+Also, simplify the "times" operator if either argument normalizes to either a
 `0` literal:
 
 
