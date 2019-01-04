@@ -1,0 +1,21 @@
+let JSON = ./JSON
+
+let array
+    : List JSON → JSON
+    =   λ(x : List JSON)
+      → λ(JSON : Type)
+      → λ(string : Text → JSON)
+      → λ(number : Double → JSON)
+      → λ(object : List { mapKey : Text, mapValue : JSON } → JSON)
+      → λ(array : List JSON → JSON)
+      → λ(bool : Bool → JSON)
+      → λ(null : JSON)
+      → array
+        ( ../List/map
+          JSON@1
+          JSON
+          (λ(j : JSON@1) → j JSON string number object array bool null)
+          x
+        )
+
+in  array

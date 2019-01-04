@@ -1,0 +1,14 @@
+let JSON = ./JSON
+
+let null
+    : JSON
+    =   λ(JSON : Type)
+      → λ(string : Text → JSON)
+      → λ(number : Double → JSON)
+      → λ(object : List { mapKey : Text, mapValue : JSON } → JSON)
+      → λ(array : List JSON → JSON)
+      → λ(bool : Bool → JSON)
+      → λ(null : JSON)
+      → null
+
+in  null

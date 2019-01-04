@@ -1,0 +1,29 @@
+let JSON = ./JSON
+
+let render : JSON → Text
+      = λ(j : JSON)
+      → j
+        Text
+        (λ(x : Text) → "\"${x}\"")
+        (λ(x : Double) → Double/show x)
+        (λ(x : List { mapKey : Text, mapValue : Text }) →
+          let body =
+          ../Text/concatMapSep
+          ", "
+          { mapKey : Text, mapValue : Text }
+          (λ(e : { mapKey : Text, mapValue : Text }) →
+            "\"${e.mapKey}\": ${e.mapValue}"
+          )
+          x
+
+          in "{ ${body} }"
+        )
+        (λ(x : List Text) →
+          let body = ../Text/concatSep ", " x
+
+          in  "[ ${body} ]"
+        )
+        (λ(x : Bool) → if x then "true" else "false")
+        "null"
+
+in  render

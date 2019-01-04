@@ -1,0 +1,8 @@
+  ∀(JSON : Type)
+→ ∀(string : Text → JSON)
+→ ∀(number : Double → JSON)
+→ ∀(object : List { mapKey : Text, mapValue : JSON } → JSON)
+→ ∀(array : List JSON → JSON)
+→ ∀(bool : Bool → JSON)
+→ ∀(null : JSON)
+→ JSON
