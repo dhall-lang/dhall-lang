@@ -475,7 +475,7 @@ quoted-path-character =
         ; %x22 = "\""
     / %x23-2E
         ; %x2F = "/"
-    / %x30-7E
+    / %x30-10FFFF
 
 
 path-component = "/" ( 1*path-character / %x22 1*quoted-path-character %x22 )
