@@ -43,9 +43,16 @@
 
     nixpkgs.overlays =
       let
-        secureHydra = packagesNew: packagesOld: {
-          hydra = packagesOld.hydra.overrideAttrs (oldAttributes: {
-              patches = (oldAttributes.patches or []) ++ [
+        modifyHydra = packagesNew: packagesOld: {
+          hydra = packagesOld.hydra.overrideAttrs (old: {
+              src = packagesNew.fetchFromGitHub {
+                owner = "NixOS";
+                repo = "hydra";
+                rev = "63a294d4caa1124dd1c7d08c06ccef4113154bc8";
+                sha256 = "0xw6kph7zxlq2inb4aglp8g0hinnyz8z4x2dmkjnc2lhkhsdaq1j";
+              };
+
+              patches = (old.patches or []) ++ [
                 ./hydra.patch
                 ./no-restrict-eval.patch
               ];
@@ -80,7 +87,7 @@
         };
 
       in
-        [ secureHydra fixSimple ];
+        [ modifyHydra fixSimple ];
 
     services = {
       fail2ban.enable = true;
