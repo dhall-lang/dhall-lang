@@ -525,6 +525,13 @@ Dhall currently supports three complete language bindings:
 * [PureScript][dhall-purescript]
 * [Python][dhall-python]
 
+The following language bindings wrap prebuilt Dhall packages or executables:
+
+* [`go-dhallconfig`](https://github.com/andrewchambers/go-dhallconfig) -
+  Go package that wraps the `dhall-to-json` executable
+* [`clay-dhall`](https://github.com/as-capabl/clay-dhall) -
+  C bindings to the Haskell library
+
 The following two bindings are not maintained but you may find them
 useful as a starting point:
 
