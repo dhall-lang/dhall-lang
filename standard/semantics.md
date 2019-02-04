@@ -4991,8 +4991,8 @@ expression protected by a semantic integrity check:
   `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
   `"${HOME}/.cache/dhall/${base16Hash}"`
 * If the file exists and is readable, verify the file's byte contents match the
-  hash and then decode the expression from the bytes using the
-  `decodeWithVersion` judgment instead of importing the expression
+  hash and then decode the expression from the bytes using the `decode` judgment
+  instead of importing the expression
 * Otherwise, import the expression as normal
 
 An implementation MUST fail and alert the user if hash verification fails,
@@ -5005,7 +5005,7 @@ Or in judgment form:
     Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
-    decodeWithVersion(binary) = e
+    decode(binary) = e
     ───────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
     Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
@@ -5013,7 +5013,7 @@ Or in judgment form:
     Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
-    decodeWithVersion(binary) = e
+    decode(binary) = e
     ───────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
     Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
@@ -5022,7 +5022,7 @@ Or in judgment form:
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
-    encode-1.0(e₃) = binary
+    encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ─────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
@@ -5033,7 +5033,7 @@ Or in judgment form:
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
-    encode-1.0(e₃) = binary
+    encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ──────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
@@ -5044,7 +5044,7 @@ Or in judgment form:
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
-    encode-1.0(e₃) = binary
+    encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                 ; Verify the hash
     ─────────────────────────────────────────────────── ; Otherwise, don't cache
