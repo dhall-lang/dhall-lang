@@ -6,4 +6,6 @@
     ./concatMapSep
 , concatSep =
     ./concatSep
+, show =
+    ./show
 }

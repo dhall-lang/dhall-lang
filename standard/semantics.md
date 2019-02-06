@@ -183,10 +183,10 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/even                      ; Test if even
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
-  / Natural/show                      ; Convert Natural to Text
+  / Natural/show                      ; Convert Natural to Text representation
   / Integer/toDouble                  ; Convert Integer to Double
-  / Integer/show                      ; Convert Integer to Text
-  / Double/show                       ; Convert Double to Text
+  / Integer/show                      ; Convert Integer to Text representation
+  / Double/show                       ; Convert Double to Text representation
   / List/build                        ; List introduction
   / List/fold                         ; List elimination
   / List/length                       ; Length of list
@@ -196,6 +196,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/reverse                      ; Reverse list
   / Optional/fold                     ; Optional introduction
   / Optional/build                    ; Optional elimination
+  / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
   / Natural                           ; Natural type
@@ -831,6 +832,10 @@ The remaining rules are:
     ↑(d, x, m, Optional/build) = Optional/build
 
 
+    ─────────────────────────────────
+    ↑(d, x, m, Text/show) = Text/show
+
+
     ───────────────────────
     ↑(d, x, m, Bool) = Bool
 
@@ -1381,6 +1386,10 @@ The remaining rules are:
     Optional/build[x@n ≔ e] = Optional/build
 
 
+    ──────────────────────────────
+    Text/show[x@n ≔ e] = Text/show
+
+
     ────────────────────
     Bool[x@n ≔ e] = Bool
 
@@ -1852,6 +1861,10 @@ sub-expressions for the remaining rules:
 
     ───────────────────────────────
     Optional/build ↦ Optional/build
+
+
+    ─────────────────────
+    Text/show ↦ Text/show
 
 
     ───────────
@@ -2432,6 +2445,38 @@ any interpolated expression that normalize to `Text` literals:
     t₀ ⇥ t₁   "ss₀…" ⇥ "ss₁…"
     ─────────────────────────────  ; If no other rule matches
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
+
+
+The `Text/show` function replaces a `Text` literal with another `Text` literal
+encoding the original as valid Dhall source code for a double-quoted literal,
+escaping the following characters according to these rules:
+
+* `"`  → `\"`
+* `$`  → `\u0024`
+* `\`  → `\\`
+* `\b` → `\\b`
+* `\f` → `\\f`
+* `\n` → `\\n`
+* `\r` → `\\r`
+* `\t` → `\\t`
+
+... and escaping non-printable characters as their Unicode escape sequences:
+
+* `\u0000`-`\u001F` → `\\u0000`-`\\u001F`
+
+Or in other words:
+
+
+    f ⇥ Text/show   a ⇥ "…\n…\$…\\…\"…\u0000…"
+    ──────────────────────────────────────────
+    f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
+
+
+Otherwise, in isolation `Text/show` is in normal form:
+
+
+    ─────────────────────
+    Text/show ⇥ Text/show
 
 
 Use machine concatenation to simplify the "text concatenation" operator if both
@@ -3572,6 +3617,13 @@ The built-in functions on `Natural` numbers have the following types:
     Γ ⊢ t : Text   Γ ⊢ "ss…" : Text
     ───────────────────────────────
     Γ ⊢ "s${t}ss…" : Text
+
+
+The `Text` show function has the following type:
+
+
+    ───────────────────────────
+    Γ ⊢ Text/show : Text → Text
 
 
 The `Text` concatenation operator takes arguments of type `Text` and returns a
