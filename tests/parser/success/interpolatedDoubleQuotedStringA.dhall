@@ -1,1 +1,1 @@
-"ABC${Integer/show 123}"
+"ABC${Natural/show 123}"
