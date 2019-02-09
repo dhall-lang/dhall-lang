@@ -4,10 +4,10 @@
   [
     7,
     {
+      "in_ca": "Bool",
       "name": "Text",
-      "value": "Double",
       "taxed_value": "Double",
-      "in_ca": "Bool"
+      "value": "Double"
     }
   ],
   [

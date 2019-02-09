@@ -1,4 +1,4 @@
-{ foo = ([] : List Integer) # [1, 2, 3] # ([1, 2, 3] : List Integer)
-, bar = [] : Optional Integer
-, baz = [1] : Optional Integer
-} : { foo : List Integer, bar : Optional Integer, baz : Optional Integer }
+{ foo = ([] : List Natural) # [1, 2, 3] # ([1, 2, 3] : List Natural)
+, bar = [] : Optional Natural
+, baz = [1] : Optional Natural
+} : { foo : List Natural, bar : Optional Natural, baz : Optional Natural }
