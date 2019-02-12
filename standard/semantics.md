@@ -901,7 +901,7 @@ You can also shift a context by shifting each expression in that context:
 
     ↑(d, x, m, Γ₀) = Γ₁   ↑(d, x, m, T₀) = T₁
     ─────────────────────────────────────────
-    ↑(d, x, m, (Γ₀, x : T₀)) = Γ₁, x : T₁
+    ↑(d, x, m, (Γ₀, y : T₀)) = Γ₁, y : T₁
 
 
 ## Substitution
