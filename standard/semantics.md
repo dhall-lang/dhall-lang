@@ -2448,8 +2448,21 @@ any interpolated expression that normalize to `Text` literals:
 
 
 The `Text/show` function replaces a `Text` literal with another `Text` literal
-encoding the original as valid Dhall source code for a double-quoted literal,
-escaping the following characters according to these rules:
+representing valid Dhall source code for the original literal.  In particular,
+this function both quotes and escapes the original literal so that if you were
+to render the escaped `Text` value the result would appear to be the original
+`Text` input to the function:
+
+    -- Rendering the right-hand side gives the original argument: "abc\ndef"
+    Text/show "abc\ndef" = "\"abc\\ndef\""
+
+Escaping is done in such a way that the rendered result is not only valid
+Dhall source code but also valid JSON when the `Text` does not contain any
+Unicode code points above `\uFFFF`.  This comes in handy if you want to use
+Dhall to generate Dhall code or to generate JSON.
+
+The body of the `Text` literal escapes the following characters according to
+these rules:
 
 * `"`  → `\"`
 * `$`  → `\u0024`
@@ -2460,9 +2473,15 @@ escaping the following characters according to these rules:
 * `\r` → `\\r`
 * `\t` → `\\t`
 
-... and escaping non-printable characters as their Unicode escape sequences:
+Carefully note that `$` is not escaped as `\$` since that is not a valid JSON
+escape sequence.
+
+`Text/show` also escapes any non-printable characters as their Unicode escape
+sequences:
 
 * `\u0000`-`\u001F` → `\\u0000`-`\\u001F`
+
+... since that is the only valid way to represent them within the Dhall grammar.
 
 Or in other words:
 
