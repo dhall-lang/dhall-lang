@@ -15,7 +15,6 @@ The current version string is:
 This version string is used by implementations to:
 
 * identify which release(s) of the standard they comply with
-* tag encoded Dhall expressions in their binary representation
 
 ## What is a "version"
 
@@ -71,13 +70,6 @@ are `Natural` numbers:
 
     Example: a change in the documentation or renaming terminals in the grammar
 
-All three changes require users to update their semantic integrity checks if
-they upgrade since the entire version string is an input to the hash in a
-semantic integrity check.  Implementations SHOULD support older versions of the
-standard that match in the first version component so that users can defer
-upgrading their code until they are ready to regenerate their semantic
-integrity checks.
-
 This versioning scheme is only a convention that provides humans a convenient
 mnemonic for tracking releases.  The version number selected for a release could
 be incorrect and the release process only guarantees a best effort attempt to
@@ -111,21 +103,8 @@ specified in that release of the standard.  An implementation MUST NOT mix and
 match functionality from different releases of the standard within any given
 run.
 
-For example, suppose that version "2.0.0" of the implementation imported an
-expression protected by a semantic integrity check:
-
-    ./example.dhall sha256:bb1e096305428d2e155282d156ddec47cca75cd61bc0ef1aa6ce4cf5eae91e38
-
-... and that expression was cached underneath
-`~/.cache/dhall/bb1e096305428d2e155282d156ddec47cca75cd61bc0ef1aa6ce4cf5eae91e38`
-tagged with version "2.0.0".  Now suppose that an interpreter upgraded and
-supported both versions "2.0.0" and "2.1.0" of the standard.  If the
-interpreter enabled version "2.1.0" of the standard then the interpreter would
-not be allowed to import the above expression (even though version "2.1.0" might
-be otherwise backwards compatible with "2.0.0").  If the interpreter enabled
-version "2.0.0" of the standard then the import would succeed, but that
-expression (and the rest of the program) would be type-checked and normalized as
-using only version "2.0.0" of the standard.
+For example, if the file `./foo.dhall` imports `./bar.dhall`, then both files
+must be interpreted using the same version of the standard.
 
 ## Standard evolution
 

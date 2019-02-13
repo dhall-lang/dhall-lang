@@ -6,4 +6,4 @@
 -}
   has
 
- -}  +2 -- mixed {- line endings -}
+ -}  2 -- mixed {- line endings -}

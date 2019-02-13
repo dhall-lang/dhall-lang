@@ -513,17 +513,24 @@ You can use Dhall to configure programs written in other languages. This is the
 most common use case for Dhall: a type-safe and non-Turing-complete
 configuration language 
 
-Dhall currently supports two complete language bindings:
+Dhall currently supports three complete language bindings:
 
 * [Haskell][dhall-haskell]
+* [Java - via Eta][dhall-eta]
 * [Nix][dhall-nix]
 
-... and four language bindings in progress:
+... and three language bindings in progress:
 
 * [Clojure][dhall-clj]
-* [Java - via Eta][dhall-eta]
 * [PureScript][dhall-purescript]
 * [Python][dhall-python]
+
+The following language bindings wrap prebuilt Dhall packages or executables:
+
+* [`go-dhallconfig`](https://github.com/andrewchambers/go-dhallconfig) -
+  Go package that wraps the `dhall-to-json` executable
+* [`clay-dhall`](https://github.com/as-capabl/clay-dhall) -
+  C bindings to the Haskell library
 
 The following two bindings are not maintained but you may find them
 useful as a starting point:
@@ -842,7 +849,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-nix-post]: http://www.haskellforall.com/2017/01/typed-nix-programming-using-dhall.html
 [dhall-clj]: https://github.com/f-f/dhall-clj
 [dhall-purescript]: https://github.com/MonoidMusician/dhall-purescript
-[dhall-eta]: https://github.com/eta-lang/dhall-eta/tree/java-types
+[dhall-eta]: https://github.com/eta-lang/dhall-eta
 [dhall-python]: https://github.com/SupraSummus/dhall-python
 [dhall-scala]: https://github.com/amarpotghan/dhall-scala
 [dhall-rust]: https://github.com/nanotech/dhall-rs

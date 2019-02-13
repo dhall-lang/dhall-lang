@@ -44,8 +44,6 @@ expressions to and from a binary representation
     * [Imports](#imports-1)
     * [`let`-expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
-* [Versioning](#versioning)
-* [Protocol evolution](#protocol-evolution)
 
 ## Motivation
 
@@ -259,6 +257,10 @@ string matching their identifier.
 
     ─────────────────────────────────────────────
     encode(Optional/build) = "Optional/build"
+
+
+    ───────────────────────────────
+    encode(Text/show) = "Text/show"
 
 
     ─────────────────────────
@@ -882,6 +884,10 @@ identifier if it matches any of the following strings:
     decode("Optional/build") = Optional/build
 
 
+    ───────────────────────────────
+    decode("Text/show") = Text/show
+
+
     ─────────────────────────
     decode("Bool") = Bool
 
@@ -1388,54 +1394,3 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode(t₁) = t₀   decode(T₁) = T₀
     ─────────────────────────────────────────
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
-
-
-## Versioning
-
-You can find versioning information in the following separate document:
-
-* [Versioning](./versioning.md)
-
-In particular, that document contains the `currentVersion` judgment referenced
-in this section.
-
-You can encode a Dhall expression tagged with a version string using the
-following judgment:
-
-    encodeWithVersion(dhall) = cbor
-
-... where:
-
-* `dhall` (the input) is a Dhall expression
-* `cbor` (the output) is a CBOR expression
-
-You can decode a Dhall expression tagged with a version string using
-the following judgment:
-
-    decodeWithVersion(cbor) = dhall
-
-... where:
-
-* `dhall` (the input) is a Dhall expression
-* `cbor` (the output) is a CBOR expression
-
-`encodeWithVersion` and `decodeWithVersion` are both a wrappers around `encode`
-and `decode` that include/expect the current version tag, respectively:
-
-    currentVersion = v   encode(e₀) = e₁
-    ────────────────────────────────────
-    encodeWithVersion(e₀) = [ v, e₁ ]
-
-
-    currentVersion = v   decode(e₀) = e₁
-    ────────────────────────────────────
-    decodeWithVersion([ v, e₁ ]) = e₀
-
-The version string format might change in the future.  For example, at some
-point the version string might become a URI or a SHA256 hash.  Therefore,
-implementations MUST only match on the exact version string when
-implementing `decodeWithVersion`.  In particular, implementations MUST NOT match
-a prefix of the version string, MUST NOT attempt to parse the version string as
-a more structured version number, and MUST NOT attempt to interpret the version
-string in any way other than to test the string for exactly equality with the
-expected version string for the currently enabled version.
