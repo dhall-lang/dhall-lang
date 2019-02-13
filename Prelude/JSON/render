@@ -4,7 +4,7 @@ let render : JSON → Text
       = λ(j : JSON)
       → j
         Text
-        (λ(x : Text) → "\"${x}\"")
+        (λ(x : Text) → Text/show x)
         (λ(x : Double) → Double/show x)
         (λ(x : List { mapKey : Text, mapValue : Text }) →
           let body =
