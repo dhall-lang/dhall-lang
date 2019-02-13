@@ -259,6 +259,10 @@ string matching their identifier.
     encode(Optional/build) = "Optional/build"
 
 
+    ───────────────────────────────
+    encode(Text/show) = "Text/show"
+
+
     ─────────────────────────
     encode(Bool) = "Bool"
 
@@ -878,6 +882,10 @@ identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────────
     decode("Optional/build") = Optional/build
+
+
+    ───────────────────────────────
+    decode("Text/show") = Text/show
 
 
     ─────────────────────────
