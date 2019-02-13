@@ -1,1 +1,1 @@
-let TypeSynonym = Integer in 1 : TypeSynonym
+let TypeSynonym = Integer in +1 : TypeSynonym

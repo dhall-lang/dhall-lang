@@ -1,4 +1,4 @@
 ''
 ABC
-${Integer/show 123}
+${Natural/show 123}
 ''

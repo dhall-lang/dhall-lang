@@ -3,23 +3,23 @@
   [
     8,
     {
-      "foo": [
-        15,
-        1
-      ],
       "bar": [
-        16,
+        15,
         2
       ],
-      "baz": true
+      "baz": true,
+      "foo": [
+        16,
+        1
+      ]
     }
   ],
   [
     7,
     {
-      "foo": "Integer",
       "bar": "Natural",
-      "baz": "Bool"
+      "baz": "Bool",
+      "foo": "Integer"
     }
   ]
 ]

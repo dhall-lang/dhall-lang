@@ -3,7 +3,7 @@
   "ABC",
   [
     0,
-    "Integer/show",
+    "Natural/show",
     [
       15,
       123
