@@ -426,19 +426,19 @@ exponent = "e" [ "+" / "-" ] 1*DIGIT
 
 double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespace
 
-natural-raw = 1*DIGIT
+natural-literal-raw = 1*DIGIT
 
-integer-literal = ( "+" / "-" ) natural-raw whitespace
+integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
 
-natural-literal = natural-raw whitespace
+natural-literal = natural-literal-raw whitespace
 
-identifier = label [ at natural-raw whitespace ]
+identifier = label [ at natural-literal-raw whitespace ]
 
 identifier-reserved-prefix =
-    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw whitespace ]
+    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-literal-raw whitespace ]
 
 identifier-reserved-namespaced-prefix =
-    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw whitespace ]
+    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-literal-raw whitespace ]
 
 missing = missing-raw whitespace
 
