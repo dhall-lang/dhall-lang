@@ -177,6 +177,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * List/reverse
 ; * Optional/fold
 ; * Optional/build
+; * Text/show
 ; * if
 ; * then
 ; * else
@@ -315,6 +316,7 @@ List-indexed-raw      = %x4c.69.73.74.2f.69.6e.64.65.78.65.64
 List-reverse-raw      = %x4c.69.73.74.2f.72.65.76.65.72.73.65
 Optional-fold-raw     = %x4f.70.74.69.6f.6e.61.6c.2f.66.6f.6c.64
 Optional-build-raw    = %x4f.70.74.69.6f.6e.61.6c.2f.62.75.69.6c.64
+Text-show-raw         = %x54.65.78.74.2f.73.68.6f.77
 Bool-raw              = %x42.6f.6f.6c
 Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
 None-raw              = %x4e.6f.6e.65
@@ -368,6 +370,7 @@ reserved-namespaced-raw =
   / List-reverse-raw
   / Optional-fold-raw
   / Optional-build-raw
+  / Text-show-raw
 
 reserved            = reserved-raw            whitespace
 reserved-namespaced = reserved-namespaced-raw whitespace
@@ -423,19 +426,19 @@ exponent = "e" [ "+" / "-" ] 1*DIGIT
 
 double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespace
 
-natural-raw = 1*DIGIT
+natural-literal-raw = 1*DIGIT
 
-integer-literal = ( "+" / "-" ) natural-raw whitespace
+integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
 
-natural-literal = natural-raw whitespace
+natural-literal = natural-literal-raw whitespace
 
-identifier = label [ at natural-raw whitespace ]
+identifier = label [ at natural-literal-raw whitespace ]
 
 identifier-reserved-prefix =
-    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw whitespace ]
+    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-literal-raw whitespace ]
 
 identifier-reserved-namespaced-prefix =
-    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-raw whitespace ]
+    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-literal-raw whitespace ]
 
 missing = missing-raw whitespace
 
