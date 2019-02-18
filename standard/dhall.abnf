@@ -647,30 +647,30 @@ import = import-hashed [ as Text ]
 expression =
     ; "\(x : a) -> b"
       lambda open-parens label colon expression close-parens arrow expression
-
+    
     ; "if a then b else c"
     / if expression then expression else expression
-
+    
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
     / 1*(let label [ colon expression ] equal expression) in expression
-
+    
     ; "forall (x : a) -> b"
     / forall open-parens label colon expression close-parens arrow expression
-
+    
     ; "a -> b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression arrow expression
-
+    
     / annotated-expression
 
 annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
       merge import-expression import-expression [ colon application-expression ]
-
+    
     ; "[]  : List     t"
     ; "[]  : Optional t"
     ; "[x] : Optional t"
@@ -679,7 +679,7 @@ annotated-expression =
     ; from the opening bracket whether or not this will be an empty list or
     ; non-empty list
     / open-bracket (empty-collection / non-empty-optional)
-
+    
     ; "x : t"
     / operator-expression (colon expression / "")
 
@@ -734,47 +734,47 @@ selector-expression = primitive-expression *(dot ( label / labels ))
 primitive-expression =
     ; "2.0"
       double-literal
-
+    
     ; "2"
     / natural-literal
-
+    
     ; "+2"
     / integer-literal
-
+    
     ; "-Infinity"
     / "-" Infinity-raw
-
+    
     ; '"ABC"'
     / text-literal
-
+    
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
     / open-brace record-type-or-literal close-brace
-
+    
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo : Integer | Bar = True >"
     / open-angle union-type-or-literal  close-angle
-
+    
     ; "[1, 2, 3]"
     / non-empty-list-literal  ; `annotated-expression` handles empty lists
-
+    
     ; "List/foldWith"
     / identifier-reserved-namespaced-prefix
-
+    
     ; "List/head"
     / reserved-namespaced
-
+    
     ; "List/map"
     ; "TypeDefinition"
     / identifier-reserved-prefix
-
+    
     ; "List"
     / reserved
-
+    
     ; "x"
     ; "x@2"
     / identifier
-
+    
     ; "( e )"
     / open-parens expression close-parens
 
