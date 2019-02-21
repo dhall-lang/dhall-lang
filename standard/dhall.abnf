@@ -742,7 +742,8 @@ primitive-expression =
     / integer-literal
     
     ; "-Infinity"
-    / "-" Infinity-raw
+    
+    / "-" Infinity-raw whitespace
     
     ; '"ABC"'
     / text-literal
