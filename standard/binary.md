@@ -594,32 +594,49 @@ Encode `Integer` literals using the smallest available numeric representation:
 
 ### `Double`
 
-Encode `Double` literals using the smallest available numeric representation.
 CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations.
+The 16-bit representation is used here to encode only the following special values:
 
 
     ─────────────────────────────  ; isNaN(n.n)
     encode(n.n) = n.n_h(0x7e00)
 
 
+    ─────────────────────────────  ; n.n = +Infinity
+    encode(n.n) = n.n_h(0x7c00)
+
+
+    ─────────────────────────────  ; n.n = -Infinity
+    encode(n.n) = n.n_h(0xfc00)
+
+
+    ─────────────────────────────  ; n.n = 0.0
+    encode(n.n) = n.n_h(0x0000)
+
+
+For the other values, encode `Double` literals using the smallest available
+numeric representation, picking between 32-bit and 64-bit:
+
+
     ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n
+    encode(n.n) = n.n              ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
 
 
-    ─────────────────────────────  ; toDouble(toHalf(n.n)) ≠ n.n AND toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n_s
+    ─────────────────────────────  ; toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n)
+    encode(n.n) = n.n_s            ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
 
 
-    ─────────────────────────────  ; toDouble(toHalf(n.n)) = n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n_h
+In other words:
+- if n.n is a NaN, encode as a half (16-bit) float with the value 0x7e00
+- if n.n is 0.0, encode as a half (16-bit) float with the value 0x0000
+- if n.n is +Infinity, encode as a half (16-bit) float with the value 0x7c00
+- if n.n is -Infinity, encode as a half (16-bit) float with the value 0xfc00
 
+These values ensure identical semantic hashes on different platforms.
 
-In other words: If n.n is a NaN, encode as a half (16-bit) float with the value 0x7e00.
-This ensures identical semantic hashes on different platforms. For all other values,
-convert to `Single` and back to `Double` and check for equality with the original.
-If they are the same, then there is no loss of precision using the smaller representation.
-Also convert to `Half` and back and check for equality with the original. Use the smallest
-of the three representations (Half, Single, Double) possible without losing precision.
+For all other values, convert to `Single` and back to `Double` and check for equality with
+the original. If they are the same, then there is no loss of precision using the smaller
+representation, so that should be used.
 
 ### `Text`
 
