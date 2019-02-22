@@ -618,12 +618,12 @@ For the other values, encode `Double` literals using the smallest available
 numeric representation, picking between 32-bit and 64-bit:
 
 
-    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n AND NOT isNaN(n.n) AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
-    encode(n.n) = n.n
+    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n AND NOT isNaN(n.n)
+    encode(n.n) = n.n              ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
 
 
-    ─────────────────────────────  ; toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n) AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
-    encode(n.n) = n.n_s
+    ─────────────────────────────  ; toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n)
+    encode(n.n) = n.n_s            ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
 
 
 In other words:
