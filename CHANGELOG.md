@@ -31,6 +31,11 @@ Breaking changes:
     The referential sanity check is a long-standing feature of the Haskell
     implementation that is now upstreamed into the standard.  This check is both
     a security feature and also a "sanity" feature.
+    
+    This check prevents a remote import from importing a local import (i.e. a
+    local file or environment variable).  The exception is that a remote import
+    can still contain a relative import (which still resolves to a remote
+    import when canonicalized).
 
     Without this check a malicious remote import could exfiltrate the contents
     of sensitive local files or environment variables using the language's
