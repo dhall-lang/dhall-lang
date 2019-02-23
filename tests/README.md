@@ -95,3 +95,13 @@ Where `A` and `B` are:
 - `A`: text with unresolved imports
 - `B`: text where all the imports have been resolved, normalized and replaced with their value
 
+### Running `binary` tests
+
+The tests should:
+- parse `A` and encode it to binary CBOR representation
+- read `B` as bytes
+- the two should match
+
+Where `A` and `B` are:
+- `A`: a Dhall expression as text
+- `B`: the binary representation of the Dhall-CBOR-encoded expression
