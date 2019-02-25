@@ -173,8 +173,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / < x = t >                         ; Union literal with one alternative
   / < x₀ = t₀ | x₁ : T₁	| xs… >       ; Union literal with more than one
                                       ; alternative
-  / constructors u                    ; Make record of constructors from union
-                                      ; type
   / Some a                            ; Constructor for a present Optional value
   / None                              ; Constructor for an absent Optional value
   / Natural/build                     ; Natural introduction
@@ -742,11 +740,6 @@ The remaining rules are:
     ↑(d, x, m, < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >) = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
-    ↑(d, x, m, u₀) = u₁
-    ─────────────────────────────────────────────
-    ↑(d, x, m, constructors u₀) = constructors u₁
-
-
     ↑(d, x, m, a₀) = a₁
     ─────────────────────────────
     ↑(d, x, m, Some a₀) = Some a₁
@@ -1296,11 +1289,6 @@ The remaining rules are:
     < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
-    u₀[x@n ≔ e] = u₁
-    ──────────────────────────────────
-    (constructors u₀)[x@n ≔ e] = constructors u₁
-
-
     a₀[x@n ≔ e] = a₁
     ────────────────────────────
     (Some a₀)[x@n ≔ e] = Some a₁
@@ -1771,11 +1759,6 @@ sub-expressions for the remaining rules:
     t₀ ↦ t₁   < xs₀… > ↦ < xs₁… >
     ─────────────────────────────────────
     < x = t₀ | xs₀… > ↦ < x = t₁ | xs₁… >
-
-
-    u₀ ↦ u₁
-    ─────────────────────────────────
-    constructors u₀ ↦ constructors u₁
 
 
     a₀ ↦ a₁
@@ -3017,20 +3000,6 @@ union literal:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
-`[DEPRECATED]` Union construction should be done through the `.` operator.
-`constructors` is equivalent to the identity operation and thus, returns
-the union type:
-
-
-    t₀ ⇥ t₁
-    ────────────────────
-    constructors t₀ ⇥ t₁
-
-
-    u₀ ⇥ u₁
-    ─────────────────────────────────  ; If no other rule matches
-    constructors u₀ ⇥ constructors u₁
-
 You can project out a union constructor to a function to the union literal:
 
 
@@ -4242,23 +4211,6 @@ If there are two handlers with different output types then that is a type error.
 
 If a `merge` expression has a type annotation that doesn't match every handler's
 output type then that is a type error.
-
-A `constructors` expression is only well-formed if the argument normalizes to a
-union type literal:
-
-
-    Γ ⊢ u : c   u ⇥ <>
-    ───────────────────────
-    Γ ⊢ constructors u : {}
-
-
-    Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ constructors u : { x₀ : ∀(x₀ : T₀) → < x₀ : T₀ | x₁ : T₁ | xs… >, x₁ : ∀(x₁ : T₁) → < x₀ : T₀ | x₁ : T₁ | xs… >, … }
-
-
-If the union argument is any other type of expression (including a variable)
-then that is a type error.
 
 A constructor field can only be selected from a union if it is present:
 
