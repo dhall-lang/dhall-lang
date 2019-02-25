@@ -50,13 +50,13 @@ run for each feature:
 ### Running `parser` tests
 
 The tests should:
-- parse `A` and convert it to the JSON representation of the Dhall-CBOR encoding
-- read `B` and parse its contents as JSON
+- parse `A` and encode it to its binary CBOR representation
+- read `B` as bytes
 - the results should match
 
 Where `A` and `B` are:
 - `A`: a Dhall expression as text
-- `B`: the JSON representation of the Dhall-CBOR-encoded expression
+- `B`: the binary representation of the Dhall-CBOR-encoded expression
 
 ### Running `normalization` tests
 
@@ -95,13 +95,3 @@ Where `A` and `B` are:
 - `A`: text with unresolved imports
 - `B`: text where all the imports have been resolved, normalized and replaced with their value
 
-### Running `binary` tests
-
-The tests should:
-- parse `A` and encode it to binary CBOR representation
-- read `B` as bytes
-- the two should match
-
-Where `A` and `B` are:
-- `A`: a Dhall expression as text
-- `B`: the binary representation of the Dhall-CBOR-encoded expression
