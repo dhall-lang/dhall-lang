@@ -4,9 +4,18 @@
   <meta charset="UTF-8">
 </head> 
 
-Dhall is a programmable configuration language that is not Turing-complete
+Dhall is a programmable configuration language that provides a
+non-repetitive alternative to YAML.
 
 You can think of Dhall as: JSON + functions + types + imports
+
+Note that while Dhall is programmable, Dhall is not Turing-complete.  Many
+of Dhall's features take advantage of this restriction to provider stronger
+safety guarantees and more powerful tooling.
+
+You can try the language live in your browser by visiting the official website:
+
+* [https://dhall-lang.org](http://dhall-lang.org/)
 
 ## Table of contents
 
