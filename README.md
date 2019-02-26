@@ -13,7 +13,7 @@ Note that while Dhall is programmable, Dhall is not Turing-complete.  Many
 of Dhall's features take advantage of this restriction to provider stronger
 safety guarantees and more powerful tooling.
 
-You can try the language live in your brower by visiting the official website:
+You can try the language live in your browser by visiting the official website:
 
 * [https://dhall-lang.org](http://dhall-lang.org/)
 
