@@ -69,7 +69,7 @@
 ;
 ; ... or:
 ;
-;     %x66.6f.72.61.6c.6c
+;     %x66.6F.72.61.6C.6C
 ;
 ; ... then that string literal is parsed as a single unit, meaning that you
 ; should backtrack if you parse only part of the literal
@@ -287,51 +287,51 @@ text-literal = (double-quote-literal / single-quote-literal) whitespace
 ; except without the '-raw' ending, and converting dashes in the rule name
 ; to forward slashes
 if-raw                = %x69.66
-then-raw              = %x74.68.65.6e
-else-raw              = %x65.6c.73.65
-let-raw               = %x6c.65.74
-in-raw                = %x69.6e
+then-raw              = %x74.68.65.6E
+else-raw              = %x65.6C.73.65
+let-raw               = %x6C.65.74
+in-raw                = %x69.6E
 as-raw                = %x61.73
-using-raw             = %x75.73.69.6e.67
-merge-raw             = %x6d.65.72.67.65
-missing-raw           = %x6d.69.73.73.69.6e.67
-Some-raw              = %x53.6f.6d.65
-constructors-raw      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73
-Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
-Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
-Natural-isZero-raw    = %x4e.61.74.75.72.61.6c.2f.69.73.5a.65.72.6f
-Natural-even-raw      = %x4e.61.74.75.72.61.6c.2f.65.76.65.6e
-Natural-odd-raw       = %x4e.61.74.75.72.61.6c.2f.6f.64.64
-Natural-toInteger-raw = %x4e.61.74.75.72.61.6c.2f.74.6f.49.6e.74.65.67.65.72
-Natural-show-raw      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
-Integer-toDouble-raw  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
-Integer-show-raw      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
-Double-show-raw       = %x44.6f.75.62.6c.65.2f.73.68.6f.77
-List-build-raw        = %x4c.69.73.74.2f.62.75.69.6c.64
-List-fold-raw         = %x4c.69.73.74.2f.66.6f.6c.64
-List-length-raw       = %x4c.69.73.74.2f.6c.65.6e.67.74.68
-List-head-raw         = %x4c.69.73.74.2f.68.65.61.64
-List-last-raw         = %x4c.69.73.74.2f.6c.61.73.74
-List-indexed-raw      = %x4c.69.73.74.2f.69.6e.64.65.78.65.64
-List-reverse-raw      = %x4c.69.73.74.2f.72.65.76.65.72.73.65
-Optional-fold-raw     = %x4f.70.74.69.6f.6e.61.6c.2f.66.6f.6c.64
-Optional-build-raw    = %x4f.70.74.69.6f.6e.61.6c.2f.62.75.69.6c.64
-Text-show-raw         = %x54.65.78.74.2f.73.68.6f.77
-Bool-raw              = %x42.6f.6f.6c
-Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
-None-raw              = %x4e.6f.6e.65
-Natural-raw           = %x4e.61.74.75.72.61.6c
-Integer-raw           = %x49.6e.74.65.67.65.72
-Double-raw            = %x44.6f.75.62.6c.65
+using-raw             = %x75.73.69.6E.67
+merge-raw             = %x6D.65.72.67.65
+missing-raw           = %x6D.69.73.73.69.6E.67
+Some-raw              = %x53.6F.6D.65
+constructors-raw      = %x63.6F.6E.73.74.72.75.63.74.6F.72.73
+Natural-fold-raw      = %x4E.61.74.75.72.61.6C.2F.66.6F.6C.64
+Natural-build-raw     = %x4E.61.74.75.72.61.6C.2F.62.75.69.6C.64
+Natural-isZero-raw    = %x4E.61.74.75.72.61.6C.2F.69.73.5A.65.72.6F
+Natural-even-raw      = %x4E.61.74.75.72.61.6C.2F.65.76.65.6E
+Natural-odd-raw       = %x4E.61.74.75.72.61.6C.2F.6F.64.64
+Natural-toInteger-raw = %x4E.61.74.75.72.61.6C.2F.74.6F.49.6E.74.65.67.65.72
+Natural-show-raw      = %x4E.61.74.75.72.61.6C.2F.73.68.6F.77
+Integer-toDouble-raw  = %x49.6E.74.65.67.65.72.2F.74.6F.44.6F.75.62.6C.65
+Integer-show-raw      = %x49.6E.74.65.67.65.72.2F.73.68.6F.77
+Double-show-raw       = %x44.6F.75.62.6C.65.2F.73.68.6F.77
+List-build-raw        = %x4C.69.73.74.2F.62.75.69.6C.64
+List-fold-raw         = %x4C.69.73.74.2F.66.6F.6C.64
+List-length-raw       = %x4C.69.73.74.2F.6C.65.6E.67.74.68
+List-head-raw         = %x4C.69.73.74.2F.68.65.61.64
+List-last-raw         = %x4C.69.73.74.2F.6C.61.73.74
+List-indexed-raw      = %x4C.69.73.74.2F.69.6E.64.65.78.65.64
+List-reverse-raw      = %x4C.69.73.74.2F.72.65.76.65.72.73.65
+Optional-fold-raw     = %x4F.70.74.69.6F.6E.61.6C.2F.66.6F.6C.64
+Optional-build-raw    = %x4F.70.74.69.6F.6E.61.6C.2F.62.75.69.6C.64
+Text-show-raw         = %x54.65.78.74.2F.73.68.6F.77
+Bool-raw              = %x42.6F.6F.6C
+Optional-raw          = %x4F.70.74.69.6F.6E.61.6C
+None-raw              = %x4E.6F.6E.65
+Natural-raw           = %x4E.61.74.75.72.61.6C
+Integer-raw           = %x49.6E.74.65.67.65.72
+Double-raw            = %x44.6F.75.62.6C.65
 Text-raw              = %x54.65.78.74
-List-raw              = %x4c.69.73.74
+List-raw              = %x4C.69.73.74
 True-raw              = %x54.72.75.65
-False-raw             = %x46.61.6c.73.65
-NaN-raw               = %x4e.61.4e
-Infinity-raw          = %x49.6e.66.69.6e.69.74.79
+False-raw             = %x46.61.6C.73.65
+NaN-raw               = %x4E.61.4E
+Infinity-raw          = %x49.6E.66.69.6E.69.74.79
 Type-raw              = %x54.79.70.65
-Kind-raw              = %x4b.69.6e.64
-Sort-raw              = %x53.6f.72.74
+Kind-raw              = %x4B.69.6E.64
+Sort-raw              = %x53.6F.72.74
 
 reserved-raw =
     Bool-raw
@@ -419,7 +419,7 @@ combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
 prefer        = ( %x2AFD / "//"                ) whitespace
 lambda        = ( %x3BB  / "\"                 ) whitespace
-forall        = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
+forall        = ( %x2200 / %x66.6F.72.61.6C.6C ) whitespace
 arrow         = ( %x2192 / "->"                ) whitespace
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
@@ -631,7 +631,7 @@ posix-environment-variable-character =
 
 import-type = missing / local / http / env
 
-hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
+hash = %x73.68.61.32.35.36.3A 64HEXDIG whitespace  ; "sha256:XXX...XXX"
 
 import-hashed = import-type [ hash ]
 
