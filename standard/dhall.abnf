@@ -186,7 +186,6 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * as
 ; * using
 ; * merge
-; * constructors
 ; * Some
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
@@ -296,7 +295,6 @@ using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
 missing-raw           = %x6d.69.73.73.69.6e.67
 Some-raw              = %x53.6f.6d.65
-constructors-raw      = %x63.6f.6e.73.74.72.75.63.74.6f.72.73
 Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
 Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
 Natural-isZero-raw    = %x4e.61.74.75.72.61.6c.2f.69.73.5a.65.72.6f
@@ -376,20 +374,18 @@ reserved            = reserved-raw            whitespace
 reserved-namespaced = reserved-namespaced-raw whitespace
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
-if           = if-raw           nonempty-whitespace
-then         = then-raw         nonempty-whitespace
-else         = else-raw         nonempty-whitespace
-let          = let-raw          nonempty-whitespace
-in           = in-raw           nonempty-whitespace
-as           = as-raw           nonempty-whitespace
-using        = using-raw        nonempty-whitespace
-merge        = merge-raw        nonempty-whitespace
-constructors = constructors-raw nonempty-whitespace
-Some         = Some-raw         nonempty-whitespace
-
-Optional     = Optional-raw     whitespace
-Text         = Text-raw         whitespace
-List         = List-raw         whitespace
+if       = if-raw           nonempty-whitespace
+then     = then-raw         nonempty-whitespace
+else     = else-raw         nonempty-whitespace
+let      = let-raw          nonempty-whitespace
+in       = in-raw           nonempty-whitespace
+as       = as-raw           nonempty-whitespace
+using    = using-raw        nonempty-whitespace
+merge    = merge-raw        nonempty-whitespace
+Some     = Some-raw         nonempty-whitespace
+Optional = Optional-raw     whitespace
+Text     = Text-raw         whitespace
+List     = List-raw         whitespace
 
 equal         = "="  whitespace
 or            = "||" whitespace
@@ -706,7 +702,7 @@ not-equal-expression     = application-expression   *(not-equal     application-
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    [ constructors / Some ] import-expression *(whitespace-chunk import-expression)
+    [ Some ] import-expression *(whitespace-chunk import-expression)
 
 import-expression = import / selector-expression
 

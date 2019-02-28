@@ -1,1 +1,0 @@
-< Left : Text | Right : Natural >
