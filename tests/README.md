@@ -58,6 +58,10 @@ Where `A` and `B` are:
 - `A`: a Dhall expression as text
 - `B`: the binary representation of the Dhall-CBOR-encoded expression
 
+*Note*: since the tests are binary-encoded, they are not the friendliest to debug.  
+For this reason, you might want to look at the `diff-binary.sh` script to help
+with the debugging.
+
 ### Running `normalization` tests
 
 The tests should:
