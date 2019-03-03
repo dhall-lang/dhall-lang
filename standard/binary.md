@@ -494,6 +494,9 @@ Dhall record literals translate to CBOR maps:
     encode({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
 
 
+Note: the record fields should be sorted before translating them to CBOR maps.
+
+
 Field access:
 
 
@@ -527,6 +530,9 @@ types encoded as CBOR map:
     encode(t₀) = t₁   encode(T₀) = T₁   …
     ──────────────────────────────────────────────────────────────────────
     encode(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
+
+
+Also in these cases the fields of the map should be sorted before the conversion.
 
 
 The (now-removed) `constructors` keyword used to be encoded using a leading
