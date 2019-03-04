@@ -151,6 +151,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * as
 ; * using
 ; * merge
+; * Some
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 quoted-label = 1*(ALPHA / DIGIT / "-" / "/" / "_" / ":" / "." / "$")
@@ -260,6 +261,7 @@ missing-raw           = %x6d.69.73.73.69.6e.67
 Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
 Text-raw              = %x54.65.78.74
 List-raw              = %x4c.69.73.74
+Some-raw              = %x53.6f.6d.65
 Infinity-raw          = %x49.6e.66.69.6e.69.74.79
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
@@ -271,6 +273,7 @@ in       = in-raw           nonempty-whitespace
 as       = as-raw           nonempty-whitespace
 using    = using-raw        nonempty-whitespace
 merge    = merge-raw        nonempty-whitespace
+Some     = Some-raw         nonempty-whitespace
 Optional = Optional-raw     whitespace
 Text     = Text-raw         whitespace
 List     = List-raw         whitespace
@@ -584,7 +587,7 @@ not-equal-expression     = application-expression   *(not-equal     application-
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    import-expression *(whitespace-chunk import-expression)
+    [ Some ] import-expression *(whitespace-chunk import-expression)
 
 import-expression = import / selector-expression
 
