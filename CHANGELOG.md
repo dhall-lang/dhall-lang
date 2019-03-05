@@ -26,6 +26,22 @@ Breaking changes:
     This should ease one of the biggest pain points when upgrading interpreters
     to support newer releases of the standard.
 
+*   [Remove `constructors` keyword](https://github.com/dhall-lang/dhall-lang/pull/385)
+
+    This is phase 3 of the plan to deprecate the `constructors` keyword, which
+    you can find here:
+
+    * [Migration: Deprecation of constructors keyword](https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Deprecation-of-constructors-keyword)
+
+    This phase removes the `constructors` keyword for the language so that new
+    implementations of the Dhall configuration language have one less thing they
+    need to implement.
+
+    If you still haven't migrated yet, the migration is simple: in most cases
+    you can delete the `constructors` keyword and your code will still work.
+    The above link explains how to handle the few cases that might still break
+    as a result of this change.
+
 *   [Add referential sanity check](https://github.com/dhall-lang/dhall-lang/pull/334)
 
     The referential sanity check is a long-standing feature of the Haskell
@@ -54,6 +70,30 @@ Breaking changes:
 
     This change only now encodes all `Double` literals using at least 32 bits,
     with the exception of special values like `NaN` or `Infinity`.
+
+*   [Sort record and union fields before CBOR encoding them](https://github.com/dhall-lang/dhall-lang/pull/392)
+
+    Implementations must now sort record fields and union alternatives when
+    serializing Dhall expressions.  The motivation for this change is to
+    simplify implementation of the language for interpreters so that they don't
+    need to use order-preserving maps for recording the original source order of
+    fields/alternatives.
+
+    Implementations can still internally use order-preserving maps if they want
+    to support non-standard features (like code formatting or better error
+    messages), but restricting the standard serialization format to sorted
+    fields/alternatives ensure binary interoperability with other
+    implementations.
+
+    Note that this is not a breaking change for semantic integrity checks.
+    Fields/alternatives were already sorted for semantic integrity checks since
+    the expression is β-normalized before being hashed (and β-normalization
+    already sorts fields).
+
+    However, this is a potentially breaking change when serializing Dhall
+    expressions in other contexts when the expressions have not yet been
+    β-normalized (i.e. serializing and transmitting uninterpreted Dhall code
+    over the wire).
 
 New features:
 
@@ -93,6 +133,7 @@ Other changes:
 *   Fixes and improvements to the semantics
 
     * [Fix judgment for shifting contexts](https://github.com/dhall-lang/dhall-lang/pull/369)
+    * [Simplify import resolution judgment](https://github.com/dhall-lang/dhall-lang/pull/391)
 
 *   Fixes and improvements to tests:
 
@@ -100,6 +141,10 @@ Other changes:
     * [Fix test file suffixes](https://github.com/dhall-lang/dhall-lang/pull/347)
     * [Fix types in parser tests](https://github.com/dhall-lang/dhall-lang/pull/366)
     * [Restore doubleB.json](https://github.com/dhall-lang/dhall-lang/pull/372)
+
+    * [Add tests to exercise parser tokens for special Double values](https://github.com/dhall-lang/dhall-lang/pull/381)
+    * [Fix 'correct' JSON encoding for doubles in parser test](https://github.com/dhall-lang/dhall-lang/pull/380)
+    * [Use binary encoding in parser tests](https://github.com/dhall-lang/dhall-lang/pull/393)
 
 ## `v5.0.0`
 
