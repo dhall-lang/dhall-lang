@@ -173,8 +173,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / < x = t >                         ; Union literal with one alternative
   / < x₀ = t₀ | x₁ : T₁	| xs… >       ; Union literal with more than one
                                       ; alternative
-  / constructors u                    ; Make record of constructors from union
-                                      ; type
   / Some a                            ; Constructor for a present Optional value
   / None                              ; Constructor for an absent Optional value
   / Natural/build                     ; Natural introduction
@@ -742,11 +740,6 @@ The remaining rules are:
     ↑(d, x, m, < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >) = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
-    ↑(d, x, m, u₀) = u₁
-    ─────────────────────────────────────────────
-    ↑(d, x, m, constructors u₀) = constructors u₁
-
-
     ↑(d, x, m, a₀) = a₁
     ─────────────────────────────
     ↑(d, x, m, Some a₀) = Some a₁
@@ -1296,11 +1289,6 @@ The remaining rules are:
     < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
-    u₀[x@n ≔ e] = u₁
-    ──────────────────────────────────
-    (constructors u₀)[x@n ≔ e] = constructors u₁
-
-
     a₀[x@n ≔ e] = a₁
     ────────────────────────────
     (Some a₀)[x@n ≔ e] = Some a₁
@@ -1771,11 +1759,6 @@ sub-expressions for the remaining rules:
     t₀ ↦ t₁   < xs₀… > ↦ < xs₁… >
     ─────────────────────────────────────
     < x = t₀ | xs₀… > ↦ < x = t₁ | xs₁… >
-
-
-    u₀ ↦ u₁
-    ─────────────────────────────────
-    constructors u₀ ↦ constructors u₁
 
 
     a₀ ↦ a₁
@@ -3017,20 +3000,6 @@ union literal:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
-`[DEPRECATED]` Union construction should be done through the `.` operator.
-`constructors` is equivalent to the identity operation and thus, returns
-the union type:
-
-
-    t₀ ⇥ t₁
-    ────────────────────
-    constructors t₀ ⇥ t₁
-
-
-    u₀ ⇥ u₁
-    ─────────────────────────────────  ; If no other rule matches
-    constructors u₀ ⇥ constructors u₁
-
 You can project out a union constructor to a function to the union literal:
 
 
@@ -4243,23 +4212,6 @@ If there are two handlers with different output types then that is a type error.
 If a `merge` expression has a type annotation that doesn't match every handler's
 output type then that is a type error.
 
-A `constructors` expression is only well-formed if the argument normalizes to a
-union type literal:
-
-
-    Γ ⊢ u : c   u ⇥ <>
-    ───────────────────────
-    Γ ⊢ constructors u : {}
-
-
-    Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ constructors u : { x₀ : ∀(x₀ : T₀) → < x₀ : T₀ | x₁ : T₁ | xs… >, x₁ : ∀(x₁ : T₁) → < x₀ : T₀ | x₁ : T₁ | xs… >, … }
-
-
-If the union argument is any other type of expression (including a variable)
-then that is a type error.
-
 A constructor field can only be selected from a union if it is present:
 
 
@@ -4954,17 +4906,19 @@ necessary.
 
 Import resolution is a function of the following form:
 
-    Δ × Γ₀ ⊢ e₀ @ here ⇒ e₁ ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
 
 ... where
 
-* `Δ` (an input) is a set of visited imports used to detect import cycles
+* `(Δ, here)` (an input) is an ordered non-empty list of visited imports used to
+  detect import cycles
+    * `here` is the current import
+    * `Δ` is the ordered history of 0 or more imports in the visited set that
+      the interpreter visited along the way to `here`
 * `Γ₀` (an input) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web before the import
     * `Γ₀(import)` means to retrieve the expression located at `import`
 * `e₀` (an input) is the expression to resolve
-* `here` (an input) is the current import (canonicalized), used to resolve
-   relative imports
 * `e₁` (an output) is the import-free resolved expression
 * `Γ₁` (an output) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web after the import
@@ -4978,11 +4932,11 @@ resolve imports within the retrieved expression:
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = e₀                        ; Retrieve the expression
-    Δ, child × Γ₀ ⊢ e₀ @ child ⇒ e₁ ⊢ Γ₁
+    Γ(child) = e₀                         ; Retrieve the expression
+    (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
-    ───────────────────────────────────  ; * child ∉ Δ
-    Δ × Γ₀ ⊢ import₀ @ parent ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
+    ────────────────────────────────────  ; * child ∉ (Δ, parent)
+    (Δ, parent) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
 
 
 Carefully note that the fully resolved import must successfully type-check with
@@ -5000,25 +4954,25 @@ If an import ends with `as Text`, import the raw contents of the file as a
     canonicalize(import₁) = child
     referentiallySane(parent, child)
     Γ(child) = "s"  ; Read the raw contents of the file
-    ──────────────────────────────────────────
-    Δ × Γ ⊢ import₀ as Text @ parent ⇒ "s" ⊢ Γ
+    ───────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Text ⇒ "s" ⊢ Γ
 
 
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    Δ × Γ₀ ⊢ headers @ parent ⇒ h₀ ⊢ Γ₁
+    (Δ, parent) × Γ₀ ⊢ headers ⇒ h₀ ⊢ Γ₁
     ε ⊢ h₀ : List { header : Text, value : Text }
     h₀ ⇥ h₁
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
     Γ₁(https://authority directory file) = e₀  ; Use h₁ for custom headers here
-    Δ, child × Γ₁ ⊢ e₀ @ child ⇒ e₁ ⊢ Γ₂
+    (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
     ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
-    Δ × Γ₀ ⊢ https://authority directory file @ parent using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
+    (Δ, parent) × Γ₀ ⊢ https://authority directory file using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
 
 
 For example, if `h₁` in the above judgment normalized to:
@@ -5075,51 +5029,51 @@ Or in judgment form:
 
     Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
-    base16Encode(byteHash) = base16Hash                  ; Verify the hash
+    base16Encode(byteHash) = base16Hash                ; Verify the hash
     decode(binary) = e
-    ───────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
-    Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
+    ─────────────────────────────────────────────────  ; Import is already cached under `$XDG_CACHE_HOME`
+    (Δ, here) × Γ ⊢ import₀ sha256:base16Hash ⇒ e ⊢ Γ
 
 
     Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
     sha256(binary) = byteHash
-    base16Encode(byteHash) = base16Hash                  ; Verify the hash
+    base16Encode(byteHash) = base16Hash                ; Verify the hash
     decode(binary) = e
-    ───────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
-    Δ × Γ ⊢ import₀ sha256:base16Hash @ here ⇒ e ⊢ Γ
+    ─────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
+    (Δ, here) × Γ ⊢ import₀ sha256:base16Hash ⇒ e ⊢ Γ
 
 
-    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
-    Δ × Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
+    ──────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
 
 
-    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode(e₃) = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
-    ──────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
-    Δ × Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
+    ───────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
 
 
-    Δ × Γ₀ ⊢ import₀ @ here ⇒ e₁ ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     e₁ ⇥ e₂
     e₂ ↦ e₃
     encode(e₃) = binary
     sha256(binary) = byteHash
-    base16Encode(byteHash) = base16Hash                 ; Verify the hash
-    ─────────────────────────────────────────────────── ; Otherwise, don't cache
-    Δ × Γ₀ ⊢ import₀ sha256:base16Hash @ here ⇒ e₁ ⊢ Γ₁
+    base16Encode(byteHash) = base16Hash                  ; Verify the hash
+    ──────────────────────────────────────────────────── ; Otherwise, don't cache
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁
 
 
 ... where:
@@ -5145,33 +5099,33 @@ By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
 
 
-    Δ × Γ₀ ⊢ e₀ @ here ⇒ e₂ ⊢ Γ₁
-    ───────────────────────────────────
-    Δ × Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ e₀ ⇒ e₂ ⊢ Γ₁
+    ────────────────────────────────────
+    (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁
 
 
-    Δ × Γ₀ ⊢ e₁ @ here ⇒ e₂ ⊢ Γ₁
-    ───────────────────────────────────  ; if `e₀` fails to resolve
-    Δ × Γ₀ ⊢ (e₀ ? e₁) @ here ⇒ e₂ ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ e₁ ⇒ e₂ ⊢ Γ₁
+    ────────────────────────────────────  ; if `e₀` fails to resolve
+    (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁
 
 
 For all other cases, recursively descend into sub-expressions:
 
 
-    ──────────────────────────────
-    Δ × Γ₀ ⊢ x@n @ here ⇒ x@n ⊢ Γ₁
+    ───────────────────────────────
+    (Δ, here) × Γ₀ ⊢ x@n ⇒ x@n ⊢ Γ₁
 
 
-    Δ × Γ₀ ⊢ A₀ @ here ⇒ A₁ ⊢ Γ₁   Δ × Γ₁ ⊢ b₀ @ here ⇒ b₁ ⊢ Γ₂
-    ───────────────────────────────────────────────────────────
-    Δ × Γ₀ ⊢ λ(x : A₀) → b₀ @ here ⇒ λ(x : A₁) → b₁ ⊢ Γ₂
+    (Δ, here) × Γ₀ ⊢ A₀ ⇒ A₁ ⊢ Γ₁   (Δ, here) × Γ₁ ⊢ b₀ ⇒ b₁ ⊢ Γ₂
+    ─────────────────────────────────────────────────────────────
+    (Δ, here) × Γ₀ ⊢ λ(x : A₀) → b₀ ⇒ λ(x : A₁) → b₁ ⊢ Γ₂
 
 
     …
 
 
     ────────────────────────────────
-    Δ × Γ₀ ⊢ Kind @ here ⇒ Kind ⊢ Γ₁
+    (Δ, here) × Γ₀ ⊢ Kind ⇒ Kind ⊢ Γ₁
 
 
 [ccw]: https://hal.inria.fr/hal-01445835

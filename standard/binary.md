@@ -494,6 +494,9 @@ Dhall record literals translate to CBOR maps:
     encode({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
 
 
+Note: the record fields should be sorted before translating them to CBOR maps.
+
+
 Field access:
 
 
@@ -529,13 +532,21 @@ types encoded as CBOR map:
     encode(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
 
 
-Encode the `constructors` keyword as:
+Also in these cases the fields of the map should be sorted before the conversion.
+
+
+The (now-removed) `constructors` keyword used to be encoded using a leading
+13:
 
 
     encode(u₀) = u₁
-    ───────────────────────────────────────
+    ───────────────────────────────────────  ; OBSOLETE judgment
     encode(constructors u₀) = [ 13, u₁]
 
+
+Avoid reusing the number 13 as long as possible until we run out of numbers less
+than 24, mainly to avoid old encoded expressions containing the `constructors`
+keyword from being decoded as a newer type of expression.
 
 ### `Bool`
 
@@ -1228,14 +1239,6 @@ Decode a CBOR array beginning with a `12` as a union literal:
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
 responsibility of the type-checking phase.
-
-Decode a CBOR array beginning with a `13` as a `constructors` application:
-
-
-    decode(u₁) = u₀
-    ───────────────────────────────────────
-    decode([ 13, u₁]) = constructors u₀
-
 
 ### `Bool`
 
