@@ -1,1 +1,2 @@
-let List : Natural = 1 in List
+-- Builtin names are disallowed as bound variables
+let Bool : Natural = 1 in Bool
