@@ -151,6 +151,8 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * as
 ; * using
 ; * merge
+; * missing
+; * Infinity
 ; * Some
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
@@ -249,6 +251,7 @@ text-literal = (double-quote-literal / single-quote-literal) whitespace
 ;
 ; If you don't feel like reading hex, these are all the same as the rule name,
 ; except without the '-raw' ending.
+; Keywords that should never be parsed as identifiers
 if-raw                = %x69.66
 then-raw              = %x74.68.65.6e
 else-raw              = %x65.6c.73.65
@@ -258,11 +261,12 @@ as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
 missing-raw           = %x6d.69.73.73.69.6e.67
+Infinity-raw          = %x49.6e.66.69.6e.69.74.79
+Some-raw              = %x53.6f.6d.65
+; Reserved identifiers, only needed for some special cases of parsing
 Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
 Text-raw              = %x54.65.78.74
 List-raw              = %x4c.69.73.74
-Some-raw              = %x53.6f.6d.65
-Infinity-raw          = %x49.6e.66.69.6e.69.74.79
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
 if       = if-raw           nonempty-whitespace

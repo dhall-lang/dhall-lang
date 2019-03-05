@@ -173,8 +173,20 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / < x = t >                         ; Union literal with one alternative
   / < x₀ = t₀ | x₁ : T₁	| xs… >       ; Union literal with more than one
                                       ; alternative
+  / missing                           ; Identity for import alternatives,
+                                      ; will always fail to resolve
+  / l ? r                             ; Alternative imports resolution
+  / https://authority directory file  ; URL import
+  / path file                         ; Absolute file path import
+  / . path file                       ; Relative file path import
+  / .. path file                      ; Relative file path import
+  / ~ path file                       ; Home-anchored file path import
+  / env:x                             ; Environment variable import
   / Some a                            ; Constructor for a present Optional value
-  / None                              ; Constructor for an absent Optional value
+
+                                      ; The following are reserved identifiers
+                                      ; for builtins and should be disallowed as
+                                      ; bound variables
   / Natural/build                     ; Natural introduction
   / Natural/fold                      ; Natural elimination
   / Natural/isZero                    ; Test if zero
@@ -204,19 +216,10 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List                              ; List type
   / True                              ; True term
   / False                             ; False term
+  / None                              ; Absent Optional value
   / Type                              ; Type of terms
   / Kind                              ; Type of types
   / Sort                              ; Type of kinds
-  / missing                           ; Identity for import alternatives,
-                                      ; will always fail to resolve
-  / l ? r                             ; Alternative imports resolution
-  / https://authority directory file  ; URL import
-  / path file                         ; Absolute file path import
-  / . path file                       ; Relative file path import
-  / .. path file                      ; Relative file path import
-  / ~ path file                       ; Home-anchored file path import
-  / env:x                             ; Environment variable import
-
 ```
 
 ## Notation for induction
