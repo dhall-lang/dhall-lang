@@ -5,6 +5,147 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v6.0.0`
+
+Breaking changes:
+
+*   [Don't tag encoded expressions with their hash](https://github.com/dhall-lang/dhall-lang/pull/362)
+
+    Up until now, every new release of the standard required upgrading semantic
+    integrity checks since the standard version is included in the input to the
+    hash.  The original intent was to fail fast so that users wouldn't attempt
+    to decode a malformed expression if the binary format changed.
+
+    Now the standard is stable enough that the hash is quickly becoming the only
+    thing that changes for encoded expressions, so this change removes the
+    version from the input to semantic integrity check.  This implies that
+    semantic integrity checks should now be stable across future standard
+    versions (modulo backwards-incompatible changes to the binary format, which
+    may still happen, but much less often).
+
+    This should ease one of the biggest pain points when upgrading interpreters
+    to support newer releases of the standard.
+
+*   [Remove `constructors` keyword](https://github.com/dhall-lang/dhall-lang/pull/385)
+
+    This is phase 3 of the plan to deprecate the `constructors` keyword, which
+    you can find here:
+
+    * [Migration: Deprecation of constructors keyword](https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Deprecation-of-constructors-keyword)
+
+    This phase removes the `constructors` keyword for the language so that new
+    implementations of the Dhall configuration language have one less thing they
+    need to implement.
+
+    If you still haven't migrated yet, the migration is simple: in most cases
+    you can delete the `constructors` keyword and your code will still work.
+    The above link explains how to handle the few cases that might still break
+    as a result of this change.
+
+*   [Add referential sanity check](https://github.com/dhall-lang/dhall-lang/pull/334)
+
+    The referential sanity check is a long-standing feature of the Haskell
+    implementation that is now upstreamed into the standard.  This check is both
+    a security feature and also a "sanity" feature.
+    
+    This check prevents a remote import from importing a local import (i.e. a
+    local file or environment variable).  The exception is that a remote import
+    can still contain a relative import (which still resolves to a remote
+    import when canonicalized).
+
+    Without this check a malicious remote import could exfiltrate the contents
+    of sensitive local files or environment variables using the language's
+    support for custom HTTP headers.
+
+    This check is also "sane" in the sense that remote imports are globally
+    addressable, whereas local imports are not, and it doesn't make sense for
+    something advertised as globally addressable to depend on imports that are
+    not globally addressable.
+
+*   [CBOR-encode only some special values as half-floats](https://github.com/dhall-lang/dhall-lang/pull/376)
+
+    This is a breaking change to the binary representation of `Double` literals
+    in order to support porting Dhall to a wider range of languages, many of
+    which might not support half-width `Double` representations.
+
+    This change only now encodes all `Double` literals using at least 32 bits,
+    with the exception of special values like `NaN` or `Infinity`.
+
+*   [Sort record and union fields before CBOR encoding them](https://github.com/dhall-lang/dhall-lang/pull/392)
+
+    Implementations must now sort record fields and union alternatives when
+    serializing Dhall expressions.  The motivation for this change is to
+    simplify implementation of the language for interpreters so that they don't
+    need to use order-preserving maps for recording the original source order of
+    fields/alternatives.
+
+    Implementations can still internally use order-preserving maps if they want
+    to support non-standard features (like code formatting or better error
+    messages), but restricting the standard serialization format to sorted
+    fields/alternatives ensure binary interoperability with other
+    implementations.
+
+    Note that this is not a breaking change for semantic integrity checks.
+    Fields/alternatives were already sorted for semantic integrity checks since
+    the expression is β-normalized before being hashed (and β-normalization
+    already sorts fields).
+
+    However, this is a potentially breaking change when serializing Dhall
+    expressions in other contexts when the expressions have not yet been
+    β-normalized (i.e. serializing and transmitting uninterpreted Dhall code
+    over the wire).
+
+New features:
+
+*   [Add Unicode support for quoted path characters](https://github.com/dhall-lang/dhall-lang/pull/353)
+
+    You can now use arbitrary Unicode characters in quoted path components, like
+    this:
+
+    ```haskell
+    ./families/"禺.dhall"
+    ```
+
+    This reflects the fact that users might not have control over the names of
+    files that they wish to import.
+
+*   [Add `Text/show` built-in](https://github.com/dhall-lang/dhall-lang/pull/365)
+
+    This adds a new `Text/show` built-in that converts a `Text` literal into
+    equivalent Dhall source code:
+
+    ```
+    Text/show "ABC\ndef" = "\"ABC\\ndef\""
+    ```
+
+    The motivation for this is to enable using Dhall to generate Dhall code and
+    also to use Dhall to generate JSON (since the output of `Text/show` is also
+    JSON-compatible).
+
+Other changes:
+
+*   Fixes and improvements to the grammar
+
+    * [Allow whitespace after -Infinity](https://github.com/dhall-lang/dhall-lang/pull/377)
+    * [Add white space to empty lines inside rules](https://github.com/dhall-lang/dhall-lang/pull/379)
+    * [Rename natural-raw to natural-literal-raw](https://github.com/dhall-lang/dhall-lang/pull/368)
+
+*   Fixes and improvements to the semantics
+
+    * [Fix judgment for shifting contexts](https://github.com/dhall-lang/dhall-lang/pull/369)
+    * [Simplify import resolution judgment](https://github.com/dhall-lang/dhall-lang/pull/391)
+
+*   Fixes and improvements to tests:
+
+    * [Fix parsing test example](https://github.com/dhall-lang/dhall-lang/pull/344)
+    * [Fix test file suffixes](https://github.com/dhall-lang/dhall-lang/pull/347)
+    * [Fix types in parser tests](https://github.com/dhall-lang/dhall-lang/pull/366)
+    * [Restore doubleB.json](https://github.com/dhall-lang/dhall-lang/pull/372)
+
+    * [Add tests to exercise parser tokens for special Double values](https://github.com/dhall-lang/dhall-lang/pull/381)
+    * [Fix 'correct' JSON encoding for doubles in parser test](https://github.com/dhall-lang/dhall-lang/pull/380)
+    * [Use binary encoding in parser tests](https://github.com/dhall-lang/dhall-lang/pull/393)
+
 ## `v5.0.0`
 
 Breaking changes:
