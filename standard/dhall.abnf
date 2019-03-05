@@ -142,18 +142,12 @@ DIGIT = %x30-39  ; 0-9
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 ; A simple label cannot be one of the following reserved keywords:
-;
-; * if
-; * then
-; * else
-; * let
-; * in
-; * as
-; * using
-; * merge
-; * missing
-; * Infinity
-; * Some
+; if, then, else, let, in, as, using, merge, missing, Infinity, Some
+; Additionnally, builtins should be treated specially: they are disallowed
+; everywhere except identifiers, and when parsing identifiers the
+; implementation should recognize them and treate them as special values.
+; The list of those builtins can be found in `semantics.md`, under the
+; heading "Expressions".
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 quoted-label = 1*(ALPHA / DIGIT / "-" / "/" / "_" / ":" / "." / "$")

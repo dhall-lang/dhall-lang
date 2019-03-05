@@ -184,9 +184,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / env:x                             ; Environment variable import
   / Some a                            ; Constructor for a present Optional value
 
-                                      ; The following are reserved identifiers
-                                      ; for builtins and should be disallowed as
-                                      ; bound variables
+                                      ; Reserved identifiers for builtins
   / Natural/build                     ; Natural introduction
   / Natural/fold                      ; Natural elimination
   / Natural/isZero                    ; Test if zero
