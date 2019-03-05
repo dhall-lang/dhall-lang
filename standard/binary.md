@@ -1336,20 +1336,20 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
 
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────────
