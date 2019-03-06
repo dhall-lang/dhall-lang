@@ -154,19 +154,21 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * missing
 ; * Infinity
 ; * Some
-;
-; Additionally, builtins should be treated specially: they are disallowed
-; everywhere except identifiers, and when parsing identifiers the
-; implementation should recognize them and treate them as special values.
-; The list of those builtins can be found in `semantics.md`, under the
-; heading "Expressions".
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
 quoted-label = 1*(ALPHA / DIGIT / "-" / "/" / "_" / ":" / "." / "$")
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
+; A label cannot not be any of the reserved identifiers for builtins. Their
+; list can be found in semantics.md. This is not enforced by the grammar but
+; should be checked by implementations.
 label = ("`" quoted-label "`" / simple-label) whitespace
+
+; An any-label is allowed to be one of the reserved identifiers, but should
+; treat them as special values.
+any-label = label
+
 
 ; Dhall's double-quoted strings are equivalent to JSON strings except with
 ; support for string interpolation (and escaping string interpolation)
@@ -329,7 +331,7 @@ integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
 
 natural-literal = natural-literal-raw whitespace
 
-identifier = label [ at natural-literal-raw whitespace ]
+identifier = any-label [ at natural-literal-raw whitespace ]
 
 missing = missing-raw whitespace
 
