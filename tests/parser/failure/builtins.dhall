@@ -1,6 +1,6 @@
 {-
     Builtin names are disallowed everywhere except identifiers.
-    The grammar doesn't disallow them, so the implementation should
-    refuse it.
+    The grammar doesn't explicitely disallow this, but the implementation should
+    refuse it. See the comments above the `label` rule.
 -}
-let Bool : Natural = 1 in < List = Bool | None : Natural >
+let Bool : Natural = 1 in Bool
