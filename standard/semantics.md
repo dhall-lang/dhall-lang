@@ -4898,6 +4898,71 @@ This is also a sanity check because a referentially transparent import cannot
 truly be referentially transparent if it depends on any referentially opaque
 imports.
 
+### CORS
+
+To protect against server-side request forging, Dhall rejects certain transitive
+remote imports that are not CORS-enabled.  These remote imports
+must return an `Access-Control-Allow-Origin` header that matches their parent
+import.
+
+CORS compliance is denoted by the following judgment:
+
+    corsCompliant(origin, headers)
+
+... where
+
+* `origin` (an input) is the parent import that the import request originated
+  from
+    * `origin` might not necessarily be a remote import
+* `headers` (an input) is an unordered map from the child import's response
+   header names to a list of values
+
+There is no output: either the judgment matches or it does not.
+
+If the `origin` is not a remote import, then the `corsCompliant` judgment
+passes:
+
+
+    ─────────────────────────────────
+    corsCompliant(path file, headers)
+
+
+    ───────────────────────────────────
+    corsCompliant(. path file, headers)
+
+
+    ────────────────────────────────────
+    corsCompliant(.. path file, headers)
+
+
+    ───────────────────────────────────
+    corsCompliant(~ path file, headers)
+
+
+    ─────────────────────────────
+    corsCompliant(env:x, headers)
+
+
+However, if the parent import is a remote import, then the response headers
+for the child import must contain an `Access-Control-Allow-Origin` header
+that matches the parent import or `*`:
+
+
+    headers("Access-Control-Allow-Origin") = [ "*" ]
+    ────────────────────────────────────────────────────────
+    corsCompliant(https://authority directory file, headers)
+
+
+    headers("Access-Control-Allow-Origin") = [ "https://authority" ]
+    ────────────────────────────────────────────────────────────────
+    corsCompliant(https://authority directory file, headers)
+
+
+If the `Access-Control-Allow-Origin` header does not match the scheme and
+authority then the transitive remote import is rejected.  If there is not
+exactly one value for the `Access-Control-Allow-Origin` header then the
+transitive remote import is also rejected.
+
 ### Import resolution judgment
 
 The import resolution phase replaces all imports with the expression located
@@ -4932,7 +4997,13 @@ resolve imports within the retrieved expression:
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = e₀                         ; Retrieve the expression
+    Γ(child) = e₀ using responseHeaders     ; Retrieve the expression, possibly
+                                            ; binding any response headers to
+                                            ; `responseHeaders` if child was a
+                                            ; remote import
+    corsCompliant(parent, responseHeaders)  ; If `child` was not a remote import
+                                            ; and therefore had no response
+                                            ; headers then skip this CORS check
     (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     ────────────────────────────────────  ; * child ∉ (Δ, parent)
@@ -4953,7 +5024,8 @@ If an import ends with `as Text`, import the raw contents of the file as a
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = "s"  ; Read the raw contents of the file
+    Γ(child) = "s" using responseHeaders  ; Read the raw contents of the file
+    corsCompliant(parent, responseHeaders)
     ───────────────────────────────────────────
     (Δ, parent) × Γ ⊢ import₀ as Text ⇒ "s" ⊢ Γ
 
@@ -4963,19 +5035,20 @@ the resolved expression as additional headers supplied to the HTTP request:
 
 
     (Δ, parent) × Γ₀ ⊢ headers ⇒ h₀ ⊢ Γ₁
-    ε ⊢ h₀ : List { header : Text, value : Text }
-    h₀ ⇥ h₁
+    ε ⊢ headers : List { header : Text, value : Text }
+    headers ⇥ requestHeaders
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ₁(https://authority directory file) = e₀  ; Use h₁ for custom headers here
+    Γ₁(https://authority directory file using requestHeaders) = e₀ using responseHeaders ; Append requestHeaders to the request's headers
+    corsCompliant(parent, responseHeaders)
     (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
     ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
     (Δ, parent) × Γ₀ ⊢ https://authority directory file using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
 
 
-For example, if `h₁` in the above judgment normalized to:
+For example, if `requestHeaders` in the above judgment normalized to:
 
     [ { header = "Authorization", value = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
     ]
