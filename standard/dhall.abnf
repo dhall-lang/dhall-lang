@@ -141,43 +141,8 @@ DIGIT = %x30-39  ; 0-9
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
-; A simple label cannot be one of the following reserved names:
+; A simple label cannot be one of the following reserved keywords:
 ;
-; * Bool
-; * Optional
-; * None
-; * Natural
-; * Integer
-; * Double
-; * Text
-; * List
-; * True
-; * False
-; * NaN
-; * Infinity
-; * Type
-; * Kind
-; * Sort
-; * Natural/fold
-; * Natural/build
-; * Natural/isZero
-; * Natural/even
-; * Natural/odd
-; * Natural/toInteger
-; * Natural/show
-; * Integer/toDouble
-; * Integer/show
-; * Double/show
-; * List/build
-; * List/fold
-; * List/length
-; * List/head
-; * List/last
-; * List/indexed
-; * List/reverse
-; * Optional/fold
-; * Optional/build
-; * Text/show
 ; * if
 ; * then
 ; * else
@@ -186,6 +151,8 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; * as
 ; * using
 ; * merge
+; * missing
+; * Infinity
 ; * Some
 simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
 
@@ -193,7 +160,15 @@ quoted-label = 1*(ALPHA / DIGIT / "-" / "/" / "_" / ":" / "." / "$")
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
+; A label cannot not be any of the reserved identifiers for builtins. Their
+; list can be found in semantics.md. This is not enforced by the grammar but
+; should be checked by implementations.
 label = ("`" quoted-label "`" / simple-label) whitespace
+
+; An any-label is allowed to be one of the reserved identifiers, but the
+; implementation should recognize them and treat them as special values.
+any-label = label
+
 
 ; Dhall's double-quoted strings are equivalent to JSON strings except with
 ; support for string interpolation (and escaping string interpolation)
@@ -283,8 +258,8 @@ text-literal = (double-quote-literal / single-quote-literal) whitespace
 ; hex instead for case-sensitive strings
 ;
 ; If you don't feel like reading hex, these are all the same as the rule name,
-; except without the '-raw' ending, and converting dashes in the rule name
-; to forward slashes
+; except without the '-raw' ending.
+; Keywords that should never be parsed as identifiers
 if-raw                = %x69.66
 then-raw              = %x74.68.65.6e
 else-raw              = %x65.6c.73.65
@@ -294,84 +269,12 @@ as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
 missing-raw           = %x6d.69.73.73.69.6e.67
+Infinity-raw          = %x49.6e.66.69.6e.69.74.79
 Some-raw              = %x53.6f.6d.65
-Natural-fold-raw      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
-Natural-build-raw     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
-Natural-isZero-raw    = %x4e.61.74.75.72.61.6c.2f.69.73.5a.65.72.6f
-Natural-even-raw      = %x4e.61.74.75.72.61.6c.2f.65.76.65.6e
-Natural-odd-raw       = %x4e.61.74.75.72.61.6c.2f.6f.64.64
-Natural-toInteger-raw = %x4e.61.74.75.72.61.6c.2f.74.6f.49.6e.74.65.67.65.72
-Natural-show-raw      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
-Integer-toDouble-raw  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
-Integer-show-raw      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
-Double-show-raw       = %x44.6f.75.62.6c.65.2f.73.68.6f.77
-List-build-raw        = %x4c.69.73.74.2f.62.75.69.6c.64
-List-fold-raw         = %x4c.69.73.74.2f.66.6f.6c.64
-List-length-raw       = %x4c.69.73.74.2f.6c.65.6e.67.74.68
-List-head-raw         = %x4c.69.73.74.2f.68.65.61.64
-List-last-raw         = %x4c.69.73.74.2f.6c.61.73.74
-List-indexed-raw      = %x4c.69.73.74.2f.69.6e.64.65.78.65.64
-List-reverse-raw      = %x4c.69.73.74.2f.72.65.76.65.72.73.65
-Optional-fold-raw     = %x4f.70.74.69.6f.6e.61.6c.2f.66.6f.6c.64
-Optional-build-raw    = %x4f.70.74.69.6f.6e.61.6c.2f.62.75.69.6c.64
-Text-show-raw         = %x54.65.78.74.2f.73.68.6f.77
-Bool-raw              = %x42.6f.6f.6c
+; Reserved identifiers, only needed for some special cases of parsing
 Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
-None-raw              = %x4e.6f.6e.65
-Natural-raw           = %x4e.61.74.75.72.61.6c
-Integer-raw           = %x49.6e.74.65.67.65.72
-Double-raw            = %x44.6f.75.62.6c.65
 Text-raw              = %x54.65.78.74
 List-raw              = %x4c.69.73.74
-True-raw              = %x54.72.75.65
-False-raw             = %x46.61.6c.73.65
-NaN-raw               = %x4e.61.4e
-Infinity-raw          = %x49.6e.66.69.6e.69.74.79
-Type-raw              = %x54.79.70.65
-Kind-raw              = %x4b.69.6e.64
-Sort-raw              = %x53.6f.72.74
-
-reserved-raw =
-    Bool-raw
-  / Optional-raw
-  / None-raw
-  / Natural-raw
-  / Integer-raw
-  / Double-raw
-  / Text-raw
-  / List-raw
-  / True-raw
-  / False-raw
-  / NaN-raw
-  / Infinity-raw
-  / Type-raw
-  / Kind-raw
-  / Sort-raw
-
-reserved-namespaced-raw =
-    Natural-fold-raw
-  / Natural-build-raw
-  / Natural-isZero-raw
-  / Natural-even-raw
-  / Natural-odd-raw
-  / Natural-toInteger-raw
-  / Natural-show-raw
-  / Integer-toDouble-raw
-  / Integer-show-raw
-  / Double-show-raw
-  / List-build-raw
-  / List-fold-raw
-  / List-length-raw
-  / List-head-raw
-  / List-last-raw
-  / List-indexed-raw
-  / List-reverse-raw
-  / Optional-fold-raw
-  / Optional-build-raw
-  / Text-show-raw
-
-reserved            = reserved-raw            whitespace
-reserved-namespaced = reserved-namespaced-raw whitespace
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
 if       = if-raw           nonempty-whitespace
@@ -428,13 +331,7 @@ integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
 
 natural-literal = natural-literal-raw whitespace
 
-identifier = label [ at natural-literal-raw whitespace ]
-
-identifier-reserved-prefix =
-    reserved-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-literal-raw whitespace ]
-
-identifier-reserved-namespaced-prefix =
-    reserved-namespaced-raw 1*(ALPHA / DIGIT / "-" / "/" / "_") whitespace [ at natural-literal-raw whitespace ]
+identifier = any-label [ at natural-literal-raw whitespace ]
 
 missing = missing-raw whitespace
 
@@ -718,15 +615,6 @@ selector-expression = primitive-expression *(dot ( label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
-
-; NOTE: The reason why we have three different types of identifiers (that is:
-; identifier, identifier-reserved-prefix, identifier-reserved-namespaced-prefix)
-; is that it's the only way to parse correctly identifiers that start with reserved
-; words, other than using a lexer and use the longest match rule.
-;
-; Since reserved words can include themselves (e.g. 'List/build' includes 'List'),
-; we have to match the "namespaced" reserved words before the identifiers prefixed
-; by a reserved word.
 primitive-expression =
     ; "2.0"
       double-literal
@@ -753,19 +641,6 @@ primitive-expression =
     
     ; "[1, 2, 3]"
     / non-empty-list-literal  ; `annotated-expression` handles empty lists
-    
-    ; "List/foldWith"
-    / identifier-reserved-namespaced-prefix
-    
-    ; "List/head"
-    / reserved-namespaced
-    
-    ; "List/map"
-    ; "TypeDefinition"
-    / identifier-reserved-prefix
-    
-    ; "List"
-    / reserved
     
     ; "x"
     ; "x@2"
