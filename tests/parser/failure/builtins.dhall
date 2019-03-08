@@ -1,0 +1,6 @@
+{-
+    Builtin names are disallowed everywhere except identifiers.
+    The grammar doesn't explicitely disallow this, but the implementation should
+    refuse it. See the comments above the `label` rule.
+-}
+let Bool : Natural = 1 in Bool
