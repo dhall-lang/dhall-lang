@@ -4907,55 +4907,59 @@ import.
 
 CORS compliance is denoted by the following judgment:
 
-    corsCompliant(origin, headers)
+    corsCompliant(parent, child, headers)
 
 ... where
 
-* `origin` (an input) is the parent import that the import request originated
+* `parent` (an input) is the parent import that the import request originated
   from
-    * `origin` might not necessarily be a remote import
+    * `parent` might not necessarily be a remote import
+* `child` (an input) is the child import that the parent imported
 * `headers` (an input) is an unordered map from the child import's response
    header names to a list of values
+    * Each header is associated with a list of values since a header can be
+      specified multiple times
 
 There is no output: either the judgment matches or it does not.
 
-If the `origin` is not a remote import, then the `corsCompliant` judgment
+If the `parent` is not a remote import, then the `corsCompliant` judgment
 passes:
 
 
     ─────────────────────────────────
-    corsCompliant(path file, headers)
+    corsCompliant(path file, child, headers)
 
 
     ───────────────────────────────────
-    corsCompliant(. path file, headers)
+    corsCompliant(. path file, child, headers)
 
 
     ────────────────────────────────────
-    corsCompliant(.. path file, headers)
+    corsCompliant(.. path file, child, headers)
 
 
     ───────────────────────────────────
-    corsCompliant(~ path file, headers)
+    corsCompliant(~ path file, child, headers)
 
 
     ─────────────────────────────
-    corsCompliant(env:x, headers)
+    corsCompliant(env:x, child, headers)
 
 
-However, if the parent import is a remote import, then the response headers
-for the child import must contain an `Access-Control-Allow-Origin` header
-that matches the parent import or `*`:
+However, if the parent import is a remote import and the child import has a
+different scheme or authority, then the response headers for the child import
+must contain an `Access-Control-Allow-Origin` header that matches the parent
+import or `*`:
 
 
     headers("Access-Control-Allow-Origin") = [ "*" ]
-    ────────────────────────────────────────────────────────
-    corsCompliant(https://authority directory file, headers)
+    ──────────────────────────────────────────────────────────────────────────────────────────────
+    corsCompliant(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
 
 
     headers("Access-Control-Allow-Origin") = [ "https://authority" ]
-    ────────────────────────────────────────────────────────────────
-    corsCompliant(https://authority directory file, headers)
+    ──────────────────────────────────────────────────────────────────────────────────────────────
+    corsCompliant(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
 
 
 If the `Access-Control-Allow-Origin` header does not match the scheme and
