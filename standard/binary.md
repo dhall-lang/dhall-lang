@@ -965,9 +965,12 @@ Decode a naked CBOR string to a variable with an index of 0 if the string does
 not match a built-in identifier:
 
 
-    ─────────────────────  ; x ∉ reservedIdentifiers
+    ─────────────────────  ; x ∉ reservedIdentifiers, x ≠ "_"
     decode("x") = x@0
 
+
+A decoder MUST reject a variable named "_", which MUST instead be represented
+by its integer index according to the following decoding rules.
 
 Only variables named `_` encode to a naked CBOR integer, so decoding turns a
 naked CBOR integer back into a variable named `_`:
@@ -1332,20 +1335,19 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, "authority" "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
+    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, "authority" "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
-
+    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, "authority" "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
+    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, "authority" "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────────
