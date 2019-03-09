@@ -1,1 +1,3 @@
-"foo\nbar"
+''
+foo
+bar''
