@@ -4927,24 +4927,32 @@ If the `parent` is not a remote import, then the `corsCompliant` judgment
 passes:
 
 
-    ─────────────────────────────────
+    ────────────────────────────────────────
     corsCompliant(path file, child, headers)
 
 
-    ───────────────────────────────────
+    ──────────────────────────────────────────
     corsCompliant(. path file, child, headers)
 
 
-    ────────────────────────────────────
+    ───────────────────────────────────────────
     corsCompliant(.. path file, child, headers)
 
 
-    ───────────────────────────────────
+    ──────────────────────────────────────────
     corsCompliant(~ path file, child, headers)
 
 
-    ─────────────────────────────
+    ────────────────────────────────────
     corsCompliant(env:x, child, headers)
+
+
+If the `parent` and `child` import share the same origin, then the judgment also
+passes:
+
+
+    ──────────────────────────────────────────────────────────────────────────────────────────────
+    corsCompliant(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
 
 
 However, if the parent import is a remote import and the child import has a
@@ -4954,13 +4962,13 @@ import or `*`:
 
 
     headers("Access-Control-Allow-Origin") = [ "*" ]
-    ──────────────────────────────────────────────────────────────────────────────────────────────
-    corsCompliant(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
+    ────────────────────────────────────────────────
+    corsCompliant(parent, child, headers)
 
 
     headers("Access-Control-Allow-Origin") = [ "https://authority" ]
-    ──────────────────────────────────────────────────────────────────────────────────────────────
-    corsCompliant(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
+    ────────────────────────────────────────────────────────────────
+    corsCompliant(parent, child, headers)
 
 
 If the `Access-Control-Allow-Origin` header does not match the scheme and
