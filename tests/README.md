@@ -66,8 +66,19 @@ with the debugging.
 
 The tests should:
 - parse `A` and `B`
-- eventually resolve the imports in both (if not running `simple` tests)
+- eventually resolve the imports in both (if not running `simple` or `unit` tests)
 - normalize them both
+- the results should match
+
+Where `A` and `B` are:
+- `A`: unnormalized text
+- `B`: normalized text
+
+### Running `α-normalization` tests
+
+The tests should:
+- parse `A` and `B`
+- α-normalize them both
 - the results should match
 
 Where `A` and `B` are:
