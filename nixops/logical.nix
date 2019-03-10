@@ -1,4 +1,16 @@
 { hydra = { pkgs, ... }: {
+    imports =
+      let
+        nixos-mailserver =
+          builtins.fetchTarball {
+            url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.2.0/nixos-mailserver-v2.2.0.tar.gz";
+
+            sha256 = "0gqzgy50hgb5zmdjiffaqp277a68564vflfpjvk1gv6079zahksc";
+          };
+
+      in
+        [ nixos-mailserver ];
+
     environment = {
       etc =
         let
@@ -31,7 +43,30 @@
       systemPackages = [ pkgs.hydra ];
     };
 
-    networking.firewall.allowedTCPPorts = [ 22 80 443 5000 ];
+    mailserver = {
+      enable = true;
+
+      certificateScheme = 3;
+
+      domains = [ "dhall-lang.org" ];
+
+      enableImap = true;
+      enableImapSsl = true;
+      enablePop3 = true;
+      enablePop3Ssl = true;
+
+      fqdn = "mail.dhall-lang.org";
+
+      loginAccounts = {
+        "discourse@dhall-lang.org" = {
+          hashedPassword = "$6$sdBcX1Z1baN$RIg2hutTs/3YHNVVsJ6izfYnhihtS7ygILc/B8mSxiEYLHpajamPdjhyFYajfjeC5Hq8C/rPcyna0O/C3gcHt/";
+
+          aliases = [ "postmaster@dhall-lang.org" ];
+        };
+      };
+    };
+
+    networking.firewall.allowedTCPPorts = [ 22 80 443 ];
 
     nix = {
       autoOptimiseStore = true;
@@ -164,7 +199,7 @@
           locations."/".proxyPass = "http://127.0.0.1:5000";
         };
 
-        virtualHosts."hydra.dhall-lang.org" = {
+        virtualHosts."discourse.dhall-lang.org" = {
           forceSSL = true;
 
           extraConfig = ''
@@ -179,7 +214,7 @@
 
           enableACME = true;
 
-          locations."/".proxyPass = "http://127.0.0.1:3000";
+          locations."/".proxyPass = "http://unix:/var/discourse/shared/standalone/nginx.http.sock";
         };
 
         virtualHosts."prelude.dhall-lang.org" = {
@@ -224,6 +259,99 @@
     };
 
     systemd.services = {
+      discourse =
+        let
+          discourseDirectory = "/var/discourse";
+
+          discourseConfiguration =
+            pkgs.writeText "discourse-app.yaml" ''
+              templates:
+                - "templates/postgres.template.yml"
+                - "templates/redis.template.yml"
+                - "templates/web.template.yml"
+                - "templates/web.ratelimited.template.yml"
+                - "templates/web.socketed.template.yml"
+
+              expose: []
+
+              params:
+                db_default_text_search_config: "pg_catalog.english"
+
+                db_shared_buffers: "256MB"
+
+                db_work_mem: "40MB"
+
+                version: 41f09ee29c44424901054a7dbe0bf8c0a9b86742
+
+              env:
+                LANG: en_US.UTF-8
+
+                UNICORN_WORKERS: 1
+
+                DISCOURSE_HOSTNAME: 'discourse.dhall-lang.org'
+
+                DISCOURSE_DEVELOPER_EMAILS: 'Gabriel439@gmail.com'
+
+                DISCOURSE_SMTP_ADDRESS: mail.dhall-lang.org
+
+                DISCOURSE_SMTP_USER_NAME: discourse@dhall-lang.org
+
+                DISCOURSE_SMTP_PASSWORD: '${builtins.readFile ./discourseSmtpPassword}'
+
+                # TODO: Use CDN?
+                #
+                #DISCOURSE_CDN_URL: https://discourse-cdn.example.com
+
+              volumes:
+                - volume:
+                    host: /var/discourse/shared/standalone
+                    guest: /shared
+                - volume:
+                    host: /var/discourse/shared/standalone/log/var-log
+                    guest: /var/log
+
+              hooks:
+                after_code:
+                  - exec:
+                      cd: $home/plugins
+                      cmd:
+                        - git clone https://github.com/discourse/docker_manager.git
+
+              run: []
+            '';
+
+        in
+          { after = [ "network.target" "docker.service" ];
+
+            path = [ pkgs.git pkgs.nettools pkgs.which pkgs.gawk pkgs.docker ];
+
+            script = ''
+              if [[ ! -e ${discourseDirectory} ]]; then
+                ${pkgs.coreutils}/bin/mkdir --parents ${discourseDirectory}
+
+                cd ${discourseDirectory}
+
+                ${pkgs.git}/bin/git init
+
+                ${pkgs.git}/bin/git remote add origin https://github.com/discourse/discourse_docker.git
+              fi
+
+              cd ${discourseDirectory}
+
+              ${pkgs.git}/bin/git fetch origin --depth=1 16fb17cf51793a5cbf5c364fb8e4497b6d3253a1
+
+              ${pkgs.git}/bin/git reset --hard FETCH_HEAD
+
+              ${pkgs.coreutils}/bin/cp ${discourseConfiguration} ${discourseDirectory}/containers/app.yml
+
+              ${pkgs.bash}/bin/bash ${discourseDirectory}/launcher rebuild app
+            '';
+
+            wantedBy = [ "multi-user.target" ];
+
+            wants = [ "docker.service" ];
+          };
+
       generate-hydra-queue-runner-key-pair = {
         script =
           let
@@ -299,5 +427,7 @@
         wantedBy = [ "multi-user.target" ];
       };
     };
+
+    virtualisation.docker.enable = true;
   };
 }
