@@ -217,6 +217,24 @@
           locations."/".proxyPass = "http://unix:/var/discourse/shared/standalone/nginx.http.sock";
         };
 
+        virtualHosts."hydra.dhall-lang.org" = {
+          forceSSL = true;
+
+          extraConfig = ''
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Server $host;
+            proxy_set_header Accept-Encoding "";
+          '';
+
+          enableACME = true;
+
+          locations."/".proxyPass = "http://127.0.0.1:3000";
+        };
+
         virtualHosts."prelude.dhall-lang.org" = {
           forceSSL = true;
 
