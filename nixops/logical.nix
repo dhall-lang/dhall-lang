@@ -48,7 +48,7 @@
 
       certificateScheme = 3;
 
-      domains = [ "dhall-lang.org" ];
+      domains = [ "discourse.dhall-lang.org" "dhall-lang.org" ];
 
       enableImap = true;
       enableImapSsl = true;
