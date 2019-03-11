@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Bool`.and ([] : List Bool)
+../../../../../../Prelude/Bool/and ([] : List Bool)

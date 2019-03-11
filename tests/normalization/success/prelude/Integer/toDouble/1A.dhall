@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Integer`.toDouble +2
+../../../../../../Prelude/Integer/toDouble +2

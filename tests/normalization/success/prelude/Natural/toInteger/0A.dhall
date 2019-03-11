@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Natural`.toInteger 3
+../../../../../../Prelude/Natural/toInteger 3

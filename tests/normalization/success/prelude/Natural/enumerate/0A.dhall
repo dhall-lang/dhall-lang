@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Natural`.enumerate 10
+../../../../../../Prelude/Natural/enumerate 10

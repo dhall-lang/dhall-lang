@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Natural`.odd 3
+../../../../../../Prelude/Natural/odd 3

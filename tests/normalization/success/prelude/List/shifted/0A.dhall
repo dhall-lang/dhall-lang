@@ -1,4 +1,4 @@
-(../../../../../../Prelude/package.dhall).`List`.shifted
+../../../../../../Prelude/List/shifted
 Bool
 [ [ { index = 0, value = True }
   , { index = 1, value = True }

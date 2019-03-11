@@ -1,4 +1,4 @@
-(../../../../../../Prelude/package.dhall).`List`.concat Natural
+../../../../../../Prelude/List/concat Natural
 [ [] : List Natural
 , [] : List Natural
 , [] : List Natural

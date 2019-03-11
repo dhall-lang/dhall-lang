@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Natural`.toInteger 0
+../../../../../../Prelude/Natural/toInteger 0
