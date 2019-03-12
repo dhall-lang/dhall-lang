@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Double`.show 0.4
+../../../../../../Prelude/Double/show 0.4

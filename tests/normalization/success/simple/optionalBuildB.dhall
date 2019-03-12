@@ -1,9 +1,9 @@
 { example0 =
-    [ 1 ] : Optional Natural
+    Some 1
 , example1 =
-    [ +1 ] : Optional Integer
+    Some +1
 , example2 =
-    λ(id : ∀(a : Type) → a → a) → id (Optional Bool) ([ True ] : Optional Bool)
+    λ(id : ∀(a : Type) → a → a) → id (Optional Bool) (Some True)
 , example3 =
-    λ(a : Type) → λ(x : a) → [ x ] : Optional a
+    λ(a : Type) → λ(x : a) → Some x
 }

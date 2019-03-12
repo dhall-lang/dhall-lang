@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Natural`.even 0
+../../../../../../Prelude/Natural/even 0

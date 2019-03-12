@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Integer`.show -3
+../../../../../../Prelude/Integer/show -3

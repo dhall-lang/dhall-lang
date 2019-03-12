@@ -1,1 +1,1 @@
-(../../../../../Prelude/package.dhall).`Optional`.head
+../../../../../Prelude/Optional/head

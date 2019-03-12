@@ -1,1 +1,4 @@
-"-- Hello\n{- world -}\n"
+''
+-- Hello
+{- world -}
+''

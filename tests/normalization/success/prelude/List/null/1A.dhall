@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`List`.null Natural ([] : List Natural)
+../../../../../../Prelude/List/null Natural ([] : List Natural)

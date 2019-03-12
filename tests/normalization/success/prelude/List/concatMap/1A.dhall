@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`List`.concatMap Natural Natural (λ(n : Natural) → [ n, n ]) ([] : List Natural)
+../../../../../../Prelude/List/concatMap Natural Natural (λ(n : Natural) → [ n, n ]) ([] : List Natural)
