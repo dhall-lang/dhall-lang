@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`List`.indexed Bool ([] : List Bool)
+../../../../../../Prelude/List/indexed Bool ([] : List Bool)

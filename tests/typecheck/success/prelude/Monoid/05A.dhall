@@ -1,1 +1,1 @@
-(../../../../../Prelude/package.dhall).`List`.shifted
+../../../../../Prelude/List/shifted

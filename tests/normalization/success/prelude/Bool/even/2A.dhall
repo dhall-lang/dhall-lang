@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Bool`.even [ False ]
+../../../../../../Prelude/Bool/even [ False ]

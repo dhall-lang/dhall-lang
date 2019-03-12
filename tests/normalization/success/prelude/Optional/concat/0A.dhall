@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Optional`.concat Natural (Some (Some 1))
+../../../../../../Prelude/Optional/concat Natural (Some (Some 1))

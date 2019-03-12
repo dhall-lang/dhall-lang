@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Optional`.head Natural ([] : List (Optional Natural))
+../../../../../../Prelude/Optional/head Natural ([] : List (Optional Natural))

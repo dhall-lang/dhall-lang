@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Bool`.show False
+../../../../../../Prelude/Bool/show False
