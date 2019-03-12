@@ -1,1 +1,1 @@
-[ 1 ] : List Natural
+[ 1 ]
