@@ -299,7 +299,7 @@ equal         = "="  whitespace
 or            = "||" whitespace
 plus          = "+"  nonempty-whitespace  ; To disambiguate `f +2`
 text-append   = "++" whitespace
-list-append   = "#"  nonempty-whitespace  ; To disambiguate `http://a/a#a`
+list-append   = "#"  whitespace
 and           = "&&" whitespace
 times         = "*"  whitespace
 double-equal  = "==" whitespace
