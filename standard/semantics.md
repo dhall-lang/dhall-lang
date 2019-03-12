@@ -4968,7 +4968,7 @@ import or `*`:
 
     headers("Access-Control-Allow-Origin") = [ "https://authority" ]
     ────────────────────────────────────────────────────────────────
-    corsCompliant(parent, child, headers)
+    corsCompliant(https://authority directory file, child, headers)
 
 
 If the `Access-Control-Allow-Origin` header does not match the scheme and
