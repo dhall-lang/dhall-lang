@@ -1,1 +1,1 @@
-(../../../../../Prelude/package.dhall).`Text`.concat
+../../../../../Prelude/Text/concat

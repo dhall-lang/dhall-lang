@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Text`.show "ABC"
+../../../../../../Prelude/Text/show "ABC"

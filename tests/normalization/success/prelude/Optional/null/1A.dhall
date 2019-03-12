@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Optional`.null Natural (None Natural)
+../../../../../../Prelude/Optional/null Natural (None Natural)

@@ -1,1 +1,4 @@
-"  foo\n  bar\n"
+''
+  foo
+  bar
+''

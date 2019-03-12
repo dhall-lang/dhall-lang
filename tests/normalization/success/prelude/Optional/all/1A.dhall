@@ -1,1 +1,1 @@
-(../../../../../../Prelude/package.dhall).`Optional`.all Natural Natural/even (None Natural)
+../../../../../../Prelude/Optional/all Natural Natural/even (None Natural)

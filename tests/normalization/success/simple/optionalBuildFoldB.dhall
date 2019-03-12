@@ -1,1 +1,1 @@
-[ "foo" ] : Optional Text
+Some "foo"
