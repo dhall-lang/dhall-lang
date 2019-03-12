@@ -28,6 +28,19 @@ instructions:
     $ nix-shell --packages nixops
     ```
 
+*   Provide the `discourse@dhall-lang.org` account password
+
+    Save the account password using:
+
+    ```bash
+    $ echo -n "${PASSWORD}" > nixops/discourseSmtpPassword
+    ```
+
+    If you are creating this account for the first time , then pick any password
+    and then update the
+    `mailserver.loginAccounts."discourse@dhall-lang.org".hashedPassword`
+    NixOS configuration option in `nixops/logical.nix` to match.
+
 *   Deploy the infrastructure using `nixops`:
 
     First, create the deployment specification:
@@ -84,5 +97,11 @@ instructions:
 
 *   Restart any builds that fail due to "Output limit exceeded".  This is a
     harmless error
+
+*   Set up the mail server to not be rejected as spam
+
+    Follow the instructions here:
+
+    * [`nixos-mailserver` - A Complete Setup Guide](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/A-Complete-Setup-Guide)
 
 *   You're done!
