@@ -3228,18 +3228,20 @@ Equivalence is a relationship between two expression of the form:
     l ≡ r
 
 
-Two expressions are equivalent if they are identical when both are β-normalized
-and then α-normalized:
+Two expressions are equivalent if they are identical after β-normalization,
+α-normalization, and binary encoding:
 
 
-    l₀ ⇥ l₁   l₁ ↦ e   r₀ ⇥ r₁   r₁ ↦ e
-    ───────────────────────────────────
+    l₀ ⇥ l₁   l₁ ↦ x   encode(x) = b   r₀ ⇥ r₁   r₁ ↦ y   encode(y) = b
+    ───────────────────────────────────────────────────────────────────
     l₀ ≡ r₀
 
 
 Note that this definition of equivalence does not include η-equivalence, so
 `λ(f : Bool → Bool) → λ(x : Bool) → f x` and `λ(f : Bool → Bool) → f` are not
 equivalent.
+
+Note also that this means that `Double`s should not be compared using standard float equality.
 
 ## Function check
 
