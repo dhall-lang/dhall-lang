@@ -79,12 +79,15 @@ conformant with the changes to the typechecker, import system, etc.
 ## How do changes get approved?
 
 Changes only require approval if they change the [standard][standard] or
-[Prelude][prelude].  Anybody with the "commit bit" (i.e. write access to this
-repository) can merge a pull request after a 24 hour waiting period.  See below
-for more details about how to obtain the commit bit.
+[Prelude][prelude].  If a pull request does not require approval, anybody with
+the "commit bit" (i.e. write access to this repository) can merge it after a 24
+hour waiting period.  See below for more details about how to obtain the commit
+bit.
 
-Language changes are voted on by actively maintained implementations of the
-Dhall language.  Each implementation gets one vote.
+Changes to the [standard][standard] and [Prelude][prelude] are voted on by
+actively maintained implementations of the Dhall language.  Votes are made
+using the GitHub pull request approval feature.  Each implementation gets one
+vote.
 
 At the time of this writing the two actively supported implementations of Dhall
 are:
