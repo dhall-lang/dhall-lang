@@ -86,7 +86,7 @@ bit.
 
 Changes to the [standard][standard] and [Prelude][prelude] are voted on by
 actively maintained implementations of the Dhall language.  Votes are made
-using the GitHub pull request approval feature.  Each implementation gets one
+using the GitHub pull request review feature.  Each implementation gets one
 vote.
 
 At the time of this writing the two actively supported implementations of Dhall
