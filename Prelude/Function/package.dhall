@@ -1,1 +1,4 @@
-{ compose = ./compose }
+{ compose =
+    ./compose sha256:65ad8bbea530b3d8968785a7cf4a9a7976b67059aa15e3b61fcba600a40ae013
+    ? ./compose
+}
