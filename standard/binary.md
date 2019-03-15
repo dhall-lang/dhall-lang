@@ -701,29 +701,25 @@ After that a URL import contains the following elements:
     * If there is a query component then it is stored without the `?`
     * A query component with internal `&` separators is still one element
     * For example `?foo=1&bar=true` is stored as `"foo=1&bar=true"`
-* Then comes one element for the fragment component
-    * If there is no fragment component then it is encoded as `null`
-    * If there is a fragment component then it is stored without the `#`
-    * For example, `#bar` is stored as `"bar"`
 
 The full rules are:
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query#fragment) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null, null ]
+    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]
 
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query#fragment) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]
+    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null, null ]
+    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]
 
 
 If you import `using headers`, then the fourth element contains the import
@@ -1339,20 +1335,19 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = http://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null, null ]) = http://authority/path₀/path₁/…/file
-
+    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query", "fragment" ]) = https://authority/path₀/path₁/…/file?query#fragment
+    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null, null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────────
