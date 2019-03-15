@@ -131,8 +131,6 @@ whitespace-chunk =
 
 whitespace = *whitespace-chunk
 
-nonempty-whitespace = 1*whitespace-chunk
-
 ; Uppercase or lowercase ASCII letter
 ALPHA = %x41-5A / %x61-7A
 
@@ -168,7 +166,7 @@ quoted-label = 1*quoted-label-char
 ; A label cannot not be any of the reserved identifiers for builtins. Their
 ; list can be found in semantics.md. This is not enforced by the grammar but
 ; should be checked by implementations.
-label = ("`" quoted-label "`" / simple-label) whitespace
+label = whitespace ("`" quoted-label "`" / simple-label)
 
 ; An any-label is allowed to be one of the reserved identifiers, but the
 ; implementation should recognize them and treat them as special values.
@@ -257,7 +255,7 @@ single-quote-continue =
 
 single-quote-literal = "''" end-of-line single-quote-continue
 
-text-literal = (double-quote-literal / single-quote-literal) whitespace
+text-literal = whitespace (double-quote-literal / single-quote-literal)
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
@@ -282,63 +280,63 @@ Text-raw              = %x54.65.78.74
 List-raw              = %x4c.69.73.74
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
-if       = if-raw           nonempty-whitespace
-then     = then-raw         nonempty-whitespace
-else     = else-raw         nonempty-whitespace
-let      = let-raw          nonempty-whitespace
-in       = in-raw           nonempty-whitespace
-as       = as-raw           nonempty-whitespace
-using    = using-raw        nonempty-whitespace
-merge    = merge-raw        nonempty-whitespace
-Some     = Some-raw         nonempty-whitespace
-Optional = Optional-raw     whitespace
-Text     = Text-raw         whitespace
-List     = List-raw         whitespace
+if       = whitespace if-raw           whitespace-chunk
+then     = whitespace then-raw         whitespace-chunk
+else     = whitespace else-raw         whitespace-chunk
+let      = whitespace let-raw          whitespace-chunk
+in       = whitespace in-raw           whitespace-chunk
+as       = whitespace as-raw           whitespace-chunk
+using    = whitespace using-raw        whitespace-chunk
+merge    = whitespace merge-raw        whitespace-chunk
+Some     = whitespace Some-raw         whitespace-chunk
+Optional = whitespace Optional-raw
+Text     = whitespace Text-raw
+List     = whitespace List-raw
 
-equal         = "="  whitespace
-or            = "||" whitespace
-plus          = "+"  nonempty-whitespace  ; To disambiguate `f +2`
-text-append   = "++" whitespace
-list-append   = "#"  whitespace
-and           = "&&" whitespace
-times         = "*"  whitespace
-double-equal  = "==" whitespace
-not-equal     = "!=" whitespace
-dot           = "."  whitespace
-open-brace    = "{"  whitespace
-close-brace   = "}"  whitespace
-open-bracket  = "["  whitespace
-close-bracket = "]"  whitespace
-open-angle    = "<"  whitespace
-close-angle   = ">"  whitespace
-bar           = "|"  whitespace
-comma         = ","  whitespace
-open-parens   = "("  whitespace
-close-parens  = ")"  whitespace
-at            = "@"  whitespace
-colon         = ":"  nonempty-whitespace  ; To disambiguate `env:VARIABLE` from type annotations
-import-alt    = "?"  nonempty-whitespace  ; To disambiguate `http://a/a?a`
+equal         = whitespace "="
+or            = whitespace "||"
+plus          = whitespace "+"  whitespace-chunk  ; To disambiguate `f +2`
+text-append   = whitespace "++"
+list-append   = whitespace "#"
+and           = whitespace "&&"
+times         = whitespace "*"
+double-equal  = whitespace "=="
+not-equal     = whitespace "!="
+dot           = whitespace "."
+open-brace    = whitespace "{"
+close-brace   = whitespace "}"
+open-bracket  = whitespace "["
+close-bracket = whitespace "]"
+open-angle    = whitespace "<"
+close-angle   = whitespace ">"
+bar           = whitespace "|"
+comma         = whitespace ","
+open-parens   = whitespace "("
+close-parens  = whitespace ")"
+at            = whitespace "@"
+colon         = whitespace ":"  whitespace-chunk  ; To disambiguate `env:VARIABLE` from type annotations
+import-alt    = whitespace "?"  whitespace-chunk  ; To disambiguate `http://a/a?a`
 
-combine       = ( %x2227 / "/\"                ) whitespace
-combine-types = ( %x2A53 / "//\\"              ) whitespace
-prefer        = ( %x2AFD / "//"                ) whitespace
-lambda        = ( %x3BB  / "\"                 ) whitespace
-forall        = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
-arrow         = ( %x2192 / "->"                ) whitespace
+combine       = whitespace ( %x2227 / "/\"                )
+combine-types = whitespace ( %x2A53 / "//\\"              )
+prefer        = whitespace ( %x2AFD / "//"                )
+lambda        = whitespace ( %x3BB  / "\"                 )
+forall        = whitespace ( %x2200 / %x66.6f.72.61.6c.6c )
+arrow         = whitespace ( %x2192 / "->"                )
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespace
+double-literal = whitespace [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
 natural-literal-raw = 1*DIGIT
 
-integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
+integer-literal = whitespace ( "+" / "-" ) natural-literal-raw
 
-natural-literal = natural-literal-raw whitespace
+natural-literal = whitespace natural-literal-raw
 
-identifier = any-label [ at natural-literal-raw whitespace ]
+identifier = any-label [ at whitespace natural-literal-raw ]
 
-missing = missing-raw whitespace
+missing = whitespace missing-raw
 
 ; Printable characters other than " ()[]{}<>/\,"
 ;
@@ -396,7 +394,7 @@ local-raw =
     ; as an operator instead of a path
     / directory file  ; Absolute path
 
-local = local-raw whitespace
+local = whitespace local-raw
 
 ; `http[s]` URI grammar based on RFC7230 and RFC 3986 with some differences
 ; noted below
@@ -461,16 +459,15 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http =
-    http-raw whitespace
+    whitespace http-raw
     [ using (import-hashed / open-parens import-hashed close-parens) ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
-env = "env:"
+env = whitespace "env:"
     ( bash-environment-variable
     / %x22 posix-environment-variable %x22
     )
-    whitespace
 
 ; Bash supports a restricted subset of POSIX environment variables.  From the
 ; Bash `man` page, an environment variable name is:
@@ -531,7 +528,7 @@ posix-environment-variable-character =
 
 import-type = missing / local / http / env
 
-hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
+hash = whitespace %x73.68.61.32.35.36.3a 64HEXDIG  ; "sha256:XXX...XXX"
 
 import-hashed = import-type [ hash ]
 
@@ -540,7 +537,7 @@ import-hashed = import-type [ hash ]
 ; "env:FOO"
 import = import-hashed [ as Text ]
 
-; NOTE: Every rule past this point should only reference rules that end with
+; NOTE: Every rule past this point should only reference rules that begin with
 ; whitespace.  This ensures consistent handling of whitespace in the absence of
 ; a separate lexing step
 
@@ -633,7 +630,7 @@ primitive-expression =
     / integer-literal
     
     ; "-Infinity"
-    / "-" Infinity-raw whitespace
+    / whitespace "-" Infinity-raw
     
     ; '"ABC"'
     / text-literal
@@ -681,6 +678,6 @@ non-empty-union-type-or-literal =
 
 non-empty-list-literal = open-bracket expression *(comma expression) close-bracket
 
-; All expressions end with trailing whitespace.  This just adds a final
-; whitespace prefix for the top-level of the program
-complete-expression = whitespace expression
+; All expressions end with leading whitespace.  This just adds a final
+; whitespace suffix for the top-level of the program
+complete-expression = expression whitespace
