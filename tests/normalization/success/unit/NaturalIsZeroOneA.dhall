@@ -1,0 +1,1 @@
+Natural/isZero 1
