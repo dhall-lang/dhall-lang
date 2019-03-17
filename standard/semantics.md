@@ -3988,7 +3988,7 @@ records of terms or records of types:
     Γ ⊢ { a : A₁, rs… } :⇥ Type
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ───────────────────────────────
-    Γ ⊢ l ⫽ r : { a : A₀, ts… }
+    Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
     Γ ⊢ l :⇥ { ls… }
@@ -4006,7 +4006,7 @@ records of terms or records of types:
     Γ ⊢ { a : A₁, rs… } :⇥ Kind
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ───────────────────────────────
-    Γ ⊢ l ⫽ r : { a : A₀, ts… }
+    Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
     Γ ⊢ l :⇥ { ls… }
@@ -4024,7 +4024,7 @@ records of terms or records of types:
     Γ ⊢ { a : A₁, rs… } :⇥ Sort
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ───────────────────────────────
-    Γ ⊢ l ⫽ r : { a : A₀, ts… }
+    Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
 If the operator arguments are not records then that is a type error.
