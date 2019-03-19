@@ -676,7 +676,7 @@ union-type-or-literal =
 non-empty-union-type-or-literal =
     label
     ( equal expression *(bar label colon expression)
-    / colon expression (bar non-empty-union-type-or-literal / "")
+    / [ colon expression ] (bar non-empty-union-type-or-literal / "")
     )
 
 non-empty-list-literal = open-bracket expression *(comma expression) close-bracket

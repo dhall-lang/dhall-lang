@@ -169,7 +169,10 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / {=}                               ; Empty record literal
   / { x = t, xs… }                    ; Non-empty record literal
   / <>                                ; Empty union type
-  / < x : T | xs… >                   ; Non-empty union type
+  / < x : T | xs… >                   ; Union type with at least one non-empty
+                                      ; alternative
+  / < x | xs… >                       ; Union type with at least one empty
+                                      ; alternative
   / < x = t >                         ; Union literal with one alternative
   / < x₀ = t₀ | x₁ : T₁	| xs… >       ; Union literal with more than one
                                       ; alternative
@@ -242,6 +245,9 @@ t          : Naked label which could be any type of expression.
 < x : T | xs… >            : A union type with 1 or more alternative-type pairs.
                              At least one alternative is named `x` with a type
                              of `T`.
+< x | xs… >                : A union type with 1 or more empty alternatives
+                             At least one alternative is named `x`, which is an
+                             empty alternative
 < x = t | xs… >            : A union literal with 0 or more alternative-type
                              pairs.  The specified alternative is named `x` with
                              value of `t`.
@@ -709,7 +715,7 @@ The remaining rules are:
 
     ↑(d, x, m, T₀) = T₁   ↑(d, x, m, { xs₀… }) = { xs₁… }
     ─────────────────────────────────────────────────────
-    ↑(d, x, m, { x : T₀, xs₀… }) = { x : T₁, xs₁… }
+    ↑(d, x, m, { x₀ : T₀, xs₀… }) = { x₀ : T₁, xs₁… }
 
 
     ─────────────────────
@@ -718,7 +724,7 @@ The remaining rules are:
 
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, { xs₀… }) = { xs₁… }
     ─────────────────────────────────────────────────────
-    ↑(d, x, m, { x = t₀, xs₀… }) = { x = t₁, xs₁… }
+    ↑(d, x, m, { x₀ = t₀, xs₀… }) = { x₀ = t₁, xs₁… }
 
 
     ───────────────────
@@ -727,12 +733,17 @@ The remaining rules are:
 
     ↑(d, x, m, T₀) = T₁   ↑(d, x, m, < xs₀… >) = < xs₁… >
     ─────────────────────────────────────────────────────
-    ↑(d, x, m, < x : T₀ | xs₀… >) = < x : T₁ | xs₁… >
+    ↑(d, x, m, < x₀ : T₀ | xs₀… >) = < x₀ : T₁ | xs₁… >
+
+
+    ↑(d, x, m, < xs₀… >) = < xs₁… >
+    ─────────────────────────────────────────
+    ↑(d, x, m, < x₀ | xs₀… >) = < x₀ | xs₁… >
 
 
     ↑(d, x, m, t₀) = t₁
-    ───────────────────────────────────
-    ↑(d, x, m, < x = t₀ >) = < x = t₁ >
+    ─────────────────────────────────────
+    ↑(d, x, m, < x₀ = t₀ >) = < x₀ = t₁ >
 
 
     ↑(d, x, m, T₁₀) = T₁₁
@@ -1280,6 +1291,11 @@ The remaining rules are:
     < x₀ : T₀ | xs₀… >[x@n ≔ e] = < x₀ : T₁ | xs₁… >
 
 
+    < xs₀… >[x@n ≔ e] = < xs₁… >
+    ──────────────────────────────────────
+    < x₀ | xs₀… >[x@n ≔ e] = < x₀ | xs₁… >
+
+
     t₀[x@n ≔ e] = t₁
     ──────────────────────────────────
     < x₀ = t₀ >[x@n ≔ e] = < x₀ = t₁ >
@@ -1750,6 +1766,11 @@ sub-expressions for the remaining rules:
     T₀ ↦ T₁   < xs₀… > ↦ < xs₁… >
     ─────────────────────────────────────
     < x : T₀ | xs₀… > ↦ < x : T₁ | xs₁… >
+
+
+    < xs₀… > ↦ < xs₁… >
+    ───────────────────────────
+    < x | xs₀… > ↦ < x | xs₁… >
 
 
     t₀ ↦ t₁
@@ -2961,8 +2982,15 @@ alternative:
     < x : T₀ | xs₀… > ⇥ < x : T₁ | xs₁… >
 
 
-Normalizing a union value sorts the alternatives, normalizes the specified
-value, and normalizes the type of each alternative:
+    < xs₀… > ⇥ < xs₁… >
+    ───────────────────────────
+    < x | xs₀… > ⇥ < x | xs₁… >
+
+
+The language still supports a deprecated union literal syntax for selecting one
+alternative of the union.  Normalizing this deprecated form sorts the
+alternatives, normalizes the specified value, and normalizes the type of each
+alternative:
 
 
     t₀ ⇥ t₁
@@ -2975,10 +3003,34 @@ value, and normalizes the type of each alternative:
     < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… > ⇥ < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
 
+However, the newer preferred syntax is to access a union constructor as if it
+were a field of the union type:
+
+
+    u ⇥ < x₀ : T₀ | xs… >
+    ────────────────────────────
+    u.x₀ ⇥  < x₀ : T₀ | xs… >.x₀
+
+
+    u ⇥ < x₀ | xs… >
+    ───────────────────────
+    u.x₀ ⇥  < x₀ | xs… >.x₀
+
+
+Normalizing this type of constructor access only normalizes the union type but
+is otherwise inert.  The expression does not reduce further until supplied to a
+`merge`.
+
 `merge` expressions are the canonical way to eliminate a union literal.  The
 first argument to `merge` is a record of handlers and the second argument is a
-union value.  Apply the handler of the same label to the selected value of the
-union literal:
+union value, which can be in one of three forms:
+
+* A (deprecated) union literal of the form: `< x = v | … >`
+* A union constructor for a non-empty alternative: `< x : T | … >.x v`
+* A union constructor for an empty alternative: `< x | … >.x`
+
+For union literals selecting non-empty alternatives, apply the handler of the
+same label to the wrapped value of the union literal:
 
 
     t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
@@ -2986,37 +3038,50 @@ union literal:
     merge t u : T ⇥ b
 
 
-    t₀ ⇥ t₁   u₀ ⇥ u₁   T₀ ⇥ T₁
-    ───────────────────────────────────  ; If no other rule matches
-    merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
-
-
     t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
     ──────────────────────────────────────────────
     merge t u ⇥ b
+
+
+Union constructors for non-empty alternatives behave the same as union literals:
+
+
+    t ⇥ { x = f, … }   u ⇥ < x : T₀ | … >.x a   f a ⇥ b
+    ───────────────────────────────────────────────────
+    merge t u : T ⇥ b
+
+
+    t ⇥ { x = f, … }   u ⇥ < x : T | … >.x a   f a ⇥ b
+    ──────────────────────────────────────────────────
+    merge t u ⇥ b
+
+
+For union constructors specifying empty alternatives, return the handler of the
+matching label:
+
+
+    t ⇥ { x = v, … }   u ⇥ < x | … >.x   v ⇥ b
+    ──────────────────────────────────────────
+    merge t u : T ⇥ b
+
+
+    t ⇥ { x = v, … }   u ⇥ < x | … >.x   v ⇥ b
+    ──────────────────────────────────────────
+    merge t u ⇥ b
+
+
+If the handler or union are abstract, then normalize each subexpression:
+
+
+    t₀ ⇥ t₁   u₀ ⇥ u₁   T₀ ⇥ T₁
+    ───────────────────────────────────  ; If no other rule matches
+    merge t₀ u₀ : T₀ ⇥ merge t₁ u₁ : T₁
 
 
     t₀ ⇥ t₁   u₀ ⇥ u₁
     ─────────────────────────  ; If no other rule matches
     merge t₀ u₀ ⇥ merge t₁ u₁
 
-
-You can project out a union constructor to a function to the union literal:
-
-
-    u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ───────────────────────────────────────────────
-    u.x₀ ⇥  λ(x₀ : T₀) → < x₀ = x₀ | x₁ : T₁ | xs… >
-
-
-The type system ensures that the selected constructor must be present.
-
-Otherwise, normalize the argument:
-
-
-    u₀ ⇥ u₁
-    ───────────  ; If no other rule matches
-    u₀.x ⇥ u₁.x
 
 ### `Integer`
 
@@ -4153,12 +4218,23 @@ type error.
 
 If two alternatives share the same name then that is a type error.
 
-Union values are also anonymous:
+Union literals are also anonymous:
 
 
     Γ ⊢ t : T   Γ ⊢ < x : T | ts… > :⇥ i
     ─────────────────────────────────────
     Γ ⊢ < x = t | ts… > : < x : T | ts… >
+
+
+However, union literals are deprecated in favor of union constructors.
+
+If a union alternative is non-empty then the corresponding constructor is a
+function that wraps a value of the appropriate type:
+
+
+    Γ ⊢ < x : T | ts… > : c
+    ───────────────────────────────────────────
+    Γ ⊢ < x : T | ts… >.x : T → < x : T | ts… >
 
 
 A `merge` expression is well-typed if there is a one-to-one correspondence
@@ -4186,6 +4262,21 @@ between the fields of the handler record and the alternatives of the union:
     A₀ ≡ A₁
     ↑(-1, x, 0, T₀) = T₁
     ────────────────────────────────────  ; `x` not free in `T₀`
+    Γ ⊢ merge t u : T₀
+
+
+    Γ ⊢ t :⇥ { y : T₀, ts… }
+    Γ ⊢ u :⇥ < y | us… >
+    Γ ⊢ (merge { ts… } < us… > : T₁) : T₂
+    T₀ ≡ T₁
+    ─────────────────────────────────────
+    Γ ⊢ (merge t u : T₁) : T₁
+
+
+    Γ ⊢ t :⇥ { y : T₀, ts… }
+    Γ ⊢ u :⇥ < y | us… >
+    Γ ⊢ (merge { ts… } < us… > : T₀) : T₁
+    ─────────────────────────────────────
     Γ ⊢ merge t u : T₀
 
 
@@ -4219,8 +4310,9 @@ A constructor field can only be selected from a union if it is present:
 
 
     Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    ───────────────────────────────────────────────────
     Γ ⊢ u.x₀ : ∀(x₀ : T₀) → < x₀ : T₀ | x₁ : T₁ | xs… >
+
 
 ### `Integer`
 
