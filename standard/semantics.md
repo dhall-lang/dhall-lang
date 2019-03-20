@@ -4212,6 +4212,11 @@ and types of their alternatives:
     Γ ⊢ < x : T | ts… > : Sort
 
 
+    Γ ⊢ < ts… > :⇥ c
+    ───────────────────  ; x ∉ < ts… >
+    Γ ⊢ < x | ts… > : c
+
+
 Note that the above rule allows storing values, types, and kinds in unions.
 However, if the type of the alternative is not `Type` or `Kind` then that is a
 type error.
