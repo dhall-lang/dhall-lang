@@ -1,0 +1,1 @@
+{ x = Type } ∧ { y = Type }

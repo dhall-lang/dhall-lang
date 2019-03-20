@@ -1,0 +1,1 @@
+{ x = Bool } ⫽ { x = Kind }
