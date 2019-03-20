@@ -1,1 +1,1 @@
-∀(k : Kind) → (k → k → Type) → k → k → Type
+∀(k : Kind) → ∀(a : k → k → Type) → ∀(x : k) → k → Type
