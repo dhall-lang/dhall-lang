@@ -3060,14 +3060,14 @@ For union constructors specifying empty alternatives, return the handler of the
 matching label:
 
 
-    t ⇥ { x = v, … }   u ⇥ < x | … >.x   v ⇥ b
-    ──────────────────────────────────────────
-    merge t u : T ⇥ b
+    t ⇥ { x = v, … }   u ⇥ < x | … >.x
+    ──────────────────────────────────
+    merge t u : T ⇥ v
 
 
-    t ⇥ { x = v, … }   u ⇥ < x | … >.x   v ⇥ b
-    ──────────────────────────────────────────
-    merge t u ⇥ b
+    t ⇥ { x = v, … }   u ⇥ < x | … >.x
+    ──────────────────────────────────
+    merge t u ⇥ v
 
 
 If the handler or union are abstract, then normalize each subexpression:
@@ -4233,13 +4233,22 @@ Union literals are also anonymous:
 
 However, union literals are deprecated in favor of union constructors.
 
-If a union alternative is non-empty then the corresponding constructor is a
+If a union alternative is non-empty, then the corresponding constructor is a
 function that wraps a value of the appropriate type:
 
 
     Γ ⊢ < x : T | ts… > : c
     ───────────────────────────────────────────
     Γ ⊢ < x : T | ts… >.x : T → < x : T | ts… >
+
+
+If a union alternative is empty, then the corresponding constructor's type is
+the same as the original union type:
+
+
+    Γ ⊢ < x | ts… > : c
+    ───────────────────────────────────────────
+    Γ ⊢ < x | ts… >.x : < x : T | ts… >
 
 
 A `merge` expression is well-typed if there is a one-to-one correspondence
