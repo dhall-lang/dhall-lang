@@ -257,7 +257,7 @@ single-quote-continue =
 
 single-quote-literal = "''" end-of-line single-quote-continue
 
-text-literal = (double-quote-literal / single-quote-literal) whitespace
+text-literal = (double-quote-literal / single-quote-literal)
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
@@ -290,15 +290,13 @@ arrow         = %x2192 / "->"
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespace
+double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
-natural-literal-raw = 1*DIGIT
+natural-literal = 1*DIGIT
 
-integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
+integer-literal = ( "+" / "-" ) natural-literal
 
-natural-literal = natural-literal-raw whitespace
-
-identifier = any-label [ whitespace "@" whitespace natural-literal-raw ]
+identifier = any-label [ whitespace "@" whitespace natural-literal ]
 
 missing = missing-raw whitespace
 
@@ -589,19 +587,19 @@ selector-expression = primitive-expression *("." whitespace ( label whitespace /
 ; literals).  This is because they share leading characters in common
 primitive-expression =
     ; "2.0"
-      double-literal
+      double-literal whitespace
     
     ; "2"
-    / natural-literal
+    / natural-literal whitespace
     
     ; "+2"
-    / integer-literal
+    / integer-literal whitespace
     
     ; "-Infinity"
     / "-" Infinity-raw whitespace
     
     ; '"ABC"'
-    / text-literal
+    / text-literal whitespace
     
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
