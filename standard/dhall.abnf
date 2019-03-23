@@ -273,7 +273,7 @@ in-raw                = %x69.6e
 as-raw                = %x61.73
 using-raw             = %x75.73.69.6e.67
 merge-raw             = %x6d.65.72.67.65
-missing-raw           = %x6d.69.73.73.69.6e.67
+missing               = %x6d.69.73.73.69.6e.67
 Infinity-raw          = %x49.6e.66.69.6e.69.74.79
 Some-raw              = %x53.6f.6d.65
 ; Reserved identifiers, only needed for some special cases of parsing
@@ -297,8 +297,6 @@ natural-literal = 1*DIGIT
 integer-literal = ( "+" / "-" ) natural-literal
 
 identifier = any-label [ whitespace "@" whitespace natural-literal ]
-
-missing = missing-raw whitespace
 
 ; Printable characters other than " ()[]{}<>/\,"
 ;
@@ -345,7 +343,7 @@ directory = *path-component
 
 file = path-component
 
-local-raw =
+local =
       ".." directory file  ; Relative path
     / "."  directory file  ; Relative path
     / "~"  directory file  ; Home-anchored path
@@ -355,8 +353,6 @@ local-raw =
     ; if the second character is "/" or "\" then this should have been parsed
     ; as an operator instead of a path
     / directory file  ; Absolute path
-
-local = local-raw whitespace
 
 ; `http[s]` URI grammar based on RFC7230 and RFC 3986 with some differences
 ; noted below
@@ -421,8 +417,8 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http =
-    http-raw whitespace
-    [ using-raw nonempty-whitespace (import-hashed / "(" whitespace import-hashed ")" whitespace) ]
+    http-raw
+    [ whitespace using-raw nonempty-whitespace (import-hashed / "(" whitespace import-hashed whitespace ")") ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -430,7 +426,6 @@ env = "env:"
     ( bash-environment-variable
     / %x22 posix-environment-variable %x22
     )
-    whitespace
 
 ; Bash supports a restricted subset of POSIX environment variables.  From the
 ; Bash `man` page, an environment variable name is:
@@ -491,14 +486,14 @@ posix-environment-variable-character =
 
 import-type = missing / local / http / env
 
-hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
+hash = %x73.68.61.32.35.36.3a 64HEXDIG ; "sha256:XXX...XXX"
 
 import-hashed = import-type [ hash ]
 
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ as-raw nonempty-whitespace Text whitespace ]
+import = import-hashed [ whitespace as-raw nonempty-whitespace Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
 ; whitespace.  This ensures consistent handling of whitespace in the absence of
@@ -571,7 +566,7 @@ not-equal-expression     = application-expression   *("!=" whitespace applicatio
 application-expression =
     [ Some-raw nonempty-whitespace ] import-expression *(whitespace-chunk import-expression)
 
-import-expression = import / selector-expression
+import-expression = import whitespace / selector-expression
 
 ; `record.field` extracts one field of a record
 ;
