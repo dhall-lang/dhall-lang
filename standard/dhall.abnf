@@ -166,11 +166,14 @@ quoted-label = 1*quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
-; A label cannot not be any of the reserved identifiers for builtins (unless quoted).
+label = ("`" quoted-label "`" / simple-label)
+
+; A nonreserved-label cannot not be any of the reserved identifiers for builtins (unless quoted).
 ; Their list can be found in semantics.md. This is not enforced by the grammar but
 ; should be checked by implementations. The only place where this restriction applies
 ; is bound variables.
-label = ("`" quoted-label "`" / simple-label)
+; PEGs could use negative lookahead to avoid parsing those identifiers.
+nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers.
 any-label = label
@@ -499,7 +502,7 @@ import = import-hashed [ whsp as whsp1 Text ]
 
 expression =
     ; "\(x : a) -> b"
-      lambda whsp "(" whsp label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
+      lambda whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     
     ; "if a then b else c"
     / if whsp1 expression whsp then whsp1 expression whsp else whsp1 expression
@@ -507,10 +510,10 @@ expression =
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let whsp1 label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp) in whsp1 expression
+    / 1*(let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp) in whsp1 expression
     
     ; "forall (x : a) -> b"
-    / forall whsp "(" whsp label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
+    / forall whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     
     ; "a -> b"
     ;
