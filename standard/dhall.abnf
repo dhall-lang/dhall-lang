@@ -129,9 +129,10 @@ whitespace-chunk =
     / line-comment
     / block-comment
 
-whitespace = *whitespace-chunk
+whsp = *whitespace-chunk
 
-nonempty-whitespace = 1*whitespace-chunk
+; nonempty whitespace
+whsp1 = 1*whitespace-chunk
 
 ; Uppercase or lowercase ASCII letter
 ALPHA = %x41-5A / %x61-7A
@@ -295,7 +296,7 @@ natural-literal = 1*DIGIT
 
 integer-literal = ( "+" / "-" ) natural-literal
 
-identifier = any-label [ whitespace "@" whitespace natural-literal ]
+identifier = any-label [ whsp "@" whsp natural-literal ]
 
 ; Printable characters other than " ()[]{}<>/\,"
 ;
@@ -417,7 +418,7 @@ sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http =
     http-raw
-    [ whitespace using nonempty-whitespace (import-hashed / "(" whitespace import-hashed whitespace ")") ]
+    [ whsp using whsp1 (import-hashed / "(" whsp import-hashed whsp ")") ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -492,34 +493,34 @@ import-hashed = import-type [ hash ]
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whitespace as nonempty-whitespace Text ]
+import = import-hashed [ whsp as whsp1 Text ]
 
 expression =
     ; "\(x : a) -> b"
-      lambda whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression whitespace ")" whitespace arrow whitespace expression
+      lambda whsp "(" whsp label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     
     ; "if a then b else c"
-    / if nonempty-whitespace expression whitespace then nonempty-whitespace expression whitespace else nonempty-whitespace expression
+    / if whsp1 expression whsp then whsp1 expression whsp else whsp1 expression
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let nonempty-whitespace label whitespace [ ":" nonempty-whitespace expression whitespace ] "=" whitespace expression whitespace) in nonempty-whitespace expression
+    / 1*(let whsp1 label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp) in whsp1 expression
     
     ; "forall (x : a) -> b"
-    / forall whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression whitespace ")" whitespace arrow whitespace expression
+    / forall whsp "(" whsp label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     
     ; "a -> b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
-    / operator-expression whitespace arrow whitespace expression
+    / operator-expression whsp arrow whsp expression
     
     / annotated-expression
 
 annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-      merge nonempty-whitespace import-expression whitespace import-expression [ whitespace ":" nonempty-whitespace application-expression ]
+      merge whsp1 import-expression whsp import-expression [ whsp ":" whsp1 application-expression ]
     
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -528,38 +529,38 @@ annotated-expression =
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; non-empty list
-    / "[" whitespace (empty-collection / non-empty-optional)
+    / "[" whsp (empty-collection / non-empty-optional)
     
     ; "x : t"
     ; Nonempty-whitespace to disambiguate `env:VARIABLE` from type annotations
-    / operator-expression [ whitespace ":" nonempty-whitespace expression ]
+    / operator-expression [ whsp ":" whsp1 expression ]
 
-empty-collection = "]" whitespace ":" nonempty-whitespace (List / Optional) whitespace import-expression
+empty-collection = "]" whsp ":" whsp1 (List / Optional) whsp import-expression
 
-non-empty-optional = expression whitespace "]" whitespace ":" nonempty-whitespace Optional whitespace import-expression
+non-empty-optional = expression whsp "]" whsp ":" whsp1 Optional whsp import-expression
 
 operator-expression = import-alt-expression
 
 ; Nonempty-whitespace to disambiguate `http://a/a?a`
-import-alt-expression    = or-expression            *(whitespace "?" nonempty-whitespace or-expression)
-or-expression            = plus-expression          *(whitespace "||" whitespace plus-expression)
+import-alt-expression    = or-expression            *(whsp "?" whsp1 or-expression)
+or-expression            = plus-expression          *(whsp "||" whsp plus-expression)
 ; Nonempty-whitespace to disambiguate `f +2`
-plus-expression          = text-append-expression   *(whitespace "+" nonempty-whitespace text-append-expression)
-text-append-expression   = list-append-expression   *(whitespace "++" whitespace list-append-expression)
-list-append-expression   = and-expression           *(whitespace "#" whitespace and-expression)
-and-expression           = combine-expression       *(whitespace "&&" whitespace combine-expression)
-combine-expression       = prefer-expression        *(whitespace combine whitespace prefer-expression)
-prefer-expression        = combine-types-expression *(whitespace prefer whitespace combine-types-expression)
-combine-types-expression = times-expression         *(whitespace combine-types whitespace times-expression)
-times-expression         = equal-expression         *(whitespace "*" whitespace equal-expression)
-equal-expression         = not-equal-expression     *(whitespace "==" whitespace not-equal-expression)
-not-equal-expression     = application-expression   *(whitespace "!=" whitespace application-expression)
+plus-expression          = text-append-expression   *(whsp "+" whsp1 text-append-expression)
+text-append-expression   = list-append-expression   *(whsp "++" whsp list-append-expression)
+list-append-expression   = and-expression           *(whsp "#" whsp and-expression)
+and-expression           = combine-expression       *(whsp "&&" whsp combine-expression)
+combine-expression       = prefer-expression        *(whsp combine whsp prefer-expression)
+prefer-expression        = combine-types-expression *(whsp prefer whsp combine-types-expression)
+combine-types-expression = times-expression         *(whsp combine-types whsp times-expression)
+times-expression         = equal-expression         *(whsp "*" whsp equal-expression)
+equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-expression)
+not-equal-expression     = application-expression   *(whsp "!=" whsp application-expression)
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    [ Some nonempty-whitespace ] import-expression *(whitespace whitespace-chunk import-expression)
+    [ Some whsp1 ] import-expression *(whsp whitespace-chunk import-expression)
 
 import-expression = import / selector-expression
 
@@ -571,7 +572,7 @@ import-expression = import / selector-expression
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *(whitespace "." whitespace ( label / labels ))
+selector-expression = primitive-expression *(whsp "." whsp ( label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -593,23 +594,23 @@ primitive-expression =
     
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
-    / "{" whitespace record-type-or-literal whitespace "}"
+    / "{" whsp record-type-or-literal whsp "}"
     
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo : Integer | Bar = True >"
-    / "<" whitespace union-type-or-literal whitespace  ">"
+    / "<" whsp union-type-or-literal whsp  ">"
     
     ; "[1, 2, 3]"
-    / non-empty-list-literal  ; `annotated-expression whitespace` handles empty lists
+    / non-empty-list-literal  ; `annotated-expression whsp` handles empty lists
     
     ; "x"
     ; "x@2"
     / identifier
     
     ; "( e )"
-    / "(" whitespace expression whitespace ")"
+    / "(" whsp expression whsp ")"
 
-labels = "{" whitespace [ label whitespace *("," whitespace label whitespace) ] "}"
+labels = "{" whsp [ label whsp *("," whsp label whsp) ] "}"
 
 record-type-or-literal =
       "=" ; Empty record literal
@@ -617,10 +618,10 @@ record-type-or-literal =
     / ""                                ; Empty record type
 
 non-empty-record-type-or-literal =
-    label whitespace (non-empty-record-literal / non-empty-record-type)
+    label whsp (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type = ":" nonempty-whitespace expression *(whitespace "," whitespace label whitespace ":" nonempty-whitespace expression)
-non-empty-record-literal = "=" whitespace expression *(whitespace "," whitespace label whitespace "=" whitespace expression)
+non-empty-record-type = ":" whsp1 expression *(whsp "," whsp label whsp ":" whsp1 expression)
+non-empty-record-literal = "=" whsp expression *(whsp "," whsp label whsp "=" whsp expression)
 
 union-type-or-literal =
       non-empty-union-type-or-literal
@@ -628,11 +629,11 @@ union-type-or-literal =
 
 non-empty-union-type-or-literal =
     label
-    ( "=" whitespace expression *(whitespace "|" whitespace label whitespace ":" nonempty-whitespace expression)
-    / ":" nonempty-whitespace expression [ whitespace "|" whitespace non-empty-union-type-or-literal ]
+    ( "=" whsp expression *(whsp "|" whsp label whsp ":" whsp1 expression)
+    / ":" whsp1 expression [ whsp "|" whsp non-empty-union-type-or-literal ]
     )
 
-non-empty-list-literal = "[" whitespace expression whitespace *("," whitespace expression whitespace) "]"
+non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
 
 ; This just adds surrounding whitespace for the top-level of the program
-complete-expression = whitespace expression whitespace
+complete-expression = whsp expression whsp
