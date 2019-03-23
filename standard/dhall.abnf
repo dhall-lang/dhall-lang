@@ -142,20 +142,16 @@ DIGIT = %x30-39  ; 0-9
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
-; A simple label cannot be one of the following reserved keywords:
-;
-; * if
-; * then
-; * else
-; * let
-; * in
-; * as
-; * using
-; * merge
-; * missing
-; * Infinity
-; * Some
-simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
+; A simple label cannot be one of the reserved keywords
+; listed in the `keyword` rule.
+; A PEG parser could use negative lookahead to
+; enforce this, e.g. as follows:
+; simple-label =
+;       keyword-raw 1*simple-label-next-char
+;     / !keyword-raw (simple-label-first-char *simple-label-next-char)
+simple-label-first-char = ALPHA / "_"
+simple-label-next-char = ALPHA / DIGIT / "-" / "/" / "_"
+simple-label = simple-label-first-char *simple-label-next-char
 
 quoted-label-char =
       %x20-5F
@@ -172,7 +168,7 @@ label = ("`" quoted-label "`" / simple-label)
 ; Their list can be found in semantics.md. This is not enforced by the grammar but
 ; should be checked by implementations. The only place where this restriction applies
 ; is bound variables.
-; PEGs could use negative lookahead to avoid parsing those identifiers.
+; A PEG parser could use negative lookahead to avoid parsing those identifiers.
 nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers.
@@ -279,6 +275,15 @@ merge                 = %x6d.65.72.67.65
 missing               = %x6d.69.73.73.69.6e.67
 Infinity              = %x49.6e.66.69.6e.69.74.79
 Some                  = %x53.6f.6d.65
+
+; Unused rule that could be used as negative lookahead in the
+; `simple-label` rule for parsers that support this.
+keyword =
+      if / then / else
+    / let / in
+    / using / missing
+    / as / merge / Infinity / Some
+
 ; Reserved identifiers, only needed for some special cases of parsing
 Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
