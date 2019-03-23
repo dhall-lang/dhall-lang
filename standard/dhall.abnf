@@ -494,36 +494,32 @@ import-hashed = import-type [ hash ]
 ; "env:FOO"
 import = import-hashed [ whitespace as nonempty-whitespace Text ]
 
-; NOTE: Every rule past this point should only reference rules that end with
-; whitespace.  This ensures consistent handling of whitespace in the absence of
-; a separate lexing step
-
 expression =
     ; "\(x : a) -> b"
-      lambda whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
+      lambda whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression whitespace ")" whitespace arrow whitespace expression
     
     ; "if a then b else c"
-    / if nonempty-whitespace expression then nonempty-whitespace expression else nonempty-whitespace expression
+    / if nonempty-whitespace expression whitespace then nonempty-whitespace expression whitespace else nonempty-whitespace expression
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let nonempty-whitespace label whitespace [ ":" nonempty-whitespace expression ] "=" whitespace expression) in nonempty-whitespace expression
+    / 1*(let nonempty-whitespace label whitespace [ ":" nonempty-whitespace expression whitespace ] "=" whitespace expression whitespace) in nonempty-whitespace expression
     
     ; "forall (x : a) -> b"
-    / forall whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
+    / forall whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression whitespace ")" whitespace arrow whitespace expression
     
     ; "a -> b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
-    / operator-expression arrow whitespace expression
+    / operator-expression whitespace arrow whitespace expression
     
     / annotated-expression
 
 annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-      merge nonempty-whitespace import-expression import-expression [ ":" nonempty-whitespace application-expression ]
+      merge nonempty-whitespace import-expression whitespace import-expression [ whitespace ":" nonempty-whitespace application-expression ]
     
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -536,36 +532,36 @@ annotated-expression =
     
     ; "x : t"
     ; Nonempty-whitespace to disambiguate `env:VARIABLE` from type annotations
-    / operator-expression (":" nonempty-whitespace expression / "")
+    / operator-expression [ whitespace ":" nonempty-whitespace expression ]
 
-empty-collection = "]" whitespace ":" nonempty-whitespace (List whitespace / Optional whitespace) import-expression
+empty-collection = "]" whitespace ":" nonempty-whitespace (List / Optional) whitespace import-expression
 
-non-empty-optional = expression "]" whitespace ":" nonempty-whitespace Optional whitespace import-expression
+non-empty-optional = expression whitespace "]" whitespace ":" nonempty-whitespace Optional whitespace import-expression
 
 operator-expression = import-alt-expression
 
 ; Nonempty-whitespace to disambiguate `http://a/a?a`
-import-alt-expression    = or-expression            *("?" nonempty-whitespace or-expression)
-or-expression            = plus-expression          *("||" whitespace plus-expression)
+import-alt-expression    = or-expression            *(whitespace "?" nonempty-whitespace or-expression)
+or-expression            = plus-expression          *(whitespace "||" whitespace plus-expression)
 ; Nonempty-whitespace to disambiguate `f +2`
-plus-expression          = text-append-expression   *("+" nonempty-whitespace text-append-expression)
-text-append-expression   = list-append-expression   *("++" whitespace list-append-expression)
-list-append-expression   = and-expression           *("#" whitespace and-expression)
-and-expression           = combine-expression       *("&&" whitespace combine-expression)
-combine-expression       = prefer-expression        *(combine whitespace prefer-expression)
-prefer-expression        = combine-types-expression *(prefer whitespace combine-types-expression)
-combine-types-expression = times-expression         *(combine-types whitespace times-expression)
-times-expression         = equal-expression         *("*" whitespace equal-expression)
-equal-expression         = not-equal-expression     *("==" whitespace not-equal-expression)
-not-equal-expression     = application-expression   *("!=" whitespace application-expression)
+plus-expression          = text-append-expression   *(whitespace "+" nonempty-whitespace text-append-expression)
+text-append-expression   = list-append-expression   *(whitespace "++" whitespace list-append-expression)
+list-append-expression   = and-expression           *(whitespace "#" whitespace and-expression)
+and-expression           = combine-expression       *(whitespace "&&" whitespace combine-expression)
+combine-expression       = prefer-expression        *(whitespace combine whitespace prefer-expression)
+prefer-expression        = combine-types-expression *(whitespace prefer whitespace combine-types-expression)
+combine-types-expression = times-expression         *(whitespace combine-types whitespace times-expression)
+times-expression         = equal-expression         *(whitespace "*" whitespace equal-expression)
+equal-expression         = not-equal-expression     *(whitespace "==" whitespace not-equal-expression)
+not-equal-expression     = application-expression   *(whitespace "!=" whitespace application-expression)
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    [ Some nonempty-whitespace ] import-expression *(whitespace-chunk import-expression)
+    [ Some nonempty-whitespace ] import-expression *(whitespace whitespace-chunk import-expression)
 
-import-expression = import whitespace / selector-expression
+import-expression = import / selector-expression
 
 ; `record.field` extracts one field of a record
 ;
@@ -575,69 +571,68 @@ import-expression = import whitespace / selector-expression
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *("." whitespace ( label whitespace / labels ))
+selector-expression = primitive-expression *(whitespace "." whitespace ( label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
 primitive-expression =
     ; "2.0"
-      double-literal whitespace
+      double-literal
     
     ; "2"
-    / natural-literal whitespace
+    / natural-literal
     
     ; "+2"
-    / integer-literal whitespace
+    / integer-literal
     
     ; "-Infinity"
-    / "-" Infinity whitespace
+    / "-" Infinity
     
     ; '"ABC"'
-    / text-literal whitespace
+    / text-literal
     
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
-    / "{" whitespace record-type-or-literal "}" whitespace
+    / "{" whitespace record-type-or-literal whitespace "}"
     
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo : Integer | Bar = True >"
-    / "<" whitespace union-type-or-literal  ">" whitespace
+    / "<" whitespace union-type-or-literal whitespace  ">"
     
     ; "[1, 2, 3]"
-    / non-empty-list-literal  ; `annotated-expression` handles empty lists
+    / non-empty-list-literal  ; `annotated-expression whitespace` handles empty lists
     
     ; "x"
     ; "x@2"
-    / identifier whitespace
+    / identifier
     
     ; "( e )"
-    / "(" whitespace expression ")" whitespace
+    / "(" whitespace expression whitespace ")"
 
-labels = "{" whitespace (  label whitespace *("," whitespace label whitespace) / "" ) "}" whitespace
+labels = "{" whitespace [ label whitespace *("," whitespace label whitespace) ] "}"
 
 record-type-or-literal =
-      "=" whitespace                             ; Empty record literal
+      "=" ; Empty record literal
     / non-empty-record-type-or-literal
     / ""                                ; Empty record type
 
 non-empty-record-type-or-literal =
     label whitespace (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type    = ":" nonempty-whitespace expression *("," whitespace label whitespace ":" nonempty-whitespace expression)
-non-empty-record-literal = "=" whitespace expression *("," whitespace label whitespace "=" whitespace expression)
+non-empty-record-type = ":" nonempty-whitespace expression *(whitespace "," whitespace label whitespace ":" nonempty-whitespace expression)
+non-empty-record-literal = "=" whitespace expression *(whitespace "," whitespace label whitespace "=" whitespace expression)
 
 union-type-or-literal =
       non-empty-union-type-or-literal
     / ""                               ; Empty union type
 
 non-empty-union-type-or-literal =
-    label whitespace
-    ( "=" whitespace expression *("|" whitespace label whitespace ":" nonempty-whitespace expression)
-    / ":" nonempty-whitespace expression ("|" whitespace non-empty-union-type-or-literal / "")
+    label
+    ( "=" whitespace expression *(whitespace "|" whitespace label whitespace ":" nonempty-whitespace expression)
+    / ":" nonempty-whitespace expression [ whitespace "|" whitespace non-empty-union-type-or-literal ]
     )
 
-non-empty-list-literal = "[" whitespace expression *("," whitespace expression) "]" whitespace
+non-empty-list-literal = "[" whitespace expression whitespace *("," whitespace expression whitespace) "]"
 
-; All expressions end with trailing whitespace.  This just adds a final
-; whitespace prefix for the top-level of the program
-complete-expression = whitespace expression
+; This just adds surrounding whitespace for the top-level of the program
+complete-expression = whitespace expression whitespace
