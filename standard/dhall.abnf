@@ -341,20 +341,20 @@ quoted-path-character =
 
 path-component = "/" ( 1*path-character / %x22 1*quoted-path-character %x22 )
 
-directory = *path-component
-
-file = path-component
+; The last path-component matched by this rule is referred to as "file" in the semantics,
+; and the other path-components as "directory".
+path = 1*path-component
 
 local =
-      ".." directory file  ; Relative path
-    / "."  directory file  ; Relative path
-    / "~"  directory file  ; Home-anchored path
+      ".." path  ; Relative path
+    / "."  path  ; Relative path
+    / "~"  path  ; Home-anchored path
     ; NOTE: Backtrack if parsing this alternative fails
     ;
     ; This is because the first character of this alternative will be "/", but
     ; if the second character is "/" or "\" then this should have been parsed
     ; as an operator instead of a path
-    / directory file  ; Absolute path
+    / path  ; Absolute path
 
 ; `http[s]` URI grammar based on RFC7230 and RFC 3986 with some differences
 ; noted below
@@ -363,11 +363,11 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * this replaces `path-abempty` with `directory file`, so an empty path is
+; * this replaces `path-abempty` with `path`, so an empty path is
 ;   not valid
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
-http-raw = scheme "://" authority directory file [ "?" query ]
+http-raw = scheme "://" authority path [ "?" query ]
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
