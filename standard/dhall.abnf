@@ -166,13 +166,13 @@ quoted-label = 1*quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
-; A label cannot not be any of the reserved identifiers for builtins. Their
-; list can be found in semantics.md. This is not enforced by the grammar but
-; should be checked by implementations.
+; A label cannot not be any of the reserved identifiers for builtins (unless quoted).
+; Their list can be found in semantics.md. This is not enforced by the grammar but
+; should be checked by implementations. The only place where this restriction applies
+; is bound variables.
 label = ("`" quoted-label "`" / simple-label)
 
-; An any-label is allowed to be one of the reserved identifiers, but the
-; implementation should recognize them and treat them as special values.
+; An any-label is allowed to be one of the reserved identifiers.
 any-label = label
 
 
@@ -296,6 +296,8 @@ natural-literal = 1*DIGIT
 
 integer-literal = ( "+" / "-" ) natural-literal
 
+; The implementation should recognize reserved names for builtins and treat them as special
+; values instead of variables.
 identifier = any-label [ whsp "@" whsp natural-literal ]
 
 ; Printable characters other than " ()[]{}<>/\,"
@@ -572,7 +574,7 @@ import-expression = import / selector-expression
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *(whsp "." whsp ( label / labels ))
+selector-expression = primitive-expression *(whsp "." whsp ( any-label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -610,7 +612,7 @@ primitive-expression =
     ; "( e )"
     / "(" whsp expression whsp ")"
 
-labels = "{" whsp [ label whsp *("," whsp label whsp) ] "}"
+labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
 
 record-type-or-literal =
       "=" ; Empty record literal
@@ -618,18 +620,18 @@ record-type-or-literal =
     / ""                                ; Empty record type
 
 non-empty-record-type-or-literal =
-    label whsp (non-empty-record-literal / non-empty-record-type)
+    any-label whsp (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type = ":" whsp1 expression *(whsp "," whsp label whsp ":" whsp1 expression)
-non-empty-record-literal = "=" whsp expression *(whsp "," whsp label whsp "=" whsp expression)
+non-empty-record-type = ":" whsp1 expression *(whsp "," whsp any-label whsp ":" whsp1 expression)
+non-empty-record-literal = "=" whsp expression *(whsp "," whsp any-label whsp "=" whsp expression)
 
 union-type-or-literal =
       non-empty-union-type-or-literal
     / ""                               ; Empty union type
 
 non-empty-union-type-or-literal =
-    label
-    ( "=" whsp expression *(whsp "|" whsp label whsp ":" whsp1 expression)
+    any-label
+    ( "=" whsp expression *(whsp "|" whsp any-label whsp ":" whsp1 expression)
     / ":" whsp1 expression [ whsp "|" whsp non-empty-union-type-or-literal ]
     )
 
