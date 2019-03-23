@@ -168,7 +168,7 @@ quoted-label = 1*quoted-label-char
 ; A label cannot not be any of the reserved identifiers for builtins. Their
 ; list can be found in semantics.md. This is not enforced by the grammar but
 ; should be checked by implementations.
-label = ("`" quoted-label "`" / simple-label) whitespace
+label = ("`" quoted-label "`" / simple-label)
 
 ; An any-label is allowed to be one of the reserved identifiers, but the
 ; implementation should recognize them and treat them as special values.
@@ -298,7 +298,7 @@ integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
 
 natural-literal = natural-literal-raw whitespace
 
-identifier = any-label [ "@" whitespace natural-literal-raw whitespace ]
+identifier = any-label [ whitespace "@" whitespace natural-literal-raw ]
 
 missing = missing-raw whitespace
 
@@ -508,7 +508,7 @@ import = import-hashed [ as-raw nonempty-whitespace Text whitespace ]
 
 expression =
     ; "\(x : a) -> b"
-      lambda whitespace "(" whitespace label ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
+      lambda whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
     
     ; "if a then b else c"
     / if-raw nonempty-whitespace expression then-raw nonempty-whitespace expression else-raw nonempty-whitespace expression
@@ -516,10 +516,10 @@ expression =
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let-raw nonempty-whitespace label [ ":" nonempty-whitespace expression ] "=" whitespace expression) in-raw nonempty-whitespace expression
+    / 1*(let-raw nonempty-whitespace label whitespace [ ":" nonempty-whitespace expression ] "=" whitespace expression) in-raw nonempty-whitespace expression
     
     ; "forall (x : a) -> b"
-    / forall whitespace "(" whitespace label ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
+    / forall whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
     
     ; "a -> b"
     ;
@@ -583,7 +583,7 @@ import-expression = import / selector-expression
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *("." whitespace ( label / labels ))
+selector-expression = primitive-expression *("." whitespace ( label whitespace / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -616,12 +616,12 @@ primitive-expression =
     
     ; "x"
     ; "x@2"
-    / identifier
+    / identifier whitespace
     
     ; "( e )"
     / "(" whitespace expression ")" whitespace
 
-labels = "{" whitespace (  label *("," whitespace label) / "" ) "}" whitespace
+labels = "{" whitespace (  label whitespace *("," whitespace label whitespace) / "" ) "}" whitespace
 
 record-type-or-literal =
       "=" whitespace                             ; Empty record literal
@@ -629,18 +629,18 @@ record-type-or-literal =
     / ""                                ; Empty record type
 
 non-empty-record-type-or-literal =
-    label (non-empty-record-literal / non-empty-record-type)
+    label whitespace (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type    = ":" nonempty-whitespace expression *("," whitespace label ":" nonempty-whitespace expression)
-non-empty-record-literal = "=" whitespace expression *("," whitespace label "=" whitespace expression)
+non-empty-record-type    = ":" nonempty-whitespace expression *("," whitespace label whitespace ":" nonempty-whitespace expression)
+non-empty-record-literal = "=" whitespace expression *("," whitespace label whitespace "=" whitespace expression)
 
 union-type-or-literal =
       non-empty-union-type-or-literal
     / ""                               ; Empty union type
 
 non-empty-union-type-or-literal =
-    label
-    ( "=" whitespace expression *("|" whitespace label ":" nonempty-whitespace expression)
+    label whitespace
+    ( "=" whitespace expression *("|" whitespace label whitespace ":" nonempty-whitespace expression)
     / ":" nonempty-whitespace expression ("|" whitespace non-empty-union-type-or-literal / "")
     )
 
