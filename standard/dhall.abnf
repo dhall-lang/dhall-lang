@@ -262,20 +262,19 @@ text-literal = (double-quote-literal / single-quote-literal)
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
 ;
-; If you don't feel like reading hex, these are all the same as the rule name,
-; except without the '-raw' ending.
+; If you don't feel like reading hex, these are all the same as the rule name.
 ; Keywords that should never be parsed as identifiers
-if-raw                = %x69.66
-then-raw              = %x74.68.65.6e
-else-raw              = %x65.6c.73.65
-let-raw               = %x6c.65.74
-in-raw                = %x69.6e
-as-raw                = %x61.73
-using-raw             = %x75.73.69.6e.67
-merge-raw             = %x6d.65.72.67.65
+if                    = %x69.66
+then                  = %x74.68.65.6e
+else                  = %x65.6c.73.65
+let                   = %x6c.65.74
+in                    = %x69.6e
+as                    = %x61.73
+using                 = %x75.73.69.6e.67
+merge                 = %x6d.65.72.67.65
 missing               = %x6d.69.73.73.69.6e.67
-Infinity-raw          = %x49.6e.66.69.6e.69.74.79
-Some-raw              = %x53.6f.6d.65
+Infinity              = %x49.6e.66.69.6e.69.74.79
+Some                  = %x53.6f.6d.65
 ; Reserved identifiers, only needed for some special cases of parsing
 Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
@@ -418,7 +417,7 @@ sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http =
     http-raw
-    [ whitespace using-raw nonempty-whitespace (import-hashed / "(" whitespace import-hashed whitespace ")") ]
+    [ whitespace using nonempty-whitespace (import-hashed / "(" whitespace import-hashed whitespace ")") ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -493,7 +492,7 @@ import-hashed = import-type [ hash ]
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whitespace as-raw nonempty-whitespace Text ]
+import = import-hashed [ whitespace as nonempty-whitespace Text ]
 
 ; NOTE: Every rule past this point should only reference rules that end with
 ; whitespace.  This ensures consistent handling of whitespace in the absence of
@@ -504,12 +503,12 @@ expression =
       lambda whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
     
     ; "if a then b else c"
-    / if-raw nonempty-whitespace expression then-raw nonempty-whitespace expression else-raw nonempty-whitespace expression
+    / if nonempty-whitespace expression then nonempty-whitespace expression else nonempty-whitespace expression
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let-raw nonempty-whitespace label whitespace [ ":" nonempty-whitespace expression ] "=" whitespace expression) in-raw nonempty-whitespace expression
+    / 1*(let nonempty-whitespace label whitespace [ ":" nonempty-whitespace expression ] "=" whitespace expression) in nonempty-whitespace expression
     
     ; "forall (x : a) -> b"
     / forall whitespace "(" whitespace label whitespace ":" nonempty-whitespace expression ")" whitespace arrow whitespace expression
@@ -524,7 +523,7 @@ expression =
 annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-      merge-raw nonempty-whitespace import-expression import-expression [ ":" nonempty-whitespace application-expression ]
+      merge nonempty-whitespace import-expression import-expression [ ":" nonempty-whitespace application-expression ]
     
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -564,7 +563,7 @@ not-equal-expression     = application-expression   *("!=" whitespace applicatio
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    [ Some-raw nonempty-whitespace ] import-expression *(whitespace-chunk import-expression)
+    [ Some nonempty-whitespace ] import-expression *(whitespace-chunk import-expression)
 
 import-expression = import whitespace / selector-expression
 
@@ -591,7 +590,7 @@ primitive-expression =
     / integer-literal whitespace
     
     ; "-Infinity"
-    / "-" Infinity-raw whitespace
+    / "-" Infinity whitespace
     
     ; '"ABC"'
     / text-literal whitespace
