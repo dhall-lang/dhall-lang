@@ -165,13 +165,13 @@ quoted-label = 1*quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
-; A label cannot not be any of the reserved identifiers for builtins. Their
-; list can be found in semantics.md. This is not enforced by the grammar but
-; should be checked by implementations.
+; A label cannot not be any of the reserved identifiers for builtins (unless quoted).
+; Their list can be found in semantics.md. This is not enforced by the grammar but
+; should be checked by implementations. The only place where this restriction applies
+; is bound variables.
 label = ("`" quoted-label "`" / simple-label) whitespace
 
-; An any-label is allowed to be one of the reserved identifiers, but the
-; implementation should recognize them and treat them as special values.
+; An any-label is allowed to be one of the reserved identifiers.
 any-label = label
 
 
@@ -336,6 +336,8 @@ integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
 
 natural-literal = natural-literal-raw whitespace
 
+; The implementation should recognize reserved names for builtins and treat them as special
+; values instead of variables.
 identifier = any-label [ at natural-literal-raw whitespace ]
 
 missing = missing-raw whitespace
@@ -618,7 +620,7 @@ import-expression = import / selector-expression
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *(dot ( label / labels ))
+selector-expression = primitive-expression *(dot ( any-label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -656,7 +658,7 @@ primitive-expression =
     ; "( e )"
     / open-parens expression close-parens
 
-labels = open-brace (  label *(comma label) / "" ) close-brace
+labels = open-brace (  any-label *(comma any-label) / "" ) close-brace
 
 record-type-or-literal =
       equal                             ; Empty record literal
@@ -664,18 +666,18 @@ record-type-or-literal =
     / ""                                ; Empty record type
 
 non-empty-record-type-or-literal =
-    label (non-empty-record-literal / non-empty-record-type)
+    any-label (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type    = colon expression *(comma label colon expression)
-non-empty-record-literal = equal expression *(comma label equal expression)
+non-empty-record-type    = colon expression *(comma any-label colon expression)
+non-empty-record-literal = equal expression *(comma any-label equal expression)
 
 union-type-or-literal =
       non-empty-union-type-or-literal
     / ""                               ; Empty union type
 
 non-empty-union-type-or-literal =
-    label
-    ( equal expression *(bar label colon expression)
+    any-label
+    ( equal expression *(bar any-label colon expression)
     / colon expression (bar non-empty-union-type-or-literal / "")
     )
 
