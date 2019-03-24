@@ -4248,7 +4248,7 @@ the same as the original union type:
 
     Γ ⊢ < x | ts… > : c
     ───────────────────────────────────────────
-    Γ ⊢ < x | ts… >.x : < x : T | ts… >
+    Γ ⊢ < x | ts… >.x : < x | ts… >
 
 
 A `merge` expression is well-typed if there is a one-to-one correspondence
