@@ -65,153 +65,111 @@
             Text
             (λ(user : Text) → "${user}@${x.host}")
             x.host} ${merge
-                      { Empty =
-                          λ(_ : {}) → ""
-                      , NonEmpty =
-                          λ(result : Text) → result
-                      }
+                      { Empty = "", NonEmpty = λ(result : Text) → result }
                       ( List/fold
                         Text
                         x.platforms
-                        < Empty : {} | NonEmpty : Text >
+                        < Empty | NonEmpty : Text >
                         (   λ(element : Text)
-                          → λ(status : < Empty : {} | NonEmpty : Text >)
+                          → λ(status : < Empty | NonEmpty : Text >)
                           → merge
                             { Empty =
-                                λ(_ : {}) → < NonEmpty = element | Empty : {} >
+                                < Empty | NonEmpty : Text >.NonEmpty element
                             , NonEmpty =
                                   λ(result : Text)
-                                → < NonEmpty =
-                                      element ++ "," ++ result
-                                  | Empty :
-                                      {}
-                                  >
+                                → < Empty | NonEmpty : Text >.NonEmpty
+                                  (element ++ "," ++ result)
                             }
                             status
-                            : < Empty : {} | NonEmpty : Text >
                         )
-                        < Empty = {=} | NonEmpty : Text >
-                      )
-                      : Text} ${x.key} ${Integer/show
-                                         ( Natural/toInteger x.cores
-                                         )} ${Integer/show
-                                              ( Natural/toInteger x.speedFactor
+                        < Empty | NonEmpty : Text >.Empty
+                      )} ${x.key} ${Integer/show
+                                    ( Natural/toInteger x.cores
+                                    )} ${Integer/show
+                                         ( Natural/toInteger x.speedFactor
+                                         )} ${merge
+                                              { Empty =
+                                                  ""
+                                              , NonEmpty =
+                                                  λ(result : Text) → result
+                                              }
+                                              ( List/fold
+                                                Text
+                                                x.supportedFeatures
+                                                < Empty | NonEmpty : Text >
+                                                (   λ(element : Text)
+                                                  → λ ( status
+                                                      : < Empty
+                                                        | NonEmpty :
+                                                            Text
+                                                        >
+                                                      )
+                                                  → merge
+                                                    { Empty =
+                                                        < Empty
+                                                        | NonEmpty :
+                                                            Text
+                                                        >.NonEmpty
+                                                        element
+                                                    , NonEmpty =
+                                                          λ(result : Text)
+                                                        → < Empty
+                                                          | NonEmpty :
+                                                              Text
+                                                          >.NonEmpty
+                                                          (     element
+                                                            ++  ","
+                                                            ++  result
+                                                          )
+                                                    }
+                                                    status
+                                                )
+                                                < Empty
+                                                | NonEmpty :
+                                                    Text
+                                                >.Empty
                                               )} ${merge
                                                    { Empty =
-                                                       λ(_ : {}) → ""
+                                                       ""
                                                    , NonEmpty =
                                                        λ(result : Text) → result
                                                    }
                                                    ( List/fold
                                                      Text
-                                                     x.supportedFeatures
-                                                     < Empty :
-                                                         {}
-                                                     | NonEmpty :
-                                                         Text
-                                                     >
+                                                     x.mandatoryFeatures
+                                                     < Empty | NonEmpty : Text >
                                                      (   λ(element : Text)
                                                        → λ ( status
-                                                           : < Empty :
-                                                                 {}
+                                                           : < Empty
                                                              | NonEmpty :
                                                                  Text
                                                              >
                                                            )
                                                        → merge
                                                          { Empty =
-                                                               λ(_ : {})
-                                                             → < NonEmpty =
-                                                                   element
-                                                               | Empty :
-                                                                   {}
-                                                               >
+                                                             < Empty
+                                                             | NonEmpty :
+                                                                 Text
+                                                             >.NonEmpty
+                                                             element
                                                          , NonEmpty =
                                                                λ(result : Text)
-                                                             → < NonEmpty =
-                                                                       element
-                                                                   ++  ","
-                                                                   ++  result
-                                                               | Empty :
-                                                                   {}
-                                                               >
+                                                             → < Empty
+                                                               | NonEmpty :
+                                                                   Text
+                                                               >.NonEmpty
+                                                               (     element
+                                                                 ++  ","
+                                                                 ++  result
+                                                               )
                                                          }
                                                          status
-                                                         : < Empty :
-                                                               {}
-                                                           | NonEmpty :
-                                                               Text
-                                                           >
                                                      )
-                                                     < Empty =
-                                                         {=}
+                                                     < Empty
                                                      | NonEmpty :
                                                          Text
-                                                     >
-                                                   )
-                                                   : Text} ${merge
-                                                             { Empty =
-                                                                 λ(_ : {}) → ""
-                                                             , NonEmpty =
-                                                                   λ ( result
-                                                                     : Text
-                                                                     )
-                                                                 → result
-                                                             }
-                                                             ( List/fold
-                                                               Text
-                                                               x.mandatoryFeatures
-                                                               < Empty :
-                                                                   {}
-                                                               | NonEmpty :
-                                                                   Text
-                                                               >
-                                                               (   λ ( element
-                                                                     : Text
-                                                                     )
-                                                                 → λ ( status
-                                                                     : < Empty :
-                                                                           {}
-                                                                       | NonEmpty :
-                                                                           Text
-                                                                       >
-                                                                     )
-                                                                 → merge
-                                                                   { Empty =
-                                                                         λ ( _
-                                                                           : {}
-                                                                           )
-                                                                       → < NonEmpty =
-                                                                             element
-                                                                         | Empty :
-                                                                             {}
-                                                                         >
-                                                                   , NonEmpty =
-                                                                         λ ( result
-                                                                           : Text
-                                                                           )
-                                                                       → < NonEmpty =
-                                                                                 element
-                                                                             ++  ","
-                                                                             ++  result
-                                                                         | Empty :
-                                                                             {}
-                                                                         >
-                                                                   }
-                                                                   status
-                                                                   : < Empty :
-                                                                         {}
-                                                                     | NonEmpty :
-                                                                         Text
-                                                                     >
-                                                               )
-                                                               < Empty =
-                                                                   {=}
-                                                               | NonEmpty :
-                                                                   Text
-                                                               >
-                                                             )
-                                                             : Text}
+                                                     >.Empty
+                                                   )}
           ''
       ++  y
   )

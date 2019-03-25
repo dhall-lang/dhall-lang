@@ -519,8 +519,8 @@ Dhall union types translate to CBOR maps:
 
 
     encode(T₀) = T₁   …
-    ────────────────────────────────────────────────────
-    encode(< x : T₀ | … >) = [ 11, { "x" = T₁, … } ]
+    ────────────────────────────────────────────────────────────────
+    encode(< x : T₀ | y | … >) = [ 11, { "x" = T₁, "y" = null, … } ]
 
 
 Dhall union literals store the specified alternative followed by the alternative
@@ -528,8 +528,8 @@ types encoded as CBOR map:
 
 
     encode(t₀) = t₁   encode(T₀) = T₁   …
-    ──────────────────────────────────────────────────────────────────────
-    encode(< x = t₀ | y : T₀ | … >) = [ 12, "x", t₁, { "y" = T₁, … } ]
+    ──────────────────────────────────────────────────────────────────────────────────
+    encode(< x = t₀ | y : T₀ | z | … >) = [ 12, "x", t₁, { "y" = T₁, "z" = null, … } ]
 
 
 Also in these cases the fields of the map should be sorted before the conversion.
@@ -1224,16 +1224,16 @@ Decode a CBOR array beginning with a `11` as a union type:
 
 
     decode(T₁) = T₀   …
-    ────────────────────────────────────────────────────
-    decode([ 11, { "x" = T₁, … } ]) = < x : T₀ | … >
+    ────────────────────────────────────────────────────────────────
+    decode([ 11, { "x" = T₁, "y" = null, … } ]) = < x : T₀ | y | … >
 
 
 Decode a CBOR array beginning with a `12` as a union literal:
 
 
     decode(t₁) = t₀   decode(T₁) = T₀   …
-    ──────────────────────────────────────────────────────────────────────
-    decode([ 12, "x", t₁, { "y" = T₁, … } ]) = < x = t₀ | y : T₀ | … >
+    ──────────────────────────────────────────────────────────────────────────────────
+    decode([ 12, "x", t₁, { "y" = T₁, "z" = null, … } ]) = < x = t₀ | y : T₀ | z | … >
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
