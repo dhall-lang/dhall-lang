@@ -668,7 +668,7 @@ record-type-or-literal =
 non-empty-record-type-or-literal =
     any-label (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type    = colon expression *(comma any-label colon expression)
+non-empty-record-type    = [colon expression] *(comma any-label [colon expression])
 non-empty-record-literal = equal expression *(comma any-label equal expression)
 
 union-type-or-literal =
