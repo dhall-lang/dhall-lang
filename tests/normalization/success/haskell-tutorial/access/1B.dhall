@@ -1,1 +1,1 @@
-λ(Foo : Text) → < Foo = Foo | Bar : Natural >
+< Bar : Natural | Foo : Text >.Foo
