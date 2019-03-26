@@ -1,1 +1,1 @@
-merge { x = λ(_ : A) → _ } < x = y >
+merge { x = λ(_ : A) → _ } (< x : T >.x y)
