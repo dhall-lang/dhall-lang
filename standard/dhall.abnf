@@ -639,9 +639,12 @@ union-type-or-literal =
 
 non-empty-union-type-or-literal =
     any-label
-    ( whsp "=" whsp expression *(whsp "|" whsp any-label whsp ":" whsp1 expression)
-    / [ whsp ":" whsp1 expression ] [ whsp "|" whsp non-empty-union-type-or-literal ]
-    )
+    [ whsp
+        ( "=" whsp expression *(whsp "|" whsp any-label whsp ":" whsp1 expression)
+        / [ ":" whsp1 expression whsp ] "|" whsp non-empty-union-type-or-literal
+        /   ":" whsp1 expression
+        )
+    ]
 
 non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
 
