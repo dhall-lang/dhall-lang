@@ -103,7 +103,6 @@ Where `A` and `B` are:
 
 The tests should:
 - parse `A` and `B`
-- eventually resolve the imports in both (if not running `simple` or `unit` tests)
 - infer the type of A
 - the inferred type of A should exactly match B
 
