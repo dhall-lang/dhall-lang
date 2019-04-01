@@ -274,6 +274,7 @@ using                 = %x75.73.69.6e.67
 merge                 = %x6d.65.72.67.65
 missing               = %x6d.69.73.73.69.6e.67
 Infinity              = %x49.6e.66.69.6e.69.74.79
+NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 
 ; Unused rule that could be used as negative lookahead in the
@@ -281,8 +282,9 @@ Some                  = %x53.6f.6d.65
 keyword =
       if / then / else
     / let / in
-    / using / missing
-    / as / merge / Infinity / Some
+    / using / missing / as
+    / Infinity / NaN
+    / merge / Some
 
 ; Reserved identifiers, only needed for some special cases of parsing
 Optional              = %x4f.70.74.69.6f.6e.61.6c
@@ -298,7 +300,17 @@ arrow         = %x2192 / "->"
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
+numeric-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
+
+double-literal =
+    ; "2.0"
+      numeric-double-literal
+    ; "-Infinity"
+    / "-" Infinity
+    ; "Infinity"
+    / Infinity
+    ; "NaN"
+    / NaN
 
 natural-literal = 1*DIGIT
 
@@ -595,9 +607,6 @@ primitive-expression =
     
     ; "+2"
     / integer-literal
-    
-    ; "-Infinity"
-    / "-" Infinity
     
     ; '"ABC"'
     / text-literal
