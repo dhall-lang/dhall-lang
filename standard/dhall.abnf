@@ -147,8 +147,8 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ; A PEG parser could use negative lookahead to
 ; enforce this, e.g. as follows:
 ; simple-label =
-;       keyword-raw 1*simple-label-next-char
-;     / !keyword-raw (simple-label-first-char *simple-label-next-char)
+;       keyword 1*simple-label-next-char
+;     / !keyword (simple-label-first-char *simple-label-next-char)
 simple-label-first-char = ALPHA / "_"
 simple-label-next-char = ALPHA / DIGIT / "-" / "/" / "_"
 simple-label = simple-label-first-char *simple-label-next-char
