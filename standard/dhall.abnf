@@ -129,9 +129,10 @@ whitespace-chunk =
     / line-comment
     / block-comment
 
-whitespace = *whitespace-chunk
+whsp = *whitespace-chunk
 
-nonempty-whitespace = 1*whitespace-chunk
+; nonempty whitespace
+whsp1 = 1*whitespace-chunk
 
 ; Uppercase or lowercase ASCII letter
 ALPHA = %x41-5A / %x61-7A
@@ -141,20 +142,16 @@ DIGIT = %x30-39  ; 0-9
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
-; A simple label cannot be one of the following reserved keywords:
-;
-; * if
-; * then
-; * else
-; * let
-; * in
-; * as
-; * using
-; * merge
-; * missing
-; * Infinity
-; * Some
-simple-label = (ALPHA / "_") *(ALPHA / DIGIT / "-" / "/" / "_")
+; A simple label cannot be one of the reserved keywords
+; listed in the `keyword` rule.
+; A PEG parser could use negative lookahead to
+; enforce this, e.g. as follows:
+; simple-label =
+;       keyword 1*simple-label-next-char
+;     / !keyword (simple-label-first-char *simple-label-next-char)
+simple-label-first-char = ALPHA / "_"
+simple-label-next-char = ALPHA / DIGIT / "-" / "/" / "_"
+simple-label = simple-label-first-char *simple-label-next-char
 
 quoted-label-char =
       %x20-5F
@@ -165,11 +162,14 @@ quoted-label = 1*quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
-; A label cannot not be any of the reserved identifiers for builtins (unless quoted).
+label = ("`" quoted-label "`" / simple-label)
+
+; A nonreserved-label cannot not be any of the reserved identifiers for builtins (unless quoted).
 ; Their list can be found in semantics.md. This is not enforced by the grammar but
 ; should be checked by implementations. The only place where this restriction applies
 ; is bound variables.
-label = ("`" quoted-label "`" / simple-label) whitespace
+; A PEG parser could use negative lookahead to avoid parsing those identifiers.
+nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers.
 any-label = label
@@ -257,90 +257,68 @@ single-quote-continue =
 
 single-quote-literal = "''" end-of-line single-quote-continue
 
-text-literal = (double-quote-literal / single-quote-literal) whitespace
+text-literal = (double-quote-literal / single-quote-literal)
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
 ;
-; If you don't feel like reading hex, these are all the same as the rule name,
-; except without the '-raw' ending.
+; If you don't feel like reading hex, these are all the same as the rule name.
 ; Keywords that should never be parsed as identifiers
-if-raw                = %x69.66
-then-raw              = %x74.68.65.6e
-else-raw              = %x65.6c.73.65
-let-raw               = %x6c.65.74
-in-raw                = %x69.6e
-as-raw                = %x61.73
-using-raw             = %x75.73.69.6e.67
-merge-raw             = %x6d.65.72.67.65
-missing-raw           = %x6d.69.73.73.69.6e.67
-Infinity-raw          = %x49.6e.66.69.6e.69.74.79
-Some-raw              = %x53.6f.6d.65
+if                    = %x69.66
+then                  = %x74.68.65.6e
+else                  = %x65.6c.73.65
+let                   = %x6c.65.74
+in                    = %x69.6e
+as                    = %x61.73
+using                 = %x75.73.69.6e.67
+merge                 = %x6d.65.72.67.65
+missing               = %x6d.69.73.73.69.6e.67
+Infinity              = %x49.6e.66.69.6e.69.74.79
+NaN                   = %x4e.61.4e
+Some                  = %x53.6f.6d.65
+
+; Unused rule that could be used as negative lookahead in the
+; `simple-label` rule for parsers that support this.
+keyword =
+      if / then / else
+    / let / in
+    / using / missing / as
+    / Infinity / NaN
+    / merge / Some
+
 ; Reserved identifiers, only needed for some special cases of parsing
-Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
-Text-raw              = %x54.65.78.74
-List-raw              = %x4c.69.73.74
+Optional              = %x4f.70.74.69.6f.6e.61.6c
+Text                  = %x54.65.78.74
+List                  = %x4c.69.73.74
 
-; Whitespaced rules for reserved words, to be used when matching expressions
-if       = if-raw           nonempty-whitespace
-then     = then-raw         nonempty-whitespace
-else     = else-raw         nonempty-whitespace
-let      = let-raw          nonempty-whitespace
-in       = in-raw           nonempty-whitespace
-as       = as-raw           nonempty-whitespace
-using    = using-raw        nonempty-whitespace
-merge    = merge-raw        nonempty-whitespace
-Some     = Some-raw         nonempty-whitespace
-Optional = Optional-raw     whitespace
-Text     = Text-raw         whitespace
-List     = List-raw         whitespace
-
-equal         = "="  whitespace
-or            = "||" whitespace
-plus          = "+"  nonempty-whitespace  ; To disambiguate `f +2`
-text-append   = "++" whitespace
-list-append   = "#"  whitespace
-and           = "&&" whitespace
-times         = "*"  whitespace
-double-equal  = "==" whitespace
-not-equal     = "!=" whitespace
-dot           = "."  whitespace
-open-brace    = "{"  whitespace
-close-brace   = "}"  whitespace
-open-bracket  = "["  whitespace
-close-bracket = "]"  whitespace
-open-angle    = "<"  whitespace
-close-angle   = ">"  whitespace
-bar           = "|"  whitespace
-comma         = ","  whitespace
-open-parens   = "("  whitespace
-close-parens  = ")"  whitespace
-at            = "@"  whitespace
-colon         = ":"  nonempty-whitespace  ; To disambiguate `env:VARIABLE` from type annotations
-import-alt    = "?"  nonempty-whitespace  ; To disambiguate `http://a/a?a`
-
-combine       = ( %x2227 / "/\"                ) whitespace
-combine-types = ( %x2A53 / "//\\"              ) whitespace
-prefer        = ( %x2AFD / "//"                ) whitespace
-lambda        = ( %x3BB  / "\"                 ) whitespace
-forall        = ( %x2200 / %x66.6f.72.61.6c.6c ) whitespace
-arrow         = ( %x2192 / "->"                ) whitespace
+combine       = %x2227 / "/\"
+combine-types = %x2A53 / "//\\"
+prefer        = %x2AFD / "//"
+lambda        = %x3BB  / "\"
+forall        = %x2200 / %x66.6f.72.61.6c.6c
+arrow         = %x2192 / "->"
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent) whitespace
+numeric-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
-natural-literal-raw = 1*DIGIT
+double-literal =
+    ; "2.0"
+      numeric-double-literal
+    ; "-Infinity"
+    / "-" Infinity
+    ; "Infinity"
+    / Infinity
+    ; "NaN"
+    / NaN
 
-integer-literal = ( "+" / "-" ) natural-literal-raw whitespace
+natural-literal = 1*DIGIT
 
-natural-literal = natural-literal-raw whitespace
+integer-literal = ( "+" / "-" ) natural-literal
 
 ; The implementation should recognize reserved names for builtins and treat them as special
 ; values instead of variables.
-identifier = any-label [ at natural-literal-raw whitespace ]
-
-missing = missing-raw whitespace
+identifier = any-label [ whsp "@" whsp natural-literal ]
 
 ; Printable characters other than " ()[]{}<>/\,"
 ;
@@ -383,22 +361,20 @@ quoted-path-character =
 
 path-component = "/" ( 1*path-character / %x22 1*quoted-path-character %x22 )
 
-directory = *path-component
+; The last path-component matched by this rule is referred to as "file" in the semantics,
+; and the other path-components as "directory".
+path = 1*path-component
 
-file = path-component
-
-local-raw =
-      ".." directory file  ; Relative path
-    / "."  directory file  ; Relative path
-    / "~"  directory file  ; Home-anchored path
+local =
+      ".." path  ; Relative path
+    / "."  path  ; Relative path
+    / "~"  path  ; Home-anchored path
     ; NOTE: Backtrack if parsing this alternative fails
     ;
     ; This is because the first character of this alternative will be "/", but
     ; if the second character is "/" or "\" then this should have been parsed
     ; as an operator instead of a path
-    / directory file  ; Absolute path
-
-local = local-raw whitespace
+    / path  ; Absolute path
 
 ; `http[s]` URI grammar based on RFC7230 and RFC 3986 with some differences
 ; noted below
@@ -407,11 +383,11 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * this replaces `path-abempty` with `directory file`, so an empty path is
+; * this replaces `path-abempty` with `path`, so an empty path is
 ;   not valid
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
-http-raw = scheme "://" authority directory file [ "?" query ]
+http-raw = scheme "://" authority path [ "?" query ]
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
@@ -463,8 +439,8 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http =
-    http-raw whitespace
-    [ using (import-hashed / open-parens import-hashed close-parens) ]
+    http-raw
+    [ whsp using whsp1 (import-hashed / "(" whsp import-hashed whsp ")") ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
@@ -472,7 +448,6 @@ env = "env:"
     ( bash-environment-variable
     / %x22 posix-environment-variable %x22
     )
-    whitespace
 
 ; Bash supports a restricted subset of POSIX environment variables.  From the
 ; Bash `man` page, an environment variable name is:
@@ -533,45 +508,41 @@ posix-environment-variable-character =
 
 import-type = missing / local / http / env
 
-hash = %x73.68.61.32.35.36.3a 64HEXDIG whitespace  ; "sha256:XXX...XXX"
+hash = %x73.68.61.32.35.36.3a 64HEXDIG ; "sha256:XXX...XXX"
 
 import-hashed = import-type [ hash ]
 
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ as Text ]
-
-; NOTE: Every rule past this point should only reference rules that end with
-; whitespace.  This ensures consistent handling of whitespace in the absence of
-; a separate lexing step
+import = import-hashed [ whsp as whsp1 Text ]
 
 expression =
     ; "\(x : a) -> b"
-      lambda open-parens label colon expression close-parens arrow expression
+      lambda whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     
     ; "if a then b else c"
-    / if expression then expression else expression
+    / if whsp1 expression whsp then whsp1 expression whsp else whsp1 expression
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let label [ colon expression ] equal expression) in expression
+    / 1*(let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp) in whsp1 expression
     
     ; "forall (x : a) -> b"
-    / forall open-parens label colon expression close-parens arrow expression
+    / forall whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     
     ; "a -> b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
-    / operator-expression arrow expression
+    / operator-expression whsp arrow whsp expression
     
     / annotated-expression
 
 annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-      merge import-expression import-expression [ colon application-expression ]
+      merge whsp1 import-expression whsp import-expression [ whsp ":" whsp1 application-expression ]
     
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -580,35 +551,38 @@ annotated-expression =
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; non-empty list
-    / open-bracket (empty-collection / non-empty-optional)
+    / "[" whsp (empty-collection / non-empty-optional)
     
     ; "x : t"
-    / operator-expression (colon expression / "")
+    ; Nonempty-whitespace to disambiguate `env:VARIABLE` from type annotations
+    / operator-expression [ whsp ":" whsp1 expression ]
 
-empty-collection = close-bracket colon (List / Optional) import-expression
+empty-collection = "]" whsp ":" whsp1 (List / Optional) whsp import-expression
 
-non-empty-optional = expression close-bracket colon Optional import-expression
+non-empty-optional = expression whsp "]" whsp ":" whsp1 Optional whsp import-expression
 
 operator-expression = import-alt-expression
 
-import-alt-expression    = or-expression            *(import-alt    or-expression)
-or-expression            = plus-expression          *(or            plus-expression         )
-plus-expression          = text-append-expression   *(plus          text-append-expression  )
-text-append-expression   = list-append-expression   *(text-append   list-append-expression  )
-list-append-expression   = and-expression           *(list-append   and-expression          )
-and-expression           = combine-expression       *(and           combine-expression      )
-combine-expression       = prefer-expression        *(combine       prefer-expression       )
-prefer-expression        = combine-types-expression *(prefer        combine-types-expression)
-combine-types-expression = times-expression         *(combine-types times-expression        )
-times-expression         = equal-expression         *(times         equal-expression        )
-equal-expression         = not-equal-expression     *(double-equal  not-equal-expression    )
-not-equal-expression     = application-expression   *(not-equal     application-expression  )
+; Nonempty-whitespace to disambiguate `http://a/a?a`
+import-alt-expression    = or-expression            *(whsp "?" whsp1 or-expression)
+or-expression            = plus-expression          *(whsp "||" whsp plus-expression)
+; Nonempty-whitespace to disambiguate `f +2`
+plus-expression          = text-append-expression   *(whsp "+" whsp1 text-append-expression)
+text-append-expression   = list-append-expression   *(whsp "++" whsp list-append-expression)
+list-append-expression   = and-expression           *(whsp "#" whsp and-expression)
+and-expression           = combine-expression       *(whsp "&&" whsp combine-expression)
+combine-expression       = prefer-expression        *(whsp combine whsp prefer-expression)
+prefer-expression        = combine-types-expression *(whsp prefer whsp combine-types-expression)
+combine-types-expression = times-expression         *(whsp combine-types whsp times-expression)
+times-expression         = equal-expression         *(whsp "*" whsp equal-expression)
+equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-expression)
+not-equal-expression     = application-expression   *(whsp "!=" whsp application-expression)
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    [ Some ] import-expression *(whitespace-chunk import-expression)
+    [ Some whsp1 ] import-expression *(whsp1 import-expression)
 
 import-expression = import / selector-expression
 
@@ -620,7 +594,7 @@ import-expression = import / selector-expression
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *(dot ( any-label / labels ))
+selector-expression = primitive-expression *(whsp "." whsp ( any-label / labels ))
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -634,42 +608,39 @@ primitive-expression =
     ; "+2"
     / integer-literal
     
-    ; "-Infinity"
-    / "-" Infinity-raw whitespace
-    
     ; '"ABC"'
     / text-literal
     
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
-    / open-brace record-type-or-literal close-brace
+    / "{" whsp record-type-or-literal whsp "}"
     
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo : Integer | Bar = True >"
-    / open-angle union-type-or-literal  close-angle
+    / "<" whsp union-type-or-literal whsp  ">"
     
     ; "[1, 2, 3]"
-    / non-empty-list-literal  ; `annotated-expression` handles empty lists
+    / non-empty-list-literal  ; `annotated-expression whsp` handles empty lists
     
     ; "x"
     ; "x@2"
     / identifier
     
     ; "( e )"
-    / open-parens expression close-parens
+    / "(" whsp expression whsp ")"
 
-labels = open-brace (  any-label *(comma any-label) / "" ) close-brace
+labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
 
 record-type-or-literal =
-      equal                             ; Empty record literal
+      "=" ; Empty record literal
     / non-empty-record-type-or-literal
     / ""                                ; Empty record type
 
 non-empty-record-type-or-literal =
-    any-label (non-empty-record-literal / non-empty-record-type)
+    any-label whsp (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type    = colon expression *(comma any-label colon expression)
-non-empty-record-literal = equal expression *(comma any-label equal expression)
+non-empty-record-type = ":" whsp1 expression *(whsp "," whsp any-label whsp ":" whsp1 expression)
+non-empty-record-literal = "=" whsp expression *(whsp "," whsp any-label whsp "=" whsp expression)
 
 union-type-or-literal =
       non-empty-union-type-or-literal
@@ -677,12 +648,14 @@ union-type-or-literal =
 
 non-empty-union-type-or-literal =
     any-label
-    ( equal expression *(bar any-label colon expression)
-    / [ colon expression ] (bar non-empty-union-type-or-literal / "")
-    )
+    [ whsp
+        ( "=" whsp expression *(whsp "|" whsp any-label whsp ":" whsp1 expression)
+        / [ ":" whsp1 expression whsp ] "|" whsp non-empty-union-type-or-literal
+        /   ":" whsp1 expression
+        )
+    ]
 
-non-empty-list-literal = open-bracket expression *(comma expression) close-bracket
+non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
 
-; All expressions end with trailing whitespace.  This just adds a final
-; whitespace prefix for the top-level of the program
-complete-expression = whitespace expression
+; This just adds surrounding whitespace for the top-level of the program
+complete-expression = whsp expression whsp
