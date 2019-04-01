@@ -1,0 +1,1 @@
+< x : Kind | y : Bool >

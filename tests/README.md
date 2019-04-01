@@ -85,11 +85,11 @@ Where `A` and `B` are:
 - `A`: unnormalized text
 - `B`: normalized text
 
-### Running `typechecking` tests
+### Running `typecheck` tests
 
 The tests should:
 - parse `A` and `B`
-- eventually resolve the imports in both (if not running `simple` tests)
+- eventually resolve the imports in both (if not running `simple` or `unit` tests)
 - build an Annotation such that `A : B`
 - the Annotation should typecheck
 
@@ -98,6 +98,13 @@ Where `A` and `B` are:
 - `B`: type of `A`
 
 (Note: for the `failure` tests we don't build an Annotation, but just typecheck)
+
+### Running `type-inference` tests
+
+The tests should:
+- parse `A` and `B`
+- infer the type of A
+- the inferred type of A should exactly match B
 
 ### Running `import` tests
 
