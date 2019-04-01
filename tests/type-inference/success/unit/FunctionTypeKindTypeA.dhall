@@ -1,0 +1,1 @@
+Kind → Type
