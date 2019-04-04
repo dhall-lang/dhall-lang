@@ -570,7 +570,7 @@ expression =
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
-    ; non-empty list
+    ; a non-empty list
     / "[" whsp (empty-collection / non-empty-optional)
     
     ; "x : t"
@@ -650,7 +650,7 @@ primitive-expression =
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo : Integer | Bar = True | Baz : Bool >"
     ; "< Foo | Bar : Bool >"
-    / "<" whsp union-type-or-literal whsp  ">"
+    / "<" whsp union-type-or-literal whsp ">"
     
     ; "[1, 2, 3]"
     ; `empty-collection` handles empty lists
