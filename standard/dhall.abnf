@@ -358,8 +358,10 @@ quoted-path-character =
         ; %x2F = "/"
     / %x30-10FFFF
 
+unquoted-path-component = 1*path-character
+quoted-path-component = 1*quoted-path-character
 
-path-component = "/" ( 1*path-character / %x22 1*quoted-path-character %x22 )
+path-component = "/" ( unquoted-path-component / %x22 quoted-path-component %x22 )
 
 ; The last path-component matched by this rule is referred to as "file" in the semantics,
 ; and the other path-components as "directory".
@@ -527,7 +529,7 @@ expression =
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; "let x = e1 let y = e2 in e3"
-    / 1*(let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp) in whsp1 expression
+    / 1*let-binding in whsp1 expression
     
     ; "forall (x : a) -> b"
     / forall whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
@@ -557,8 +559,14 @@ annotated-expression =
     ; Nonempty-whitespace to disambiguate `env:VARIABLE` from type annotations
     / operator-expression [ whsp ":" whsp1 expression ]
 
+; "let x = e1"
+let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
+
+; "]  : List     t"
+; "]  : Optional t"
 empty-collection = "]" whsp ":" whsp1 (List / Optional) whsp import-expression
 
+; "x] : Optional t"
 non-empty-optional = expression whsp "]" whsp ":" whsp1 Optional whsp import-expression
 
 operator-expression = import-alt-expression
@@ -590,11 +598,15 @@ import-expression = import / selector-expression
 ;
 ; `record.{ field0, field1, field2 }` projects out several fields of a record
 ;
-; NOTE: Backtrack when parsing the `*(dot ...)`.  The reason why is that you
+; NOTE: Backtrack when parsing the `*("." ...)`.  The reason why is that you
 ; can't tell from parsing just the period whether "foo." will become "foo.bar"
 ; (i.e. accessing field `bar` of the record `foo`) or `foo./bar` (i.e. applying
 ; the function `foo` to the relative path `./bar`)
-selector-expression = primitive-expression *(whsp "." whsp ( any-label / labels ))
+selector-expression = primitive-expression *(whsp "." whsp selector)
+
+selector = any-label / labels
+
+labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
 
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
@@ -629,8 +641,6 @@ primitive-expression =
     ; "( e )"
     / "(" whsp expression whsp ")"
 
-labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
-
 record-type-or-literal =
       "=" ; Empty record literal
     / non-empty-record-type-or-literal
@@ -639,8 +649,11 @@ record-type-or-literal =
 non-empty-record-type-or-literal =
     any-label whsp (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type = ":" whsp1 expression *(whsp "," whsp any-label whsp ":" whsp1 expression)
-non-empty-record-literal = "=" whsp expression *(whsp "," whsp any-label whsp "=" whsp expression)
+non-empty-record-type = ":" whsp1 expression *(whsp "," whsp record-type-entry)
+record-type-entry = any-label whsp ":" whsp1 expression
+
+non-empty-record-literal = "=" whsp expression *(whsp "," whsp record-literal-entry)
+record-literal-entry = any-label whsp "=" whsp expression
 
 union-type-or-literal =
       non-empty-union-type-or-literal
@@ -649,11 +662,12 @@ union-type-or-literal =
 non-empty-union-type-or-literal =
     any-label
     [ whsp
-        ( "=" whsp expression *(whsp "|" whsp any-label whsp ":" whsp1 expression)
+        ( "=" whsp expression *(whsp "|" whsp union-type-entry)
         / [ ":" whsp1 expression whsp ] "|" whsp non-empty-union-type-or-literal
         /   ":" whsp1 expression
         )
     ]
+union-type-entry = any-label whsp ":" whsp1 expression
 
 non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
 
