@@ -210,21 +210,26 @@ any-label = label
 ; > containing only the G clef character (U+1D11E) may be represented as
 ; > "\uD834\uDD1E".
 double-quote-chunk =
-      "${" complete-expression "}"  ; Interpolation
-    / %x5C                 ; '\'    Beginning of escape sequence
-      ( %x22               ; '"'    quotation mark  U+0022
-      / %x24               ; '$'    dollar sign     U+0024
-      / %x5C               ; '\'    reverse solidus U+005C
-      / %x2F               ; '/'    solidus         U+002F
-      / %x62               ; 'b'    backspace       U+0008
-      / %x66               ; 'f'    form feed       U+000C
-      / %x6E               ; 'n'    line feed       U+000A
-      / %x72               ; 'r'    carriage return U+000D
-      / %x74               ; 't'    tab             U+0009
-      / %x75 4HEXDIG       ; 'uXXXX'                U+XXXX
-      )
-    ; Printable characters except double quote and backslash
-    / %x20-21
+      interpolation
+      ; '\'    Beginning of escape sequence
+    / %x5C double-quote-escaped
+    / double-quote-char
+
+double-quote-escaped =
+      %x22               ; '"'    quotation mark  U+0022
+    / %x24               ; '$'    dollar sign     U+0024
+    / %x5C               ; '\'    reverse solidus U+005C
+    / %x2F               ; '/'    solidus         U+002F
+    / %x62               ; 'b'    backspace       U+0008
+    / %x66               ; 'f'    form feed       U+000C
+    / %x6E               ; 'n'    line feed       U+000A
+    / %x72               ; 'r'    carriage return U+000D
+    / %x74               ; 't'    tab             U+0009
+    / %x75 4HEXDIG       ; 'uXXXX'                U+XXXX
+
+; Printable characters except double quote and backslash
+double-quote-char =
+      %x20-21
         ; %x22 = '"'
     / %x23-5B
         ; %x5C = "\"
@@ -244,18 +249,26 @@ double-quote-literal = %x22 *double-quote-chunk %x22
 ; If you try to end the string literal with a single quote then you get "'''",
 ; which is interpreted as an escaped pair of single quotes
 single-quote-continue =
-      ; Escape two single quotes (i.e. replace this sequence with "''")
-      "'''"               single-quote-continue
-      ; Interpolation
-    / "${" complete-expression "}" single-quote-continue
-      ; Escape interpolation (i.e. replace this sequence with "${")
-    / "''${"              single-quote-continue
-    / "''"                                       ; End of text literal
-    / %x20-10FFFF         single-quote-continue
-    / tab                 single-quote-continue
-    / end-of-line         single-quote-continue
+      interpolation single-quote-continue
+    / escaped-quote-pair single-quote-continue
+    / escaped-interpolation single-quote-continue
+    / single-quote-char single-quote-continue
+    / "''" ; End of text literal
+
+; Escape two single quotes (i.e. replace this sequence with "''")
+escaped-quote-pair = "'''"
+
+; Escape interpolation (i.e. replace this sequence with "${")
+escaped-interpolation = "''${"
+
+single-quote-char =
+      %x20-10FFFF
+    / tab
+    / end-of-line
 
 single-quote-literal = "''" end-of-line single-quote-continue
+
+interpolation = "${" complete-expression "}"
 
 text-literal = (double-quote-literal / single-quote-literal)
 
@@ -302,13 +315,16 @@ exponent = "e" [ "+" / "-" ] 1*DIGIT
 
 numeric-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
 
+minus-infinity-literal = "-" Infinity
+plus-infinity-literal = Infinity
+
 double-literal =
     ; "2.0"
       numeric-double-literal
     ; "-Infinity"
-    / "-" Infinity
+    / minus-infinity-literal
     ; "Infinity"
-    / Infinity
+    / plus-infinity-literal
     ; "NaN"
     / NaN
 
@@ -368,15 +384,20 @@ path-component = "/" ( unquoted-path-component / %x22 quoted-path-component %x22
 path = 1*path-component
 
 local =
-      ".." path  ; Relative path
-    / "."  path  ; Relative path
-    / "~"  path  ; Home-anchored path
+    parent-path
+    / here-path
+    / home-path
     ; NOTE: Backtrack if parsing this alternative fails
     ;
     ; This is because the first character of this alternative will be "/", but
     ; if the second character is "/" or "\" then this should have been parsed
     ; as an operator instead of a path
-    / path  ; Absolute path
+    / absolute-path
+
+parent-path = ".." path  ; Relative path
+here-path = "."  path  ; Relative path
+home-path = "~"  path  ; Home-anchored path
+absolute-path = path  ; Absolute path
 
 ; `http[s]` URI grammar based on RFC7230 and RFC 3986 with some differences
 ; noted below
@@ -539,12 +560,9 @@ expression =
     ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression whsp arrow whsp expression
     
-    / annotated-expression
-
-annotated-expression =
     ; "merge e1 e2 : t"
     ; "merge e1 e2"
-      merge whsp1 import-expression whsp import-expression [ whsp ":" whsp1 application-expression ]
+    / merge whsp1 import-expression whsp import-expression [ whsp ":" whsp1 application-expression ]
     
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -556,8 +574,10 @@ annotated-expression =
     / "[" whsp (empty-collection / non-empty-optional)
     
     ; "x : t"
-    ; Nonempty-whitespace to disambiguate `env:VARIABLE` from type annotations
-    / operator-expression [ whsp ":" whsp1 expression ]
+    / annotated-expression
+
+; Nonempty-whitespace to disambiguate `env:VARIABLE` from type annotations
+annotated-expression = operator-expression [ whsp ":" whsp1 expression ]
 
 ; "let x = e1"
 let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
@@ -628,23 +648,28 @@ primitive-expression =
     / "{" whsp record-type-or-literal whsp "}"
     
     ; "< Foo : Integer | Bar : Bool >"
-    ; "< Foo : Integer | Bar = True >"
+    ; "< Foo : Integer | Bar = True | Baz : Bool >"
+    ; "< Foo | Bar : Bool >"
     / "<" whsp union-type-or-literal whsp  ">"
     
     ; "[1, 2, 3]"
-    / non-empty-list-literal  ; `annotated-expression whsp` handles empty lists
+    ; `empty-collection` handles empty lists
+    / non-empty-list-literal
     
     ; "x"
     ; "x@2"
     / identifier
     
     ; "( e )"
-    / "(" whsp expression whsp ")"
+    / "(" complete-expression ")"
 
 record-type-or-literal =
-      "=" ; Empty record literal
+      empty-record-literal
     / non-empty-record-type-or-literal
-    / ""                                ; Empty record type
+    / empty-record-type
+
+empty-record-literal = "="
+empty-record-type = ""
 
 non-empty-record-type-or-literal =
     any-label whsp (non-empty-record-literal / non-empty-record-type)
@@ -657,17 +682,21 @@ record-literal-entry = any-label whsp "=" whsp expression
 
 union-type-or-literal =
       non-empty-union-type-or-literal
-    / ""                               ; Empty union type
+    / empty-union-type
+
+empty-union-type = ""
 
 non-empty-union-type-or-literal =
-    any-label
-    [ whsp
-        ( "=" whsp expression *(whsp "|" whsp union-type-entry)
-        / [ ":" whsp1 expression whsp ] "|" whsp non-empty-union-type-or-literal
-        /   ":" whsp1 expression
-        )
-    ]
+    any-label [ whsp ( union-literal-variant-value / union-type-or-literal-variant-type) ]
+
+; = True | ...
+union-literal-variant-value = "=" whsp expression *(whsp "|" whsp union-type-entry)
 union-type-entry = any-label whsp ":" whsp1 expression
+
+; : Integer | ...
+; | ...
+union-type-or-literal-variant-type = [ ":" whsp1 expression ] [ whsp "|" whsp non-empty-union-type-or-literal ]
+
 
 non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
 
