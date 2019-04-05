@@ -1,1 +1,1 @@
-merge (< x | y >.x) { x = 1, y = 2 }
+merge { x = 1, y = 2 } (< x | y >.x)
