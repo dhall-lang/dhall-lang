@@ -510,7 +510,7 @@ import-type = missing / local / http / env
 
 hash = %x73.68.61.32.35.36.3a 64HEXDIG ; "sha256:XXX...XXX"
 
-import-hashed = import-type [ hash ]
+import-hashed = import-type [ whsp1 hash ]
 
 ; "http://example.com"
 ; "./foo/bar"
