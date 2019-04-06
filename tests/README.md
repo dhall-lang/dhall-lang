@@ -85,6 +85,14 @@ Where `A` and `B` are:
 - `A`: unnormalized text
 - `B`: normalized text
 
+### Running `semantic-hash` tests
+
+The tests should:
+- parse `A`
+- eventually resolve the imports (if not running `simple` tests)
+- compute the semantic hash of A (hash of binary after both alpha and beta normalization)
+- the hash should be equal to what is found in `B`
+
 ### Running `typecheck` tests
 
 The tests should:
