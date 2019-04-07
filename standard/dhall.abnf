@@ -564,7 +564,7 @@ expression =
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / merge whsp1 import-expression whsp import-expression whsp ":" whsp1 application-expression
+    / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
     
     ; "[]  : List     t"
     ; "[]  : Optional t"
@@ -611,18 +611,17 @@ not-equal-expression     = application-expression   *(whsp "!=" whsp application
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
-application-expression = import-expression *(whsp1 import-expression)
+application-expression =
+    ( first-application-expression / import-expression ) *(whsp1 import-expression)
 
-import-expression =
-    import
-    
+first-application-expression =
     ; "merge e1 e2"
-    / merge whsp1 import-expression whsp import-expression
+      merge whsp1 import-expression whsp1 import-expression
     
     ; "Some e"
     / Some whsp1 import-expression
-    
-    / selector-expression
+
+import-expression = import / selector-expression
 
 ; `record.field` extracts one field of a record
 ;
