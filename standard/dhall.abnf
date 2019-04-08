@@ -612,7 +612,7 @@ not-equal-expression     = application-expression   *(whsp "!=" whsp application
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    ( first-application-expression / import-expression ) *(whsp1 import-expression)
+    first-application-expression *(whsp1 import-expression)
 
 first-application-expression =
     ; "merge e1 e2"
@@ -620,6 +620,8 @@ first-application-expression =
     
     ; "Some e"
     / Some whsp1 import-expression
+    
+    / import-expression
 
 import-expression = import / selector-expression
 
