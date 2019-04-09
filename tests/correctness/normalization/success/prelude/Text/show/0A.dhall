@@ -1,1 +1,0 @@
-../../../../../../../Prelude/Text/show "ABC"
