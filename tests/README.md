@@ -18,21 +18,9 @@ Please open an issue if you stumble on either 2. or 3.
 
 ## How to run these tests
 
-The tests are split into two main categories: `correctness` and `performance`.
-
-- `correctness` tests showcase the expected behavior of a standard-compliant
-  implementation on a variety of cases. These should usually be simple enough
-  that they can be debugged by hand.
-
-- `performance` tests are more complex examples that are intended to stress test
-  the implementations in realistic but performance-demanding scenarios.
-  Implementors may want to run these tests with compiler optimizations turned on,
-  if relevant.
-
-
-Inside those two categories, the tests are split by the feature that they are
-testing (we generally aim to test only one feature at a time) into different
-folders: `normalization`, `typecheck`, etc.
+The tests are split by the feature that they are testing (we generally aim to
+test only one feature at a time) into different folders: `normalization`,
+`typecheck`, etc.
 (Please see the next sections on more details on what to do for every test
 suite)
 
@@ -57,6 +45,9 @@ Some common subdivisions at this level:
   the import system being implemented)
 - `unit`: tests that try to exercise only one very specific case (e.g. an
   inference rule) at a time. Like `simple` but even simpler.
+
+The `performance` folder is more loosely organized, and aims at collecting tests
+that stress implementation performance.
 
 But how should every feature be exercised? The following sections detail what to
 run for each feature:
@@ -139,3 +130,7 @@ Where `A` and `B` are:
 - `A`: text with unresolved imports
 - `B`: text where all the imports have been resolved, normalized and replaced with their value
 
+### Running `performance` tests
+
+The tests are structured like the tests/ folder, and running the tests should
+follow the instructions for the relevant folder as listed above.
