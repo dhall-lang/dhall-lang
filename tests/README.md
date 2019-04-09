@@ -3,7 +3,7 @@
 This folder contains the "acceptance tests suite" for the Dhall language.  
 This means that while the tests are not part of the standard per se, a
 standard-compliant implementation is expected to successfully manage through all
-the tests here.  
+the tests here.
 If this is not the case, then one of the following holds:
 
 1. the implementation is not standard-compliant
@@ -18,9 +18,21 @@ Please open an issue if you stumble on either 2. or 3.
 
 ## How to run these tests
 
-The tests are split by the feature that they are testing (we generally aim to
-test only one feature at a time) into different folders: `normalization`,
-`typecheck`, etc.  
+The tests are split into two main categories: `correctness` and `performance`.
+
+- `correctness` tests showcase the expected behavior of a standard-compliant
+  implementation on a variety of cases. These should usually be simple enough
+  that they can be debugged by hand.
+
+- `performance` tests are more complex examples that are intended to stress test
+  the implementations in realistic but performance-demanding scenarios.
+  Implementors may want to run these tests with compiler optimizations turned on,
+  if relevant.
+
+
+Inside those two categories, the tests are split by the feature that they are
+testing (we generally aim to test only one feature at a time) into different
+folders: `normalization`, `typecheck`, etc.
 (Please see the next sections on more details on what to do for every test
 suite)
 
@@ -43,6 +55,8 @@ Some common subdivisions at this level:
   `normalization` contains some tests which require the import system to work
   correctly, except for the ones categorized as `simple`, which don't depend on
   the import system being implemented)
+- `unit`: tests that try to exercise only one very specific case (e.g. an
+  inference rule) at a time. Like `simple` but even simpler.
 
 But how should every feature be exercised? The following sections detail what to
 run for each feature:
