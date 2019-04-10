@@ -108,13 +108,18 @@ tab = %x09  ; "\t"
 
 block-comment = "{-" block-comment-continue
 
-block-comment-chunk =
-      block-comment
-    / %x20-10FFFF
+block-comment-char =
+      %x20-10FFFF
     / tab
     / end-of-line
 
-block-comment-continue = "-}" / block-comment-chunk block-comment-continue
+; A PEG parser could remove ambiguity here by using negative lookahead to always ensure
+; we properly match comment start/end. Replace the last branch of this rule with:
+;     / !"{-" block-comment-char block-comment-continue
+block-comment-continue =
+    "-}"
+    / block-comment block-comment-continue
+    / block-comment-char block-comment-continue
 
 not-end-of-line = %x20-10FFFF / tab
 
