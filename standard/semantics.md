@@ -5288,6 +5288,8 @@ resolve in cases like:
 * an environment variable is not defined
 * file doesn't exist
 * URL is not reachable
+* parse error
+* hash mismatch
 
 By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
