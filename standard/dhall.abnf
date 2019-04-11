@@ -286,6 +286,8 @@ as                    = %x61.73
 using                 = %x75.73.69.6e.67
 merge                 = %x6d.65.72.67.65
 missing               = %x6d.69.73.73.69.6e.67
+True                  = %x54.72.75.65
+False                 = %x46.61.6c.73.65
 Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
@@ -296,6 +298,7 @@ keyword =
       if / then / else
     / let / in
     / using / missing / as
+    / True / False
     / Infinity / NaN
     / merge / Some
 
@@ -310,6 +313,8 @@ prefer        = %x2AFD / "//"
 lambda        = %x3BB  / "\"
 forall        = %x2200 / %x66.6f.72.61.6c.6c
 arrow         = %x2192 / "->"
+
+bool-literal = True / False
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
@@ -642,6 +647,9 @@ labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
 primitive-expression =
+    ; True
+      bool-literal
+
     ; "2.0"
       double-literal
     
