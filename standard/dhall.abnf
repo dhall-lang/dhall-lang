@@ -113,9 +113,6 @@ block-comment-char =
     / tab
     / end-of-line
 
-; A PEG parser could remove ambiguity here by using negative lookahead to always ensure
-; we properly match comment start/end. Replace the last branch of this rule with:
-;     / !"{-" block-comment-char block-comment-continue
 block-comment-continue =
     "-}"
     / block-comment block-comment-continue
