@@ -122,7 +122,7 @@
                       → merge
                         { Empty    =
                               λ(_ : {})
-                            → < NonEmpty =
+                            → < Empty : {} | NonEmpty : Text >.NonEmpty (
                                   merge
                                   { AArch64_Linux  = λ(_ : {}) → "aarch64-linux"
                                   , ARMv5tel_Linux =
@@ -142,11 +142,10 @@
                                       λ(_ : {}) → "x86_64-solaris"
                                   }
                                   element
-                              | Empty    : {}
-                              >
+                              )
                         , NonEmpty =
                               λ(result : Text)
-                            → < NonEmpty =
+                            → < Empty : {} | NonEmpty : Text >.NonEmpty (
                                       ( merge
                                         { AArch64_Linux  =
                                             λ(_ : {}) → "aarch64-linux"
@@ -177,13 +176,12 @@
                                       )
                                   ++  ","
                                   ++  result
-                              | Empty    : {}
-                              >
+                              )
                         }
                         status
                         : < Empty : {} | NonEmpty : Text >
                     )
-                    < Empty = {=} | NonEmpty : Text >
+                   (< Empty : {} | NonEmpty : Text >.Empty {=})
                   )
                   : Text
                 )
@@ -206,17 +204,18 @@
                       → λ(status : < Empty : {} | NonEmpty : Text >)
                       → merge
                         { Empty    =
-                            λ(_ : {}) → < NonEmpty = element | Empty : {} >
+                            λ(_ : {}) →
+                            (< Empty : {} | NonEmpty : Text >.NonEmpty element)
                         , NonEmpty =
                               λ(result : Text)
-                            → < NonEmpty = element ++ "," ++ result
-                              | Empty    : {}
-                              >
+                            → < Empty : {} | NonEmpty : Text >.NonEmpty (
+                                  element ++ "," ++ result
+                              )
                         }
                         status
                         : < Empty : {} | NonEmpty : Text >
                     )
-                    < Empty = {=} | NonEmpty : Text >
+                   (< Empty : {} | NonEmpty : Text >.Empty {=})
                   )
                   : Text
                 )
@@ -233,17 +232,18 @@
                       → λ(status : < Empty : {} | NonEmpty : Text >)
                       → merge
                         { Empty    =
-                            λ(_ : {}) → < NonEmpty = element | Empty : {} >
+                            λ(_ : {}) →
+                            < Empty : {} | NonEmpty : Text >.NonEmpty element
                         , NonEmpty =
                               λ(result : Text)
-                            → < NonEmpty = element ++ "," ++ result
-                              | Empty    : {}
-                              >
+                            → < Empty : {} | NonEmpty : Text >.NonEmpty (
+                                  element ++ "," ++ result
+                              )
                         }
                         status
                         : < Empty : {} | NonEmpty : Text >
                     )
-                    < Empty = {=} | NonEmpty : Text >
+                   (< Empty : {} | NonEmpty : Text >.Empty {=})
                   )
                   : Text
                 )
