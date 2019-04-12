@@ -4314,7 +4314,8 @@ If there is a handler without a matching alternative then that is a type error.
 
 If there is an alternative without a matching handler then that is a type error.
 
-If a handler is not a function, then that is a type error.
+If a handler is not a function and the corresponding union alternative is
+non-empty, then that is a type error.
 
 If the handler's input type does not match the corresponding alternative's type
 then that is a type error.
