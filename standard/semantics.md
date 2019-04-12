@@ -5,7 +5,8 @@ normalizing Dhall expressions.
 
 Note that this document *does not* specify how a language binding marshals an
 normalized Dhall expression into a matching expression in the host language.
-The details of how to do so are left open to each implementation.
+The details of how to do so are left open to each implementation, including
+supported integer ranges or how to idiomatically encode unions.
 
 ## Table of contents
 
