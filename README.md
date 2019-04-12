@@ -30,6 +30,7 @@ You can try the language live in your browser by visiting the official website:
     * [Language Bindings](#language-bindings)
         * [Haskell](#haskell)
         * [Nix](#nix)
+        * [Ruby](#ruby)
     * [Compilers](#compilers)
         * [JSON and YAML](#json-and-yaml)
         * [Bash](#bash)
