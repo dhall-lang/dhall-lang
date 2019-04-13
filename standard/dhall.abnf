@@ -164,11 +164,16 @@ quoted-label = 1*quoted-label-char
 ; for code obfuscation
 label = ("`" quoted-label "`" / simple-label)
 
-; A nonreserved-label cannot not be any of the reserved identifiers for builtins (unless quoted).
-; Their list can be found in semantics.md. This is not enforced by the grammar but
-; should be checked by implementations. The only place where this restriction applies
-; is bound variables.
-; A PEG parser could use negative lookahead to avoid parsing those identifiers.
+; A nonreserved-label cannot not be any of the reserved identifiers for builtins
+; (unless quoted).
+; Their list can be found in the (otherwise unused) `builtin` rule.
+; The only place where this restriction applies is bound variables.
+; A PEG parser could use negative lookahead to avoid parsing those identifiers,
+; e.g. as follows:
+; nonreserved-label =
+;    "`" quoted-label "`"
+;    / (builtin / keyword) 1*simple-label-next-char
+;    / !(builtin / keyword) (simple-label-first-char *simple-label-next-char)
 nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers.
@@ -299,11 +304,81 @@ keyword =
     / Infinity / NaN
     / merge / Some
 
-; Reserved identifiers, only needed for some special cases of parsing
+; Unused rule that could be used as negative lookahead in the
+; `nonreserved-label` rule for parsers that support this.
+builtin =
+      Bool
+    / True
+    / False
+    / Optional
+    / None
+    / Natural
+    / Integer
+    / Double
+    / Text
+    / List
+    / Type
+    / Kind
+    / Sort
+    / Natural-fold
+    / Natural-build
+    / Natural-isZero
+    / Natural-even
+    / Natural-odd
+    / Natural-toInteger
+    / Natural-show
+    / Integer-toDouble
+    / Integer-show
+    / Double-show
+    / List-build
+    / List-fold
+    / List-length
+    / List-head
+    / List-last
+    / List-indexed
+    / List-reverse
+    / Optional-fold
+    / Optional-build
+    / Text-show
+
+; Reserved identifiers, needed for some special cases of parsing
 Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
 List                  = %x4c.69.73.74
 
+; Reminder of the reserved identifiers, unused if the `builtin` rule is not in use
+Bool              = %x42.6f.6f.6c
+True              = %x54.72.75.65
+False             = %x46.61.6c.73.65
+None              = %x4e.6f.6e.65
+Natural           = %x4e.61.74.75.72.61.6c
+Integer           = %x49.6e.74.65.67.65.72
+Double            = %x44.6f.75.62.6c.65
+Type              = %x54.79.70.65
+Kind              = %x4b.69.6e.64
+Sort              = %x53.6f.72.74
+Natural-fold      = %x4e.61.74.75.72.61.6c.2f.66.6f.6c.64
+Natural-build     = %x4e.61.74.75.72.61.6c.2f.62.75.69.6c.64
+Natural-isZero    = %x4e.61.74.75.72.61.6c.2f.69.73.5a.65.72.6f
+Natural-even      = %x4e.61.74.75.72.61.6c.2f.65.76.65.6e
+Natural-odd       = %x4e.61.74.75.72.61.6c.2f.6f.64.64
+Natural-toInteger = %x4e.61.74.75.72.61.6c.2f.74.6f.49.6e.74.65.67.65.72
+Natural-show      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
+Integer-toDouble  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
+Integer-show      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
+Double-show       = %x44.6f.75.62.6c.65.2f.73.68.6f.77
+List-build        = %x4c.69.73.74.2f.62.75.69.6c.64
+List-fold         = %x4c.69.73.74.2f.66.6f.6c.64
+List-length       = %x4c.69.73.74.2f.6c.65.6e.67.74.68
+List-head         = %x4c.69.73.74.2f.68.65.61.64
+List-last         = %x4c.69.73.74.2f.6c.61.73.74
+List-indexed      = %x4c.69.73.74.2f.69.6e.64.65.78.65.64
+List-reverse      = %x4c.69.73.74.2f.72.65.76.65.72.73.65
+Optional-fold     = %x4f.70.74.69.6f.6e.61.6c.2f.66.6f.6c.64
+Optional-build    = %x4f.70.74.69.6f.6e.61.6c.2f.62.75.69.6c.64
+Text-show         = %x54.65.78.74.2f.73.68.6f.77
+
+; Operators
 combine       = %x2227 / "/\"
 combine-types = %x2A53 / "//\\"
 prefer        = %x2AFD / "//"
@@ -332,8 +407,13 @@ natural-literal = 1*DIGIT
 
 integer-literal = ( "+" / "-" ) natural-literal
 
-; The implementation should recognize reserved names for builtins and treat them as special
-; values instead of variables.
+; Variable bindings cannot shadow language builtins, so an implementation should
+; recognize reserved names for builtins (listed in the `builtin` rule), and treat
+; them as the associated "Reserved identifiers for builtins" specified in the
+; `semantics.md` document.
+; When parsing a builtin the variable index can be safely ignored. This means that
+; e.g. `Bool@0` is equivalent to `Bool@4`, and they are both equivalent to `Bool`,
+; because we just discard the index.
 identifier = any-label [ whsp "@" whsp natural-literal ]
 
 ; Printable characters other than " ()[]{}<>/\,"
