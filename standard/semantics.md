@@ -5290,6 +5290,7 @@ resolve in cases like:
 * URL is not reachable
 * parse error
 * hash mismatch
+* typecheck error
 
 By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
