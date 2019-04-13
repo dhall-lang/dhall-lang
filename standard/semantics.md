@@ -210,8 +210,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/last                         ; Last element of list
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
-  / Optional/fold                     ; Optional introduction
-  / Optional/build                    ; Optional elimination
+  / Optional/build                    ; Optional introduction
+  / Optional/fold                     ; Optional elimination
   / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
