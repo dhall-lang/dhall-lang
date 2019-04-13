@@ -205,8 +205,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/last                         ; Last element of list
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
-  / Optional/fold                     ; Optional introduction
-  / Optional/build                    ; Optional elimination
+  / Optional/build                    ; Optional introduction
+  / Optional/fold                     ; Optional elimination
   / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
@@ -4310,7 +4310,8 @@ If there is a handler without a matching alternative then that is a type error.
 
 If there is an alternative without a matching handler then that is a type error.
 
-If a handler is not a function, then that is a type error.
+If a handler is not a function and the corresponding union alternative is
+non-empty, then that is a type error.
 
 If the handler's input type does not match the corresponding alternative's type
 then that is a type error.
