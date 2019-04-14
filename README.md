@@ -523,11 +523,12 @@ You can use Dhall to configure programs written in other languages. This is the
 most common use case for Dhall: a type-safe and non-Turing-complete
 configuration language 
 
-Dhall currently supports three complete language bindings:
+Dhall currently supports four complete language bindings:
 
 * [Haskell][dhall-haskell]
 * [Java - via Eta][dhall-eta]
 * [Nix][dhall-nix]
+* [Ruby][dhall-ruby]
 
 ... and four language bindings in progress:
 
@@ -657,6 +658,31 @@ Learn more:
 * [GitHub repository][dhall-nix]
 * [Tutorial][dhall-nix-tutorial]
 * [Blog post][dhall-nix-post]
+
+#### Ruby
+
+You can load Dhall expressions into Ruby using `Dhall.load`:
+
+```ruby
+
+Dhall.load("True && False").then do |value|
+  value # => #<Dhall::Bool value=false>
+end
+```
+
+You can even marshall Dhall functions into Ruby:
+
+```ruby
+Dhall.load("λ(x : Integer) → [x, x]").then do |f|
+  f.call(1) # => #<Dhall::List elements=[#<Dhall::Natural value=1>, #<Dhall::Natural value=1>]>
+end
+```
+
+Learn more:
+
+* [Sourcehut repository][dhall-ruby]
+* [RubyDoc][dhall-ruby-rubydoc]
+* [Rubygems][dhall-ruby-rubygems]
 
 ### Compilers
 
@@ -857,6 +883,9 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-nix]: https://github.com/dhall-lang/dhall-nix
 [dhall-nix-tutorial]: https://hackage.haskell.org/package/dhall-nix/docs/Dhall-Nix.html
 [dhall-nix-post]: http://www.haskellforall.com/2017/01/typed-nix-programming-using-dhall.html
+[dhall-ruby]: https://git.sr.ht/~singpolyma/dhall-ruby
+[dhall-ruby-rubydoc]: https://www.rubydoc.info/gems/dhall
+[dhall-ruby-rubygems]: https://rubygems.org/gems/dhall
 [dhall-clj]: https://github.com/f-f/dhall-clj
 [dhall-purescript]: https://github.com/MonoidMusician/dhall-purescript
 [dhall-eta]: https://github.com/eta-lang/dhall-eta
