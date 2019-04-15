@@ -306,8 +306,6 @@ keyword =
     / Infinity / NaN
     / merge / Some
 
-; Unused rule that could be used as negative lookahead in the
-; `nonreserved-label` rule for parsers that support this.
 builtin =
       Bool
     / True
