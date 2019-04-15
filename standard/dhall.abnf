@@ -348,7 +348,7 @@ Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
 List                  = %x4c.69.73.74
 
-; Reminder of the reserved identifiers, unused if the `builtin` rule is not in use
+; Reminder of the reserved identifiers, needed for the `builtin` rule
 Bool              = %x42.6f.6f.6c
 True              = %x54.72.75.65
 False             = %x46.61.6c.73.65
@@ -409,14 +409,14 @@ natural-literal = 1*DIGIT
 
 integer-literal = ( "+" / "-" ) natural-literal
 
-; Variable bindings cannot shadow language builtins, so an implementation should
-; recognize reserved names for builtins (listed in the `builtin` rule), and treat
-; them as the associated "Reserved identifiers for builtins" specified in the
-; `semantics.md` document.
-; When parsing a builtin the variable index can be safely ignored. This means that
-; e.g. `Bool@0` is equivalent to `Bool@4`, and they are both equivalent to `Bool`,
-; because we just discard the index.
-identifier = any-label [ whsp "@" whsp natural-literal ]
+; If the identifier matches one of the names in the `builtin` rule, then it is a
+; builtin, and should be treated as the curresponding item in the list of
+; "Reserved identifiers for builtins" specified in the `semantics.md` document.
+; It is a syntax error to specify a de Bruijn index in this case.
+; Otherwise, this is a variable with name and index matching the label and index.
+identifier = builtin / variable
+
+variable = nonreserved-label [ whsp "@" whsp natural-literal ]
 
 ; Printable characters other than " ()[]{}<>/\,"
 ;
