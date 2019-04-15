@@ -30,6 +30,7 @@ You can try the language live in your browser by visiting the official website:
     * [Language Bindings](#language-bindings)
         * [Haskell](#haskell)
         * [Nix](#nix)
+        * [Ruby](#ruby)
     * [Compilers](#compilers)
         * [JSON and YAML](#json-and-yaml)
         * [Bash](#bash)
@@ -522,17 +523,19 @@ You can use Dhall to configure programs written in other languages. This is the
 most common use case for Dhall: a type-safe and non-Turing-complete
 configuration language 
 
-Dhall currently supports three complete language bindings:
+Dhall currently supports four complete language bindings:
 
 * [Haskell][dhall-haskell]
 * [Java - via Eta][dhall-eta]
 * [Nix][dhall-nix]
+* [Ruby][dhall-ruby]
 
-... and three language bindings in progress:
+... and four language bindings in progress:
 
 * [Clojure][dhall-clj]
 * [PureScript][dhall-purescript]
 * [Python][dhall-python]
+* [Rust][dhall-rust]
 
 The following language bindings wrap prebuilt Dhall packages or executables:
 
@@ -541,11 +544,10 @@ The following language bindings wrap prebuilt Dhall packages or executables:
 * [`clay-dhall`](https://github.com/as-capabl/clay-dhall) -
   C bindings to the Haskell library
 
-The following two bindings are not maintained but you may find them
+The following bindings are not maintained but you may find them
 useful as a starting point:
 
 * [Scala][dhall-scala]
-* [Rust][dhall-rust]
 
 #### Haskell
 
@@ -656,6 +658,31 @@ Learn more:
 * [GitHub repository][dhall-nix]
 * [Tutorial][dhall-nix-tutorial]
 * [Blog post][dhall-nix-post]
+
+#### Ruby
+
+You can load Dhall expressions into Ruby using `Dhall.load`:
+
+```ruby
+
+Dhall.load("True && False").then do |value|
+  value # => #<Dhall::Bool value=false>
+end
+```
+
+You can even marshall Dhall functions into Ruby:
+
+```ruby
+Dhall.load("λ(x : Integer) → [x, x]").then do |f|
+  f.call(1) # => #<Dhall::List elements=[#<Dhall::Natural value=1>, #<Dhall::Natural value=1>]>
+end
+```
+
+Learn more:
+
+* [Sourcehut repository][dhall-ruby]
+* [RubyDoc][dhall-ruby-rubydoc]
+* [Rubygems][dhall-ruby-rubygems]
 
 ### Compilers
 
@@ -856,12 +883,15 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-nix]: https://github.com/dhall-lang/dhall-nix
 [dhall-nix-tutorial]: https://hackage.haskell.org/package/dhall-nix/docs/Dhall-Nix.html
 [dhall-nix-post]: http://www.haskellforall.com/2017/01/typed-nix-programming-using-dhall.html
+[dhall-ruby]: https://git.sr.ht/~singpolyma/dhall-ruby
+[dhall-ruby-rubydoc]: https://www.rubydoc.info/gems/dhall
+[dhall-ruby-rubygems]: https://rubygems.org/gems/dhall
 [dhall-clj]: https://github.com/f-f/dhall-clj
 [dhall-purescript]: https://github.com/MonoidMusician/dhall-purescript
 [dhall-eta]: https://github.com/eta-lang/dhall-eta
 [dhall-python]: https://github.com/SupraSummus/dhall-python
 [dhall-scala]: https://github.com/amarpotghan/dhall-scala
-[dhall-rust]: https://github.com/nanotech/dhall-rs
+[dhall-rust]: https://github.com/Nadrieril/dhall-rust
 [dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
 [dhall-json-post]: http://www.haskellforall.com/2017/02/program-json-and-yaml-with-dhall.html

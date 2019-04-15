@@ -1,7 +1,12 @@
 # Semantics
 
-This document formalizes the semantics for type-checking and normalizing Dhall
-expressions.
+This document formalizes the semantics for resolving, type-checking and
+normalizing Dhall expressions.
+
+Note that this document *does not* specify how a language binding marshals an
+normalized Dhall expression into a matching expression in the host language.
+The details of how to do so are left open to each implementation, including
+supported integer ranges or how to idiomatically encode unions.
 
 ## Table of contents
 
@@ -174,7 +179,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / < x | xs… >                       ; Union type with at least one empty
                                       ; alternative
   / < x = t >                         ; Union literal with one alternative
-  / < x₀ = t₀ | x₁ : T₁	| xs… >       ; Union literal with more than one
+  / < x₀ = t₀ | x₁ : T₁ | xs… >       ; Union literal with more than one
                                       ; alternative
   / missing                           ; Identity for import alternatives,
                                       ; will always fail to resolve
@@ -205,8 +210,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/last                         ; Last element of list
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
-  / Optional/fold                     ; Optional introduction
-  / Optional/build                    ; Optional elimination
+  / Optional/build                    ; Optional introduction
+  / Optional/fold                     ; Optional elimination
   / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
@@ -221,6 +226,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Type                              ; Type of terms
   / Kind                              ; Type of types
   / Sort                              ; Type of kinds
+  / Row Type                          ; Row type of types
+  / Row Kind                          ; Row type of kinds
 ```
 
 ## Notation for induction
@@ -747,7 +754,7 @@ The remaining rules are:
 
 
     ↑(d, x, m, T₁₀) = T₁₁
-    ↑(d, x, m, < x₀ = t₀₀ | xs₀… > ) = < x₀ = t₀₁ | xs₁… >
+    ↑(d, x, m, < x₀ = t₀₀ | xs₀… >) = < x₀ = t₀₁ | xs₁… >
     ───────────────────────────────────────────────────────────────────────────
     ↑(d, x, m, < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >) = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
 
@@ -1443,6 +1450,14 @@ The remaining rules are:
     Sort[x@n ≔ e] = Sort
 
 
+    ────────────────────
+    (Row Type)[x@n ≔ e] = Row Type
+
+
+    ────────────────────
+    (Row Kind)[x@n ≔ e] = Row Kind
+
+
 ## α-normalization
 
 α-normalization is a function of the following form:
@@ -1502,7 +1517,7 @@ capture:
     b₁[x ≔ _] = b₂
     ↑(-1, x, 0, b₂) = b₃
     b₃ ↦ b₄
-    ───────────────────────────────  x ≠ _
+    ───────────────────────────────  ; x ≠ _
     λ(x : A₀) → b₀ ↦ λ(_ : A₁) → b₄
 
 
@@ -1517,7 +1532,7 @@ capture:
     B₁[x ≔ _] = B₂
     ↑(-1, x, 0, B₂) = B₃
     B₃ ↦ B₄
-    ───────────────────────────────  x ≠ _
+    ───────────────────────────────  ; x ≠ _
     ∀(x : A₀) → B₀ ↦ ∀(_ : A₁) → B₄
 
 
@@ -1525,7 +1540,7 @@ capture:
     A₀ ↦ A₁
     b₀ ↦ b₁
     ─────────────────────────────────────────────
-    let _ = a₀ : A₀ in b₀ ↦ let _ = a₁ : A₁ in b₁
+    let _ : A₀ = a₀ in b₀ ↦ let _ : A₁ = a₁ in b₁
 
 
     a₀ ↦ a₁
@@ -1534,8 +1549,8 @@ capture:
     b₁[x ≔ _] = b₂
     ↑(-1, x, 0, b₂) = b₃
     b₃ ↦ b₄
-    ─────────────────────────────────────────────  x ≠ _
-    let x = a₀ : A₀ in b₀ ↦ let _ = a₁ : A₁ in b₄
+    ─────────────────────────────────────────────  ; x ≠ _
+    let x : A₀ = a₀ in b₀ ↦ let _ : A₁ = a₁ in b₄
 
 
     a₀ ↦ a₁
@@ -1549,7 +1564,7 @@ capture:
     b₁[x ≔ _] = b₂
     ↑(-1, x, 0, b₂) = b₃
     b₃ ↦ b₄
-    ───────────────────────────────────  x ≠ _
+    ───────────────────────────────────  ; x ≠ _
     let x = a₀ in b₀ ↦ let _ = a₁ in b₄
 
 
@@ -1557,7 +1572,7 @@ capture:
     A₀ ↦ A₁
     let xs₀… in b₀ ↦ let xs₁… in b₁
     ───────────────────────────────────────────────────────────────
-    let _ = a₀ : A₀ let xs₀… in b₀ ↦ let _ = a₁ : A₁ let xs₁… in b₁
+    let _ : A₀ = a₀ let xs₀… in b₀ ↦ let _ : A₁ = a₁ let xs₁… in b₁
 
 
     a₀ ↦ a₁
@@ -1566,8 +1581,8 @@ capture:
     b₁[x ≔ _] = b₂
     ↑(-1, x, 0, b₂) = b₃
     let xs₀… in b₃ ↦ let xs₁… in b₄
-    ───────────────────────────────────────────────────────────────  x ≠ _
-    let x = a₀ : A₀ let xs₀… in b₀ ↦ let _ = a₁ : A₁ let xs₁… in b₄
+    ───────────────────────────────────────────────────────────────  ; x ≠ _
+    let x : A₀ = a₀ let xs₀… in b₀ ↦ let _ : A₁ = a₁ let xs₁… in b₄
 
 
     a₀ ↦ a₁
@@ -1581,7 +1596,7 @@ capture:
     b₁[x ≔ _] = b₂
     ↑(-1, x, 0, b₂) = b₃
     let xs₀… in b₃ ↦ let xs₁… in b₄
-    ─────────────────────────────────────────────────────  x ≠ _
+    ─────────────────────────────────────────────────────  ; x ≠ _
     let x = a₀ let xs₀… in b₀ ↦ let _ = a₁ let xs₁… in b₄
 
 
@@ -1652,67 +1667,67 @@ sub-expressions for the remaining rules:
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ───────────────────
-    l₀ || r₀ = l₁ || r₁
+    l₀ || r₀ ↦ l₁ || r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
-    l₀ + r₀ = l₁ + r₁
+    l₀ + r₀ ↦ l₁ + r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ───────────────────
-    l₀ ++ r₀ = l₁ ++ r₁
+    l₀ ++ r₀ ↦ l₁ ++ r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
-    l₀ # r₀ = l₁ # r₁
+    l₀ # r₀ ↦ l₁ # r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ───────────────────
-    l₀ && r₀ = l₁ && r₁
+    l₀ && r₀ ↦ l₁ && r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
-    l₀ ∧ r₀ = l₁ ∧ r₁
+    l₀ ∧ r₀ ↦ l₁ ∧ r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
-    l₀ ⫽ r₀ = l₁ ⫽ r₁
+    l₀ ⫽ r₀ ↦ l₁ ⫽ r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
-    l₀ ⩓ r₀ = l₁ ⩓ r₁
+    l₀ ⩓ r₀ ↦ l₁ ⩓ r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
-    l₀ * r₀ = l₁ * r₁
+    l₀ * r₀ ↦ l₁ * r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ───────────────────
-    l₀ == r₀ = l₁ == r₁
+    l₀ == r₀ ↦ l₁ == r₁
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
     ───────────────────
-    l₀ != r₀ = l₁ != r₁
+    l₀ != r₀ ↦ l₁ != r₁
 
 
     f₀ ↦ f₁   a₀ ↦ a₁
     ─────────────────
-    f₀ a₀ = f₁ a₁
+    f₀ a₀ ↦ f₁ a₁
 
 
     t₀ ↦ t₁
     ───────────
-    t₀.x = t₁.x
+    t₀.x ↦ t₁.x
 
 
     t₀ ↦ t₁
@@ -2835,20 +2850,20 @@ Simplify a record selection if the argument is a record literal:
 
 
     t ⇥ { x = v, … }
-    ────────────────
-    t.x ⇥  v
+    ──────────────────
+    t.x ⇥ v
 
 
 You can also project out more than one field into a new record:
 
 
-    ──────────
-    t.{} ⇥  {}
+    ─────────
+    t.{} ⇥ {}
 
 
-    t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥  { ys… }
-    ───────────────────────────────────────────────
-    t.{ x, xs… } ⇥  { x = v, ys… }
+    t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥ { ys… }
+    ──────────────────────────────────────────────
+    t.{ x, xs… } ⇥ { x = v, ys… }
 
 
 The type system ensures that the selected field(s) must be present.
@@ -2965,6 +2980,24 @@ record types:
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ─────────────────   ; If no other rule matches
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
+    
+
+`Row Type` and `Row Kind` are a Type and a Kind, respectively, consisting of
+records at that particular level as its inhabitants.  One can express a record
+type, or kind, that contains a particular set of fields using Row type or Row
+Type.
+
+
+    { ls₀… } ⇥ { ls₁… }
+    { r } ⇥ {}
+    ────────────────────
+    { ls₀…, r } ⇥ { ls₁… }
+    
+    
+    { r } ⇥ { rs₀… }
+    { ls… } ⩓ { rs₀… } ⇥ { rs₁… }
+    ─────────────────────────────
+    { ls…, r } ⇥ { rs₁… }
 
 
 ### Unions
@@ -3008,13 +3041,13 @@ were a field of the union type:
 
 
     u ⇥ < x₀ : T₀ | xs… >
-    ────────────────────────────
-    u.x₀ ⇥  < x₀ : T₀ | xs… >.x₀
+    ───────────────────────────
+    u.x₀ ⇥ < x₀ : T₀ | xs… >.x₀
 
 
     u ⇥ < x₀ | xs… >
-    ───────────────────────
-    u.x₀ ⇥  < x₀ | xs… >.x₀
+    ──────────────────────
+    u.x₀ ⇥ < x₀ | xs… >.x₀
 
 
 Normalizing this type of constructor access only normalizes the union type but
@@ -3187,7 +3220,7 @@ formated text representation of a `Double` as input and outputs a `Double`.
 Normalizing a function type normalizes the types of the input and output:
 
 
-    A₀ → A₁   B₀ → B₁
+    A₀ ⇥ A₁   B₀ ⇥ B₁
     ───────────────────────────────
     ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
 
@@ -3195,7 +3228,7 @@ Normalizing a function type normalizes the types of the input and output:
 You can introduce an anonymous function using a λ:
 
 
-    A₀ → A₁   b₀ → b₁
+    A₀ ⇥ A₁   b₀ ⇥ b₁
     ───────────────────────────────
     λ(x : A₀) → b₀ ⇥ λ(x : A₁) → b₁
 
@@ -3380,7 +3413,7 @@ For example, this is a (trivial) function from a sort to a term:
 All the remaining function types are predicative:
 
 
-    ────────────  c₁ ≥ c₀, c₂ = max(c₀, c₁), Type < Kind < Sort
+    ────────────  ; c₁ ≥ c₀, c₂ = max(c₀, c₁), Type < Kind < Sort
     c₀ ↝ c₁ : c₂
 
 
@@ -3711,9 +3744,9 @@ non-empty) or from the type annotation (if empty):
     Γ ⊢ ([] : List T) : List T
 
 
-    t : T₀   T₀ :⇥ Type   [ ts… ] :⇥ List T₁   T₀ ≡ T₁
-    ──────────────────────────────────────────────────
-    Γ ⊢ [t, ts…] : List T₀
+    Γ ⊢ t : T₀   T₀ :⇥ Type   Γ ⊢ [ ts… ] :⇥ List T₁   T₀ ≡ T₁
+    ──────────────────────────────────────────────────────────
+    Γ ⊢ [ t, ts… ] : List T₀
 
 
 Note that the above rules forbid `List` elements that are `Type`s.  More
@@ -3753,8 +3786,8 @@ The built-in functions on `List`s have the following types:
     Γ ⊢ List/length : ∀(a : Type) → List a → Natural
 
 
-    ───────────────────────────────────────────────
-    Γ ⊢ List/head ∀(a : Type) → List a → Optional a
+    ─────────────────────────────────────────────────
+    Γ ⊢ List/head : ∀(a : Type) → List a → Optional a
 
 
     ─────────────────────────────────────────────────
@@ -3858,13 +3891,13 @@ A record can either store term-level values and functions:
 ... or store kinds (if it is non-empty):
 
 
-    Γ ⊢ T :⇥ Sort   T ≡ Kind
-    ────────────────────────
+    Γ ⊢ T :⇥ Sort
+    ────────────────────
     Γ ⊢ { x : T } : Sort
 
 
-    Γ ⊢ T :⇥ Sort   T ≡ Kind   Γ ⊢ { xs… } :⇥ Sort
-    ──────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ T :⇥ Sort   Γ ⊢ { xs… } :⇥ Sort
+    ───────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x : T, xs… } : Sort
 
 
@@ -3942,8 +3975,8 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e.{ x } : { x : T }
 
 
-    Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥  { ts₁… }
-    ─────────────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥ { ts₁… }
+    ────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ e.{ x, xs… } : { x : T, ts₁… }
 
 
@@ -4187,6 +4220,27 @@ If the operator arguments are not record types then that is a type error.
 If they share a field in common that is not a record type then that is a type
 error.
 
+`Row Type` and `Row Kind` require the record being extended to contain fields in
+the `Type` and `Kind` universe respectively.
+
+The resultant term is in `Type` for `Row Type` extension, or `Kind` for `Row Kind`
+extension.
+
+    
+    Γ ⊢ { ls… } :⇥ Type
+    Γ ⊢ r :⇥ Row Type
+    { ls…, r } ⇥ { rs… }
+    ─────────────────────
+    Γ ⊢ { rs… } : Type
+    
+    
+    Γ ⊢ { ls… } :⇥ Kind
+    Γ ⊢ r :⇥ Row Kind
+    { ls…, r } ⇥ { rs… }
+    ─────────────────────
+    Γ ⊢ { rs… } : Kind
+
+
 ### Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
@@ -4310,7 +4364,8 @@ If there is a handler without a matching alternative then that is a type error.
 
 If there is an alternative without a matching handler then that is a type error.
 
-If a handler is not a function, then that is a type error.
+If a handler is not a function and the corresponding union alternative is
+non-empty, then that is a type error.
 
 If the handler's input type does not match the corresponding alternative's type
 then that is a type error.
@@ -5288,6 +5343,9 @@ resolve in cases like:
 * an environment variable is not defined
 * file doesn't exist
 * URL is not reachable
+* parse error
+* hash mismatch
+* typecheck error
 
 By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
