@@ -168,7 +168,7 @@ label = ("`" quoted-label "`" / simple-label)
 
 ; A nonreserved-label cannot not be any of the reserved identifiers for builtins
 ; (unless quoted).
-; Their list can be found in the (otherwise unused) `builtin` rule.
+; Their list can be found in the `builtin` rule.
 ; The only place where this restriction applies is bound variables.
 ; A PEG parser could use negative lookahead to avoid parsing those identifiers,
 ; e.g. as follows:
