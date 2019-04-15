@@ -23,6 +23,6 @@
       ./JSON/package.dhall sha256:7f0c25a292e5d34ddfbbf3f6d90505567382f95d822b04f5810745f81ab1ef35
     ? ./JSON/package.dhall
 , `Text` =
-      ./Text/package.dhall sha256:b0551d0a598f49de9186d02f8565c7d2f764defadecee670dbda0e5ee88cc6da
+      ./Text/package.dhall sha256:c8bc93456397476051dc674c180ddd5db098546861c8df24bda8284511d3305e
     ? ./Text/package.dhall
 }

@@ -1,7 +1,12 @@
 # Semantics
 
-This document formalizes the semantics for type-checking and normalizing Dhall
-expressions.
+This document formalizes the semantics for resolving, type-checking and
+normalizing Dhall expressions.
+
+Note that this document *does not* specify how a language binding marshals an
+normalized Dhall expression into a matching expression in the host language.
+The details of how to do so are left open to each implementation, including
+supported integer ranges or how to idiomatically encode unions.
 
 ## Table of contents
 
@@ -5289,6 +5294,9 @@ resolve in cases like:
 * an environment variable is not defined
 * file doesn't exist
 * URL is not reachable
+* parse error
+* hash mismatch
+* typecheck error
 
 By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
