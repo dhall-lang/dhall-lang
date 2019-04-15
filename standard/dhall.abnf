@@ -280,6 +280,7 @@ Some-raw              = %x53.6f.6d.65
 Optional-raw          = %x4f.70.74.69.6f.6e.61.6c
 Text-raw              = %x54.65.78.74
 List-raw              = %x4c.69.73.74
+Row-raw               = %x52.6f.77
 
 ; Whitespaced rules for reserved words, to be used when matching expressions
 if       = if-raw           nonempty-whitespace
@@ -294,6 +295,7 @@ Some     = Some-raw         nonempty-whitespace
 Optional = Optional-raw     whitespace
 Text     = Text-raw         whitespace
 List     = List-raw         whitespace
+Row      = Row-raw          whitespace          universe
 
 equal         = "="  whitespace
 or            = "||" whitespace
@@ -318,6 +320,8 @@ close-parens  = ")"  whitespace
 at            = "@"  whitespace
 colon         = ":"  nonempty-whitespace  ; To disambiguate `env:VARIABLE` from type annotations
 import-alt    = "?"  nonempty-whitespace  ; To disambiguate `http://a/a?a`
+universe      = "Type"
+                / "Kind"
 
 combine       = ( %x2227 / "/\"                ) whitespace
 combine-types = ( %x2A53 / "//\\"              ) whitespace
