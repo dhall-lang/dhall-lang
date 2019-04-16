@@ -1,7 +1,12 @@
 # Semantics
 
-This document formalizes the semantics for type-checking and normalizing Dhall
-expressions.
+This document formalizes the semantics for resolving, type-checking and
+normalizing Dhall expressions.
+
+Note that this document *does not* specify how a language binding marshals an
+normalized Dhall expression into a matching expression in the host language.
+The details of how to do so are left open to each implementation, including
+supported integer ranges or how to idiomatically encode unions.
 
 ## Table of contents
 
@@ -205,8 +210,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/last                         ; Last element of list
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
-  / Optional/fold                     ; Optional introduction
-  / Optional/build                    ; Optional elimination
+  / Optional/build                    ; Optional introduction
+  / Optional/fold                     ; Optional elimination
   / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
@@ -4280,7 +4285,8 @@ If there is a handler without a matching alternative then that is a type error.
 
 If there is an alternative without a matching handler then that is a type error.
 
-If a handler is not a function, then that is a type error.
+If a handler is not a function and the corresponding union alternative is
+non-empty, then that is a type error.
 
 If the handler's input type does not match the corresponding alternative's type
 then that is a type error.
@@ -5258,6 +5264,9 @@ resolve in cases like:
 * an environment variable is not defined
 * file doesn't exist
 * URL is not reachable
+* parse error
+* hash mismatch
+* typecheck error
 
 By using the `?` operator, expressions are alternatively resolved, in
 left-to-right order:
