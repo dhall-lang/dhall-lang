@@ -307,20 +307,7 @@ keyword =
     / merge / Some
 
 builtin =
-      Bool
-    / True
-    / False
-    / Optional
-    / None
-    / Natural
-    / Integer
-    / Double
-    / Text
-    / List
-    / Type
-    / Kind
-    / Sort
-    / Natural-fold
+      Natural-fold
     / Natural-build
     / Natural-isZero
     / Natural-even
@@ -340,6 +327,19 @@ builtin =
     / Optional-fold
     / Optional-build
     / Text-show
+    / Bool
+    / True
+    / False
+    / Optional
+    / None
+    / Natural
+    / Integer
+    / Double
+    / Text
+    / List
+    / Type
+    / Kind
+    / Sort
 
 ; Reserved identifiers, needed for some special cases of parsing
 Optional              = %x4f.70.74.69.6f.6e.61.6c
