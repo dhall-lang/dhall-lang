@@ -173,9 +173,8 @@ label = ("`" quoted-label "`" / simple-label)
 ; A PEG parser could use negative lookahead to avoid parsing those identifiers,
 ; e.g. as follows:
 ; nonreserved-label =
-;    "`" quoted-label "`"
-;    / (builtin / keyword) 1*simple-label-next-char
-;    / !(builtin / keyword) (simple-label-first-char *simple-label-next-char)
+;      builtin 1*simple-label-next-char
+;    / !builtin label
 nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers.
