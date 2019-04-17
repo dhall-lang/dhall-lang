@@ -489,6 +489,9 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 ;   not valid
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
+;
+; Unquoted path components should be percent-decoded according to
+; https://tools.ietf.org/html/rfc3986#section-2
 http-raw = scheme "://" authority path [ "?" query ]
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails

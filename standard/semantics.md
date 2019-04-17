@@ -4912,10 +4912,10 @@ The grammar for imports permits quoted path components for both file paths:
 
     https://example.com/foo/"bar?baz"?qux
 
-To import a file path with quoted path components, drop the quotes.
+Path components after parsing and in the binary encoding are always unescaped
+(as if originally quoted).
 
-To import a URL with quoted path components, percent-encode each quoted
-path component according to
+To import a URL, percent-encode each path component according to
 [RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
 
 ### Referential sanity check
