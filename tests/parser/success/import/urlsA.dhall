@@ -6,6 +6,8 @@
 , https://127.0.0.1/index.dhall
 , https://[::]/index.dhall
 , https://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]/tutorial.dhall
+, https://example.com/a%20b/c
+, https://example.com/a+b/c
 
   -- Yes, this is legal
 , https://-._~%2C!$&'()*+,;=:@-._~%2C!$&'()*+,;=:/foo?/-._~%2C!$&'()*+,;=:@/?
