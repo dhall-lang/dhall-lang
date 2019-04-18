@@ -5,6 +5,10 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v7.0.0`
+
+TODO
+
 ## `v6.0.0`
 
 Breaking changes:
