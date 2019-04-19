@@ -2457,6 +2457,14 @@ any interpolated expression that normalize to `Text` literals:
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
+The "text concatenation" operator is interpreted as two interpolations together:
+
+
+    "${l}${r}" ⇥ s₀
+    ─────────────────────
+    l ++ r ⇥ s₀
+
+
 The `Text/show` function replaces a `Text` literal with another `Text` literal
 representing valid Dhall source code for the original literal.  In particular,
 this function both quotes and escapes the original literal so that if you were
@@ -2506,37 +2514,6 @@ Otherwise, in isolation `Text/show` is in normal form:
 
     ─────────────────────
     Text/show ⇥ Text/show
-
-
-Use machine concatenation to simplify the "text concatenation" operator if both
-arguments normalize to uninterpolated `Text` literals:
-
-
-    l ⇥ "s₀"   r ⇥ "s₁"
-    ─────────────────────  ; "s₀s₁" means "use machine concatenation"
-    l ++ r ⇥ "s₀s₁"
-
-
-Also, simplify the "text concatenation" operator if either argument normalizes
-to an empty `""` literal:
-
-
-    l ⇥ ""   r₀ ⇥ r₁
-    ────────────────
-    l ++ r₀ ⇥ r₁
-
-
-    r ⇥ ""   l₀ ⇥ l₁
-    ────────────────
-    l₀ ++ r ⇥ l₁
-
-
-Otherwise, normalize each argument:
-
-
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ───────────────────  ; If no other rule matches
-    l₀ ++ r₀ ⇥ l₁ ++ r₁
 
 
 ### `List`
