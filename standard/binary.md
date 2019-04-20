@@ -130,11 +130,6 @@ not been resolved in any way.
 
 ### Variables
 
-The binary representation encodes variables as compactly as possible, because:
-
-* Variables occur frequently in Dhall expressions
-* Built-in constants occur frequently and they are encoded as free variables
-
 Encode a variable named `"_"` as its index, using the smallest numeric
 representation available:
 
@@ -155,17 +150,9 @@ The reason for this optimization is because expressions are commonly
 α-normalized before encoding them, such as when computing their semantic
 integrity check and also when caching them.
 
-Encode a variable that is not named `"_"` with an index of `0` as a naked CBOR
-text string matching the variable's identifier:
-
-
-    ─────────────────────  ; x ≠ "_"
-    encode(x@0) = "x"
-
-
-Otherwise encode a variable as a two-element CBOR array where the first element
-is the identifier and the second element is the encoded index (using the
-smallest numeric representation available):
+Encode a variable that is not named `"_"` as a two-element CBOR array where
+the first element is the identifier and the second element is the encoded
+index (using the smallest numeric representation available):
 
 
     ────────────────────────────  ; n < 2^64
@@ -178,9 +165,8 @@ smallest numeric representation available):
 
 ### Built-in constants
 
-Encode all built-in constants (except boolean values) as free variables of the
-same name with an index of 0, which is equivalent to encoding them as a naked
-string matching their identifier.
+Encode all built-in constants (except boolean values) as naked strings
+matching their identifier.
 
 
     ───────────────────────────────────────────
@@ -827,10 +813,8 @@ You can decode an untagged Dhall expression using the following judgment:
 
 ### Built-in constants
 
-A naked CBOR string could have been produced by encoding either a built-in
-identifier or a variable.  First, attempt to decode the string as a built-in
-identifier if it matches any of the following strings:
-
+A naked CBOR string represents a built-in identifier.  Decode the string as
+a built-in identifier if it matches any of the following strings:
 
     ───────────────────────────────────────────
     decode("Natural/build") = Natural/build
@@ -956,18 +940,27 @@ identifier if it matches any of the following strings:
     decode("Sort") = Sort
 
 
-Otherwise, decode the CBOR string as an ordinary variable as outlined in the
-next section.
+Otherwise, there is a decoding error.
 
 ### Variables
 
-Decode a naked CBOR string to a variable with an index of 0 if the string does
-not match a built-in identifier:
+A CBOR array beginning with a string indicates a variable.  The array should
+only have two elements, the first of which is a string and the second of which
+is the variable index, which can be either a compact integer or a bignum:
 
 
-    ─────────────────────  ; x ∉ reservedIdentifiers, x ≠ "_"
-    decode("x") = x@0
+    ────────────────────────────
+    decode([ "x", n ]) = x@n
 
+
+    ─────────────────────────────
+    decode([ "x", nn ]) = x@n
+
+
+A decoder MUST accept an integer that is not encoded using the most compact
+representation.  For example, a naked unsiged bignum storing `0` is valid, even
+though the `0` could have been stored in a single byte as as a compact unsigned
+integer instead.
 
 A decoder MUST reject a variable named "_", which MUST instead be represented
 by its integer index according to the following decoding rules.
@@ -982,24 +975,6 @@ naked CBOR integer back into a variable named `_`:
 
     ────────────────────
     decode(nn) = _@n
-
-
-A decoder MUST accept an integer that is not encoded using the most compact
-representation.  For example, a naked unsiged bignum storing `0` is valid, even
-though the `0` could have been stored in a single byte as as a compact unsigned
-integer instead.
-
-A CBOR array beginning with a string indicates a variable.  The array should
-only have two elements, the first of which is a string and the second of which
-is the variable index, which can be either a compact integer or a bignum:
-
-
-    ────────────────────────────
-    decode([ "x", n ]) = x@n
-
-
-    ─────────────────────────────
-    decode([ "x", nn ]) = x@n
 
 
 As before, the encoded integer need not be stored in the most compact

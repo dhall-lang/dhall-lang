@@ -64,6 +64,10 @@
           aliases = [ "postmaster@dhall-lang.org" ];
         };
       };
+
+      policydSPFExtraConfig = ''
+        skip_addresses = 172.17.0.2/32
+      '';
     };
 
     networking.firewall.allowedTCPPorts = [ 22 80 443 ];
@@ -356,7 +360,7 @@
 
               cd ${discourseDirectory}
 
-              ${pkgs.git}/bin/git fetch origin --depth=1 16fb17cf51793a5cbf5c364fb8e4497b6d3253a1
+              ${pkgs.git}/bin/git fetch origin --depth=1 77edaf675a47729bb693d09b94713a2a98b5d686
 
               ${pkgs.git}/bin/git reset --hard FETCH_HEAD
 
