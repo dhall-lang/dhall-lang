@@ -302,7 +302,9 @@ Bruijn index defaults to 0 (i.e. `x@0`), like this:
 
 
 Dhall uses a shift function internally to avoid variable capture in the
-implementation of De Bruijn indices. You can find the semantics of thie shift
+implementation of De Bruijn indices.
+
+You can find the semantics of this shift
 function in the following separate document:
 
 * [Shift](./shift.md)
@@ -337,6 +339,7 @@ You can also shift a context by shifting each expression in that context:
 
 β-reduction requires support for substitution, which consists in replacing
 the uses of a given variable in an expression by another expression.
+
 You can find the semantics of substitution in the following
 separate document:
 
@@ -346,7 +349,9 @@ separate document:
 ## α-normalization
 
 α-normalization renames all bound variables within an expression to use De
-Bruijn indices. You can find the α-normalization semantics in the following
+Bruijn indices.
+
+You can find the α-normalization semantics in the following
 separate document:
 
 * [α-normalization](./α-normalization.md)
@@ -357,6 +362,7 @@ separate document:
 β-normalization transforms a Dhall expression to an expression called its
 normal form. This is similar to "executing" the program represented by the
 given Dhall expression.
+
 You can find the β-normalization semantics in the following
 separate document:
 
@@ -393,6 +399,7 @@ Note also that this means that `Double`s should not be compared using standard f
 
 The function check governs the types of functions that our pure type system
 permits.
+
 You can find the details of the function check in the following
 separate document:
 
@@ -410,6 +417,7 @@ separate document:
 ## Binary encoding and decoding
 
 Dhall supports encoding and decoding expressions to and from a binary format.
+
 You can find the binary encoding and decoding semantics in the following
 separate document:
 
