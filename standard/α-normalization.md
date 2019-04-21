@@ -39,6 +39,8 @@ example:
     λ(x : Type) → y ↦ λ(_ : Type) → y
 
 
+## Table of contents
+
 * [Bound variables](#bound-variables)
 * [Variables](#variables)
 * [Imports](#imports)

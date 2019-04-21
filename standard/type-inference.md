@@ -1,5 +1,7 @@
 # Type inference
 
+## Table of contents
+
 * [Reduction](#reduction)
 * [Constants](#constants)
 * [Variables](#variables)

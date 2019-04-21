@@ -26,6 +26,8 @@ For example:
 
 Note that `e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 
+## Table of contents
+
 * [Variables](#variables)
 * [Bound variables](#bound-variables)
 * [Imports](#imports)

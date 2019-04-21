@@ -43,6 +43,8 @@ relative to the current expression's location.
 
 This document formalizes the semantics for resolving those imports.
 
+## Table of contents
+
 * [Directories and files](#directories-and-files)
 * [Canonicalization of directories](#canonicalization-of-directories)
 * [Canonicalization of imports](#canonicalization-of-imports)

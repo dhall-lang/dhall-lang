@@ -52,6 +52,8 @@ This shift function has the form:
 * `e₀` (an input expression) is the expression to shift
 * `e₁` (the output expression) is the shifted expression
 
+## Table of contents
+
 * [Variables](#variables)
 * [Bound variables](#bound-variables)
 * [Imports](#imports)

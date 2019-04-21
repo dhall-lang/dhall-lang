@@ -37,6 +37,8 @@ encouraged to implement the following functions and operators in more efficient
 ways than the following reduction rules so long as the result of normalization
 is the same.
 
+## Table of contents
+
 * [Constants](#constants)
 * [Variables](#variables)
 * [`Bool`](#bool)
