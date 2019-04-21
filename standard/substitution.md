@@ -26,10 +26,10 @@ For example:
 
 Note that `e[x ≔ a]` is short-hand for `e[x@0 ≔ a]`
 
-* [Variables](#variables-1)
-* [Bound variables](#bound-variables-1)
-* [Imports](#imports-1)
-* [Other](#other-1)
+* [Variables](#variables)
+* [Bound variables](#bound-variables)
+* [Imports](#imports)
+* [Other](#other)
 
 ## Variables
 

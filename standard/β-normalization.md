@@ -38,7 +38,7 @@ ways than the following reduction rules so long as the result of normalization
 is the same.
 
 * [Constants](#constants)
-* [Variables](#variables-3)
+* [Variables](#variables)
 * [`Bool`](#bool)
 * [`Natural`](#natural)
 * [`Text`](#text)
@@ -51,7 +51,7 @@ is the same.
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
-* [Imports](#imports-3)
+* [Imports](#imports)
 
 ## Constants
 
