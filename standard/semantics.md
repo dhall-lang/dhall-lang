@@ -2833,6 +2833,18 @@ You can also project out more than one field into a new record:
     t.{ x, xs… } ⇥ { x = v, ys… }
 
 
+    t ⇥ { x = v, ts… }   s ⇥ {}
+    ───────────────────────────
+    t.(s) ⇥ {}
+
+
+    t ⇥ { x = v : T, ts₀… }
+    s ⇥ { x : T, ss… }
+    t.({ ss… }) ⇥ { ts₁… }
+    ─────────────────────── ; x ∉ ts₁
+    t.(s) ⇥ { x = v, ts₁… }
+
+
 The type system ensures that the selected field(s) must be present.
 
 Otherwise, normalize the argument:
@@ -3892,6 +3904,16 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Sort
     ────────────────────────────────────────────────────
     Γ ⊢ e.{ x } : { x : T }
+
+
+    Γ ⊢ e :⇥ { ts… } : Kind   Γ ⊢ s :⇥ { ss… } : Kind
+    ──────────────────────────────────────────────────── ; ss ⊆ ts
+    Γ ⊢ e.(s) : { ss… }
+
+
+    Γ ⊢ e :⇥ { ts… } : Sort   Γ ⊢ s :⇥ { ss… } : Sort
+    ──────────────────────────────────────────────────── ; ss ⊆ ts
+    Γ ⊢ e.(s) : { ss… }
 
 
     Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥ { ts₁… }

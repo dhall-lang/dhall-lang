@@ -407,7 +407,7 @@ natural-literal = 1*DIGIT
 integer-literal = ( "+" / "-" ) natural-literal
 
 ; If the identifier matches one of the names in the `builtin` rule, then it is a
-; builtin, and should be treated as the curresponding item in the list of
+; builtin, and should be treated as the corresponding item in the list of
 ; "Reserved identifiers for builtins" specified in the `semantics.md` document.
 ; It is a syntax error to specify a de Bruijn index in this case.
 ; Otherwise, this is a variable with name and index matching the label and index.
@@ -717,10 +717,11 @@ import-expression = import / selector-expression
 ; the function `foo` to the relative path `./bar`)
 selector-expression = primitive-expression *(whsp "." whsp selector)
 
-selector = any-label / labels
+selector = any-label / labels / type-selector
 
 labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
 
+type-selector = "(" whsp expression whsp ")"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
 primitive-expression =
