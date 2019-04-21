@@ -38,6 +38,8 @@ DeBruijn-like variable references.
 
 ## Expressions
 
+The syntax of allowed Dhall expressions is specified in
+[`./dhall.abnf`](./dhall.abnf).
 The following notation is a simplified version of the syntax found in
 `./dhall.abnf`.  This simplified notation is used for all of the following
 judgments:
