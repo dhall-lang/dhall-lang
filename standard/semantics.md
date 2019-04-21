@@ -270,8 +270,38 @@ double-quoted string literals in the following separate document:
 
 ## Shift
 
-You can find the shift semantics in the following
-separate document:
+Dhall allows variables to reference shadowed variables of the same name using De
+Bruijn indices.  For example:
+
+
+                                  ┌──refers to──┐
+                                  │             │
+                                  ↓             │
+    λ(x : Type) → λ(y : Type) → λ(x : Type) → x@0
+
+
+      ┌────────────────refers to────────────────┐
+      │                                         │
+      ↓                                         │
+    λ(x : Type) → λ(y : Type) → λ(x : Type) → x@1
+
+
+`x@n` refers to the "nth" bound variable named `x` counting outwards from where
+the variable is referenced.
+
+If a variable does not specify the De Bruijn index (i.e. just `x`) then the De
+Bruijn index defaults to 0 (i.e. `x@0`), like this:
+
+
+                                  ┌─refers to─┐
+                                  │           │
+                                  ↓           │
+    λ(x : Type) → λ(y : Type) → λ(x : Type) → x
+
+
+Dhall uses a shift function internally to avoid variable capture in the
+implementation of De Bruijn indices. You can find the semantics of thie shift
+function in the following separate document:
 
 * [Shift](./shift.md)
 
@@ -303,7 +333,9 @@ You can also shift a context by shifting each expression in that context:
 
 ## Substitution
 
-You can find the substitution semantics in the following
+β-reduction requires support for substitution, which consists in replacing
+the uses of a given variable in an expression by another expression.
+You can find the semantics of substitution in the following
 separate document:
 
 * [Substitution](./substitution.md)
@@ -311,7 +343,8 @@ separate document:
 
 ## α-normalization
 
-You can find the α-normalization semantics in the following
+α-normalization renames all bound variables within an expression to use De
+Bruijn indices. You can find the α-normalization semantics in the following
 separate document:
 
 * [α-normalization](./α-normalization.md)
@@ -319,6 +352,9 @@ separate document:
 
 ## β-normalization
 
+β-normalization transforms a Dhall expression to an expression called its
+normal form. This is similar to "executing" the program represented by the
+given Dhall expression.
 You can find the β-normalization semantics in the following
 separate document:
 
@@ -326,6 +362,9 @@ separate document:
 
 
 ## Equivalence
+
+Equivalence captures what it means for two Dhall expressions to be "the same".
+It is used for type inference and β-normalization.
 
 Equivalence is a relationship between two expression of the form:
 
@@ -350,6 +389,8 @@ Note also that this means that `Double`s should not be compared using standard f
 
 ## Function check
 
+The function check governs the types of functions that our pure type system
+permits.
 You can find the details of the function check in the following
 separate document:
 
@@ -366,6 +407,7 @@ separate document:
 
 ## Binary encoding and decoding
 
+Dhall supports encoding and decoding expressions to and from a binary format.
 You can find the binary encoding and decoding semantics in the following
 separate document:
 

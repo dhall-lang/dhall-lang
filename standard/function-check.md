@@ -1,6 +1,6 @@
 # Function check
 
-The function check governs which types of functions that our pure type system
+The function check governs the types of functions that our pure type system
 permits.  This is based on [CCω][ccw] with only three universes:
 
 * `Type` is an impredicative universe at the bottom of the hierarchy

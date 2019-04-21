@@ -1,35 +1,5 @@
 # Shift
 
-Dhall allows variables to reference shadowed variables of the same name using De
-Bruijn indices.  For example:
-
-
-                                  ┌──refers to──┐
-                                  │             │
-                                  ↓             │
-    λ(x : Type) → λ(y : Type) → λ(x : Type) → x@0
-
-
-      ┌────────────────refers to────────────────┐
-      │                                         │
-      ↓                                         │
-    λ(x : Type) → λ(y : Type) → λ(x : Type) → x@1
-
-
-`x@n` refers to the "nth" bound variable named `x` counting outwards from where
-the variable is referenced.
-
-If a variable does not specify the De Bruijn index (i.e. just `x`) then the De
-Bruijn index defaults to 0 (i.e. `x@0`), like this:
-
-
-                                  ┌─refers to─┐
-                                  │           │
-                                  ↓           │
-    λ(x : Type) → λ(y : Type) → λ(x : Type) → x
-
-
-
 Dhall uses a shift function internally to avoid variable capture in the
 implementation of De Bruijn indices.  This function increases or decreases the
 indices of free variables within an expression.
