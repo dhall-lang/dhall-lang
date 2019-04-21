@@ -1,25 +1,5 @@
 # Type inference
 
-## Table of contents
-
-* [Reduction](#reduction)
-* [Constants](#constants)
-* [Variables](#variables)
-* [`Bool`](#bool)
-* [`Natural`](#natural)
-* [`Text`](#text)
-* [`List`](#list)
-* [`Optional`](#optional)
-* [Records](#records)
-* [Unions](#unions)
-* [`Integer`](#integer)
-* [`Double`](#double)
-* [Functions](#functions)
-* [`let` expressions](#let-expressions)
-* [Type annotations](#type-annotations)
-* [Imports](#imports)
-
-
 Type inference is a judgment of the form:
 
     Γ ⊢ t : T
@@ -40,6 +20,26 @@ To infer the type of a closed expression, supply an empty context:
 
 This judgment guarantees the invariant that the inferred type is safe to
 normalize.
+
+
+## Table of contents
+
+* [Reduction](#reduction)
+* [Constants](#constants)
+* [Variables](#variables)
+* [`Bool`](#bool)
+* [`Natural`](#natural)
+* [`Text`](#text)
+* [`List`](#list)
+* [`Optional`](#optional)
+* [Records](#records)
+* [Unions](#unions)
+* [`Integer`](#integer)
+* [`Double`](#double)
+* [Functions](#functions)
+* [`let` expressions](#let-expressions)
+* [Type annotations](#type-annotations)
+* [Imports](#imports)
 
 ## Reduction
 
