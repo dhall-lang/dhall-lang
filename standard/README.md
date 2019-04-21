@@ -421,3 +421,4 @@ separate document:
 
 * [Import resolution semantics](./imports.md)
 
+[ccw]: https://hal.inria.fr/hal-01445835
