@@ -38,22 +38,56 @@ Breaking changes:
     endpoint unless that intranet endpoint had enabled CORS whitelisting that
     external domain.
 
-
 *   [Remove support for fragment identifiers](https://github.com/dhall-lang/dhall-lang/pull/406)
 
-    TODO
+    Fragment identifiers are not useful for remote imports since:
 
-*   [Update hashes for Prelude functions that started using empty alternatives](https://github.com/dhall-lang/dhall-lang/pull/480)
+    * They don't affect import resolution because:
+        * They are not used to resolve the host
+        * They are not transmitted to the host as part of the path to fetch
+        * More generally, fragments are required by
+          [RFC 3986](https://tools.ietf.org/html/rfc3986#section-3.5) to be
+          interpreted client-side (if at all)
+    * They don't identify any "sub-section" of a Dhall expression to fetch
+    
+    Therefore, we remove support for them in the grammar and the binary encoding.
 
-    TODO
+    This is a breaking change to the binary encoding, although this does not
+    affect semantic integrity checks because they are fully resolved and
+    therefore don't include imports.
 
 *   [Unescape unquoted URI path components](https://github.com/dhall-lang/dhall-lang/pull/489)
 
-    TODO
+    With this change all unquoted URI paths will be unescaped on parsing, and
+    all URI components will be escaped before importing.
+    
+    This changes the binary encoding, e.g. the following would both encode to
+    the same bytes, but now don't:
+    * `https://example.com/a%20b/c`
+    * `https://example.com/"a%20b"/c`
 
 *   [Simplify text concatenation normalization](https://github.com/dhall-lang/dhall-lang/pull/497)
 
-    TODO
+    From now on, the "text concatenation" operator is interpreted as two 
+    interpolations together:
+
+    ```
+        "${l}${r}" ⇥ s₀
+        ─────────────────────
+        l ++ r ⇥ s₀
+    ```
+
+    This is a breaking change, as the following expression:
+    
+    ```hs
+    λ ( a : Text ) → λ ( b : Text ) → a ++ b
+    ```
+    
+    ..used to normalize to itself, while now it normalizes to:
+    
+    ```hs
+    λ ( a : Text ) → λ ( b : Text ) → "${a}${b}"
+    ```
 
 New features:
 
@@ -63,7 +97,7 @@ New features:
     values. In the simple case where the union has all empty alternatives it
     degenerates to an enum.
     
-    For example:
+    For example this is now possible:
     
     ```hs
     let Role = < Wizard | Fighter | Rogue >
@@ -79,10 +113,10 @@ New features:
 *   [Expand character set for quoted labels](https://github.com/dhall-lang/dhall-lang/pull/408)
 
     This expands quoted labels to permit all non-control ASCII characters except
-    backticks, so e.g. this label is now allowed:
+    backticks, so e.g. this is now allowed:
     
     ```hs
-    `<>.\!@#$%^&*()*`
+    { `<>.\!@#$%^&*()*` = 42 }
     ```
 
 *   [Allow builtin names as fields](https://github.com/dhall-lang/dhall-lang/pull/437)
@@ -174,6 +208,7 @@ Other changes:
     * [Update `{prelude.,}.dhall-lang.org`](https://github.com/dhall-lang/dhall-lang/pull/429)
     * [Fix TOC](https://github.com/dhall-lang/dhall-lang/pull/485)
     * [Update websites](https://github.com/dhall-lang/dhall-lang/pull/491)
+    * [Update hashes for Prelude functions that started using empty alternatives](https://github.com/dhall-lang/dhall-lang/pull/480)
 
 
 ## `v6.0.0`
