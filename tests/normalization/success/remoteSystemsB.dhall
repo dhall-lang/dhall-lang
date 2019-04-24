@@ -78,7 +78,7 @@
                             , NonEmpty =
                                   λ(result : Text)
                                 → < Empty | NonEmpty : Text >.NonEmpty
-                                  (element ++ "," ++ result)
+                                  ("${element},${result}")
                             }
                             status
                         )
@@ -117,10 +117,7 @@
                                                           | NonEmpty :
                                                               Text
                                                           >.NonEmpty
-                                                          (     element
-                                                            ++  ","
-                                                            ++  result
-                                                          )
+                                                          "${element},${result}"
                                                     }
                                                     status
                                                 )
@@ -158,10 +155,7 @@
                                                                | NonEmpty :
                                                                    Text
                                                                >.NonEmpty
-                                                               (     element
-                                                                 ++  ","
-                                                                 ++  result
-                                                               )
+                                                               "${element},${result}"
                                                          }
                                                          status
                                                      )
@@ -170,7 +164,6 @@
                                                          Text
                                                      >.Empty
                                                    )}
-          ''
-      ++  y
+          ${y}''
   )
   ""
