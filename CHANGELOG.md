@@ -7,7 +7,103 @@ For more info about our versioning policy, see [versioning.md](standard/versioni
 
 ## `v7.0.0`
 
-TODO
+Breaking changes:
+
+*   [Protect transitive remote imports with CORS check](https://github.com/dhall-lang/dhall-lang/pull/411)
+
+    TODO
+
+*   [Remove support for fragment identifiers](https://github.com/dhall-lang/dhall-lang/pull/406)
+
+    TODO
+
+*   [Update hashes for Prelude functions that started using empty alternatives](https://github.com/dhall-lang/dhall-lang/pull/480)
+
+    TODO
+
+*   [Unescape unquoted URI path components](https://github.com/dhall-lang/dhall-lang/pull/489)
+
+    TODO
+
+*   [Simplify text concatenation normalization](https://github.com/dhall-lang/dhall-lang/pull/497)
+
+    TODO
+
+New features:
+
+*   [Expand character set for quoted labels](https://github.com/dhall-lang/dhall-lang/pull/408)
+
+    TODO
+
+*   [Allow builtin names as fields](https://github.com/dhall-lang/dhall-lang/pull/437)
+
+    TODO
+
+*   [Add support for union alternatives without fields](https://github.com/dhall-lang/dhall-lang/pull/438)
+
+    TODO
+
+*   [Fix typechecking of Sorts in records](https://github.com/dhall-lang/dhall-lang/pull/453)
+
+    TODO
+
+Other changes:
+
+*   New implementations
+
+    * [dhall-rust has been forked and is in progress](https://github.com/dhall-lang/dhall-lang/pull/468)
+    * [Add a new complete implementation, dhall-ruby](https://github.com/dhall-lang/dhall-lang/pull/479)
+
+*   Fixes and improvements to the grammar
+
+    * [Remove special rules for builtins in the grammar](https://github.com/dhall-lang/dhall-lang/pull/399)
+    * [Clarify how to decode variables named `_`](https://github.com/dhall-lang/dhall-lang/pull/407)
+    * [Make grammar suitable for PEGs, take 2](https://github.com/dhall-lang/dhall-lang/pull/442)
+    * [Imports have whitespace before the hash](https://github.com/dhall-lang/dhall-lang/pull/452)
+    * [Improve grammar for auto-generated parsers](https://github.com/dhall-lang/dhall-lang/pull/455)
+    * [Allow `merge x y z`](https://github.com/dhall-lang/dhall-lang/pull/467)
+    * [Shuffle comment parsing rules so it's easier to patch to remove ambiguity](https://github.com/dhall-lang/dhall-lang/pull/482)
+    * [Add 'builtin' rule to specify the parsing of builtins](https://github.com/dhall-lang/dhall-lang/pull/490)
+
+*   Fixes and improvements to the semantics
+
+    * [Fix decoding of imports](https://github.com/dhall-lang/dhall-lang/pull/405)
+    * [Specify equality of expressions using the binary encoding](https://github.com/dhall-lang/dhall-lang/pull/426)
+    * [`({ a = (t: T) } ⫽ { a = (n: N) }): { a: N }`](https://github.com/dhall-lang/dhall-lang/pull/432)
+    * [Fixed typos and improved notation consistency in semantics](https://github.com/dhall-lang/dhall-lang/pull/449)
+    * [Clarify when handler needs to be a function](https://github.com/dhall-lang/dhall-lang/pull/473)
+    * [Fix minor typo](https://github.com/dhall-lang/dhall-lang/pull/477)
+    * [Languages can decide how to marshal Dhall expressions](https://github.com/dhall-lang/dhall-lang/pull/474)
+    * [Add other failures to the triggers of the `?` operator fallback](https://github.com/dhall-lang/dhall-lang/pull/481)
+    * [Separate binary encoding of variables vs built-ins](https://github.com/dhall-lang/dhall-lang/pull/488)
+    * [Simplify record typechecking rules](https://github.com/dhall-lang/dhall-lang/pull/495)
+
+*   Fixes and improvements to tests
+
+    * [Add normalization unit tests](https://github.com/dhall-lang/dhall-lang/pull/416)
+    * [Update normalization tests](https://github.com/dhall-lang/dhall-lang/pull/415)
+    * [Make normalization prelude tests import only the package they need](https://github.com/dhall-lang/dhall-lang/pull/420)
+    * [Fix encoding of `largeExpression` parser test case](https://github.com/dhall-lang/dhall-lang/pull/431)
+    * [Fix parsing test for large expression](https://github.com/dhall-lang/dhall-lang/pull/445)
+    * [Fix the encoding of a test](https://github.com/dhall-lang/dhall-lang/pull/444)
+    * [Some shuffling of parser tests](https://github.com/dhall-lang/dhall-lang/pull/443)
+    * [Typecheck vs type inference tests](https://github.com/dhall-lang/dhall-lang/pull/447)
+    * [Semantic hash tests](https://github.com/dhall-lang/dhall-lang/pull/450)
+    * [Fix normalization/unit/EmptyAlternative test](https://github.com/dhall-lang/dhall-lang/pull/458)
+    * [Improve documentation of tests/parser/failure/boundBuiltins.dhall](https://github.com/dhall-lang/dhall-lang/pull/459)
+    * [Remove duplicate test](https://github.com/dhall-lang/dhall-lang/pull/460)
+    * [Update largeExpression test to new Union syntax](https://github.com/dhall-lang/dhall-lang/pull/471)
+    * [Test merging sort-level record types](https://github.com/dhall-lang/dhall-lang/pull/486)
+    
+* Fixes and improvements to infrastructure and docs
+
+    * [Add `discourse.dhall-lang.org` configuration](https://github.com/dhall-lang/dhall-lang/pull/417)
+    * [Clarify language changes approval in `CONTRIBUTING.md`](https://github.com/dhall-lang/dhall-lang/pull/427)
+    * [Make self-caching Prelude](https://github.com/dhall-lang/dhall-lang/pull/424)
+    * [Update `{prelude.,}.dhall-lang.org`](https://github.com/dhall-lang/dhall-lang/pull/429)
+    * [Fix TOC](https://github.com/dhall-lang/dhall-lang/pull/485)
+    * [Update websites](https://github.com/dhall-lang/dhall-lang/pull/491)
+
 
 ## `v6.0.0`
 
