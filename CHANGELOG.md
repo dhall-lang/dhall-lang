@@ -61,8 +61,8 @@ Breaking changes:
     With this change all unquoted URI paths will be unescaped on parsing, and
     all URI components will be escaped before importing.
     
-    This changes the binary encoding, e.g. the following would both encode to
-    the same bytes, but now don't:
+    This changes the binary encoding, e.g. the following expressions used to encode
+    to the same bytes, but now don't:
     * `https://example.com/a%20b/c`
     * `https://example.com/"a%20b"/c`
 
@@ -72,21 +72,21 @@ Breaking changes:
     interpolations together:
 
     ```
-        "${l}${r}" ⇥ s₀
-        ─────────────────────
-        l ++ r ⇥ s₀
+    "${l}${r}" ⇥ s₀
+    ─────────────────────
+    l ++ r ⇥ s₀
     ```
 
     This is a breaking change, as the following expression:
     
     ```hs
-    λ ( a : Text ) → λ ( b : Text ) → a ++ b
+    λ( a : Text ) → λ( b : Text ) → a ++ b
     ```
     
     ..used to normalize to itself, while now it normalizes to:
     
     ```hs
-    λ ( a : Text ) → λ ( b : Text ) → "${a}${b}"
+    λ( a : Text ) → λ( b : Text ) → "${a}${b}"
     ```
 
 New features:
