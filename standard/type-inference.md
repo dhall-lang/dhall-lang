@@ -1094,6 +1094,15 @@ Note that the above rule permits kind annotations, such as `List : Type → Type
 If the inferred type of the annotated expression does not match the type
 annotation then that is a type error.
 
+Even though `Sort` is not a type-valid expression by itself, it is valid
+as a type annotation:
+
+
+    Γ ⊢ t : Sort
+    ─────────────────────
+    Γ ⊢ (t : Sort) : Sort
+
+
 ## Imports
 
 An expression with unresolved imports cannot be type-checked
