@@ -109,6 +109,11 @@ New features:
 
     in  show Role.Wizard
     ```
+    
+    Note that the corresponding handlers don't need to take a function argument
+    any longer; that is, handlers for empty alternatives no longer have to bind
+    unused arguments of type `{}` and constructors for empty alternatives no 
+    longer have to take an input of `{=}`.
 
 *   [Expand character set for quoted labels](https://github.com/dhall-lang/dhall-lang/pull/408)
 
