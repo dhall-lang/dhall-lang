@@ -354,7 +354,7 @@ Bruijn indices.
 You can find the α-normalization semantics in the following
 separate document:
 
-* [α-normalization](./α-normalization.md)
+* [α-normalization](./alpha-normalization.md)
 
 
 ## β-normalization
@@ -366,7 +366,7 @@ given Dhall expression.
 You can find the β-normalization semantics in the following
 separate document:
 
-* [β-normalization](./β-normalization.md)
+* [β-normalization](./beta-normalization.md)
 
 
 ## Equivalence
