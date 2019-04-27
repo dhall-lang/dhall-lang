@@ -54,7 +54,7 @@ This is to avoid rushing changes ito be merged in before a release boundary out 
 of delaying until the next release, because that might lead to poor quality.
 
 So when proposing a new release:
-* one can specify to wait for some changes to be merged first
+* anyone can ask to wait for some changes to be merged first
 * every other change in flight will be put on hold until after the release has been cut
   from the `master` branch.
 
