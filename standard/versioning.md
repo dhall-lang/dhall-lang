@@ -44,9 +44,9 @@ they should be able to request that somebody cut a release on their behalf.
 
 This implies that the `master` branch of the specification should always be "release-ready".
 
-## Code freeze
+### Frequent releases
 
-The general rule of thumb for release process is "trains run on time", meaning
+The general rule of thumb for the release process is "trains run on time", meaning
 that whenever the decision of waiting for a change is not clear, there should
 be bias towards cutting a release earlier and delaying any changes in flight
 until the next release.  
@@ -56,7 +56,7 @@ of delaying until the next release, because that might lead to poor quality.
 So when proposing a new release:
 * anyone can ask to wait for some changes to be merged first
 * every other change in flight will be put on hold until after the release has been cut
-  from the `master` branch.
+  from the `master` branch. This is effectively a code freeze
 
 ## Versioning scheme
 
