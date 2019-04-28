@@ -1,5 +1,5 @@
 [ http://example.com/someFile.dhall
-, https://john:doe@example.com:8080/foo/bar?qux=0#xyzzy
+, https://john:doe@example.com:8080/foo/bar?qux=0
 , http://prelude.dhall-lang.org/package.dhall
 , https://ipfs.io/ipfs/QmQ8w5PLcsNz56dMvRtq54vbuPe9cNnCCUXAQp6xLc6Ccx/Prelude
 , https://raw.githubusercontent.com/dhall-lang/dhall-haskell/18e4e9a18dc53271146df3ccf5b4177c3552236b/examples/True
