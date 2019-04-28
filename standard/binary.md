@@ -114,7 +114,7 @@ should not be confused with CBOR tags, as documented in
 
 ## Encoding judgment
 
-You can encode an untagged Dhall expression using the following judgment:
+You can encode a Dhall expression using the following judgment:
 
     encode(dhall) = cbor
 
@@ -811,7 +811,7 @@ represent the absence of a type annotation:
 ## Decoding judgment
 
 
-You can decode an untagged Dhall expression using the following judgment:
+You can decode a Dhall expression using the following judgment:
 
     decode(cbor) = dhall
 
