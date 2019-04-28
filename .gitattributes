@@ -1,1 +1,2 @@
 standard/dhall.abnf text=auto
+*.dhallb diff=cbor
