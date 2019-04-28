@@ -821,14 +821,9 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ (merge t u : T) : T
 
 
-    Γ ⊢ t :⇥ { y : ∀(x : A₀) → T₀, ts… }
-    Γ ⊢ u :⇥ < y : A₁ | us… >
-    Γ ⊢ (merge { ts… } < us… > : T₂) : T₃
-    A₀ ≡ A₁
-    ↑(-1, x, 0, T₀) = T₁
-    T₁ ≡ T₂
-    ────────────────────────────────────  ; `x` not free in `T₀`
-    Γ ⊢ (merge t u : T₂) : T₂
+    Γ ⊢ t :⇥ { ts… }   Γ ⊢ merge t u : T
+    ────────────────────────────────────  ; `ts` non-empty
+    Γ ⊢ (merge t u : T) : T
 
 
     Γ ⊢ t :⇥ { y : ∀(x : A₀) → T₀, ts… }
@@ -838,14 +833,6 @@ between the fields of the handler record and the alternatives of the union:
     ↑(-1, x, 0, T₀) = T₁
     ────────────────────────────────────  ; `x` not free in `T₀`
     Γ ⊢ merge t u : T₀
-
-
-    Γ ⊢ t :⇥ { y : T₀, ts… }
-    Γ ⊢ u :⇥ < y | us… >
-    Γ ⊢ (merge { ts… } < us… > : T₁) : T₂
-    T₀ ≡ T₁
-    ─────────────────────────────────────
-    Γ ⊢ (merge t u : T₁) : T₁
 
 
     Γ ⊢ t :⇥ { y : T₀, ts… }
@@ -1093,6 +1080,15 @@ Note that the above rule permits kind annotations, such as `List : Type → Type
 
 If the inferred type of the annotated expression does not match the type
 annotation then that is a type error.
+
+Even though `Sort` is not a type-valid expression by itself, it is valid
+as a type annotation:
+
+
+    Γ ⊢ t : Sort
+    ─────────────────────
+    Γ ⊢ (t : Sort) : Sort
+
 
 ## Imports
 
