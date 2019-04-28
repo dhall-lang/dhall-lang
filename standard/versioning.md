@@ -50,7 +50,7 @@ The general rule of thumb for release process is "trains run on time", meaning
 that whenever the decision of waiting for a change is not clear, there should
 be bias towards cutting a release earlier and delaying any changes in flight
 until the next release.  
-This is to avoid rushing changes ito be merged in before a release boundary out of fear
+This is to avoid rushing to merge changes in before a release boundary out of fear
 of delaying until the next release, because that might lead to poor quality.
 
 So when proposing a new release:
