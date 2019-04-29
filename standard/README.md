@@ -367,7 +367,7 @@ Bruijn indices.
 
 You can find the details of this judgment in the following separate document:
 
-* [α-normalization](./α-normalization.md)
+* [α-normalization](./alpha-normalization.md)
 
 
 ## β-normalization
@@ -382,7 +382,7 @@ given Dhall expression.
 
 You can find the details of this judgment in the following separate document:
 
-* [β-normalization](./β-normalization.md)
+* [β-normalization](./beta-normalization.md)
 
 
 ## Equivalence

