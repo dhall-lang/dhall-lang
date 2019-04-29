@@ -265,8 +265,12 @@ Because this conversion occurs at parse-time all of the following judgments
 only deal with double-quoted string literals.  Consequently, there are no
 separate rules for type-checking or normalizing multi-line string literals.
 
-You can find the logic for desugaring multi-line string literals to
-double-quoted string literals in the following separate document:
+The logic for desugaring multi-line string literals to
+double-quoted string literals is implemented in a judgment:
+
+    to-double-quotes(s₀) = s₁
+
+You can find the details of this judgment in the following separate document:
 
 * [Multi-line literal semantics](./multiline.md)
 
@@ -304,8 +308,11 @@ Bruijn index defaults to 0 (i.e. `x@0`), like this:
 Dhall uses a shift function internally to avoid variable capture in the
 implementation of De Bruijn indices.
 
-You can find the semantics of this shift
-function in the following separate document:
+This shift function has the form:
+
+    ↑(d, x, m, e₀) = e₁
+
+You can find the details of this judgment in the following separate document:
 
 * [Shift](./shift.md)
 
@@ -340,8 +347,11 @@ You can also shift a context by shifting each expression in that context:
 β-reduction requires support for substitution, which consists in replacing
 the uses of a given variable in an expression by another expression.
 
-You can find the semantics of substitution in the following
-separate document:
+Substitution has the form:
+
+    e₀[x@n ≔ a] = e₁
+
+You can find the details of this judgment in the following separate document:
 
 * [Substitution](./substitution.md)
 
@@ -351,8 +361,11 @@ separate document:
 α-normalization renames all bound variables within an expression to use De
 Bruijn indices.
 
-You can find the α-normalization semantics in the following
-separate document:
+α-normalization has the form:
+
+    t₀ ↦ t₁
+
+You can find the details of this judgment in the following separate document:
 
 * [α-normalization](./alpha-normalization.md)
 
@@ -363,8 +376,11 @@ separate document:
 normal form. This is similar to "executing" the program represented by the
 given Dhall expression.
 
-You can find the β-normalization semantics in the following
-separate document:
+β-normalization has the form:
+
+    t₀ ⇥ t₁
+
+You can find the details of this judgment in the following separate document:
 
 * [β-normalization](./beta-normalization.md)
 
@@ -400,16 +416,22 @@ Note also that this means that `Double`s should not be compared using standard f
 The function check governs the types of functions that our pure type system
 permits.
 
-You can find the details of the function check in the following
-separate document:
+The function check is a judgment of the form:
+
+    c₀ ↝ c₁ : c₂
+
+You can find the details of this judgment in the following separate document:
 
 * [Function check](./function-check.md)
 
 
 ## Type inference
 
-You can find the type inference semantics in the following
-separate document:
+Type inference is a judgment of the form:
+
+    Γ ⊢ t : T
+
+You can find the details of this judgment in the following separate document:
 
 * [Type inference](./type-inference.md)
 
@@ -418,16 +440,23 @@ separate document:
 
 Dhall supports encoding and decoding expressions to and from a binary format.
 
-You can find the binary encoding and decoding semantics in the following
-separate document:
+Binary encoding and decoding is captured by two judgments:
+
+    encode(dhall) = cbor
+    decode(cbor) = dhall
+
+You can find the details of these judgments in the following separate document:
 
 * [Binary semantics](./binary.md)
 
 
 ## Import resolution
 
-You can find the import resolution semantics in the following
-separate document:
+Import resolution is captured by a judgment:
+
+    (Δ, here) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
+
+You can find the details of this judgment in the following separate document:
 
 * [Import resolution semantics](./imports.md)
 
