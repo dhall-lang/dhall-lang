@@ -74,7 +74,7 @@ Where `A` and `B` are:
 - `A`: unnormalized text
 - `B`: normalized text
 
-### Running `α-normalization` tests
+### Running `alpha-normalization` tests
 
 The tests should:
 - parse `A` and `B`
