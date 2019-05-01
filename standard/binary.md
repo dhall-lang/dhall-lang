@@ -103,9 +103,18 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   / -nn              ; Negative bignum     (Section 2.4, Tag = 3)
 ```
 
+## Expression labels
+
+The CBOR encoding scheme uses a convention where expressions are
+encoded as CBOR arrays, with the first element an integer that
+identifies the type of expression.  In this document we call this kind
+of integer a "label".  This labelling scheme is specific to Dhall, and
+should not be confused with CBOR tags, as documented in
+[RFC7049 section 2.4](https://tools.ietf.org/html/rfc7049#section-2.4).
+
 ## Encoding judgment
 
-You can encode an untagged Dhall expression using the following judgment:
+You can encode a Dhall expression using the following judgment:
 
     encode(dhall) = cbor
 
@@ -117,10 +126,10 @@ You can encode an untagged Dhall expression using the following judgment:
 The encoding logic includes several optimizations for more compactly encoding
 expressions that are fully resolved and αβ-normalized because expressions are
 fully interpreted before they are hashed or cached.  For example, the encoding
-uses tags less than 24 for language features that survive both import resolution
-and normalization (such as a function type) since those tags fit in one byte.
+uses labels less than 24 for language features that survive both import resolution
+and normalization (such as a function type) since those labels fit in one byte.
 Language features that don't survive full interpretation (such as a `let`
-expression or an import) use tags of 24 or above.  Similarly, the encoding using
+expression or an import) use labels of 24 or above.  Similarly, the encoding using
 a more compact representation for variables named `_` because no other variable
 names remain after α-normalization.
 
@@ -341,7 +350,7 @@ representation:
 
 ### Operators
 
-Operators are encoded as integer tags alongside their two arguments:
+Operators are encoded as integer labels alongside their two arguments:
 
 
     encode(l₀) = l₁   encode(r₀) = r₁
@@ -547,7 +556,7 @@ Encode Boolean literals using CBOR's built-in support for Boolean values:
     encode(False) = False
 
 
-`if` expressions are encoded with a tag:
+`if` expressions are encoded with a label:
 
 
     encode(t₀) = t₁   encode(l₀) = l₁   encode(r₀) = r₁
@@ -692,20 +701,20 @@ The full rules are:
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]
+    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]
+    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]
 
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]
+    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]
+    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]
 
 
 If you import `using headers`, then the fourth element contains the import
@@ -802,14 +811,14 @@ represent the absence of a type annotation:
 ## Decoding judgment
 
 
-You can decode an untagged Dhall expression using the following judgment:
+You can decode a Dhall expression using the following judgment:
 
     decode(cbor) = dhall
 
 ... where:
 
-* `cbor` (the output) is a CBOR expression
-* `dhall` (the input) is a Dhall expression
+* `cbor` (the input) is a CBOR expression
+* `dhall` (the output) is a Dhall expression
 
 ### Built-in constants
 
@@ -1310,19 +1319,19 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
+    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
+    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────────
