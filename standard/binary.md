@@ -701,20 +701,20 @@ The full rules are:
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]
+    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]
+    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]
 
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]
+    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]
+    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]
 
 
 If you import `using headers`, then the fourth element contains the import
@@ -1319,19 +1319,19 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
+    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority" "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
+    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority" "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────────
