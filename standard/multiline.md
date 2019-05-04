@@ -113,30 +113,28 @@ spaces are not also present before the closing single quotes:
 
     "  foo\n  bar\n"
 
-This feature only strips spaces (i.e. `\u0020`) and not any other form of
-whitespace.  For example, leading tabs are not stripped in this way.
+This feature only strips spaces and tabs (i.e. `\u0020` and `\u0009`) and not
+any other form of whitespace.
 
-Stripping leading whitespace requires first computing the size of the smallest
-indent using the `indent` judgment:
+Stripping leading whitespace requires first computing the smallest indent using
+the `indent` judgment:
 
     indent(s) = n
 
 ... where
 
 * `s` (the input) is a multi-line literal
-* `n` (the output) is the length of the smallest indent
+* `n` (the output) is the smallest indent (a string of only `\u0020` and `\u0009`)
 
 There is always at least one line in a multi-line literal, which is the line
 preceding the final pair of single quotes:
 
 
-    ────────────────────  ; The "s" denotes the end of the leading spaces, which
+    ────────────────────  ; The "s" denotes the end of the leading indent, which
     indent(''             ; can be terminated by any of the following:
-    ␣␣␣n␣␣␣s'') = n       ; * a non-space character
+    ps'') = p             ; * any character other than `\u0020` or `\u0009`
                           ; * an interpolated expression
                           ; * the end of the multi-line literal (i.e. '')
-                          ;
-                          ; "␣␣␣n␣␣␣" is a short-hand for "n spaces"
 
 
 The grammar enforces this by requiring a mandatory newline after the opening
@@ -156,17 +154,56 @@ multi-line literal:
 
     "${Natural/show 1}      foo\n  bar\n"
 
-A multi-line literal with more than one line takes the minimum indent over all
-lines:
+A multi-line literal with more than one line takes the longest common indent
+prefix over all lines:
 
 
-    indent(''                ; Find the minimum indent for the remainder of the
-           ss'') = m         ; literal
+    indent(''                ; Find the longest common indent prefix for the
+           ss'') = q         ; remainder of the literal
 
     ───────────────────────
     indent(''
-    ␣␣␣n␣␣␣s
-           ss'') = min(m,n)  ;
+    ps
+    ss'') = lcip(p,q)
+
+
+    lcip(x, y) = p
+
+    ───────────────────────────────
+    lcip(\u0020x, \u0020y) = \u0020p
+
+
+    lcip(x, y) = p
+
+    ───────────────────────────────
+    lcip(\u0009x, \u0009y) = \u0009p
+
+
+    ─────────────────────────────── ; p ∉ { \u0009, \u0020 }
+    lcip(px, py) = ""
+
+
+    ─────────────────────────────── ; p ≠ q
+    lcip(px, qy) = ""
+
+
+Blank lines, however, are not counted towards this prefix, unless they are the
+last line:
+
+
+    indent(''
+           ss'') = p
+
+    ───────────────────────
+    indent(''
+
+           ss'') = p
+
+
+    ───────────────────────
+    indent(
+    ''
+    '') = ""
 
 
 ## Desugaring
@@ -179,7 +216,7 @@ leading indent and converts escape codes:
 
 ... where
 
-* `n` (the input) is the number of leading spaces to strip from each line
+* `n` (the input) is the number of leading codepoints to strip from each line
 * `s₀` (the input) is a multi-line literal
 * `s₁` (the output) is a double-quoted literal
 
@@ -188,8 +225,8 @@ There is always at least one line in a multi-line literal:
 
     re-escape("s₀") = "s₁"
     ────────────────────     ; The "s" denotes everything after the first `n`
-    flatten(n, ''            ; spaces, which could be even more spaces if
-    ␣␣␣␣␣n␣␣␣␣␣s₀'') = "s₁"  ; not all lines shared the same indent
+    flatten(n, ''            ; codepoints, which could be even more whitespace
+    ␣␣␣␣␣n␣␣␣␣␣s₀'') = "s₁"  ; if not all lines shared the same indent
 
 
 ... but no newline is emitted in the corresponding double-quoted literal.  The
@@ -237,8 +274,8 @@ Then the `to-double-quotes` judgement combines `indent` with `flatten`:
 * `s₁` (the output) is a double-quoted literal
 
 
-    indent(s₀) = n   flatten(n, s₀) = s₁
-    ────────────────────────────────────
+    indent(s₀) = p   flatten(length(p), s₀) = s₁
+    ────────────────────────────────────────────
     to-double-quotes(s₀) = s₁
 
 
