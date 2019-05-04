@@ -548,11 +548,20 @@ any interpolated expression that normalize to `Text` literals:
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
+Simplify a `Text` literal if the literal only contains another interpolated
+expression:
+
+
+    e₀ ⇥ e₁
+    ────────────
+    "${e₀}" ⇥ e₁
+
+
 The "text concatenation" operator is interpreted as two interpolations together:
 
 
     "${l}${r}" ⇥ s₀
-    ─────────────────────
+    ───────────────
     l ++ r ⇥ s₀
 
 
