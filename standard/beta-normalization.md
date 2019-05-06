@@ -935,7 +935,7 @@ You can also project out more than one field into a new record:
 
     s ⇥ {}
     ──────────
-    t.(s) ⇥ {}
+    t.(s) ⇥ {=}
 
 
     t ⇥ { x = v, ts₀… }
