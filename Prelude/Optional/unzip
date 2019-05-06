@@ -11,28 +11,28 @@ Examples:
 = { _1 = None Text, _2 = None Bool }
 ```
 -}
-    let unzip
-        :   ∀(a : Type)
-          → ∀(b : Type)
-          → Optional { _1 : a, _2 : b }
-          → { _1 : Optional a, _2 : Optional b }
-        =   λ(a : Type)
-          → λ(b : Type)
-          → λ(xs : Optional { _1 : a, _2 : b })
-          → { _1 =
-                Optional/fold
-                { _1 : a, _2 : b }
-                xs
-                (Optional a)
-                (λ(x : { _1 : a, _2 : b }) → Some x._1)
-                (None a)
-            , _2 =
-                Optional/fold
-                { _1 : a, _2 : b }
-                xs
-                (Optional b)
-                (λ(x : { _1 : a, _2 : b }) → Some x._2)
-                (None b)
-            }
+let unzip
+    :   ∀(a : Type)
+      → ∀(b : Type)
+      → Optional { _1 : a, _2 : b }
+      → { _1 : Optional a, _2 : Optional b }
+    =   λ(a : Type)
+      → λ(b : Type)
+      → λ(xs : Optional { _1 : a, _2 : b })
+      → { _1 =
+            Optional/fold
+            { _1 : a, _2 : b }
+            xs
+            (Optional a)
+            (λ(x : { _1 : a, _2 : b }) → Some x._1)
+            (None a)
+        , _2 =
+            Optional/fold
+            { _1 : a, _2 : b }
+            xs
+            (Optional b)
+            (λ(x : { _1 : a, _2 : b }) → Some x._2)
+            (None b)
+        }
 
 in  unzip

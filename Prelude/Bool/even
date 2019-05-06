@@ -14,9 +14,9 @@ Examples:
 ./even ([] : List Bool) = True
 ```
 -}
-    let even
-        : List Bool → Bool
-        =   λ(xs : List Bool)
-          → List/fold Bool xs Bool (λ(x : Bool) → λ(y : Bool) → x == y) True
+let even
+    : List Bool → Bool
+    =   λ(xs : List Bool)
+      → List/fold Bool xs Bool (λ(x : Bool) → λ(y : Bool) → x == y) True
 
 in  even

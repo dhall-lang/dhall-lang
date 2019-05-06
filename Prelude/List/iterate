@@ -12,32 +12,32 @@ Examples:
 = [] : List Natural
 ```
 -}
-    let iterate
-        : Natural → ∀(a : Type) → (a → a) → a → List a
-        =   λ(n : Natural)
-          → λ(a : Type)
-          → λ(f : a → a)
-          → λ(x : a)
-          → List/build
-            a
-            (   λ(list : Type)
-              → λ(cons : a → list → list)
-              → List/fold
-                { index : Natural, value : {} }
-                ( List/indexed
-                  {}
-                  ( List/build
-                    {}
-                    (   λ(list : Type)
-                      → λ(cons : {} → list → list)
-                      → Natural/fold n list (cons {=})
-                    )
-                  )
+let iterate
+    : Natural → ∀(a : Type) → (a → a) → a → List a
+    =   λ(n : Natural)
+      → λ(a : Type)
+      → λ(f : a → a)
+      → λ(x : a)
+      → List/build
+        a
+        (   λ(list : Type)
+          → λ(cons : a → list → list)
+          → List/fold
+            { index : Natural, value : {} }
+            ( List/indexed
+              {}
+              ( List/build
+                {}
+                (   λ(list : Type)
+                  → λ(cons : {} → list → list)
+                  → Natural/fold n list (cons {=})
                 )
-                list
-                (   λ(y : { index : Natural, value : {} })
-                  → cons (Natural/fold y.index a f x)
-                )
+              )
             )
+            list
+            (   λ(y : { index : Natural, value : {} })
+              → cons (Natural/fold y.index a f x)
+            )
+        )
 
 in  iterate

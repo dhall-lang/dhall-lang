@@ -9,16 +9,16 @@ Examples:
 ./replicate 0 Natural 1 = [] : List Natural
 ```
 -}
-    let replicate
-        : Natural → ∀(a : Type) → a → List a
-        =   λ(n : Natural)
-          → λ(a : Type)
-          → λ(x : a)
-          → List/build
-            a
-            (   λ(list : Type)
-              → λ(cons : a → list → list)
-              → Natural/fold n list (cons x)
-            )
+let replicate
+    : Natural → ∀(a : Type) → a → List a
+    =   λ(n : Natural)
+      → λ(a : Type)
+      → λ(x : a)
+      → List/build
+        a
+        (   λ(list : Type)
+          → λ(cons : a → list → list)
+          → Natural/fold n list (cons x)
+        )
 
 in  replicate

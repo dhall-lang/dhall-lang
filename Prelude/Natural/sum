@@ -9,14 +9,9 @@ Examples:
 ./sum ([] : List Natural) = 0
 ```
 -}
-    let sum
-        : List Natural → Natural
-        =   λ(xs : List Natural)
-          → List/fold
-            Natural
-            xs
-            Natural
-            (λ(l : Natural) → λ(r : Natural) → l + r)
-            0
+let sum
+    : List Natural → Natural
+    =   λ(xs : List Natural)
+      → List/fold Natural xs Natural (λ(l : Natural) → λ(r : Natural) → l + r) 0
 
 in  sum
