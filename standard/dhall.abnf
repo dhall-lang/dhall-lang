@@ -510,26 +510,26 @@ IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
 ; NOTE: Backtrack when parsing each alternative
 IPv6address =                            6( h16 ":" ) ls32
             /                       "::" 5( h16 ":" ) ls32
-            / [               h16 ] "::" 4( h16 ":" ) ls32
-            / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-            / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-            / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-            / [ *4( h16 ":" ) h16 ] "::"              ls32
-            / [ *5( h16 ":" ) h16 ] "::"              h16
-            / [ *6( h16 ":" ) h16 ] "::"
+            / [ h16               ] "::" 4( h16 ":" ) ls32
+            / [ h16 *1( ":" h16 ) ] "::" 3( h16 ":" ) ls32
+            / [ h16 *2( ":" h16 ) ] "::" 2( h16 ":" ) ls32
+            / [ h16 *3( ":" h16 ) ] "::"    h16 ":"   ls32
+            / [ h16 *4( ":" h16 ) ] "::"              ls32
+            / [ h16 *5( ":" h16 ) ] "::"              h16
+            / [ h16 *6( ":" h16 ) ] "::"
 
 h16 = 1*4HEXDIG
 
-ls32 = ( h16 ":" h16 ) / IPv4address
+ls32 = h16 ":" h16 / IPv4address
 
 IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
 
-; NOTE: Backtrack when parsing these alternatives and try them in reverse order
-dec-octet = DIGIT              ; 0-9
-          / %x31-39 DIGIT      ; 10-99
-          / "1" 2DIGIT         ; 100-199
+; NOTE: Backtrack when parsing these alternatives
+dec-octet = "25" %x30-35       ; 250-255
           / "2" %x30-34 DIGIT  ; 200-249
-          / "25" %x30-35       ; 250-255
+          / "1" 2DIGIT         ; 100-199
+          / %x31-39 DIGIT      ; 10-99
+          / DIGIT              ; 0-9
 
 reg-name = *( unreserved / pct-encoded / sub-delims )
 
