@@ -499,6 +499,14 @@ Field access:
     encode(t₀.{ x, y, … }) = [ 10, t₁, "x", "y", … ]
 
 
+Record projection by type is encoded as follows:
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ─────────────────────────────────
+    encode(t₀.(T₀)) = [ 27, t₁, T₁ ]
+
+
 ### Unions
 
 Dhall union types translate to CBOR maps:
@@ -1188,6 +1196,14 @@ Decode a CBOR array beginning with a `10` as a record projection:
     decode(t₁) = t₀   …
     ────────────────────────────────────────────────────
     decode([ 10, t₁, "x", "y", … ]) = t₀.{ x, y, … }
+
+
+Similarly, decode a CBOR array beginning with a `` as a record projection by type:
+
+
+    decode(t₁) = t₀   decode(T₁) = T₀
+    ─────────────────────────────────
+    decode([ 27, t₁, T₁]) = t₀.(T₀)
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
