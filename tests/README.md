@@ -125,3 +125,13 @@ Where `A` and `B` are:
 - `A`: text with unresolved imports
 - `B`: text where all the imports have been resolved, normalized and replaced with their value
 
+### Running `binary-decode` tests
+
+The tests should:
+- decode `A` from the Dhall binary encoding
+- parse `B`
+- the results should match
+
+Where `A` and `B` are:
+- `A`: binary encoded Dhall expression
+- `B`: text of the equivalent Dhall expression
