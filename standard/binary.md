@@ -513,7 +513,7 @@ Record projection by type is encoded as follows:
 
     encode(t₀) = t₁   encode(T₀) = T₁
     ─────────────────────────────────
-    encode(t₀.(T₀)) = [ 19, t₁, T₁ ]
+    encode(t₀.(T₀)) = [ 9, t₁, T₁ ]
 
 
 ### Unions
@@ -1212,7 +1212,7 @@ Similarly, decode a CBOR array beginning with a `` as a record projection by typ
 
     decode(t₁) = t₀   decode(T₁) = T₀
     ─────────────────────────────────
-    decode([ 19, t₁, T₁]) = t₀.(T₀)
+    decode([ 9, t₁, T₁]) = t₀.(T₀)
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
