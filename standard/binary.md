@@ -26,6 +26,7 @@ expressions to and from a binary representation
     * [`let`-expressions](#let-expressions)
     * [Type annotations](#type-annotations)
 * [Decoding judgment](#decoding-judgment)
+    * [CBOR Tags](#cbor-tags)
     * [Built-in constants](#built-in-constants-1)
     * [Variables](#variables-1)
     * [Function application](#function-application-1)
@@ -101,6 +102,7 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   /  n.n             ; Double float        (Section 2.3, Value = 27)
   /  nn              ; Unsigned bignum     (Section 2.4, Tag = 2)
   / -nn              ; Negative bignum     (Section 2.4, Tag = 3)
+  / CBORTag n e      ; CBOR tag            (Section 2.4, Tag = n)
 ```
 
 ## Expression labels
@@ -828,6 +830,19 @@ You can decode a Dhall expression using the following judgment:
 * `cbor` (the input) is a CBOR expression
 * `dhall` (the output) is a Dhall expression
 
+### CBOR Tags
+
+Dhall does not currently recognize any CBOR tags that add semantics to data
+items.  However, [tag 55799 is defined][self-describe-cbor] to mean that the
+following data item has exactly the same semantics it would have without the
+tag.  Therefore this tag should be allowed by decoders, and ignored:
+
+
+    decode(x) = e
+    ───────────────────────────────────────────
+    decode(CBORTag 55799 x) = e
+
+
 ### Built-in constants
 
 A naked CBOR string represents a built-in identifier.  Decode the string as
@@ -1412,3 +1427,5 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode(t₁) = t₀   decode(T₁) = T₀
     ─────────────────────────────────────────
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
+
+[self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
