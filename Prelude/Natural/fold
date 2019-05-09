@@ -22,12 +22,12 @@ Examples:
 →   succ (succ (succ zero))
 ```
 -}
-    let fold
-        :   Natural
-          → ∀(natural : Type)
-          → ∀(succ : natural → natural)
-          → ∀(zero : natural)
-          → natural
-        = Natural/fold
+let fold
+    :   Natural
+      → ∀(natural : Type)
+      → ∀(succ : natural → natural)
+      → ∀(zero : natural)
+      → natural
+    = Natural/fold
 
 in  fold

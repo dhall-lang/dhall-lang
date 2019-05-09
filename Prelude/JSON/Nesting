@@ -5,17 +5,16 @@ names
 For example, this Dhall code:
 
 ```
-    let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
+let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
 
-in  let example = constructors Example
+let Nesting = < Inline : {} | Nested : Text >
 
-in  let Nesting = < Inline : {} | Nested : Text >
-
-in  let nesting = constructors Nesting
-
-in  { field    = "name"
-    , nesting  = nesting.Inline {=}
-    , contents = example.Left { foo = 2 }
+in  { field =
+        "name"
+    , nesting =
+        Nesting.Inline {=}
+    , contents =
+        Example.Left { foo = 2 }
     }
 ```
 

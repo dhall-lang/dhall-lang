@@ -9,10 +9,10 @@ Examples:
 ./toList Natural (None Natural) = [] : List Natural
 ```
 -}
-    let toList
-        : ∀(a : Type) → Optional a → List a
-        =   λ(a : Type)
-          → λ(o : Optional a)
-          → Optional/fold a o (List a) (λ(x : a) → [ x ] : List a) ([] : List a)
+let toList
+    : ∀(a : Type) → Optional a → List a
+    =   λ(a : Type)
+      → λ(o : Optional a)
+      → Optional/fold a o (List a) (λ(x : a) → [ x ] : List a) ([] : List a)
 
 in  toList

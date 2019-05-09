@@ -9,13 +9,13 @@ Examples:
 ./fold Natural (None Natural) Natural (λ(x : Natural) → x) 0 = 0
 ```
 -}
-    let fold
-        :   ∀(a : Type)
-          → Optional a
-          → ∀(optional : Type)
-          → ∀(some : a → optional)
-          → ∀(none : optional)
-          → optional
-        = Optional/fold
+let fold
+    :   ∀(a : Type)
+      → Optional a
+      → ∀(optional : Type)
+      → ∀(some : a → optional)
+      → ∀(none : optional)
+      → optional
+    = Optional/fold
 
 in  fold

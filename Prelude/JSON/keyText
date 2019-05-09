@@ -11,7 +11,7 @@ Example:
 ```
 -}
 
-    let keyText =
-          λ(key : Text) → λ(value : Text) → { mapKey = key, mapValue = value }
+let keyText =
+      λ(key : Text) → λ(value : Text) → { mapKey = key, mapValue = value }
 
 in  keyText

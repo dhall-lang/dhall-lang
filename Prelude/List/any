@@ -10,11 +10,11 @@ Examples:
 ./any Natural Natural/even ([] : List Natural) = False
 ```
 -}
-    let any
-        : ∀(a : Type) → (a → Bool) → List a → Bool
-        =   λ(a : Type)
-          → λ(f : a → Bool)
-          → λ(xs : List a)
-          → List/fold a xs Bool (λ(x : a) → λ(r : Bool) → f x || r) False
+let any
+    : ∀(a : Type) → (a → Bool) → List a → Bool
+    =   λ(a : Type)
+      → λ(f : a → Bool)
+      → λ(xs : List a)
+      → List/fold a xs Bool (λ(x : a) → λ(r : Bool) → f x || r) False
 
 in  any

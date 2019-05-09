@@ -10,29 +10,29 @@ Examples:
 ./generate 0 Bool Natural/even = [] : List Bool
 ```
 -}
-    let generate
-        : Natural → ∀(a : Type) → (Natural → a) → List a
-        =   λ(n : Natural)
-          → λ(a : Type)
-          → λ(f : Natural → a)
-          → List/build
-            a
-            (   λ(list : Type)
-              → λ(cons : a → list → list)
-              → List/fold
-                { index : Natural, value : {} }
-                ( List/indexed
-                  {}
-                  ( List/build
-                    {}
-                    (   λ(list : Type)
-                      → λ(cons : {} → list → list)
-                      → Natural/fold n list (cons {=})
-                    )
-                  )
+let generate
+    : Natural → ∀(a : Type) → (Natural → a) → List a
+    =   λ(n : Natural)
+      → λ(a : Type)
+      → λ(f : Natural → a)
+      → List/build
+        a
+        (   λ(list : Type)
+          → λ(cons : a → list → list)
+          → List/fold
+            { index : Natural, value : {} }
+            ( List/indexed
+              {}
+              ( List/build
+                {}
+                (   λ(list : Type)
+                  → λ(cons : {} → list → list)
+                  → Natural/fold n list (cons {=})
                 )
-                list
-                (λ(x : { index : Natural, value : {} }) → cons (f x.index))
+              )
             )
+            list
+            (λ(x : { index : Natural, value : {} }) → cons (f x.index))
+        )
 
 in  generate
