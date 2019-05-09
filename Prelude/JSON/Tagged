@@ -5,33 +5,31 @@ for preserving alternative names
 For example, this code:
 
 ```
-    let map = ../List/map
+let map = ../List/map
 
-in  let Provisioner =
-          < shell :
-              { inline : List Text }
-          | file :
-              { source : Text, destination : Text }
-          >
+let Provisioner =
+      < shell :
+          { inline : List Text }
+      | file :
+          { source : Text, destination : Text }
+      >
 
-in  let provisioner = constructors Provisioner
+let Tagged = ./Tagged
 
-in  let Tagged = ./Tagged
+let Nesting = ./Nesting
 
-in  let nesting = constructors ./Nesting
-
-in  let wrap
-        : Provisioner → Tagged Provisioner
-        =   λ(x : Provisioner)
-          → { field = "type", nesting = nesting.Nested "params", contents = x }
+let wrap
+    : Provisioner → Tagged Provisioner
+    =   λ(x : Provisioner)
+      → { field = "type", nesting = Nesting.Nested "params", contents = x }
 
 in  { provisioners =
         map
         Provisioner
         (Tagged Provisioner)
         wrap
-        [ provisioner.shell { inline = [ "echo foo" ] }
-        , provisioner.file
+        [ Provisioner.shell { inline = [ "echo foo" ] }
+        , Provisioner.file
           { source = "app.tar.gz", destination = "/tmp/app.tar.gz" }
         ]
     }
@@ -62,8 +60,8 @@ in  { provisioners =
 ```
 
 -}
-    let Tagged
-        : Type → Type
-        = λ(a : Type) → { field : Text, nesting : ./Nesting, contents : a }
+let Tagged
+    : Type → Type
+    = λ(a : Type) → { field : Text, nesting : ./Nesting, contents : a }
 
 in  Tagged

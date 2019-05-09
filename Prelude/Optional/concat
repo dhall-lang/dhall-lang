@@ -14,15 +14,15 @@ Examples:
 = None Natural
 ```
 -}
-    let concat
-        : ∀(a : Type) → Optional (Optional a) → Optional a
-        =   λ(a : Type)
-          → λ(x : Optional (Optional a))
-          → Optional/fold
-            (Optional a)
-            x
-            (Optional a)
-            (λ(y : Optional a) → y)
-            (None a)
+let concat
+    : ∀(a : Type) → Optional (Optional a) → Optional a
+    =   λ(a : Type)
+      → λ(x : Optional (Optional a))
+      → Optional/fold
+        (Optional a)
+        x
+        (Optional a)
+        (λ(y : Optional a) → y)
+        (None a)
 
 in  concat

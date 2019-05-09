@@ -21,13 +21,13 @@ Examples:
 = 0
 ```
 -}
-    let build
-        :   (   ∀(natural : Type)
-              → ∀(succ : natural → natural)
-              → ∀(zero : natural)
-              → natural
-            )
-          → Natural
-        = Natural/build
+let build
+    :   (   ∀(natural : Type)
+          → ∀(succ : natural → natural)
+          → ∀(zero : natural)
+          → natural
+        )
+      → Natural
+    = Natural/build
 
 in  build

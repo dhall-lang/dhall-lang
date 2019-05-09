@@ -11,11 +11,11 @@ Examples:
 = ""
 ```
 -}
-    let concatMap
-        : ∀(a : Type) → (a → Text) → List a → Text
-        =   λ(a : Type)
-          → λ(f : a → Text)
-          → λ(xs : List a)
-          → List/fold a xs Text (λ(x : a) → λ(y : Text) → f x ++ y) ""
+let concatMap
+    : ∀(a : Type) → (a → Text) → List a → Text
+    =   λ(a : Type)
+      → λ(f : a → Text)
+      → λ(xs : List a)
+      → List/fold a xs Text (λ(x : a) → λ(y : Text) → f x ++ y) ""
 
 in  concatMap
