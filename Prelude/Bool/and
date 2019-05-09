@@ -10,9 +10,9 @@ Examples:
 ./and ([] : List Bool) = True
 ```
 -}
-    let and
-        : List Bool → Bool
-        =   λ(xs : List Bool)
-          → List/fold Bool xs Bool (λ(l : Bool) → λ(r : Bool) → l && r) True
+let and
+    : List Bool → Bool
+    =   λ(xs : List Bool)
+      → List/fold Bool xs Bool (λ(l : Bool) → λ(r : Bool) → l && r) True
 
 in  and

@@ -11,10 +11,10 @@ Examples:
 ```
 -}
 
-    let keyValue =
-            λ(v : Type)
-          → λ(key : Text)
-          → λ(value : v)
-          → { mapKey = key, mapValue = value }
+let keyValue =
+        λ(v : Type)
+      → λ(key : Text)
+      → λ(value : v)
+      → { mapKey = key, mapValue = value }
 
 in  keyValue

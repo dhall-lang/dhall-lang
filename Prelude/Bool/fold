@@ -9,12 +9,12 @@ Examples:
 ./fold False Natural 0 1 = 1
 ```
 -}
-    let fold
-        : ∀(b : Bool) → ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool
-        =   λ(b : Bool)
-          → λ(bool : Type)
-          → λ(true : bool)
-          → λ(false : bool)
-          → if b then true else false
+let fold
+    : ∀(b : Bool) → ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool
+    =   λ(b : Bool)
+      → λ(bool : Type)
+      → λ(true : bool)
+      → λ(false : bool)
+      → if b then true else false
 
 in  fold

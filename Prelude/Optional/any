@@ -10,11 +10,11 @@ Examples:
 ./any Natural Natural/even (None Natural) = False
 ```
 -}
-    let any
-        : ∀(a : Type) → (a → Bool) → Optional a → Bool
-        =   λ(a : Type)
-          → λ(f : a → Bool)
-          → λ(xs : Optional a)
-          → Optional/fold a xs Bool f False
+let any
+    : ∀(a : Type) → (a → Bool) → Optional a → Bool
+    =   λ(a : Type)
+      → λ(f : a → Bool)
+      → λ(xs : Optional a)
+      → Optional/fold a xs Bool f False
 
 in  any

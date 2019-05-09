@@ -23,10 +23,10 @@ Text
 = [] : List Text
 ```
 -}
-    let build
-        :   ∀(a : Type)
-          → (∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list)
-          → List a
-        = List/build
+let build
+    :   ∀(a : Type)
+      → (∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list)
+      → List a
+    = List/build
 
 in  build
