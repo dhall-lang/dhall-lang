@@ -1,1 +1,1 @@
-Bool → < x : Bool >
+∀(x : Bool) → < x : Bool >
