@@ -821,7 +821,7 @@ function that wraps a value of the appropriate type:
 
     Γ ⊢ u : c   u ⇥ < x : T | ts… >
     ────────────────────────────────────
-    Γ ⊢ u.x : T → < x : T | ts… >
+    Γ ⊢ u.x : ∀(x : T) → < x : T | ts… >
 
 
 If a union alternative is empty, then the corresponding constructor's type is
