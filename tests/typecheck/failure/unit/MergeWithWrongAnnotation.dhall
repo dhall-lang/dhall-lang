@@ -1,1 +1,1 @@
-merge { x = λ(_ : Bool) → _ } < x = True > : Natural
+merge { x = λ(_ : Bool) → _ } (< x : Bool >.x True) : Natural
