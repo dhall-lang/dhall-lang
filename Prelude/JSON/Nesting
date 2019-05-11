@@ -7,12 +7,12 @@ For example, this Dhall code:
 ```
 let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
 
-let Nesting = < Inline : {} | Nested : Text >
+let Nesting = < Inline | Nested : Text >
 
 in  { field =
         "name"
     , nesting =
-        Nesting.Inline {=}
+        Nesting.Inline
     , contents =
         Example.Left { foo = 2 }
     }
@@ -28,4 +28,4 @@ in  { field =
 ```
 
 -}
-let Nesting : Type = < Inline : {} | Nested : Text > in Nesting
+let Nesting : Type = < Inline | Nested : Text > in Nesting
