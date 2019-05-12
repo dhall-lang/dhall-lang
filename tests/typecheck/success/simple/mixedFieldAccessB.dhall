@@ -1,1 +1,1 @@
-< Private : {} | Public : {} >
+< Private | Public >
