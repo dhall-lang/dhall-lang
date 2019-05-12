@@ -11,18 +11,18 @@ Examples:
 ./last Natural ([] : List (Optional Natural)) = None Natural
 ```
 -}
-    let last
-        : ∀(a : Type) → List (Optional a) → Optional a
-        =   λ(a : Type)
-          → λ(xs : List (Optional a))
-          → List/fold
-            (Optional a)
-            xs
-            (Optional a)
-            (   λ(l : Optional a)
-              → λ(r : Optional a)
-              → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
-            )
-            (None a)
+let last
+    : ∀(a : Type) → List (Optional a) → Optional a
+    =   λ(a : Type)
+      → λ(xs : List (Optional a))
+      → List/fold
+        (Optional a)
+        xs
+        (Optional a)
+        (   λ(l : Optional a)
+          → λ(r : Optional a)
+          → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+        )
+        (None a)
 
 in  last

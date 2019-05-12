@@ -11,22 +11,22 @@ Examples:
 = None Natural
 ```
 -}
-    let filter
-        : ∀(a : Type) → (a → Bool) → Optional a → Optional a
-        =   λ(a : Type)
-          → λ(f : a → Bool)
-          → λ(xs : Optional a)
-          → Optional/build
+let filter
+    : ∀(a : Type) → (a → Bool) → Optional a → Optional a
+    =   λ(a : Type)
+      → λ(f : a → Bool)
+      → λ(xs : Optional a)
+      → Optional/build
+        a
+        (   λ(optional : Type)
+          → λ(some : a → optional)
+          → λ(none : optional)
+          → Optional/fold
             a
-            (   λ(optional : Type)
-              → λ(some : a → optional)
-              → λ(none : optional)
-              → Optional/fold
-                a
-                xs
-                optional
-                (λ(x : a) → if f x then some x else none)
-                none
-            )
+            xs
+            optional
+            (λ(x : a) → if f x then some x else none)
+            none
+        )
 
 in  filter

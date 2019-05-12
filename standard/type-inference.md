@@ -758,7 +758,9 @@ error.
 ## Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
-and types of their alternatives:
+and types of their alternatives.
+
+A union can have alternatives of term-level values and functions:
 
 
     ─────────────
@@ -770,9 +772,25 @@ and types of their alternatives:
     Γ ⊢ < x : T | ts… > : Type
 
 
+... or alternatives of types (if it is non-empty):
+
+
+    Γ ⊢ T :⇥ Kind
+    ────────────────────
+    Γ ⊢ < x : T > : Kind
+
+
     Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Kind
     ───────────────────────────────────  ; x ∉ < ts… >
     Γ ⊢ < x : T | ts… > : Kind
+
+
+... or alternatives of kinds (if it is non-empty):
+
+
+    Γ ⊢ T :⇥ Sort
+    ────────────────────
+    Γ ⊢ < x : T > : Sort
 
 
     Γ ⊢ T :⇥ Sort   Γ ⊢ < ts… > :⇥ Sort
@@ -780,14 +798,17 @@ and types of their alternatives:
     Γ ⊢ < x : T | ts… > : Sort
 
 
+A union type may contain alternatives without an explicit type label:
+
+
     Γ ⊢ < ts… > :⇥ c
     ───────────────────  ; x ∉ < ts… >
     Γ ⊢ < x | ts… > : c
 
 
-Note that the above rule allows storing values, types, and kinds in unions.
-However, if the type of the alternative is not `Type` or `Kind` then that is a
-type error.
+Note that the above rule allows storing values, types, and kinds in
+unions.  However, if the type of the alternative is not `Type`,
+`Kind`, or `Sort` then that is a type error.
 
 If two alternatives share the same name then that is a type error.
 

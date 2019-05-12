@@ -14,8 +14,8 @@ Examples:
 = [] : List { index : Natural, value : Bool }
 ```
 -}
-    let indexed
-        : ∀(a : Type) → List a → List { index : Natural, value : a }
-        = List/indexed
+let indexed
+    : ∀(a : Type) → List a → List { index : Natural, value : a }
+    = List/indexed
 
 in  indexed

@@ -22,21 +22,21 @@ Examples:
 ./concat Natural ([] : List (List Natural)) = [] : List Natural
 ```
 -}
-    let concat
-        : ∀(a : Type) → List (List a) → List a
-        =   λ(a : Type)
-          → λ(xss : List (List a))
-          → List/build
-            a
-            (   λ(list : Type)
-              → λ(cons : a → list → list)
-              → λ(nil : list)
-              → List/fold
-                (List a)
-                xss
-                list
-                (λ(xs : List a) → λ(ys : list) → List/fold a xs list cons ys)
-                nil
-            )
+let concat
+    : ∀(a : Type) → List (List a) → List a
+    =   λ(a : Type)
+      → λ(xss : List (List a))
+      → List/build
+        a
+        (   λ(list : Type)
+          → λ(cons : a → list → list)
+          → λ(nil : list)
+          → List/fold
+            (List a)
+            xss
+            list
+            (λ(xs : List a) → λ(ys : list) → List/fold a xs list cons ys)
+            nil
+        )
 
 in  concat

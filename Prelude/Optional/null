@@ -9,10 +9,10 @@ Examples:
 ./null Natural (None Natural) = True
 ```
 -}
-    let null
-        : ∀(a : Type) → Optional a → Bool
-        =   λ(a : Type)
-          → λ(xs : Optional a)
-          → Optional/fold a xs Bool (λ(_ : a) → False) True
+let null
+    : ∀(a : Type) → Optional a → Bool
+    =   λ(a : Type)
+      → λ(xs : Optional a)
+      → Optional/fold a xs Bool (λ(_ : a) → False) True
 
 in  null

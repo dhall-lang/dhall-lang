@@ -10,27 +10,27 @@ Examples:
 ./enumerate 0 = [] : List Natural
 ```
 -}
-    let enumerate
-        : Natural → List Natural
-        =   λ(n : Natural)
-          → List/build
-            Natural
-            (   λ(list : Type)
-              → λ(cons : Natural → list → list)
-              → List/fold
-                { index : Natural, value : {} }
-                ( List/indexed
-                  {}
-                  ( List/build
-                    {}
-                    (   λ(list : Type)
-                      → λ(cons : {} → list → list)
-                      → Natural/fold n list (cons {=})
-                    )
-                  )
+let enumerate
+    : Natural → List Natural
+    =   λ(n : Natural)
+      → List/build
+        Natural
+        (   λ(list : Type)
+          → λ(cons : Natural → list → list)
+          → List/fold
+            { index : Natural, value : {} }
+            ( List/indexed
+              {}
+              ( List/build
+                {}
+                (   λ(list : Type)
+                  → λ(cons : {} → list → list)
+                  → Natural/fold n list (cons {=})
                 )
-                list
-                (λ(x : { index : Natural, value : {} }) → cons x.index)
+              )
             )
+            list
+            (λ(x : { index : Natural, value : {} }) → cons x.index)
+        )
 
 in  enumerate

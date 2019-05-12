@@ -23,14 +23,14 @@ Natural
 = None Natural
 ```
 -}
-    let build
-        :   ∀(a : Type)
-          → (   ∀(optional : Type)
-              → ∀(some : a → optional)
-              → ∀(none : optional)
-              → optional
-            )
-          → Optional a
-        = Optional/build
+let build
+    :   ∀(a : Type)
+      → (   ∀(optional : Type)
+          → ∀(some : a → optional)
+          → ∀(none : optional)
+          → optional
+        )
+      → Optional a
+    = Optional/build
 
 in  build

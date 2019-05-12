@@ -34,13 +34,13 @@ Examples:
 →   cons 2 (cons 3 (cons 5 nil))
 ```
 -}
-    let fold
-        :   ∀(a : Type)
-          → List a
-          → ∀(list : Type)
-          → ∀(cons : a → list → list)
-          → ∀(nil : list)
-          → list
-        = List/fold
+let fold
+    :   ∀(a : Type)
+      → List a
+      → ∀(list : Type)
+      → ∀(cons : a → list → list)
+      → ∀(nil : list)
+      → list
+    = List/fold
 
 in  fold

@@ -525,12 +525,31 @@ The `Text` type is in normal form:
     Text ⇥ Text
 
 
-Normalizing `Text` literals normalizes each interpolated expression and inlines
-any interpolated expression that normalize to `Text` literals:
+A `Text` literal with no interpolations is already in normal form:
 
 
     ─────────
     "s" ⇥ "s"
+
+
+As a special case, if a `Text` literal has no content except for
+interpolations, and all interpolations except one normalize to the
+empty string, simplify the `Text` literal:
+
+
+    t₀ ⇥ t₁   "ss₀…" ⇥ ""
+    ─────────────────────
+    "${t₀}ss₀…" ⇥ t₁
+
+
+    t₀ ⇥ ""   "ss₀…" ⇥ t₁
+    ─────────────────────
+    "${t₀}ss₀…" ⇥ t₁
+
+
+Otherwise, normalizing `Text` literals normalizes each interpolated
+expression and inlines any interpolated expression that normalize to
+`Text` literals:
 
 
     t₀ ⇥ "s₁"   "ss₀…" ⇥ "ss₂…"
@@ -546,15 +565,6 @@ any interpolated expression that normalize to `Text` literals:
     t₀ ⇥ t₁   "ss₀…" ⇥ "ss₁…"
     ─────────────────────────────  ; If no other rule matches
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
-
-
-Simplify a `Text` literal if the literal only contains another interpolated
-expression:
-
-
-    e₀ ⇥ e₁
-    ────────────
-    "${e₀}" ⇥ e₁
 
 
 The "text concatenation" operator is interpreted as two interpolations together:
