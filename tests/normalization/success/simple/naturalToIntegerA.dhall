@@ -1,1 +1,0 @@
-Natural/toInteger 1
