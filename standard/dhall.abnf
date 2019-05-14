@@ -620,7 +620,7 @@ import-hashed = import-type [ whsp1 hash ]
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whsp as whsp1 Text ]
+import = import-hashed [ whsp as whsp1 any-label ]
 
 expression =
     ; "\(x : a) -> b"
