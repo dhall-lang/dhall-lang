@@ -819,18 +819,18 @@ If a union alternative is non-empty, then the corresponding constructor is a
 function that wraps a value of the appropriate type:
 
 
-    Γ ⊢ < x : T | ts… > : c
-    ───────────────────────────────────────────
-    Γ ⊢ < x : T | ts… >.x : T → < x : T | ts… >
+    Γ ⊢ u : c   u ⇥ < x : T | ts… >
+    ────────────────────────────────────
+    Γ ⊢ u.x : ∀(x : T) → < x : T | ts… >
 
 
 If a union alternative is empty, then the corresponding constructor's type is
 the same as the original union type:
 
 
-    Γ ⊢ < x | ts… > : c
-    ───────────────────────────────────────────
-    Γ ⊢ < x | ts… >.x : < x | ts… >
+    Γ ⊢ u : c   u ⇥ < x | ts… >
+    ───────────────────────────
+    Γ ⊢ u.x : < x | ts… >
 
 
 A `merge` expression is well-typed if there is a one-to-one correspondence
@@ -889,14 +889,6 @@ If there are two handlers with different output types then that is a type error.
 
 If a `merge` expression has a type annotation that doesn't match every handler's
 output type then that is a type error.
-
-A constructor field can only be selected from a union if it is present:
-
-
-    Γ ⊢ u : c   u ⇥ < x₀ : T₀ | x₁ : T₁ | xs… >
-    ───────────────────────────────────────────────────
-    Γ ⊢ u.x₀ : ∀(x₀ : T₀) → < x₀ : T₀ | x₁ : T₁ | xs… >
-
 
 ## `Integer`
 
