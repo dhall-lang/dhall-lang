@@ -1,1 +1,1 @@
-∀(a : Type) → ∀(f : {} → a) → ∀(ts : < Bar : {} | Baz : {} >) → a
+∀(a : Type) → ∀(f : Natural → a) → ∀(ts : < Bar : Natural | Baz : Natural >) → a

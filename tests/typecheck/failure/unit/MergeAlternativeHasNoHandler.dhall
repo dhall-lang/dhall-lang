@@ -1,1 +1,1 @@
-merge {=} < x = True >
+merge {=} (< x : Bool >.x True)

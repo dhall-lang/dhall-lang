@@ -1,1 +1,1 @@
-merge True < x = True >
+merge True < x >.x

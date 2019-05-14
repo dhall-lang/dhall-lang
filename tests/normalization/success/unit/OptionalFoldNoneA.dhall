@@ -1,1 +1,1 @@
-Optional/fold A ([] : Optional A) B (λ(_ : A) → _) x
+Optional/fold A (None A) B (λ(_ : A) → _) x
