@@ -1,1 +1,1 @@
-Optional/build Text (Optional/fold Text ([ "foo" ] : Optional Text))
+Optional/build Text (Optional/fold Text (Some "foo"))

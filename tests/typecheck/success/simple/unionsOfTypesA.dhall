@@ -1,1 +1,1 @@
-< Left = List | Right : Type >
+< Left : Type → Type | Right : Type >.Left List

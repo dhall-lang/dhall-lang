@@ -1,2 +1,4 @@
+*.dhall linguist-language=Haskell
+Prelude/** linguist-language=Haskell
 standard/dhall.abnf text=auto
 *.dhallb diff=cbor
