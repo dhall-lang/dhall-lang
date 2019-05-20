@@ -206,6 +206,23 @@ last line:
     '') = ""
 
 
+## Line endings
+
+As in the rest of Dhall, you can use either a plain LF character as a line
+ending (`%x0A` in ABNF) or a CR followed by a LF (`%x0D.0A` in ABNF).  However,
+the value of the resulting string will always use `%x0A`-style line endings,
+regardless of which was used in the Dhall source.  This means that the meaning
+of a Dhall file does not depend on the specific type of line ending used.
+
+Note: If you really need a `%x0D.0A`-style line ending, you can insert a CR
+character at the end of a line by interpolation:
+
+
+    ''
+    CRLF line ending${"\r"}
+    ''
+
+
 ## Desugaring
 
 Once you can compute the leading indent, you can convert the multi-line literal
