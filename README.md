@@ -366,7 +366,7 @@ I recommend the following progression for adopting Dhall:
 
 The following sections tour each of these use cases in more detail
 
-### Interpreter
+## Interpreter
 
 You can install a Dhall interpreter that can type-check and evaluate Dhall
 expressions from the command line.  You can use this interpreter to:
@@ -517,7 +517,7 @@ Learn more:
 * [Language guide][dhall-haskell-tutorial]
 * [Blog post][dhall-haskell-post]
 
-### Language Bindings
+## Language Bindings
 
 You can use Dhall to configure programs written in other languages. This is the
 most common use case for Dhall: a type-safe and non-Turing-complete
@@ -549,7 +549,7 @@ useful as a starting point:
 
 * [Scala][dhall-scala]
 
-#### Haskell
+### Haskell
 
 You can load Dhall expressions into Haskell using the `input` function:
 
@@ -619,7 +619,7 @@ Learn more:
 * [GitHub repository][dhall-haskell]
 * [Tutorial][dhall-haskell-tutorial]
 
-#### Nix
+### Nix
 
 `nixpkgs` provides a `dhallToNix` utility which you can use to translate a
 Dhall expression to the corresponding Nix expression.  This lets you carve out
@@ -659,7 +659,7 @@ Learn more:
 * [Tutorial][dhall-nix-tutorial]
 * [Blog post][dhall-nix-post]
 
-#### Ruby
+### Ruby
 
 You can load Dhall expressions into Ruby using `Dhall.load`:
 
@@ -684,7 +684,7 @@ Learn more:
 * [RubyDoc][dhall-ruby-rubydoc]
 * [Rubygems][dhall-ruby-rubygems]
 
-### Compilers
+## Compilers
 
 You can compile Dhall expressions to other configuration formats, such as:
 
@@ -695,7 +695,7 @@ You can compile Dhall expressions to other configuration formats, such as:
 These compilers can only translate a subset of Dhall to these other formats.
 For example, you cannot translate Dhall functions to JSON
 
-#### JSON and YAML
+### JSON and YAML
 
 The `dhall-to-json` executable lets you compile Dhall expressions to JSON:
 
@@ -727,7 +727,7 @@ Learn more:
 * [Tutorial][dhall-json-tutorial]
 * [Blog post][dhall-json-post]
 
-#### Bash
+### Bash
 
 You can also compile Dhall expressions to either Bash expressions:
 
@@ -758,7 +758,7 @@ Learn more:
 * [Tutorial][dhall-bash-tutorial]
 * [Blog post][dhall-bash-post]
 
-#### Text
+### Text
 
 You can also use the `dhall-to-text` executable as a template engine
 
