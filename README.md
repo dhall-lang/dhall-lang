@@ -329,8 +329,10 @@ Dhall's Standard Library is called `Prelude`. It implements various utilities to
 work with the builtin types. Where to find it:
 
 * [Official link - https://prelude.dhall-lang.org](https://prelude.dhall-lang.org)
-* [Github repo](https://github.com/dhall-lang/Prelude)
-* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix): both `dhall` and `dhall.prelude` derivations are built, install the `Prelude` with e.g. `nix-env -iA nixpkgs.dhall.prelude`
+* [Github repo](https://github.com/dhall-lang/dhall-lang/tree/master/Prelude)
+* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix):
+  both `dhall` and `dhall.prelude` derivations are built, install the `Prelude`
+  with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
 ## Development status
 
@@ -339,7 +341,7 @@ The current version and versioning policy is detailed in the
 changes [in the Changelog](CHANGELOG.md).
 
 There is an effort under way to formalize the language semantics for Dhall, to
-help with porting it to [other languages](#language-bindings).  
+help with porting it to [other languages](#language-bindings).
 If you would like to assist with either standardizing the language or creating
 new bindings just open a new issue or contribute to existing ones in the [issue
 tracker][issue-tracker].
