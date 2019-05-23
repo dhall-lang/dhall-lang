@@ -501,18 +501,32 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Sort
     ────────────────────────────────────────────────────
     Γ ⊢ e.{ x } : { x : T }
-    
-    
-    Γ ⊢ e :⇥ { ts… }
-    Γ ⊢ s : T
-    s ⇥ { ss… }
-    ───────────────────────────────────────────  ; ss ⊆ ts
-    Γ ⊢ e.(s) : { ss… }
 
 
     Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥ { ts₁… }
     ────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ e.{ x, xs… } : { x : T, ts₁… }
+
+
+Record projection can also be done by specifying the target record type.
+For instance, provided that `s` is a record type and `e` is the source record,
+`e.(s)` produces another record of type `s` whose values are taken from the
+respective fields from `e`.
+
+
+    Γ ⊢ e :⇥ { ts… }
+    Γ ⊢ s : T
+    s ⇥ {}
+    ────────────────
+    Γ ⊢ e.(s) : {}
+
+
+    Γ ⊢ e :⇥ { x : T₀, ts… }
+    Γ ⊢ s : T₀
+    s ⇥ { x : T₀, ss… }
+    Γ ⊢ e.({ ss… }) : T₁
+    ───────────────────────────
+    Γ ⊢ e.(s) : { x : T₀, ss… }
 
 
 If you select a field from a value that is not a record, then that is a type

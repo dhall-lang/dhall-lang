@@ -1222,6 +1222,11 @@ Decode a CBOR array beginning with a `10` as a record projection:
     decode([ 10, t₁, "x", "y", … ]) = t₀.{ x, y, … }
 
 
+    decode(t₁) = t₀   decode(T₁) = T₀
+    ────────────────────────────────
+    decode([ 10, t₁, T₁ ]) = t₀.(T₀)
+
+
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
 responsibility of the type-checking phase.
 
