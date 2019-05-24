@@ -545,7 +545,7 @@ sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
 http =
     http-raw
-    [ whsp using whsp1 (import-hashed / "(" whsp import-hashed whsp ")") ]
+    [ whsp using whsp1 (import-expression / "(" whsp import-expression whsp ")") ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant

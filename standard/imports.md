@@ -314,20 +314,28 @@ the parent and child directories:
     https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
 
 
-Import chaining ignores any `using` clause on the parent import:
-
-
-    import₀ </> import₁ = import₂
-    ───────────────────────────────────────────
-    import₀ using headers </> import₁ = import₂
-
-
-... but does preserve the header clause on the child import:
+Import chaining preserves the header clause on the child import:
 
 
     import₀ </> import₁ = import₂
     ─────────────────────────────────────────────────────────
     import₀ </> import₁ using headers = import₂ using headers
+
+
+... and the child import can reuse custom headers from the parent import if
+they share the same authority and both use HTTPS:
+
+
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ using headers </> https://authority path₁ file₁ = https://authority path₁ file₁ using headers
+
+
+Otherwise, import chaining ignores the `using` clause on the parent import:
+
+
+    import₀ </> import₁ = import₂
+    ───────────────────────────────────────────
+    import₀ using headers </> import₁ = import₂
 
 
 If the child is an absolute import, then the path to the parent import does not
@@ -585,13 +593,14 @@ resolve imports within the retrieved expression:
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = e₀ using responseHeaders     ; Retrieve the expression, possibly
-                                            ; binding any response headers to
-                                            ; `responseHeaders` if child was a
-                                            ; remote import
-    corsCompliant(parent, responseHeaders)  ; If `child` was not a remote import
-                                            ; and therefore had no response
-                                            ; headers then skip this CORS check
+    Γ(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
+                                         ; binding any response headers to
+                                         ; `responseHeaders` if child was a
+                                         ; remote import
+    corsCompliant(parent, child, responseHeaders)  ; If `child` was not a remote
+                                                   ; import and therefore had no
+                                                   ; response headers then skip
+                                                   ; this CORS check
     (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
     ────────────────────────────────────  ; * child ∉ (Δ, parent)
@@ -613,7 +622,7 @@ If an import ends with `as Text`, import the raw contents of the file as a
     canonicalize(import₁) = child
     referentiallySane(parent, child)
     Γ(child) = "s" using responseHeaders  ; Read the raw contents of the file
-    corsCompliant(parent, responseHeaders)
+    corsCompliant(parent, child, responseHeaders)
     ───────────────────────────────────────────
     (Δ, parent) × Γ ⊢ import₀ as Text ⇒ "s" ⊢ Γ
 
@@ -622,21 +631,23 @@ If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    (Δ, parent) × Γ₀ ⊢ headers ⇒ h₀ ⊢ Γ₁
-    ε ⊢ headers : List { header : Text, value : Text }
-    headers ⇥ requestHeaders
-    parent </> import₀ = import₁
-    canonicalize(import₁) = child
+    (Δ, parent) × Γ₀ ⊢ headers ⇒ requestHeaders ⊢ Γ₁
+    ε ⊢ requestHeaders : List { header : Text, value : Text }
+    requestHeaders ⇥ normalizedRequestHeaders
+    parent </> https://authority directory file using headers = import
+    canonicalize(import) = child
     referentiallySane(parent, child)
-    Γ₁(https://authority directory file using requestHeaders) = e₀ using responseHeaders ; Append requestHeaders to the request's headers
-    corsCompliant(parent, responseHeaders)
-    (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
+    Γ₁(https://authority directory file using normalizedRequestHeaders) = e₀ using responseHeaders
+      ; Append normalizedRequestHeaders to the above request's headers
+    corsCompliant(parent, child, responseHeaders)
+    (Δ, parent, https://authority directory file using normalizedRequestHeaders) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
+      ; Carefully note to use `normalizedRequestHeaders` instead of `headers` above
     ε ⊢ e₁ : T
     ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
-    (Δ, parent) × Γ₀ ⊢ https://authority directory file using headers ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
+    (Δ, parent) × Γ₀ ⊢ https://authority directory file using headers ⇒ e₁ ⊢ Γ₂
 
 
-For example, if `requestHeaders` in the above judgment normalized to:
+For example, if `normalizedRequestHeaders` in the above judgment was:
 
     [ { header = "Authorization", value = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
     ]
