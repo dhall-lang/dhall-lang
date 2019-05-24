@@ -640,14 +640,13 @@ the resolved expression as additional headers supplied to the HTTP request:
     (Δ, parent) × Γ₀ ⊢ headers ⇒ requestHeaders ⊢ Γ₁
     ε ⊢ requestHeaders : List { header : Text, value : Text }
     requestHeaders ⇥ normalizedRequestHeaders
-    parent </> https://authority directory file using headers = import
+    parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
     referentiallySane(parent, child)
-    Γ₁(https://authority directory file using normalizedRequestHeaders) = e₀ using responseHeaders
+    Γ₁(child) = e₀ using responseHeaders
       ; Append normalizedRequestHeaders to the above request's headers
     corsCompliant(parent, child, responseHeaders)
-    (Δ, parent, https://authority directory file using normalizedRequestHeaders) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
-      ; Carefully note to use `normalizedRequestHeaders` instead of `headers` above
+    (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
     ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
     (Δ, parent) × Γ₀ ⊢ https://authority directory file using headers ⇒ e₁ ⊢ Γ₂
