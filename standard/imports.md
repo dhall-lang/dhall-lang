@@ -323,11 +323,17 @@ Import chaining preserves the header clause on the child import:
 
 
 ... and the child import can reuse custom headers from the parent import if
-they share the same authority and both use HTTPS:
+the child is a relative import
 
 
-    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    https://authority path₀ file₀ using headers </> https://authority path₁ file₁ = https://authority path₁ file₁ using headers
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ using headers </> . path₁ file₁ = https://authority path₂ file₁ using headers
+
+
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ using headers </> .. path₂ file₁ = https://authority path₃ file₁ using headers
 
 
 Otherwise, import chaining ignores the `using` clause on the parent import:
