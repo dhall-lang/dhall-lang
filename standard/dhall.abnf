@@ -543,9 +543,7 @@ unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 
-http =
-    http-raw
-    [ whsp using whsp1 (import-expression / "(" whsp import-expression whsp ")") ]
+http = http-raw [ whsp using whsp1 import-expression ]
 
 ; Dhall supports unquoted environment variables that are Bash-compliant or
 ; quoted environment variables that are POSIX-compliant
