@@ -637,9 +637,9 @@ If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    (Δ, parent) × Γ₀ ⊢ headers ⇒ requestHeaders ⊢ Γ₁
-    ε ⊢ requestHeaders : List { header : Text, value : Text }
-    requestHeaders ⇥ normalizedRequestHeaders
+    (Δ, parent) × Γ₀ ⊢ headers ⇒ resolvedHeaders ⊢ Γ₁
+    ε ⊢ resolvedHeaders : List { header : Text, value : Text }
+    resolvedHeaders ⇥ normalizedRequestHeaders
     parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
     referentiallySane(parent, child)
