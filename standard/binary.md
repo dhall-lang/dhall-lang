@@ -515,7 +515,7 @@ Record projection by type is encoded as follows:
 
     encode(t₀) = t₁   encode(T₀) = T₁
     ─────────────────────────────────
-    encode(t₀.(T₀)) = [ 10, t₁, T₁ ]
+    encode(t₀.(T₀)) = [ 10, t₁, [ T₁ ] ]
 
 
 ### Unions
@@ -1224,7 +1224,7 @@ Decode a CBOR array beginning with a `10` as a record projection:
 
     decode(t₁) = t₀   decode(T₁) = T₀
     ────────────────────────────────
-    decode([ 10, t₁, T₁ ]) = t₀.(T₀)
+    decode([ 10, t₁, [ T₁ ] ]) = t₀.(T₀)
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the
