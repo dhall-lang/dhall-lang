@@ -575,11 +575,12 @@ The "text concatenation" operator is interpreted as two interpolations together:
     l ++ r ⇥ s₀
 
 
-The `Text/show` function replaces a `Text` literal with another `Text` literal
-representing valid Dhall source code for the original literal.  In particular,
-this function both quotes and escapes the original literal so that if you were
-to render the escaped `Text` value the result would appear to be the original
-`Text` input to the function:
+The `Text/show` function replaces an uninterpolated `Text` literal
+with another `Text` literal representing valid Dhall source code for
+the original literal.  In particular, this function both quotes and
+escapes the original literal so that if you were to render the escaped
+`Text` value the result would appear to be the original `Text` input
+to the function:
 
     -- Rendering the right-hand side gives the original argument: "abc\ndef"
     Text/show "abc\ndef" = "\"abc\\ndef\""
@@ -615,7 +616,7 @@ Or in other words:
 
 
     f ⇥ Text/show   a ⇥ "…\n…\$…\\…\"…\u0000…"
-    ──────────────────────────────────────────
+    ─────────────────────────────────────────── ; "…\n…\$…\\…\"…\u0000…" contains no interpolations
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
 

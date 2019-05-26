@@ -91,6 +91,7 @@ judgments:
 ```
 e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   /  -n              ; Negative integer    (Section 2.1, Major type = 1)
+  /  b"…"            ; Byte string         (Section 2.1, Major type = 2)
   /  "…"             ; Text                (Section 2.1, Major type = 3)
   /  [ e, es… ]      ; Heterogeneous array (Section 2.1, Major type = 4)
   /  { e = e, es… }  ; Heterogeneous map   (Section 2.1, Major type = 5)
@@ -676,7 +677,7 @@ Imports are encoded as a list where the first three elements are always:
 * `24` - To signal that this expression is an import
 * An optional integrity check
     * The integrity check is represented as `null` if absent
-    * The integrity check is `[ protocol, hash ]` if present
+    * The integrity check is b"[multihash][]" if present
 * An optional import type (such as `as Text`)
     * The import type is `0` for when importing a Dhall expression (the default)
     * The import type is `1` for importing `as Text`
@@ -780,14 +781,16 @@ The `missing` keyword is also treated as another import type:
     encode(missing) = [ 24, null, 0, 7 ]
 
 
-If an import has an integrity check, store that in the second element as a list
-of two elements containing the protocol name and the hash (as the original
-base16-encoded string):
+If an import has an integrity check, store that in the second element as a byte
+string of the [multihash][]. Implementors do not need to be concerned
+with full multihash at this point since Dhall only supports sha256,
+so this rule suffices:
 
 
     encode(import) = [ 24, null, x, xs… ]
+    base16decode(base16Hash) = rawHash
     ─────────────────────────────────────────────────────────────────────────────
-    encode(import sha256:base16Hash) = [ 24, [ "sha256", "base16Hash" ], x, xs… ]
+    encode(import sha256:base16Hash) = [ 24, b"\x12\x20rawHash", x, xs… ]
 
 
 
@@ -1392,8 +1395,9 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     decode([ 24, null, x, xs… ]) = import
+    base16encode(rawHash) = base16Hash
     ─────────────────────────────────────────────────────────────────────────────
-    decode([ 24, [ "sha256", "base16Hash" ], x, xs… ]) = import sha256:base16Hash
+    decode([ 24, b"\x12\x20rawHash", x, xs… ]) = import sha256:base16Hash
 
 
     decode(headers₀) = headers₁
@@ -1426,3 +1430,4 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
+[multihash]: https://github.com/multiformats/multihash
