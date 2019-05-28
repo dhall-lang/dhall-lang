@@ -944,6 +944,24 @@ You can also project out more than one field into a new record:
     t.{ x, xs… } ⇥ { x = v, ys… }
 
 
+    s ⇥ {}
+    ──────────
+    t.(s) ⇥ {=}
+
+
+    t ⇥ { x = v, ts₀… }
+    s ⇥ { x : T, ss… }
+    t.({ ss… }) ⇥ { ts₁… }
+    ───────────────────────
+    t.(s) ⇥ { x = v, ts₁… }
+
+
+    t₀ ⇥ t₁
+    s₀ ⇥ s₁
+    ─────────────────  ; If no other rule matches
+    t₀.(s₀) ⇥ t₁.(s₁)
+
+
 The type system ensures that the selected field(s) must be present.
 
 Otherwise, normalize the argument:
