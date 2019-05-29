@@ -5,6 +5,188 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v8.0.0`
+
+Breaking changes:
+
+* [Allow tabs and blank lines in multiline strings](https://github.com/dhall-lang/dhall-lang/pull/519)
+
+  This changes two things about how multiline strings handle whitespace:
+
+  * Blank lines are now ignored for the purpose of dedenting multiline strings
+
+    Previously empty lines would still require the same number of leading spaces
+    as other lines in order for multiline string literals to be properly
+    dedented.
+
+    For example, the following multi-line string is now dedented:
+
+    ```haskell
+    let example =
+    ␠␠␠␠␠␠''
+    ␠␠␠␠␠␠foo
+
+    ␠␠␠␠␠␠bar
+    ␠␠␠␠␠␠''
+
+    in  …
+    ```
+
+    ... to this equivalent double-quoted string literal:
+
+    ```haskell
+    "foo\n\nbar\n"
+    ```
+
+  * Multiline literals with leading tabs will now also be dedented
+
+    To be precise, multiline literals will now dedent any shared prefix
+    consisting of tabs and spaces so long as each (non-blank) line begins with
+    the same prefix, such as this code:
+
+    ```haskell
+    let example =
+    ␉␠''
+    ␉␠foo
+
+    ␉␠bar
+    ␉␠''
+
+    in  …
+    ```
+
+    ... which also desugars to the same double-quoted string literal:
+
+    ```haskell
+    "foo\n\nbar\n"
+    ```
+
+  This is a breaking change because multi-line string literals with blank lines
+  or leading tabs are now interpreted differently.  However, expressions that
+  padded blank lines with leading whitespace are unaffected by this change.
+
+* [Simplify bare interpolations](https://github.com/dhall-lang/dhall-lang/pull/515/files)
+
+  String literals that do nothing but interpolate a single expression are now
+  simplified to that expression.
+
+  For example, this code:
+
+  ```haskell
+  λ(x : Text) → "${x}"
+  ```
+
+  ... now normalizes to this code:
+
+  ```haskell
+  λ(x : Text) → x
+  ```
+
+  This is technically a breaking change because semantic integrity checks will
+  change for any expressions that can be simplified in this way.  However,
+  functionally this has no change on the code's behavior as the simplified code
+  is extensionally equal to the original code.
+
+  There is also another related change within this same release:
+
+  * [Simplify all eligible text literals](https://github.com/dhall-lang/dhall-lang/pull/529)
+
+* [Encode integrity check as multihash](https://github.com/dhall-lang/dhall-lang/pull/549)
+
+  This changes how imports with semantic integrity checks are serialized by
+  updating them to follow the [multihash](https://github.com/multiformats/multihash)
+  standard.
+
+  This is a technically breaking change if you serialize uninterpreted
+  expressions that contain imports, but this has no effect on semantic integrity
+  checks, which are computed from fully-resolved expressions.
+
+New features:
+
+* [Record projection by expression](https://github.com/dhall-lang/dhall-lang/pull/499)
+
+  You can now project out a subset of record fields by specifying the expected
+  type.  For example, this expression:
+
+  ```haskell
+  let e = { a = 10, b = "Text" }
+
+  let s = { a : Natural }
+
+  in e.(s)
+  ```
+
+  ... normalizes to:
+
+  ```haskell
+  { a = 10 }
+  ```
+
+  In other words, the type can be used as a record selector if surrounded with
+  parentheses.
+
+* [Allow `Sort` as type annotation](https://github.com/dhall-lang/dhall-lang/pull/507)
+
+  Before this change `Sort` was not permitted anywhere within an expression and
+  could only appear as the inferred type of an expression.
+
+  Now `Sort` can be used as a type annotation, such as:
+
+  ```haskell
+  Kind : Sort
+  ```
+
+  ... but is still forbidden elsewhere within expressions.
+
+  This is not a breaking change: this only permits more expressions to
+  type-check than before.
+
+* [Allow self-describe-cbor when decoding](https://github.com/dhall-lang/dhall-lang/pull/526)
+
+  This extends the binary decoding logic to permit (and ignore) CBOR tag 55799,
+  as required by the CBOR RFC.
+
+  This is not a breaking change: this only permits more CBOR expressions to be
+  decoded than before.
+
+Other changes:
+
+* Fixes and improvements to the standard
+
+  * [Clarify which judgement is introduced by each section of the semantics](https://github.com/dhall-lang/dhall-lang/pull/509)
+  * [Use ASCII names for standard files](https://github.com/dhall-lang/dhall-lang/pull/510)
+  * [Add missing commas](https://github.com/dhall-lang/dhall-lang/pull/513)
+  * [Explain the encoding labelling scheme](https://github.com/dhall-lang/dhall-lang/pull/503)
+  * [Clarify release process](https://github.com/dhall-lang/dhall-lang/pull/511)
+  * [Update test `README` to match directory name](https://github.com/dhall-lang/dhall-lang/pull/516)
+  * [Fix typo: β-normalization → α-normalization](https://github.com/dhall-lang/dhall-lang/pull/520)
+  * [Fix IP parsing](https://github.com/dhall-lang/dhall-lang/pull/522)
+  * [Add missing base cases for union type type inference](https://github.com/dhall-lang/dhall-lang/pull/530)
+  * [Fix union constructor type inference judgments](https://github.com/dhall-lang/dhall-lang/pull/538)
+
+* Fixes and improvements to the standard test suite
+
+  * [Don't escape strings in CBOR encoding](https://github.com/dhall-lang/dhall-lang/pull/504)
+  * [Split import tests up into unit tests](https://github.com/dhall-lang/dhall-lang/pull/517)
+  * [A simple test case that found a bug in `dhall-ruby`](https://github.com/dhall-lang/dhall-lang/pull/518)
+  * [Add regression test for alpha normalization](https://github.com/dhall-lang/dhall-lang/pull/521)
+  * [Add some tests](https://github.com/dhall-lang/dhall-lang/pull/523)
+  * [Fix multiline test](https://github.com/dhall-lang/dhall-lang/pull/527)
+  * [Add unit test for type inference of empty alternative](https://github.com/dhall-lang/dhall-lang/pull/532)
+  * [Isolate `FunctionNestedBindingXXFree`](https://github.com/dhall-lang/dhall-lang/pull/534)
+  * [Fix self describe CBOR tests](https://github.com/dhall-lang/dhall-lang/pull/535)
+  * [Don't use old optional syntax unless necessary](https://github.com/dhall-lang/dhall-lang/pull/539)
+  * [Improve use of unions in tests](https://github.com/dhall-lang/dhall-lang/pull/540)
+  * [More fixes to unit tests](https://github.com/dhall-lang/dhall-lang/pull/553)
+  * [Add test for multiline strings with mixed line endings](https://github.com/dhall-lang/dhall-lang/pull/554)
+  * [Upstream regression test](https://github.com/dhall-lang/dhall-lang/pull/559)
+  * [Add test for hash mismatch](https://github.com/dhall-lang/dhall-lang/pull/561)
+
+* Fixes and improvements to the Prelude
+
+  * [Tidy up Prelude](https://github.com/dhall-lang/dhall-lang/pull/531)
+  * [Prelude/JSON/Nesting: use empty union alternatives](https://github.com/dhall-lang/dhall-lang/pull/541)
+
 ## `v7.0.0`
 
 Breaking changes:
