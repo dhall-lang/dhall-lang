@@ -322,6 +322,11 @@ sub-expressions for the remaining rules:
     { x = t₀, xs₀… } ↦ { x = t₁, xs₁… }
 
 
+    s₀ ↦ s₁   t₀ ↦ t₁
+    ────────────────
+    s₀.(t₀) ↦ s₁.(t₁)
+
+
     ───────
     <> ↦ <>
 
