@@ -130,9 +130,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
                                       ; alternative
   / < x | xs… >                       ; Union type with at least one empty
                                       ; alternative
-  / < x = t >                         ; Union literal with one alternative
-  / < x₀ = t₀ | x₁ : T₁ | xs… >       ; Union literal with more than one
-                                      ; alternative
   / missing                           ; Identity for import alternatives,
                                       ; will always fail to resolve
   / l ? r                             ; Alternative imports resolution
@@ -205,13 +202,6 @@ t          : Naked label which could be any type of expression.
 < x | xs… >                : A union type with 1 or more empty alternatives
                              At least one alternative is named `x`, which is an
                              empty alternative
-< x = t | xs… >            : A union literal with 0 or more alternative-type
-                             pairs.  The specified alternative is named `x` with
-                             value of `t`.
-< x₀ = t₀ | x₁ : T₁, xs… > : A union literal with 1 or more alternative-type
-                             pairs.  The specified alternative is named `x₀ with
-                             value of `t₀`.  At least one alternative is named
-                             `x₁` with a type of `T₁`.
 
 
 let xs… in b                : A `let` definition with at least one bindings
