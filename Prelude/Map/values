@@ -1,0 +1,29 @@
+{-
+Get all of the values of a `Map` as a `List`
+
+Examples:
+
+```
+./values Text Natural
+  [ { mapKey = "A", mapValue = 2 }
+  , { mapKey = "B", mapValue = 3 }
+  , { mapKey = "C", mapValue = 5 }
+  ]
+= [ 2, 3, 5 ]
+
+./values Text Natural ([] : List { mapKey : Text, mapValue : Natural })
+= [] : List Natural
+```
+-}
+
+let Map = ../Map.dhall
+
+let List/map = ../List/map
+
+let values : ∀(k : Type) → ∀(v : Type) → Map k v → List v
+      = λ(k : Type)
+      → λ(v : Type)
+      → List/map { mapKey : k, mapValue : v } v
+        (λ(x : { mapKey : k, mapValue : v }) → x.mapValue)
+
+in  values
