@@ -633,6 +633,12 @@ If an import ends with `as Text`, import the raw contents of the file as a
     (Δ, parent) × Γ ⊢ import₀ as Text ⇒ "s" ⊢ Γ
 
 
+Carefully note that `"s"` in the above judgment is a Dhall `Text` literal.  This
+implies that if you an import an expression as `Text` and you also protect the
+import with a semantic integrity check then the you encode the string literal
+as a Dhall expression and then hash that.  The semantic integrity check is not a
+hash of the raw underlying text.
+
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
