@@ -141,6 +141,32 @@ New features:
   This is not a breaking change: this only permits more expressions to
   type-check than before.
 
+* [Standardize support for header forwarding and inline headers](https://github.com/dhall-lang/dhall-lang/pull/560)
+
+  This makes two changes to the language:
+
+  * You can now specify custom headers inline, like this:
+
+    ```haskell
+    https://httpbin.org/user-agent
+      using [ { header = "User-Agent", value = "Dhall" } ]
+      as Text
+    ```
+
+    ... instead of having to specify them in a separate import
+
+  * Headers are now automatically forwarded to relative imports
+
+    In other words, if you import
+    `https://example.com/foo.dhall using someHeaders`
+    and that in turn imports `./bar.dhall` then that will resolve to
+    `https://example.com/bar.dhall using someHeaders`.  In other words, the
+    same headers used to fetch `foo.dhall` will also be used to fetch
+    `bar.dhall`.
+
+    This is most commonly used resolve transitive imports for expressions hosted
+    within a private repository that requires authenticated headers.
+
 * [Allow self-describe-cbor when decoding](https://github.com/dhall-lang/dhall-lang/pull/526)
 
   This extends the binary decoding logic to permit (and ignore) CBOR tag 55799,
