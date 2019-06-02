@@ -1,4 +1,4 @@
-{ hydra = { pkgs, ... }: {
+{ hydra = { config, pkgs, ... }: {
     imports =
       let
         nixos-mailserver =
@@ -163,110 +163,130 @@
 
         recommendedTlsSettings = true;
 
-        virtualHosts."dhall-lang.org" =
+        virtualHosts =
           let
-            json = builtins.fromJSON (builtins.readFile ./dhall-haskell.json);
-
-            dhall-haskell =
-              pkgs.fetchFromGitHub {
-                owner = "dhall-lang";
-
-                repo = "dhall-haskell";
-
-                inherit (json) rev sha256;
-              };
-
-            dhall-haskell-derivations =
-              import "${dhall-haskell}/default.nix";
-
-            inherit (dhall-haskell-derivations) website;
-
-          in
-            { forceSSL = true;
-
-              default = true;
+            prelude = {
+              forceSSL = true;
 
               enableACME = true;
 
               locations."/" = {
-                index = "index.html";
+                extraConfig = ''
+                  if ($request_method = 'OPTIONS') {
+                    add_header 'Access-Control-Allow-Origin' "*";
+                    add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                    add_header 'Access-Control-Max-Age' 600;
+                    add_header 'Content-Type' 'text/plain; charset=utf-8';
+                    add_header 'Content-Length' 0;
+                    return 204;
+                  }
+                  if ($request_method = 'GET') {
+                    add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                    add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+                  }
 
-                root = "${website}";
+                  rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
+                '';
+
+                proxyPass = "https://raw.githubusercontent.com/dhall-lang/dhall-lang/07aa048ee5f5705c020172e0b74f7b929b2303da/Prelude/";
               };
-        };
+            };
 
-        virtualHosts."cache.dhall-lang.org" = {
-          forceSSL = true;
+          in
+            { "dhall-lang.org" =
+                let
+                  json = builtins.fromJSON (builtins.readFile ./dhall-haskell.json);
 
-          enableACME = true;
+                  dhall-haskell =
+                    pkgs.fetchFromGitHub {
+                      owner = "dhall-lang";
 
-          locations."/".proxyPass = "http://127.0.0.1:5000";
-        };
+                      repo = "dhall-haskell";
 
-        virtualHosts."discourse.dhall-lang.org" = {
-          forceSSL = true;
+                      inherit (json) rev sha256;
+                    };
 
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header X-Forwarded-Host $host;
-            proxy_set_header X-Forwarded-Server $host;
-            proxy_set_header Accept-Encoding "";
-          '';
+                dhall-haskell-derivations =
+                  import "${dhall-haskell}/default.nix";
 
-          enableACME = true;
+                inherit (dhall-haskell-derivations) website;
 
-          locations."/".proxyPass = "http://unix:/var/discourse/shared/standalone/nginx.http.sock";
-        };
+              in
+                { forceSSL = true;
 
-        virtualHosts."hydra.dhall-lang.org" = {
-          forceSSL = true;
+                  default = true;
 
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header X-Forwarded-Host $host;
-            proxy_set_header X-Forwarded-Server $host;
-            proxy_set_header Accept-Encoding "";
-          '';
+                  enableACME = true;
 
-          enableACME = true;
+                  locations."/" = {
+                    index = "index.html";
 
-          locations."/".proxyPass = "http://127.0.0.1:3000";
-        };
+                    root = "${website}";
+                  };
+            };
 
-        virtualHosts."prelude.dhall-lang.org" = {
-          forceSSL = true;
+            "cache.dhall-lang.org" = {
+              forceSSL = true;
 
-          enableACME = true;
+              enableACME = true;
 
-          locations."/" = {
-            extraConfig = ''
-              if ($request_method = 'OPTIONS') {
-                add_header 'Access-Control-Allow-Origin' "*";
-                add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
-                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-                add_header 'Access-Control-Max-Age' 600;
-                add_header 'Content-Type' 'text/plain; charset=utf-8';
-                add_header 'Content-Length' 0;
-                return 204;
-              }
-              if ($request_method = 'GET') {
-                add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
-                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-                add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
-              }
+              locations."/".proxyPass = "http://127.0.0.1:5000";
+            };
 
-              rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
-            '';
+            "discourse.dhall-lang.org" = {
+              forceSSL = true;
 
-            proxyPass = "https://raw.githubusercontent.com/dhall-lang/dhall-lang/07aa048ee5f5705c020172e0b74f7b929b2303da/Prelude/";
+              extraConfig = ''
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header Accept-Encoding "";
+              '';
+
+              enableACME = true;
+
+              locations."/".proxyPass = "http://unix:/var/discourse/shared/standalone/nginx.http.sock";
+            };
+
+            "hydra.dhall-lang.org" = {
+              forceSSL = true;
+
+              extraConfig = ''
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header Accept-Encoding "";
+              '';
+
+              enableACME = true;
+
+              locations."/".proxyPass = "http://127.0.0.1:3000";
+            };
+
+            "prelude.dhall-lang.org" = prelude;
+
+            # Same as `prelude.dhall-lang.org` except requires a header named
+            # `Test` to be present to authorize requests.  This is used to test
+            # support for header forwarding for the test suite.
+            "test.dhall-lang.org" =
+              pkgs.lib.mkMerge
+                [ prelude
+                  { locations."/".extraConfig = ''
+                      if ($http_test = "") {
+                        return 403;
+                      }
+                    '';
+                  }
+                ];
           };
-        };
       };
 
       nix-serve = {
@@ -283,7 +303,9 @@
     systemd.services = {
       discourse =
         let
-          discourseDirectory = "/var/discourse";
+          discourseDirectory = "/var/discourse_docker";
+
+          varDirectory = dirOf discourseDirectory;
 
           discourseConfiguration =
             pkgs.writeText "discourse-app.yaml" ''
@@ -349,20 +371,16 @@
 
             script = ''
               if [[ ! -e ${discourseDirectory} ]]; then
-                ${pkgs.coreutils}/bin/mkdir --parents ${discourseDirectory}
+                ${pkgs.coreutils}/bin/mkdir --parents ${varDirectory}
 
-                cd ${discourseDirectory}
+                cd ${varDirectory}
 
-                ${pkgs.git}/bin/git init
-
-                ${pkgs.git}/bin/git remote add origin https://github.com/discourse/discourse_docker.git
+                ${pkgs.git}/bin/git clone https://github.com/discourse/discourse_docker.git
               fi
 
               cd ${discourseDirectory}
 
-              ${pkgs.git}/bin/git fetch origin --depth=1 77edaf675a47729bb693d09b94713a2a98b5d686
-
-              ${pkgs.git}/bin/git reset --hard FETCH_HEAD
+              ${pkgs.git}/bin/git checkout 77edaf675a47729bb693d09b94713a2a98b5d686
 
               ${pkgs.coreutils}/bin/cp ${discourseConfiguration} ${discourseDirectory}/containers/app.yml
 
