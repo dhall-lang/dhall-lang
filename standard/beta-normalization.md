@@ -822,32 +822,18 @@ All of the built-in functions on `List`s are in normal form:
 
 ## `Optional`
 
-The `Optional` type-level function is in normal form:
+The `Optional` and `None` functions are in normal form:
 
 
     ───────────────────
     Optional ⇥ Optional
 
 
-Normalizing an `Optional` literal using the legacy `List`-like representation
-converts the literal to the new `None` / `Some` representation:
-
-
-    None T ⇥ e
-    ───────────────────
-    [] : Optional T ⇥ e
-
-
-    Some t ⇥ e
-    ──────────────────────
-    [ t ] : Optional T ⇥ e
-
-
-... which in turn normalize according to the following rules:
-
-
     ───────────
     None ⇥ None
+
+
+Normalize a `Some` expression by normalizing its argument:
 
 
     t₀ ⇥ t₁
