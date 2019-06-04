@@ -99,8 +99,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / merge t u                         ; Union elimination
   / [] : List T                       ; Empty list literals with type annotation
   / [ t, ts… ]                        ; Non-empty list literals
-  / [   ] : Optional T                ; Empty optional literal
-  / [ t ] : Optional T                ; Non-empty optional literal
   / t : T                             ; Type annotation
   / l || r                            ; Boolean or
   / l + r                             ; Natural addition

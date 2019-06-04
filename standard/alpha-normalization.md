@@ -198,16 +198,6 @@ sub-expressions for the remaining rules:
     [ t₀, ts₀… ] ↦ [ t₁, ts₁… ]
 
 
-    T₀ ↦ T₁
-    ───────────────────────────────────
-    [] : Optional T₀ ↦ [] : Optional T₁
-
-
-    t₀ ↦ t₁   T₀ ↦ T₁
-    ───────────────────────────────────────────
-    [ t₀ ] : Optional T₀ ↦ [ t₁ ] : Optional T₁
-
-
     t₀ ↦ t₁   T₀ ↦ T₁
     ─────────────────
     t₀ : T₀ ↦ t₁ : T₁
