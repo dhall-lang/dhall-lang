@@ -1,16 +1,33 @@
-{ src, ... }:
+{ src ? { rev = ""; }, ... }:
+
 let
-  fetchNixpkgs = import ./nix/fetchNixpkgs.nix;
+  nixpkgs =
+    builtins.fetchTarball {
+      url = "https://github.com/NixOS/nixpkgs/archive/804060ff9a79ceb0925fe9ef79ddbf564a225d47.tar.gz";
 
-  nixpkgs = fetchNixpkgs {
-    rev = "804060ff9a79ceb0925fe9ef79ddbf564a225d47";
-
-    sha256 = "01pb6p07xawi60kshsxxq1bzn8a0y4s5jjqvhkwps4f5xjmmwav3";
-
-    outputSha256 = "0ga345hgw6v2kzyhvf5kw96hf60mx5pbd9c4qj5q4nan4lr7nkxn";
-  };
+      sha256 = "0ga345hgw6v2kzyhvf5kw96hf60mx5pbd9c4qj5q4nan4lr7nkxn";
+    };
 
   overlay = pkgsNew: pkgsOld: {
+    dhall =
+      let
+        json = builtins.fromJSON (builtins.readFile ./nixops/dhall-haskell.json);
+
+        dhall-haskell =
+          pkgs.fetchFromGitHub {
+            owner = "dhall-lang";
+
+            repo = "dhall-haskell";
+
+            inherit (json) rev sha256 fetchSubmodules;
+          };
+
+        dhall-haskell-derivations =
+          import "${dhall-haskell}/default.nix";
+
+      in
+        dhall-haskell-derivations.dhall;
+
     instaparse-check = pkgsNew.writeText "build.boot" ''
       (require '[instaparse.core :refer [parser]])
 
@@ -44,6 +61,26 @@ let
 
           touch $out
         '';
+
+    expected-prelude = pkgsNew.runCommand "expected-prelude" {} ''
+      ${pkgsNew.rsync}/bin/rsync --archive ${./Prelude}/ "$out"
+
+      ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
+
+      for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f); do
+        ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
+        ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
+      done
+    '';
+
+    prelude-lint = pkgsNew.runCommand "prelude-lint" {} ''
+      ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-prelude}/ ./Prelude.expected
+      ${pkgsNew.rsync}/bin/rsync --archive ${./Prelude}/ ./Prelude.actual
+
+      ${pkgsNew.diffutils}/bin/diff --recursive ./Prelude.{actual,expected}
+
+      touch $out
+    '';
   };
 
   pkgs = import nixpkgs { config = {}; overlays = [ overlay ]; };
@@ -61,7 +98,10 @@ in
 
       constituents = [
         pkgs.dhall-grammar
+        pkgs.prelude-lint
         rev
       ];
     };
+
+    inherit (pkgs) expected-prelude;
   }
