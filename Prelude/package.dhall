@@ -13,6 +13,9 @@
 , List =
       ./List/package.dhall sha256:108be3af5ebd465f7091039f2216c433e65ae5d25556a9a71786dd84d33ef49a
     ? ./List/package.dhall
+, Map =
+      ./Map/package.dhall sha256:07cc274220c8bdb2c1a0c2d00d90bc1447e73e0ad2e1d72b89773e923f77e71e
+    ? ./Map/package.dhall
 , Natural =
       ./Natural/package.dhall sha256:fe08155c3a04500df847ca94d013ecd3dfc73ab5c136109b2414fce3ec42b63a
     ? ./Natural/package.dhall
