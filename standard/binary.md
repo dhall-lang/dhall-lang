@@ -434,23 +434,9 @@ Non-empty `List`s don't store their type, but do store their elements inline:
     encode([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
 
 
-### `Optional`
+### `Some`
 
-Empty `Optional` literals using the legacy `List`-like syntax only store their
-type:
-
-
-    encode(T₀) = T₁
-    ────────────────────────────────────────
-    encode([] : Optional T₀) = [ 5, T₁ ]
-
-
-Non-empty `Optional` literals store the type (if present) and their value:
-
-
-    encode(t₀) = t₁   encode(T₀) = T₁
-    ────────────────────────────────────────────────
-    encode([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
+`Some` expressions store the type (if present) and their value:
 
 
     encode(t₀) = t₁
@@ -1156,19 +1142,9 @@ If the list is non-empty then the type MUST be `null`:
     decode([ 4, null, a₁, b₁, … ]) = [ a₀, b₀, … ]
 
 
-### `Optional`
+### `Some`
 
-Decode a CBOR array beginning with a `5` as an `Optional` literal
-
-
-    decode(T₁) = T₀
-    ────────────────────────────────────────
-    decode([ 5, T₁ ]) = [] : Optional T₀
-
-
-    decode(t₁) = t₀   decode(T₁) = T₀
-    ────────────────────────────────────────────────
-    decode([ 5, T₁, t₁ ]) = [ t₀ ] : Optional T₀
+Decode a CBOR array beginning with a `5` as a `Some` expression:
 
 
     decode(t₁) = t₀

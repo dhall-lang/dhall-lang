@@ -646,14 +646,12 @@ expression =
     ; from the keyword whether there will be a type annotation or not
     / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
     
-    ; "[]  : List     t"
-    ; "[]  : Optional t"
-    ; "[x] : Optional t"
+    ; "[] : List t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
-    / "[" whsp (empty-collection / non-empty-optional)
+    / "[" whsp "]" whsp ":" whsp1 List whsp import-expression
     
     ; "x : t"
     / annotated-expression
@@ -663,13 +661,6 @@ annotated-expression = operator-expression [ whsp ":" whsp1 expression ]
 
 ; "let x = e1"
 let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
-
-; "]  : List     t"
-; "]  : Optional t"
-empty-collection = "]" whsp ":" whsp1 (List / Optional) whsp import-expression
-
-; "x] : Optional t"
-non-empty-optional = expression whsp "]" whsp ":" whsp1 Optional whsp import-expression
 
 operator-expression = import-alt-expression
 

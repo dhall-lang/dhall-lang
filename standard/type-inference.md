@@ -369,24 +369,7 @@ The built-in functions on `List`s have the following types:
     Γ ⊢ Optional : Type → Type
 
 
-An `Optional` literal's type is inferred from the mandatory type annotation when
-the literal uses the legacy `List`-like syntax:
-
-
-    Γ ⊢ A : Type
-    ──────────────────────────────────
-    Γ ⊢ ([] : Optional A) : Optional A
-
-
-    Γ ⊢ A₀ : Type   Γ ⊢ a : A₁   A₀ ≡ A₁
-    ───────────────────────────────────────
-    Γ ⊢ ([ a ] : Optional A₀) : Optional A₀
-
-
-If the element is present and does not match the type annotation then that is a
-type error.
-
-The new `Some` constructor infers the type from the provided argument:
+The `Some` constructor infers the type from the provided argument:
 
 
     Γ ⊢ a : A   Γ ⊢ A : Type
