@@ -205,7 +205,7 @@
 
                       repo = "dhall-haskell";
 
-                      inherit (json) rev sha256;
+                      inherit (json) rev sha256 fetchSubmodules;
                     };
 
                 dhall-haskell-derivations =
