@@ -190,7 +190,7 @@
                   rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
                 '';
 
-                proxyPass = "https://raw.githubusercontent.com/dhall-lang/dhall-lang/07aa048ee5f5705c020172e0b74f7b929b2303da/Prelude/";
+                proxyPass = "https://raw.githubusercontent.com/dhall-lang/dhall-lang/136a3491753fef251b2087031617d1ee1053f285/Prelude/";
               };
             };
 
