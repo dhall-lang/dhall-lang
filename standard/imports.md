@@ -680,13 +680,16 @@ check using the hash as the lookup key.  An implementation that caches imports
 in this way so MUST:
 
 * Cache the fully resolved, αβ-normalized expression, and encoded expression
-* Store the cached expression in `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` if
+* Store the cached expression in `"${XDG_CACHE_HOME}/dhall/1220${base16Hash}"` if
   the `$XDG_CACHE_HOME` environment variable is defined and the path is readable
   and writeable
 * Otherwise, store the cached expression in
-  `"${HOME}/.cache/dhall/${base16Hash}"` if the `$HOME` environment variable is
+  `"${HOME}/.cache/dhall/1220${base16Hash}"` if the `$HOME` environment variable is
   defined and the path is readable and writeable
 * Otherwise, not cache the expression at all
+
+Cache filenames are prefixed with `1220` so that the filename is a valid
+[multihash][] SHA-256 value.
 
 An implementation SHOULD warn the user if the interpreter is unable to cache the
 expression due to the environment variables being unset or the filesystem paths
@@ -696,8 +699,8 @@ Similarly, an implementation MUST follow these steps when importing an
 expression protected by a semantic integrity check:
 
 * Check if there is a Dhall expression stored at either
-  `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
-  `"${HOME}/.cache/dhall/${base16Hash}"`
+  `"${XDG_CACHE_HOME}/dhall/1220${base16Hash}"` or
+  `"${HOME}/.cache/dhall/1220${base16Hash}"`
 * If the file exists and is readable, verify the file's byte contents match the
   hash and then decode the expression from the bytes using the `decode` judgment
   instead of importing the expression
@@ -710,7 +713,7 @@ local cache.
 Or in judgment form:
 
 
-    Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
+    Γ("${XDG_CACHE_HOME}/dhall/1220${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                ; Verify the hash
     decode(binary) = e
@@ -718,7 +721,7 @@ Or in judgment form:
     (Δ, here) × Γ ⊢ import₀ sha256:base16Hash ⇒ e ⊢ Γ
 
 
-    Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
+    Γ("${HOME}/.cache/dhall/1220${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                ; Verify the hash
     decode(binary) = e
@@ -734,7 +737,7 @@ Or in judgment form:
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ──────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
-    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/1220${base16Hash}" = binary
 
 
     (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
@@ -745,7 +748,7 @@ Or in judgment form:
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ───────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
-    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/1220${base16Hash}" = binary
 
 
     (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
@@ -813,3 +816,4 @@ For all other cases, recursively descend into sub-expressions:
     ────────────────────────────────
     (Δ, here) × Γ₀ ⊢ Kind ⇒ Kind ⊢ Γ₁
 
+[multihash]: https://github.com/multiformats/multihash
