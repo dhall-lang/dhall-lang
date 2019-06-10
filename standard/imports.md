@@ -9,13 +9,15 @@ environment variable.  For example:
 
 in  { name = env:USER as Text  -- Expression imported from the environment
     , age  = 23
+    , publicKey = ~/.ssh/id_rsa.pub as Location  -- Path read as a Dhall valuse
     , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
     } : ./schema.dhall  -- Expression imported from a file
 ```
 
 You can protect imports with integrity checks if you append SHA-256 hash (such
 as the `concatSep` import above) and you can also import a value as raw `Text`
-by appending `as Text` (such as the `env:USER` import above).
+by appending `as Text` (such as the `env:USER` import above) or as a resolved
+path by appending `as Location`.
 
 Imported expressions can transitively import other expressions.  For example,
 the `./schema.dhall` file imported above might also import other files:
@@ -638,6 +640,28 @@ implies that if you an import an expression as `Text` and you also protect the
 import with a semantic integrity check then the you encode the string literal
 as a Dhall expression and then hash that.  The semantic integrity check is not a
 hash of the raw underlying text.
+
+
+If an import ends with `as Location`, import its location as a value of type
+`< Local : Text | Remote : Text | Environment : Text | Missing >` instead of
+importing the file a Dhall expression:
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    ε ⊢ child : < Local : Text | Remote : Text | Environment : Text | Missing >
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ child ⊢ Γ
+
+
+Carefully note that `child` in the above judgment is loosely used both as an
+unresolved, non-Dhall value, and as a Dhall value to represent the same data.
+
+Also note that since the expression is not resolved in any way - that is, we only
+read in its location - there's no need to check if the path exists, if it's
+referentially transparent, if it honours CORS, no header forwarding necessary, etc.
+Canonicalization and chaining are the only transformations applied to the import.
+
 
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
