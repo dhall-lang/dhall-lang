@@ -9,7 +9,7 @@ environment variable.  For example:
 
 in  { name = env:USER as Text  -- Expression imported from the environment
     , age  = 23
-    , publicKey = ~/.ssh/id_rsa.pub as Location  -- Path read as a Dhall valuse
+    , publicKey = ~/.ssh/id_rsa.pub as Location  -- Path read as a Dhall expression
     , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
     } : ./schema.dhall  -- Expression imported from a file
 ```
