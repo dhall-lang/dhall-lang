@@ -1,0 +1,40 @@
+{- Create a JSON array from a `List` of JSON values
+
+```
+let JSON = ./package.dhall
+in  JSON.render (JSON.array [ JSON.number 1.0, JSON.bool True ])
+= "[ 1.0, true ]"
+
+let JSON/Type = ./Type
+let JSON = ./package.dhall
+in  JSON.render (JSON.array ([] : List JSON/Type))
+= "[ ]"
+```
+-}
+let JSON =
+        ./Type sha256:526543da5c7658be2b8a16303fa7228b103c248dc1c711a1b2f881b0d0f5f04c
+      ? ./Type
+
+let List/map =
+        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map
+
+let array
+    : List JSON → JSON
+    =   λ(x : List JSON)
+      → λ(JSON : Type)
+      → λ(string : Text → JSON)
+      → λ(number : Double → JSON)
+      → λ(object : List { mapKey : Text, mapValue : JSON } → JSON)
+      → λ(array : List JSON → JSON)
+      → λ(bool : Bool → JSON)
+      → λ(null : JSON)
+      → array
+        ( List/map
+          JSON@1
+          JSON
+          (λ(j : JSON@1) → j JSON string number object array bool null)
+          x
+        )
+
+in  array

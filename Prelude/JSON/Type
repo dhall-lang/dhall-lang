@@ -1,0 +1,54 @@
+{- Dhall encoding of an arbitrary JSON value
+
+   For example, the following JSON value:
+
+```
+[ { "foo": null, "bar": [ 1.0, true ] } ]
+```
+
+   ... corresponds to the following Dhall expression:
+
+```
+  λ(JSON : Type)
+→ λ(string : Text → JSON)
+→ λ(number : Double → JSON)
+→ λ(object : List { mapKey : Text, mapValue : JSON } → JSON)
+→ λ(array : List JSON → JSON)
+→ λ(bool : Bool → JSON)
+→ λ(null : JSON)
+→ object
+  [ { mapKey = "foo", mapValue = null }
+  , { mapKey = "bar", mapValue = array [ number 1.0, bool True ] }
+  ]
+```
+
+  You do not need to create these values directly, though.  You can use
+  the utilities exported by `./package.dhall` to create values of this type,
+  such as:
+
+```
+let JSON = ./package.dhall
+
+in  JSON.object
+    [ { mapKey = "foo", mapValue = JSON.null }
+    , { mapKey =
+          "bar"
+      , mapValue =
+          JSON.array [ JSON.number 1.0, JSON.bool True ]
+      }
+    ]
+```
+
+-}
+let JSON/Type
+    : Type
+    =   ∀(JSON : Type)
+      → ∀(string : Text → JSON)
+      → ∀(number : Double → JSON)
+      → ∀(object : List { mapKey : Text, mapValue : JSON } → JSON)
+      → ∀(array : List JSON → JSON)
+      → ∀(bool : Bool → JSON)
+      → ∀(null : JSON)
+      → JSON
+
+in  JSON/Type

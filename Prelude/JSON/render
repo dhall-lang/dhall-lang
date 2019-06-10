@@ -1,0 +1,61 @@
+{- Render a `JSON` value as `Text`
+
+   This is useful for debugging `JSON` values or for tests.  For anything
+   more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
+
+```
+let JSON = ./package.dhall
+
+in  JSON.render
+    ( JSON.array
+      [ JSON.bool True
+      , JSON.string "Hello"
+      , JSON.object
+        [ { mapKey = "foo", mapValue = JSON.null       }
+        , { mapKey = "bar", mapValue = JSON.number 1.0 }
+        ]
+      ]
+    )
+= "[ true, \"Hello\", { \"foo\": null, \"bar\": 1.0 } ]"
+```
+-}
+let JSON =
+        ./Type sha256:526543da5c7658be2b8a16303fa7228b103c248dc1c711a1b2f881b0d0f5f04c
+      ? ./Type
+
+let Text/concatMapSep =
+        ../Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
+      ? ../Text/concatMapSep
+
+let Text/concatMap =
+        ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+      ? ../Text/concatMap
+
+let render
+    : JSON → Text
+    =   λ(j : JSON)
+      → j
+        Text
+        (λ(x : Text) → Text/show x)
+        (λ(x : Double) → Double/show x)
+        (   λ(x : List { mapKey : Text, mapValue : Text })
+          → let body =
+                  Text/concatMapSep
+                  ","
+                  { mapKey : Text, mapValue : Text }
+                  (   λ(e : { mapKey : Text, mapValue : Text })
+                    → " ${Text/show e.mapKey}: ${e.mapValue}"
+                  )
+                  x
+            
+            in  "{${body} }"
+        )
+        (   λ(x : List Text)
+          → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
+            
+            in  "[${body} ]"
+        )
+        (λ(x : Bool) → if x then "true" else "false")
+        "null"
+
+in  render

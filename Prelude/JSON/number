@@ -1,0 +1,29 @@
+{- Create a JSON number from a Dhall `Double`
+
+```
+let JSON = ./package.dhall
+in  JSON.render (JSON.number 42.0)
+= "42.0"
+
+let JSON = ./package.dhall
+in  JSON.render (JSON.number -1.5e-10)
+= "-1.5e-10"
+```
+-}
+let JSON =
+        ./Type sha256:526543da5c7658be2b8a16303fa7228b103c248dc1c711a1b2f881b0d0f5f04c
+      ? ./Type
+
+let number
+    : Double → JSON
+    =   λ(x : Double)
+      → λ(JSON : Type)
+      → λ(string : Text → JSON)
+      → λ(number : Double → JSON)
+      → λ(object : List { mapKey : Text, mapValue : JSON } → JSON)
+      → λ(array : List JSON → JSON)
+      → λ(bool : Bool → JSON)
+      → λ(null : JSON)
+      → number x
+
+in  number
