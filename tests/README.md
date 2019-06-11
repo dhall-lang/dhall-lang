@@ -116,6 +116,11 @@ The tests should:
 
 ### Running `import` tests
 
+First, set the environment variable `XDG_CACHE_HOME` to the absolute location of
+`dhall-lang/tests/import/cache`.  This is so that we can test that an import
+with an integrity check is fetched from cache (for example, see
+`hashFromCacheA.dhall`).
+
 The tests should:
 - parse `A` and `B`
 - resolve the imports for both `A` and `B`

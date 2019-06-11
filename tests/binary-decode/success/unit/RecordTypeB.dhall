@@ -1,0 +1,1 @@
+{ x : Natural, y : Bool }
