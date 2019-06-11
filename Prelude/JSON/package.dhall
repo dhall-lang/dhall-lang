@@ -23,6 +23,6 @@
       ./null sha256:7a85c1f72af85e29d2b80fbcbe738cd8cfbb96cdf5f2a6f0dba11cf8fe10f507
     ? ./null
 , render =
-      ./render sha256:a37b9bd8e84d824ec420f5ebd984b8cea7629f5f639dd25e7f220df480980d29
+      ./render sha256:fc4d8085eee09c7b0667b690b13ef529c88b85ed05415cdbffd510e419d43e66
     ? ./render
 }
