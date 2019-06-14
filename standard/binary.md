@@ -675,70 +675,48 @@ then the CBOR expression begins with:
 
 After that a URL import contains the following elements:
 
-* The scheme, which is 0 (if the scheme is http) or 1 (if the scheme is https)
+* 0, a label to indicate this is a URL import
 * An optional custom headers specification
     * The specification is `null` if absent
-* The authority
-    * This includes user information and port if present
-    * This does not include the preceding "//" or the following "/"
-    * For example, the authority of `http://user@host:port/foo` is encoded as
-      `"user@host:port"`
+* Then the URL, as a CBOR text value with tag 32 (see RFC7049 section 2.4.4.3).
+
+As a judgment:
+
+
+    ──────────────────────────────────────────────────────
+    encode(URL) = [ 24, null, 0, 0, null, CBORTag 32 URL ]
+
+
+If you import `using headers`, then the fifth element contains the import
+headers:
+
+
+    encode(URL) = [ 24, x, y, 0, null, u ]
+    encode(headers) = h
+    ─────────────────────────────────────────────────
+    encode(URL using headers) = [ 24, x, y, 0, h, u ]
+
+
+Historical note: previously, label 0 was used for `http:` URLs and label 1 for
+`https:` URLs.  Now, label 0 is used for all URLs, and label 1 is unused.
+
+Absolute file paths are broken down by path component.  After the initial
+`[24, null, 0]`, a file import contains the following elements:
+
+* A numeric label to indicate the type of file import:
+    * 2 for absolute
+    * 3 for relative to current directory
+    * 4 for relative to parent directory
+    * 5 for relative to home directory
 * Then one element per path component
     * The encoded path components do not include their separating slashes
     * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
 * Then the file component
     * Also no slashes
-* Then one element for the query component
-    * If there is no query component then it is encoded as `null`
-    * If there is a query component then it is stored without the `?`
-    * A query component with internal `&` separators is still one element
-    * For example `?foo=1&bar=true` is stored as `"foo=1&bar=true"`
-
-The full rules are:
-
-
-    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]
-
-
-    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]
-
-
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]
-
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]
-
-
-If you import `using headers`, then the fourth element contains the import
-header:
-
-
-    encode(http://authority directory file) = [ 24, x, y, 0, null, xs… ]
-    encode(headers) = h
-    ───────────────────────────────────────────────────────────────────────────────
-    encode(http://authority directory file using headers) = [ 24, x, y, 0, h, xs… ]
-
-
-    encode(https://authority directory file) = [ 24, x, y, 1, null, xs… ]
-    encode(headers) = h
-    ────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority directory file using headers) = [ 24, x, y, 1, h, xs… ]
-
-
-Absolute file paths are tokenized in the same way:
 
 
     ─────────────────────────────────────────────────────────────────────────────
     encode(/path₀/path₁/…/file) = [ 24, null, 0, 2, "path₀", "path₁", …, "file" ]
-
-
-Each path type is treated as another "scheme" (i.e. they are distinguished by
-the third element):
 
 
     ──────────────────────────────────────────────────────────────────────────────
@@ -1325,20 +1303,8 @@ Decode a CBOR array beginning with a `24` as an import
 The decoding rules are the exact opposite of the encoding rules:
 
 
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
-
-
-    ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
-
-
-    ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
+    ───────────────────────────────────────────────────────
+    decode([ 24, null, 0, 0, null, CBORTag 32 "URL"]) = URL
 
 
     ─────────────────────────────────────────────────────────────────────────────
@@ -1377,15 +1343,9 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     decode(headers₀) = headers₁
-    decode([ 24, x, y, 0, null, xs… ]) = http://authority directory file
+    decode([ 24, x, y, 0, null, xs… ]) = URL
     ─────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, x, y, 0, headers₀, xs… ]) = http://authority directory file using headers₁
-
-
-    decode(headers₀) = headers₁
-    decode([ 24, x, y, 1, null, xs… ]) = https://authority directory file
-    ──────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, x, y, 1, headers₀, xs… ]) = https://authority directory file using headers₁
+    decode([ 24, x, y, 0, headers₀, xs… ]) = URL using headers₁
 
 
 ### `let` expressions

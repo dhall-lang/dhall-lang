@@ -96,13 +96,6 @@ directory = ε
 ~/.config/development.dhall
          ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
          file
-
-
-                   directory
-                   ↓↓↓↓↓↓↓↓↓↓↓
-https://example.com/share/user/biography.dhall  ; URLs have directories, too
-                              ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-                              file
 ```
 
 See the grammar for more details about where the directory and file begin and
@@ -239,6 +232,135 @@ path components:
     path₀ </> path₁/component = path₂/component
 
 
+## Converting relative imports to relative references
+
+It is possible to chain some local imports onto remote imports.  The basic form
+this takes is:
+
+  1. convert the local import to a relative reference
+  2. resolve the relative reference using the URI reference resolution algorithm
+     defined in [RFC 3986 section 5][].
+
+This section defines how to convert a local import to a relative reference.
+
+### Converting path components to relative references
+
+A path segment can be converted to a fragment of a relative reference using a
+function of the form:
+
+    toRelativeRef(component) = ref
+
+... where:
+
+* `component` (the input) is a path component
+* `ref` (the output) is a valid relative reference
+
+
+[RFC 3986 section 2.3][] defines URI unreserved characters in ABNF as `ALPHA /
+DIGIT / "-" / "." / "_" / "~"`.  `ALPHA` and `DIGIT` are defined in
+[./dhall.abnf](./dhall.abnf).
+
+Converting a path component consisting of a single character in the URI
+unreserved set leaves the character unmodified:
+
+
+    ────────────────────── ; c is in the URI unreserved set
+    toRelativeRef(c) = "c"
+
+
+Converting any other character results in the percent-encoded octets of the
+character's UTF-8 representation:
+
+
+    ─────────────────────────────────────── ; c is not in the URI unreserved set
+    toRelativeRef(c) = percentEncodeUTF8(c)
+
+
+For example, `toRelativeRef([)` is `"%5B"`, `toRelativeRef(⫽)` is `"%E2%AB%BD"`,
+and `toRelativeRef(🐋)` is `"%F0%9F%90%8B"`.  Implementations SHOULD use upper-case
+letters for hexadecimal digits in their percent-encoding.
+
+Longer relative references are built up character-by-character from shorter references:
+
+
+    toRelativeRef(c₀) = "c₁"  toRelativeRef(ss₀…) = "ss₁…"
+    ──────────────────────────────────────────────────────
+    toRelativeRef(css₀…) = "css₁…"
+
+
+(The notation `css…` means the single character `c` followed by the rest of the
+string `ss…` containing one or more characters.)
+
+[RFC 3986 section 2.3]: https://tools.ietf.org/html/rfc3986#section-2.3
+
+### Converting directories to relative references
+
+A directory can be converted to a fragment of a relative reference using a
+function of the form:
+
+    toRelativeRef(directory) = ref
+
+... where:
+
+* `directory` (the input) is a directory
+* `ref` (the output) is a string, which is either empty or a valid relative reference.
+
+`toRelativeRef` is defined on directories in terms of `toRelativeRef` on
+components:
+
+
+    ────────────────────
+    toRelativeRef(ε) = ε
+
+
+    toRelativeRef(path₀) = path₁  toRelativeRef(component₀) = component₁
+    ────────────────────────────────────────────────────────────────────
+    toRelativeRef(path₀/component₀) = path₁/component₁
+
+
+### Converting filenames to relative references
+
+To convert a filename to a relative reference, we treat it as a standalone path
+component and reuse the `toRelativeRef` definition on path components.
+
+### Converting local imports to relative references
+
+We can now define a function to convert imports to relative references:
+
+    toRelativeRef(import) = ref
+
+... where:
+
+* `import` (the input) is an import
+* `ref` (the output) is a relative reference
+
+Converting a path beginning with "." or "..", and with an empty directory,
+results in a simple relative reference:
+
+
+    toRelativeRef(file₀) = file₁
+    ──────────────────────────────────
+    toRelativeRef(. ε file₀) = ./file₁
+
+
+    toRelativeRef(file₀) = file₁
+    ──────────────────────────────────
+    toRelativeRef(.. ε file₀) = ../file₁
+
+
+Otherwise, if the directory is nonempty, it must be converted too:
+
+
+    toRelativeRef(path₀) = path₁  toRelativeRef(file₀) = file₁
+    ────────────────────────────────────────────────────────── ; path₀ ≠ ε
+    toRelativeRef(. path₀ file₀) = ./path₁/file₁
+
+
+    toRelativeRef(path₀) = path₁  toRelativeRef(file₀) = file₁
+    ────────────────────────────────────────────────────────── ; path₀ ≠ ε
+    toRelativeRef(.. path₀ file₀) = ../path₁/file₁
+
+
 ## Chaining imports
 
 The Dhall language supports absolute imports, such as URLs or absolute paths to
@@ -280,11 +402,6 @@ their directories but prefer the file name of the child:
     ~ path₀ file₀ </> . path₁ file₁ = ~ path₂ file₁
 
 
-    path₀ </> path₁ = path₂
-    ───────────────────────────────────────────────────────────────────────────────
-    https://authority path₀ file₀ </> . path₁ file₁ = https://authority path₂ file₁
-
-
 If the child import begins with a "..", add that as a path component in between
 the parent and child directories:
 
@@ -309,39 +426,58 @@ the parent and child directories:
     ~ path₀ file₀ </> .. path₂ file₁ = ~ path₃ file₁
 
 
-    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
-    ────────────────────────────────────────────────────────────────────────────────
-    https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
+If the parent import is a URL and the child import begins with a "." or "..",
+convert the child import to a relative reference and resolve the reference
+according to the URI reference resolution algorithm defined in
+[RFC 3986 section 5][]using the parent import as a base URL:
 
+
+    toRelativeRef(. path₁ file₁) = ./path₂/file₂  rfc3986resolve(URL₀, ./path₂/file₂) = URL₂
+    ────────────────────────────────────────────────────────────────────────────────────────
+    URL₀ </> . path₁ file₁ = URL₂
+
+
+    toRelativeRef(.. path₁ file₁) = ../path₂/file₂  rfc3986resolve(URL₀, ../path₂/file₂) = URL₂
+    ───────────────────────────────────────────────────────────────────────────────────────────
+    URL₀ </> .. path₁ file₁ = URL₂
+
+
+The function `rfc3986resolve(url, relative-reference)` is used as a notational
+shorthand for the algorithm defined in [RFC 3986 section 5][].
+
+[RFC 3986 section 5]: https://tools.ietf.org/html/rfc3986#section-5
+
+Note that there is no judgment which allows a child import that begins with "/"
+or "~" to be resolved relative to a parent URL.
 
 Import chaining preserves the header clause on the child import:
 
 
-    import₀ </> import₁ = import₂
-    ─────────────────────────────────────────────────────────
-    import₀ </> import₁ using headers = import₂ using headers
+    import₀ </> URL₁ = URL₂
+    ───────────────────────────────────────────────────
+    import₀ </> URL₁ using headers = URL₂ using headers
 
 
 ... and the child import can reuse custom headers from the parent import if
-the child is a relative import
+the child is a relative import:
 
 
-    path₀ </> path₁ = path₂
-    ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-    https://authority path₀ file₀ using headers </> . path₁ file₁ = https://authority path₂ file₁ using headers
+    URL₀ </> . path₁ file₁ = URL₂
+    ─────────────────────────────────────────────────────────
+    URL₀ using headers </> . path₁ file₁ = URL₂ using headers
 
 
-    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
-    ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    https://authority path₀ file₀ using headers </> .. path₂ file₁ = https://authority path₃ file₁ using headers
+    URL₀ </> .. path₁ file₁ = URL₂
+    ──────────────────────────────────────────────────────────
+    URL₀ using headers </> .. path₁ file₁ = URL₂ using headers
 
 
 Otherwise, import chaining ignores the `using` clause on the parent import:
 
 
-    import₀ </> import₁ = import₂
-    ───────────────────────────────────────────
-    import₀ using headers </> import₁ = import₂
+    URL₀ </> import₁ = import₂
+    ────────────────────────────────────────
+    URL₀ using headers </> import₁ = import₂
 
 
 If the child is an absolute import, then the path to the parent import does not
@@ -387,11 +523,11 @@ The grammar for imports permits quoted path components for both file paths:
 
     https://example.com/foo/"bar?baz"?qux
 
-Path components after parsing and in the binary encoding are always unescaped
-(as if originally quoted).
+Local import path components after parsing and in the binary encoding are always
+unescaped (as if originally quoted).
 
-To import a URL, percent-encode each path component according to
-[RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
+URLs after parsing and in the binary encoding, conversely, are escaped (as if a
+valid URL).
 
 ## Referential sanity check
 
