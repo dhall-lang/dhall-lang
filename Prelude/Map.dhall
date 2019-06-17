@@ -8,7 +8,7 @@
    ```
    [ { mapKey = "foo", mapValue = 1 }
    , { mapKey = "bar", mapValue = 2 }
-   ]
+   ] : ./Map Text Natural
    ```
 
    ... to a JSON value like this:
