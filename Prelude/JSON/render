@@ -20,7 +20,7 @@ in  JSON.render
 ```
 -}
 let JSON =
-        ./Type sha256:526543da5c7658be2b8a16303fa7228b103c248dc1c711a1b2f881b0d0f5f04c
+        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
       ? ./Type
 
 let Text/concatMapSep =
@@ -36,26 +36,31 @@ let render
     =   λ(j : JSON)
       → j
         Text
-        (λ(x : Text) → Text/show x)
-        (λ(x : Double) → Double/show x)
-        (   λ(x : List { mapKey : Text, mapValue : Text })
-          → let body =
-                  Text/concatMapSep
-                  ","
-                  { mapKey : Text, mapValue : Text }
-                  (   λ(e : { mapKey : Text, mapValue : Text })
-                    → " ${Text/show e.mapKey}: ${e.mapValue}"
-                  )
-                  x
-            
-            in  "{${body} }"
-        )
-        (   λ(x : List Text)
-          → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
-            
-            in  "[${body} ]"
-        )
-        (λ(x : Bool) → if x then "true" else "false")
-        "null"
+        { string =
+            λ(x : Text) → Text/show x
+        , number =
+            λ(x : Double) → Double/show x
+        , object =
+              λ(x : List { mapKey : Text, mapValue : Text })
+            → let body =
+                    Text/concatMapSep
+                    ","
+                    { mapKey : Text, mapValue : Text }
+                    (   λ(e : { mapKey : Text, mapValue : Text })
+                      → " ${Text/show e.mapKey}: ${e.mapValue}"
+                    )
+                    x
+              
+              in  "{${body} }"
+        , array =
+              λ(x : List Text)
+            → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
+              
+              in  "[${body} ]"
+        , bool =
+            λ(x : Bool) → if x then "true" else "false"
+        , null =
+            "null"
+        }
 
 in  render

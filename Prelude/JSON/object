@@ -18,7 +18,7 @@ in  JSON.render
 ```
 -}
 let JSON =
-        ./Type sha256:526543da5c7658be2b8a16303fa7228b103c248dc1c711a1b2f881b0d0f5f04c
+        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
       ? ./Type
 
 let List/map =
@@ -29,22 +29,27 @@ let object
     : List { mapKey : Text, mapValue : JSON } → JSON
     =   λ(x : List { mapKey : Text, mapValue : JSON })
       → λ(JSON : Type)
-      → λ(string : Text → JSON)
-      → λ(number : Double → JSON)
-      → λ(object : List { mapKey : Text, mapValue : JSON } → JSON)
-      → λ(array : List JSON → JSON)
-      → λ(bool : Bool → JSON)
-      → λ(null : JSON)
-      → object
+      → λ ( json
+          : { string :
+                Text → JSON
+            , number :
+                Double → JSON
+            , object :
+                List { mapKey : Text, mapValue : JSON } → JSON
+            , array :
+                List JSON → JSON
+            , bool :
+                Bool → JSON
+            , null :
+                JSON
+            }
+          )
+      → json.object
         ( List/map
           { mapKey : Text, mapValue : JSON@1 }
           { mapKey : Text, mapValue : JSON }
           (   λ(kv : { mapKey : Text, mapValue : JSON@1 })
-            → { mapKey =
-                  kv.mapKey
-              , mapValue =
-                  kv.mapValue JSON string number object array bool null
-              }
+            → { mapKey = kv.mapKey, mapValue = kv.mapValue JSON json }
           )
           x
         )
