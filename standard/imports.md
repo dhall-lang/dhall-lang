@@ -310,12 +310,12 @@ resolve the reference according to the URI reference resolution algorithm
 defined in [RFC 3986 section 5][] using the parent import as a base URL:
 
 
-    rfc3986resolve(URL₀, ./path₁/file₁) = URL₂
+    rfc3986resolve(URL₀, . path₁ file₁) = URL₂
     ──────────────────────────────────────────
     URL₀ </> . path₁ file₁ = URL₂
 
 
-    rfc3986resolve(URL₀, ../path₁/file₁) = URL₂
+    rfc3986resolve(URL₀, .. path₁ file₁) = URL₂
     ───────────────────────────────────────────
     URL₀ </> .. path₁ file₁ = URL₂
 
