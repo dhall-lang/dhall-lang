@@ -1,8 +1,8 @@
-{ < Local : Text | Remote : Text | Environment : Text | Missing >.Local "./some/import.dhall"
-, < Local : Text | Remote : Text | Environment : Text | Missing >.Local "../data/simple.dhall"
-, < Local : Text | Remote : Text | Environment : Text | Missing >.Local "/absolute/import"
-, < Local : Text | Remote : Text | Environment : Text | Missing >.Remote "https://prelude.dhall-lang.org/package.dhall"
-, < Local : Text | Remote : Text | Environment : Text | Missing >.Environment "env:HOME"
-, < Local : Text | Remote : Text | Environment : Text | Missing >.Missing
-, < Local : Text | Remote : Text | Environment : Text | Missing >.Missing
+{ _1 = < Local : Text | Remote : Text | Environment : Text | Missing >.Local "./some/import.dhall"
+, _2 = < Local : Text | Remote : Text | Environment : Text | Missing >.Local "../data/simple.dhall"
+, _3 = < Local : Text | Remote : Text | Environment : Text | Missing >.Local "/absolute/import"
+, _4 = < Local : Text | Remote : Text | Environment : Text | Missing >.Remote "https://prelude.dhall-lang.org/package.dhall"
+, _5 = < Local : Text | Remote : Text | Environment : Text | Missing >.Environment "env:HOME"
+, _6 = < Local : Text | Remote : Text | Environment : Text | Missing >.Missing
+, _7 = < Local : Text | Remote : Text | Environment : Text | Missing >.Missing
 }
