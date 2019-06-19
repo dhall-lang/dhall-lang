@@ -181,40 +181,14 @@ nonreserved-label = label
 any-label = label
 
 
-; Dhall's double-quoted strings are equivalent to JSON strings except with
-; support for string interpolation (and escaping string interpolation)
+; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
-; Dhall uses almost the same escaping rules as JSON (RFC7159) with one
-; exception: Dhall adds a new `\$` escape sequence for dollar signs.  This
-; additional escape sequences lets you escape string interpolation by writing
-; `\${`
+; * Dhall strings support string interpolation
 ;
-; > The representation of strings is similar to conventions used in the C
-; > family of programming languages.  A string begins and ends with
-; > quotation marks.  All Unicode characters may be placed within the
-; > quotation marks, except for the characters that must be escaped:
-; > quotation mark, reverse solidus, and the control characters (U+0000
-; > through U+001F).
-; > 
-; > Any character may be escaped.  If the character is in the Basic
-; > Multilingual Plane (U+0000 through U+FFFF), then it may be
-; > represented as a six-character sequence: a reverse solidus, followed
-; > by the lowercase letter u, followed by four hexadecimal digits that
-; > encode the character's code point.  The hexadecimal letters A though
-; > F can be upper or lower case.  So, for example, a string containing
-; > only a single reverse solidus character may be represented as
-; > "\u005C".
-; > 
-; > Alternatively, there are two-character sequence escape
-; > representations of some popular characters.  So, for example, a
-; > string containing only a single reverse solidus character may be
-; > represented more compactly as "\\".
-; > 
-; > To escape an extended character that is not in the Basic Multilingual
-; > Plane, the character is represented as a 12-character sequence,
-; > encoding the UTF-16 surrogate pair.  So, for example, a string
-; > containing only the G clef character (U+1D11E) may be represented as
-; > "\uD834\uDD1E".
+; * Dhall strings also support escaping string interpolation by adding a new
+;   `\$` escape sequence
+;
+; * Dhall strings also allow Unicode escape sequences of the form `\u{XXX}`
 double-quote-chunk =
       interpolation
       ; '\'    Beginning of escape sequence
@@ -222,16 +196,18 @@ double-quote-chunk =
     / double-quote-char
 
 double-quote-escaped =
-      %x22               ; '"'    quotation mark  U+0022
-    / %x24               ; '$'    dollar sign     U+0024
-    / %x5C               ; '\'    reverse solidus U+005C
-    / %x2F               ; '/'    solidus         U+002F
-    / %x62               ; 'b'    backspace       U+0008
-    / %x66               ; 'f'    form feed       U+000C
-    / %x6E               ; 'n'    line feed       U+000A
-    / %x72               ; 'r'    carriage return U+000D
-    / %x74               ; 't'    tab             U+0009
-    / %x75 4HEXDIG       ; 'uXXXX'                U+XXXX
+      %x22                 ; '"'    quotation mark  U+0022
+    / %x24                 ; '$'    dollar sign     U+0024
+    / %x5C                 ; '\'    reverse solidus U+005C
+    / %x2F                 ; '/'    solidus         U+002F
+    / %x62                 ; 'b'    backspace       U+0008
+    / %x66                 ; 'f'    form feed       U+000C
+    / %x6E                 ; 'n'    line feed       U+000A
+    / %x72                 ; 'r'    carriage return U+000D
+    / %x74                 ; 't'    tab             U+0009
+    / %x75 unicode-escape  ; 'uXXXX' / 'u{XXXX}'    U+XXXX
+
+unicode-escape = 4HEXDIG / "{" 1*HEXDIG "}"
 
 ; Printable characters except double quote and backslash
 double-quote-char =
