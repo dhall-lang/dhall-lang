@@ -498,18 +498,19 @@ respective fields from `e`.
 
 
     Γ ⊢ e :⇥ { ts… }
-    Γ ⊢ s : T
+    Γ ⊢ s : c
     s ⇥ {}
     ────────────────
     Γ ⊢ e.(s) : {}
 
 
     Γ ⊢ e :⇥ { x : T₀, ts… }
-    Γ ⊢ s : T₀
-    s ⇥ { x : T₀, ss… }
-    Γ ⊢ e.({ ss… }) : T₁
+    Γ ⊢ s : c
+    s ⇥ { x : T₁, ss… }
+    T₀ ≡ T₁
+    Γ ⊢ e.({ ss… }) : U
     ───────────────────────────
-    Γ ⊢ e.(s) : { x : T₀, ss… }
+    Γ ⊢ e.(s) : { x : T₁, ss… }
 
 
 If you select a field from a value that is not a record, then that is a type
