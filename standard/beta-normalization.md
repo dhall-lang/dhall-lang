@@ -931,15 +931,20 @@ You can also project out more than one field into a new record:
 
 
     s ⇥ {}
-    ──────────
-    t.(s) ⇥ {=}
+    ───────────
+    keys(s) ⇥ ε
 
-
-    t ⇥ { x = v, ts₀… }
     s ⇥ { x : T, ss… }
-    t.({ ss… }) ⇥ { ts₁… }
-    ───────────────────────
-    t.(s) ⇥ { x = v, ts₁… }
+    keys(ss…) ⇥ ss₁…
+    ─────────────────────
+    keys(s) ⇥ x, ss₁…
+
+
+    s ⇥ { x : T, ss… }
+    keys(s) ⇥ s₁
+    t.{s₁} ⇥ ts₁
+    ───────────────
+    t.(s) ⇥ ts₁
 
 
     t₀ ⇥ t₁
