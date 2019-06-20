@@ -1,0 +1,57 @@
+{- Create a JSON object from a Dhall `Map`
+
+```
+let JSON = ./package.dhall
+in  JSON.render
+    ( JSON.object
+      [ { mapKey = "foo", mapValue = JSON.number 1.0 }
+      , { mapKey = "bar", mapValue = JSON.bool True  }
+      ]
+    )
+= "{ \"foo\": 1.0, \"bar\": true }"
+
+let JSON/Type = ./Type
+let JSON = ./package.dhall
+in  JSON.render
+    (JSON.object ([] : List { mapKey : Text, mapValue : JSON/Type }))
+= "{ }"
+```
+-}
+let JSON =
+        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+      ? ./Type
+
+let List/map =
+        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map
+
+let object
+    : List { mapKey : Text, mapValue : JSON } → JSON
+    =   λ(x : List { mapKey : Text, mapValue : JSON })
+      → λ(JSON : Type)
+      → λ ( json
+          : { string :
+                Text → JSON
+            , number :
+                Double → JSON
+            , object :
+                List { mapKey : Text, mapValue : JSON } → JSON
+            , array :
+                List JSON → JSON
+            , bool :
+                Bool → JSON
+            , null :
+                JSON
+            }
+          )
+      → json.object
+        ( List/map
+          { mapKey : Text, mapValue : JSON@1 }
+          { mapKey : Text, mapValue : JSON }
+          (   λ(kv : { mapKey : Text, mapValue : JSON@1 })
+            → { mapKey = kv.mapKey, mapValue = kv.mapValue JSON json }
+          )
+          x
+        )
+
+in  object
