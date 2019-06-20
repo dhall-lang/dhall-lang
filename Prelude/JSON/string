@@ -1,0 +1,38 @@
+{- Create a JSON string from Dhall `Text`
+
+```
+let JSON = ./package.dhall
+in  JSON.render (JSON.string "ABC $ \" 🙂")
+= "\"ABC \\u0024 \\\" 🙂\""
+
+let JSON = ./package.dhall
+in  JSON.render (JSON.string "")
+= "\"\""
+```
+-}
+let JSON =
+        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+      ? ./Type
+
+let string
+    : Text → JSON
+    =   λ(x : Text)
+      → λ(JSON : Type)
+      → λ ( json
+          : { string :
+                Text → JSON
+            , number :
+                Double → JSON
+            , object :
+                List { mapKey : Text, mapValue : JSON } → JSON
+            , array :
+                List JSON → JSON
+            , bool :
+                Bool → JSON
+            , null :
+                JSON
+            }
+          )
+      → json.string x
+
+in  string
