@@ -1020,11 +1020,11 @@ For the purposes of type-checking, an expression of the form:
 
 `let` differs in behavior in order to support "type synonyms", such as:
 
-    let t : Type = Integer in 1 : t
+    let t : Type = Natural in 1 : t
 
 If you were to desugar that to:
 
-    (λ(t : Type) → 1 : t) Integer
+    (λ(t : Type) → 1 : t) Natural
 
 ... then that would not be a well-typed expression, even though the `let`
 expression would be well-typed.
