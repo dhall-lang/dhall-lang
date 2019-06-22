@@ -6,9 +6,9 @@
    For example, `dhall-to-json` converts a Dhall value like this:
 
    ```
-   [ { mapValue = "foo", mapValue = 1 }
-   , { mapValue = "bar", mapValue = 2 }
-   ]
+   [ { mapKey = "foo", mapValue = 1 }
+   , { mapKey = "bar", mapValue = 2 }
+   ] : ./Map Text Natural
    ```
 
    ... to a JSON value like this:
