@@ -498,18 +498,19 @@ respective fields from `e`.
 
 
     Γ ⊢ e :⇥ { ts… }
-    Γ ⊢ s : T
+    Γ ⊢ s : c
     s ⇥ {}
     ────────────────
     Γ ⊢ e.(s) : {}
 
 
     Γ ⊢ e :⇥ { x : T₀, ts… }
-    Γ ⊢ s : T₀
-    s ⇥ { x : T₀, ss… }
-    Γ ⊢ e.({ ss… }) : T₁
+    Γ ⊢ s : c
+    s ⇥ { x : T₁, ss… }
+    T₀ ≡ T₁
+    Γ ⊢ e.({ ss… }) : U
     ───────────────────────────
-    Γ ⊢ e.(s) : { x : T₀, ss… }
+    Γ ⊢ e.(s) : { x : T₁, ss… }
 
 
 If you select a field from a value that is not a record, then that is a type
@@ -1020,11 +1021,11 @@ For the purposes of type-checking, an expression of the form:
 
 `let` differs in behavior in order to support "type synonyms", such as:
 
-    let t : Type = Integer in 1 : t
+    let t : Type = Natural in 1 : t
 
 If you were to desugar that to:
 
-    (λ(t : Type) → 1 : t) Integer
+    (λ(t : Type) → 1 : t) Natural
 
 ... then that would not be a well-typed expression, even though the `let`
 expression would be well-typed.
