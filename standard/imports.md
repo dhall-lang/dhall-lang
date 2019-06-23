@@ -280,6 +280,21 @@ their directories but prefer the file name of the child:
     ~ path₀ file₀ </> . path₁ file₁ = ~ path₂ file₁
 
 
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ </> . path₁ file₁ = https://authority path₂ file₁
+
+
+Implementation note: the last judgment rule above is a special case of the
+[RFC3986 section 5 resolution algorithm][RFC3986§5], which takes a relative
+reference and a base URI and returns a resolved URI.  Implementations may find
+it convenient to use a URL library to process this form of chaining.  However,
+if you use a URL resolution library routine which takes string arguments, you
+may need to percent-encode your relative references before passing them to the
+routine.
+
+[RFC3986§5]: https://tools.ietf.org/html/rfc3986#section-5
+
 If the child import begins with a "..", add that as a path component in between
 the parent and child directories:
 
@@ -304,36 +319,13 @@ the parent and child directories:
     ~ path₀ file₀ </> .. path₂ file₁ = ~ path₃ file₁
 
 
-If the parent import is a URL and the child import begins with a "." or "..",
-convert the child import to a [relative reference][RFC 3986 section 4.2] and
-resolve the reference according to the URI reference resolution algorithm
-defined in [RFC 3986 section 5][] using the parent import as a base URL:
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ────────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
 
 
-    rfc3986resolve(URL₀, . path₁ file₁) = URL₂
-    ──────────────────────────────────────────
-    URL₀ </> . path₁ file₁ = URL₂
-
-
-    rfc3986resolve(URL₀, .. path₁ file₁) = URL₂
-    ───────────────────────────────────────────
-    URL₀ </> .. path₁ file₁ = URL₂
-
-
-The function `rfc3986resolve(url, relative-reference)` is used as a notational
-shorthand for the algorithm defined in [RFC 3986 section 5][].  To convert an
-import to a relative reference, start with a segment of `.` or `..` as
-appropriate, then add all the segments from the import.
-
-Note that if you use a URL resolution library routine which takes string
-arguments, you may need to percent-encode your relative references before
-passing them to the routine.
-
-[RFC 3986 section 4.2]: https://tools.ietf.org/html/rfc3986#section-4.2
-[RFC 3986 section 5]: https://tools.ietf.org/html/rfc3986#section-5
-
-Note also that there is no judgment which allows a child import that begins with "/"
-or "~" to be resolved relative to a parent URL.
+The last judgment rule above is another special case of the
+[RFC3986 section 5 resolution algorithm][RFC3986§5].
 
 Import chaining preserves the header clause on the child import:
 
