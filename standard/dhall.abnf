@@ -462,14 +462,19 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * this replaces `path-abempty` with `path`, so an empty path is
-;   not valid
+; * path segments may be quoted instead of using percent-encoding
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
 ;
 ; Unquoted path components should be percent-decoded according to
 ; https://tools.ietf.org/html/rfc3986#section-2
-http-raw = scheme "://" authority path [ "?" query ]
+http-raw = scheme "://" authority url-path [ "?" query ]
+
+; Temporary rule to allow old-style `path-component`s and RFC3986 `segment`s in
+; the same grammar. Eventually we can just use `path-abempty` from the same
+; RFC. See issue #581
+
+url-path = *(path-component / "/" segment)
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
@@ -509,6 +514,8 @@ dec-octet = "25" %x30-35       ; 250-255
           / DIGIT              ; 0-9
 
 reg-name = *( unreserved / pct-encoded / sub-delims )
+
+segment = *pchar
 
 pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
 
