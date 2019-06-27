@@ -667,6 +667,7 @@ Imports are encoded as a list where the first three elements are always:
 * An optional import type (such as `as Text`)
     * The import type is `0` for when importing a Dhall expression (the default)
     * The import type is `1` for importing `as Text`
+    * The import type is `2` for importing `as Location`
 
 For example, if an import does not specify an integrity check or import type
 then the CBOR expression begins with:
@@ -787,6 +788,15 @@ instead of `0`:
     encode(import) = [ 24, x, 0, xs… ]
     ──────────────────────────────────────────
     encode(import as Text) = [ 24, x, 1, xs… ]
+
+
+If you import `as Location`, then the third element encoding the import type is `2`
+instead of `0`:
+
+
+    encode(import) = [ 24, x, 0, xs… ]
+    ──────────────────────────────────────────
+    encode(import as Location) = [ 24, x, 2, xs… ]
 
 
 ### `let` expressions
@@ -1368,6 +1378,11 @@ The decoding rules are the exact opposite of the encoding rules:
     decode([ 24, x, 0, xs… ]) = import
     ──────────────────────────────────────────
     decode([ 24, x, 1, xs… ]) = import as Text
+
+
+    decode([ 24, x, 0, xs… ]) = import
+    ──────────────────────────────────────────────
+    decode([ 24, x, 2, xs… ]) = import as Location
 
 
     decode([ 24, null, x, xs… ]) = import

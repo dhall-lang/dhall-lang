@@ -320,6 +320,7 @@ builtin =
 Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
 List                  = %x4c.69.73.74
+Location              = %x4c.6f.63.61.74.69.6f.6e
 
 ; Reminder of the reserved identifiers, needed for the `builtin` rule
 Bool              = %x42.6f.6f.6c
@@ -594,7 +595,7 @@ import-hashed = import-type [ whsp1 hash ]
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whsp as whsp1 Text ]
+import = import-hashed [ whsp as whsp1 (Text / Location) ]
 
 expression =
     ; "\(x : a) -> b"
