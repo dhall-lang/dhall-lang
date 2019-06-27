@@ -465,6 +465,9 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 ; * path segments may be quoted instead of using percent-encoding
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
+; * the characters "(" ")" and "," are not included in the `sub-delims` rule:
+;   in particular, these characters can't be used in authority, path or query
+;   strings
 ;
 ; Unquoted path components should be percent-decoded according to
 ; https://tools.ietf.org/html/rfc3986#section-2
@@ -525,7 +528,8 @@ pct-encoded = "%" HEXDIG HEXDIG
 
 unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
-sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+; this is the RFC3986 sub-delims rule, without "(", ")" or ","
+sub-delims = "!" / "$" / "&" / "'" / "*" / "+" / ";" / "="
 
 http = http-raw [ whsp using whsp1 import-expression ]
 
