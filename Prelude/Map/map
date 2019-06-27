@@ -21,8 +21,8 @@ Examples:
 -}
 
 let Map =
-        ../Map.dhall sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
-      ? ../Map.dhall
+        ./Type.dhall sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
+      ? ./Type.dhall
 
 let Entry =
         ./Entry sha256:f334283bdd9cd88e6ea510ca914bc221fc2dab5fb424d24514b2e0df600d5346

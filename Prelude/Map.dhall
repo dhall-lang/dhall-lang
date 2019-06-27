@@ -1,24 +1,14 @@
-{- This is the canonical way to encode a dynamic list of key-value pairs.
+{- This file is provided for backwards compatibility since `./Map.dhall`
+   was relocated to `./Map/Type.dhall`
 
-   Tools (such as `dhall-to-json`/`dhall-to-yaml` will recognize values of this
-   type and convert them to maps/dictionaries/hashes in the target language
+   The main reason for standardizing on a `./*/Type.dhall` convention is so that
+   there can eventually be a one-to-one correspondence between Prelude files and
+   the fields of the `package.dhall` Prelude record once we can store types
+   within that record.  So, for example, there will eventually be a
+   `Prelude.Map.Type` field corresponding to `./Prelude/Map/Type.dhall`.
 
-   For example, `dhall-to-json` converts a Dhall value like this:
-
-   ```
-   [ { mapKey = "foo", mapValue = 1 }
-   , { mapKey = "bar", mapValue = 2 }
-   ] : ./Map Text Natural
-   ```
-
-   ... to a JSON value like this:
-
-   ```
-   { "foo": 1, "bar", 2 }
-   ```
+   At some point we will remove this file after a sufficiently long
+   deprecation cycle.
 -}
-let Map
-    : Type → Type → Type
-    = λ(k : Type) → λ(v : Type) → List { mapKey : k, mapValue : v }
-
-in  Map
+  ./Map/Type.dhall sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
+? ./Map/Type.dhall
