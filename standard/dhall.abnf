@@ -467,7 +467,11 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 ;   Dhall expressions and do not affect import resolution
 ; * the characters "(" ")" and "," are not included in the `sub-delims` rule:
 ;   in particular, these characters can't be used in authority, path or query
-;   strings
+;   strings.  This is because those characters have other meaning in Dhall
+;   and it would be confusing for the comma in
+;       [http://example.com/foo, bar]
+;   to be part of the URL instead of part of the list.  If you need a URL
+;   which contains parens or a comma, you must percent-encode them.
 ;
 ; Unquoted path components should be percent-decoded according to
 ; https://tools.ietf.org/html/rfc3986#section-2
@@ -529,6 +533,7 @@ pct-encoded = "%" HEXDIG HEXDIG
 unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
 ; this is the RFC3986 sub-delims rule, without "(", ")" or ","
+; see comments above the `http-raw` rule above
 sub-delims = "!" / "$" / "&" / "'" / "*" / "+" / ";" / "="
 
 http = http-raw [ whsp using whsp1 import-expression ]
