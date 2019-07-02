@@ -250,6 +250,16 @@ The remaining rules are:
     ↑(d, x, m, merge t₀ u₀) = merge t₁ u₁
 
 
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, toMap t₀ : T₀) = toMap t₁ : T₁
+
+
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────────────
+    ↑(d, x, m, toMap t₀) = toMap t₁
+
+
     ↑(d, x, m, T₀) = T₁
     ───────────────────────────────────────
     ↑(d, x, m, [] : List T₀) = [] : List T₁
@@ -539,4 +549,3 @@ The remaining rules are:
 
     ───────────────────────
     ↑(d, x, m, Sort) = Sort
-

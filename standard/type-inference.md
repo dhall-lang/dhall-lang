@@ -753,6 +753,22 @@ If the operator arguments are not record types then that is a type error.
 If they share a field in common that is not a record type then that is a type
 error.
 
+
+
+The `toMap` operator cab be applied only to a record value, and every field
+of the record must have the same type.
+
+
+    Γ ⊢ e :⇥ { x : T, xs… }
+    ──────────────────────────────────────────────────
+    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T }
+
+
+    Γ ⊢ e :⇥ {}    Γ ⊢ T :⇥ Type
+    ────────────────────────────
+    Γ ⊢ ( toMap e : T ) : T
+
+
 ## Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
@@ -1111,4 +1127,3 @@ as a type annotation:
 ## Imports
 
 An expression with unresolved imports cannot be type-checked
-
