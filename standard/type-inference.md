@@ -764,7 +764,7 @@ of the record must have the same type.
     Γ ⊢ toMap e : List { mapKey : Text, mapValue : T }
 
 
-    Γ ⊢ e :⇥ {}    Γ ⊢ T :⇥ Type
+    Γ ⊢ e :⇥ {}    Γ ⊢ T₀ :⇥ List { mapKey : Text, mapValue : T₁ }
     ────────────────────────────
     Γ ⊢ ( toMap e : T ) : T
 
