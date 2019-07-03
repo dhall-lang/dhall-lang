@@ -297,9 +297,9 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
-    Γ ⊢ T :⇥ Type
+    Γ ⊢ T₀   T₀ :⇥ List T₁
     ──────────────────────────
-    Γ ⊢ ([] : List T) : List T
+    Γ ⊢ ([] : T₀) : List T₁
 
 
     Γ ⊢ t : T₀   T₀ :⇥ Type   Γ ⊢ [ ts… ] :⇥ List T₁   T₀ ≡ T₁
