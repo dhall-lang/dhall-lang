@@ -575,7 +575,7 @@ bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
 ; character like `env`
 posix-environment-variable = 1*posix-environment-variable-character
 
-; These are all the characters from the POSIX Portable Character Set except for 
+; These are all the characters from the POSIX Portable Character Set except for
 ; '\0' (NUL) and '='.  Note that the POSIX standard does not explicitly state
 ; that environment variable names cannot have NUL.  However, this is implicit
 ; in the fact that environment variables are passed to the program as
@@ -616,36 +616,38 @@ import = import-hashed [ whsp as whsp1 (Text / Location) ]
 expression =
     ; "\(x : a) -> b"
       lambda whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
-    
+
     ; "if a then b else c"
     / if whsp1 expression whsp then whsp1 expression whsp else whsp1 expression
-    
+
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
+    ; We allow dropping the `in` between adjacent let-expressions; the following are equivalent:
     ; "let x = e1 let y = e2 in e3"
+    ; "let x = e1 in let y = e2 in e3"
     / 1*let-binding in whsp1 expression
-    
+
     ; "forall (x : a) -> b"
     / forall whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
-    
+
     ; "a -> b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression whsp arrow whsp expression
-    
+
     ; "merge e1 e2 : t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
     / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
-    
+
     ; "[] : List t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
     / "[" whsp "]" whsp ":" whsp1 List whsp import-expression
-    
+
     ; "x : t"
     / annotated-expression
 
@@ -681,10 +683,10 @@ application-expression =
 first-application-expression =
     ; "merge e1 e2"
       merge whsp1 import-expression whsp1 import-expression
-    
+
     ; "Some e"
     / Some whsp1 import-expression
-    
+
     / import-expression
 
 import-expression = import / selector-expression
@@ -709,33 +711,33 @@ type-selector = "(" whsp expression whsp ")"
 primitive-expression =
     ; "2.0"
       double-literal
-    
+
     ; "2"
     / natural-literal
-    
+
     ; "+2"
     / integer-literal
-    
+
     ; '"ABC"'
     / text-literal
-    
+
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
     / "{" whsp record-type-or-literal whsp "}"
-    
+
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo : Integer | Bar = True | Baz : Bool >"
     ; "< Foo | Bar : Bool >"
     / "<" whsp union-type-or-literal whsp ">"
-    
+
     ; "[1, 2, 3]"
     ; `empty-collection` handles empty lists
     / non-empty-list-literal
-    
+
     ; "x"
     ; "x@2"
     / identifier
-    
+
     ; "( e )"
     / "(" complete-expression ")"
 

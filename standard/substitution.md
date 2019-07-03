@@ -148,36 +148,6 @@ All of the following rules cover expressions that can bind variables:
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
-    A₀[x@n ≔ e₀] = A₁
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, x, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────
-    (let x : A₀ = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ let xs₁… in b₁
-
-
-    A₀[x@n ≔ e₀] = A₁
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, y, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@n ≔ e₁] = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────  ; x ≠ y
-    (let y : A₀ = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ let ys₁… in b₁
-
-
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, x, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
-    ─────────────────────────────────────────────────────────────────
-    (let x = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x = a₁ let xs₁… in b₁
-
-
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, y, 0, e₀) = e₁
-    (let ys₀… in b₀)[x@n ≔ e₁] = let ys₁… in b₁
-    ─────────────────────────────────────────────────────────────────  ; x ≠ y
-    (let y = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y = a₁ let ys₁… in b₁
-
-
 ## Imports
 
 You can substitute expressions with unresolved imports because the language

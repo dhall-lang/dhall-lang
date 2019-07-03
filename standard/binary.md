@@ -652,7 +652,7 @@ interpolated expressions:
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 In other words: the amount of encoded elements is always an odd number, with the
-odd elements being strings and the even ones being interpolated expressions.  
+odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
 
@@ -803,12 +803,11 @@ instead of `0`:
 
 ### `let` expressions
 
-`let` expressions use three list elements per binding and also use a `null` to
-represent the absence of a type annotation:
+A `let` binder is represented by a sequence of three elements: name, type annotation (`null` if absent) and bound expression. Adjacent `let` expressions are "flattened" and encoded in a single array, concatenating the immediately nested binders:
 
     encode(A₀) = A₁   encode(a₀) = a₁   encode(b₀) = b₁   ...   encode(z₀) = z₁
     ──────────────────────────────────────────────────────────────────────────────────────────
-    encode(let x : A₀ = a₀ let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
+    encode(let x : A₀ = a₀ in let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
 
 
 ### Type annotations

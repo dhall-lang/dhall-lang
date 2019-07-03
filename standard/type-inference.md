@@ -1056,31 +1056,6 @@ expression would be well-typed.
 If the `let` expression has a type annotation that doesn't match the type of
 the right-hand side of the assignment then that is a type error.
 
-A `let` expression with multiple `let` bindings is equivalent to nested `let`
-expressions:
-
-
-    Γ ⊢ a₀ : A₁
-    Γ ⊢ A₀ : i
-    A₀ ≡ A₁
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    (let xs… in b₀)[x ≔ a₂] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    Γ ⊢ b₂ : B
-    ─────────────────────────────────────
-    Γ ⊢ let x : A₀ = a₀ let xs… in b₀ : B
-
-
-    Γ ⊢ a₀ : A
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    (let xs… in b₀)[x ≔ a₂] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    Γ ⊢ b₂ : B
-    ────────────────────────────────
-    Γ ⊢ let x = a₀ let xs… in b₀ : B
-
 
 ## Type annotations
 

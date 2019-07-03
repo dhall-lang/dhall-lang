@@ -1353,26 +1353,6 @@ equivalence:
     let x = a₀ in b₀ ⇥ b₃
 
 
-A `let` expression with multiple `let` bindings is equivalent to nested `let`
-expressions:
-
-
-    ↑(1, x, 0, a₀) = a₁
-    (let xs… in b₀)[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────────────
-    let x : A = a₀ let xs… in b₀ ⇥ b₃
-
-
-    ↑(1, x, 0, a₀) = a₁
-    (let xs… in b₀)[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────────
-    let x = a₀ let xs… in b₀ ⇥ b₃
-
-
 ## Type annotations
 
 Simplify a type annotation by removing the annotation:
