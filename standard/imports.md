@@ -9,13 +9,15 @@ environment variable.  For example:
 
 in  { name = env:USER as Text  -- Expression imported from the environment
     , age  = 23
+    , publicKey = ~/.ssh/id_rsa.pub as Location  -- Path read as a Dhall expression
     , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
     } : ./schema.dhall  -- Expression imported from a file
 ```
 
 You can protect imports with integrity checks if you append SHA-256 hash (such
 as the `concatSep` import above) and you can also import a value as raw `Text`
-by appending `as Text` (such as the `env:USER` import above).
+by appending `as Text` (such as the `env:USER` import above) or as a resolved
+path by appending `as Location`.
 
 Imported expressions can transitively import other expressions.  For example,
 the `./schema.dhall` file imported above might also import other files:
@@ -280,6 +282,21 @@ their directories but prefer the file name of the child:
     ~ path₀ file₀ </> . path₁ file₁ = ~ path₂ file₁
 
 
+    path₀ </> path₁ = path₂
+    ───────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ </> . path₁ file₁ = https://authority path₂ file₁
+
+
+Implementation note: the last judgment rule above is a special case of the
+[RFC3986 section 5 resolution algorithm][RFC3986§5], which takes a relative
+reference and a base URI and returns a resolved URI.  Implementations may find
+it convenient to use a URL library to process this form of chaining.  However,
+if you use a URL resolution library routine which takes string arguments, you
+may need to percent-encode your relative references before passing them to the
+routine.
+
+[RFC3986§5]: https://tools.ietf.org/html/rfc3986#section-5
+
 If the child import begins with a "..", add that as a path component in between
 the parent and child directories:
 
@@ -304,36 +321,13 @@ the parent and child directories:
     ~ path₀ file₀ </> .. path₂ file₁ = ~ path₃ file₁
 
 
-If the parent import is a URL and the child import begins with a "." or "..",
-convert the child import to a [relative reference][RFC 3986 section 4.2] and
-resolve the reference according to the URI reference resolution algorithm
-defined in [RFC 3986 section 5][] using the parent import as a base URL:
+    path₀ </> /.. = path₁   path₁ </> path₂ = path₃
+    ────────────────────────────────────────────────────────────────────────────────
+    https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
 
 
-    rfc3986resolve(URL₀, . path₁ file₁) = URL₂
-    ──────────────────────────────────────────
-    URL₀ </> . path₁ file₁ = URL₂
-
-
-    rfc3986resolve(URL₀, .. path₁ file₁) = URL₂
-    ───────────────────────────────────────────
-    URL₀ </> .. path₁ file₁ = URL₂
-
-
-The function `rfc3986resolve(url, relative-reference)` is used as a notational
-shorthand for the algorithm defined in [RFC 3986 section 5][].  To convert an
-import to a relative reference, start with a segment of `.` or `..` as
-appropriate, then add all the segments from the import.
-
-Note that if you use a URL resolution library routine which takes string
-arguments, you may need to percent-encode your relative references before
-passing them to the routine.
-
-[RFC 3986 section 4.2]: https://tools.ietf.org/html/rfc3986#section-4.2
-[RFC 3986 section 5]: https://tools.ietf.org/html/rfc3986#section-5
-
-Note also that there is no judgment which allows a child import that begins with "/"
-or "~" to be resolved relative to a parent URL.
+The last judgment rule above is another special case of the
+[RFC3986 section 5 resolution algorithm][RFC3986§5].
 
 Import chaining preserves the header clause on the child import:
 
@@ -659,6 +653,28 @@ implies that if you an import an expression as `Text` and you also protect the
 import with a semantic integrity check then the you encode the string literal
 as a Dhall expression and then hash that.  The semantic integrity check is not a
 hash of the raw underlying text.
+
+
+If an import ends with `as Location`, import its location as a value of type
+`< Local : Text | Remote : Text | Environment : Text | Missing >` instead of
+importing the file a Dhall expression:
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    ε ⊢ child : < Local : Text | Remote : Text | Environment : Text | Missing >
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ child ⊢ Γ
+
+
+Carefully note that `child` in the above judgment is loosely used both as an
+unresolved, non-Dhall value, and as a Dhall value to represent the same data.
+
+Also note that since the expression is not resolved in any way - that is, we only
+read in its location - there's no need to check if the path exists, if it's
+referentially transparent, if it honours CORS, no header forwarding necessary, etc.
+Canonicalization and chaining are the only transformations applied to the import.
+
 
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:

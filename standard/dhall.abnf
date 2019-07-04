@@ -320,6 +320,7 @@ builtin =
 Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
 List                  = %x4c.69.73.74
+Location              = %x4c.6f.63.61.74.69.6f.6e
 
 ; Reminder of the reserved identifiers, needed for the `builtin` rule
 Bool              = %x42.6f.6f.6c
@@ -461,14 +462,26 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * this replaces `path-abempty` with `path`, so an empty path is
-;   not valid
+; * path segments may be quoted instead of using percent-encoding
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
+; * the characters "(" ")" and "," are not included in the `sub-delims` rule:
+;   in particular, these characters can't be used in authority, path or query
+;   strings.  This is because those characters have other meaning in Dhall
+;   and it would be confusing for the comma in
+;       [http://example.com/foo, bar]
+;   to be part of the URL instead of part of the list.  If you need a URL
+;   which contains parens or a comma, you must percent-encode them.
 ;
 ; Unquoted path components should be percent-decoded according to
 ; https://tools.ietf.org/html/rfc3986#section-2
-http-raw = scheme "://" authority path [ "?" query ]
+http-raw = scheme "://" authority url-path [ "?" query ]
+
+; Temporary rule to allow old-style `path-component`s and RFC3986 `segment`s in
+; the same grammar. Eventually we can just use `path-abempty` from the same
+; RFC. See issue #581
+
+url-path = *(path-component / "/" segment)
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
@@ -509,6 +522,8 @@ dec-octet = "25" %x30-35       ; 250-255
 
 reg-name = *( unreserved / pct-encoded / sub-delims )
 
+segment = *pchar
+
 pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
 
 query = *( pchar / "/" / "?" )
@@ -517,7 +532,9 @@ pct-encoded = "%" HEXDIG HEXDIG
 
 unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
-sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+; this is the RFC3986 sub-delims rule, without "(", ")" or ","
+; see comments above the `http-raw` rule above
+sub-delims = "!" / "$" / "&" / "'" / "*" / "+" / ";" / "="
 
 http = http-raw [ whsp using whsp1 import-expression ]
 
@@ -594,7 +611,7 @@ import-hashed = import-type [ whsp1 hash ]
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whsp as whsp1 Text ]
+import = import-hashed [ whsp as whsp1 (Text / Location) ]
 
 expression =
     ; "\(x : a) -> b"
