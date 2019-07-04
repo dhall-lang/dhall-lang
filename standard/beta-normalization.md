@@ -956,7 +956,9 @@ You can also project out more than one field into a new record:
     t.(s) ⇥ ts₁
 
 
-The type system ensures that the selected field(s) must be present.
+The type system ensures that the selected field(s) must be present.  The type
+system also ensures that in the expression `t.(s)`, `s` will normalize to a
+record type, so the last rule above will always match.
 
 Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
