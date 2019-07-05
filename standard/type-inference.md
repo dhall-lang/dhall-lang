@@ -763,7 +763,7 @@ of the record must have the same type.
     Γ ⊢ toMap { xs… } :⇥ List { mapKey : Text, mapValue : T₁ }
     T₀ ≡ T₁
     ──────────────────────────────────────────────────
-    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T }
+    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T₀ }
 
 
     Γ ⊢ e :⇥ {}    Γ ⊢ T₀ :⇥ List { mapKey : Text, mapValue : T₁ }
