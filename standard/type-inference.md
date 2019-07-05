@@ -759,7 +759,9 @@ The `toMap` operator cab be applied only to a record value, and every field
 of the record must have the same type.
 
 
-    Γ ⊢ e :⇥ { x : T, xs… }
+    Γ ⊢ e :⇥ { x : T₀, xs… }
+    Γ ⊢ toMap { xs… } :⇥ List { mapKey : Text, mapValue : T₁ }
+    T₀ ≡ T₁
     ──────────────────────────────────────────────────
     Γ ⊢ toMap e : List { mapKey : Text, mapValue : T }
 
