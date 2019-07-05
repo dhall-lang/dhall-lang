@@ -933,9 +933,23 @@ You can also project out more than one field into a new record:
     t.{} ⇥ {}
 
 
+Simplify a record projection if the argument is a record literal:
+
+
     t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥ { ys… }
     ──────────────────────────────────────────────
     t.{ x, xs… } ⇥ { x = v, ys… }
+
+
+Otherwise, normalize the argument and sort the fields:
+
+
+    t₀ ⇥ t₁   t₀.{ xs₀… } ⇥ t₁.{ xs₁… }
+    ───────────────────────────────────
+    t₀.{ x, xs₀… } ⇥ t₁.{ x, xs₁… }
+
+
+You can also project by type:
 
 
     s ⇥ {}
