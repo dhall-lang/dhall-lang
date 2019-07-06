@@ -1069,7 +1069,7 @@ record types:
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
-A record whose fields all have the same type (*i.e.*, a *homogenous* record) can be converted to a list where each list
+A record whose fields all have the same type (*i.e.*, a *homogeneous* record) can be converted to a list where each list
 item represents a field. The value "x" below represents the text value of the field name `x`.
 
 
