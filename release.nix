@@ -81,6 +81,20 @@ let
 
       touch $out
     '';
+
+    ensure-trailing-newlines = pkgsNew.runCommand "ensure-trailing-newlines" {} ''
+      for FILE in $(${pkgsNew.findutils}/bin/find ${./tests} -type f -name '*.dhall'); do
+        LAST_CHARACTER=$(${pkgsNew.coreutils}/bin/tail --bytes 1 "$FILE")
+
+        if [ ! -s "''${FILE}" -o "$LAST_CHARACTER" != "" ]; then
+          echo "''${FILE} is missing a trailing newline"
+
+          exit 1
+        fi
+      done
+
+      touch $out
+    '';
   };
 
   pkgs = import nixpkgs { config = {}; overlays = [ overlay ]; };
@@ -98,6 +112,7 @@ in
 
       constituents = [
         pkgs.dhall-grammar
+        pkgs.ensure-trailing-newline
         pkgs.prelude-lint
         rev
       ];
