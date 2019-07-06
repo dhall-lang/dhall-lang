@@ -681,7 +681,8 @@ the resolved expression as additional headers supplied to the HTTP request:
 
 
     (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁
-    ε ⊢ resolvedRequestHeaders : List { mapKey : Text, mapValue : Text }
+    ε ⊢ resolvedRequestHeaders : H
+    H ∈ { List { mapKey : Text, mapValue : Text }, List { header : Text, value : Text } }
     resolvedRequestHeaders ⇥ normalizedRequestHeaders
     parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
