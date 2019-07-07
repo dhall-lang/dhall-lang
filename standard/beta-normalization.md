@@ -918,6 +918,14 @@ Simplify a record selection if the argument is a record literal:
     t.x ⇥ v
 
 
+Otherwise, normalize the argument:
+
+
+    t₀ ⇥ t₁
+    ───────────  ; If no other rule matches
+    t₀.x ⇥ t₁.x
+
+
 You can also project out more than one field into a new record:
 
 
@@ -934,34 +942,23 @@ You can also project out more than one field into a new record:
     ───────────
     keys(s) ⇥ ε
 
+
     s ⇥ { x : T, ss… }
     keys(ss…) ⇥ ss₁…
     ─────────────────────
     keys(s) ⇥ x, ss₁…
 
 
-    s ⇥ { x : T, ss… }
+    s ⇥ { ss… }
     keys(s) ⇥ s₁
     t.{s₁} ⇥ ts₁
-    ───────────────
+    ────────────
     t.(s) ⇥ ts₁
 
 
-    t₀ ⇥ t₁
-    s₀ ⇥ s₁
-    ─────────────────  ; If no other rule matches
-    t₀.(s₀) ⇥ t₁.(s₁)
-
-
-The type system ensures that the selected field(s) must be present.
-
-Otherwise, normalize the argument:
-
-
-    t₀ ⇥ t₁
-    ───────────  ; If no other rule matches
-    t₀.x ⇥ t₁.x
-
+The type system ensures that the selected field(s) must be present.  The type
+system also ensures that in the expression `t.(s)`, `s` will normalize to a
+record type, so the last rule above will always match.
 
 Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
