@@ -640,8 +640,8 @@ Normalizing a `List` normalizes each field and the type annotation:
 
 
     T₀ ⇥ T₁
-    ──────────────────────────
-    [] : List T₀ ⇥ [] : List T₁
+    ─────────────────
+    [] : T₀ ⇥ [] : T₁
 
 
     t₀ ⇥ t₁   [ ts₀… ] ⇥ [ ts₁… ]
@@ -706,13 +706,13 @@ Also, simplify the "list concatenation" operator if either argument normalizes
 to an empty `List`:
 
 
-    ls ⇥ [] : List T   rs₀ ⇥ rs₁
-    ────────────────────────────
+    ls ⇥ [] : T   rs₀ ⇥ rs₁
+    ───────────────────────
     ls # rs₀ ⇥ rs₁
 
 
-    rs ⇥ [] : List T   ls₀ ⇥ ls₁
-    ────────────────────────────
+    rs ⇥ [] : T   ls₀ ⇥ ls₁
+    ───────────────────────
     ls₀ # rs ⇥ ls₁
 
 
@@ -727,8 +727,8 @@ Otherwise, normalize each argument:
 `List/length` returns the length of a list:
 
 
-    f ⇥ List/length A₀   a ⇥ [] : List A₁
-    ─────────────────────────────────────
+    f ⇥ List/length A₀   a ⇥ [] : A₁
+    ────────────────────────────────
     f a ⇥ 0
 
 
@@ -740,8 +740,8 @@ Otherwise, normalize each argument:
 `List/head` returns the first element of a list:
 
 
-    f ⇥ List/head A₀   as ⇥ [] : List A₁
-    ────────────────────────────────────
+    f ⇥ List/head A₀   as ⇥ [] : A₁
+    ───────────────────────────────
     f as ⇥ None A₀
 
 
@@ -753,8 +753,8 @@ Otherwise, normalize each argument:
 `List/last` returns the last element of a list:
 
 
-    f ⇥ List/last A₀   as ⇥ [] : List A₁
-    ────────────────────────────────────
+    f ⇥ List/last A₀   as ⇥ [] : A₁
+    ───────────────────────────────
     f as ⇥ None A₀
 
 
@@ -766,7 +766,7 @@ Otherwise, normalize each argument:
 `List/indexed` tags each element of the list with the element's index:
 
 
-    f ⇥ List/indexed A₀   as ⇥ [] : List A₁
+    f ⇥ List/indexed A₀   as ⇥ [] : A₁
     ───────────────────────────────────────────────
     f as ⇥ [] : List { index : Natural, value : A₀ }
 
@@ -779,9 +779,9 @@ Otherwise, normalize each argument:
 `List/reverse` reverses the elements of the list:
 
 
-    f ⇥ List/reverse A₀   as ⇥ [] : List A₁
-    ───────────────────────────────────────
-    f as ⇥ [] : List A₁
+    f ⇥ List/reverse A₀   as ⇥ [] : A₁
+    ──────────────────────────────────
+    f as ⇥ [] : A₁
 
 
     f ⇥ List/reverse A₀   as ⇥ [ a₀, a₁, … ]
