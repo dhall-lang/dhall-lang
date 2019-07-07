@@ -11,5 +11,5 @@
 let x = "Bar"
 
 in https://httpbin.org/headers
-     using [ { header = "Foo", value = x } ]
+     using [ { mapKey = "Foo", mapValue = x } ]
      as Text
