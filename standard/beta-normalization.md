@@ -950,7 +950,7 @@ Otherwise, normalize the argument and sort the fields:
 
 
     t₀.{ xs₀… } ⇥ t₁.{ x₀, xs₁… }
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     t₀.{ x₁, xs₀… } ⇥ t₁.{ x₁, x₀, xs₁… }
 
 
