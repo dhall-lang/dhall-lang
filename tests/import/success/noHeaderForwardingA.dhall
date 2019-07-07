@@ -3,4 +3,4 @@
    https://httpbin.org/user-agent
 -}
 https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/tests/import/success/customHeadersA.dhall
-  using [ { header = "User-Agent", value = "Secret" } ]
+  using [ { mapKey = "User-Agent", mapValue = "Secret" } ]

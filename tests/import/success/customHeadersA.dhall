@@ -1,3 +1,3 @@
 https://httpbin.org/user-agent
-  using [ { header = "User-Agent", value = "Dhall" } ]
+  using [ { mapKey = "User-Agent", mapValue = "Dhall" } ]
   as Text
