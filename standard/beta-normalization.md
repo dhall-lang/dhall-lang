@@ -944,14 +944,9 @@ Simplify a record projection if the argument is a record literal:
 Otherwise, normalize the argument and sort the fields:
 
 
-    t₀ ⇥ t₁
-    ───────────────────
-    t₀.{ x } ⇥ t₁.{ x }
-
-
-    t₀.{ xs₀… } ⇥ t₁.{ x₀, xs₁… }
-    ─────────────────────────────────────
-    t₀.{ x₁, xs₀… } ⇥ t₁.{ x₁, x₀, xs₁… }
+    t₀ ⇥ t₁   sort(xs₀) = xs₁
+    ─────────────────────────
+    t₀.{ xs₀ } ⇥ t₁.{ xs₁ }
 
 
 You can also project by type:
