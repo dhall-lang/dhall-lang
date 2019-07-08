@@ -652,7 +652,7 @@ interpolated expressions:
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 In other words: the amount of encoded elements is always an odd number, with the
-odd elements being strings and the even ones being interpolated expressions.
+odd elements being strings and the even ones being interpolated expressions.  
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
 
