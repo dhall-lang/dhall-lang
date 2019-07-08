@@ -496,7 +496,7 @@ import:
        ... because the referentially transparent remote import is trying to
        access a referentially opaque local import.
     -}
-    [ { header = "Private Key", value = ~/.ssh/id_rsa as Text } ]
+    [ { mapKey = "Private Key", mapValue = ~/.ssh/id_rsa as Text } ]
 
 
 This is also a sanity check because a referentially transparent import cannot
@@ -681,7 +681,8 @@ the resolved expression as additional headers supplied to the HTTP request:
 
 
     (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁
-    ε ⊢ resolvedRequestHeaders : List { header : Text, value : Text }
+    ε ⊢ resolvedRequestHeaders : H
+    H ∈ { List { mapKey : Text, mapValue : Text }, List { header : Text, value : Text } }
     resolvedRequestHeaders ⇥ normalizedRequestHeaders
     parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
@@ -697,7 +698,7 @@ the resolved expression as additional headers supplied to the HTTP request:
 
 For example, if `normalizedRequestHeaders` in the above judgment was:
 
-    [ { header = "Authorization", value = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
+    [ { mapKey = "Authorization", mapValue = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
     ]
 
 ... then the HTTPS request for `https://authority directory file` would

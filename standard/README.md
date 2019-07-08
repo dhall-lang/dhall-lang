@@ -114,6 +114,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / f a                               ; Function application
   / t.x                               ; Field selection
   / t.{ xs… }                         ; Field projection
+  / t.(s)                             ; Field projection by type
   / n.n                               ; Double-precision floating point literal
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
