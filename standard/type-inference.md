@@ -755,7 +755,7 @@ error.
 
 
 
-The `toMap` operator cab be applied only to a record value, and every field
+The `toMap` operator can be applied only to a record value, and every field
 of the record must have the same type.
 
 
