@@ -703,13 +703,15 @@ After that a URL import contains the following elements:
 * Then one element per path component
     * The encoded path components do not include their separating slashes
     * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
-* Then the file component
-    * Also no slashes
+    * There is always at least one path component.  If the source URL has no
+      path, [normalize it to `/`][RFC7230§2.7.3] before encoding.
 * Then one element for the query component
     * If there is no query component then it is encoded as `null`
     * If there is a query component then it is stored without the `?`
     * A query component with internal `&` separators is still one element
     * For example `?foo=1&bar=true` is stored as `"foo=1&bar=true"`
+
+[RFC7230§2.7.3]: https://tools.ietf.org/html/rfc7230#section-2.7.3
 
 The full rules are:
 
