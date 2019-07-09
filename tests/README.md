@@ -123,12 +123,17 @@ with an integrity check is fetched from cache (for example, see
 
 The tests should:
 - parse `A` and `B`
-- resolve the imports for both `A` and `B`
+- resolve the imports for both `A` and `B`, in a context with a single ancestor
+  consisting of the relative path from the parent directory of this repository
+  to the test file (for example:
+  `./dhall-lang/tests/import/success/asLocationA.dhall`)
 - the results should match
 
 Where `A` and `B` are:
 - `A`: text with unresolved imports
 - `B`: text where all the imports have been resolved, normalized and replaced with their value
+
+The ancestor ensures that the `as Location` tests chain in the expected way.
 
 ### Running `binary-decode` tests
 
