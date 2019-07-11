@@ -5,6 +5,203 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v9.0.0`
+
+Breaking changes:
+
+* [Remove old `Optional` literal syntax](https://github.com/dhall-lang/dhall-lang/pull/572)
+
+  This is phase 2 of removing support for the old `List`-like `Optional` literal
+  syntax.
+
+  This phase removes the old `Optional` literals from the language.  You now
+  must use `Some` or `None`.
+
+  For more details, including migration instructions, see:
+  [Migration: Deprecation of old `Optional` literal syntax](https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Deprecation-of-old-Optional-literal-syntax)
+
+New features:
+
+* [Implement importing paths `as Location`](https://github.com/dhall-lang/dhall-lang/pull/599)
+
+  Dhall now permits reflection on fully resolved import paths so that these
+  paths remain up-to-date no matter where the configuration file is
+  interpreted from.
+
+  For example, suppose that you store the following configuration file at
+  `/home/john/example.dhall`:
+
+  ```dhall
+  { packagePath = "./purescript-simple-json"
+  }
+  ```
+
+  ... where `packagePath` is intended to point to
+  `/home/john/purescript-simple-json`.
+
+  ... but then you use that to configure a program running with a different
+  current working directory, such as: `PWD=/home/alice/`.  That program will
+  fail to resolve the package path because `/home/alice/purescript-simple-json`
+  does not exist.
+
+  However, if you change the configuration to:
+
+  ```dhall
+  { packagePath = ./purescript-simple-json as Location
+  }
+  ```
+
+  Then the interpreter will replace the import with an expression encoding the
+  absolute path to the import, generating an expression equivalent to this:
+
+  ```dhall
+  let Location = https://prelude.dhall-lang.org/Location/Type
+
+  in  { packagePath = Location.Local "/home/john/purescript-simple-json" }
+  ```
+
+  ... so that the Dhall configuration file can be used to configure a program
+  running within any working directory.
+
+  If the same file were hosted at `https://example.com/john/example.dhall` then
+  the expression would evaluate to:
+
+  ```dhall
+  let Location = https://prelude.dhall-lang.org/Location/Type
+
+  in  { packagePath = Location.Remote "https://example.com/john/purescript-simple-json" }
+  ```
+
+* [Allow all RFC3986-compliant URLs](https://github.com/dhall-lang/dhall-lang/pull/604)
+
+  Now all URLs are valid imports.
+
+  For example, before this change `https://example.com` was not a valid import
+  due to not having any path components and after this change URLs without
+  paths are valid.
+
+  This change also enables:
+
+  * URLs with empty path components (i.e. `https://example.com///`)
+  * Path components with unquoted special characters, such as `=`
+
+* [Add `Map` type and utility functions to Prelude](https://github.com/dhall-lang/dhall-lang/pull/575)
+
+  The Prelude is now enshrining the Dhall idiom of using
+  `List { mapKey : Text, mapValue : a }` to represent homogeneous maps by
+  adding basic types and utilities for working with values of that type.
+
+  This change pairs well with the following matching changes in this release:
+
+  * [Add `toMap` keyword to create homogeneous maps from records](https://github.com/dhall-lang/dhall-lang/pull/610)
+  * [Use `Prelude/Map` for import headers](https://github.com/dhall-lang/dhall-lang/pull/611)
+
+* [Use multihash for cache filenames](https://github.com/dhall-lang/dhall-lang/pull/584)
+
+  Dhall caches imports protected by semantic integrity checks underneath
+  `${XDG_CACHE_HOME}/dhall` or `~/.cache/dhall` and this change affects the
+  names of the cache files, which are now preceded with the four characters
+  `1220` to reflect
+  [the multi-hash standard](https://github.com/multiformats/multihash#table-for-multihash).
+
+  This change means that the interpreter will not reuse old cache files when
+  upgrading from an older release, so the cache will be rebuilt upon the first
+  run of the interpreter.  However, this is not a breaking change as this does
+  not change the final result interpreting a protection protected by a semantic
+  integrity check.
+
+* [Add support for braced escape sequences](https://github.com/dhall-lang/dhall-lang/pull/580)
+
+  You can now escape Unicode characters using braces, like this:
+
+  ```dhall
+  "Musical symbol G clef: \u{1D11E}"
+  ```
+
+  This allows Dhall to escape Unicode characters with code points greater than
+  `0xFFFF` without the use of surrogate pairs.
+
+* [Prelude: Add standard representation for weakly-typed JSON values](https://github.com/dhall-lang/dhall-lang/pull/586)
+
+  Utilities like `dhall-to-{json,yaml}` and `{json,yaml}-to-dhall` have up until
+  now only supported Dhall types with schemas know ahead-of-time.  However,
+  some configuration file formats support fields that can store arbitrary JSON
+  code (such as arbitrary JSON that the configuration intends to "pass through"
+  to configure another step).
+
+  This change adds a canonical type to the Prelude for representing an arbitrary
+  JSON value and utilities for creating such JSON values.  For example:
+
+  ```dhall
+  let JSON = https://prelude.dhall-lang.org/JSON/package.dhall
+
+  in  JSON.object
+      ( toMap
+        { foo = JSON.null
+        , bar = JSON.array [ JSON.number 1.0, JSON.bool True ]
+        }
+      )
+  ```
+
+  Also, the matching release of the `dhall-json` package supports this
+  weakly-typed representation anywhere within the schema when converting
+  either way between JSON/YAML and Dhall configuration files.
+
+* Use `Prelude/Map` for import headers
+
+  You can now use a value of type `List { mapValue : Text, mapValue : Text }`
+  to represent custom headers within an import's `using` clause instead of
+  `List { header : Text, value : Text }`.  For example:
+
+  ```dhall
+  https://example.com/foo using
+    [ { mapKey   = "Authorization"
+      , mapValue = "token ${env:GITHUB_TOKEN as Text}"
+      }
+    ]
+  ```
+
+  ... or using the new `toMap` keyword:
+
+  ```dhall
+  https://example.com/foo using
+    toMap { Authorization = "token ${env:GITHUB_TOKEN as Text}" }
+  ```
+
+  The old `header`/`value` form is still supported, so this is not a breaking
+  change.  However, at some point in the future we may initiate the process of
+  deprecating `header`/`value` support.
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Use RFC3986 section 5 URL resolution algorithm](https://github.com/dhall-lang/dhall-lang/pull/593)
+  * [Simpler way of incorporating RFC 3986 resolution](https://github.com/dhall-lang/dhall-lang/pull/603)
+  * [Only allow valid HTTP(S) reg-names](https://github.com/dhall-lang/dhall-lang/pull/627)
+  * [Clarify how semantic integrity checks work for `as Text`](https://github.com/dhall-lang/dhall-lang/pull/574)
+  * [Normalize projection-by-expression via projection](https://github.com/dhall-lang/dhall-lang/pull/589)
+  * [Fix mistake in `let` type-checking documentation](https://github.com/dhall-lang/dhall-lang/pull/596)
+  * [Fix type inference rule for projection by type](https://github.com/dhall-lang/dhall-lang/pull/597)
+  * [Tidy up record projection](https://github.com/dhall-lang/dhall-lang/pull/601)
+
+* Fixes and improvements to standard test suite:
+
+  * [Test for fetching imports from cache](https://github.com/dhall-lang/dhall-lang/pull/569)
+  * [Add a bunch of binary decode tests](https://github.com/dhall-lang/dhall-lang/pull/582)
+  * [Fix `parenthesizeUsing` parser test](https://github.com/dhall-lang/dhall-lang/pull/587)
+  * [Fix projection by expression parser test and add more](https://github.com/dhall-lang/dhall-lang/pull/588)
+  * [Commuting operators should not normalize commuted](https://github.com/dhall-lang/dhall-lang/pull/592)
+  * [Fix normalization test for `Prelude/JSON/Type`](https://github.com/dhall-lang/dhall-lang/pull/599)
+  * [Fix normalization tests containing unbound variables](https://github.com/dhall-lang/dhall-lang/pull/605)
+  * [Fix `as Location` tests](https://github.com/dhall-lang/dhall-lang/pull/612)
+  * [Add test to ensure that `constructors` doesn't typecheck anymore](https://github.com/dhall-lang/dhall-lang/pull/620)
+
+* Fixes and improvements to the Prelude:
+
+  * [Map fix doc](https://github.com/dhall-lang/dhall-lang/pull/595)
+  * [Relocate `./Prelude/Map.dhall` to `./Prelude/Map/Type.dhall](https://github.com/dhall-lang/dhall-lang/pull/608)
+
 ## `v8.0.0`
 
 Breaking changes:
@@ -65,7 +262,7 @@ Breaking changes:
   or leading tabs are now interpreted differently.  However, expressions that
   padded blank lines with leading whitespace are unaffected by this change.
 
-* [Simplify bare interpolations](https://github.com/dhall-lang/dhall-lang/pull/515/files)
+* [Simplify bare interpolations](https://github.com/dhall-lang/dhall-lang/pull/515)
 
   String literals that do nothing but interpolate a single expression are now
   simplified to that expression.
@@ -950,7 +1147,7 @@ Other changes:
 
     * [Fix Sort / Kind mistake](https://github.com/dhall-lang/dhall-lang/pull/277)
     * [Typo in binary.md](https://github.com/dhall-lang/dhall-lang/pull/283)
-    * [Small fixes to import semantics section](https://github.com/dhall-lang/dhall-lang/pull/289/files)
+    * [Small fixes to import semantics section](https://github.com/dhall-lang/dhall-lang/pull/289)
 
 ## `v3.0.0`
 
