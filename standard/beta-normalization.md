@@ -1080,7 +1080,7 @@ The `toMap` application can be annotated with a type, and it must be if the reco
 
     t ⇥ { x = v, ts… }   toMap { ts } ⇥ m   T₀ ⇥ T₁
     ────────────────────────────────────────────────────────────
-    toMap t : T₀ ⇥ ( [ {mapKey = "x", mapValue = v} ] # m ) : T₁
+    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
 
 
     t ⇥ {=}   T₀ ⇥ T₁
