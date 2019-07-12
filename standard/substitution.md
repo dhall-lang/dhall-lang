@@ -234,6 +234,16 @@ The remaining rules are:
     (merge t₀ u₀)[x@n ≔ e] = merge t₁ u₁
 
 
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
+    ────────────────────────────────────────
+    (toMap t₀ : T₀)[x@n ≔ e] = toMap t₁ : T₁
+
+
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────
+    (toMap t₀)[x@n ≔ e] = toMap t₁
+
+
     T₀[x@n ≔ e] = T₁
     ──────────────────────────────────────
     ([] : List T₀)[x@n ≔ e] = [] : List T₁
@@ -522,4 +532,3 @@ The remaining rules are:
 
     ────────────────────
     Sort[x@n ≔ e] = Sort
-

@@ -1066,6 +1066,41 @@ record types:
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
+A record whose fields all have the same type (*i.e.*, a *homogeneous* record) can be converted to a list where each list
+item represents a field. The value "x" below represents the text value of the field name `x`.
+
+
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
+    ──────────────────────────────────────────────
+    toMap t ⇥ [ {mapKey = "x", mapValue = v} ] # m
+
+
+The `toMap` application can be annotated with a type, and it must be if the record is empty.
+
+
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
+    ───────────────────────────────────────────────────
+    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
+
+
+    t ⇥ {=}   T₀ ⇥ T₁
+    ──────────────────────
+    toMap t : T₀ ⇥ [] : T₁
+
+
+If the record or the type is abstract, then normalize each subexpression:
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁
+    ─────────────────────────────  ; If no other rule matches
+    toMap t₀ : T₀ ⇥ toMap t₁ : T₁
+
+
+    t₀ ⇥ t₁
+    ───────────────────  ; If no other rule matches
+    toMap t₀ ⇥ toMap t₁
+
+
 ## Unions
 
 Normalizing a union type sorts the alternatives and normalizes the type of each
@@ -1383,4 +1418,3 @@ Simplify a type annotation by removing the annotation:
 ## Imports
 
 An expression with unresolved imports cannot be β-normalized.
-

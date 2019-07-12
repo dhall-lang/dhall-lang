@@ -273,6 +273,7 @@ missing               = %x6d.69.73.73.69.6e.67
 Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
+toMap                 = %x74.6f.4d.61.70
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -281,7 +282,7 @@ keyword =
     / let / in
     / using / missing / as
     / Infinity / NaN
-    / merge / Some
+    / merge / Some / toMap
 
 builtin =
       Natural-fold
@@ -581,7 +582,7 @@ bash-environment-variable = (ALPHA / "_") *(ALPHANUM / "_")
 ; character like `env`
 posix-environment-variable = 1*posix-environment-variable-character
 
-; These are all the characters from the POSIX Portable Character Set except for 
+; These are all the characters from the POSIX Portable Character Set except for
 ; '\0' (NUL) and '='.  Note that the POSIX standard does not explicitly state
 ; that environment variable names cannot have NUL.  However, this is implicit
 ; in the fact that environment variables are passed to the program as
@@ -652,6 +653,12 @@ expression =
     ; a non-empty list
     / "[" whsp "]" whsp ":" whsp1 List whsp import-expression
     
+    ; "toMap e : t"
+    ;
+    ; NOTE: Backtrack if parsing this alternative fails since we can't tell
+    ; from the keyword whether there will be a type annotation or not
+    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
+    
     ; "x : t"
     / annotated-expression
 
@@ -690,6 +697,9 @@ first-application-expression =
     
     ; "Some e"
     / Some whsp1 import-expression
+    
+    ; "toMap e"
+      toMap whsp1 import-expression
     
     / import-expression
 
