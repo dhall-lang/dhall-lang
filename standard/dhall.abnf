@@ -142,6 +142,8 @@ ALPHA = %x41-5A / %x61-7A
 ; ASCII digit
 DIGIT = %x30-39  ; 0-9
 
+ALPHANUM = ALPHA / DIGIT
+
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 ; A simple label cannot be one of the reserved keywords
@@ -488,7 +490,7 @@ authority = [ userinfo "@" ] host [ ":" port ]
 
 userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 
-host = IP-literal / IPv4address / reg-name
+host = IP-literal / IPv4address / domain
 
 port = *DIGIT
 
@@ -520,7 +522,11 @@ dec-octet = "25" %x30-35       ; 250-255
           / %x31-39 DIGIT      ; 10-99
           / DIGIT              ; 0-9
 
-reg-name = *( unreserved / pct-encoded / sub-delims )
+; Look in RFC3986 3.2.2 for
+; "A registered name intended for lookup in the DNS"
+domain = *(domainlabel ".") domainlabel [ "." ]
+
+domainlabel = ALPHANUM *(((ALPHANUM / 1*"-") ALPHANUM) / ALPHANUM)
 
 segment = *pchar
 
@@ -550,7 +556,7 @@ env = "env:"
 ;
 ; > A word consisting only of  alphanumeric  characters  and  under-scores,  and
 ; > beginning with an alphabetic character or an under-score
-bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
+bash-environment-variable = (ALPHA / "_") *(ALPHANUM / "_")
 
 ; The POSIX standard is significantly more flexible about legal environment
 ; variable names, which can contain alerts (i.e. '\a'), whitespace, or
