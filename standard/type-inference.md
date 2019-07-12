@@ -762,12 +762,12 @@ of the record must have the same type.
     Γ ⊢ e :⇥ { x : T₀, xs… }
     Γ ⊢ toMap { xs… } :⇥ List { mapKey : Text, mapValue : T₁ }
     T₀ ≡ T₁
-    ──────────────────────────────────────────────────
+    ──────────────────────────────────────────────────────────
     Γ ⊢ toMap e : List { mapKey : Text, mapValue : T₀ }
 
 
     Γ ⊢ e :⇥ {}    Γ ⊢ T₀ :⇥ List { mapKey : Text, mapValue : T₁ }
-    ────────────────────────────
+    ──────────────────────────────────────────────────────────────
     Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
 
 

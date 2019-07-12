@@ -549,3 +549,4 @@ The remaining rules are:
 
     ───────────────────────
     ↑(d, x, m, Sort) = Sort
+
