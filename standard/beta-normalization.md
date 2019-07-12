@@ -1078,7 +1078,7 @@ item represents a field. The value "x" below represents the text value of the fi
 The `toMap` application can be annotated with a type, and it must be if the record is empty.
 
 
-    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m   T₀ ⇥ T₁
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
     ────────────────────────────────────────────────────────────
     toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
 
