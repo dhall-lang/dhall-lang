@@ -622,9 +622,7 @@ expression =
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
-    ; We allow dropping the `in` between adjacent let-expressions; the following are equivalent:
     ; "let x = e1 let y = e2 in e3"
-    ; "let x = e1 in let y = e2 in e3"
     / 1*let-binding in whsp1 expression
     
     ; "forall (x : a) -> b"
