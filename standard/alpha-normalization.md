@@ -116,38 +116,6 @@ capture:
     let x = a₀ in b₀ ↦ let _ = a₁ in b₄
 
 
-    a₀ ↦ a₁
-    A₀ ↦ A₁
-    let xs₀… in b₀ ↦ let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────
-    let _ : A₀ = a₀ let xs₀… in b₀ ↦ let _ : A₁ = a₁ let xs₁… in b₁
-
-
-    a₀ ↦ a₁
-    A₀ ↦ A₁
-    ↑(1, _, 0, b₀) = b₁
-    b₁[x ≔ _] = b₂
-    ↑(-1, x, 0, b₂) = b₃
-    let xs₀… in b₃ ↦ let xs₁… in b₄
-    ───────────────────────────────────────────────────────────────  ; x ≠ _
-    let x : A₀ = a₀ let xs₀… in b₀ ↦ let _ : A₁ = a₁ let xs₁… in b₄
-
-
-    a₀ ↦ a₁
-    let xs₀… in b₀ ↦ let xs₁… in b₁
-    ─────────────────────────────────────────────────────
-    let _ = a₀ let xs₀… in b₀ ↦ let _ = a₁ let xs₁… in b₁
-
-
-    a₀ ↦ a₁
-    ↑(1, _, 0, b₀) = b₁
-    b₁[x ≔ _] = b₂
-    ↑(-1, x, 0, b₂) = b₃
-    let xs₀… in b₃ ↦ let xs₁… in b₄
-    ─────────────────────────────────────────────────────  ; x ≠ _
-    let x = a₀ let xs₀… in b₀ ↦ let _ = a₁ let xs₁… in b₄
-
-
 ## Variables
 
 Variables are already in α-normal form:
@@ -186,6 +154,16 @@ sub-expressions for the remaining rules:
     t₀ ↦ t₁   u₀ ↦ u₁
     ─────────────────────────
     merge t₀ u₀ ↦ merge t₁ u₁
+
+
+    t₀ ↦ t₁   T₀ ↦ T₁
+    ─────────────────────────────
+    toMap t₀ : T₀ ↦ toMap t₁ : T₁
+
+
+    t₀ ↦ t₁
+    ───────────────────
+    toMap t₀ ↦ toMap t₁
 
 
     T₀ ↦ T₁
@@ -476,5 +454,3 @@ sub-expressions for the remaining rules:
 
     ───────────
     Sort ↦ Sort
-
-
