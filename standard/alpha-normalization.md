@@ -156,6 +156,16 @@ sub-expressions for the remaining rules:
     merge t₀ u₀ ↦ merge t₁ u₁
 
 
+    t₀ ↦ t₁   T₀ ↦ T₁
+    ─────────────────────────────
+    toMap t₀ : T₀ ↦ toMap t₁ : T₁
+
+
+    t₀ ↦ t₁
+    ───────────────────
+    toMap t₀ ↦ toMap t₁
+
+
     T₀ ↦ T₁
     ───────────────────────────
     [] : List T₀ ↦ [] : List T₁
@@ -444,5 +454,3 @@ sub-expressions for the remaining rules:
 
     ───────────
     Sort ↦ Sort
-
-
