@@ -142,6 +142,8 @@ ALPHA = %x41-5A / %x61-7A
 ; ASCII digit
 DIGIT = %x30-39  ; 0-9
 
+ALPHANUM = ALPHA / DIGIT
+
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 ; A simple label cannot be one of the reserved keywords
@@ -271,6 +273,7 @@ missing               = %x6d.69.73.73.69.6e.67
 Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
+toMap                 = %x74.6f.4d.61.70
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -279,7 +282,7 @@ keyword =
     / let / in
     / using / missing / as
     / Infinity / NaN
-    / merge / Some
+    / merge / Some / toMap
 
 builtin =
       Natural-fold
@@ -488,7 +491,7 @@ authority = [ userinfo "@" ] host [ ":" port ]
 
 userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 
-host = IP-literal / IPv4address / reg-name
+host = IP-literal / IPv4address / domain
 
 port = *DIGIT
 
@@ -520,7 +523,11 @@ dec-octet = "25" %x30-35       ; 250-255
           / %x31-39 DIGIT      ; 10-99
           / DIGIT              ; 0-9
 
-reg-name = *( unreserved / pct-encoded / sub-delims )
+; Look in RFC3986 3.2.2 for
+; "A registered name intended for lookup in the DNS"
+domain = *(domainlabel ".") domainlabel [ "." ]
+
+domainlabel = ALPHANUM *(((ALPHANUM / 1*"-") ALPHANUM) / ALPHANUM)
 
 segment = *pchar
 
@@ -550,7 +557,7 @@ env = "env:"
 ;
 ; > A word consisting only of  alphanumeric  characters  and  under-scores,  and
 ; > beginning with an alphabetic character or an under-score
-bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
+bash-environment-variable = (ALPHA / "_") *(ALPHANUM / "_")
 
 ; The POSIX standard is significantly more flexible about legal environment
 ; variable names, which can contain alerts (i.e. '\a'), whitespace, or
@@ -575,7 +582,7 @@ bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
 ; character like `env`
 posix-environment-variable = 1*posix-environment-variable-character
 
-; These are all the characters from the POSIX Portable Character Set except for 
+; These are all the characters from the POSIX Portable Character Set except for
 ; '\0' (NUL) and '='.  Note that the POSIX standard does not explicitly state
 ; that environment variable names cannot have NUL.  However, this is implicit
 ; in the fact that environment variables are passed to the program as
@@ -622,7 +629,9 @@ expression =
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
+    ; We allow dropping the `in` between adjacent let-expressions; the following are equivalent:
     ; "let x = e1 let y = e2 in e3"
+    ; "let x = e1 in let y = e2 in e3"
     / 1*let-binding in whsp1 expression
     
     ; "forall (x : a) -> b"
@@ -645,6 +654,12 @@ expression =
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
     / "[" whsp "]" whsp ":" whsp1 List whsp import-expression
+    
+    ; "toMap e : t"
+    ;
+    ; NOTE: Backtrack if parsing this alternative fails since we can't tell
+    ; from the keyword whether there will be a type annotation or not
+    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
     
     ; "x : t"
     / annotated-expression
@@ -684,6 +699,9 @@ first-application-expression =
     
     ; "Some e"
     / Some whsp1 import-expression
+    
+    ; "toMap e"
+      toMap whsp1 import-expression
     
     / import-expression
 
