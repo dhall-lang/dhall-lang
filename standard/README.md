@@ -97,7 +97,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / if t then l else r                ; if-then-else expression
   / merge t u : T                     ; Union elimination with type annotation
   / merge t u                         ; Union elimination
-  / [] : List T                       ; Empty list literals with type annotation
+  / [] : T                            ; Empty list literals with type annotation
   / [ t, ts… ]                        ; Non-empty list literals
   / t : T                             ; Type annotation
   / l || r                            ; Boolean or
@@ -211,10 +211,6 @@ t          : Naked label which could be any type of expression.
                              pairs.  The specified alternative is named `x₀ with
                              value of `t₀`.  At least one alternative is named
                              `x₁` with a type of `T₁`.
-
-
-let xs… in b                : A `let` definition with at least one bindings
-let x : A = a let xs… in b  : A `let` definition with at least two bindings
 
 "s"           : A `Text` literal without any interpolated expressions
 "s${t}ss…"    : A `Text` literal with at least one interpolated expression
