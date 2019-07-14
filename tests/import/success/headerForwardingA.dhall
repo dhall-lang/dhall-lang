@@ -13,4 +13,4 @@
    Prelude changes (sorry)
 -}
 https://test.dhall-lang.org/Bool/package.dhall
-  using [ { header = "Test", value = "Example" } ]
+  using [ { mapKey = "Test", mapValue = "Example" } ]

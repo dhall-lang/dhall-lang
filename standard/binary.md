@@ -460,6 +460,22 @@ have a type annotation:
     encode(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
 
 
+### `toMap` expressions
+
+`toMap` expressions differ in their encoding depending on whether or not they
+have a type annotation:
+
+
+    encode(t₀) = t₁
+    ─────────────────────────────
+    encode(toMap t₀) = [ 27, t₁ ]
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ──────────────────────────────────────
+    encode(toMap t₀ : T₀) = [ 27, t₁, T₁ ]
+
+
 ### Records
 
 Dhall record types translate to CBOR maps:
@@ -652,7 +668,7 @@ interpolated expressions:
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 In other words: the amount of encoded elements is always an odd number, with the
-odd elements being strings and the even ones being interpolated expressions.  
+odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
 
@@ -803,12 +819,11 @@ instead of `0`:
 
 ### `let` expressions
 
-`let` expressions use three list elements per binding and also use a `null` to
-represent the absence of a type annotation:
+A `let` binder is represented by a sequence of three elements: name, type annotation (`null` if absent) and bound expression. Adjacent `let` expressions are "flattened" and encoded in a single array, concatenating the immediately nested binders:
 
     encode(A₀) = A₁   encode(a₀) = a₁   encode(b₀) = b₁   ...   encode(z₀) = z₁
     ──────────────────────────────────────────────────────────────────────────────────────────
-    encode(let x : A₀ = a₀ let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
+    encode(let x : A₀ = a₀ in let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
 
 
 ### Type annotations
@@ -1177,6 +1192,21 @@ Decode a CBOR array beginning with a `6` as a `merge` expression:
     decode(t₁) = t₀   decode(u₁) = u₀   decode(T₁) = T₀
     ───────────────────────────────────────────────────────────────
     decode([ 6, t₁, u₁, T₁ ]) = merge t₀ u₀ : T₀
+
+
+### `toMap` expressions
+
+Decode a CBOR array beginning with a `27` as a `toMap` expression:
+
+
+    decode(t₁) = t₀
+    ─────────────────────────────
+    decode([ 27, t₁ ]) = toMap t₀
+
+
+    decode(t₁) = t₀   decode(T₁) = T₀
+    ──────────────────────────────────────
+    decode([ 27, t₁, T₁ ]) = toMap t₀ : T₀
 
 
 ### Records
