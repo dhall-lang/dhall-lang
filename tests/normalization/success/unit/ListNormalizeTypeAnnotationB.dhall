@@ -1,1 +1,1 @@
-[] : List x
+[] : List Bool
