@@ -97,7 +97,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / if t then l else r                ; if-then-else expression
   / merge t u : T                     ; Union elimination with type annotation
   / merge t u                         ; Union elimination
-  / [] : List T                       ; Empty list literals with type annotation
+  / [] : T                            ; Empty list literals with type annotation
   / [ t, ts… ]                        ; Non-empty list literals
   / t : T                             ; Type annotation
   / l || r                            ; Boolean or

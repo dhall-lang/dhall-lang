@@ -167,8 +167,8 @@ sub-expressions for the remaining rules:
 
 
     T₀ ↦ T₁
-    ───────────────────────────
-    [] : List T₀ ↦ [] : List T₁
+    ─────────────────
+    [] : T₀ ↦ [] : T₁
 
 
     t₀ ↦ t₁   [ ts₀… ] ↦ [ ts₁… ]
