@@ -426,6 +426,14 @@ Empty `List`s only store their type:
     encode([] : List T₀) = [ 4, T₁ ]
 
 
+If the type annotation is not of the form `List T`:
+
+
+    encode(T₀) = T₁
+    ────────────────────────────
+    encode([] : T₀) = [ 27, T₁ ]
+
+
 Non-empty `List`s don't store their type, but do store their elements inline:
 
 
@@ -1159,6 +1167,11 @@ If the list is empty, then the type MUST be non-`null`:
     decode(T₁) = T₀
     ────────────────────────────────────
     decode([ 4, T₁ ]) = [] : List T₀
+
+
+    decode(T₁) = T₀
+    ────────────────────────────
+    decode([ 27, T₁ ]) = [] : T₀
 
 
 If the list is non-empty then the type MUST be `null`:
