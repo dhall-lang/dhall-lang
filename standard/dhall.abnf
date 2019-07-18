@@ -154,7 +154,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ;       keyword 1*simple-label-next-char
 ;     / !keyword (simple-label-first-char *simple-label-next-char)
 simple-label-first-char = ALPHA / "_"
-simple-label-next-char = ALPHA / DIGIT / "-" / "/" / "_"
+simple-label-next-char = ALPHANUM / "-" / "/" / "_"
 simple-label = simple-label-first-char *simple-label-next-char
 
 quoted-label-char =
@@ -537,7 +537,7 @@ query = *( pchar / "/" / "?" )
 
 pct-encoded = "%" HEXDIG HEXDIG
 
-unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+unreserved  = ALPHANUM / "-" / "." / "_" / "~"
 
 ; this is the RFC3986 sub-delims rule, without "(", ")" or ","
 ; see comments above the `http-raw` rule above
