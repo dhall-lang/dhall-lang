@@ -404,6 +404,10 @@ The remaining rules are:
     Natural/show[x@n ≔ e] = Natural/show
 
 
+    ──────────────────────────────────────────────────────────────
+    Natural/truncatedSubtract[x@n ≔ e] = Natural/truncatedSubtract
+
+
     ────────────────────────────────────────────
     Integer/toDouble[x@n ≔ e] = Integer/toDouble
 

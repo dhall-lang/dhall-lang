@@ -420,6 +420,10 @@ The remaining rules are:
     ↑(d, x, m, Natural/toInteger) = Natural/toInteger
 
 
+    ─────────────────────────────────────────────────────────────────
+    ↑(d, x, m, Natural/truncatedSubtract) = Natural/truncatedSubtract
+
+
     ───────────────────────────────────────
     ↑(d, x, m, Natural/show) = Natural/show
 

@@ -485,6 +485,20 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+`Natural/truncatedSubtract` performs truncating subtraction, as in
+[saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
+
+
+    f ⇥ Natural/truncatedSubtract   a ⇥ n  b ⇥ n
+    ────────────────────────────────────────────  ; a >= b, where >= is natural number greater-than-or-equal-to comparison
+    f a b ⇥ a - b
+
+
+    f ⇥ Natural/truncatedSubtract   a ⇥ n  b ⇥ n
+    ────────────────────────────────────────────  ; otherwise
+    f a b ⇥ 0
+
+
 All of the built-in functions on `Natural` numbers are in normal form:
 
 

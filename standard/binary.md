@@ -209,6 +209,10 @@ matching their identifier.
     encode(Natural/show) = "Natural/show"
 
 
+    ───────────────────────────────────────────────────────────────
+    encode(Natural/truncatedSubtract) = "Natural/truncatedSubtract"
+
+
     ─────────────────────────────────────────────────
     encode(Integer/toDouble) = "Integer/toDouble"
 
