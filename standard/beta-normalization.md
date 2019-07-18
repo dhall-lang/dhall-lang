@@ -490,8 +490,8 @@ valid Dhall code for representing that `Natural` number:
 
 
     f ⇥ Natural/truncatedSubtract   a ⇥ n  b ⇥ n
-    ────────────────────────────────────────────  ; a >= b, where >= is natural number greater-than-or-equal-to comparison
-    f a b ⇥ a - b
+    ────────────────────────────────────────────  ; b >= a, where >= is natural number greater-than-or-equal-to comparison
+    f a b ⇥ b - a
 
 
     f ⇥ Natural/truncatedSubtract   a ⇥ n  b ⇥ n
