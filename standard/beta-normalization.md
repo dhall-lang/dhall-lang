@@ -954,17 +954,17 @@ You can also project by type:
 
     s ⇥ {}
     ───────────
-    keys(s) ⇥ ε
+    keys(s) = ε
 
 
     s ⇥ { x : T, ss… }
-    keys(ss…) ⇥ ss₁…
+    keys(ss…) = ss₁…
     ─────────────────────
-    keys(s) ⇥ x, ss₁…
+    keys(s) = x, ss₁…
 
 
     s ⇥ { ss… }
-    keys(s) ⇥ s₁
+    keys(s) = s₁
     t.{s₁} ⇥ ts₁
     ────────────
     t.(s) ⇥ ts₁
