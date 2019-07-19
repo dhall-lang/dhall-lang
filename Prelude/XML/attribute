@@ -1,0 +1,3 @@
+{- Builds a key-value record with a Text key and value. -}
+
+λ(key : Text) → λ(value : Text) → { mapKey = key, mapValue = value }
