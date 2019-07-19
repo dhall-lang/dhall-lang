@@ -485,7 +485,7 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
-`Natural/truncatedSubtract` performs truncating subtraction, as in
+`Natural/subtract` performs truncating subtraction, as in
 [saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
 
 
