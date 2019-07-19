@@ -209,8 +209,8 @@ matching their identifier.
     encode(Natural/show) = "Natural/show"
 
 
-    ───────────────────────────────────────────────────────────────
-    encode(Natural/truncatedSubtract) = "Natural/truncatedSubtract"
+    ─────────────────────────────────────────────
+    encode(Natural/subtract) = "Natural/subtract"
 
 
     ─────────────────────────────────────────────────

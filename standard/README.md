@@ -151,7 +151,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
   / Natural/show                      ; Convert Natural to Text representation
-  / Natural/truncatedSubtract         ; Perform truncated subtraction on two Naturals
+  / Natural/subtract                  ; Perform truncated subtraction on two Naturals
   / Integer/toDouble                  ; Convert Integer to Double
   / Integer/show                      ; Convert Integer to Text representation
   / Double/show                       ; Convert Double to Text representation

@@ -356,8 +356,8 @@ sub-expressions for the remaining rules:
     Natural/show ↦ Natural/show
 
 
-    ─────────────────────────────────────────────────────
-    Natural/truncatedSubtract ↦ Natural/truncatedSubtract
+    ───────────────────────────────────
+    Natural/subtract ↦ Natural/subtract
 
 
     ───────────────────────────────────

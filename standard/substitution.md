@@ -404,8 +404,8 @@ The remaining rules are:
     Natural/show[x@n ≔ e] = Natural/show
 
 
-    ──────────────────────────────────────────────────────────────
-    Natural/truncatedSubtract[x@n ≔ e] = Natural/truncatedSubtract
+    ────────────────────────────────────────────
+    Natural/subtract[x@n ≔ e] = Natural/subtract
 
 
     ────────────────────────────────────────────
