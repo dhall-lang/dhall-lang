@@ -59,8 +59,15 @@ Where `A` and `B` are:
 - `B`: the binary representation of the Dhall-CBOR-encoded expression
 
 *Note*: since the tests are binary-encoded, they are not the friendliest to debug.  
-For this reason, you might want to look at the `diff-binary.sh` script to help
-with the debugging.
+For this reason, you should use [`cbor2diag`](https://github.com/cabo/cbor-diag)
+to diff them.
+It's also recommended you add the following snippet to your `git` config, to get
+meaningful diffs from `git diff`:
+```
+[diff "cbor"]
+    textconv = cbor2diag.rb
+    binary = true
+```
 
 ### Running `normalization` tests
 
