@@ -578,9 +578,9 @@ dec-octet = "25" %x30-35       ; 250-255
 
 ; Look in RFC3986 3.2.2 for
 ; "A registered name intended for lookup in the DNS"
-domain = *(domainlabel ".") domainlabel [ "." ]
+domain = domainlabel *("." domainlabel) [ "." ]
 
-domainlabel = ALPHANUM *(((ALPHANUM / 1*"-") ALPHANUM) / ALPHANUM)
+domainlabel = 1*ALPHANUM *(1*"-" 1*ALPHANUM)
 
 segment = *pchar
 
