@@ -754,7 +754,7 @@ first-application-expression =
     / Some whsp1 import-expression
     
     ; "toMap e"
-      toMap whsp1 import-expression
+    / toMap whsp1 import-expression
     
     / import-expression
 
