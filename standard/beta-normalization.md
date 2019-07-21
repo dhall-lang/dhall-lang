@@ -497,8 +497,17 @@ valid Dhall code for representing that `Natural` number:
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ; otherwise
+    ────────────────────────────────────  ; if b < a
     f a b ⇥ 0
+
+
+Otherwise, normalize each argument:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ───────────────────────────────────────────────  ; If no other rule matches
+    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+
 
 
 All of the built-in functions on `Natural` numbers are in normal form:
@@ -530,6 +539,10 @@ All of the built-in functions on `Natural` numbers are in normal form:
 
     ───────────────────────────
     Natural/show ⇥ Natural/show
+
+
+    ───────────────────────────
+    Natural/subtract ⇥ Natural/subtract
 
 
 ## `Text`
