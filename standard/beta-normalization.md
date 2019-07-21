@@ -555,7 +555,7 @@ All of the built-in functions on `Natural` numbers are in normal form:
     Natural/show ⇥ Natural/show
 
 
-    ───────────────────────────
+    ───────────────────────────────────
     Natural/subtract ⇥ Natural/subtract
 
 
