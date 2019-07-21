@@ -3,9 +3,9 @@
 let
   nixpkgs =
     builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/804060ff9a79ceb0925fe9ef79ddbf564a225d47.tar.gz";
+      url = "https://github.com/NixOS/nixpkgs/archive/55b8860aa209e987f6f15c523811e4861d97d6af.tar.gz";
 
-      sha256 = "0ga345hgw6v2kzyhvf5kw96hf60mx5pbd9c4qj5q4nan4lr7nkxn";
+      sha256 = "0ri58704vwv6gnyw33vjirgnvh2f1201vbflk0ydj5ff7vpyy7hf";
     };
 
   overlay = pkgsNew: pkgsOld: {
@@ -62,6 +62,17 @@ let
           touch $out
         '';
 
+    expected-diagnostic-files =
+      pkgsNew.runCommand "expected-diagnostic-files" {} ''
+        ${pkgsNew.rsync}/bin/rsync --archive ${./tests}/ "$out"
+
+        ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
+
+        for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f -name '*.dhallb'); do
+          ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
+        done
+      '';
+
     expected-prelude = pkgsNew.runCommand "expected-prelude" {} ''
       ${pkgsNew.rsync}/bin/rsync --archive ${./Prelude}/ "$out"
 
@@ -71,6 +82,15 @@ let
         ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
         XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
       done
+    '';
+
+    diagnostic-files-lint = pkgsNew.runCommand "diagnostic-files-lint" {} ''
+      ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-diagnostic-files}/ ./tests.expected
+      ${pkgsNew.rsync}/bin/rsync --archive ${./tests}/ ./tests.actual
+
+      ${pkgsNew.diffutils}/bin/diff --recursive ./tests.{actual,expected}
+
+      touch $out
     '';
 
     prelude-lint = pkgsNew.runCommand "prelude-lint" {} ''
@@ -114,9 +134,10 @@ in
         pkgs.dhall-grammar
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
+        pkgs.diagnostic-files-lint
         rev
       ];
     };
 
-    inherit (pkgs) expected-prelude;
+    inherit (pkgs) expected-prelude expected-diagnostic-files;
   }
