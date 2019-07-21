@@ -431,7 +431,7 @@ If the type annotation is not of the form `List T`:
 
     encode(T₀) = T₁
     ────────────────────────────
-    encode([] : T₀) = [ 27, T₁ ]
+    encode([] : T₀) = [ 28, T₁ ]
 
 
 Non-empty `List`s don't store their type, but do store their elements inline:
@@ -1159,7 +1159,7 @@ Decode a CBOR array beginning with a `3` as an operator expression:
 
 ### `List`
 
-Decode a CBOR array beginning with a `4` as a `List` literal
+Decode a CBOR array beginning with a `4` or a `28` as a `List` literal
 
 If the list is empty, then the type MUST be non-`null`:
 
@@ -1171,7 +1171,7 @@ If the list is empty, then the type MUST be non-`null`:
 
     decode(T₁) = T₀
     ────────────────────────────
-    decode([ 27, T₁ ]) = [] : T₀
+    decode([ 28, T₁ ]) = [] : T₀
 
 
 If the list is non-empty then the type MUST be `null`:
