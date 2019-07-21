@@ -3,30 +3,25 @@
 ```
 let XML = ./package.dhall
 
-in  XML.render (XML.leaf { name = "foobar", attributes = XML.emptyAttributes })
+in  XML.render (XML.leaf { tag = "foobar", attributes = XML.emptyAttributes })
 
 = "<foobar/>"
 ```
 -}
 
 let XML =
-        ./Type sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+        ./Type sha256:7391450c05bd375f6190dd0a356f67524eb73cf0956b6401346ed6f287c41f3a
       ? ./Type
 
 let element =
-        ./element sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
+        ./element sha256:6f1f5d0de9b9f7cc5bc8a0f40ba64d10faf7519815c04eaf7eed17338f211265
       ? ./element
 
 let leaf
-    :   { attributes : List { mapKey : Text, mapValue : Text }, name : Text }
-      → XML
+    : { attributes : List { mapKey : Text, mapValue : Text }, tag : Text } → XML
     =   λ ( elem
-          : { attributes :
-                List { mapKey : Text, mapValue : Text }
-            , name :
-                Text
-            }
+          : { attributes : List { mapKey : Text, mapValue : Text }, tag : Text }
           )
-      → element (elem ⫽ { content = [] : List XML })
+      → element (elem ∧ { content = [] : List XML })
 
 in  leaf

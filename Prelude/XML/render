@@ -12,9 +12,9 @@ let XML = ./package.dhall
 
 in  XML.render
     ( XML.node
-      { name = "foo"
+      { tag = "foo"
       , attributes = [ XML.attribute "a" "x", XML.attribute "b" (Natural/show 2) ]
-      , content = [ XML.leaf { name = "bar", attributes = XML.emptyAttributes } ]
+      , content = [ XML.leaf { tag = "bar", attributes = XML.emptyAttributes } ]
       }
     )
 = "<foo a=\"x\" b=\"2\"><bar/></foo>"
@@ -23,7 +23,7 @@ in  XML.render
 -}
 
 let XML =
-        ./Type sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+        ./Type sha256:7391450c05bd375f6190dd0a356f67524eb73cf0956b6401346ed6f287c41f3a
       ? ./Type
 
 let Text/concatMap =
@@ -51,18 +51,18 @@ let render
                       List { mapKey : Text, mapValue : Text }
                   , content :
                       List Text
-                  , name :
+                  , tag :
                       Text
                   }
                 )
             → let attribs = Text/concatMap Attr renderAttr elem.attributes
               
-              in      "<${elem.name}${attribs}"
+              in      "<${elem.tag}${attribs}"
                   ++  (       if Natural/isZero (List/length Text elem.content)
                         
                         then  "/>"
                         
-                        else  ">${Text/concat elem.content}</${elem.name}>"
+                        else  ">${Text/concat elem.content}</${elem.tag}>"
                       )
         }
 

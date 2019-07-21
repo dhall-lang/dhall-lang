@@ -5,11 +5,11 @@ let XML = ./package.dhall
 
 in  XML.render
     ( XML.element
-      { name = "foo"
+      { tag = "foo"
       , attributes = XML.emptyAttributes
       , content =
-          [ XML.leaf { name = "bar", attributes = [ XML.attribute "n" "1" ] }
-          , XML.leaf { name = "baz", attributes = [ XML.attribute "n" "2" ] }
+          [ XML.leaf { tag = "bar", attributes = [ XML.attribute "n" "1" ] }
+          , XML.leaf { tag = "baz", attributes = [ XML.attribute "n" "2" ] }
           ]
       }
     )
@@ -20,7 +20,7 @@ in  XML.render
 
 
 let XML =
-        ./Type sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+        ./Type sha256:7391450c05bd375f6190dd0a356f67524eb73cf0956b6401346ed6f287c41f3a
       ? ./Type
 
 let List/map =
@@ -30,10 +30,10 @@ let List/map =
 let Args =
         { attributes :
             List { mapKey : Text, mapValue : Text }
-        , name :
-            Text
         , content :
             List XML
+        , tag :
+            Text
         }
       : Type
 
@@ -49,7 +49,7 @@ let element
                       List { mapKey : Text, mapValue : Text }
                   , content :
                       List XML
-                  , name :
+                  , tag :
                       Text
                   }
                 → XML
@@ -58,8 +58,8 @@ let element
       → xml.element
         { attributes =
             elem.attributes
-        , name =
-            elem.name
+        , tag =
+            elem.tag
         , content =
             List/map XML@1 XML (λ(x : XML@1) → x XML xml) elem.content
         }

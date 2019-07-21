@@ -19,7 +19,7 @@
                  List { mapKey : Text, mapValue : Text }
              , content :
                  List XML
-             , name :
+             , tag :
                  Text
              }
            → XML
@@ -34,11 +34,11 @@
              [] : List { mapKey : Text, mapValue : Text }
          , content =
              [ xml.text "baz" ]
-         , name =
+         , tag =
              "bar"
          }
        ]
-   , name =
+   , tag =
        "foo"
    }
 ```
@@ -55,7 +55,7 @@ let XML/Type
                       List { mapKey : Text, mapValue : Text }
                   , content :
                       List XML
-                  , name :
+                  , tag :
                       Text
                   }
                 → XML

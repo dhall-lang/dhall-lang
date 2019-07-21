@@ -5,7 +5,7 @@ let XML = ./package.dhall
 
 in  XML.render
     ( XML.node
-      { name = "location"
+      { tag = "location"
       , attributes = XML.emptyAttributes
       , content = [ XML.text "/foo/bar" ]
       }
@@ -15,7 +15,7 @@ in  XML.render
 -}
 
 let XML =
-        ./Type sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+        ./Type sha256:7391450c05bd375f6190dd0a356f67524eb73cf0956b6401346ed6f287c41f3a
       ? ./Type
 
 let text
@@ -30,7 +30,7 @@ let text
                       List { mapKey : Text, mapValue : Text }
                   , content :
                       List XML
-                  , name :
+                  , tag :
                       Text
                   }
                 → XML
