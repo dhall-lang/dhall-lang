@@ -501,6 +501,20 @@ valid Dhall code for representing that `Natural` number:
     f a b ⇥ 0
 
 
+Also, simplify the `Natural/subtract` function if either argument normalizes to
+a `0` literal:
+
+
+    x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────
+    Natural/subtract x y₀ ⇥ y₁
+
+
+    y ⇥ 0
+    ─────────────────────────
+    Natural/subtract x₀ y ⇥ 0
+
+
 Otherwise, normalize each argument:
 
 
