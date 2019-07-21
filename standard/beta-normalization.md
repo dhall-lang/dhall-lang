@@ -489,14 +489,14 @@ valid Dhall code for representing that `Natural` number:
 [saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
 
 
-    f ⇥ Natural/subtract   a ⇥ n   b ⇥ n
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
     ────────────────────────────────────  ;  if b >= a, where "b >= a" is
-    f a b ⇥ b - a                         ;  machine greater-than-or-equal-to
+    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
                                           ;  comparison, and "b - a" is machine
                                           ;  subtraction
 
 
-    f ⇥ Natural/subtract   a ⇥ n   b ⇥ n
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
     ────────────────────────────────────  ; otherwise
     f a b ⇥ 0
 
