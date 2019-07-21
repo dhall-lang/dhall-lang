@@ -1,0 +1,1 @@
+[1, "record", [7, {"in_ca": "Bool", "name": "Text", "taxed_value": "Double", "value": "Double"}], [18, "Hello ", [9, ["record", 0], "name"], "\nYou have just won ", [0, "Double/show", [9, ["record", 0], "value"]], " dollars!\n", [14, [9, ["record", 0], "in_ca"], [18, "Well, ", [0, "Double/show", [9, ["record", 0], "taxed_value"]], " dollars, after taxes"], [18, ""]], "\n"]]
