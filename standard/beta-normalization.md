@@ -512,7 +512,7 @@ a `0` literal:
 
     y ⇥ 0
     ─────────────────────────
-    Natural/subtract x₀ y ⇥ 0
+    Natural/subtract x y ⇥ 0
 
 
 Otherwise, normalize each argument:
