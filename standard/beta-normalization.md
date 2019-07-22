@@ -921,14 +921,14 @@ Simplify a record selection if the argument is a record literal:
 If the argument is a record projection, select from the contained record.
 
 
-    t₀ ⇥ t₁.{ xs… }
-    ───────────────
-    t₀.x ⇥ t₁.x
+    t₀ ⇥ t₁.{ xs… }   t₁.x ⇥ v
+    ──────────────────────────
+    t₀.x ⇥ v
 
 
-    t₀ ⇥ t₁.(s)
-    ───────────
-    t₀.x ⇥ t₁.x
+    t₀ ⇥ t₁.(s)   t₁.x ⇥ v
+    ──────────────────────
+    t₀.x ⇥ v
 
 
 If the argument is a right-biased record merge, inspect the right operand.
@@ -950,6 +950,15 @@ operand:
 
 
 If the argument is a recursive record merge, inspect the right operand.
+If it is a record literal that contains the field, simplify this right operand by
+restricting it to this field:
+
+
+    t₀ ⇥ t₁ ∧ { x = v₀, … }   (t₁ ∧ { x = v₀ }).x ⇥ v₁
+    ──────────────────────────────────────────────────
+    t₀.x ⇥ v₁
+
+
 If it is a record literal that doesn't contain the field, select from the left
 operand:
 
