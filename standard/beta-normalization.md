@@ -933,6 +933,15 @@ You can also project out more than one field into a new record:
     t.{} ⇥ {}
 
 
+When projecting a single field, construct a new record literal from the
+selected field:
+
+
+    t.x ⇥ v
+    ───────────────────
+    t.{ x } ⇥ { x = v }
+
+
 Simplify a record projection if the argument is a record literal:
 
 
