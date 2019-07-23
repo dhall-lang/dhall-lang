@@ -10,7 +10,7 @@ non-repetitive alternative to YAML.
 You can think of Dhall as: JSON + functions + types + imports
 
 Note that while Dhall is programmable, Dhall is not Turing-complete.  Many
-of Dhall's features take advantage of this restriction to provider stronger
+of Dhall's features take advantage of this restriction to provide stronger
 safety guarantees and more powerful tooling.
 
 You can try the language live in your browser by visiting the official website:

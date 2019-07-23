@@ -104,12 +104,56 @@ end-of-line =
       %x0A     ; "\n"
     / %x0D.0A  ; "\r\n"
 
+; This rule matches all characters that are not:
+;
+; * not ASCII
+; * not part of a surrogate pair
+; * not a "non-character"
+valid-non-ascii =
+      %x80-D7FF
+    ; %xD800-DFFF = surrogate pairs
+    / %xE000-FFFD
+    ; %xFFFE-FFFF = non-characters
+    / %x10000-1FFFD
+    ; %x1FFFE-1FFFF = non-characters
+    / %x20000-2FFFD
+    ; %x2FFFE-2FFFF = non-characters
+    / %x30000-3FFFD
+    ; %x3FFFE-3FFFF = non-characters
+    / %x40000-4FFFD
+    ; %x4FFFE-4FFFF = non-characters
+    / %x50000-5FFFD
+    ; %x5FFFE-5FFFF = non-characters
+    / %x60000-6FFFD
+    ; %x6FFFE-6FFFF = non-characters
+    / %x70000-7FFFD
+    ; %x7FFFE-7FFFF = non-characters
+    / %x80000-8FFFD
+    ; %x8FFFE-8FFFF = non-characters
+    / %x90000-9FFFD
+    ; %x9FFFE-9FFFF = non-characters
+    / %xA0000-AFFFD
+    ; %xAFFFE-AFFFF = non-characters
+    / %xB0000-BFFFD
+    ; %xBFFFE-BFFFF = non-characters
+    / %xC0000-CFFFD
+    ; %xCFFFE-CFFFF = non-characters
+    / %xD0000-DFFFD
+    ; %xDFFFE-DFFFF = non-characters
+    / %xE0000-EFFFD
+    ; %xEFFFE-EFFFF = non-characters
+    / %xF0000-FFFFD
+    ; %xFFFFE-FFFFF = non-characters
+    / %x100000-10FFFD
+    ; %x10FFFE-10FFFF = non-characters
+
 tab = %x09  ; "\t"
 
 block-comment = "{-" block-comment-continue
 
 block-comment-char =
-      %x20-10FFFF
+      %x20-7F
+    / valid-non-ascii
     / tab
     / end-of-line
 
@@ -118,7 +162,7 @@ block-comment-continue =
     / block-comment block-comment-continue
     / block-comment-char block-comment-continue
 
-not-end-of-line = %x20-10FFFF / tab
+not-end-of-line = %x20-7F / valid-non-ascii / tab
 
 ; NOTE: Slightly different from Haskell-style single-line comments because this
 ; does not require a space after the dashes
@@ -154,7 +198,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ;       keyword 1*simple-label-next-char
 ;     / !keyword (simple-label-first-char *simple-label-next-char)
 simple-label-first-char = ALPHA / "_"
-simple-label-next-char = ALPHA / DIGIT / "-" / "/" / "_"
+simple-label-next-char = ALPHANUM / "-" / "/" / "_"
 simple-label = simple-label-first-char *simple-label-next-char
 
 quoted-label-char =
@@ -209,6 +253,12 @@ double-quote-escaped =
     / %x74                 ; 't'    tab             U+0009
     / %x75 unicode-escape  ; 'uXXXX' / 'u{XXXX}'    U+XXXX
 
+; The parser must also reject Unicode escape sequences that are either:
+;
+; * Surrogate pairs (i.e. `%xD800-DFFF`)
+; * Non-characters (i.e. `%xNFFFE-xNFFFF` for each `N` in `{ 0 .. F }`)
+;
+; See the `valid-non-ascii` rule for the exact ranges that are not allowed
 unicode-escape = 4HEXDIG / "{" 1*HEXDIG "}"
 
 ; Printable characters except double quote and backslash
@@ -217,7 +267,8 @@ double-quote-char =
         ; %x22 = '"'
     / %x23-5B
         ; %x5C = "\"
-    / %x5D-10FFFF
+    / %x5D-7F
+    / valid-non-ascii
 
 double-quote-literal = %x22 *double-quote-chunk %x22
 
@@ -246,7 +297,8 @@ escaped-quote-pair = "'''"
 escaped-interpolation = "''${"
 
 single-quote-char =
-      %x20-10FFFF
+      %x20-7F
+    / valid-non-ascii
     / tab
     / end-of-line
 
@@ -273,6 +325,7 @@ missing               = %x6d.69.73.73.69.6e.67
 Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
+toMap                 = %x74.6f.4d.61.70
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -281,7 +334,7 @@ keyword =
     / let / in
     / using / missing / as
     / Infinity / NaN
-    / merge / Some
+    / merge / Some / toMap
 
 builtin =
       Natural-fold
@@ -430,7 +483,8 @@ quoted-path-character =
         ; %x22 = "\""
     / %x23-2E
         ; %x2F = "/"
-    / %x30-10FFFF
+    / %x30-7F
+    / valid-non-ascii
 
 unquoted-path-component = 1*path-character
 quoted-path-component = 1*quoted-path-character
@@ -524,9 +578,9 @@ dec-octet = "25" %x30-35       ; 250-255
 
 ; Look in RFC3986 3.2.2 for
 ; "A registered name intended for lookup in the DNS"
-domain = *(domainlabel ".") domainlabel [ "." ]
+domain = domainlabel *("." domainlabel) [ "." ]
 
-domainlabel = ALPHANUM *(((ALPHANUM / 1*"-") ALPHANUM) / ALPHANUM)
+domainlabel = 1*ALPHANUM *(1*"-" 1*ALPHANUM)
 
 segment = *pchar
 
@@ -536,7 +590,7 @@ query = *( pchar / "/" / "?" )
 
 pct-encoded = "%" HEXDIG HEXDIG
 
-unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+unreserved  = ALPHANUM / "-" / "." / "_" / "~"
 
 ; this is the RFC3986 sub-delims rule, without "(", ")" or ","
 ; see comments above the `http-raw` rule above
@@ -581,7 +635,7 @@ bash-environment-variable = (ALPHA / "_") *(ALPHANUM / "_")
 ; character like `env`
 posix-environment-variable = 1*posix-environment-variable-character
 
-; These are all the characters from the POSIX Portable Character Set except for 
+; These are all the characters from the POSIX Portable Character Set except for
 ; '\0' (NUL) and '='.  Note that the POSIX standard does not explicitly state
 ; that environment variable names cannot have NUL.  However, this is implicit
 ; in the fact that environment variables are passed to the program as
@@ -628,7 +682,9 @@ expression =
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
+    ; We allow dropping the `in` between adjacent let-expressions; the following are equivalent:
     ; "let x = e1 let y = e2 in e3"
+    ; "let x = e1 in let y = e2 in e3"
     / 1*let-binding in whsp1 expression
     
     ; "forall (x : a) -> b"
@@ -645,12 +701,18 @@ expression =
     ; from the keyword whether there will be a type annotation or not
     / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
     
-    ; "[] : List t"
+    ; "[] : t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
-    / "[" whsp "]" whsp ":" whsp1 List whsp import-expression
+    / "[" whsp "]" whsp ":" whsp1 application-expression
+    
+    ; "toMap e : t"
+    ;
+    ; NOTE: Backtrack if parsing this alternative fails since we can't tell
+    ; from the keyword whether there will be a type annotation or not
+    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
     
     ; "x : t"
     / annotated-expression
@@ -690,6 +752,9 @@ first-application-expression =
     
     ; "Some e"
     / Some whsp1 import-expression
+    
+    ; "toMap e"
+    / toMap whsp1 import-expression
     
     / import-expression
 
