@@ -1004,6 +1004,12 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ∧ rs ⇥ e
 
 
+    ls ⇥ xs ∧ ys
+    xs ∧ (ys ∧ rs) ⇥ e
+    ──────────────────
+    ls ∧ rs ⇥ e
+
+
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ─────────────────   ; If no other rule matches
     l₀ ∧ r₀ ⇥ l₁ ∧ r₁
@@ -1037,6 +1043,12 @@ from the left record:
     { x = l₁, ls₂… } ⇥ e      ;  To ensure the fields are sorted
     ────────────────────────  ;  x ∉ rs
     ls₀ ⫽ rs ⇥ e
+
+
+    ls ⇥ xs ⫽ ys
+    xs ⫽ (ys ⫽ rs) ⇥ e
+    ──────────────────
+    ls ⫽ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
@@ -1073,6 +1085,12 @@ record types:
     { x : l₁, ls₂… } ⇥ e      ; To ensure the fields are sorted
     ────────────────────────  ; x ∉ rs
     ls₀ ⩓ rs ⇥ e
+
+
+    ls ⇥ xs ⩓ ys
+    xs ⩓ (ys ⩓ rs) ⇥ e
+    ──────────────────
+    ls ⩓ rs ⇥ e
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
