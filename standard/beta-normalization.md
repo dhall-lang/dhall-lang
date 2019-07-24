@@ -954,9 +954,9 @@ If it is a record literal that contains the field, simplify this right operand b
 restricting it to this field:
 
 
-    t₀ ⇥ t₁ ∧ { x = v₀, … }   (t₁ ∧ { x = v₀ }).x ⇥ v₁
-    ──────────────────────────────────────────────────
-    t₀.x ⇥ v₁
+    t₀ ⇥ t₁ ∧ { x = v, y = w, … }
+    ─────────────────────────────
+    t₀.x ⇥ (t₁ ∧ { x = v }).x
 
 
 If it is a record literal that doesn't contain the field, select from the left
