@@ -760,7 +760,7 @@ error.
 
 
 The `toMap` operator can be applied only to a record value, and every field
-of the record must have the same type.
+of the record must have the same type, which in turn must be a `Type`.
 
 
     Γ ⊢ e :⇥ { x : T₀, xs… }
@@ -770,8 +770,8 @@ of the record must have the same type.
     Γ ⊢ toMap e : List { mapKey : Text, mapValue : T₀ }
 
 
-    Γ ⊢ e :⇥ {}    Γ ⊢ T₀ :⇥ List { mapKey : Text, mapValue : T₁ }
-    ──────────────────────────────────────────────────────────────
+    Γ ⊢ e :⇥ {}   Γ ⊢ T₀ :⇥ Type   T₀ ⇥ List { mapKey : Text, mapValue : T₁ }
+    ─────────────────────────────────────────────────────────────────────────
     Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
 
 
