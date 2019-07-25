@@ -963,8 +963,8 @@ If it is a record literal that contains the field, simplify this right operand b
 restricting it to this field:
 
 
-    t₀ ⇥ t₁ ∧ { x = v, y = w, … }
-    ─────────────────────────────
+    t₀ ⇥ t₁ ∧ { x = v, … }
+    ─────────────────────────
     t₀.x ⇥ (t₁ ∧ { x = v }).x
 
 
