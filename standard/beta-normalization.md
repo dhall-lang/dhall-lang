@@ -640,8 +640,8 @@ Normalizing a `List` normalizes each field and the type annotation:
 
 
     T₀ ⇥ T₁
-    ──────────────────────────
-    [] : List T₀ ⇥ [] : List T₁
+    ─────────────────
+    [] : T₀ ⇥ [] : T₁
 
 
     t₀ ⇥ t₁   [ ts₀… ] ⇥ [ ts₁… ]
@@ -706,13 +706,13 @@ Also, simplify the "list concatenation" operator if either argument normalizes
 to an empty `List`:
 
 
-    ls ⇥ [] : List T   rs₀ ⇥ rs₁
-    ────────────────────────────
+    ls ⇥ [] : T   rs₀ ⇥ rs₁
+    ───────────────────────
     ls # rs₀ ⇥ rs₁
 
 
-    rs ⇥ [] : List T   ls₀ ⇥ ls₁
-    ────────────────────────────
+    rs ⇥ [] : T   ls₀ ⇥ ls₁
+    ───────────────────────
     ls₀ # rs ⇥ ls₁
 
 
@@ -727,8 +727,8 @@ Otherwise, normalize each argument:
 `List/length` returns the length of a list:
 
 
-    f ⇥ List/length A₀   a ⇥ [] : List A₁
-    ─────────────────────────────────────
+    f ⇥ List/length A₀   a ⇥ [] : A₁
+    ────────────────────────────────
     f a ⇥ 0
 
 
@@ -740,8 +740,8 @@ Otherwise, normalize each argument:
 `List/head` returns the first element of a list:
 
 
-    f ⇥ List/head A₀   as ⇥ [] : List A₁
-    ────────────────────────────────────
+    f ⇥ List/head A₀   as ⇥ [] : A₁
+    ───────────────────────────────
     f as ⇥ None A₀
 
 
@@ -753,8 +753,8 @@ Otherwise, normalize each argument:
 `List/last` returns the last element of a list:
 
 
-    f ⇥ List/last A₀   as ⇥ [] : List A₁
-    ────────────────────────────────────
+    f ⇥ List/last A₀   as ⇥ [] : A₁
+    ───────────────────────────────
     f as ⇥ None A₀
 
 
@@ -766,7 +766,7 @@ Otherwise, normalize each argument:
 `List/indexed` tags each element of the list with the element's index:
 
 
-    f ⇥ List/indexed A₀   as ⇥ [] : List A₁
+    f ⇥ List/indexed A₀   as ⇥ [] : A₁
     ───────────────────────────────────────────────
     f as ⇥ [] : List { index : Natural, value : A₀ }
 
@@ -779,9 +779,9 @@ Otherwise, normalize each argument:
 `List/reverse` reverses the elements of the list:
 
 
-    f ⇥ List/reverse A₀   as ⇥ [] : List A₁
-    ───────────────────────────────────────
-    f as ⇥ [] : List A₁
+    f ⇥ List/reverse A₀   as ⇥ [] : A₁
+    ──────────────────────────────────
+    f as ⇥ [] : A₁
 
 
     f ⇥ List/reverse A₀   as ⇥ [ a₀, a₁, … ]
@@ -822,32 +822,18 @@ All of the built-in functions on `List`s are in normal form:
 
 ## `Optional`
 
-The `Optional` type-level function is in normal form:
+The `Optional` and `None` functions are in normal form:
 
 
     ───────────────────
     Optional ⇥ Optional
 
 
-Normalizing an `Optional` literal using the legacy `List`-like representation
-converts the literal to the new `None` / `Some` representation:
-
-
-    None T ⇥ e
-    ───────────────────
-    [] : Optional T ⇥ e
-
-
-    Some t ⇥ e
-    ──────────────────────
-    [ t ] : Optional T ⇥ e
-
-
-... which in turn normalize according to the following rules:
-
-
     ───────────
     None ⇥ None
+
+
+Normalize a `Some` expression by normalizing its argument:
 
 
     t₀ ⇥ t₁
@@ -932,38 +918,6 @@ Simplify a record selection if the argument is a record literal:
     t.x ⇥ v
 
 
-You can also project out more than one field into a new record:
-
-
-    ─────────
-    t.{} ⇥ {}
-
-
-    t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥ { ys… }
-    ──────────────────────────────────────────────
-    t.{ x, xs… } ⇥ { x = v, ys… }
-
-
-    s ⇥ {}
-    ──────────
-    t.(s) ⇥ {=}
-
-
-    t ⇥ { x = v, ts₀… }
-    s ⇥ { x : T, ss… }
-    t.({ ss… }) ⇥ { ts₁… }
-    ───────────────────────
-    t.(s) ⇥ { x = v, ts₁… }
-
-
-    t₀ ⇥ t₁
-    s₀ ⇥ s₁
-    ─────────────────  ; If no other rule matches
-    t₀.(s₀) ⇥ t₁.(s₁)
-
-
-The type system ensures that the selected field(s) must be present.
-
 Otherwise, normalize the argument:
 
 
@@ -971,6 +925,54 @@ Otherwise, normalize the argument:
     ───────────  ; If no other rule matches
     t₀.x ⇥ t₁.x
 
+
+You can also project out more than one field into a new record:
+
+
+    ─────────
+    t.{} ⇥ {}
+
+
+Simplify a record projection if the argument is a record literal:
+
+
+    t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥ { ys… }
+    ──────────────────────────────────────────────
+    t.{ x, xs… } ⇥ { x = v, ys… }
+
+
+Otherwise, normalize the argument and sort the fields:
+
+
+    t₀ ⇥ t₁   sort(xs₀…) = xs₁…
+    ───────────────────────────
+    t₀.{ xs₀… } ⇥ t₁.{ xs₁… }
+
+
+You can also project by type:
+
+
+    s ⇥ {}
+    ───────────
+    keys(s) = ε
+
+
+    s ⇥ { x : T, ss… }
+    keys(ss…) = ss₁…
+    ─────────────────────
+    keys(s) = x, ss₁…
+
+
+    s ⇥ { ss… }
+    keys(s) = s₁
+    t.{s₁} ⇥ ts₁
+    ────────────
+    t.(s) ⇥ ts₁
+
+
+The type system ensures that the selected field(s) must be present.  The type
+system also ensures that in the expression `t.(s)`, `s` will normalize to a
+record type, so the last rule above will always match.
 
 Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
@@ -1076,6 +1078,41 @@ record types:
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ─────────────────   ; If no other rule matches
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
+
+
+A record whose fields all have the same type (*i.e.*, a *homogeneous* record) can be converted to a list where each list
+item represents a field. The value "x" below represents the text value of the field name `x`.
+
+
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
+    ──────────────────────────────────────────────
+    toMap t ⇥ [ {mapKey = "x", mapValue = v} ] # m
+
+
+The `toMap` application can be annotated with a type, and it must be if the record is empty.
+
+
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
+    ───────────────────────────────────────────────────
+    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
+
+
+    t ⇥ {=}   T₀ ⇥ T₁
+    ──────────────────────
+    toMap t : T₀ ⇥ [] : T₁
+
+
+If the record or the type is abstract, then normalize each subexpression:
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁
+    ─────────────────────────────  ; If no other rule matches
+    toMap t₀ : T₀ ⇥ toMap t₁ : T₁
+
+
+    t₀ ⇥ t₁
+    ───────────────────  ; If no other rule matches
+    toMap t₀ ⇥ toMap t₁
 
 
 ## Unions
@@ -1328,26 +1365,6 @@ equivalence:
     let x = a₀ in b₀ ⇥ b₃
 
 
-A `let` expression with multiple `let` bindings is equivalent to nested `let`
-expressions:
-
-
-    ↑(1, x, 0, a₀) = a₁
-    (let xs… in b₀)[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────────────
-    let x : A = a₀ let xs… in b₀ ⇥ b₃
-
-
-    ↑(1, x, 0, a₀) = a₁
-    (let xs… in b₀)[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────────
-    let x = a₀ let xs… in b₀ ⇥ b₃
-
-
 ## Type annotations
 
 Simplify a type annotation by removing the annotation:
@@ -1361,4 +1378,3 @@ Simplify a type annotation by removing the annotation:
 ## Imports
 
 An expression with unresolved imports cannot be β-normalized.
-

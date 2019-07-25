@@ -148,36 +148,6 @@ All of the following rules cover expressions that can bind variables:
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
-    A₀[x@n ≔ e₀] = A₁
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, x, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────
-    (let x : A₀ = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ let xs₁… in b₁
-
-
-    A₀[x@n ≔ e₀] = A₁
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, y, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@n ≔ e₁] = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────  ; x ≠ y
-    (let y : A₀ = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ let ys₁… in b₁
-
-
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, x, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
-    ─────────────────────────────────────────────────────────────────
-    (let x = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x = a₁ let xs₁… in b₁
-
-
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, y, 0, e₀) = e₁
-    (let ys₀… in b₀)[x@n ≔ e₁] = let ys₁… in b₁
-    ─────────────────────────────────────────────────────────────────  ; x ≠ y
-    (let y = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y = a₁ let ys₁… in b₁
-
-
 ## Imports
 
 You can substitute expressions with unresolved imports because the language
@@ -234,24 +204,24 @@ The remaining rules are:
     (merge t₀ u₀)[x@n ≔ e] = merge t₁ u₁
 
 
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
+    ────────────────────────────────────────
+    (toMap t₀ : T₀)[x@n ≔ e] = toMap t₁ : T₁
+
+
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────
+    (toMap t₀)[x@n ≔ e] = toMap t₁
+
+
     T₀[x@n ≔ e] = T₁
-    ──────────────────────────────────────
-    ([] : List T₀)[x@n ≔ e] = [] : List T₁
+    ────────────────────────────
+    ([] : T₀)[x@n ≔ e] = [] : T₁
 
 
     t₀[x@n ≔ e] = t₁   [ ts₀… ][x@n ≔ e] = [ ts₁… ]
     ───────────────────────────────────────────────
     ([ t₀, ts₀… ])[x@n ≔ e] = [ t₁, ts₁… ]
-
-
-    T₀[x@n ≔ e] = T₁
-    ──────────────────────────────────────────────
-    ([] : Optional T₀)[x@n ≔ e] = [] : Optional T₁
-
-
-    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
-    ──────────────────────────────────────────────────────
-    ([ t₀ ] : Optional T₀)[x@n ≔ e] = [ t₁ ] : Optional T₁
 
 
     t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
@@ -522,4 +492,3 @@ The remaining rules are:
 
     ────────────────────
     Sort[x@n ≔ e] = Sort
-

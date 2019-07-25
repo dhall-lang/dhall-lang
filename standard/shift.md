@@ -143,19 +143,6 @@ when descending past such a bound variable:
     ↑(d, x, m, let x = a₀ in b₀) = let x = a₁ in b₁
 
 
-    ↑(d, x, m, A₀) = A₁
-    ↑(d, x, m, a₀) = a₁
-    ↑(d, x, m + 1, let xs₀… in b₀) = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────
-    ↑(d, x, m, let x : A₀ = a₀ let xs₀… in b₀) = let x : A₁ = a₁ let xs₁… in b₁
-
-
-    ↑(d, x, m, a₀) = a₁
-    ↑(d, x, m + 1, let xs₀… in b₀) = let xs₁… in b₁
-    ─────────────────────────────────────────────────────────────────
-    ↑(d, x, m, let x = a₀ let xs₀… in b₀) = let x = a₁ let xs₁… in b₁
-
-
 Again, the bound variable, `x`, is not in scope for its own type, `A₀`, so do
 not increase the lower bound, `m`, when shifting the bound variable's type.
 
@@ -178,20 +165,6 @@ Descend as normal if the bound variable name does not match:
     ↑(d, x, m, b₀) = b₁
     ───────────────────────────────────────────────  ; x ≠ y
     ↑(d, x, m, let y = a₀ in b₀) = let y = a₁ in b₁
-
-
-    ↑(d, x, m, A₀) = A₁
-    ↑(d, x, m, a₀) = a₁
-    ↑(d, x, m, let ys₀… in b₀) = let ys₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────  ; x ≠ y
-    ↑(d, x, m, let y : A₀ = a₀ let ys₀… in b₀) = let y : A₁ = a₁ let ys₁… in b₁
-
-
-    ↑(d, x, m, a₀) = a₁
-    ↑(d, x, m, b₀) = b₁
-    ↑(d, x, m, let ys₀… in b₀) = let ys₁… in b₁
-    ─────────────────────────────────────────────────────────────────  ; x ≠ y
-    ↑(d, x, m, let y = a₀ let ys₀… in b₀) = let y = a₁ let ys₁… in b₁
 
 
 ## Imports
@@ -250,24 +223,24 @@ The remaining rules are:
     ↑(d, x, m, merge t₀ u₀) = merge t₁ u₁
 
 
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, toMap t₀ : T₀) = toMap t₁ : T₁
+
+
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────────────
+    ↑(d, x, m, toMap t₀) = toMap t₁
+
+
     ↑(d, x, m, T₀) = T₁
-    ───────────────────────────────────────
-    ↑(d, x, m, [] : List T₀) = [] : List T₁
+    ─────────────────────────────
+    ↑(d, x, m, [] : T₀) = [] : T₁
 
 
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, [ ts₀… ]) = [ ts₁… ]
     ─────────────────────────────────────────────────────
     ↑(d, x, m, [ t₀, ts₀… ]) = [ t₁, ts₁… ]
-
-
-    ↑(d, x, m, T₀) = T₁
-    ───────────────────────────────────────────────
-    ↑(d, x, m, [] : Optional T₀) = [] : Optional T₁
-
-
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁
-    ───────────────────────────────────────────────────────
-    ↑(d, x, m, [ t₀ ] : Optional T₀) = [ t₁ ] : Optional T₁
 
 
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, T₀) = T₁

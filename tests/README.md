@@ -58,9 +58,11 @@ Where `A` and `B` are:
 - `A`: a Dhall expression as text
 - `B`: the binary representation of the Dhall-CBOR-encoded expression
 
-*Note*: since the tests are binary-encoded, they are not the friendliest to debug.  
-For this reason, you might want to look at the `diff-binary.sh` script to help
-with the debugging.
+*Note*: Each `B.dhallb` file has a matching `B.diag` file containing the
+CBOR diagnostic notation for the encoded expression.  You can generate
+the `.diag` file using the `./scripts/generate-diagnostic-files.sh` script
+and our continuous integration will remind you to do so (by failing if you
+don't keep the diagnostic file up-to-date).
 
 ### Running `normalization` tests
 
@@ -115,6 +117,11 @@ The tests should:
 - the inferred type of A should exactly match B
 
 ### Running `import` tests
+
+First, set the environment variable `XDG_CACHE_HOME` to the absolute location of
+`dhall-lang/tests/import/cache`.  This is so that we can test that an import
+with an integrity check is fetched from cache (for example, see
+`hashFromCacheA.dhall`).
 
 The tests should:
 - parse `A` and `B`

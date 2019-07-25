@@ -9,13 +9,15 @@ environment variable.  For example:
 
 in  { name = env:USER as Text  -- Expression imported from the environment
     , age  = 23
+    , publicKey = ~/.ssh/id_rsa.pub as Location  -- Path read as a Dhall expression
     , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
     } : ./schema.dhall  -- Expression imported from a file
 ```
 
 You can protect imports with integrity checks if you append SHA-256 hash (such
 as the `concatSep` import above) and you can also import a value as raw `Text`
-by appending `as Text` (such as the `env:USER` import above).
+by appending `as Text` (such as the `env:USER` import above) or as a resolved
+path by appending `as Location`.
 
 Imported expressions can transitively import other expressions.  For example,
 the `./schema.dhall` file imported above might also import other files:
@@ -285,6 +287,16 @@ their directories but prefer the file name of the child:
     https://authority path₀ file₀ </> . path₁ file₁ = https://authority path₂ file₁
 
 
+Implementation note: the last judgment rule above is a special case of the
+[RFC3986 section 5 resolution algorithm][RFC3986§5], which takes a relative
+reference and a base URI and returns a resolved URI.  Implementations may find
+it convenient to use a URL library to process this form of chaining.  However,
+if you use a URL resolution library routine which takes string arguments, you
+may need to percent-encode your relative references before passing them to the
+routine.
+
+[RFC3986§5]: https://tools.ietf.org/html/rfc3986#section-5
+
 If the child import begins with a "..", add that as a path component in between
 the parent and child directories:
 
@@ -314,6 +326,9 @@ the parent and child directories:
     https://authority path₀ file₀ </> .. path₂ file₁ = https://authority path₃ file₁
 
 
+The last judgment rule above is another special case of the
+[RFC3986 section 5 resolution algorithm][RFC3986§5].
+
 Import chaining preserves the header clause on the child import:
 
 
@@ -323,7 +338,7 @@ Import chaining preserves the header clause on the child import:
 
 
 ... and the child import can reuse custom headers from the parent import if
-the child is a relative import
+the child is a relative import:
 
 
     path₀ </> path₁ = path₂
@@ -481,7 +496,7 @@ import:
        ... because the referentially transparent remote import is trying to
        access a referentially opaque local import.
     -}
-    [ { header = "Private Key", value = ~/.ssh/id_rsa as Text } ]
+    [ { mapKey = "Private Key", mapValue = ~/.ssh/id_rsa as Text } ]
 
 
 This is also a sanity check because a referentially transparent import cannot
@@ -633,12 +648,41 @@ If an import ends with `as Text`, import the raw contents of the file as a
     (Δ, parent) × Γ ⊢ import₀ as Text ⇒ "s" ⊢ Γ
 
 
+Carefully note that `"s"` in the above judgment is a Dhall `Text` literal.  This
+implies that if you an import an expression as `Text` and you also protect the
+import with a semantic integrity check then the you encode the string literal
+as a Dhall expression and then hash that.  The semantic integrity check is not a
+hash of the raw underlying text.
+
+
+If an import ends with `as Location`, import its location as a value of type
+`< Local : Text | Remote : Text | Environment : Text | Missing >` instead of
+importing the file a Dhall expression:
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    ε ⊢ child : < Local : Text | Remote : Text | Environment : Text | Missing >
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ child ⊢ Γ
+
+
+Carefully note that `child` in the above judgment is loosely used both as an
+unresolved, non-Dhall value, and as a Dhall value to represent the same data.
+
+Also note that since the expression is not resolved in any way - that is, we only
+read in its location - there's no need to check if the path exists, if it's
+referentially transparent, if it honours CORS, no header forwarding necessary, etc.
+Canonicalization and chaining are the only transformations applied to the import.
+
+
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
     (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁
-    ε ⊢ resolvedRequestHeaders : List { header : Text, value : Text }
+    ε ⊢ resolvedRequestHeaders : H
+    H ∈ { List { mapKey : Text, mapValue : Text }, List { header : Text, value : Text } }
     resolvedRequestHeaders ⇥ normalizedRequestHeaders
     parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
@@ -654,7 +698,7 @@ the resolved expression as additional headers supplied to the HTTP request:
 
 For example, if `normalizedRequestHeaders` in the above judgment was:
 
-    [ { header = "Authorization", value = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
+    [ { mapKey = "Authorization", mapValue = "token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4" }
     ]
 
 ... then the HTTPS request for `https://authority directory file` would
@@ -674,13 +718,16 @@ check using the hash as the lookup key.  An implementation that caches imports
 in this way so MUST:
 
 * Cache the fully resolved, αβ-normalized expression, and encoded expression
-* Store the cached expression in `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` if
+* Store the cached expression in `"${XDG_CACHE_HOME}/dhall/1220${base16Hash}"` if
   the `$XDG_CACHE_HOME` environment variable is defined and the path is readable
   and writeable
 * Otherwise, store the cached expression in
-  `"${HOME}/.cache/dhall/${base16Hash}"` if the `$HOME` environment variable is
+  `"${HOME}/.cache/dhall/1220${base16Hash}"` if the `$HOME` environment variable is
   defined and the path is readable and writeable
 * Otherwise, not cache the expression at all
+
+Cache filenames are prefixed with `1220` so that the filename is a valid
+[multihash][] SHA-256 value.
 
 An implementation SHOULD warn the user if the interpreter is unable to cache the
 expression due to the environment variables being unset or the filesystem paths
@@ -690,8 +737,8 @@ Similarly, an implementation MUST follow these steps when importing an
 expression protected by a semantic integrity check:
 
 * Check if there is a Dhall expression stored at either
-  `"${XDG_CACHE_HOME}/dhall/${base16Hash}"` or
-  `"${HOME}/.cache/dhall/${base16Hash}"`
+  `"${XDG_CACHE_HOME}/dhall/1220${base16Hash}"` or
+  `"${HOME}/.cache/dhall/1220${base16Hash}"`
 * If the file exists and is readable, verify the file's byte contents match the
   hash and then decode the expression from the bytes using the `decode` judgment
   instead of importing the expression
@@ -704,7 +751,7 @@ local cache.
 Or in judgment form:
 
 
-    Γ("${XDG_CACHE_HOME}/dhall/${base16Hash}") = binary
+    Γ("${XDG_CACHE_HOME}/dhall/1220${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                ; Verify the hash
     decode(binary) = e
@@ -712,7 +759,7 @@ Or in judgment form:
     (Δ, here) × Γ ⊢ import₀ sha256:base16Hash ⇒ e ⊢ Γ
 
 
-    Γ("${HOME}/.cache/dhall/${base16Hash}") = binary
+    Γ("${HOME}/.cache/dhall/1220${base16Hash}") = binary
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash                ; Verify the hash
     decode(binary) = e
@@ -728,7 +775,7 @@ Or in judgment form:
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ──────────────────────────────────────────────────────────────────────────────────────────────────────  ; Import is not cached, try to save under `$XDG_CACHE_HOME`
-    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/${base16Hash}" = binary
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${XDG_CACHE_HOME}/dhall/1220${base16Hash}" = binary
 
 
     (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
@@ -739,7 +786,7 @@ Or in judgment form:
     sha256(binary) = byteHash
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ───────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
-    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/${base16Hash}" = binary
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/1220${base16Hash}" = binary
 
 
     (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
@@ -807,3 +854,4 @@ For all other cases, recursively descend into sub-expressions:
     ────────────────────────────────
     (Δ, here) × Γ₀ ⊢ Kind ⇒ Kind ⊢ Γ₁
 
+[multihash]: https://github.com/multiformats/multihash

@@ -297,9 +297,9 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
-    Γ ⊢ T :⇥ Type
-    ──────────────────────────
-    Γ ⊢ ([] : List T) : List T
+    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   T₁ :⇥ Type
+    ──────────────────────────────────────
+    Γ ⊢ ([] : T₀) : List T₁
 
 
     Γ ⊢ t : T₀   T₀ :⇥ Type   Γ ⊢ [ ts… ] :⇥ List T₁   T₀ ≡ T₁
@@ -369,24 +369,7 @@ The built-in functions on `List`s have the following types:
     Γ ⊢ Optional : Type → Type
 
 
-An `Optional` literal's type is inferred from the mandatory type annotation when
-the literal uses the legacy `List`-like syntax:
-
-
-    Γ ⊢ A : Type
-    ──────────────────────────────────
-    Γ ⊢ ([] : Optional A) : Optional A
-
-
-    Γ ⊢ A₀ : Type   Γ ⊢ a : A₁   A₀ ≡ A₁
-    ───────────────────────────────────────
-    Γ ⊢ ([ a ] : Optional A₀) : Optional A₀
-
-
-If the element is present and does not match the type annotation then that is a
-type error.
-
-The new `Some` constructor infers the type from the provided argument:
+The `Some` constructor infers the type from the provided argument:
 
 
     Γ ⊢ a : A   Γ ⊢ A : Type
@@ -515,18 +498,19 @@ respective fields from `e`.
 
 
     Γ ⊢ e :⇥ { ts… }
-    Γ ⊢ s : T
+    Γ ⊢ s : c
     s ⇥ {}
     ────────────────
     Γ ⊢ e.(s) : {}
 
 
     Γ ⊢ e :⇥ { x : T₀, ts… }
-    Γ ⊢ s : T₀
-    s ⇥ { x : T₀, ss… }
-    Γ ⊢ e.({ ss… }) : T₁
+    Γ ⊢ s : c
+    s ⇥ { x : T₁, ss… }
+    T₀ ≡ T₁
+    Γ ⊢ e.({ ss… }) : U
     ───────────────────────────
-    Γ ⊢ e.(s) : { x : T₀, ss… }
+    Γ ⊢ e.(s) : { x : T₁, ss… }
 
 
 If you select a field from a value that is not a record, then that is a type
@@ -768,6 +752,24 @@ If the operator arguments are not record types then that is a type error.
 
 If they share a field in common that is not a record type then that is a type
 error.
+
+
+
+The `toMap` operator can be applied only to a record value, and every field
+of the record must have the same type, which in turn must be a `Type`.
+
+
+    Γ ⊢ e :⇥ { x : T₀, xs… }
+    Γ ⊢ toMap { xs… } :⇥ List { mapKey : Text, mapValue : T₁ }
+    T₀ ≡ T₁
+    ──────────────────────────────────────────────────────────
+    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T₀ }
+
+
+    Γ ⊢ e :⇥ {}   Γ ⊢ T₀ :⇥ Type   T₀ ⇥ List { mapKey : Text, mapValue : T₁ }
+    ─────────────────────────────────────────────────────────────────────────
+    Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
+
 
 ## Unions
 
@@ -1027,11 +1029,11 @@ For the purposes of type-checking, an expression of the form:
 
 `let` differs in behavior in order to support "type synonyms", such as:
 
-    let t : Type = Integer in 1 : t
+    let t : Type = Natural in 1 : t
 
 If you were to desugar that to:
 
-    (λ(t : Type) → 1 : t) Integer
+    (λ(t : Type) → 1 : t) Natural
 
 ... then that would not be a well-typed expression, even though the `let`
 expression would be well-typed.
@@ -1061,31 +1063,6 @@ expression would be well-typed.
 
 If the `let` expression has a type annotation that doesn't match the type of
 the right-hand side of the assignment then that is a type error.
-
-A `let` expression with multiple `let` bindings is equivalent to nested `let`
-expressions:
-
-
-    Γ ⊢ a₀ : A₁
-    Γ ⊢ A₀ : i
-    A₀ ≡ A₁
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    (let xs… in b₀)[x ≔ a₂] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    Γ ⊢ b₂ : B
-    ─────────────────────────────────────
-    Γ ⊢ let x : A₀ = a₀ let xs… in b₀ : B
-
-
-    Γ ⊢ a₀ : A
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    (let xs… in b₀)[x ≔ a₂] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    Γ ⊢ b₂ : B
-    ────────────────────────────────
-    Γ ⊢ let x = a₀ let xs… in b₀ : B
 
 
 ## Type annotations
@@ -1117,4 +1094,3 @@ as a type annotation:
 ## Imports
 
 An expression with unresolved imports cannot be type-checked
-

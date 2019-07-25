@@ -104,12 +104,56 @@ end-of-line =
       %x0A     ; "\n"
     / %x0D.0A  ; "\r\n"
 
+; This rule matches all characters that are not:
+;
+; * not ASCII
+; * not part of a surrogate pair
+; * not a "non-character"
+valid-non-ascii =
+      %x80-D7FF
+    ; %xD800-DFFF = surrogate pairs
+    / %xE000-FFFD
+    ; %xFFFE-FFFF = non-characters
+    / %x10000-1FFFD
+    ; %x1FFFE-1FFFF = non-characters
+    / %x20000-2FFFD
+    ; %x2FFFE-2FFFF = non-characters
+    / %x30000-3FFFD
+    ; %x3FFFE-3FFFF = non-characters
+    / %x40000-4FFFD
+    ; %x4FFFE-4FFFF = non-characters
+    / %x50000-5FFFD
+    ; %x5FFFE-5FFFF = non-characters
+    / %x60000-6FFFD
+    ; %x6FFFE-6FFFF = non-characters
+    / %x70000-7FFFD
+    ; %x7FFFE-7FFFF = non-characters
+    / %x80000-8FFFD
+    ; %x8FFFE-8FFFF = non-characters
+    / %x90000-9FFFD
+    ; %x9FFFE-9FFFF = non-characters
+    / %xA0000-AFFFD
+    ; %xAFFFE-AFFFF = non-characters
+    / %xB0000-BFFFD
+    ; %xBFFFE-BFFFF = non-characters
+    / %xC0000-CFFFD
+    ; %xCFFFE-CFFFF = non-characters
+    / %xD0000-DFFFD
+    ; %xDFFFE-DFFFF = non-characters
+    / %xE0000-EFFFD
+    ; %xEFFFE-EFFFF = non-characters
+    / %xF0000-FFFFD
+    ; %xFFFFE-FFFFF = non-characters
+    / %x100000-10FFFD
+    ; %x10FFFE-10FFFF = non-characters
+
 tab = %x09  ; "\t"
 
 block-comment = "{-" block-comment-continue
 
 block-comment-char =
-      %x20-10FFFF
+      %x20-7F
+    / valid-non-ascii
     / tab
     / end-of-line
 
@@ -118,7 +162,7 @@ block-comment-continue =
     / block-comment block-comment-continue
     / block-comment-char block-comment-continue
 
-not-end-of-line = %x20-10FFFF / tab
+not-end-of-line = %x20-7F / valid-non-ascii / tab
 
 ; NOTE: Slightly different from Haskell-style single-line comments because this
 ; does not require a space after the dashes
@@ -142,6 +186,8 @@ ALPHA = %x41-5A / %x61-7A
 ; ASCII digit
 DIGIT = %x30-39  ; 0-9
 
+ALPHANUM = ALPHA / DIGIT
+
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 ; A simple label cannot be one of the reserved keywords
@@ -152,7 +198,7 @@ HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ;       keyword 1*simple-label-next-char
 ;     / !keyword (simple-label-first-char *simple-label-next-char)
 simple-label-first-char = ALPHA / "_"
-simple-label-next-char = ALPHA / DIGIT / "-" / "/" / "_"
+simple-label-next-char = ALPHANUM / "-" / "/" / "_"
 simple-label = simple-label-first-char *simple-label-next-char
 
 quoted-label-char =
@@ -181,40 +227,14 @@ nonreserved-label = label
 any-label = label
 
 
-; Dhall's double-quoted strings are equivalent to JSON strings except with
-; support for string interpolation (and escaping string interpolation)
+; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
-; Dhall uses almost the same escaping rules as JSON (RFC7159) with one
-; exception: Dhall adds a new `\$` escape sequence for dollar signs.  This
-; additional escape sequences lets you escape string interpolation by writing
-; `\${`
+; * Dhall strings support string interpolation
 ;
-; > The representation of strings is similar to conventions used in the C
-; > family of programming languages.  A string begins and ends with
-; > quotation marks.  All Unicode characters may be placed within the
-; > quotation marks, except for the characters that must be escaped:
-; > quotation mark, reverse solidus, and the control characters (U+0000
-; > through U+001F).
-; > 
-; > Any character may be escaped.  If the character is in the Basic
-; > Multilingual Plane (U+0000 through U+FFFF), then it may be
-; > represented as a six-character sequence: a reverse solidus, followed
-; > by the lowercase letter u, followed by four hexadecimal digits that
-; > encode the character's code point.  The hexadecimal letters A though
-; > F can be upper or lower case.  So, for example, a string containing
-; > only a single reverse solidus character may be represented as
-; > "\u005C".
-; > 
-; > Alternatively, there are two-character sequence escape
-; > representations of some popular characters.  So, for example, a
-; > string containing only a single reverse solidus character may be
-; > represented more compactly as "\\".
-; > 
-; > To escape an extended character that is not in the Basic Multilingual
-; > Plane, the character is represented as a 12-character sequence,
-; > encoding the UTF-16 surrogate pair.  So, for example, a string
-; > containing only the G clef character (U+1D11E) may be represented as
-; > "\uD834\uDD1E".
+; * Dhall strings also support escaping string interpolation by adding a new
+;   `\$` escape sequence
+;
+; * Dhall strings also allow Unicode escape sequences of the form `\u{XXX}`
 double-quote-chunk =
       interpolation
       ; '\'    Beginning of escape sequence
@@ -222,16 +242,24 @@ double-quote-chunk =
     / double-quote-char
 
 double-quote-escaped =
-      %x22               ; '"'    quotation mark  U+0022
-    / %x24               ; '$'    dollar sign     U+0024
-    / %x5C               ; '\'    reverse solidus U+005C
-    / %x2F               ; '/'    solidus         U+002F
-    / %x62               ; 'b'    backspace       U+0008
-    / %x66               ; 'f'    form feed       U+000C
-    / %x6E               ; 'n'    line feed       U+000A
-    / %x72               ; 'r'    carriage return U+000D
-    / %x74               ; 't'    tab             U+0009
-    / %x75 4HEXDIG       ; 'uXXXX'                U+XXXX
+      %x22                 ; '"'    quotation mark  U+0022
+    / %x24                 ; '$'    dollar sign     U+0024
+    / %x5C                 ; '\'    reverse solidus U+005C
+    / %x2F                 ; '/'    solidus         U+002F
+    / %x62                 ; 'b'    backspace       U+0008
+    / %x66                 ; 'f'    form feed       U+000C
+    / %x6E                 ; 'n'    line feed       U+000A
+    / %x72                 ; 'r'    carriage return U+000D
+    / %x74                 ; 't'    tab             U+0009
+    / %x75 unicode-escape  ; 'uXXXX' / 'u{XXXX}'    U+XXXX
+
+; The parser must also reject Unicode escape sequences that are either:
+;
+; * Surrogate pairs (i.e. `%xD800-DFFF`)
+; * Non-characters (i.e. `%xNFFFE-xNFFFF` for each `N` in `{ 0 .. F }`)
+;
+; See the `valid-non-ascii` rule for the exact ranges that are not allowed
+unicode-escape = 4HEXDIG / "{" 1*HEXDIG "}"
 
 ; Printable characters except double quote and backslash
 double-quote-char =
@@ -239,7 +267,8 @@ double-quote-char =
         ; %x22 = '"'
     / %x23-5B
         ; %x5C = "\"
-    / %x5D-10FFFF
+    / %x5D-7F
+    / valid-non-ascii
 
 double-quote-literal = %x22 *double-quote-chunk %x22
 
@@ -268,7 +297,8 @@ escaped-quote-pair = "'''"
 escaped-interpolation = "''${"
 
 single-quote-char =
-      %x20-10FFFF
+      %x20-7F
+    / valid-non-ascii
     / tab
     / end-of-line
 
@@ -295,6 +325,7 @@ missing               = %x6d.69.73.73.69.6e.67
 Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
+toMap                 = %x74.6f.4d.61.70
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -303,7 +334,7 @@ keyword =
     / let / in
     / using / missing / as
     / Infinity / NaN
-    / merge / Some
+    / merge / Some / toMap
 
 builtin =
       Natural-fold
@@ -344,6 +375,7 @@ builtin =
 Optional              = %x4f.70.74.69.6f.6e.61.6c
 Text                  = %x54.65.78.74
 List                  = %x4c.69.73.74
+Location              = %x4c.6f.63.61.74.69.6f.6e
 
 ; Reminder of the reserved identifiers, needed for the `builtin` rule
 Bool              = %x42.6f.6f.6c
@@ -451,7 +483,8 @@ quoted-path-character =
         ; %x22 = "\""
     / %x23-2E
         ; %x2F = "/"
-    / %x30-10FFFF
+    / %x30-7F
+    / valid-non-ascii
 
 unquoted-path-component = 1*path-character
 quoted-path-component = 1*quoted-path-character
@@ -485,21 +518,33 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * this replaces `path-abempty` with `path`, so an empty path is
-;   not valid
+; * path segments may be quoted instead of using percent-encoding
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
+; * the characters "(" ")" and "," are not included in the `sub-delims` rule:
+;   in particular, these characters can't be used in authority, path or query
+;   strings.  This is because those characters have other meaning in Dhall
+;   and it would be confusing for the comma in
+;       [http://example.com/foo, bar]
+;   to be part of the URL instead of part of the list.  If you need a URL
+;   which contains parens or a comma, you must percent-encode them.
 ;
 ; Unquoted path components should be percent-decoded according to
 ; https://tools.ietf.org/html/rfc3986#section-2
-http-raw = scheme "://" authority path [ "?" query ]
+http-raw = scheme "://" authority url-path [ "?" query ]
+
+; Temporary rule to allow old-style `path-component`s and RFC3986 `segment`s in
+; the same grammar. Eventually we can just use `path-abempty` from the same
+; RFC. See issue #581
+
+url-path = *(path-component / "/" segment)
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
 
 userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 
-host = IP-literal / IPv4address / reg-name
+host = IP-literal / IPv4address / domain
 
 port = *DIGIT
 
@@ -531,7 +576,13 @@ dec-octet = "25" %x30-35       ; 250-255
           / %x31-39 DIGIT      ; 10-99
           / DIGIT              ; 0-9
 
-reg-name = *( unreserved / pct-encoded / sub-delims )
+; Look in RFC3986 3.2.2 for
+; "A registered name intended for lookup in the DNS"
+domain = domainlabel *("." domainlabel) [ "." ]
+
+domainlabel = 1*ALPHANUM *(1*"-" 1*ALPHANUM)
+
+segment = *pchar
 
 pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
 
@@ -539,9 +590,11 @@ query = *( pchar / "/" / "?" )
 
 pct-encoded = "%" HEXDIG HEXDIG
 
-unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+unreserved  = ALPHANUM / "-" / "." / "_" / "~"
 
-sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+; this is the RFC3986 sub-delims rule, without "(", ")" or ","
+; see comments above the `http-raw` rule above
+sub-delims = "!" / "$" / "&" / "'" / "*" / "+" / ";" / "="
 
 http = http-raw [ whsp using whsp1 import-expression ]
 
@@ -557,7 +610,7 @@ env = "env:"
 ;
 ; > A word consisting only of  alphanumeric  characters  and  under-scores,  and
 ; > beginning with an alphabetic character or an under-score
-bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
+bash-environment-variable = (ALPHA / "_") *(ALPHANUM / "_")
 
 ; The POSIX standard is significantly more flexible about legal environment
 ; variable names, which can contain alerts (i.e. '\a'), whitespace, or
@@ -582,7 +635,7 @@ bash-environment-variable = (ALPHA / "_") *(ALPHA / DIGIT / "_")
 ; character like `env`
 posix-environment-variable = 1*posix-environment-variable-character
 
-; These are all the characters from the POSIX Portable Character Set except for 
+; These are all the characters from the POSIX Portable Character Set except for
 ; '\0' (NUL) and '='.  Note that the POSIX standard does not explicitly state
 ; that environment variable names cannot have NUL.  However, this is implicit
 ; in the fact that environment variables are passed to the program as
@@ -618,7 +671,7 @@ import-hashed = import-type [ whsp1 hash ]
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whsp as whsp1 Text ]
+import = import-hashed [ whsp as whsp1 (Text / Location) ]
 
 expression =
     ; "\(x : a) -> b"
@@ -629,7 +682,9 @@ expression =
     
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
+    ; We allow dropping the `in` between adjacent let-expressions; the following are equivalent:
     ; "let x = e1 let y = e2 in e3"
+    ; "let x = e1 in let y = e2 in e3"
     / 1*let-binding in whsp1 expression
     
     ; "forall (x : a) -> b"
@@ -646,14 +701,18 @@ expression =
     ; from the keyword whether there will be a type annotation or not
     / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
     
-    ; "[]  : List     t"
-    ; "[]  : Optional t"
-    ; "[x] : Optional t"
+    ; "[] : t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
-    / "[" whsp (empty-collection / non-empty-optional)
+    / "[" whsp "]" whsp ":" whsp1 application-expression
+    
+    ; "toMap e : t"
+    ;
+    ; NOTE: Backtrack if parsing this alternative fails since we can't tell
+    ; from the keyword whether there will be a type annotation or not
+    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
     
     ; "x : t"
     / annotated-expression
@@ -663,13 +722,6 @@ annotated-expression = operator-expression [ whsp ":" whsp1 expression ]
 
 ; "let x = e1"
 let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
-
-; "]  : List     t"
-; "]  : Optional t"
-empty-collection = "]" whsp ":" whsp1 (List / Optional) whsp import-expression
-
-; "x] : Optional t"
-non-empty-optional = expression whsp "]" whsp ":" whsp1 Optional whsp import-expression
 
 operator-expression = import-alt-expression
 
@@ -700,6 +752,9 @@ first-application-expression =
     
     ; "Some e"
     / Some whsp1 import-expression
+    
+    ; "toMap e"
+    / toMap whsp1 import-expression
     
     / import-expression
 

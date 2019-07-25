@@ -426,6 +426,14 @@ Empty `List`s only store their type:
     encode([] : List T₀) = [ 4, T₁ ]
 
 
+If the type annotation is not of the form `List T`:
+
+
+    encode(T₀) = T₁
+    ────────────────────────────
+    encode([] : T₀) = [ 28, T₁ ]
+
+
 Non-empty `List`s don't store their type, but do store their elements inline:
 
 
@@ -434,23 +442,9 @@ Non-empty `List`s don't store their type, but do store their elements inline:
     encode([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
 
 
-### `Optional`
+### `Some`
 
-Empty `Optional` literals using the legacy `List`-like syntax only store their
-type:
-
-
-    encode(T₀) = T₁
-    ────────────────────────────────────────
-    encode([] : Optional T₀) = [ 5, T₁ ]
-
-
-Non-empty `Optional` literals store the type (if present) and their value:
-
-
-    encode(t₀) = t₁   encode(T₀) = T₁
-    ────────────────────────────────────────────────
-    encode([ t₀ ] : Optional T₀) = [ 5, T₁, t₁ ]
+`Some` expressions store the type (if present) and their value:
 
 
     encode(t₀) = t₁
@@ -472,6 +466,22 @@ have a type annotation:
     encode(t₀) = t₁   encode(u₀) = u₁   encode(T₀) = T₁
     ───────────────────────────────────────────────────────────────
     encode(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
+
+
+### `toMap` expressions
+
+`toMap` expressions differ in their encoding depending on whether or not they
+have a type annotation:
+
+
+    encode(t₀) = t₁
+    ─────────────────────────────
+    encode(toMap t₀) = [ 27, t₁ ]
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ──────────────────────────────────────
+    encode(toMap t₀ : T₀) = [ 27, t₁, T₁ ]
 
 
 ### Records
@@ -664,7 +674,7 @@ interpolated expressions:
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 In other words: the amount of encoded elements is always an odd number, with the
-odd elements being strings and the even ones being interpolated expressions.  
+odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
 
@@ -679,6 +689,7 @@ Imports are encoded as a list where the first three elements are always:
 * An optional import type (such as `as Text`)
     * The import type is `0` for when importing a Dhall expression (the default)
     * The import type is `1` for importing `as Text`
+    * The import type is `2` for importing `as Location`
 
 For example, if an import does not specify an integrity check or import type
 then the CBOR expression begins with:
@@ -698,13 +709,15 @@ After that a URL import contains the following elements:
 * Then one element per path component
     * The encoded path components do not include their separating slashes
     * For example, `/foo/bar/baz` is stored as `…, "foo", "bar", "baz", …`
-* Then the file component
-    * Also no slashes
+    * There is always at least one path component.  If the source URL has no
+      path, [normalize it to `/`][RFC7230§2.7.3] before encoding.
 * Then one element for the query component
     * If there is no query component then it is encoded as `null`
     * If there is a query component then it is stored without the `?`
     * A query component with internal `&` separators is still one element
     * For example `?foo=1&bar=true` is stored as `"foo=1&bar=true"`
+
+[RFC7230§2.7.3]: https://tools.ietf.org/html/rfc7230#section-2.7.3
 
 The full rules are:
 
@@ -801,14 +814,22 @@ instead of `0`:
     encode(import as Text) = [ 24, x, 1, xs… ]
 
 
+If you import `as Location`, then the third element encoding the import type is `2`
+instead of `0`:
+
+
+    encode(import) = [ 24, x, 0, xs… ]
+    ──────────────────────────────────────────
+    encode(import as Location) = [ 24, x, 2, xs… ]
+
+
 ### `let` expressions
 
-`let` expressions use three list elements per binding and also use a `null` to
-represent the absence of a type annotation:
+A `let` binder is represented by a sequence of three elements: name, type annotation (`null` if absent) and bound expression. Adjacent `let` expressions are "flattened" and encoded in a single array, concatenating the immediately nested binders:
 
     encode(A₀) = A₁   encode(a₀) = a₁   encode(b₀) = b₁   ...   encode(z₀) = z₁
     ──────────────────────────────────────────────────────────────────────────────────────────
-    encode(let x : A₀ = a₀ let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
+    encode(let x : A₀ = a₀ in let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
 
 
 ### Type annotations
@@ -1136,7 +1157,7 @@ Decode a CBOR array beginning with a `3` as an operator expression:
 
 ### `List`
 
-Decode a CBOR array beginning with a `4` as a `List` literal
+Decode a CBOR array beginning with a `4` or a `28` as a `List` literal
 
 If the list is empty, then the type MUST be non-`null`:
 
@@ -1144,6 +1165,11 @@ If the list is empty, then the type MUST be non-`null`:
     decode(T₁) = T₀
     ────────────────────────────────────
     decode([ 4, T₁ ]) = [] : List T₀
+
+
+    decode(T₁) = T₀
+    ────────────────────────────
+    decode([ 28, T₁ ]) = [] : T₀
 
 
 If the list is non-empty then the type MUST be `null`:
@@ -1154,19 +1180,9 @@ If the list is non-empty then the type MUST be `null`:
     decode([ 4, null, a₁, b₁, … ]) = [ a₀, b₀, … ]
 
 
-### `Optional`
+### `Some`
 
-Decode a CBOR array beginning with a `5` as an `Optional` literal
-
-
-    decode(T₁) = T₀
-    ────────────────────────────────────────
-    decode([ 5, T₁ ]) = [] : Optional T₀
-
-
-    decode(t₁) = t₀   decode(T₁) = T₀
-    ────────────────────────────────────────────────
-    decode([ 5, T₁, t₁ ]) = [ t₀ ] : Optional T₀
+Decode a CBOR array beginning with a `5` as a `Some` expression:
 
 
     decode(t₁) = t₀
@@ -1187,6 +1203,21 @@ Decode a CBOR array beginning with a `6` as a `merge` expression:
     decode(t₁) = t₀   decode(u₁) = u₀   decode(T₁) = T₀
     ───────────────────────────────────────────────────────────────
     decode([ 6, t₁, u₁, T₁ ]) = merge t₀ u₀ : T₀
+
+
+### `toMap` expressions
+
+Decode a CBOR array beginning with a `27` as a `toMap` expression:
+
+
+    decode(t₁) = t₀
+    ─────────────────────────────
+    decode([ 27, t₁ ]) = toMap t₀
+
+
+    decode(t₁) = t₀   decode(T₁) = T₀
+    ──────────────────────────────────────
+    decode([ 27, t₁, T₁ ]) = toMap t₀ : T₀
 
 
 ### Records
@@ -1382,6 +1413,11 @@ The decoding rules are the exact opposite of the encoding rules:
     decode([ 24, x, 0, xs… ]) = import
     ──────────────────────────────────────────
     decode([ 24, x, 1, xs… ]) = import as Text
+
+
+    decode([ 24, x, 0, xs… ]) = import
+    ──────────────────────────────────────────────
+    decode([ 24, x, 2, xs… ]) = import as Location
 
 
     decode([ 24, null, x, xs… ]) = import
