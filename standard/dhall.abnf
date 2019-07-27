@@ -795,9 +795,8 @@ primitive-expression =
     / "{" whsp record-type-or-literal whsp "}"
     
     ; "< Foo : Integer | Bar : Bool >"
-    ; "< Foo : Integer | Bar = True | Baz : Bool >"
     ; "< Foo | Bar : Bool >"
-    / "<" whsp union-type-or-literal whsp ">"
+    / "<" whsp union-type whsp ">"
     
     ; "[1, 2, 3]"
     ; `empty-collection` handles empty lists
@@ -827,23 +826,18 @@ record-type-entry = any-label whsp ":" whsp1 expression
 non-empty-record-literal = "=" whsp expression *(whsp "," whsp record-literal-entry)
 record-literal-entry = any-label whsp "=" whsp expression
 
-union-type-or-literal =
-      non-empty-union-type-or-literal
+union-type =
+      non-empty-union-type
     / empty-union-type
 
 empty-union-type = ""
 
-non-empty-union-type-or-literal =
-    any-label [ whsp ( union-literal-variant-value / union-type-or-literal-variant-type) ]
+non-empty-union-type =
+    union-type-entry *(whsp "|" whsp union-type-entry)
 
-; = True | ...
-union-literal-variant-value = "=" whsp expression *(whsp "|" whsp union-type-entry)
+; x : Natural
+; x
 union-type-entry = any-label [ whsp ":" whsp1 expression ]
-
-; : Integer | ...
-; | ...
-union-type-or-literal-variant-type = [ ":" whsp1 expression ] [ whsp "|" whsp non-empty-union-type-or-literal ]
-
 
 non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
 

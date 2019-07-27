@@ -828,16 +828,6 @@ unions.  However, if the type of the alternative is not `Type`,
 
 If two alternatives share the same name then that is a type error.
 
-Union literals are also anonymous:
-
-
-    Γ ⊢ t : T   Γ ⊢ < x : T | ts… > :⇥ i
-    ─────────────────────────────────────
-    Γ ⊢ < x = t | ts… > : < x : T | ts… >
-
-
-However, union literals are deprecated in favor of union constructors.
-
 If a union alternative is non-empty, then the corresponding constructor is a
 function that wraps a value of the appropriate type:
 
