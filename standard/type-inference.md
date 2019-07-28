@@ -771,6 +771,11 @@ of the record must have the same type, which in turn must be a `Type`.
     Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
 
 
+    Γ ⊢ toMap e : T₀   T₀ ≡ T₁
+    ──────────────────────────
+    Γ ⊢ ( toMap e : T₁ ) : T₁
+
+
 ## Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
