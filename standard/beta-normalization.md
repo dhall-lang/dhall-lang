@@ -926,11 +926,6 @@ If the argument is a record projection, select from the contained record.
     t₀.x ⇥ v
 
 
-    t₀ ⇥ t₁.(s)   t₁.x ⇥ v
-    ──────────────────────
-    t₀.x ⇥ v
-
-
 If the argument is a right-biased record merge, first inspect the right operand.
 If it is a record literal that contains the field, select it:
 
