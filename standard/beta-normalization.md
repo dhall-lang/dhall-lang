@@ -485,6 +485,45 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+`Natural/subtract` performs truncating subtraction, as in
+[saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
+                                          ;  comparison, and "b - a" is machine
+                                          ;  subtraction
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ; if b < a
+    f a b ⇥ 0
+
+
+Also, simplify the `Natural/subtract` function if either argument normalizes to
+a `0` literal:
+
+
+    x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────
+    Natural/subtract x y₀ ⇥ y₁
+
+
+    y ⇥ 0
+    ─────────────────────────
+    Natural/subtract x y ⇥ 0
+
+
+Otherwise, normalize each argument:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ───────────────────────────────────────────────  ; If no other rule matches
+    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+
+
+
 All of the built-in functions on `Natural` numbers are in normal form:
 
 
@@ -514,6 +553,10 @@ All of the built-in functions on `Natural` numbers are in normal form:
 
     ───────────────────────────
     Natural/show ⇥ Natural/show
+
+
+    ───────────────────────────────────
+    Natural/subtract ⇥ Natural/subtract
 
 
 ## `Text`

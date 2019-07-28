@@ -346,6 +346,7 @@ builtin =
     / Natural-show
     / Integer-toDouble
     / Integer-show
+    / Natural-subtract
     / Double-show
     / List-build
     / List-fold
@@ -395,6 +396,7 @@ Natural-even      = %x4e.61.74.75.72.61.6c.2f.65.76.65.6e
 Natural-odd       = %x4e.61.74.75.72.61.6c.2f.6f.64.64
 Natural-toInteger = %x4e.61.74.75.72.61.6c.2f.74.6f.49.6e.74.65.67.65.72
 Natural-show      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
+Natural-subtract  = %x4e.61.74.75.72.61.6c.2f.73.75.62.74.72.61.63.74
 Integer-toDouble  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
 Integer-show      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
 Double-show       = %x44.6f.75.62.6c.65.2f.73.68.6f.77

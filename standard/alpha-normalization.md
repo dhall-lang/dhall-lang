@@ -347,6 +347,10 @@ sub-expressions for the remaining rules:
 
 
     ───────────────────────────────────
+    Natural/subtract ↦ Natural/subtract
+
+
+    ───────────────────────────────────
     Integer/toDouble ↦ Integer/toDouble
 
 
