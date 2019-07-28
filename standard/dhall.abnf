@@ -326,7 +326,7 @@ Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
-assert                = %61.73.73.65.72.74
+assert                = %x61.73.73.65.72.74
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
