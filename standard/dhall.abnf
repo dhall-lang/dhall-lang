@@ -216,11 +216,14 @@ label = ("`" quoted-label "`" / simple-label)
 ; (unless quoted).
 ; Their list can be found in the `builtin` rule.
 ; The only place where this restriction applies is bound variables.
+; A nonreserved-label also cannot start with sha256-prefix.  This would be true
+; anyway since that contains a `:` but a PEG parser may want to explicitly
+; look for this case to avoid greedily matching the start of the prefix.
 ; A PEG parser could use negative lookahead to avoid parsing those identifiers,
 ; e.g. as follows:
 ; nonreserved-label =
 ;      builtin 1*simple-label-next-char
-;    / !builtin label
+;    / !(builtin / sha256-prefix) label
 nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers.
@@ -664,16 +667,18 @@ posix-environment-variable-character =
 
 import-type = missing / local / http / env
 
-hash = %x73.68.61.32.35.36.3a 64HEXDIG ; "sha256:XXX...XXX"
+sha256-prefix = %x73.68.61.32.35.36.3a
 
-import-hashed = import-type [ whsp1 hash ]
+hash = sha256-prefix 64HEXDIG ; "sha256:XXX...XXX"
 
 ; "http://example.com"
 ; "./foo/bar"
 ; "env:FOO"
-import = import-hashed [ whsp as whsp1 (Text / Location) ]
+import = import-type [ whsp as whsp1 (Text / Location) ]
 
-expression =
+expression = unprotected-expression [ whsp1 hash ]
+
+unprotected-expression =
     ; "\(x : a) -> b"
       lambda whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
     

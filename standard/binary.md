@@ -25,6 +25,7 @@ expressions to and from a binary representation
     * [Imports](#imports)
     * [`let`-expressions](#let-expressions)
     * [Type annotations](#type-annotations)
+    * [Integrity protected expressions](#integrity-protected-expressions)
 * [Decoding judgment](#decoding-judgment)
     * [CBOR Tags](#cbor-tags)
     * [Built-in constants](#built-in-constants-1)
@@ -45,19 +46,19 @@ expressions to and from a binary representation
     * [Imports](#imports-1)
     * [`let`-expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
+    * [Integrity protected expressions](#integrity-protected-expressions-1)
 
 ## Motivation
 
 Dhall's import system requires a standard way to convert expressions to and from
 a binary representation, for two reasons:
 
-* Users can import expressions protected by a "semantic integrity check",
-  which is a SHA-256 hash of the binary representation of an expression's
-  normal form
+* Users can protect expressions by a "semantic integrity check", which is a
+  SHA-256 hash of the binary representation of an expression's normal form
 
-* Interpreters can locally cache imported expressions if the user protects them
-  with a semantic integrity check.  The local cache stores expressions using
-  the SHA-256 hash as the lookup key and the binary representation of the
+* Interpreters can locally cache expressions if the user protects them with
+  a semantic integrity check.  The local cache stores expressions using the
+  SHA-256 hash as the lookup key and the binary representation of the
   expression as the cached value.
 
 ## CBOR
@@ -680,12 +681,9 @@ even if they are empty strings.
 
 ### Imports
 
-Imports are encoded as a list where the first three elements are always:
+Imports are encoded as a list where the first two elements are always:
 
 * `24` - To signal that this expression is an import
-* An optional integrity check
-    * The integrity check is represented as `null` if absent
-    * The integrity check is b"[multihash][]" if present
 * An optional import type (such as `as Text`)
     * The import type is `0` for when importing a Dhall expression (the default)
     * The import type is `1` for importing `as Text`
@@ -694,7 +692,7 @@ Imports are encoded as a list where the first three elements are always:
 For example, if an import does not specify an integrity check or import type
 then the CBOR expression begins with:
 
-    [ 24, null, 0, … ]
+    [ 24, 0, … ]
 
 After that a URL import contains the following elements:
 
@@ -723,43 +721,43 @@ The full rules are:
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]
+    encode(http://authority/path₀/path₁/…/file?query) = [ 24, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(http://authority/path₀/path₁/…/file) = [ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]
+    encode(http://authority/path₀/path₁/…/file) = [ 24, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]
 
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file?query) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]
+    encode(https://authority/path₀/path₁/…/file?query) = [ 24, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]
 
 
     ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority/path₀/path₁/…/file) = [ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]
+    encode(https://authority/path₀/path₁/…/file) = [ 24, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]
 
 
 If you import `using headers`, then the fourth element contains the import
 header:
 
 
-    encode(http://authority directory file) = [ 24, x, y, 0, null, xs… ]
+    encode(http://authority directory file) = [ 24, x, 0, null, xs… ]
     encode(headers) = h
     ───────────────────────────────────────────────────────────────────────────────
-    encode(http://authority directory file using headers) = [ 24, x, y, 0, h, xs… ]
+    encode(http://authority directory file using headers) = [ 24, x, 0, h, xs… ]
 
 
-    encode(https://authority directory file) = [ 24, x, y, 1, null, xs… ]
+    encode(https://authority directory file) = [ 24, x, 1, null, xs… ]
     encode(headers) = h
     ────────────────────────────────────────────────────────────────────────────────
-    encode(https://authority directory file using headers) = [ 24, x, y, 1, h, xs… ]
+    encode(https://authority directory file using headers) = [ 24, x, 1, h, xs… ]
 
 
 Absolute file paths are tokenized in the same way:
 
 
     ─────────────────────────────────────────────────────────────────────────────
-    encode(/path₀/path₁/…/file) = [ 24, null, 0, 2, "path₀", "path₁", …, "file" ]
+    encode(/path₀/path₁/…/file) = [ 24, 0, 2, "path₀", "path₁", …, "file" ]
 
 
 Each path type is treated as another "scheme" (i.e. they are distinguished by
@@ -767,60 +765,47 @@ the third element):
 
 
     ──────────────────────────────────────────────────────────────────────────────
-    encode(./path₀/path₁/…/file) = [ 24, null, 0, 3, "path₀", "path₁", …, "file" ]
+    encode(./path₀/path₁/…/file) = [ 24, 0, 3, "path₀", "path₁", …, "file" ]
 
 
     ───────────────────────────────────────────────────────────────────────────────
-    encode(../path₀/path₁/…/file) = [ 24, null, 0, 4, "path₀", "path₁", …, "file" ]
+    encode(../path₀/path₁/…/file) = [ 24, 0, 4, "path₀", "path₁", …, "file" ]
 
 
     ──────────────────────────────────────────────────────────────────────────────
-    encode(~/path₀/path₁/…/file) = [ 24, null, 0, 5, "path₀", "path₁", …, "file" ]
+    encode(~/path₀/path₁/…/file) = [ 24, 0, 5, "path₀", "path₁", …, "file" ]
 
 
 Environment variables are also treated as another scheme:
 
 
     ───────────────────────────────────────
-    encode(env:x) = [ 24, null, 0, 6, "x" ]
+    encode(env:x) = [ 24, 0, 6, "x" ]
 
 
 The `missing` keyword is also treated as another import type:
 
 
     ────────────────────────────────────
-    encode(missing) = [ 24, null, 0, 7 ]
-
-
-If an import has an integrity check, store that in the second element as a byte
-string of the [multihash][]. Implementors do not need to be concerned
-with full multihash at this point since Dhall only supports sha256,
-so this rule suffices:
-
-
-    encode(import) = [ 24, null, x, xs… ]
-    base16decode(base16Hash) = rawHash
-    ─────────────────────────────────────────────────────────────────────────────
-    encode(import sha256:base16Hash) = [ 24, b"\x12\x20rawHash", x, xs… ]
-
+    encode(missing) = [ 24, 0, 7 ]
 
 
 If you import `as Text`, then the third element encoding the import type is `1`
 instead of `0`:
 
 
-    encode(import) = [ 24, x, 0, xs… ]
+    encode(import) = [ 24, 0, xs… ]
     ──────────────────────────────────────────
-    encode(import as Text) = [ 24, x, 1, xs… ]
+    encode(import as Text) = [ 24, 1, xs… ]
 
 
 If you import `as Location`, then the third element encoding the import type is `2`
 instead of `0`:
 
 
-    encode(import) = [ 24, x, 0, xs… ]
+    encode(import) = [ 24, 0, xs… ]
     ──────────────────────────────────────────
-    encode(import as Location) = [ 24, x, 2, xs… ]
+    encode(import as Location) = [ 24, 2, xs… ]
 
 
 ### `let` expressions
@@ -838,6 +823,19 @@ A `let` binder is represented by a sequence of three elements: name, type annota
     encode(t₀) = t₁   encode(T₀) = T₁
     ─────────────────────────────────────────
     encode(t₀ : T₀) = [ 26, t₁, T₁ ]
+
+
+### Integrity protected expressions
+
+If an expression has an integrity check, store that as a byte string of the
+[multihash][]. Implementors do not need to be concerned with full multihash
+at this point since Dhall only supports sha256, so this rule suffices:
+
+
+    encode(e₀) = e₁
+    base16decode(base16Hash) = rawHash
+    ─────────────────────────────────────────────────────────────────────────────
+    encode(e₀ sha256:base16Hash) = [ 29, e₁, b"\x12\x20rawHash"]
 
 
 ## Decoding judgment
@@ -1371,71 +1369,65 @@ The decoding rules are the exact opposite of the encoding rules:
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
+    decode([ 24, 0, 0, null, "authority", "path₀", "path₁", …, "file", "query" ]) = http://authority/path₀/path₁/…/file?query
 
 
     ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
+    decode([ 24, 0, 0, null, "authority", "path₀", "path₁", …, "file", null ]) = http://authority/path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
+    decode([ 24, 0, 1, null, "authority", "path₀", "path₁", …, "file", "query" ]) = https://authority/path₀/path₁/…/file?query
 
 
     ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
+    decode([ 24, 0, 1, null, "authority", "path₀", "path₁", …, "file", null ]) = https://authority/path₀/path₁/…/file
 
 
     ─────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
+    decode([ 24, 0, 2, "path₀", "path₁", …, "file" ]) = /path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
+    decode([ 24, 0, 3, "path₀", "path₁", …, "file" ]) = ./path₀/path₁/…/file
 
 
     ───────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
+    decode([ 24, 0, 4, "path₀", "path₁", …, "file" ]) = ../path₀/path₁/…/file
 
 
     ──────────────────────────────────────────────────────────────────────────────
-    decode([ 24, null, 0, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
+    decode([ 24, 0, 5, "path₀", "path₁", …, "file" ]) = ~/path₀/path₁/…/file
 
 
     ───────────────────────────────────────
-    decode([ 24, null, 0, 6, "x" ]) = env:x
+    decode([ 24, 0, 6, "x" ]) = env:x
 
 
     ────────────────────────────────────
-    decode([ 24, null, 0, 7 ]) = missing
+    decode([ 24, 0, 7 ]) = missing
 
 
-    decode([ 24, x, 0, xs… ]) = import
+    decode([ 24, 0, xs… ]) = import
     ──────────────────────────────────────────
-    decode([ 24, x, 1, xs… ]) = import as Text
+    decode([ 24, 1, xs… ]) = import as Text
 
 
-    decode([ 24, x, 0, xs… ]) = import
+    decode([ 24, 0, xs… ]) = import
     ──────────────────────────────────────────────
-    decode([ 24, x, 2, xs… ]) = import as Location
-
-
-    decode([ 24, null, x, xs… ]) = import
-    base16encode(rawHash) = base16Hash
-    ─────────────────────────────────────────────────────────────────────────────
-    decode([ 24, b"\x12\x20rawHash", x, xs… ]) = import sha256:base16Hash
+    decode([ 24, 2, xs… ]) = import as Location
 
 
     decode(headers₀) = headers₁
-    decode([ 24, x, y, 0, null, xs… ]) = http://authority directory file
+    decode([ 24, x, 0, null, xs… ]) = http://authority directory file
     ─────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, x, y, 0, headers₀, xs… ]) = http://authority directory file using headers₁
+    decode([ 24, x, 0, headers₀, xs… ]) = http://authority directory file using headers₁
 
 
     decode(headers₀) = headers₁
-    decode([ 24, x, y, 1, null, xs… ]) = https://authority directory file
+    decode([ 24, x, 1, null, xs… ]) = https://authority directory file
     ──────────────────────────────────────────────────────────────────────────────────────
-    decode([ 24, x, y, 1, headers₀, xs… ]) = https://authority directory file using headers₁
+    decode([ 24, x, 1, headers₀, xs… ]) = https://authority directory file using headers₁
 
 
 ### `let` expressions
@@ -1454,6 +1446,16 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode(t₁) = t₀   decode(T₁) = T₀
     ─────────────────────────────────────────
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
+
+
+### Integrity protected expressions
+
+
+    decode(e₀) = e₁
+    base16encode(rawHash) = base16Hash
+    ─────────────────────────────────────────────────────────────────────────────
+    decode([ 29, e₀, b"\x12\x20rawHash" ]) = e₁ sha256:base16Hash
+
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
 [multihash]: https://github.com/multiformats/multihash

@@ -14,10 +14,10 @@ in  { name = env:USER as Text  -- Expression imported from the environment
     } : ./schema.dhall  -- Expression imported from a file
 ```
 
-You can protect imports with integrity checks if you append SHA-256 hash (such
-as the `concatSep` import above) and you can also import a value as raw `Text`
-by appending `as Text` (such as the `env:USER` import above) or as a resolved
-path by appending `as Location`.
+You can protect imports (or any expression) with integrity checks if you
+append SHA-256 hash (such as the `concatSep` import above) and you can also
+import a value as raw `Text` by appending `as Text` (such as the `env:USER`
+import above) or as a resolved path by appending `as Location`.
 
 Imported expressions can transitively import other expressions.  For example,
 the `./schema.dhall` file imported above might also import other files:
