@@ -22,6 +22,7 @@ expressions to and from a binary representation
     * [`Integer`](#integer)
     * [`Double`](#double)
     * [`Text`](#text)
+    * [`assert`](#assert)
     * [Imports](#imports)
     * [`let`-expressions](#let-expressions)
     * [Type annotations](#type-annotations)
@@ -42,6 +43,7 @@ expressions to and from a binary representation
     * [`Integer`](#integer-1)
     * [`Double`](#double-1)
     * [`Text`](#text-1)
+    * [`assert`](#assert-1)
     * [Imports](#imports-1)
     * [`let`-expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
@@ -416,6 +418,11 @@ Operators are encoded as integer labels alongside their two arguments:
     encode(l₀ ? r₀) = [ 3, 11, l₁, r₁ ]
 
 
+    encode(l₀) = l₁   encode(r₀) = r₁
+    ─────────────────────────────────────────
+    encode(l₀ === r₀) = [ 3, 12, l₁, r₁ ]
+
+
 ### `List`
 
 Empty `List`s only store their type:
@@ -677,6 +684,17 @@ In other words: the amount of encoded elements is always an odd number, with the
 odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
+
+### `assert`
+
+An assertion encoded its own annotation (regardless of whether the annotation is
+an equivalence or not):
+
+
+    encode(T₀) = T₁
+    ────────────────────────────────
+    encode(assert : T₀) = [ 19, T₁ ]
+
 
 ### Imports
 
@@ -1155,6 +1173,11 @@ Decode a CBOR array beginning with a `3` as an operator expression:
     decode([ 3, 11, l₁, r₁ ]) = l₀ ? r₀
 
 
+    decode(l₁) = l₀   decode(r₁) = r₀
+    ─────────────────────────────────────────
+    decode([ 3, 12, l₁, r₁ ]) = l₀ === r₀
+
+
 ### `List`
 
 Decode a CBOR array beginning with a `4` or a `28` as a `List` literal
@@ -1361,6 +1384,16 @@ Decode a CBOR array beginning with a `18` as a `Text` literal:
     decode(b₁) = b₀   decode(d₁) = d₀   …   decode(y₁) = y₀
     ───────────────────────────────────────────────────────────────────────────────────
     decode([ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]) = "a${b₀}c${d}e…x${y₀}z"
+
+
+### `assert`
+
+Decode a CBOR array beginning with a `19` as an `assert`:
+
+
+    decode(T₁) = T₀
+    ────────────────────────────────
+    decode([ 19, T₁ ]) = assert : T₀
 
 
 ### Imports

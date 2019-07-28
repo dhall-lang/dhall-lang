@@ -39,6 +39,7 @@ normalize.
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
+* [Assertions](#assertions)
 * [Imports](#imports)
 
 ## Reduction
@@ -1090,6 +1091,49 @@ as a type annotation:
     ─────────────────────
     Γ ⊢ (t : Sort) : Sort
 
+
+## Assertions
+
+An assertion is equivalent to built-in language support for checking two
+expressions for judgmental equality, commonly invoked like this:
+
+    let example = assert : (2 + 2) === 4
+
+    in  …
+
+An assertion checks that:
+
+* The type annotation is an equivalence
+* The two sides of the equivalence are in fact equivalent
+
+... or in other words:
+
+
+    Γ ⊢ T :⇥ Type
+    T ⇥ x === y
+    x ≡ y
+    ─────────────────────
+    Γ ⊢ (assert : T) : T
+
+
+The inferred type of an assertion is the same as the provided annotation.
+
+If the annotation is not an equivalence then that is a type error.
+
+If the two sides of the equivalence are not equivalent then that is a type error.
+
+To type-check an equivalence, verify that the two sides are terms:
+
+
+    Γ ⊢ x : A₀
+    Γ ⊢ y : A₁
+    Γ ⊢ A₀ :⇥ Type
+    Γ ⊢ A₁ :⇥ Type
+    ──────────────────
+    Γ ⊢ x === y : Type
+
+
+If either side of the equivalence is not a term, then that is a type error.
 
 ## Imports
 

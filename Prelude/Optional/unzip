@@ -1,15 +1,5 @@
 {-
 Unzip an `Optional` value into two separate `Optional` values
-
-Examples:
-
-```
-./unzip Text Bool (Some { _1 = "ABC", _2 = True  })
-= { _1 = Some "ABC", _2 = Some True }
-
-./unzip Text Bool (None { _1 : Text, _2 : Bool })
-= { _1 = None Text, _2 = None Bool }
-```
 -}
 let unzip
     :   ∀(a : Type)
@@ -34,5 +24,15 @@ let unzip
             (λ(x : { _1 : a, _2 : b }) → Some x._2)
             (None b)
         }
+
+let example0 =
+        assert
+      :   unzip Text Bool (Some { _1 = "ABC", _2 = True })
+        ≡ { _1 = Some "ABC", _2 = Some True }
+
+let example1 =
+        assert
+      :   unzip Text Bool (None { _1 : Text, _2 : Bool })
+        ≡ { _1 = None Text, _2 = None Bool }
 
 in  unzip

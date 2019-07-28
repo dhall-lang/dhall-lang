@@ -1,26 +1,5 @@
 {-
 Concatenate a `List` of `List`s into a single `List`
-
-Examples:
-
-```
-./concat Natural
-[   [0, 1, 2]
-,   [3, 4]
-,   [5, 6, 7, 8]
-]
-= [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ]
-
-./concat Natural
-(   [   [] : List Natural
-    ,   [] : List Natural
-    ,   [] : List Natural
-    ]
-)
-= [] : List Natural
-
-./concat Natural ([] : List (List Natural)) = [] : List Natural
-```
 -}
 let concat
     : ∀(a : Type) → List (List a) → List a
@@ -38,5 +17,20 @@ let concat
             (λ(xs : List a) → λ(ys : list) → List/fold a xs list cons ys)
             nil
         )
+
+let example0 =
+        assert
+      :   concat Natural [ [ 0, 1, 2 ], [ 3, 4 ], [ 5, 6, 7, 8 ] ]
+        ≡ [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ]
+
+let example1 =
+        assert
+      :   concat
+          Natural
+          [ [] : List Natural, [] : List Natural, [] : List Natural ]
+        ≡ ([] : List Natural)
+
+let example2 =
+      assert : concat Natural ([] : List (List Natural)) ≡ ([] : List Natural)
 
 in  concat

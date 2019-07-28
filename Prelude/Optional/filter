@@ -1,15 +1,5 @@
 {-
 Only keep an `Optional` element if the supplied function returns `True`
-
-Examples:
-
-```
-./filter Natural Natural/even (Some 2)
-= Some 2
-
-./filter Natural Natural/odd (Some 2)
-= None Natural
-```
 -}
 let filter
     : ∀(a : Type) → (a → Bool) → Optional a → Optional a
@@ -28,5 +18,9 @@ let filter
             (λ(x : a) → if f x then some x else none)
             none
         )
+
+let example0 = assert : filter Natural Natural/even (Some 2) ≡ Some 2
+
+let example1 = assert : filter Natural Natural/odd (Some 2) ≡ None Natural
 
 in  filter

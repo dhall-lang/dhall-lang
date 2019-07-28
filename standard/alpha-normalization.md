@@ -236,6 +236,11 @@ sub-expressions for the remaining rules:
     l₀ != r₀ ↦ l₁ != r₁
 
 
+    l₀ ↦ l₁   r₀ ↦ r₁
+    ─────────────────────
+    l₀ === r₀ ↦ l₁ === r₁
+
+
     f₀ ↦ f₁   a₀ ↦ a₁
     ─────────────────
     f₀ a₀ ↦ f₁ a₁
@@ -249,6 +254,11 @@ sub-expressions for the remaining rules:
     t₀ ↦ t₁
     ───────────────────────
     t₀.{ xs… } ↦ t₁.{ xs… }
+
+
+    T₀ ↦ T₁
+    ─────────────────────────
+    assert : T₀ ↦ assert : T₁
 
 
     ─────────
