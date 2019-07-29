@@ -1,0 +1,21 @@
+{-
+`eq` checks if two Naturals are equal.
+
+Examples:
+
+```
+./eq 5 5
+= True
+
+./eq 5 6
+= False
+```
+-}
+let eq
+		: Natural → Natural → Bool
+		=   λ(a : Natural)
+			→ λ(b : Natural)
+			→     Natural/isZero (Natural/subtract a b)
+				&&  Natural/isZero (Natural/subtract b a)
+
+in  eq
