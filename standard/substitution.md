@@ -148,36 +148,6 @@ All of the following rules cover expressions that can bind variables:
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
-    A₀[x@n ≔ e₀] = A₁
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, x, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────
-    (let x : A₀ = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x : A₁ = a₁ let xs₁… in b₁
-
-
-    A₀[x@n ≔ e₀] = A₁
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, y, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@n ≔ e₁] = let xs₁… in b₁
-    ───────────────────────────────────────────────────────────────────────────  ; x ≠ y
-    (let y : A₀ = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y : A₁ = a₁ let ys₁… in b₁
-
-
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, x, 0, e₀) = e₁
-    (let xs₀… in b₀)[x@(1 + n) ≔ e₁] = let xs₁… in b₁
-    ─────────────────────────────────────────────────────────────────
-    (let x = a₀ let xs₀… in b₀)[x@n ≔ e₀] = let x = a₁ let xs₁… in b₁
-
-
-    a₀[x@n ≔ e₀] = a₁
-    ↑(1, y, 0, e₀) = e₁
-    (let ys₀… in b₀)[x@n ≔ e₁] = let ys₁… in b₁
-    ─────────────────────────────────────────────────────────────────  ; x ≠ y
-    (let y = a₀ let ys₀… in b₀)[x@n ≔ e₀] = let y = a₁ let ys₁… in b₁
-
-
 ## Imports
 
 You can substitute expressions with unresolved imports because the language
@@ -234,9 +204,19 @@ The remaining rules are:
     (merge t₀ u₀)[x@n ≔ e] = merge t₁ u₁
 
 
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
+    ────────────────────────────────────────
+    (toMap t₀ : T₀)[x@n ≔ e] = toMap t₁ : T₁
+
+
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────
+    (toMap t₀)[x@n ≔ e] = toMap t₁
+
+
     T₀[x@n ≔ e] = T₁
-    ──────────────────────────────────────
-    ([] : List T₀)[x@n ≔ e] = [] : List T₁
+    ────────────────────────────
+    ([] : T₀)[x@n ≔ e] = [] : T₁
 
 
     t₀[x@n ≔ e] = t₁   [ ts₀… ][x@n ≔ e] = [ ts₁… ]
@@ -377,16 +357,6 @@ The remaining rules are:
     < x₀ | xs₀… >[x@n ≔ e] = < x₀ | xs₁… >
 
 
-    t₀[x@n ≔ e] = t₁
-    ──────────────────────────────────
-    < x₀ = t₀ >[x@n ≔ e] = < x₀ = t₁ >
-
-
-    T₁₀[x@n ≔ e] = T₁₁   < x₀ = t₀₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | xs₁… >
-    ────────────────────────────────────────────────────────────────────────
-    < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… >[x@n ≔ e] = < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
-
-
     a₀[x@n ≔ e] = a₁
     ────────────────────────────
     (Some a₀)[x@n ≔ e] = Some a₁
@@ -422,6 +392,10 @@ The remaining rules are:
 
     ────────────────────────────────────
     Natural/show[x@n ≔ e] = Natural/show
+
+
+    ────────────────────────────────────────────
+    Natural/subtract[x@n ≔ e] = Natural/subtract
 
 
     ────────────────────────────────────────────
@@ -522,4 +496,3 @@ The remaining rules are:
 
     ────────────────────
     Sort[x@n ≔ e] = Sort
-

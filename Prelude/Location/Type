@@ -1,0 +1,10 @@
+{- This is the union type returned when you import something `as Location`
+
+   For example:
+
+   ```
+   missing as Location
+     = < Environment : Text | Local : Text | Missing | Remote : Text >.Missing
+   ```
+-}
+< Environment : Text | Local : Text | Missing | Remote : Text >

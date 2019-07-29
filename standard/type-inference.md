@@ -244,6 +244,10 @@ The built-in functions on `Natural` numbers have the following types:
     Γ ⊢ Natural/show : Natural → Text
 
 
+    ──────────────────────────────────────────────────
+    Γ ⊢ Natural/subtract : Natural → Natural → Natural
+
+
 ## `Text`
 
 
@@ -297,9 +301,9 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
-    Γ ⊢ T :⇥ Type
-    ──────────────────────────
-    Γ ⊢ ([] : List T) : List T
+    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   T₁ :⇥ Type
+    ──────────────────────────────────────
+    Γ ⊢ ([] : T₀) : List T₁
 
 
     Γ ⊢ t : T₀   T₀ :⇥ Type   Γ ⊢ [ ts… ] :⇥ List T₁   T₀ ≡ T₁
@@ -753,6 +757,24 @@ If the operator arguments are not record types then that is a type error.
 If they share a field in common that is not a record type then that is a type
 error.
 
+
+
+The `toMap` operator can be applied only to a record value, and every field
+of the record must have the same type, which in turn must be a `Type`.
+
+
+    Γ ⊢ e :⇥ { x : T₀, xs… }
+    Γ ⊢ toMap { xs… } :⇥ List { mapKey : Text, mapValue : T₁ }
+    T₀ ≡ T₁
+    ──────────────────────────────────────────────────────────
+    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T₀ }
+
+
+    Γ ⊢ e :⇥ {}   Γ ⊢ T₀ :⇥ Type   T₀ ⇥ List { mapKey : Text, mapValue : T₁ }
+    ─────────────────────────────────────────────────────────────────────────
+    Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
+
+
 ## Unions
 
 Union types are "anonymous", meaning that they are uniquely defined by the names
@@ -809,16 +831,6 @@ unions.  However, if the type of the alternative is not `Type`,
 `Kind`, or `Sort` then that is a type error.
 
 If two alternatives share the same name then that is a type error.
-
-Union literals are also anonymous:
-
-
-    Γ ⊢ t : T   Γ ⊢ < x : T | ts… > :⇥ i
-    ─────────────────────────────────────
-    Γ ⊢ < x = t | ts… > : < x : T | ts… >
-
-
-However, union literals are deprecated in favor of union constructors.
 
 If a union alternative is non-empty, then the corresponding constructor is a
 function that wraps a value of the appropriate type:
@@ -1056,31 +1068,6 @@ expression would be well-typed.
 If the `let` expression has a type annotation that doesn't match the type of
 the right-hand side of the assignment then that is a type error.
 
-A `let` expression with multiple `let` bindings is equivalent to nested `let`
-expressions:
-
-
-    Γ ⊢ a₀ : A₁
-    Γ ⊢ A₀ : i
-    A₀ ≡ A₁
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    (let xs… in b₀)[x ≔ a₂] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    Γ ⊢ b₂ : B
-    ─────────────────────────────────────
-    Γ ⊢ let x : A₀ = a₀ let xs… in b₀ : B
-
-
-    Γ ⊢ a₀ : A
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    (let xs… in b₀)[x ≔ a₂] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    Γ ⊢ b₂ : B
-    ────────────────────────────────
-    Γ ⊢ let x = a₀ let xs… in b₀ : B
-
 
 ## Type annotations
 
@@ -1111,4 +1098,3 @@ as a type annotation:
 ## Imports
 
 An expression with unresolved imports cannot be type-checked
-

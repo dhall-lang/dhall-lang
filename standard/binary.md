@@ -209,6 +209,10 @@ matching their identifier.
     encode(Natural/show) = "Natural/show"
 
 
+    ─────────────────────────────────────────────
+    encode(Natural/subtract) = "Natural/subtract"
+
+
     ─────────────────────────────────────────────────
     encode(Integer/toDouble) = "Integer/toDouble"
 
@@ -426,6 +430,14 @@ Empty `List`s only store their type:
     encode([] : List T₀) = [ 4, T₁ ]
 
 
+If the type annotation is not of the form `List T`:
+
+
+    encode(T₀) = T₁
+    ────────────────────────────
+    encode([] : T₀) = [ 28, T₁ ]
+
+
 Non-empty `List`s don't store their type, but do store their elements inline:
 
 
@@ -458,6 +470,22 @@ have a type annotation:
     encode(t₀) = t₁   encode(u₀) = u₁   encode(T₀) = T₁
     ───────────────────────────────────────────────────────────────
     encode(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
+
+
+### `toMap` expressions
+
+`toMap` expressions differ in their encoding depending on whether or not they
+have a type annotation:
+
+
+    encode(t₀) = t₁
+    ─────────────────────────────
+    encode(toMap t₀) = [ 27, t₁ ]
+
+
+    encode(t₀) = t₁   encode(T₀) = T₁
+    ──────────────────────────────────────
+    encode(toMap t₀ : T₀) = [ 27, t₁, T₁ ]
 
 
 ### Records
@@ -515,20 +543,15 @@ Dhall union types translate to CBOR maps:
     encode(< x : T₀ | y | … >) = [ 11, { "x" = T₁, "y" = null, … } ]
 
 
-Dhall union literals store the specified alternative followed by the alternative
-types encoded as CBOR map:
+The (now-removed) union literal syntax used to be encoded using a leading 12:
 
 
     encode(t₀) = t₁   encode(T₀) = T₁   …
-    ──────────────────────────────────────────────────────────────────────────────────
+    ──────────────────────────────────────────────────────────────────────────────────  ; OBSOLETE judgment
     encode(< x = t₀ | y : T₀ | z | … >) = [ 12, "x", t₁, { "y" = T₁, "z" = null, … } ]
 
 
-Also in these cases the fields of the map should be sorted before the conversion.
-
-
-The (now-removed) `constructors` keyword used to be encoded using a leading
-13:
+The (now-removed) `constructors` keyword used to be encoded using a leading 13:
 
 
     encode(u₀) = u₁
@@ -536,9 +559,12 @@ The (now-removed) `constructors` keyword used to be encoded using a leading
     encode(constructors u₀) = [ 13, u₁]
 
 
-Avoid reusing the number 13 as long as possible until we run out of numbers less
-than 24, mainly to avoid old encoded expressions containing the `constructors`
-keyword from being decoded as a newer type of expression.
+Avoid reusing the numbers 12 and 13 as long as possible until we run out of
+numbers less than 24, mainly to avoid old encoded expressions containing union
+literals or the `constructors` keyword from being decoded as a newer type of
+expression.  Once we run out of numbers, first reassign 13 before reassigning
+12, because `constructors` was removed from the language before union literals
+were.
 
 ### `Bool`
 
@@ -652,7 +678,7 @@ interpolated expressions:
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
 In other words: the amount of encoded elements is always an odd number, with the
-odd elements being strings and the even ones being interpolated expressions.  
+odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
 
@@ -803,12 +829,11 @@ instead of `0`:
 
 ### `let` expressions
 
-`let` expressions use three list elements per binding and also use a `null` to
-represent the absence of a type annotation:
+A `let` binder is represented by a sequence of three elements: name, type annotation (`null` if absent) and bound expression. Adjacent `let` expressions are "flattened" and encoded in a single array, concatenating the immediately nested binders:
 
     encode(A₀) = A₁   encode(a₀) = a₁   encode(b₀) = b₁   ...   encode(z₀) = z₁
     ──────────────────────────────────────────────────────────────────────────────────────────
-    encode(let x : A₀ = a₀ let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
+    encode(let x : A₀ = a₀ in let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
 
 
 ### Type annotations
@@ -1136,7 +1161,7 @@ Decode a CBOR array beginning with a `3` as an operator expression:
 
 ### `List`
 
-Decode a CBOR array beginning with a `4` as a `List` literal
+Decode a CBOR array beginning with a `4` or a `28` as a `List` literal
 
 If the list is empty, then the type MUST be non-`null`:
 
@@ -1144,6 +1169,11 @@ If the list is empty, then the type MUST be non-`null`:
     decode(T₁) = T₀
     ────────────────────────────────────
     decode([ 4, T₁ ]) = [] : List T₀
+
+
+    decode(T₁) = T₀
+    ────────────────────────────
+    decode([ 28, T₁ ]) = [] : T₀
 
 
 If the list is non-empty then the type MUST be `null`:
@@ -1177,6 +1207,21 @@ Decode a CBOR array beginning with a `6` as a `merge` expression:
     decode(t₁) = t₀   decode(u₁) = u₀   decode(T₁) = T₀
     ───────────────────────────────────────────────────────────────
     decode([ 6, t₁, u₁, T₁ ]) = merge t₀ u₀ : T₀
+
+
+### `toMap` expressions
+
+Decode a CBOR array beginning with a `27` as a `toMap` expression:
+
+
+    decode(t₁) = t₀
+    ─────────────────────────────
+    decode([ 27, t₁ ]) = toMap t₀
+
+
+    decode(t₁) = t₀   decode(T₁) = T₀
+    ──────────────────────────────────────
+    decode([ 27, t₁, T₁ ]) = toMap t₀ : T₀
 
 
 ### Records
@@ -1229,14 +1274,6 @@ Decode a CBOR array beginning with a `11` as a union type:
     decode(T₁) = T₀   …
     ────────────────────────────────────────────────────────────────
     decode([ 11, { "x" = T₁, "y" = null, … } ]) = < x : T₀ | y | … >
-
-
-Decode a CBOR array beginning with a `12` as a union literal:
-
-
-    decode(t₁) = t₀   decode(T₁) = T₀   …
-    ──────────────────────────────────────────────────────────────────────────────────
-    decode([ 12, "x", t₁, { "y" = T₁, "z" = null, … } ]) = < x = t₀ | y : T₀ | z | … >
 
 
 A decoder MUST NOT attempt to enforce uniqueness of keys.  That is the

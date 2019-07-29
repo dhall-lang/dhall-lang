@@ -485,6 +485,45 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+`Natural/subtract` performs truncating subtraction, as in
+[saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
+                                          ;  comparison, and "b - a" is machine
+                                          ;  subtraction
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ; if b < a
+    f a b ⇥ 0
+
+
+Also, simplify the `Natural/subtract` function if either argument normalizes to
+a `0` literal:
+
+
+    x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────
+    Natural/subtract x y₀ ⇥ y₁
+
+
+    y ⇥ 0
+    ─────────────────────────
+    Natural/subtract x y ⇥ 0
+
+
+Otherwise, normalize each argument:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ───────────────────────────────────────────────  ; If no other rule matches
+    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+
+
+
 All of the built-in functions on `Natural` numbers are in normal form:
 
 
@@ -514,6 +553,10 @@ All of the built-in functions on `Natural` numbers are in normal form:
 
     ───────────────────────────
     Natural/show ⇥ Natural/show
+
+
+    ───────────────────────────────────
+    Natural/subtract ⇥ Natural/subtract
 
 
 ## `Text`
@@ -640,8 +683,8 @@ Normalizing a `List` normalizes each field and the type annotation:
 
 
     T₀ ⇥ T₁
-    ──────────────────────────
-    [] : List T₀ ⇥ [] : List T₁
+    ─────────────────
+    [] : T₀ ⇥ [] : T₁
 
 
     t₀ ⇥ t₁   [ ts₀… ] ⇥ [ ts₁… ]
@@ -706,13 +749,13 @@ Also, simplify the "list concatenation" operator if either argument normalizes
 to an empty `List`:
 
 
-    ls ⇥ [] : List T   rs₀ ⇥ rs₁
-    ────────────────────────────
+    ls ⇥ [] : T   rs₀ ⇥ rs₁
+    ───────────────────────
     ls # rs₀ ⇥ rs₁
 
 
-    rs ⇥ [] : List T   ls₀ ⇥ ls₁
-    ────────────────────────────
+    rs ⇥ [] : T   ls₀ ⇥ ls₁
+    ───────────────────────
     ls₀ # rs ⇥ ls₁
 
 
@@ -727,8 +770,8 @@ Otherwise, normalize each argument:
 `List/length` returns the length of a list:
 
 
-    f ⇥ List/length A₀   a ⇥ [] : List A₁
-    ─────────────────────────────────────
+    f ⇥ List/length A₀   a ⇥ [] : A₁
+    ────────────────────────────────
     f a ⇥ 0
 
 
@@ -740,8 +783,8 @@ Otherwise, normalize each argument:
 `List/head` returns the first element of a list:
 
 
-    f ⇥ List/head A₀   as ⇥ [] : List A₁
-    ────────────────────────────────────
+    f ⇥ List/head A₀   as ⇥ [] : A₁
+    ───────────────────────────────
     f as ⇥ None A₀
 
 
@@ -753,8 +796,8 @@ Otherwise, normalize each argument:
 `List/last` returns the last element of a list:
 
 
-    f ⇥ List/last A₀   as ⇥ [] : List A₁
-    ────────────────────────────────────
+    f ⇥ List/last A₀   as ⇥ [] : A₁
+    ───────────────────────────────
     f as ⇥ None A₀
 
 
@@ -766,7 +809,7 @@ Otherwise, normalize each argument:
 `List/indexed` tags each element of the list with the element's index:
 
 
-    f ⇥ List/indexed A₀   as ⇥ [] : List A₁
+    f ⇥ List/indexed A₀   as ⇥ [] : A₁
     ───────────────────────────────────────────────
     f as ⇥ [] : List { index : Natural, value : A₀ }
 
@@ -779,9 +822,9 @@ Otherwise, normalize each argument:
 `List/reverse` reverses the elements of the list:
 
 
-    f ⇥ List/reverse A₀   as ⇥ [] : List A₁
-    ───────────────────────────────────────
-    f as ⇥ [] : List A₁
+    f ⇥ List/reverse A₀   as ⇥ [] : A₁
+    ──────────────────────────────────
+    f as ⇥ [] : A₁
 
 
     f ⇥ List/reverse A₀   as ⇥ [ a₀, a₁, … ]
@@ -933,24 +976,38 @@ You can also project out more than one field into a new record:
     t.{} ⇥ {}
 
 
+Simplify a record projection if the argument is a record literal:
+
+
     t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥ { ys… }
     ──────────────────────────────────────────────
     t.{ x, xs… } ⇥ { x = v, ys… }
 
 
+Otherwise, normalize the argument and sort the fields:
+
+
+    t₀ ⇥ t₁   sort(xs₀…) = xs₁…
+    ───────────────────────────
+    t₀.{ xs₀… } ⇥ t₁.{ xs₁… }
+
+
+You can also project by type:
+
+
     s ⇥ {}
     ───────────
-    keys(s) ⇥ ε
+    keys(s) = ε
 
 
     s ⇥ { x : T, ss… }
-    keys(ss…) ⇥ ss₁…
+    keys(ss…) = ss₁…
     ─────────────────────
-    keys(s) ⇥ x, ss₁…
+    keys(s) = x, ss₁…
 
 
     s ⇥ { ss… }
-    keys(s) ⇥ s₁
+    keys(s) = s₁
     t.{s₁} ⇥ ts₁
     ────────────
     t.(s) ⇥ ts₁
@@ -1066,6 +1123,41 @@ record types:
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
+A record whose fields all have the same type (*i.e.*, a *homogeneous* record) can be converted to a list where each list
+item represents a field. The value "x" below represents the text value of the field name `x`.
+
+
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
+    ──────────────────────────────────────────────
+    toMap t ⇥ [ {mapKey = "x", mapValue = v} ] # m
+
+
+The `toMap` application can be annotated with a type, and it must be if the record is empty.
+
+
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
+    ───────────────────────────────────────────────────
+    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
+
+
+    t ⇥ {=}   T₀ ⇥ T₁
+    ──────────────────────
+    toMap t : T₀ ⇥ [] : T₁
+
+
+If the record or the type is abstract, then normalize each subexpression:
+
+
+    t₀ ⇥ t₁   T₀ ⇥ T₁
+    ─────────────────────────────  ; If no other rule matches
+    toMap t₀ : T₀ ⇥ toMap t₁ : T₁
+
+
+    t₀ ⇥ t₁
+    ───────────────────  ; If no other rule matches
+    toMap t₀ ⇥ toMap t₁
+
+
 ## Unions
 
 Normalizing a union type sorts the alternatives and normalizes the type of each
@@ -1086,24 +1178,8 @@ alternative:
     < x | xs₀… > ⇥ < x | xs₁… >
 
 
-The language still supports a deprecated union literal syntax for selecting one
-alternative of the union.  Normalizing this deprecated form sorts the
-alternatives, normalizes the specified value, and normalizes the type of each
-alternative:
-
-
-    t₀ ⇥ t₁
-    ───────────────────────
-    < x = t₀ > ⇥ < x = t₁ >
-
-
-    T₁₀ ⇥ T₁₁   < x₀ = t₀₀ | xs₀… > ⇥ < x₁ = t₀₁ | xs₁… >
-    ────────────────────────────────────────────────────────────────
-    < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… > ⇥ < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
-
-
-However, the newer preferred syntax is to access a union constructor as if it
-were a field of the union type:
+Normalizing a union constructor only normalizes the union type but is otherwise
+inert.  The expression does not reduce further until supplied to a `merge`.
 
 
     u ⇥ < x₀ : T₀ | xs… >
@@ -1116,33 +1192,15 @@ were a field of the union type:
     u.x₀ ⇥ < x₀ | xs… >.x₀
 
 
-Normalizing this type of constructor access only normalizes the union type but
-is otherwise inert.  The expression does not reduce further until supplied to a
-`merge`.
-
-`merge` expressions are the canonical way to eliminate a union literal.  The
+`merge` expressions are the canonical way to eliminate a union value.  The
 first argument to `merge` is a record of handlers and the second argument is a
-union value, which can be in one of three forms:
+union value, which can be in one of two forms:
 
-* A (deprecated) union literal of the form: `< x = v | … >`
 * A union constructor for a non-empty alternative: `< x : T | … >.x v`
 * A union constructor for an empty alternative: `< x | … >.x`
 
-For union literals selecting non-empty alternatives, apply the handler of the
-same label to the wrapped value of the union literal:
-
-
-    t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
-    ──────────────────────────────────────────────
-    merge t u : T ⇥ b
-
-
-    t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
-    ──────────────────────────────────────────────
-    merge t u ⇥ b
-
-
-Union constructors for non-empty alternatives behave the same as union literals:
+For union constructors specifying non-empty alternatives, apply the handler of
+the same label to the wrapped value of the union constructor:
 
 
     t ⇥ { x = f, … }   u ⇥ < x : T₀ | … >.x a   f a ⇥ b
@@ -1350,26 +1408,6 @@ equivalence:
     let x = a₀ in b₀ ⇥ b₃
 
 
-A `let` expression with multiple `let` bindings is equivalent to nested `let`
-expressions:
-
-
-    ↑(1, x, 0, a₀) = a₁
-    (let xs… in b₀)[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────────────
-    let x : A = a₀ let xs… in b₀ ⇥ b₃
-
-
-    ↑(1, x, 0, a₀) = a₁
-    (let xs… in b₀)[x ≔ a₁] = b₁
-    ↑(-1, x, 0, b₁) = b₂
-    b₂ ⇥ b₃
-    ─────────────────────────────
-    let x = a₀ let xs… in b₀ ⇥ b₃
-
-
 ## Type annotations
 
 Simplify a type annotation by removing the annotation:
@@ -1383,4 +1421,3 @@ Simplify a type annotation by removing the annotation:
 ## Imports
 
 An expression with unresolved imports cannot be β-normalized.
-

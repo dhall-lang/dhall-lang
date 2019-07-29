@@ -97,7 +97,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / if t then l else r                ; if-then-else expression
   / merge t u : T                     ; Union elimination with type annotation
   / merge t u                         ; Union elimination
-  / [] : List T                       ; Empty list literals with type annotation
+  / [] : T                            ; Empty list literals with type annotation
   / [ t, ts… ]                        ; Non-empty list literals
   / t : T                             ; Type annotation
   / l || r                            ; Boolean or
@@ -129,9 +129,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
                                       ; alternative
   / < x | xs… >                       ; Union type with at least one empty
                                       ; alternative
-  / < x = t >                         ; Union literal with one alternative
-  / < x₀ = t₀ | x₁ : T₁ | xs… >       ; Union literal with more than one
-                                      ; alternative
   / missing                           ; Identity for import alternatives,
                                       ; will always fail to resolve
   / l ? r                             ; Alternative imports resolution
@@ -151,6 +148,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
   / Natural/show                      ; Convert Natural to Text representation
+  / Natural/subtract                  ; Perform truncated subtraction on two Naturals
   / Integer/toDouble                  ; Convert Integer to Double
   / Integer/show                      ; Convert Integer to Text representation
   / Double/show                       ; Convert Double to Text representation
@@ -204,17 +202,6 @@ t          : Naked label which could be any type of expression.
 < x | xs… >                : A union type with 1 or more empty alternatives
                              At least one alternative is named `x`, which is an
                              empty alternative
-< x = t | xs… >            : A union literal with 0 or more alternative-type
-                             pairs.  The specified alternative is named `x` with
-                             value of `t`.
-< x₀ = t₀ | x₁ : T₁, xs… > : A union literal with 1 or more alternative-type
-                             pairs.  The specified alternative is named `x₀ with
-                             value of `t₀`.  At least one alternative is named
-                             `x₁` with a type of `T₁`.
-
-
-let xs… in b                : A `let` definition with at least one bindings
-let x : A = a let xs… in b  : A `let` definition with at least two bindings
 
 "s"           : A `Text` literal without any interpolated expressions
 "s${t}ss…"    : A `Text` literal with at least one interpolated expression
