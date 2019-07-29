@@ -309,16 +309,6 @@ sub-expressions for the remaining rules:
     < x | xs₀… > ↦ < x | xs₁… >
 
 
-    t₀ ↦ t₁
-    ───────────────────────
-    < x = t₀ > ↦ < x = t₁ >
-
-
-    t₀ ↦ t₁   < xs₀… > ↦ < xs₁… >
-    ─────────────────────────────────────
-    < x = t₀ | xs₀… > ↦ < x = t₁ | xs₁… >
-
-
     a₀ ↦ a₁
     ─────────────────
     Some a₀ ↦ Some a₁
@@ -354,6 +344,10 @@ sub-expressions for the remaining rules:
 
     ───────────────────────────
     Natural/show ↦ Natural/show
+
+
+    ───────────────────────────────────
+    Natural/subtract ↦ Natural/subtract
 
 
     ───────────────────────────────────
