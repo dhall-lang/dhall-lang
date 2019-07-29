@@ -244,6 +244,10 @@ The built-in functions on `Natural` numbers have the following types:
     Γ ⊢ Natural/show : Natural → Text
 
 
+    ──────────────────────────────────────────────────
+    Γ ⊢ Natural/subtract : Natural → Natural → Natural
+
+
 ## `Text`
 
 
