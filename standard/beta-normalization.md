@@ -485,6 +485,45 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+`Natural/subtract` performs truncating subtraction, as in
+[saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
+                                          ;  comparison, and "b - a" is machine
+                                          ;  subtraction
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ; if b < a
+    f a b ⇥ 0
+
+
+Also, simplify the `Natural/subtract` function if either argument normalizes to
+a `0` literal:
+
+
+    x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────
+    Natural/subtract x y₀ ⇥ y₁
+
+
+    y ⇥ 0
+    ─────────────────────────
+    Natural/subtract x y ⇥ 0
+
+
+Otherwise, normalize each argument:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ───────────────────────────────────────────────  ; If no other rule matches
+    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+
+
+
 All of the built-in functions on `Natural` numbers are in normal form:
 
 
@@ -514,6 +553,10 @@ All of the built-in functions on `Natural` numbers are in normal form:
 
     ───────────────────────────
     Natural/show ⇥ Natural/show
+
+
+    ───────────────────────────────────
+    Natural/subtract ⇥ Natural/subtract
 
 
 ## `Text`
@@ -1135,24 +1178,8 @@ alternative:
     < x | xs₀… > ⇥ < x | xs₁… >
 
 
-The language still supports a deprecated union literal syntax for selecting one
-alternative of the union.  Normalizing this deprecated form sorts the
-alternatives, normalizes the specified value, and normalizes the type of each
-alternative:
-
-
-    t₀ ⇥ t₁
-    ───────────────────────
-    < x = t₀ > ⇥ < x = t₁ >
-
-
-    T₁₀ ⇥ T₁₁   < x₀ = t₀₀ | xs₀… > ⇥ < x₁ = t₀₁ | xs₁… >
-    ────────────────────────────────────────────────────────────────
-    < x₀ = t₀₀ | x₁ : T₁₀ | xs₀… > ⇥ < x₀ = t₀₁ | x₁ : T₁₁ | xs₁… >
-
-
-However, the newer preferred syntax is to access a union constructor as if it
-were a field of the union type:
+Normalizing a union constructor only normalizes the union type but is otherwise
+inert.  The expression does not reduce further until supplied to a `merge`.
 
 
     u ⇥ < x₀ : T₀ | xs… >
@@ -1165,33 +1192,15 @@ were a field of the union type:
     u.x₀ ⇥ < x₀ | xs… >.x₀
 
 
-Normalizing this type of constructor access only normalizes the union type but
-is otherwise inert.  The expression does not reduce further until supplied to a
-`merge`.
-
-`merge` expressions are the canonical way to eliminate a union literal.  The
+`merge` expressions are the canonical way to eliminate a union value.  The
 first argument to `merge` is a record of handlers and the second argument is a
-union value, which can be in one of three forms:
+union value, which can be in one of two forms:
 
-* A (deprecated) union literal of the form: `< x = v | … >`
 * A union constructor for a non-empty alternative: `< x : T | … >.x v`
 * A union constructor for an empty alternative: `< x | … >.x`
 
-For union literals selecting non-empty alternatives, apply the handler of the
-same label to the wrapped value of the union literal:
-
-
-    t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
-    ──────────────────────────────────────────────
-    merge t u : T ⇥ b
-
-
-    t ⇥ { x = f, … }   u ⇥ < x = a | … >   f a ⇥ b
-    ──────────────────────────────────────────────
-    merge t u ⇥ b
-
-
-Union constructors for non-empty alternatives behave the same as union literals:
+For union constructors specifying non-empty alternatives, apply the handler of
+the same label to the wrapped value of the union constructor:
 
 
     t ⇥ { x = f, … }   u ⇥ < x : T₀ | … >.x a   f a ⇥ b
