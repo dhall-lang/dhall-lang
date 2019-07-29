@@ -934,6 +934,10 @@ The built-in functions on `Integer` have the following types:
     Γ ⊢ Integer/toDouble : Integer → Double
 
 
+    ───────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ Integer/toSigned : Integer → < Negative : Natural | Zero | Positive : Natural >
+
+
 ## `Double`
 
 `Double` is a type:

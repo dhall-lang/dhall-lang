@@ -1269,6 +1269,26 @@ the nearest `Double`. Ties go to the `Double` with an even least significant
 bit. When the magnitude of `a` is greater than or equal to `c`, the magnitude
 will round to `Infinity`, where `c = 2^1024 - 2^970 ≈ 1.8e308`.
 
+
+`Integer/toSigned` transforms an `Integer` into a pair of a `Natural` number,
+and the sign of the number.
+
+
+    f ⇥ Integer/toSigned   a ⇥ -n
+    ───────────────────────────────────────────────────────────────────
+    f a ⇥ < Negative : Natural | Zero | Positive : Natural >.Negative n
+
+
+    f ⇥ Integer/toSigned   a ⇥ 0
+    ─────────────────────────────────────────────────────────────
+    f a ⇥ < Negative : Natural | Zero | Positive : Natural >.Zero
+
+
+    f ⇥ Integer/toSigned   a ⇥ +n
+    ───────────────────────────────────────────────────────────────────
+    f a ⇥ < Negative : Natural | Zero | Positive : Natural >.Positive n
+
+
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
 Dhall code for representing that `Integer` number:
 

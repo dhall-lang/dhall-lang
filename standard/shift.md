@@ -421,6 +421,10 @@ The remaining rules are:
     ↑(d, x, m, Integer/toDouble) = Integer/toDouble
 
 
+    ───────────────────────────────────────────────
+    ↑(d, x, m, Integer/toSigned) = Integer/toSigned
+
+
     ───────────────────────────────────────
     ↑(d, x, m, Integer/show) = Integer/show
 

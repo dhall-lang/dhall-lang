@@ -217,6 +217,10 @@ matching their identifier.
     encode(Integer/toDouble) = "Integer/toDouble"
 
 
+    ─────────────────────────────────────────────────
+    encode(Integer/toSigned) = "Integer/toSigned"
+
+
     ─────────────────────────────────────────
     encode(Integer/show) = "Integer/show"
 
@@ -904,6 +908,10 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────────────
     decode("Integer/toDouble") = Integer/toDouble
+
+
+    ─────────────────────────────────────────────────
+    decode("Integer/toSigned") = Integer/toSigned
 
 
     ─────────────────────────────────────────

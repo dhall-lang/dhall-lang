@@ -354,6 +354,10 @@ sub-expressions for the remaining rules:
     Integer/toDouble ↦ Integer/toDouble
 
 
+    ───────────────────────────────────
+    Integer/toSigned ↦ Integer/toSigned
+
+
     ───────────────────────────
     Integer/show ↦ Integer/show
 

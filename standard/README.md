@@ -150,6 +150,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/show                      ; Convert Natural to Text representation
   / Natural/subtract                  ; Perform truncated subtraction on two Naturals
   / Integer/toDouble                  ; Convert Integer to Double
+  / Integer/toSigned                  ; Convert integers to pairs of sign and Naturals
   / Integer/show                      ; Convert Integer to Text representation
   / Double/show                       ; Convert Double to Text representation
   / List/build                        ; List introduction

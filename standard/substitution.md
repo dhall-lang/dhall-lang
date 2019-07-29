@@ -402,6 +402,10 @@ The remaining rules are:
     Integer/toDouble[x@n ≔ e] = Integer/toDouble
 
 
+    ────────────────────────────────────────────
+    Integer/toSigned[x@n ≔ e] = Integer/toSigned
+
+
     ────────────────────────────────────
     Integer/show[x@n ≔ e] = Integer/show
 
