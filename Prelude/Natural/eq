@@ -12,10 +12,10 @@ Examples:
 ```
 -}
 let eq
-		: Natural → Natural → Bool
-		=   λ(a : Natural)
-			→ λ(b : Natural)
-			→     Natural/isZero (Natural/subtract a b)
-				&&  Natural/isZero (Natural/subtract b a)
+    : Natural → Natural → Bool
+    =   λ(a : Natural)
+      → λ(b : Natural)
+      →     Natural/isZero (Natural/subtract a b)
+        &&  Natural/isZero (Natural/subtract b a)
 
 in  eq

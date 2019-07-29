@@ -16,7 +16,7 @@ Examples:
 ```
 -}
 let lte
-	: Natural → Natural → Bool
-	= λ(x : Natural) → λ(y : Natural) → Natural/isZero (Natural/subtract y x)
+    : Natural → Natural → Bool
+    = λ(x : Natural) → λ(y : Natural) → Natural/isZero (Natural/subtract y x)
 
 in  lte
