@@ -16,15 +16,15 @@ Examples:
 -}
 
 let Bool/not =
-        ./Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
-      ? ./Bool/not
+		../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
+	  ? ../Bool/not
 
 let lte =
-        ./lte sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
-      ? ./lte
+		./lte sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+	  ? ./lte
 
 let gt
-    : Natural → Natural → Bool
-    = λ(x : Natural) → λ(y : Natural) → Bool/not (lte x y)
+	: Natural → Natural → Bool
+	= λ(x : Natural) → λ(y : Natural) → Bool/not (lte x y)
 
 in  gt
