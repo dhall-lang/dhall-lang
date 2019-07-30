@@ -1,1 +1,1 @@
-[12, "foo", [26, [0, [24, null, 0, 3, "example|"], ["bar", 0]], [24, null, 0, 3, "example"]], {}]
+[11, {"foo": [26, [0, [24, null, 0, 3, "example|"], ["bar", 0]], [24, null, 0, 3, "example"]]}]
