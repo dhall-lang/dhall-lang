@@ -40,11 +40,11 @@ let map
       → λ(f : a → b)
       → λ(m : Map k a)
       → List/map
-        (Entry k a)
-        (Entry k b)
-        (   λ(before : Entry k a)
-          → { mapKey = before.mapKey, mapValue = f before.mapValue }
-        )
-        m
+          (Entry k a)
+          (Entry k b)
+          (   λ(before : Entry k a)
+            → { mapKey = before.mapKey, mapValue = f before.mapValue }
+          )
+          m
 
 in  map

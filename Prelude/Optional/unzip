@@ -21,18 +21,18 @@ let unzip
       → λ(xs : Optional { _1 : a, _2 : b })
       → { _1 =
             Optional/fold
-            { _1 : a, _2 : b }
-            xs
-            (Optional a)
-            (λ(x : { _1 : a, _2 : b }) → Some x._1)
-            (None a)
+              { _1 : a, _2 : b }
+              xs
+              (Optional a)
+              (λ(x : { _1 : a, _2 : b }) → Some x._1)
+              (None a)
         , _2 =
             Optional/fold
-            { _1 : a, _2 : b }
-            xs
-            (Optional b)
-            (λ(x : { _1 : a, _2 : b }) → Some x._2)
-            (None b)
+              { _1 : a, _2 : b }
+              xs
+              (Optional b)
+              (λ(x : { _1 : a, _2 : b }) → Some x._2)
+              (None b)
         }
 
 in  unzip

@@ -16,13 +16,13 @@ let last
     =   λ(a : Type)
       → λ(xs : List (Optional a))
       → List/fold
-        (Optional a)
-        xs
-        (Optional a)
-        (   λ(l : Optional a)
-          → λ(r : Optional a)
-          → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
-        )
-        (None a)
+          (Optional a)
+          xs
+          (Optional a)
+          (   λ(l : Optional a)
+            → λ(r : Optional a)
+            → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+          )
+          (None a)
 
 in  last

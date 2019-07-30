@@ -17,16 +17,16 @@ let filter
       → λ(f : a → Bool)
       → λ(xs : Optional a)
       → Optional/build
-        a
-        (   λ(optional : Type)
-          → λ(some : a → optional)
-          → λ(none : optional)
-          → Optional/fold
-            a
-            xs
-            optional
-            (λ(x : a) → if f x then some x else none)
-            none
-        )
+          a
+          (   λ(optional : Type)
+            → λ(some : a → optional)
+            → λ(none : optional)
+            → Optional/fold
+                a
+                xs
+                optional
+                (λ(x : a) → if f x then some x else none)
+                none
+          )
 
 in  filter

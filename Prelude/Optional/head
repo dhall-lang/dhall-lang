@@ -16,13 +16,13 @@ let head
     =   λ(a : Type)
       → λ(xs : List (Optional a))
       → List/fold
-        (Optional a)
-        xs
-        (Optional a)
-        (   λ(l : Optional a)
-          → λ(r : Optional a)
-          → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
-        )
-        (None a)
+          (Optional a)
+          xs
+          (Optional a)
+          (   λ(l : Optional a)
+            → λ(r : Optional a)
+            → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
+          )
+          (None a)
 
 in  head

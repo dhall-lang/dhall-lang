@@ -19,10 +19,10 @@ let concatMap
       → λ(f : a → List b)
       → λ(xs : List a)
       → List/build
-        b
-        (   λ(list : Type)
-          → λ(cons : b → list → list)
-          → List/fold a xs list (λ(x : a) → List/fold b (f x) list cons)
-        )
+          b
+          (   λ(list : Type)
+            → λ(cons : b → list → list)
+            → List/fold a xs list (λ(x : a) → List/fold b (f x) list cons)
+          )
 
 in  concatMap

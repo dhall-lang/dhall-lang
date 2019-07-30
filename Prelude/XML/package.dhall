@@ -8,7 +8,7 @@
       ./element sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
     ? ./element
 , leaf =
-      ./leaf sha256:107cb75d0355e7f13dcd5ec3bf30cdd2604ba4ebd1373b0faa8929910ba344a1
+      ./leaf sha256:4383e4fc4bf6a29ac2052776972eb59d5355a1cd067cded80d4ff32840969261
     ? ./leaf
 , text =
       ./text sha256:c83cd721d32d7dc28c04ce429c0cb22812639e572637ec348578a58ffb68844f

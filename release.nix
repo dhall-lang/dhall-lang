@@ -80,6 +80,7 @@ let
 
       for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f); do
         ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
+        ${pkgsNew.dhall}/bin/dhall format --inplace "$FILE"
         XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
       done
     '';

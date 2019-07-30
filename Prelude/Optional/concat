@@ -19,10 +19,10 @@ let concat
     =   λ(a : Type)
       → λ(x : Optional (Optional a))
       → Optional/fold
-        (Optional a)
-        x
-        (Optional a)
-        (λ(y : Optional a) → y)
-        (None a)
+          (Optional a)
+          x
+          (Optional a)
+          (λ(y : Optional a) → y)
+          (None a)
 
 in  concat
