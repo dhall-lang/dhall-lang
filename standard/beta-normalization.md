@@ -515,6 +515,14 @@ a `0` literal:
     Natural/subtract x y ⇥ 0
 
 
+If the arguments are equivalent:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁   x₁ ≡ y₁
+    ───────────────────────────
+    Natural/subtract x₀ y₀ ⇥ 0
+
+
 Otherwise, normalize each argument:
 
 
