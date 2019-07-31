@@ -969,26 +969,13 @@ If the argument is a record projection, select from the contained record.
     t₀.x ⇥ v
 
 
-If the argument is a right-biased record merge, first inspect the right operand.
-If it is a record literal that contains the field, select it:
+If the argument is a right-biased record merge and one of the operands is a
+record literal, we can simplify further:
 
 
-    t₀ ⇥ t₁ ⫽ { x = v, … }
-    ──────────────────────
-    t₀.x ⇥ v
-
-
-If it is a record literal that doesn't contain the field, select from the left
-operand:
-
-
-    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
-    t₀.x ⇥ v
-
-
-If the left operand is a record literal that doesn't contain the field, select
-from the right operand.
+    t₀ ⇥ { x = v, … } ⫽ t₁
+    ─────────────────────────
+    t₀.x ⇥ ({ x = v } ⫽ t₁).x
 
 
     t₀ ⇥ { xs… } ⫽ t₁   t₁.x ⇥ v
@@ -996,9 +983,28 @@ from the right operand.
     t₀.x ⇥ v
 
 
-If the argument is a recursive record merge, first inspect the right operand.
-If it is a record literal that contains the field, simplify this right operand by
-restricting it to this field:
+    t₀ ⇥ t₁ ⫽ { x = v, … }
+    ──────────────────────
+    t₀.x ⇥ v
+
+
+    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the argument is a recursive record merge and one of the operands is a record
+literal, we can simplify it similarly:
+
+
+    t₀ ⇥ { x = v, … } ∧ t₁
+    ─────────────────────────
+    t₀.x ⇥ ({ x = v } ∧ t₁).x
+
+
+    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
 
 
     t₀ ⇥ t₁ ∧ { x = v, … }
@@ -1006,20 +1012,7 @@ restricting it to this field:
     t₀.x ⇥ (t₁ ∧ { x = v }).x
 
 
-If it is a record literal that doesn't contain the field, select from the left
-operand:
-
-
     t₀ ⇥ t₁ ∧ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
-    t₀.x ⇥ v
-
-
-If the left operand is a record literal that doesn't contain the field, select
-from the right operand.
-
-
-    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
     ──────────────────────────── ; x ∉ xs
     t₀.x ⇥ v
 
