@@ -405,6 +405,10 @@ The remaining rules are:
 
 
     ────────────────────────────────────────────
+    Natural/subtract[x@n ≔ e] = Natural/subtract
+
+
+    ────────────────────────────────────────────
     Integer/toDouble[x@n ≔ e] = Integer/toDouble
 
 

@@ -486,6 +486,45 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+`Natural/subtract` performs truncating subtraction, as in
+[saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
+                                          ;  comparison, and "b - a" is machine
+                                          ;  subtraction
+
+
+    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
+    ────────────────────────────────────  ; if b < a
+    f a b ⇥ 0
+
+
+Also, simplify the `Natural/subtract` function if either argument normalizes to
+a `0` literal:
+
+
+    x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────
+    Natural/subtract x y₀ ⇥ y₁
+
+
+    y ⇥ 0
+    ─────────────────────────
+    Natural/subtract x y ⇥ 0
+
+
+Otherwise, normalize each argument:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ───────────────────────────────────────────────  ; If no other rule matches
+    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+
+
+
 All of the built-in functions on `Natural` numbers are in normal form:
 
 
@@ -515,6 +554,10 @@ All of the built-in functions on `Natural` numbers are in normal form:
 
     ───────────────────────────
     Natural/show ⇥ Natural/show
+
+
+    ───────────────────────────────────
+    Natural/subtract ⇥ Natural/subtract
 
 
 ## `Text`
@@ -917,6 +960,69 @@ Simplify a record selection if the argument is a record literal:
     t ⇥ { x = v, … }
     ──────────────────
     t.x ⇥ v
+
+
+If the argument is a record projection, select from the contained record.
+
+
+    t₀ ⇥ t₁.{ xs… }   t₁.x ⇥ v
+    ──────────────────────────
+    t₀.x ⇥ v
+
+
+If the argument is a right-biased record merge, first inspect the right operand.
+If it is a record literal that contains the field, select it:
+
+
+    t₀ ⇥ t₁ ⫽ { x = v, … }
+    ──────────────────────
+    t₀.x ⇥ v
+
+
+If it is a record literal that doesn't contain the field, select from the left
+operand:
+
+
+    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the left operand is a record literal that doesn't contain the field, select
+from the right operand.
+
+
+    t₀ ⇥ { xs… } ⫽ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the argument is a recursive record merge, first inspect the right operand.
+If it is a record literal that contains the field, simplify this right operand by
+restricting it to this field:
+
+
+    t₀ ⇥ t₁ ∧ { x = v, … }
+    ─────────────────────────
+    t₀.x ⇥ (t₁ ∧ { x = v }).x
+
+
+If it is a record literal that doesn't contain the field, select from the left
+operand:
+
+
+    t₀ ⇥ t₁ ∧ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the left operand is a record literal that doesn't contain the field, select
+from the right operand.
+
+
+    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
 
 
 Otherwise, normalize the argument:
