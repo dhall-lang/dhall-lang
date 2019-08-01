@@ -124,12 +124,12 @@ predicate:
     if t₀ then l else r ⇥ t₁
 
 
-Simplify `if` expressions where both alternatives are the same:
+Simplify `if` expressions where both alternatives are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    if t then l₀ else r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────────────
+    if t then l₀ else r ⇥ l₁
 
 
 Otherwise, normalize the predicate and both branches of the `if` expression:
@@ -170,9 +170,9 @@ to a `Bool` literal:
 Normalize arguments that are equivalent
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ || r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ || r ⇥ l₁
 
 
 Otherwise, normalize each argument:
@@ -210,9 +210,9 @@ to a `Bool` literal:
 Normalize arguments that are equivalent
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ && r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ && r ⇥ l₁
 
 
 Otherwise, normalize each argument:
@@ -240,9 +240,9 @@ literal:
 ... or if both arguments are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ == r₀ ⇥ True
+    l ≡ r
+    ─────────────
+    l == r ⇥ True
 
 
 Otherwise, normalize each argument:
@@ -270,9 +270,9 @@ Simplify the logical "not equal" operator if one argument normalizes to a
 ... or if both arguments are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ != r₀ ⇥ False
+    l ≡ r
+    ──────────────
+    l != r ⇥ False
 
 
 Otherwise, normalize each argument:
