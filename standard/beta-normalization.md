@@ -361,6 +361,14 @@ literal:
     l₀ + r ⇥ l₁
 
 
+If the arguments are equivalent, simplify with `*`:
+
+
+    l₀ ≡ r   l₀ ⇥ l₁
+    ––––––––––––––––
+    l₀ + r ⇥ 2 * l₁
+
+
 Otherwise, normalize each argument:
 
 
