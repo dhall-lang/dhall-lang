@@ -719,7 +719,7 @@ expression =
     / toMap whsp1 import-expression whsp ":" whsp1 application-expression
 
     ; "assert : Natural/even 1 ≡ False"
-    / assert whsp ":" whsp1 annotated-expression
+    / assert whsp ":" whsp1 expression
     
     ; "x : t"
     / annotated-expression
