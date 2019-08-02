@@ -1133,11 +1133,14 @@ To type-check an equivalence, verify that the two sides are terms:
     Γ ⊢ y : A₁
     Γ ⊢ A₀ :⇥ Type
     Γ ⊢ A₁ :⇥ Type
+    A₀ ≡ A₁
     ──────────────────
     Γ ⊢ x === y : Type
 
 
 If either side of the equivalence is not a term, then that is a type error.
+
+If the inferred types do not match, then that is also a type error.
 
 ## Imports
 
