@@ -490,14 +490,14 @@ valid Dhall code for representing that `Natural` number:
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    ────────────────────────────────────  ;  if n >= m, where "n >= m" is
     f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
-                                          ;  comparison, and "b - a" is machine
+                                          ;  comparison, and "n - m" is machine
                                           ;  subtraction
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ; if b < a
+    ────────────────────────────────────  ; if n < m
     f a b ⇥ 0
 
 
