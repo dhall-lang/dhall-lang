@@ -961,6 +961,69 @@ Simplify a record selection if the argument is a record literal:
     t.x ⇥ v
 
 
+If the argument is a record projection, select from the contained record.
+
+
+    t₀ ⇥ t₁.{ xs… }   t₁.x ⇥ v
+    ──────────────────────────
+    t₀.x ⇥ v
+
+
+If the argument is a right-biased record merge, first inspect the right operand.
+If it is a record literal that contains the field, select it:
+
+
+    t₀ ⇥ t₁ ⫽ { x = v, … }
+    ──────────────────────
+    t₀.x ⇥ v
+
+
+If it is a record literal that doesn't contain the field, select from the left
+operand:
+
+
+    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the left operand is a record literal that doesn't contain the field, select
+from the right operand.
+
+
+    t₀ ⇥ { xs… } ⫽ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the argument is a recursive record merge, first inspect the right operand.
+If it is a record literal that contains the field, simplify this right operand by
+restricting it to this field:
+
+
+    t₀ ⇥ t₁ ∧ { x = v, … }
+    ─────────────────────────
+    t₀.x ⇥ (t₁ ∧ { x = v }).x
+
+
+If it is a record literal that doesn't contain the field, select from the left
+operand:
+
+
+    t₀ ⇥ t₁ ∧ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the left operand is a record literal that doesn't contain the field, select
+from the right operand.
+
+
+    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
 Otherwise, normalize the argument:
 
 
