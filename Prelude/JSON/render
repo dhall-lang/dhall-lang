@@ -27,10 +27,6 @@ let Text/concatMapSep =
         ../Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
       ? ../Text/concatMapSep
 
-let Text/concatMap =
-        ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
-      ? ../Text/concatMap
-
 let render
     : JSON → Text
     =   λ(j : JSON)
