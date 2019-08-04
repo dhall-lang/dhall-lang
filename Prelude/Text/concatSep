@@ -9,21 +9,21 @@ let concatSep
       → λ(elements : List Text)
       → let status =
               List/fold
-              Text
-              elements
-              Status
-              (   λ(element : Text)
-                → λ(status : Status)
-                → merge
-                  { Empty =
-                      Status.NonEmpty element
-                  , NonEmpty =
-                        λ(result : Text)
-                      → Status.NonEmpty (element ++ separator ++ result)
-                  }
-                  status
-              )
-              Status.Empty
+                Text
+                elements
+                Status
+                (   λ(element : Text)
+                  → λ(status : Status)
+                  → merge
+                      { Empty =
+                          Status.NonEmpty element
+                      , NonEmpty =
+                            λ(result : Text)
+                          → Status.NonEmpty (element ++ separator ++ result)
+                      }
+                      status
+                )
+                Status.Empty
         
         in  merge { Empty = "", NonEmpty = λ(result : Text) → result } status
 

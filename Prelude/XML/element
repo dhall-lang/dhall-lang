@@ -56,12 +56,12 @@ let element
             }
           )
       → xml.element
-        { attributes =
-            elem.attributes
-        , name =
-            elem.name
-        , content =
-            List/map XML@1 XML (λ(x : XML@1) → x XML xml) elem.content
-        }
+          { attributes =
+              elem.attributes
+          , name =
+              elem.name
+          , content =
+              List/map XML@1 XML (λ(x : XML@1) → x XML xml) elem.content
+          }
 
 in  element

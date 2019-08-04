@@ -8,11 +8,11 @@ let map
       → λ(f : a → b)
       → λ(xs : List a)
       → List/build
-        b
-        (   λ(list : Type)
-          → λ(cons : b → list → list)
-          → List/fold a xs list (λ(x : a) → cons (f x))
-        )
+          b
+          (   λ(list : Type)
+            → λ(cons : b → list → list)
+            → List/fold a xs list (λ(x : a) → cons (f x))
+          )
 
 let example0 =
         assert

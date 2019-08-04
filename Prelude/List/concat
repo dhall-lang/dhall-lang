@@ -6,17 +6,17 @@ let concat
     =   λ(a : Type)
       → λ(xss : List (List a))
       → List/build
-        a
-        (   λ(list : Type)
-          → λ(cons : a → list → list)
-          → λ(nil : list)
-          → List/fold
-            (List a)
-            xss
-            list
-            (λ(xs : List a) → λ(ys : list) → List/fold a xs list cons ys)
-            nil
-        )
+          a
+          (   λ(list : Type)
+            → λ(cons : a → list → list)
+            → λ(nil : list)
+            → List/fold
+                (List a)
+                xss
+                list
+                (λ(xs : List a) → λ(ys : list) → List/fold a xs list cons ys)
+                nil
+          )
 
 let example0 =
         assert
@@ -26,8 +26,8 @@ let example0 =
 let example1 =
         assert
       :   concat
-          Natural
-          [ [] : List Natural, [] : List Natural, [] : List Natural ]
+            Natural
+            [ [] : List Natural, [] : List Natural, [] : List Natural ]
         ≡ ([] : List Natural)
 
 let example2 =

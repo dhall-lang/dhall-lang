@@ -35,32 +35,32 @@ let render
     : JSON → Text
     =   λ(j : JSON)
       → j
-        Text
-        { string =
-            λ(x : Text) → Text/show x
-        , number =
-            λ(x : Double) → Double/show x
-        , object =
-              λ(x : List { mapKey : Text, mapValue : Text })
-            → let body =
-                    Text/concatMapSep
-                    ","
-                    { mapKey : Text, mapValue : Text }
-                    (   λ(e : { mapKey : Text, mapValue : Text })
-                      → " ${Text/show e.mapKey}: ${e.mapValue}"
-                    )
-                    x
-              
-              in  "{${body} }"
-        , array =
-              λ(x : List Text)
-            → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
-              
-              in  "[${body} ]"
-        , bool =
-            λ(x : Bool) → if x then "true" else "false"
-        , null =
-            "null"
-        }
+          Text
+          { string =
+              λ(x : Text) → Text/show x
+          , number =
+              λ(x : Double) → Double/show x
+          , object =
+                λ(x : List { mapKey : Text, mapValue : Text })
+              → let body =
+                      Text/concatMapSep
+                        ","
+                        { mapKey : Text, mapValue : Text }
+                        (   λ(e : { mapKey : Text, mapValue : Text })
+                          → " ${Text/show e.mapKey}: ${e.mapValue}"
+                        )
+                        x
+                
+                in  "{${body} }"
+          , array =
+                λ(x : List Text)
+              → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
+                
+                in  "[${body} ]"
+          , bool =
+              λ(x : Bool) → if x then "true" else "false"
+          , null =
+              "null"
+          }
 
 in  render

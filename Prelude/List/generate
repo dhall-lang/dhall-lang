@@ -8,24 +8,24 @@ let generate
       → λ(a : Type)
       → λ(f : Natural → a)
       → List/build
-        a
-        (   λ(list : Type)
-          → λ(cons : a → list → list)
-          → List/fold
-            { index : Natural, value : {} }
-            ( List/indexed
-              {}
-              ( List/build
-                {}
-                (   λ(list : Type)
-                  → λ(cons : {} → list → list)
-                  → Natural/fold n list (cons {=})
+          a
+          (   λ(list : Type)
+            → λ(cons : a → list → list)
+            → List/fold
+                { index : Natural, value : {} }
+                ( List/indexed
+                    {}
+                    ( List/build
+                        {}
+                        (   λ(list : Type)
+                          → λ(cons : {} → list → list)
+                          → Natural/fold n list (cons {=})
+                        )
+                    )
                 )
-              )
-            )
-            list
-            (λ(x : { index : Natural, value : {} }) → cons (f x.index))
-        )
+                list
+                (λ(x : { index : Natural, value : {} }) → cons (f x.index))
+          )
 
 let example0 =
       assert : generate 5 Bool Natural/even ≡ [ True, False, True, False, True ]

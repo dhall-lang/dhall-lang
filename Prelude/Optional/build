@@ -14,23 +14,23 @@ let build
 let example0 =
         assert
       :   build
-          Natural
-          (   λ(optional : Type)
-            → λ(some : Natural → optional)
-            → λ(none : optional)
-            → some 1
-          )
+            Natural
+            (   λ(optional : Type)
+              → λ(some : Natural → optional)
+              → λ(none : optional)
+              → some 1
+            )
         ≡ Some 1
 
 let example1 =
         assert
       :   build
-          Natural
-          (   λ(optional : Type)
-            → λ(some : Natural → optional)
-            → λ(none : optional)
-            → none
-          )
+            Natural
+            (   λ(optional : Type)
+              → λ(some : Natural → optional)
+              → λ(none : optional)
+              → none
+            )
         ≡ None Natural
 
 in  build

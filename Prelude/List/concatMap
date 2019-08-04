@@ -9,11 +9,11 @@ let concatMap
       → λ(f : a → List b)
       → λ(xs : List a)
       → List/build
-        b
-        (   λ(list : Type)
-          → λ(cons : b → list → list)
-          → List/fold a xs list (λ(x : a) → List/fold b (f x) list cons)
-        )
+          b
+          (   λ(list : Type)
+            → λ(cons : b → list → list)
+            → List/fold a xs list (λ(x : a) → List/fold b (f x) list cons)
+          )
 
 let example0 =
         assert
@@ -23,10 +23,10 @@ let example0 =
 let example1 =
         assert
       :   concatMap
-          Natural
-          Natural
-          (λ(n : Natural) → [ n, n ])
-          ([] : List Natural)
+            Natural
+            Natural
+            (λ(n : Natural) → [ n, n ])
+            ([] : List Natural)
         ≡ ([] : List Natural)
 
 in  concatMap

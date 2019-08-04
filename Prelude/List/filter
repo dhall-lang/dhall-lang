@@ -9,15 +9,15 @@ let filter
       → λ(f : a → Bool)
       → λ(xs : List a)
       → List/build
-        a
-        (   λ(list : Type)
-          → λ(cons : a → list → list)
-          → List/fold
-            a
-            xs
-            list
-            (λ(x : a) → λ(xs : list) → if f x then cons x xs else xs)
-        )
+          a
+          (   λ(list : Type)
+            → λ(cons : a → list → list)
+            → List/fold
+                a
+                xs
+                list
+                (λ(x : a) → λ(xs : list) → if f x then cons x xs else xs)
+          )
 
 let example0 = assert : filter Natural Natural/even [ 2, 3, 5 ] ≡ [ 2 ]
 

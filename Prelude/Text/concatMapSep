@@ -12,21 +12,21 @@ let concatMapSep
       → λ(elements : List a)
       → let status =
               List/fold
-              a
-              elements
-              Status
-              (   λ(x : a)
-                → λ(status : Status)
-                → merge
-                  { Empty =
-                      Status.NonEmpty (f x)
-                  , NonEmpty =
-                        λ(result : Text)
-                      → Status.NonEmpty (f x ++ separator ++ result)
-                  }
-                  status
-              )
-              Status.Empty
+                a
+                elements
+                Status
+                (   λ(x : a)
+                  → λ(status : Status)
+                  → merge
+                      { Empty =
+                          Status.NonEmpty (f x)
+                      , NonEmpty =
+                            λ(result : Text)
+                          → Status.NonEmpty (f x ++ separator ++ result)
+                      }
+                      status
+                )
+                Status.Empty
         
         in  merge { Empty = "", NonEmpty = λ(result : Text) → result } status
 

@@ -21,24 +21,24 @@ let map
       → λ(f : a → b)
       → λ(m : Map k a)
       → List/map
-        (Entry k a)
-        (Entry k b)
-        (   λ(before : Entry k a)
-          → { mapKey = before.mapKey, mapValue = f before.mapValue }
-        )
-        m
+          (Entry k a)
+          (Entry k b)
+          (   λ(before : Entry k a)
+            → { mapKey = before.mapKey, mapValue = f before.mapValue }
+          )
+          m
 
 let example0 =
         assert
       :   map
-          Text
-          Natural
-          Bool
-          Natural/even
-          [ { mapKey = "A", mapValue = 2 }
-          , { mapKey = "B", mapValue = 3 }
-          , { mapKey = "C", mapValue = 5 }
-          ]
+            Text
+            Natural
+            Bool
+            Natural/even
+            [ { mapKey = "A", mapValue = 2 }
+            , { mapKey = "B", mapValue = 3 }
+            , { mapKey = "C", mapValue = 5 }
+            ]
         ≡ [ { mapKey = "A", mapValue = True }
           , { mapKey = "B", mapValue = False }
           , { mapKey = "C", mapValue = False }
@@ -47,11 +47,11 @@ let example0 =
 let example1 =
         assert
       :   map
-          Text
-          Natural
-          Bool
-          Natural/even
-          ([] : List { mapKey : Text, mapValue : Natural })
+            Text
+            Natural
+            Bool
+            Natural/even
+            ([] : List { mapKey : Text, mapValue : Natural })
         ≡ ([] : List { mapKey : Text, mapValue : Bool })
 
 in  map

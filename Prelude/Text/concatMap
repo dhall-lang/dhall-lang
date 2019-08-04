@@ -16,9 +16,9 @@ let example0 =
 let example1 =
         assert
       :   concatMap
-          Natural
-          (λ(n : Natural) → "${Natural/show n} ")
-          ([] : List Natural)
+            Natural
+            (λ(n : Natural) → "${Natural/show n} ")
+            ([] : List Natural)
         ≡ ""
 
 in  concatMap

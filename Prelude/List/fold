@@ -16,22 +16,22 @@ let fold
 let example0 =
         assert
       :   fold
-          Natural
-          [ 2, 3, 5 ]
-          Natural
-          (λ(x : Natural) → λ(y : Natural) → x + y)
-          0
+            Natural
+            [ 2, 3, 5 ]
+            Natural
+            (λ(x : Natural) → λ(y : Natural) → x + y)
+            0
         ≡ 10
 
 let example1 =
         assert
       :   (   λ(nil : Natural)
             → fold
-              Natural
-              [ 2, 3, 5 ]
-              Natural
-              (λ(x : Natural) → λ(y : Natural) → x + y)
-              nil
+                Natural
+                [ 2, 3, 5 ]
+                Natural
+                (λ(x : Natural) → λ(y : Natural) → x + y)
+                nil
           )
         ≡ (λ(nil : Natural) → 2 + (3 + (5 + nil)))
 
