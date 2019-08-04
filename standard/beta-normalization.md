@@ -53,6 +53,7 @@ is the same.
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
+* [Assertions](#assertions)
 * [Imports](#imports)
 
 ## Constants
@@ -1479,6 +1480,23 @@ Simplify a type annotation by removing the annotation:
     t₀ ⇥ t₁
     ───────────
     t₀ : T ⇥ t₁
+
+## Assertions
+
+Normalize an assertion by normalizing its type annotation:
+
+
+    T₀ ⇥ T₁
+    ─────────────────────────
+    assert : T₀ ⇥ assert : T₁
+
+
+Normalize an equivalence by normalizing each side of the equivalence:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ─────────────────────
+    x₀ === y₀ ⇥ x₁ === y₁
 
 
 ## Imports

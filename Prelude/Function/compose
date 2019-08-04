@@ -1,12 +1,5 @@
 {-
 Compose two functions into one.
-
-Examples:
-
-```
-./compose Natural Natural Bool (λ(n : Natural) → n + n) ../Natural/even 3
-= True
-```
 -}
 let compose
     : ∀(a : Type) → ∀(b : Type) → ∀(c : Type) → (a → b) → (b → c) → a → c
@@ -17,5 +10,10 @@ let compose
       → λ(g : B → C)
       → λ(x : A)
       → g (f x)
+
+let example0 =
+        assert
+      :   compose Natural Natural Bool (λ(n : Natural) → n + n) Natural/even 3
+        ≡ True
 
 in  compose
