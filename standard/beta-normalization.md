@@ -1049,6 +1049,17 @@ Simplify a record projection if the argument is a record literal:
     t.{ x, xs… } ⇥ { x = v, ys… }
 
 
+If the argument is a right-biased record merge and its right operand reveals
+the fields it contains, simplify:
+
+
+    t₀ ⇥ l ⫽ { rs… }
+    keys(rs…) = ks…
+    l.{ xs… \ ks… } ⫽ { rs… }.{ xs… ∩ ks… } ⇥ t₁
+    ──────────────────────────────────────────── ; "\" means set difference, "∩" means set intersection
+    t₀.{ xs… } ⇥ t₁
+
+
 Otherwise, normalize the argument and sort the fields:
 
 
