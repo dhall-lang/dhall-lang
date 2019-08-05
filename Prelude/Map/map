@@ -1,25 +1,6 @@
 {-
 Transform a `Map` by applying a function to each value
-
-Examples:
-
-```
-./map Text Natural Bool Natural/even
-  [ { mapKey = "A", mapValue = 2 }
-  , { mapKey = "B", mapValue = 3 }
-  , { mapKey = "C", mapValue = 5 }
-  ]
-= [ { mapKey = "A", mapValue = True }
-  , { mapKey = "B", mapValue = False }
-  , { mapKey = "C", mapValue = False }
-  ]
-
-./map Text Natural Bool Natural/even
-    ([] : List { mapKey : Text, mapValue : Natural })
-= [] : List { mapKey : Text, mapValue : Bool }
-```
 -}
-
 let Map =
         ./Type sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
       ? ./Type
@@ -46,5 +27,31 @@ let map
             → { mapKey = before.mapKey, mapValue = f before.mapValue }
           )
           m
+
+let example0 =
+        assert
+      :   map
+            Text
+            Natural
+            Bool
+            Natural/even
+            [ { mapKey = "A", mapValue = 2 }
+            , { mapKey = "B", mapValue = 3 }
+            , { mapKey = "C", mapValue = 5 }
+            ]
+        ≡ [ { mapKey = "A", mapValue = True }
+          , { mapKey = "B", mapValue = False }
+          , { mapKey = "C", mapValue = False }
+          ]
+
+let example1 =
+        assert
+      :   map
+            Text
+            Natural
+            Bool
+            Natural/even
+            ([] : List { mapKey : Text, mapValue : Natural })
+        ≡ ([] : List { mapKey : Text, mapValue : Bool })
 
 in  map

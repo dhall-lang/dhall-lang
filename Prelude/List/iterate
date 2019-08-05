@@ -1,16 +1,6 @@
 {-
 Generate a list of the specified length given a seed value and transition
 function
-
-Examples:
-
-```
-./iterate 10 Natural (λ(x : Natural) → x * 2) 1
-= [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 ]
-
-./iterate 0 Natural (λ(x : Natural) → x * 2) 1
-= [] : List Natural
-```
 -}
 let iterate
     : Natural → ∀(a : Type) → (a → a) → a → List a
@@ -39,5 +29,14 @@ let iterate
                   → cons (Natural/fold y.index a f x)
                 )
           )
+
+let example0 =
+        assert
+      :   iterate 10 Natural (λ(x : Natural) → x * 2) 1
+        ≡ [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 ]
+
+let example1 =
+        assert
+      : iterate 0 Natural (λ(x : Natural) → x * 2) 1 ≡ ([] : List Natural)
 
 in  iterate
