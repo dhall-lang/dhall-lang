@@ -4,14 +4,6 @@
 Examples:
 
 ```
-./lessThan 5 6
-= True
-
-./lessThan 5 5
-= False
-
-./lessThan 5 4
-= False
 ```
 -}
 let lessThanEqual =
@@ -21,5 +13,11 @@ let lessThanEqual =
 let lessThan
     : Natural → Natural → Bool
     = λ(x : Natural) → λ(y : Natural) → lessThanEqual (x + 1) y
+
+let example0 = assert : lessThan 5 6 === True
+
+let example1 = assert : lessThan 5 5 === False
+
+let example2 = assert : lessThan 5 4 === False
 
 in  lessThan

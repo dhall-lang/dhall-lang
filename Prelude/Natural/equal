@@ -1,15 +1,5 @@
 {-
 `equal` checks if two Naturals are equal.
-
-Examples:
-
-```
-./equal 5 5
-= True
-
-./equal 5 6
-= False
-```
 -}
 let equal
     : Natural → Natural → Bool
@@ -17,5 +7,9 @@ let equal
       → λ(b : Natural)
       →     Natural/isZero (Natural/subtract a b)
         &&  Natural/isZero (Natural/subtract b a)
+
+let example0 = assert : equal 5 5 === True
+
+let example1 = assert : equal 5 6 === False
 
 in  equal

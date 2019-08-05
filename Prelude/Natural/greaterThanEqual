@@ -1,18 +1,5 @@
 {-
 `greaterThanEqual` checks if one Natural is greater than or equal to another.
-
-Examples:
-
-```
-./greaterThanEqual 5 6
-= False
-
-./greaterThanEqual 5 5
-= True
-
-./greaterThanEqual 5 4
-= True
-```
 -}
 let Bool/not =
         ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
@@ -25,5 +12,11 @@ let lessThan =
 let greaterThanEqual
     : Natural → Natural → Bool
     = λ(x : Natural) → λ(y : Natural) → Bool/not (lessThan x y)
+
+let example0 = assert : greaterThanEqual 5 6 === False
+
+let example1 = assert : greaterThanEqual 5 5 === True
+
+let example1 = assert : greaterThanEqual 5 4 === True
 
 in  greaterThanEqual
