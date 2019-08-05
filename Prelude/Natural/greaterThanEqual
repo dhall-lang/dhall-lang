@@ -18,12 +18,12 @@ let Bool/not =
         ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
       ? ../Bool/not
 
-let lt =
-        ./lt sha256:d8a37951fd3f88dcc3927c20b73e6c53499f5275d949eed59bb77ea748492bf0
-      ? ./lt
+let lessThan =
+        ./lessThan sha256:d8a37951fd3f88dcc3927c20b73e6c53499f5275d949eed59bb77ea748492bf0
+      ? ./lessThan
 
 let greaterThanEqual
     : Natural → Natural → Bool
-    = λ(x : Natural) → λ(y : Natural) → Bool/not (lt x y)
+    = λ(x : Natural) → λ(y : Natural) → Bool/not (lessThan x y)
 
 in  greaterThanEqual
