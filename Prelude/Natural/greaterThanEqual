@@ -1,16 +1,16 @@
 {-
-`gt` checks if one Natural is greater than or equal to another.
+`greaterThanEqual` checks if one Natural is greater than or equal to another.
 
 Examples:
 
 ```
-./gte 5 6
+./greaterThanEqual 5 6
 = False
 
-./gte 5 5
+./greaterThanEqual 5 5
 = True
 
-./gte 5 4
+./greaterThanEqual 5 4
 = True
 ```
 -}
@@ -22,8 +22,8 @@ let lt =
         ./lt sha256:d8a37951fd3f88dcc3927c20b73e6c53499f5275d949eed59bb77ea748492bf0
       ? ./lt
 
-let gte
+let greaterThanEqual
     : Natural → Natural → Bool
     = λ(x : Natural) → λ(y : Natural) → Bool/not (lt x y)
 
-in  gte
+in  greaterThanEqual
