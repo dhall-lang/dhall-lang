@@ -111,10 +111,13 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / l * r                             ; Natural multiplication
   / l == r                            ; Boolean equality
   / l != r                            ; Boolean inequality
+  / l === r                           ; Equivalence (using ASCII to avoid
+                                      ; confusion with the equivalence judgment)
   / f a                               ; Function application
   / t.x                               ; Field selection
   / t.{ xs… }                         ; Field projection
   / t.(s)                             ; Field projection by type
+  / assert : T                        ; Assert judgemental equality
   / n.n                               ; Double-precision floating point literal
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
