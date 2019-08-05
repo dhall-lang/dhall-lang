@@ -1,13 +1,5 @@
 {-
 `fold` is the primitive function for consuming `Optional` values
-
-Examples:
-
-```
-./fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 = 2
-
-./fold Natural (None Natural) Natural (λ(x : Natural) → x) 0 = 0
-```
 -}
 let fold
     :   ∀(a : Type)
@@ -17,5 +9,10 @@ let fold
       → ∀(none : optional)
       → optional
     = Optional/fold
+
+let example0 = assert : fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 ≡ 2
+
+let example1 =
+      assert : fold Natural (None Natural) Natural (λ(x : Natural) → x) 0 ≡ 0
 
 in  fold
