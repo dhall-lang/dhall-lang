@@ -14,10 +14,10 @@ let greaterThan
     : Natural → Natural → Bool
     = λ(x : Natural) → λ(y : Natural) → Bool/not (lessThanEqual x y)
 
-let example0 = assert : greaterThan 5 6 === False
+let example0 = assert : greaterThan 5 6 ≡ False
 
-let example1 = assert : greaterThan 5 5 === False
+let example1 = assert : greaterThan 5 5 ≡ False
 
-let example2 = assert : greaterThan 5 4 === True
+let example2 = assert : greaterThan 5 4 ≡ True
 
 in  greaterThan

@@ -8,8 +8,8 @@ let equal
       →     Natural/isZero (Natural/subtract a b)
         &&  Natural/isZero (Natural/subtract b a)
 
-let example0 = assert : equal 5 5 === True
+let example0 = assert : equal 5 5 ≡ True
 
-let example1 = assert : equal 5 6 === False
+let example1 = assert : equal 5 6 ≡ False
 
 in  equal
