@@ -70,7 +70,7 @@ For example, this is a (trivial) function from a sort to a term:
 All the remaining function types are predicative:
 
 
-    ────────────  ; c₁ ≥ c₀, c₂ = max(c₀, c₁), Type < Kind < Sort
+    ────────────  ; c₂ = max(c₀, c₁), Type < Kind < Sort
     c₀ ↝ c₁ : c₂
 
 
@@ -87,6 +87,18 @@ For example, these are type-level functions permitted by the above rule:
     List
 
     λ(m : Type) → [ m ] → m
+
+When `c₀ = Type` and `c₁ = Kind` you get functions from terms to types (i.e.
+"dependent" types):
+
+
+    ──────────────────
+    Type ↝ Kind : Kind
+
+
+For example, this is a dependently-typed function permitted by the above rule:
+
+    λ(n : Natural) → n ≡ (n + 0)
 
 When `c₀ = Sort` and `c₁ = Kind` you get functions from kinds to types (i.e.
 "kind-polymorphic" functions):
@@ -112,9 +124,15 @@ For example, this is a kind-level function permitted by the above rule:
 
     λ(a : Kind) → a → a
 
-However, Dhall does not support dependently-typed functions, so there are no
-rules for `Type ↝ Kind`, `Kind → Sort`, or `Type → Sort`.  Dhall omits support
-for dependent function types because that would entail robustly detecting
-non-trivial type-level equivalences.
+You can also have sort-level dependently-typed functions:
+
+
+    ──────────────────
+    Type ↝ Sort : Sort
+
+
+    ──────────────────
+    Kind ↝ Sort : Sort
+
 
 [ccw]: https://hal.inria.fr/hal-01445835

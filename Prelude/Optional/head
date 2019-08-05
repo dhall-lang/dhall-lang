@@ -1,28 +1,26 @@
 {-
 Returns the first non-empty `Optional` value in a `List`
-
-Examples:
-
-```
-./head Natural [ None Natural, Some 1, Some 2 ] = Some 1
-
-./head Natural [ None Natural, None Natural ] = None Natural
-
-./head Natural ([] : List (Optional Natural)) = None Natural
-```
 -}
 let head
     : ∀(a : Type) → List (Optional a) → Optional a
     =   λ(a : Type)
       → λ(xs : List (Optional a))
       → List/fold
-        (Optional a)
-        xs
-        (Optional a)
-        (   λ(l : Optional a)
-          → λ(r : Optional a)
-          → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
-        )
-        (None a)
+          (Optional a)
+          xs
+          (Optional a)
+          (   λ(l : Optional a)
+            → λ(r : Optional a)
+            → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
+          )
+          (None a)
+
+let example0 = assert : head Natural [ None Natural, Some 1, Some 2 ] ≡ Some 1
+
+let example1 =
+      assert : head Natural [ None Natural, None Natural ] ≡ None Natural
+
+let example2 =
+      assert : head Natural ([] : List (Optional Natural)) ≡ None Natural
 
 in  head

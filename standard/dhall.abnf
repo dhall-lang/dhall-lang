@@ -326,6 +326,7 @@ Infinity              = %x49.6e.66.69.6e.69.74.79
 NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
+assert                = %x61.73.73.65.72.74
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -414,6 +415,7 @@ Text-show         = %x54.65.78.74.2f.73.68.6f.77
 ; Operators
 combine       = %x2227 / "/\"
 combine-types = %x2A53 / "//\\"
+equivalent    = %x2261 / "==="
 prefer        = %x2AFD / "//"
 lambda        = %x3BB  / "\"
 forall        = %x2200 / %x66.6f.72.61.6c.6c
@@ -715,6 +717,9 @@ expression =
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
     / toMap whsp1 import-expression whsp ":" whsp1 application-expression
+
+    ; "assert : Natural/even 1 ≡ False"
+    / assert whsp ":" whsp1 expression
     
     ; "x : t"
     / annotated-expression
@@ -740,7 +745,8 @@ prefer-expression        = combine-types-expression *(whsp prefer whsp combine-t
 combine-types-expression = times-expression         *(whsp combine-types whsp times-expression)
 times-expression         = equal-expression         *(whsp "*" whsp equal-expression)
 equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-expression)
-not-equal-expression     = application-expression   *(whsp "!=" whsp application-expression)
+not-equal-expression     = equivalent-expression    *(whsp "!=" whsp equivalent-expression)
+equivalent-expression    = application-expression   *(whsp equivalent whsp application-expression)
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
