@@ -1,14 +1,6 @@
 {-
 Returns `True` if the supplied function returns `True` for a present element and
 `False` otherwise
-
-Examples:
-
-```
-./any Natural Natural/even (Some 2) = True
-
-./any Natural Natural/even (None Natural) = False
-```
 -}
 let any
     : ∀(a : Type) → (a → Bool) → Optional a → Bool
@@ -16,5 +8,9 @@ let any
       → λ(f : a → Bool)
       → λ(xs : Optional a)
       → Optional/fold a xs Bool f False
+
+let example0 = assert : any Natural Natural/even (Some 2) ≡ True
+
+let example1 = assert : any Natural Natural/even (None Natural) ≡ False
 
 in  any
