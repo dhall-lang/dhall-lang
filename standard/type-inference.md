@@ -409,19 +409,14 @@ The built-in functions on `Optional` values have the following types:
 Record types are "anonymous", meaning that they are uniquely defined by the
 names and types of their fields.
 
-A record can either store term-level values and functions:
+An empty record is a Type:
 
 
     ─────────────
     Γ ⊢ {} : Type
 
 
-    Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ Type
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Type
-
-
-... or store types (if it is non-empty):
+A non-empty record can store terms, types and kinds:
 
 
     Γ ⊢ T :⇥ Kind
@@ -429,26 +424,25 @@ A record can either store term-level values and functions:
     Γ ⊢ { x : T } : Kind
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Kind
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Kind
-
-
-... or store kinds (if it is non-empty):
-
-
     Γ ⊢ T :⇥ Sort
     ────────────────────
     Γ ⊢ { x : T } : Sort
 
 
-    Γ ⊢ T :⇥ Sort   Γ ⊢ { xs… } :⇥ Sort
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Sort
+    Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ t
+    ────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Type ⋁ t
 
 
-... but they can not be mixed.  If one field is a term-level value or function
-and another field is a type-level value or function then that is a type error.
+    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ t
+    ────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Kind ⋁ t
+
+
+    Γ ⊢ T :⇥ Sort   Γ ⊢ { xs… } :⇥ t
+    ────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : Sort ⋁ t
+
 
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
 error.
