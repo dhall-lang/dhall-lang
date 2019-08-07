@@ -45,13 +45,13 @@ let object
             }
           )
       → json.object
-        ( List/map
-          { mapKey : Text, mapValue : JSON@1 }
-          { mapKey : Text, mapValue : JSON }
-          (   λ(kv : { mapKey : Text, mapValue : JSON@1 })
-            → { mapKey = kv.mapKey, mapValue = kv.mapValue JSON json }
+          ( List/map
+              { mapKey : Text, mapValue : JSON@1 }
+              { mapKey : Text, mapValue : JSON }
+              (   λ(kv : { mapKey : Text, mapValue : JSON@1 })
+                → { mapKey = kv.mapKey, mapValue = kv.mapValue JSON json }
+              )
+              x
           )
-          x
-        )
 
 in  object

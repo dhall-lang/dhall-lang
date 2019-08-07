@@ -1,18 +1,14 @@
 {-
 Convert an `Optional` value into the equivalent `List`
-
-Examples:
-
-```
-./toList Natural (Some 1) = [ 1 ]
-
-./toList Natural (None Natural) = [] : List Natural
-```
 -}
 let toList
     : ∀(a : Type) → Optional a → List a
     =   λ(a : Type)
       → λ(o : Optional a)
       → Optional/fold a o (List a) (λ(x : a) → [ x ] : List a) ([] : List a)
+
+let example0 = assert : toList Natural (Some 1) ≡ [ 1 ]
+
+let example1 = assert : toList Natural (None Natural) ≡ ([] : List Natural)
 
 in  toList

@@ -1,12 +1,10 @@
 {-
 Returns `True` if a number is odd and returns `False` otherwise
-
-Examples:
-
-```
-./odd 3 = True
-
-./odd 0 = False
-```
 -}
-let odd : Natural → Bool = Natural/odd in odd
+let odd : Natural → Bool = Natural/odd
+
+let example0 = assert : odd 3 ≡ True
+
+let example1 = assert : odd 0 ≡ False
+
+in  odd

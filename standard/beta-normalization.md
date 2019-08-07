@@ -53,6 +53,7 @@ is the same.
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
+* [Assertions](#assertions)
 * [Imports](#imports)
 
 ## Constants
@@ -490,14 +491,14 @@ valid Dhall code for representing that `Natural` number:
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    ────────────────────────────────────  ;  if n >= m, where "n >= m" is
     f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
-                                          ;  comparison, and "b - a" is machine
+                                          ;  comparison, and "n - m" is machine
                                           ;  subtraction
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ; if b < a
+    ────────────────────────────────────  ; if n < m
     f a b ⇥ 0
 
 
@@ -1472,6 +1473,23 @@ Simplify a type annotation by removing the annotation:
     t₀ ⇥ t₁
     ───────────
     t₀ : T ⇥ t₁
+
+## Assertions
+
+Normalize an assertion by normalizing its type annotation:
+
+
+    T₀ ⇥ T₁
+    ─────────────────────────
+    assert : T₀ ⇥ assert : T₁
+
+
+Normalize an equivalence by normalizing each side of the equivalence:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ─────────────────────
+    x₀ === y₀ ⇥ x₁ === y₁
 
 
 ## Imports
