@@ -1147,6 +1147,11 @@ from the left record:
     ls₀ ⫽ rs ⇥ e
 
 
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ ⫽ r ⇥ l₁
+
+
     l₀ ⇥ l₁   r₀ ⇥ r₁
     ─────────────────   ; If no other rule matches
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
