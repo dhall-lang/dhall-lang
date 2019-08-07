@@ -53,6 +53,7 @@ is the same.
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
+* [Assertions](#assertions)
 * [Imports](#imports)
 
 ## Constants
@@ -124,12 +125,12 @@ predicate:
     if t₀ then l else r ⇥ t₁
 
 
-Simplify `if` expressions where both alternatives are the same:
+Simplify `if` expressions where both alternatives are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    if t then l₀ else r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────────────
+    if t then l₀ else r ⇥ l₁
 
 
 Otherwise, normalize the predicate and both branches of the `if` expression:
@@ -170,9 +171,9 @@ to a `Bool` literal:
 Normalize arguments that are equivalent
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ || r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ || r ⇥ l₁
 
 
 Otherwise, normalize each argument:
@@ -210,9 +211,9 @@ to a `Bool` literal:
 Normalize arguments that are equivalent
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ && r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ && r ⇥ l₁
 
 
 Otherwise, normalize each argument:
@@ -240,9 +241,9 @@ literal:
 ... or if both arguments are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ == r₀ ⇥ True
+    l ≡ r
+    ─────────────
+    l == r ⇥ True
 
 
 Otherwise, normalize each argument:
@@ -270,9 +271,9 @@ Simplify the logical "not equal" operator if one argument normalizes to a
 ... or if both arguments are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ != r₀ ⇥ False
+    l ≡ r
+    ──────────────
+    l != r ⇥ False
 
 
 Otherwise, normalize each argument:
@@ -490,14 +491,14 @@ valid Dhall code for representing that `Natural` number:
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ;  if b >= a, where "b >= a" is
+    ────────────────────────────────────  ;  if n >= m, where "n >= m" is
     f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
-                                          ;  comparison, and "b - a" is machine
+                                          ;  comparison, and "n - m" is machine
                                           ;  subtraction
 
 
     f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ; if b < a
+    ────────────────────────────────────  ; if n < m
     f a b ⇥ 0
 
 
@@ -512,6 +513,14 @@ a `0` literal:
 
     y ⇥ 0
     ─────────────────────────
+    Natural/subtract x y ⇥ 0
+
+
+If the arguments are equivalent:
+
+
+    x ≡ y
+    ────────────────────────
     Natural/subtract x y ⇥ 0
 
 
@@ -969,26 +978,13 @@ If the argument is a record projection, select from the contained record.
     t₀.x ⇥ v
 
 
-If the argument is a right-biased record merge, first inspect the right operand.
-If it is a record literal that contains the field, select it:
+If the argument is a right-biased record merge and one of the operands is a
+record literal, we can simplify further:
 
 
-    t₀ ⇥ t₁ ⫽ { x = v, … }
-    ──────────────────────
-    t₀.x ⇥ v
-
-
-If it is a record literal that doesn't contain the field, select from the left
-operand:
-
-
-    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
-    t₀.x ⇥ v
-
-
-If the left operand is a record literal that doesn't contain the field, select
-from the right operand.
+    t₀ ⇥ { x = v, … } ⫽ t₁
+    ─────────────────────────
+    t₀.x ⇥ ({ x = v } ⫽ t₁).x
 
 
     t₀ ⇥ { xs… } ⫽ t₁   t₁.x ⇥ v
@@ -996,9 +992,28 @@ from the right operand.
     t₀.x ⇥ v
 
 
-If the argument is a recursive record merge, first inspect the right operand.
-If it is a record literal that contains the field, simplify this right operand by
-restricting it to this field:
+    t₀ ⇥ t₁ ⫽ { x = v, … }
+    ──────────────────────
+    t₀.x ⇥ v
+
+
+    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the argument is a recursive record merge and one of the operands is a record
+literal, we can simplify it similarly:
+
+
+    t₀ ⇥ { x = v, … } ∧ t₁
+    ─────────────────────────
+    t₀.x ⇥ ({ x = v } ∧ t₁).x
+
+
+    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
 
 
     t₀ ⇥ t₁ ∧ { x = v, … }
@@ -1006,20 +1021,7 @@ restricting it to this field:
     t₀.x ⇥ (t₁ ∧ { x = v }).x
 
 
-If it is a record literal that doesn't contain the field, select from the left
-operand:
-
-
     t₀ ⇥ t₁ ∧ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
-    t₀.x ⇥ v
-
-
-If the left operand is a record literal that doesn't contain the field, select
-from the right operand.
-
-
-    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
     ──────────────────────────── ; x ∉ xs
     t₀.x ⇥ v
 
@@ -1484,6 +1486,23 @@ Simplify a type annotation by removing the annotation:
     t₀ ⇥ t₁
     ───────────
     t₀ : T ⇥ t₁
+
+## Assertions
+
+Normalize an assertion by normalizing its type annotation:
+
+
+    T₀ ⇥ T₁
+    ─────────────────────────
+    assert : T₀ ⇥ assert : T₁
+
+
+Normalize an equivalence by normalizing each side of the equivalence:
+
+
+    x₀ ⇥ x₁   y₀ ⇥ y₁
+    ─────────────────────
+    x₀ === y₀ ⇥ x₁ === y₁
 
 
 ## Imports

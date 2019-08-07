@@ -1,18 +1,14 @@
 {-
 Returns `1` if the `Optional` value is present and `0` if the value is absent
-
-Examples:
-
-```
-./length Natural (Some 2) = 1
-
-./length Natural (None Natural) = 0
-```
 -}
 let length
     : ∀(a : Type) → Optional a → Natural
     =   λ(a : Type)
       → λ(xs : Optional a)
       → Optional/fold a xs Natural (λ(_ : a) → 1) 0
+
+let example0 = assert : length Natural (Some 2) ≡ 1
+
+let example1 = assert : length Natural (None Natural) ≡ 0
 
 in  length

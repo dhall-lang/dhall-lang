@@ -1,12 +1,10 @@
 {-
 Returns `True` if a number is `0` and returns `False` otherwise
-
-Examples:
-
-```
-./isZero 2 = False
-
-./isZero 0 = True
-```
 -}
-let isZero : Natural → Bool = Natural/isZero in isZero
+let isZero : Natural → Bool = Natural/isZero
+
+let example0 = assert : isZero 2 ≡ False
+
+let example1 = assert : isZero 0 ≡ True
+
+in  isZero
