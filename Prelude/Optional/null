@@ -1,18 +1,14 @@
 {-
 Returns `True` if the `Optional` value is absent and `False` if present
-
-Examples:
-
-```
-./null Natural (Some 2) = False
-
-./null Natural (None Natural) = True
-```
 -}
 let null
     : ∀(a : Type) → Optional a → Bool
     =   λ(a : Type)
       → λ(xs : Optional a)
       → Optional/fold a xs Bool (λ(_ : a) → False) True
+
+let example0 = assert : null Natural (Some 2) ≡ False
+
+let example1 = assert : null Natural (None Natural) ≡ True
 
 in  null
