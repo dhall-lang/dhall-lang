@@ -1,6 +1,8 @@
 {-
 Returns `True` if there are an even number of `False` elements in the list and
-returns `False` otherwise
+returns `False` otherwise.
+
+This function is the `Monoid` for the `==` operation.
 -}
 let even
     : List Bool → Bool
