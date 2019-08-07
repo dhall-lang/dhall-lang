@@ -1,0 +1,1 @@
+Natural/subtract 0

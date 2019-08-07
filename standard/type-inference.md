@@ -39,6 +39,7 @@ normalize.
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
+* [Assertions](#assertions)
 * [Imports](#imports)
 
 ## Reduction
@@ -763,16 +764,20 @@ The `toMap` operator can be applied only to a record value, and every field
 of the record must have the same type, which in turn must be a `Type`.
 
 
-    Γ ⊢ e :⇥ { x : T₀, xs… }
-    Γ ⊢ toMap { xs… } :⇥ List { mapKey : Text, mapValue : T₁ }
-    T₀ ≡ T₁
-    ──────────────────────────────────────────────────────────
-    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T₀ }
+    Γ ⊢ e :⇥ { x : T, xs… }
+    Γ ⊢ ( toMap { xs… } : List { mapKey : Text, mapValue : T } ) :⇥ List { mapKey : Text, mapValue : T }
+    ────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ toMap e : List { mapKey : Text, mapValue : T }
 
 
     Γ ⊢ e :⇥ {}   Γ ⊢ T₀ :⇥ Type   T₀ ⇥ List { mapKey : Text, mapValue : T₁ }
     ─────────────────────────────────────────────────────────────────────────
     Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
+
+
+    Γ ⊢ toMap e : T₀   T₀ ≡ T₁
+    ──────────────────────────
+    Γ ⊢ ( toMap e : T₁ ) : T₁
 
 
 ## Unions
@@ -859,9 +864,9 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ (merge t u : T) : T
 
 
-    Γ ⊢ t :⇥ { ts… }   Γ ⊢ merge t u : T
-    ────────────────────────────────────  ; `ts` non-empty
-    Γ ⊢ (merge t u : T) : T
+    Γ ⊢ merge t u : T₀   T₀ ≡ T₁
+    ────────────────────────────
+    Γ ⊢ (merge t u : T₁) : T₁
 
 
     Γ ⊢ t :⇥ { y : ∀(x : A₀) → T₀, ts… }
@@ -1094,6 +1099,52 @@ as a type annotation:
     ─────────────────────
     Γ ⊢ (t : Sort) : Sort
 
+
+## Assertions
+
+An assertion is equivalent to built-in language support for checking two
+expressions for judgmental equality, commonly invoked like this:
+
+    let example = assert : (2 + 2) === 4
+
+    in  …
+
+An assertion checks that:
+
+* The type annotation is an equivalence
+* The two sides of the equivalence are in fact equivalent
+
+... or in other words:
+
+
+    Γ ⊢ T :⇥ Type
+    T ⇥ x === y
+    x ≡ y
+    ─────────────────────
+    Γ ⊢ (assert : T) : T
+
+
+The inferred type of an assertion is the same as the provided annotation.
+
+If the annotation is not an equivalence then that is a type error.
+
+If the two sides of the equivalence are not equivalent then that is a type error.
+
+To type-check an equivalence, verify that the two sides are terms:
+
+
+    Γ ⊢ x : A₀
+    Γ ⊢ y : A₁
+    Γ ⊢ A₀ :⇥ Type
+    Γ ⊢ A₁ :⇥ Type
+    A₀ ≡ A₁
+    ──────────────────
+    Γ ⊢ x === y : Type
+
+
+If either side of the equivalence is not a term, then that is a type error.
+
+If the inferred types do not match, then that is also a type error.
 
 ## Imports
 
