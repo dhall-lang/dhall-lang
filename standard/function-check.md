@@ -8,6 +8,44 @@ permits.  This is based on [CCω][ccw] with only three universes:
 * `Kind` is the first predicate universe (equivalent to `□₀`)
 * `Sort ` is the second predicate universe (equivalent to `□₁`)
 
+These universe form a hierarchy, which can witnessed by the least-upper bound
+judgement ⋁:
+
+
+    ──────────────────
+    Type ⋁ Type = Type
+
+
+    ──────────────────
+    Type ⋁ Kind = Kind
+
+
+    ──────────────────
+    Type ⋁ Sort = Sort
+
+
+    ──────────────────
+    Kind ⋁ Kind = Kind
+
+
+    ──────────────────
+    Kind ⋁ Sort = Sort
+
+
+    ──────────────────
+    Sort ⋁ Sort = Sort
+
+
+
+The ⋁ judgement is symmetric, so if none of the above rules match, swap the
+arguments:
+
+
+    a ⋁ b = c
+    ─────────
+    b ⋁ a = c
+
+
 This function check is a judgment of the form:
 
     c₀ ↝ c₁ : c₂
@@ -70,7 +108,8 @@ For example, this is a (trivial) function from a sort to a term:
 All the remaining function types are predicative:
 
 
-    ────────────  ; c₂ = max(c₀, c₁), Type < Kind < Sort
+    c₀ ⋁ c₁ = c₂
+    ────────────
     c₀ ↝ c₁ : c₂
 
 

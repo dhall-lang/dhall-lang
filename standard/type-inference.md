@@ -419,29 +419,9 @@ An empty record is a Type:
 A non-empty record can store terms, types and kinds:
 
 
-    Γ ⊢ T :⇥ Kind
-    ────────────────────
-    Γ ⊢ { x : T } : Kind
-
-
-    Γ ⊢ T :⇥ Sort
-    ────────────────────
-    Γ ⊢ { x : T } : Sort
-
-
-    Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ t
-    ────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Type ⋁ t
-
-
-    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ t
-    ────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Kind ⋁ t
-
-
-    Γ ⊢ T :⇥ Sort   Γ ⊢ { xs… } :⇥ t
-    ────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Sort ⋁ t
+    Γ ⊢ T :⇥ t₀   Γ ⊢ { xs… } :⇥ t₁  t₀ ⋁ t₁ = t₂
+    ─────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : t₂
 
 
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
