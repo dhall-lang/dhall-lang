@@ -508,7 +508,6 @@ Recursive record merge requires that both arguments are records:
 
 
     Γ ⊢ l :⇥ { ls… }
-    { ls… } :⇥ t₀
     Γ ⊢ r :⇥ { a : A, rs… }
     Γ ⊢ { a : A, rs… } :⇥ t₁
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
@@ -564,7 +563,7 @@ Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
 
 
-    Γ ⊢ l :⇥ t
+    Γ ⊢ l : t
     l ⇥ { ls… }
     Γ ⊢ r :⇥ Type
     r ⇥ {}
@@ -572,9 +571,9 @@ literals.  Any conflicting fields must be safe to recursively merge:
     Γ ⊢ l ⩓ r : t
 
 
-    Γ ⊢ l :⇥ t₀
+    Γ ⊢ l : t₀
     l ⇥ { ls… }
-    Γ ⊢ r :⇥ t₁
+    Γ ⊢ r : t₁
     r ⇥ { a : A, rs… }
     Γ ⊢ { ls… } ⩓ { rs… } : t
     t₀ ⋁ t₁ = t₂
@@ -582,9 +581,9 @@ literals.  Any conflicting fields must be safe to recursively merge:
     Γ ⊢ l ⩓ r : t₂
 
 
-    Γ ⊢ l :⇥ t₀
+    Γ ⊢ l : t₀
     l ⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ t₁
+    Γ ⊢ r : t₁
     r ⇥ { a : A₁, rs… }
     Γ ⊢ l.a ⩓ r.a : T₀
     Γ ⊢ { ls… } ⩓ { rs… } : T₁
