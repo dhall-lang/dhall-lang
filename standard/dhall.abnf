@@ -710,7 +710,7 @@ expression =
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
-    / "[" whsp "]" whsp ":" whsp1 application-expression
+    / empty-list-literal
     
     ; "toMap e : t"
     ;
@@ -729,6 +729,9 @@ annotated-expression = operator-expression [ whsp ":" whsp1 expression ]
 
 ; "let x = e1"
 let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
+
+; "[] : t"
+empty-list-literal = "[" whsp "]" whsp ":" whsp1 application-expression
 
 operator-expression = import-alt-expression
 
