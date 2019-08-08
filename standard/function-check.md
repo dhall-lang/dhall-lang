@@ -12,41 +12,15 @@ These universes form a hierarchy, which can witnessed by the least-upper bound
 judgement ⋁:
 
 
-    ──────────────────
-    Type ⋁ Type = Type
+    ─────────────────────  ; Type < Kind < Sort
+    t₀ ⋁ t₁ = max(t₀, t₁)
 
 
-    ──────────────────
-    Type ⋁ Kind = Kind
+... where `t₀` and `t₁` are either `Type`, `Kind`, or `Sort` (though they may
+differ).
 
 
-    ──────────────────
-    Type ⋁ Sort = Sort
-
-
-    ──────────────────
-    Kind ⋁ Kind = Kind
-
-
-    ──────────────────
-    Kind ⋁ Sort = Sort
-
-
-    ──────────────────
-    Sort ⋁ Sort = Sort
-
-
-
-The ⋁ judgement is symmetric, so if none of the above rules match, swap the
-arguments:
-
-
-    a ⋁ b = c
-    ─────────
-    b ⋁ a = c
-
-
-This function check is a judgment of the form:
+The function check is a judgment of the form:
 
     c₀ ↝ c₁ : c₂
 
