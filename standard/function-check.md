@@ -8,7 +8,7 @@ permits.  This is based on [CCω][ccw] with only three universes:
 * `Kind` is the first predicate universe (equivalent to `□₀`)
 * `Sort ` is the second predicate universe (equivalent to `□₁`)
 
-These universe form a hierarchy, which can witnessed by the least-upper bound
+These universes form a hierarchy, which can witnessed by the least-upper bound
 judgement ⋁:
 
 
