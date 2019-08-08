@@ -510,7 +510,7 @@ Recursive record merge requires that both arguments are records:
     Γ ⊢ l :⇥ { ls… }
     { ls… } :⇥ t₀
     Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ t₀
+    Γ ⊢ { a : A, rs… } :⇥ t₁
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ∧ r : { a : A, ts… }
