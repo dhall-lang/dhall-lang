@@ -1049,6 +1049,14 @@ Simplify a record projection if the argument is a record literal:
     t.{ x, xs… } ⇥ { x = v, ys… }
 
 
+If the argument is itself a projection, skip the inner projection:
+
+
+    t₀ ⇥ t₁.{ ys… }   t₁.{ xs… } ⇥ t₂
+    ─────────────────────────────────
+    t₀.{ xs… } ⇥ t₂
+
+
 Otherwise, normalize the argument and sort the fields:
 
 
