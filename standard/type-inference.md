@@ -501,7 +501,6 @@ Recursive record merge requires that both arguments are records:
 
 
     Γ ⊢ l :⇥ { ls… }
-    { ls… } :⇥ t
     Γ ⊢ r :⇥ {}
     ───────────────────
     Γ ⊢ l ∧ r : { ls… }
@@ -509,16 +508,13 @@ Recursive record merge requires that both arguments are records:
 
     Γ ⊢ l :⇥ { ls… }
     Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ t₁
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ∧ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ t₀
     Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ t₁
     Γ ⊢ l.a ∧ r.a : A₂
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────
@@ -533,25 +529,20 @@ Non-recursive right-biased merge also requires that both arguments are records:
 
 
     Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ { ls… } :⇥ t
     Γ ⊢ r :⇥ {}
     ───────────────────
     Γ ⊢ l ⫽ r : { ls… }
 
 
     Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ { ls… } :⇥ t₀
     Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ t₁
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⫽ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ t₀
     Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ t₁
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ───────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₁, ts… }
