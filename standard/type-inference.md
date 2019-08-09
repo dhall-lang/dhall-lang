@@ -409,7 +409,7 @@ The built-in functions on `Optional` values have the following types:
 Record types are "anonymous", meaning that they are uniquely defined by the
 names and types of their fields.
 
-An empty record is a Type:
+An empty record is a `Type`:
 
 
     ─────────────
