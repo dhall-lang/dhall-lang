@@ -717,8 +717,8 @@ expression =
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
     / toMap whsp1 import-expression whsp ":" whsp1 application-expression
-
-    ; "assert : Natural/even 1 ≡ False"
+    
+    ; "assert : Natural/even 1 === False"
     / assert whsp ":" whsp1 expression
     
     ; "x : t"
