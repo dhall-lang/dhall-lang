@@ -544,7 +544,7 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l :⇥ { a : A₀, ls… }
     Γ ⊢ r :⇥ { a : A₁, rs… }
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ───────────────────────────────
+    ────────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
