@@ -13,10 +13,10 @@ judgement ⋁:
 
 
     ─────────────────────  ; Type < Kind < Sort
-    t₀ ⋁ t₁ = max(t₀, t₁)
+    T₀ ⋁ T₁ = max(T₀, T₁)
 
 
-... where `t₀` and `t₁` are either `Type`, `Kind`, or `Sort` (though they may
+... where `T₀` and `T₁` are either `Type`, `Kind`, or `Sort` (though they may
 differ).
 
 
