@@ -1,1 +1,1 @@
-https://authority/path%2Fwith%3Ffunny-characters
+https://authority/path:with!funny-characters
