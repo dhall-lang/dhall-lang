@@ -1,1 +1,1 @@
-Optional/fold A (None A) B (λ(_ : A) → _) x
+λ(T : Type) → λ(x : Bool) → Optional/fold T (None T) Bool (λ(_ : T) → False) x

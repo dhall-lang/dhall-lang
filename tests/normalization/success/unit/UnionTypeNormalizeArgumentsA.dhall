@@ -1,1 +1,1 @@
-< x : if True then B else Z | z >
+< x : {} //\\ {} | z >
