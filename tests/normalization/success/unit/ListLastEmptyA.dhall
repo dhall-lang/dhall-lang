@@ -1,1 +1,1 @@
-List/last T ([] : List T)
+λ(T : Type) → List/last T ([] : List T)

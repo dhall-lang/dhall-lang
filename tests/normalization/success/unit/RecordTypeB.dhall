@@ -1,1 +1,1 @@
-λ(T : Type) → { a : {}, b : T }
+λ(T : Type) → { a : Bool, b : T }

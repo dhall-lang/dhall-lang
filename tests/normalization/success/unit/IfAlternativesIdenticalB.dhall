@@ -1,1 +1,1 @@
-y
+λ(x : Bool) → λ(y : Natural) → y

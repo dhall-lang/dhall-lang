@@ -1,1 +1,1 @@
-{ a : if True then y else z, b : x }
+λ(x : Bool) → { a = if True then x else x, b = x }

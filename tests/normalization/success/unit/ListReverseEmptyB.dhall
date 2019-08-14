@@ -1,1 +1,1 @@
-[] : List T
+λ(T : Type) → [] : List T
