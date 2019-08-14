@@ -1,1 +1,1 @@
-x ++ "hai"
+λ(x : Text) → x ++ "hai"

@@ -1,1 +1,1 @@
-True == x
+λ(x : Bool) → True == x
