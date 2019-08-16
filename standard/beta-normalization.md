@@ -125,12 +125,12 @@ predicate:
     if t₀ then l else r ⇥ t₁
 
 
-Simplify `if` expressions where both alternatives are the same:
+Simplify `if` expressions where both alternatives are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    if t then l₀ else r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────────────
+    if t then l₀ else r ⇥ l₁
 
 
 Otherwise, normalize the predicate and both branches of the `if` expression:
@@ -171,9 +171,9 @@ to a `Bool` literal:
 Normalize arguments that are equivalent
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ || r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ || r ⇥ l₁
 
 
 Otherwise, normalize each argument:
@@ -211,9 +211,9 @@ to a `Bool` literal:
 Normalize arguments that are equivalent
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ && r₀ ⇥ l₁
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ && r ⇥ l₁
 
 
 Otherwise, normalize each argument:
@@ -241,9 +241,9 @@ literal:
 ... or if both arguments are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ == r₀ ⇥ True
+    l ≡ r
+    ─────────────
+    l == r ⇥ True
 
 
 Otherwise, normalize each argument:
@@ -271,9 +271,9 @@ Simplify the logical "not equal" operator if one argument normalizes to a
 ... or if both arguments are equivalent:
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁   l₁ ≡ r₁
-    ───────────────────────────
-    l₀ != r₀ ⇥ False
+    l ≡ r
+    ──────────────
+    l != r ⇥ False
 
 
 Otherwise, normalize each argument:
@@ -506,22 +506,30 @@ Also, simplify the `Natural/subtract` function if either argument normalizes to
 a `0` literal:
 
 
-    x ⇥ 0   y₀ ⇥ y₁
-    ──────────────────────────
-    Natural/subtract x y₀ ⇥ y₁
+    f ⇥ Natural/subtract   x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────────────────
+    f x y₀ ⇥ y₁
 
 
-    y ⇥ 0
-    ─────────────────────────
-    Natural/subtract x y ⇥ 0
+    f ⇥ Natural/subtract   y ⇥ 0
+    ────────────────────────────
+    f x y ⇥ 0
+
+
+If the arguments are equivalent:
+
+
+    f ⇥ Natural/subtract   x ≡ y
+    ────────────────────────────
+    f x y ⇥ 0
 
 
 Otherwise, normalize each argument:
 
 
-    x₀ ⇥ x₁   y₀ ⇥ y₁
-    ───────────────────────────────────────────────  ; If no other rule matches
-    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+    f ⇥ Natural/subtract   x₀ ⇥ x₁   y₀ ⇥ y₁
+    ────────────────────────────────────────  ; If no other rule matches
+    f x₀ y₀ ⇥ Natural/subtract x₁ y₁
 
 
 
@@ -970,26 +978,13 @@ If the argument is a record projection, select from the contained record.
     t₀.x ⇥ v
 
 
-If the argument is a right-biased record merge, first inspect the right operand.
-If it is a record literal that contains the field, select it:
+If the argument is a right-biased record merge and one of the operands is a
+record literal, we can simplify further:
 
 
-    t₀ ⇥ t₁ ⫽ { x = v, … }
-    ──────────────────────
-    t₀.x ⇥ v
-
-
-If it is a record literal that doesn't contain the field, select from the left
-operand:
-
-
-    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
-    t₀.x ⇥ v
-
-
-If the left operand is a record literal that doesn't contain the field, select
-from the right operand.
+    t₀ ⇥ { x = v, … } ⫽ t₁
+    ─────────────────────────
+    t₀.x ⇥ ({ x = v } ⫽ t₁).x
 
 
     t₀ ⇥ { xs… } ⫽ t₁   t₁.x ⇥ v
@@ -997,9 +992,28 @@ from the right operand.
     t₀.x ⇥ v
 
 
-If the argument is a recursive record merge, first inspect the right operand.
-If it is a record literal that contains the field, simplify this right operand by
-restricting it to this field:
+    t₀ ⇥ t₁ ⫽ { x = v, … }
+    ──────────────────────
+    t₀.x ⇥ v
+
+
+    t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
+
+
+If the argument is a recursive record merge and one of the operands is a record
+literal, we can simplify it similarly:
+
+
+    t₀ ⇥ { x = v, … } ∧ t₁
+    ─────────────────────────
+    t₀.x ⇥ ({ x = v } ∧ t₁).x
+
+
+    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
+    ──────────────────────────── ; x ∉ xs
+    t₀.x ⇥ v
 
 
     t₀ ⇥ t₁ ∧ { x = v, … }
@@ -1007,20 +1021,7 @@ restricting it to this field:
     t₀.x ⇥ (t₁ ∧ { x = v }).x
 
 
-If it is a record literal that doesn't contain the field, select from the left
-operand:
-
-
     t₀ ⇥ t₁ ∧ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
-    t₀.x ⇥ v
-
-
-If the left operand is a record literal that doesn't contain the field, select
-from the right operand.
-
-
-    t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
     ──────────────────────────── ; x ∉ xs
     t₀.x ⇥ v
 
@@ -1121,14 +1122,14 @@ preferring the field from the right record and discarding the colliding field
 from the left record:
 
 
-    l ⇥ e
-    ───────────
-    l ⫽ {=} ⇥ e
+    l ⇥ e   r ⇥ {=}
+    ───────────────
+    l ⫽ r ⇥ e
 
 
-    r ⇥ e
-    ───────────
-    {=} ⫽ r ⇥ e
+    l ⇥ {=}   r ⇥ e
+    ───────────────
+    l ⫽ r ⇥ e
 
 
     ls₀ ⇥ { x = l₁, ls₁… }
@@ -1144,6 +1145,11 @@ from the left record:
     { x = l₁, ls₂… } ⇥ e      ;  To ensure the fields are sorted
     ────────────────────────  ;  x ∉ rs
     ls₀ ⫽ rs ⇥ e
+
+
+    l₀ ≡ r   l₀ ⇥ l₁
+    ────────────────
+    l₀ ⫽ r ⇥ l₁
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
