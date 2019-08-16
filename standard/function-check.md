@@ -8,7 +8,19 @@ permits.  This is based on [CCω][ccw] with only three universes:
 * `Kind` is the first predicate universe (equivalent to `□₀`)
 * `Sort ` is the second predicate universe (equivalent to `□₁`)
 
-This function check is a judgment of the form:
+These universes form a hierarchy, which can be witnessed by the least-upper bound
+judgement ⋁:
+
+
+    ─────────────────────  ; Type < Kind < Sort
+    T₀ ⋁ T₁ = max(T₀, T₁)
+
+
+... where `T₀` and `T₁` are either `Type`, `Kind`, or `Sort` (though they may
+differ).
+
+
+The function check is a judgment of the form:
 
     c₀ ↝ c₁ : c₂
 
@@ -70,7 +82,8 @@ For example, this is a (trivial) function from a sort to a term:
 All the remaining function types are predicative:
 
 
-    ────────────  ; c₂ = max(c₀, c₁), Type < Kind < Sort
+    c₀ ⋁ c₁ = c₂
+    ────────────
     c₀ ↝ c₁ : c₂
 
 
