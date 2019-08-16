@@ -1,1 +1,1 @@
-λ(x : A) → λ(_ : B) → x
+λ(x : Bool) → λ(_ : Natural) → x
