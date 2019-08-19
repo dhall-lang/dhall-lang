@@ -1,0 +1,9 @@
+{-
+`show` converts an optional value to text; defaulting to "" in the None case
+-}
+let show 
+  = λ(a : Type)
+  → λ(f : a → Text)
+  → λ(x : Optional a)
+  → Optional/fold a x Text f ""
+in show
