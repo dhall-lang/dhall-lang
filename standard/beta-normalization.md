@@ -1071,17 +1071,6 @@ Otherwise, normalize the argument and sort the fields:
 You can also project by type:
 
 
-    s ⇥ {}
-    ───────────
-    keys(s) = ε
-
-
-    s ⇥ { x : T, ss… }
-    keys(ss…) = ss₁…
-    ─────────────────────
-    keys(s) = x, ss₁…
-
-
     s ⇥ { ss… }
     keys(s) = s₁
     t.{s₁} ⇥ ts₁
