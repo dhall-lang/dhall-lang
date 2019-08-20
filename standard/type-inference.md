@@ -576,7 +576,7 @@ literals.  Any conflicting fields must be safe to recursively merge:
     l ⇥ { a : A₀, ls… }
     Γ ⊢ r : t₁
     r ⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ⩓ r.a : T₀
+    Γ ⊢ A₀ ⩓ A₁ : T₀
     Γ ⊢ { ls… } ⩓ { rs… } : T₁
     t₀ ⋁ t₁ = t₂
     ──────────────────────────
