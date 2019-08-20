@@ -409,46 +409,20 @@ The built-in functions on `Optional` values have the following types:
 Record types are "anonymous", meaning that they are uniquely defined by the
 names and types of their fields.
 
-A record can either store term-level values and functions:
+An empty record is a `Type`:
 
 
     ─────────────
     Γ ⊢ {} : Type
 
 
-    Γ ⊢ T :⇥ Type   Γ ⊢ { xs… } :⇥ Type
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Type
+A non-empty record can store terms, types and kinds:
 
 
-... or store types (if it is non-empty):
+    Γ ⊢ T :⇥ t₀   Γ ⊢ { xs… } :⇥ t₁  t₀ ⋁ t₁ = t₂
+    ─────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ { x : T, xs… } : t₂
 
-
-    Γ ⊢ T :⇥ Kind
-    ────────────────────
-    Γ ⊢ { x : T } : Kind
-
-
-    Γ ⊢ T :⇥ Kind   Γ ⊢ { xs… } :⇥ Kind
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Kind
-
-
-... or store kinds (if it is non-empty):
-
-
-    Γ ⊢ T :⇥ Sort
-    ────────────────────
-    Γ ⊢ { x : T } : Sort
-
-
-    Γ ⊢ T :⇥ Sort   Γ ⊢ { xs… } :⇥ Sort
-    ───────────────────────────────────  ; x ∉ { xs… }
-    Γ ⊢ { x : T, xs… } : Sort
-
-
-... but they can not be mixed.  If one field is a term-level value or function
-and another field is a type-level value or function then that is a type error.
 
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
 error.
@@ -523,68 +497,24 @@ error.
 
 If the field is absent from the record then that is a type error.
 
-Recursive record merge requires that both arguments are records of terms,
-records of types, or records of kinds:
+Recursive record merge requires that both arguments are records:
 
 
     Γ ⊢ l :⇥ { ls… }
-    { ls… } :⇥ Type
     Γ ⊢ r :⇥ {}
     ───────────────────
     Γ ⊢ l ∧ r : { ls… }
 
 
     Γ ⊢ l :⇥ { ls… }
-    { ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ Type
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ∧ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ Type
-    Γ ⊢ l.a ∧ r.a : A₂
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────
-    Γ ⊢ l ∧ r : { a : A₂, ts… }
-
-
-    Γ ⊢ l :⇥ { ls… }
-    { ls… } :⇥ Kind
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ Kind
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ∧ r : { a : A, ts… }
-
-
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ Kind
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ Kind
-    Γ ⊢ l.a ∧ r.a : A₂
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────
-    Γ ⊢ l ∧ r : { a : A₂, ts… }
-
-
-    Γ ⊢ l :⇥ { ls… }
-    { ls… } :⇥ Sort
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ Sort
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ∧ r : { a : A, ts… }
-
-
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ Sort
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ Sort
     Γ ⊢ l.a ∧ r.a : A₂
     Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
     ────────────────────────────────
@@ -595,162 +525,62 @@ If the operator arguments are not records then that is a type error.
 
 If they share a field in common that is not a record then that is a type error.
 
-If one argument is a record of terms and the other argument is a record of types
-then that is a type error.
-
-Non-recursive right-biased merge also requires that both arguments are both
-records of terms or records of types:
+Non-recursive right-biased merge also requires that both arguments are records:
 
 
     Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ { ls… } :⇥ Type
     Γ ⊢ r :⇥ {}
     ───────────────────
     Γ ⊢ l ⫽ r : { ls… }
 
 
     Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ { ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ Type
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
     ────────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⫽ r : { a : A, ts… }
 
 
     Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ Type
     Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ Type
     Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ───────────────────────────────
-    Γ ⊢ l ⫽ r : { a : A₁, ts… }
-
-
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ { ls… } :⇥ Kind
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ Kind
-    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ⫽ r : { a : A, ts… }
-
-
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ Kind
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ Kind
-    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ───────────────────────────────
-    Γ ⊢ l ⫽ r : { a : A₁, ts… }
-
-
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ { ls… } :⇥ Sort
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { a : A, rs… } :⇥ Sort
-    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ⫽ r : { a : A, ts… }
-
-
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ { a : A₀, ls… } :⇥ Sort
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { a : A₁, rs… } :⇥ Sort
-    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ───────────────────────────────
+    ────────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
 If the operator arguments are not records then that is a type error.
 
-If one argument is a record of terms and the other argument is a record of types
-then that is a type error.
-
 Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
 
 
-    Γ ⊢ l :⇥ Type
+    Γ ⊢ l : t
     l ⇥ { ls… }
     Γ ⊢ r :⇥ Type
     r ⇥ {}
-    ────────────────
-    Γ ⊢ l ⩓ r : Type
+    ─────────────
+    Γ ⊢ l ⩓ r : t
 
 
-    Γ ⊢ l :⇥ Type
+    Γ ⊢ l : t₀
     l ⇥ { ls… }
-    Γ ⊢ r :⇥ Type
+    Γ ⊢ r : t₁
     r ⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ⩓ { rs… } : T
-    ─────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ⩓ r : Type
+    Γ ⊢ { ls… } ⩓ { rs… } : t
+    t₀ ⋁ t₁ = t₂
+    ─────────────────────────  ; a ∉ ls
+    Γ ⊢ l ⩓ r : t₂
 
 
-    Γ ⊢ l :⇥ Type
+    Γ ⊢ l : t₀
     l ⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ Type
+    Γ ⊢ r : t₁
     r ⇥ { a : A₁, rs… }
     Γ ⊢ l.a ⩓ r.a : T₀
     Γ ⊢ { ls… } ⩓ { rs… } : T₁
-    ─────────────────────────────
-    Γ ⊢ l ⩓ r : Type
-
-
-    Γ ⊢ l :⇥ Kind
-    l ⇥ { ls… }
-    Γ ⊢ r :⇥ Kind
-    r ⇥ { a : A }
-    ────────────────
-    Γ ⊢ l ⩓ r : Kind
-
-
-    Γ ⊢ l :⇥ Kind
-    l ⇥ { ls… }
-    Γ ⊢ r :⇥ Kind
-    r ⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ⩓ { rs… } : T
-    ─────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ⩓ r : Kind
-
-
-    Γ ⊢ l :⇥ Kind
-    l ⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ Kind
-    r ⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ⩓ r.a : T₀
-    Γ ⊢ { ls… } ⩓ { rs… } : T₁
-    ─────────────────────────────
-    Γ ⊢ l ⩓ r : Kind
-
-
-    Γ ⊢ l :⇥ Sort
-    l ⇥ { ls… }
-    Γ ⊢ r :⇥ Sort
-    r ⇥ { a : A }
-    ────────────────
-    Γ ⊢ l ⩓ r : Sort
-
-
-    Γ ⊢ l :⇥ Sort
-    l ⇥ { ls… }
-    Γ ⊢ r :⇥ Sort
-    r ⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ⩓ { rs… } : T
-    ─────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ⩓ r : Sort
-
-
-    Γ ⊢ l :⇥ Sort
-    l ⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ Sort
-    r ⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ⩓ r.a : T₀
-    Γ ⊢ { ls… } ⩓ { rs… } : T₁
-    ─────────────────────────────
-    Γ ⊢ l ⩓ r : Sort
+    t₀ ⋁ t₁ = t₂
+    ──────────────────────────
+    Γ ⊢ l ⩓ r : t₂
 
 
 If the operator arguments are not record types then that is a type error.

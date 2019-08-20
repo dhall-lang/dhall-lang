@@ -31,4 +31,19 @@
 , toInteger =
       ./toInteger sha256:160d2d278619f3da34a1f4f02e739a447e4f2aa5a2978c45b710515b41491e1f
     ? ./toInteger
+, lessThan =
+      ./lessThan sha256:d8a37951fd3f88dcc3927c20b73e6c53499f5275d949eed59bb77ea748492bf0
+    ? ./lessThan
+, lessThanEqual =
+      ./lessThanEqual sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+    ? ./lessThanEqual
+, equal =
+      ./equal sha256:9e0e952e097a2a974ca4ed3e65bcf395cda2bb54382c8ecc3963bca50bfff124
+    ? ./equal
+, greaterThanEqual =
+      ./greaterThanEqual sha256:8665ab478524416ecca7573488eb9b64c12a39f1ea86353b67735cf4d3a3bc4f
+    ? ./greaterThanEqual
+, greaterThan =
+      ./greaterThan sha256:f702abcdfcd7ad73619b9285d7e41c3a1d017fb6b8d037cf40bd93bf30c09b2c
+    ? ./greaterThan
 }
