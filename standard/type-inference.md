@@ -497,34 +497,6 @@ error.
 
 If the field is absent from the record then that is a type error.
 
-Recursive record merge requires that both arguments are records:
-
-
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ r :⇥ {}
-    ───────────────────
-    Γ ⊢ l ∧ r : { ls… }
-
-
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ∧ r : { a : A, ts… }
-
-
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ∧ r.a : A₂
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────
-    Γ ⊢ l ∧ r : { a : A₂, ts… }
-
-
-If the operator arguments are not records then that is a type error.
-
-If they share a field in common that is not a record then that is a type error.
-
 Non-recursive right-biased merge also requires that both arguments are records:
 
 
@@ -587,6 +559,16 @@ If the operator arguments are not record types then that is a type error.
 
 If they share a field in common that is not a record type then that is a type
 error.
+
+Recursive record merge requires that the types of both arguments can be
+combined with recursive record merge:
+
+
+    Γ ⊢ l : T₀
+    Γ ⊢ r : T₁
+    Γ ⊢ T₀ ⩓ T₁ : i
+    ───────────────────
+    Γ ⊢ l ∧ r : T₀ ⩓ T₁
 
 
 
