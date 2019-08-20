@@ -555,16 +555,16 @@ literals.  Any conflicting fields must be safe to recursively merge:
 
 
     Γ ⊢ l : t
-    l ⇥ { ls… }
     Γ ⊢ r :⇥ Type
+    l ⇥ { ls… }
     r ⇥ {}
     ─────────────
     Γ ⊢ l ⩓ r : t
 
 
     Γ ⊢ l : t₀
-    l ⇥ { ls… }
     Γ ⊢ r : t₁
+    l ⇥ { ls… }
     r ⇥ { a : A, rs… }
     Γ ⊢ { ls… } ⩓ { rs… } : t
     t₀ ⋁ t₁ = t₂
@@ -573,8 +573,8 @@ literals.  Any conflicting fields must be safe to recursively merge:
 
 
     Γ ⊢ l : t₀
-    l ⇥ { a : A₀, ls… }
     Γ ⊢ r : t₁
+    l ⇥ { a : A₀, ls… }
     r ⇥ { a : A₁, rs… }
     Γ ⊢ A₀ ⩓ A₁ : T₀
     Γ ⊢ { ls… } ⩓ { rs… } : T₁
