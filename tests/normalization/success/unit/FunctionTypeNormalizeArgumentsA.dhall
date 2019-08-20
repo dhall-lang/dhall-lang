@@ -1,1 +1,1 @@
-(if True then X else Y) → if True then A else B
+let id = λ(X : Type) → X in id Bool → id Natural

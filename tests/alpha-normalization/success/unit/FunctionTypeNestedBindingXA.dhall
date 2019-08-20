@@ -1,1 +1,1 @@
-∀(x : A) → B → x
+∀(x : Type) → Type → x

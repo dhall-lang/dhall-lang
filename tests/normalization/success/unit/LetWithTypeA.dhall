@@ -1,1 +1,1 @@
-let x : A = y in x
+λ(y : Bool) → let x : Bool = y in x

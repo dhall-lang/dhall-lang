@@ -1,1 +1,1 @@
-x : A
+λ(x : Bool) → x : Bool

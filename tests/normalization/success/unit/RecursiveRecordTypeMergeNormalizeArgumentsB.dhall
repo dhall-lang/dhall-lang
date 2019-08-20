@@ -1,1 +1,1 @@
-x ⩓ b
+{ a : Bool, b : Bool }

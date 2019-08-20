@@ -1,1 +1,1 @@
-Natural/subtract x 30
+λ(x : Natural) → λ(y : Natural) → Natural/subtract x 30

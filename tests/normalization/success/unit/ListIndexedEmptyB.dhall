@@ -1,1 +1,1 @@
-[] : List { index : Natural, value : T }
+λ(T : Type) → [] : List { index : Natural, value : T }

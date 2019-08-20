@@ -1,1 +1,1 @@
-False != x
+λ(x : Bool) → False != x

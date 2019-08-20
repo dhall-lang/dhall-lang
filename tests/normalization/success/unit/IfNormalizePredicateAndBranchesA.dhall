@@ -1,1 +1,4 @@
-if if True then x else y then if True then a else b else if True then c else d
+  λ(b : Bool)
+→ λ(x : Natural)
+→ λ(y : Natural)
+→ if if True then b else b then if True then x else x else if True then y else y

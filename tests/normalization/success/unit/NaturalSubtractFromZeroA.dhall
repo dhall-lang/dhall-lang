@@ -1,1 +1,1 @@
-Natural/subtract x 0
+λ(x : Natural) → Natural/subtract x 0

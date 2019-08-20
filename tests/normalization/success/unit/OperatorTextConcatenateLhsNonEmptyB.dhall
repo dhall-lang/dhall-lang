@@ -1,1 +1,1 @@
-"hai${x}"
+λ(x : Text) → "hai${x}"
