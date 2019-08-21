@@ -1,1 +1,1 @@
-Natural/fold 1 Natural (λ(x : Natural) → 5) x
+λ(x : Bool) → Natural/fold 1 Bool (λ(_ : Bool) → True) x

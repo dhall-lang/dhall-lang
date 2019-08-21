@@ -1,1 +1,1 @@
-List/fold A0 [ x ] B (λ(x : A0) → λ(y : B) → x) z
+λ(T : Type) → λ(f : T → Bool → Bool) → λ(x : T) → List/fold T [ x ] Bool f True

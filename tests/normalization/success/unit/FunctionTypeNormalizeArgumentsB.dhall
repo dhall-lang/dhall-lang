@@ -1,1 +1,1 @@
-X → A
+Bool → Natural

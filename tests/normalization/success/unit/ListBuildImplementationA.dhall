@@ -1,1 +1,3 @@
-List/build A0 (λ(list : Type) → λ(cons : A0 → list → list) → λ(nil : list) → x)
+  λ(T : Type)
+→ λ(f : ∀(list : Type) → (T → list → list) → list → list)
+→ List/build T f

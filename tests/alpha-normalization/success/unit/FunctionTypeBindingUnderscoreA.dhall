@@ -1,1 +1,1 @@
-A → B
+Bool → Natural

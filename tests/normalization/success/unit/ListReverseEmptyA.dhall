@@ -1,1 +1,1 @@
-List/reverse T ([] : List T)
+λ(T : Type) → List/reverse T ([] : List T)

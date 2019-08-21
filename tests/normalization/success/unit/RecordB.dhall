@@ -1,1 +1,1 @@
-{ a : y, b : x }
+λ(x : Bool) → { a = x, b = x }

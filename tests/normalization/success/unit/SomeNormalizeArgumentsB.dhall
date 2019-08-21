@@ -1,1 +1,1 @@
-Some x
+λ(x : Bool) → λ(y : Bool) → Some x

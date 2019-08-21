@@ -1,3 +1,3 @@
-Optional/build
-A
-(λ(optional : Type) → λ(just : A → optional) → λ(nothing : optional) → x)
+  λ(T : Type)
+→ λ(f : ∀(optional : Type) → (T → optional) → optional → optional)
+→ Optional/build T f
