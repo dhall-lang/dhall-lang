@@ -20,7 +20,7 @@ You can try the language live in your browser by visiting the official website:
 ## Table of contents
 
 * [Getting Started](#getting-started)
-* [Example Configuration](#example-configuration)
+* [Tutorials](#tutorials)
 * [Features](#features)
 * [Documentation](#documentation)
 * [Standard Library](#standard-library)
@@ -46,246 +46,11 @@ generate JSON and YAML, respectively, on the command line. Platform- and
 runtime-specific installation instructions can be found in [the Dhall
 wiki][dhall-json-tutorial-wiki].
 
-## Example Configuration
+## Tutorials
 
-```bash
-$ cat ./makeUser.dhall
-```
+For a short introduction, read:
 
-```haskell
--- This is a single-line comment
-
-{- This is a
-   block comment
--}
-
--- This file stores an anonymous function (analogous to a "template")
-
-   -- ↓↓↓↓ The function's input is an argument named `user`
-    \(user : Text)
-          -- ↑↑↑↑ ... that has type `Text`
-
--- The remainder of this file is the function's output
--- (a.k.a. "the body of the function")
--> 
-
- -- ↓↓↓ Use `let` to define intermediate variables
-    let homeDirectory = "/home/${user}"
-
-                           -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ String interpolation
-    let privateKeyFile = "${homeDirectory}/id_rsa"
-
-    let publicKeyFile = "${privateKeyFile}.pub"
-
-        -- Records begin with `{`, end with `}`, and separate fields with `,`
-    in  { homeDirectory  = homeDirectory
-        , privateKeyFile = privateKeyFile
-        , publicKeyFile  = publicKeyFile
-        } : ./User.dhall
-       -- ↑ The `:` symbol begins a type annotation (optional in this case)
-       --
-       -- We can store expressions (even types) in files (like `./User.dhall`)
-```
-
-```bash
-$ cat ./User.dhall
-```
-
-```haskell
--- This file stores a Dhall type (analogous to a "schema")
-
--- This is the type of a record which has three fields:
---
--- * The first field is named `homeDirectory` and has type `Text`
--- * The second field is named `privateKeyFile` and has type `Text`
--- * The third field is named `publicKeyFile` and has type `Text`
---
--- The order of fields does not matter
-{ homeDirectory  : Text
-, privateKeyFile : Text
-, publicKeyFile  : Text
-}
-```
-
-```bash
-$ cat ./configuration.dhall
-```
-
-```haskell
--- This is our top-level configuration file
-
--- We can import any Dhall expression, even a function, from another file
-let makeUser = ./makeUser.dhall
-
--- We can import Dhall expressions from URLs, too
-let generate =
-        https://prelude.dhall-lang.org/List/generate
-            -- ... and optionally protect them with integrity checks
-            sha256:3d7c09834af3d0657f070e6bb42c0c8e7e9f9e9649f47de52aed8a7c095daa80
-
-        -- We can provide a fallback mirror if the first import fails
-      ? https://raw.githubusercontent.com/dhall-lang/Prelude/302881a17491f3c72238975a6c3e7aab603b9a96/List/generate
-
-        -- We can fall back to anything, like a local file
-      ? /usr/local/share/dhall/Prelude/List/generate
-
--- We can also define functions inline within the same file
-let makeBuildUser =
-      \(index : Natural) -> makeUser "build${Natural/show index}"
-
--- We can import types, too
-let User = ./User.dhall
-
-      -- Lists begin with `[`, end with `]` and separate elements with `,`
-in    [ -- We can inline the configuration for any given user
-        --
-        -- This is useful for users with a non-standard configuration
-        { homeDirectory  = "/home/jenkins"
-        , privateKeyFile = "/etc/jenkins/id_rsa"
-        , publicKeyFile  = "/etc/jenkins/id_rsa.pub"
-        }
-
-        -- We can use our `makeUser` function to stamp out users that follow
-        -- a standard pattern
-      , makeUser "john"
-
-      , makeUser "mary"
-
-      , makeUser "alice"
-
-      ]
-
- -- ↓ This is the list concatenation operator
-    # ( -- Let's add the current $USER to the list, too
-
-                 -- ↓↓↓↓↓↓↓↓ We can import from environment variables, too
-        [ makeUser (env:USER as Text) ]
-                          -- ↑↑↑↑↑↑↑ Adding "as Text" imports raw Text instead
-                          --         of a Dhall expression
-
-        -- What if the `USER` environment variable is not set?
-        --
-        -- No problem; fall back to appending an empty list
-      ? ([] : List User)
-      )
-
-      -- Let's also generate 7 users using makeBuildUser
-    # generate 7 User makeBuildUser
-```
-
-```bash
-$ # Now convert to JSON
-$ dhall-to-json --pretty <<< './configuration.dhall'
-```
-
-```json
-[
-  {
-    "homeDirectory": "/home/jenkins",
-    "privateKeyFile": "/etc/jenkins/id_rsa",
-    "publicKeyFile": "/etc/jenkins/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/john",
-    "privateKeyFile": "/home/john/id_rsa",
-    "publicKeyFile": "/home/john/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/mary",
-    "privateKeyFile": "/home/mary/id_rsa",
-    "publicKeyFile": "/home/mary/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/alice",
-    "privateKeyFile": "/home/alice/id_rsa",
-    "publicKeyFile": "/home/alice/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/gabriel",
-    "privateKeyFile": "/home/gabriel/id_rsa",
-    "publicKeyFile": "/home/gabriel/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build0",
-    "privateKeyFile": "/home/build0/id_rsa",
-    "publicKeyFile": "/home/build0/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build1",
-    "privateKeyFile": "/home/build1/id_rsa",
-    "publicKeyFile": "/home/build1/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build2",
-    "privateKeyFile": "/home/build2/id_rsa",
-    "publicKeyFile": "/home/build2/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build3",
-    "privateKeyFile": "/home/build3/id_rsa",
-    "publicKeyFile": "/home/build3/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build4",
-    "privateKeyFile": "/home/build4/id_rsa",
-    "publicKeyFile": "/home/build4/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build5",
-    "privateKeyFile": "/home/build5/id_rsa",
-    "publicKeyFile": "/home/build5/id_rsa.pub"
-  },
-  {
-    "homeDirectory": "/home/build6",
-    "privateKeyFile": "/home/build6/id_rsa",
-    "publicKeyFile": "/home/build6/id_rsa.pub"
-  }
-]
-```
-
-```bash
-$ # ... or YAML
-$ dhall-to-yaml <<< './configuration.dhall'
-```
-
-```yaml
-- privateKeyFile: /etc/jenkins/id_rsa
-  publicKeyFile: /etc/jenkins/id_rsa.pub
-  homeDirectory: /home/jenkins
-- privateKeyFile: /home/john/id_rsa
-  publicKeyFile: /home/john/id_rsa.pub
-  homeDirectory: /home/john
-- privateKeyFile: /home/mary/id_rsa
-  publicKeyFile: /home/mary/id_rsa.pub
-  homeDirectory: /home/mary
-- privateKeyFile: /home/alice/id_rsa
-  publicKeyFile: /home/alice/id_rsa.pub
-  homeDirectory: /home/alice
-- privateKeyFile: /home/gabriel/id_rsa
-  publicKeyFile: /home/gabriel/id_rsa.pub
-  homeDirectory: /home/gabriel
-- privateKeyFile: /home/build0/id_rsa
-  publicKeyFile: /home/build0/id_rsa.pub
-  homeDirectory: /home/build0
-- privateKeyFile: /home/build1/id_rsa
-  publicKeyFile: /home/build1/id_rsa.pub
-  homeDirectory: /home/build1
-- privateKeyFile: /home/build2/id_rsa
-  publicKeyFile: /home/build2/id_rsa.pub
-  homeDirectory: /home/build2
-- privateKeyFile: /home/build3/id_rsa
-  publicKeyFile: /home/build3/id_rsa.pub
-  homeDirectory: /home/build3
-- privateKeyFile: /home/build4/id_rsa
-  publicKeyFile: /home/build4/id_rsa.pub
-  homeDirectory: /home/build4
-- privateKeyFile: /home/build5/id_rsa
-  publicKeyFile: /home/build5/id_rsa.pub
-  homeDirectory: /home/build5
-- privateKeyFile: /home/build6/id_rsa
-  publicKeyFile: /home/build6/id_rsa.pub
-  homeDirectory: /home/build6
-```
+* [Learn Dhall in Y minutes][learn-dhall-in-y-minutes]
 
 To learn more about core language features, read:
 
@@ -906,6 +671,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-name]: http://torment.wikia.com/wiki/Dhall
 [dhall-prelude]: https://prelude.dhall-lang.org
 [hcl]: https://github.com/hashicorp/hcl
+[learn-dhall-in-y-minutes]: https://learnxinyminutes.com/docs/dhall/
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
 [migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
 [issue-tracker]: https://github.com/dhall-lang/dhall-lang/issues
