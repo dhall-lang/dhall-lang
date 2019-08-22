@@ -319,6 +319,16 @@
         ∀(n : Natural) → Double
     , toInteger :
         Natural → Integer
+    , lessThan :
+        Natural → Natural → Bool
+    , lessThanEqual :
+        Natural → Natural → Bool
+    , equal :
+        Natural → Natural → Bool
+    , greaterThan :
+        Natural → Natural → Bool
+    , greaterThanEqual :
+        Natural → Natural → Bool
     }
 , Optional :
     { all :
