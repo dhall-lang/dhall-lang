@@ -497,34 +497,6 @@ error.
 
 If the field is absent from the record then that is a type error.
 
-Recursive record merge requires that both arguments are records:
-
-
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ r :⇥ {}
-    ───────────────────
-    Γ ⊢ l ∧ r : { ls… }
-
-
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
-    Γ ⊢ l ∧ r : { a : A, ts… }
-
-
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ∧ r.a : A₂
-    Γ ⊢ { ls… } ∧ { rs… } :⇥ { ts… }
-    ────────────────────────────────
-    Γ ⊢ l ∧ r : { a : A₂, ts… }
-
-
-If the operator arguments are not records then that is a type error.
-
-If they share a field in common that is not a record then that is a type error.
-
 Non-recursive right-biased merge also requires that both arguments are records:
 
 
@@ -555,16 +527,16 @@ literals.  Any conflicting fields must be safe to recursively merge:
 
 
     Γ ⊢ l : t
-    l ⇥ { ls… }
     Γ ⊢ r :⇥ Type
+    l ⇥ { ls… }
     r ⇥ {}
     ─────────────
     Γ ⊢ l ⩓ r : t
 
 
     Γ ⊢ l : t₀
-    l ⇥ { ls… }
     Γ ⊢ r : t₁
+    l ⇥ { ls… }
     r ⇥ { a : A, rs… }
     Γ ⊢ { ls… } ⩓ { rs… } : t
     t₀ ⋁ t₁ = t₂
@@ -573,10 +545,10 @@ literals.  Any conflicting fields must be safe to recursively merge:
 
 
     Γ ⊢ l : t₀
-    l ⇥ { a : A₀, ls… }
     Γ ⊢ r : t₁
+    l ⇥ { a : A₀, ls… }
     r ⇥ { a : A₁, rs… }
-    Γ ⊢ l.a ⩓ r.a : T₀
+    Γ ⊢ A₀ ⩓ A₁ : T₀
     Γ ⊢ { ls… } ⩓ { rs… } : T₁
     t₀ ⋁ t₁ = t₂
     ──────────────────────────
@@ -587,6 +559,16 @@ If the operator arguments are not record types then that is a type error.
 
 If they share a field in common that is not a record type then that is a type
 error.
+
+Recursive record merge requires that the types of both arguments can be
+combined with recursive record merge:
+
+
+    Γ ⊢ l : T₀
+    Γ ⊢ r : T₁
+    Γ ⊢ T₀ ⩓ T₁ : i
+    ───────────────────
+    Γ ⊢ l ∧ r : T₀ ⩓ T₁
 
 
 
