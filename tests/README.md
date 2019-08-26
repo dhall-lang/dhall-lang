@@ -69,7 +69,7 @@ don't keep the diagnostic file up-to-date).
 The tests should:
 - parse `A` and `B`
 - eventually resolve the imports in both (if not running `simple` or `unit` tests)
-- normalize them both
+- normalize `A` (but not `B`)
 - the results should match
 
 Where `A` and `B` are:
