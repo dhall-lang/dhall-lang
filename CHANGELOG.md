@@ -5,6 +5,197 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v10.0.0`
+
+Breaking changes:
+
+* [Remove old-style union literals from the language](https://github.com/dhall-lang/dhall-lang/pull/573)
+
+  This is the final phase of removing support for the old union literal syntax
+  and they are no longer supported.
+
+  Now, instead of writing this:
+
+  ```dhall
+  < Left = 1 | Right : Bool >
+  ```
+
+  ... you must write this:
+
+  ```dhall
+  < Left : Natural | Right : Bool >.Left 1
+  ```
+
+  ... or more commonly:
+
+  ```dhall
+  let Example = < Left : Natural | Right : Bool >
+
+  in  Example.Left 1
+  ```
+
+  For more details, including migration instructions, see: [Migration: Deprecation of old union literal syntax](https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Deprecation-of-old-union-literal-syntax)
+
+* [Add support for dependent types](https://github.com/dhall-lang/dhall-lang/pull/669)
+
+  Dhall now provides rudimentary support for dependent types, which in turn
+  enables a new `assert` keyword for testing code.
+
+  For example, now you can write unit tests for your functions like this:
+
+  ```dhall
+  let not = λ(x : Bool) → x == False
+
+  let example0 = assert : not True === False
+
+  -- (≡) (U+2261) is the Unicode analog of (===)
+  let example1 = assert : not False ≡ True
+
+  in  not
+  ```
+
+  You can also write property tests in the same way, too:
+
+  ```dhall
+  let rightIdentity = λ(x : Natural) → assert : x ≡ (x + 0)
+
+  let leftIdentity  = λ(x : Natural) → assert : x ≡ (0 + x)
+
+  -- Note: This last assertion will fail because Dhall's simplifier currently
+  -- cannot detect that re-associated expressions are equivalent
+  let associativity =
+          λ(x : Natural)
+        → λ(y : Natural)
+        → λ(z : Natural)
+        → assert : (x + (y + z)) === ((x + y) + z)
+
+  in  {=}
+  ```
+
+  Dhall is *technically* dependently typed, meaning that you can now have
+  functions from terms to types, like this:
+
+  ```dhall
+  let Tagged = λ(label : Text) → λ(a : Type) → a
+  
+  in  1 : Tagged "Age" Natural
+  ```
+
+  ... but Dhall does not yet support other features that would be required to
+  do more sophisticated things like statically sized `Vector`s.  The main
+  new benefit for users is language support for tests.
+
+  This is a technically breaking change because `assert` is now a reserved
+  keyword.
+
+* [New `Natural/subtract` built-in](https://github.com/dhall-lang/dhall-lang/pull/650)
+
+  This adds a new `Natural/subtract` built-in which truncates to `0` if the
+  result is negative.
+
+  The built-in is useful in its own right, but can also be used to power
+  other utilities (such as efficient comparison of `Natural` numbers, also
+  included in this releases)
+
+  This is a technically breaking change because `Natural/subtract` is now a
+  reserved identifier, but in practice this is unlikely to break your code
+  unless you defined your own inefficient `Natural/subtract` function in terms
+  of `Natural/fold`.  If you did so, then just delete the old code and switch
+  to the new built-in.
+
+  See also: [Simplify `Natural/subtract` when its arguments are equivalent](https://github.com/dhall-lang/dhall-lang/pull/685)
+
+* [New simplifications for field selection](https://github.com/dhall-lang/dhall-lang/pull/664)
+
+  The interpreter will now intelligently normalize some unsaturated field
+  selections and projections.
+
+  For example, the following code:
+
+  ```dhall
+  λ(x : { a : Bool, b : Bool }) → (x ⫽ { c = 0 }).{ a, c }.c
+  ```
+
+  ... will simplify to:
+
+  ```dhall
+  λ(x : { a : Bool, b : Bool }) → 0 
+  ```
+
+  This is a technically breaking change because it changes the normal form for
+  expressions that can be simplified in this way, which in turn perturbs
+  their hash if they are protected by a semantic integrity check.  However, in
+  practice this is unlikely to disrupt your code.
+
+  See also: [Add missing symmetric rules for field selection normalization](https://github.com/dhall-lang/dhall-lang/pull/682)
+
+* [Simplify `//` when its arguments are equivalent](https://github.com/dhall-lang/dhall-lang/pull/684)
+
+  The interpreter will now simplify `x // x` to `x`
+
+  This is a technically breaking change for the same reason as the previous
+  change: because it changes the normal form for expressions using this
+  feature.
+
+* [Don't URL-decode path segments](https://github.com/dhall-lang/dhall-lang/pull/704)
+
+  This changes the the binary representation of URLs to pass through path
+  segments without decoding them for better interoperability with other tools.
+
+  This is a technically breaking change because the binary format changes for
+  URLs, but this does not disturb semantic integrity checks since they hash
+  URL-free expressions.
+
+New features:
+
+* [Standardize mixed records](https://github.com/dhall-lang/dhall-lang/pull/689)
+
+  You can now have mixed records of terms, types, and kinds.  For example,
+  something like this is now legal:
+
+  ```dhall
+  { foo = 1, bar = Text }
+  ```
+
+  Practically, this means that Dhall packages can now export both types and
+  terms from the same record, so that they no longer need a separate
+  `types.dhall` record.
+
+* [Prelude: Add `Natural` comparison functions](https://github.com/dhall-lang/dhall-lang/pull/674)
+
+  You can now use high-performance `Natural` comparison functions which are
+  internally powered by the newly-added `Natural/subtract` built-in.
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Fix `toMap` type inference (and some `merge` tweaks)](https://github.com/dhall-lang/dhall-lang/pull/671)
+  * [[`Natural/subtract`] minor clarification in normalization](https://github.com/dhall-lang/dhall-lang/pull/678)
+  * [β-normalization: Simplify some equivalence-based rules](https://github.com/dhall-lang/dhall-lang/pull/687)
+  * [Fix RFC5234-compliance of the grammar](https://github.com/dhall-lang/dhall-lang/pull/694)
+  * [Small tweak for auto-generated parsers](https://github.com/dhall-lang/dhall-lang/pull/699)
+  * [Small fix for β-normalization](https://github.com/dhall-lang/dhall-lang/pull/696)
+  * [Use `⩓` to typecheck `∧`](https://github.com/dhall-lang/dhall-lang/pull/706)
+
+* Fixes and improvements to the Prelude:
+
+  * [Document connection to `Monoid` for `Bool/even` and `Bool/odd`](https://github.com/dhall-lang/dhall-lang/pull/683)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Test import alternative with type error](https://github.com/dhall-lang/dhall-lang/pull/662)
+  * [Test binary decoding of label 28](https://github.com/dhall-lang/dhall-lang/pull/667)
+  * [Make `as Location` tests chain in a consistent way](https://github.com/dhall-lang/dhall-lang/pull/633)
+  * [Test binary decoding of label 27](https://github.com/dhall-lang/dhall-lang/pull/677)
+  * [Test that nested lets are flattened in binary](https://github.com/dhall-lang/dhall-lang/pull/673)
+  * [Test integrity check on nested imports](https://github.com/dhall-lang/dhall-lang/pull/672)
+  * [Add normalization test for (`Natural/subtract 0`)](https://github.com/dhall-lang/dhall-lang/pull/692)
+  * [Add a bunch of tests](https://github.com/dhall-lang/dhall-lang/pull/698)
+  * [Swap A and B in `BuiltinNaturalSubtract` binary-decode tests](https://github.com/dhall-lang/dhall-lang/pull/695)
+  * [Make normalization tests type-correct](https://github.com/dhall-lang/dhall-lang/pull/703)
+  * [Fix `tests/typecheck/success/prelude`](https://github.com/dhall-lang/dhall-lang/pull/708)
+
 ## `v9.0.0`
 
 Breaking changes:
