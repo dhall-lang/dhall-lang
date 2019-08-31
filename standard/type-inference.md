@@ -788,10 +788,6 @@ and if the inferred input and output type are allowed by the function check:
 If the input or output type is neither a `Type`, a `Kind`, nor a `Sort` then
 that is a type error.
 
-The function check disallows dependent function types but allows all other
-function types.  If the function type is a dependent function type then that is
-a type error.
-
 An unquantified function type `A → B` is a short-hand for `∀(_ : A) → B`.  Note
 that the `_` does *not* denote some unused type variable but rather denotes the
 specific variable named `_` (which is a valid variable name and this variable
@@ -815,8 +811,7 @@ inferred type of the body of the λ-expression (`b`).
 
 
 Note that the above rule requires that the inferred function type must be
-well-typed.  The type-checking step for the function type triggers a function
-check which disallows dependent function types.
+well-typed.
 
 The type system ensures that function application is well-typed, meaning that
 the input type that a function expects matches the inferred type of the
