@@ -177,6 +177,7 @@ Other changes:
   * [Small tweak for auto-generated parsers](https://github.com/dhall-lang/dhall-lang/pull/699)
   * [Small fix for β-normalization](https://github.com/dhall-lang/dhall-lang/pull/696)
   * [Use `⩓` to typecheck `∧`](https://github.com/dhall-lang/dhall-lang/pull/706)
+  * [Clarify that dependent functions are allowed now](https://github.com/dhall-lang/dhall-lang/pull/715)
 
 * Fixes and improvements to the Prelude:
 
@@ -195,6 +196,7 @@ Other changes:
   * [Swap A and B in `BuiltinNaturalSubtract` binary-decode tests](https://github.com/dhall-lang/dhall-lang/pull/695)
   * [Make normalization tests type-correct](https://github.com/dhall-lang/dhall-lang/pull/703)
   * [Fix `tests/typecheck/success/prelude`](https://github.com/dhall-lang/dhall-lang/pull/708)
+  * [Various test fixes](https://github.com/dhall-lang/dhall-lang/pull/716)
 
 ## `v9.0.0`
 
