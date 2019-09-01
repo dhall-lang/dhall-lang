@@ -11,8 +11,8 @@ let example1 = assert : lessThanEqual 5 5 ≡ True
 
 let example2 = assert : lessThanEqual 5 4 ≡ False
 
-let property0 = λ(n : Natural) → lessThanEqual 0 n ≡ True
+let property0 = λ(n : Natural) → assert : lessThanEqual 0 n ≡ True
 
-let property1 = λ(n : Natural) → lessThanEqual n n ≡ True
+let property1 = λ(n : Natural) → assert : lessThanEqual n n ≡ True
 
 in  lessThanEqual
