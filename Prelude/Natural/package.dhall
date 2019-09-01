@@ -32,16 +32,16 @@
       ./toInteger sha256:160d2d278619f3da34a1f4f02e739a447e4f2aa5a2978c45b710515b41491e1f
     ? ./toInteger
 , lessThan =
-      ./lessThan sha256:d8a37951fd3f88dcc3927c20b73e6c53499f5275d949eed59bb77ea748492bf0
+      ./lessThan sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
     ? ./lessThan
 , lessThanEqual =
       ./lessThanEqual sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
     ? ./lessThanEqual
 , equal =
-      ./equal sha256:9e0e952e097a2a974ca4ed3e65bcf395cda2bb54382c8ecc3963bca50bfff124
+      ./equal sha256:7f108edfa35ddc7cebafb24dc073478e93a802e13b5bc3fd22f4768c9b066e60
     ? ./equal
 , greaterThanEqual =
-      ./greaterThanEqual sha256:8665ab478524416ecca7573488eb9b64c12a39f1ea86353b67735cf4d3a3bc4f
+      ./greaterThanEqual sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
     ? ./greaterThanEqual
 , greaterThan =
       ./greaterThan sha256:f702abcdfcd7ad73619b9285d7e41c3a1d017fb6b8d037cf40bd93bf30c09b2c
