@@ -46,4 +46,7 @@
 , greaterThan =
       ./greaterThan sha256:f702abcdfcd7ad73619b9285d7e41c3a1d017fb6b8d037cf40bd93bf30c09b2c
     ? ./greaterThan
+, subtract =
+      ./subtract sha256:b9277ac637d09142a3a3ac79137ef5955c42f8b33b6746d59db2c9d75ccdd745
+    ? ./subtract
 }

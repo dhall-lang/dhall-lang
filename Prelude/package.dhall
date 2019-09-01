@@ -17,7 +17,7 @@
       ./Map/package.dhall sha256:07cc274220c8bdb2c1a0c2d00d90bc1447e73e0ad2e1d72b89773e923f77e71e
     ? ./Map/package.dhall
 , Natural =
-      ./Natural/package.dhall sha256:8421079b9698b765774455b63f4561f7bfa1506ed3fa39cfb5c34a4cd1c9df4b
+      ./Natural/package.dhall sha256:283fbfd8a6819f50a83dc2f6f966f9bea4648440110f32ddaedd8de72f985c73
     ? ./Natural/package.dhall
 , Optional =
       ./Optional/package.dhall sha256:36a366af67a3c26cd5d196e095d3023f18953c5b5db3a03956fa554609e5442a
