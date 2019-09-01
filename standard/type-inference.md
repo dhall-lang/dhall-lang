@@ -455,11 +455,6 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e.{} : {}
 
 
-    Γ ⊢ e :⇥ { x : T, ts… }
-    ───────────────────────
-    Γ ⊢ e.{ x } : { x : T }
-
-
     Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥ { ts₁… }
     ────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ e.{ x, xs… } : { x : T, ts₁… }
