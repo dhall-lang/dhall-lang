@@ -1,1 +1,1 @@
-../../../../../Prelude/Monoid Natural
+∀(xs : List Natural) → Natural

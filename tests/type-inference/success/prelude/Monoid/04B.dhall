@@ -1,1 +1,1 @@
-∀(a : Type) → ../../../../../Prelude/Monoid (List a)
+∀(a : Type) → ∀(xss : List (List a)) → List a

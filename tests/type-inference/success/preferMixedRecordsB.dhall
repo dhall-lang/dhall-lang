@@ -1,1 +1,1 @@
-{ foo : Natural, bar : Type }
+{ bar : Type, foo : Natural }

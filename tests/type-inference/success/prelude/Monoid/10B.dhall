@@ -1,1 +1,1 @@
-../../../../../Prelude/Monoid Text
+∀(xs : List Text) → Text

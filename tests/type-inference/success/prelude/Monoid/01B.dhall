@@ -1,1 +1,1 @@
-../../../../../Prelude/Monoid Bool
+∀(xs : List Bool) → Bool
