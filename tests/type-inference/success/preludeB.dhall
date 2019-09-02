@@ -389,6 +389,10 @@
         → Text
     , concatSep :
         ∀(separator : Text) → ∀(elements : List Text) → Text
+    , default :
+        ∀(o : Optional Text) → Text
+    , defaultMap :
+        ∀(a : Type) → ∀(f : a → Text) → ∀(o : Optional a) → Text
     , show :
         Text → Text
     }

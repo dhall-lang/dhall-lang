@@ -15,9 +15,9 @@
    viewBox="0 0 52.916667 52.916668"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="dhall-icon.svg"
-   inkscape:export-filename="/Users/gabriel/dhall-icon.png"
+   inkscape:export-filename="/home/gabriel/proj/dhall-lang/img/dhall-icon.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <defs
@@ -61,18 +61,19 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="16.26699"
-     inkscape:cy="66.294513"
+     inkscape:cx="103.02246"
+     inkscape:cy="76.665001"
      inkscape:document-units="px"
      inkscape:current-layer="g5239"
      showgrid="false"
      units="px"
      inkscape:snap-global="false"
-     inkscape:window-width="1360"
-     inkscape:window-height="714"
-     inkscape:window-x="37"
+     inkscape:window-width="1920"
+     inkscape:window-height="1007"
+     inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="true" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -92,11 +93,29 @@
      inkscape:label="Feather - 4"
      transform="translate(0,-158.75)">
     <path
+       style="display:inline;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:1.85208336;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 10.910173,200.80851 c 7.050054,1.81846 11.619142,2.42024 15.561462,0.47328 4.074945,0.47019 7.584672,-0.21062 10.331596,-2.56256 4.915977,-0.24837 10.138101,-2.61686 12.653299,-6.92444 -15.006715,-1.54235 -27.264162,2.66323 -38.546357,9.01372 z"
+       id="path5225-7"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="display:inline;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:1.85208336;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 38.265878,187.72408 c -1.782727,0.0116 -3.599325,0.29945 -5.409267,0.82348 -3.957386,-0.58184 -7.717773,-0.0258 -11.15533,2.5189 -5.337918,0.67057 -8.526344,3.28005 -10.695761,9.69203 15.13264,-8.12156 27.732369,-10.30154 38.55867,-8.72258 -3.031157,-2.65613 -7.626832,-4.33566 -11.298312,-4.31183 z"
+       id="path5229-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sccccs" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path5241-1"
+       d="M 3.9103438,205.16717 C 22.847134,192.52647 36.480421,190.71376 48.578285,192.03587"
+       style="display:inline;fill:none;stroke:#f9f9f9;stroke-width:3.17500005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path5241"
        d="M 3.9103437,205.16717 C 22.847134,192.52647 36.48042,190.71376 48.578285,192.03587"
-       style="fill:none;stroke:#000000;stroke-width:2.00198483;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#000000;stroke-width:2.00198489;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.66732824;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 10.910173,200.80851 c 7.050054,1.81846 11.619142,2.42024 15.561462,0.47328 4.074945,0.47019 7.584672,-0.21062 10.331596,-2.56256 4.915978,-0.24837 10.1381,-2.61686 12.6533,-6.92444 -15.006716,-1.54235 -27.264163,2.66323 -38.546358,9.01372 z"
@@ -138,7 +157,7 @@
        cy="167.0248"
        rx="3.2322478"
        ry="1.2000921"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.06673282;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.06673282;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <g
        id="g5050"
        style="opacity:1;fill:#272727;fill-opacity:0;stroke:#ffffff;stroke-width:2.11666656;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
