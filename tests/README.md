@@ -99,7 +99,7 @@ The tests should:
 
 The tests should:
 - parse `A` and `B`
-- resolve the imports in `A` (if not running `simple` or `unit` tests)
+- if not running `simple` or `unit` tests, resolve the imports in `A` without using the cache
 - infer the type of `A`
 - the inferred type of `A` should exactly match `B`
 
