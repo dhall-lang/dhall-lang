@@ -15,9 +15,9 @@
    viewBox="0 0 158.75 52.916668"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="dhall-logo.svg"
-   inkscape:export-filename="/Users/gabriel/dhall-logo.png"
+   inkscape:export-filename="/home/gabriel/proj/dhall-lang/img/dhall-logo.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <defs
@@ -61,18 +61,19 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="233.76699"
-     inkscape:cy="66.294513"
+     inkscape:cx="283.44533"
+     inkscape:cy="107.74476"
      inkscape:document-units="px"
-     inkscape:current-layer="g5239"
+     inkscape:current-layer="g4700"
      showgrid="false"
      units="px"
      inkscape:snap-global="false"
-     inkscape:window-width="1360"
-     inkscape:window-height="714"
-     inkscape:window-x="37"
+     inkscape:window-width="1920"
+     inkscape:window-height="1007"
+     inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="true" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -81,7 +82,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -91,6 +92,24 @@
      id="g5239"
      inkscape:label="Feather - 4"
      transform="translate(0,-158.75)">
+    <path
+       style="display:inline;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:1.85208336;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 10.910173,200.80851 c 7.050054,1.81846 11.619142,2.42024 15.561462,0.47328 4.074945,0.47019 7.584672,-0.21062 10.331596,-2.56256 4.915977,-0.24837 10.138101,-2.61686 12.653299,-6.92444 -15.006715,-1.54235 -27.264162,2.66323 -38.546357,9.01372 z"
+       id="path5225-7"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="display:inline;fill:#000000;fill-opacity:1;stroke:#fffcfc;stroke-width:1.85208336;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 38.265878,187.72408 c -1.782727,0.0116 -3.599325,0.29945 -5.409267,0.82348 -3.957386,-0.58184 -7.717773,-0.0258 -11.15533,2.5189 -5.337918,0.67057 -8.526344,3.28005 -10.695761,9.69203 15.13264,-8.12156 27.732369,-10.30154 38.55867,-8.72258 -3.031157,-2.65613 -7.626832,-4.33566 -11.298312,-4.31183 z"
+       id="path5229-1"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sccccs" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path5241-0"
+       d="M 3.9103438,205.16717 C 22.847134,192.52647 36.480421,190.71376 48.578285,192.03587"
+       style="display:inline;fill:none;stroke:#ffffff;stroke-width:3.17500004;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
@@ -122,6 +141,19 @@
      id="g4700"
      inkscape:label="Inkwell - 3"
      transform="translate(0,-158.75)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;opacity:1;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:1.05833335;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       x="60.060417"
+       y="198.17291"
+       id="text5322-5"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         id="tspan5320-4"
+         x="60.060417"
+         y="198.17291"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.86111069px;font-family:'Brush Script MT';-inkscape-font-specification:'Brush Script MT, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:1.05833335;stroke:#ffffff;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none">Dhall</tspan></text>
     <path
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.13346565;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 16.802903,180.53821 c -3.983937,-0.30886 -7.2937653,-1.5155 -8.2060663,-2.99163 -0.581259,-0.9405 -0.318868,-1.29737 2.3335773,-3.17388 1.882567,-1.33184 2.883792,-2.34264 3.367912,-3.40009 0.434904,-0.94996 0.474894,-2.0649 0.109806,-3.06142 -0.233538,-0.63744 -0.236541,-0.71455 -0.03954,-1.01521 1.054798,-1.60983 7.435768,-1.72853 8.996931,-0.16736 0.278039,0.27804 0.413821,0.52671 0.375103,0.68697 -0.03338,0.13815 -0.155197,0.58151 -0.270709,0.98524 -0.606044,2.11822 0.457339,3.81861 3.870036,6.18833 2.560869,1.77822 2.795785,2.10618 2.171821,3.03208 -0.987918,1.46598 -4.173085,2.58769 -8.290516,2.91967 -1.884703,0.15195 -2.427676,0.15162 -4.418351,-0.003 z m 4.21978,-12.48611 c 1.68314,-0.47226 1.797951,-1.41364 0.244693,-2.00634 -0.835706,-0.3189 -3.555409,-0.3189 -4.391115,0 -0.754593,0.28794 -1.074351,0.57833 -1.074351,0.97567 0,0.72635 1.288026,1.22544 3.19442,1.23778 0.776526,0.005 1.553231,-0.0744 2.026353,-0.20711 z"
@@ -138,7 +170,7 @@
        cy="167.0248"
        rx="3.2322478"
        ry="1.2000921"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.06673282;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.06673282;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <g
        id="g5050"
        style="opacity:1;fill:#272727;fill-opacity:0;stroke:#ffffff;stroke-width:2.11666656;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
