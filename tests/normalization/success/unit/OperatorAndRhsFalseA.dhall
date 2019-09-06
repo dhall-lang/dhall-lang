@@ -1,1 +1,1 @@
-x && False
+λ(x : Bool) → x && False

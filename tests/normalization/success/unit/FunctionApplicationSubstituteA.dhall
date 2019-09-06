@@ -1,1 +1,1 @@
-(λ(x : X) → x) y
+(λ(x : Bool) → x) True

@@ -1,1 +1,1 @@
-if x then True else False
+λ(x : Bool) → if x then True else False

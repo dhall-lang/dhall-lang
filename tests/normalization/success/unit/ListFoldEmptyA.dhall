@@ -1,1 +1,1 @@
-List/fold A0 ([] : List A1) B g x
+λ(T : Type) → λ(f : T → Bool → Bool) → List/fold T ([] : List T) Bool f True

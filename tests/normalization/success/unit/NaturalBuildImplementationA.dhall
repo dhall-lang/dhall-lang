@@ -1,2 +1,2 @@
-Natural/build
-(λ(natural : Type) → λ(succ : natural → natural) → λ(zero : natural) → x)
+  λ(f : ∀(natural : Type) → (natural → natural) → natural → natural)
+→ Natural/build f

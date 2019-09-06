@@ -1,1 +1,1 @@
-{ b : { y : B }, x : { z : A } }
+{ x : { a : Bool }, y : { b : Natural } }

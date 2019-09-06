@@ -506,30 +506,30 @@ Also, simplify the `Natural/subtract` function if either argument normalizes to
 a `0` literal:
 
 
-    x ⇥ 0   y₀ ⇥ y₁
-    ──────────────────────────
-    Natural/subtract x y₀ ⇥ y₁
+    f ⇥ Natural/subtract   x ⇥ 0   y₀ ⇥ y₁
+    ──────────────────────────────────────
+    f x y₀ ⇥ y₁
 
 
-    y ⇥ 0
-    ─────────────────────────
-    Natural/subtract x y ⇥ 0
+    f ⇥ Natural/subtract   y ⇥ 0
+    ────────────────────────────
+    f x y ⇥ 0
 
 
 If the arguments are equivalent:
 
 
-    x ≡ y
-    ────────────────────────
-    Natural/subtract x y ⇥ 0
+    f ⇥ Natural/subtract   x ≡ y
+    ────────────────────────────
+    f x y ⇥ 0
 
 
 Otherwise, normalize each argument:
 
 
-    x₀ ⇥ x₁   y₀ ⇥ y₁
-    ───────────────────────────────────────────────  ; If no other rule matches
-    Natural/subtract x₀ y₀ ⇥ Natural/subtract x₁ y₁
+    f ⇥ Natural/subtract   x₀ ⇥ x₁   y₀ ⇥ y₁
+    ────────────────────────────────────────  ; If no other rule matches
+    f x₀ y₀ ⇥ Natural/subtract x₁ y₁
 
 
 
@@ -1122,14 +1122,14 @@ preferring the field from the right record and discarding the colliding field
 from the left record:
 
 
-    l ⇥ e
-    ───────────
-    l ⫽ {=} ⇥ e
+    l ⇥ e   r ⇥ {=}
+    ───────────────
+    l ⫽ r ⇥ e
 
 
-    r ⇥ e
-    ───────────
-    {=} ⫽ r ⇥ e
+    l ⇥ {=}   r ⇥ e
+    ───────────────
+    l ⫽ r ⇥ e
 
 
     ls₀ ⇥ { x = l₁, ls₁… }

@@ -1,0 +1,1 @@
+∀(xs : List Bool) → Bool

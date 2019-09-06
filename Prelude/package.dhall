@@ -17,7 +17,7 @@
       ./Map/package.dhall sha256:07cc274220c8bdb2c1a0c2d00d90bc1447e73e0ad2e1d72b89773e923f77e71e
     ? ./Map/package.dhall
 , Natural =
-      ./Natural/package.dhall sha256:fe08155c3a04500df847ca94d013ecd3dfc73ab5c136109b2414fce3ec42b63a
+      ./Natural/package.dhall sha256:8421079b9698b765774455b63f4561f7bfa1506ed3fa39cfb5c34a4cd1c9df4b
     ? ./Natural/package.dhall
 , Optional =
       ./Optional/package.dhall sha256:36a366af67a3c26cd5d196e095d3023f18953c5b5db3a03956fa554609e5442a
@@ -26,7 +26,7 @@
       ./JSON/package.dhall sha256:34a613c89df3f314c606a813f592d1a09fedb3e5f5e63fcc0ae9c88245e8bdad
     ? ./JSON/package.dhall
 , Text =
-      ./Text/package.dhall sha256:3b6ed813caf2388b91056d625c6b958b72009f85a6af262d4a7b935b18caf62b
+      ./Text/package.dhall sha256:0a0ad9f649aed94c2680491efb384925b5b2bb5b353f1b8a7eb134955c1ffe45
     ? ./Text/package.dhall
 , XML =
       ./XML/package.dhall sha256:6aed7e845c29bc528ced19b99f860c5bcd50f24a1394631fe66f751999f85361

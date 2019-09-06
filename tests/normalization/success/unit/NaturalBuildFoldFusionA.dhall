@@ -1,1 +1,1 @@
-Natural/build (Natural/fold x)
+λ(x : Natural) → Natural/build (Natural/fold x)

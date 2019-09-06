@@ -1,1 +1,1 @@
-x.({ a : Natural, b : Natural })
+λ(x : { a : Bool, b : Bool, c : Bool }) → x.({ a : Bool, b : Bool })

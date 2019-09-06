@@ -1,1 +1,1 @@
-< x : if True then B else Z | z >
+let id = λ(X : Type) → X in < x : id Bool | z >

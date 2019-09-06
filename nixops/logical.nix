@@ -188,9 +188,10 @@
                   }
 
                   rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
+                  rewrite ^/(v[^/]+)/(.*)$ /dhall-lang/dhall-lang/$1/Prelude/$2 break;
+                  rewrite ^/(.*)$ /dhall-lang/dhall-lang/v9.0.0/Prelude/$1 break;
                 '';
-
-                proxyPass = "https://raw.githubusercontent.com/dhall-lang/dhall-lang/136a3491753fef251b2087031617d1ee1053f285/Prelude/";
+                proxyPass = "https://raw.githubusercontent.com";
               };
             };
 

@@ -1,1 +1,4 @@
-Optional/fold A (Some x) B (λ(_ : A) → _) z
+  λ(T : Type)
+→ λ(x : T)
+→ λ(y : Bool)
+→ Optional/fold T (Some x) Bool (λ(_ : T) → False) y
