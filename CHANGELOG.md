@@ -182,6 +182,7 @@ Other changes:
 * Fixes and improvements to the Prelude:
 
   * [Document connection to `Monoid` for `Bool/even` and `Bool/odd`](https://github.com/dhall-lang/dhall-lang/pull/683)
+  * [Add `Text/default{,Map}` to Prelude](https://github.com/dhall-lang/dhall-lang/pull/713)
 
 * Fixes and improvements to the standard test suite:
 
