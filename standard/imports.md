@@ -722,7 +722,7 @@ in this way so MUST:
   the `$XDG_CACHE_HOME` environment variable is defined and the path is readable
   and writeable
 * Otherwise, store the cached expression in
-  `"${HOME}/.cache/dhall/1220${base16Hash}"` (`${LOCALAPPDATA}/dhall/1220${base16Hash}` in windows) if the `$HOME` (`$LOCALAPPDATA` in windows) environment variable is
+  `"${HOME}/.cache/dhall/1220${base16Hash}"` (`${LOCALAPPDATA}/dhall/1220${base16Hash}` on Windows) if the `$HOME` (`$LOCALAPPDATA` on Windows) environment variable is
   defined and the path is readable and writeable
 * Otherwise, store the cached expression in a path relative to current working directory `./.cache/dhall/1220${base16Hash}` if the path is readable and writeable
 * Otherwise, not cache the expression at all
