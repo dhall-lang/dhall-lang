@@ -20,7 +20,7 @@ Please open an issue if you stumble on either 2. or 3.
 
 The tests are split by the feature that they are testing (we generally aim to
 test only one feature at a time) into different folders: `normalization`,
-`typecheck`, etc.  
+`type-inference`, etc.
 (Please see the next sections on more details on what to do for every test
 suite)
 
@@ -95,26 +95,19 @@ The tests should:
 - compute the semantic hash of A (hash of binary after both alpha and beta normalization)
 - the hash should be equal to what is found in `B`
 
-### Running `typecheck` tests
-
-The tests should:
-- parse `A` and `B`
-- eventually resolve the imports in both (if not running `simple` or `unit` tests)
-- build an Annotation such that `A : B`
-- the Annotation should typecheck
-
-Where `A` and `B` are:
-- `A`: normalized text
-- `B`: type of `A`
-
-(Note: for the `failure` tests we don't build an Annotation, but just typecheck)
-
 ### Running `type-inference` tests
 
 The tests should:
 - parse `A` and `B`
-- infer the type of A
-- the inferred type of A should exactly match B
+- if not running `simple` or `unit` tests, resolve the imports in `A` without using the cache
+- infer the type of `A`
+- the inferred type of `A` should exactly match `B`
+
+Where `A` and `B` are:
+- `A`: unnormalized text
+- `B`: type of `A`
+
+(Note: for the `failure` tests we just expect typecheck failure)
 
 ### Running `import` tests
 
