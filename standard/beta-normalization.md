@@ -1057,6 +1057,17 @@ If the argument is itself a projection, skip the inner projection:
     t₀.{ xs… } ⇥ t₂
 
 
+If the argument is a right-biased record merge and its right operand reveals
+the fields it contains, simplify:
+
+
+    t₀ ⇥ l ⫽ { rs… }
+    keys(rs…) = ks…
+    l.{ xs… \ ks… } ⫽ { rs… }.{ xs… ∩ ks… } ⇥ t₁
+    ──────────────────────────────────────────── ; "\" means set difference, "∩" means set intersection
+    t₀.{ xs… } ⇥ t₁
+
+
 Otherwise, normalize the argument and sort the fields:
 
 
@@ -1066,17 +1077,6 @@ Otherwise, normalize the argument and sort the fields:
 
 
 You can also project by type:
-
-
-    s ⇥ {}
-    ───────────
-    keys(s) = ε
-
-
-    s ⇥ { x : T, ss… }
-    keys(ss…) = ss₁…
-    ─────────────────────
-    keys(s) = x, ss₁…
 
 
     s ⇥ { ss… }
