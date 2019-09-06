@@ -1,0 +1,1 @@
+∀(xs : List Text) → Text
