@@ -8,8 +8,8 @@ and how new versions are released.
 The current version string is:
 
 
-    ────────────────────────
-    currentVersion = "8.0.0"
+    ─────────────────────────
+    currentVersion = "10.0.0"
 
 
 This version string is used by implementations to:
