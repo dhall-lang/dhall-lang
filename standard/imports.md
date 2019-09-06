@@ -724,6 +724,7 @@ in this way so MUST:
 * Otherwise, store the cached expression in
   `"${HOME}/.cache/dhall/1220${base16Hash}"` (`${USERPROFILE}/.cache/1220${base16Hash}` in windows) if the `$HOME` (`$USERPROFILE` in windows) environment variable is
   defined and the path is readable and writeable
+* Otherwise, store the cached expression in a path relative to current working directory `./.cache/dhall/1220${base16Hash}` if the path is readable and writeable
 * Otherwise, not cache the expression at all
 
 Cache filenames are prefixed with `1220` so that the filename is a valid
