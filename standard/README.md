@@ -233,6 +233,33 @@ or inductive data structures (like linked lists) to implement lists, records, or
 unions.  Implementations may freely use more efficient data structures like
 arrays or dictionaries, so long as they behave the same.
 
+## Record keys
+
+We use the `keys` operator to define rules based on the keys of record types or
+literals, for example:
+
+    keys({ x : Bool, y : Natural }) = x, y
+
+    keys({=}) = ε
+
+where `ε` represents an empty sequence.
+
+More formally, we define
+
+
+    s ⇥ {}
+    ───────────
+    keys(s) = ε
+
+
+    s ⇥ { x : T, ss… }
+    keys(ss…) = ss₁…
+    ──────────────────
+    keys(s) = x, ss₁…
+
+
+for record types and analogously for record literals.
+
 ## Multi-line string literals
 
 Dhall's grammar supports multi-line string literals, such as:

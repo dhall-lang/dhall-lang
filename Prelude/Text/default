@@ -1,0 +1,12 @@
+{-
+Unwrap an `Optional` `Text` value, defaulting `None` to `""`
+-}
+let default
+    : Optional Text → Text
+    = λ(o : Optional Text) → Optional/fold Text o Text (λ(t : Text) → t) ""
+
+let example0 = assert : default (Some "ABC") ≡ "ABC"
+
+let example1 = assert : default (None Text) ≡ ""
+
+in  default

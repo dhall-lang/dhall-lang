@@ -297,6 +297,8 @@
         → Natural
     , enumerate :
         ∀(n : Natural) → List Natural
+    , equal :
+        ∀(a : Natural) → ∀(b : Natural) → Bool
     , even :
         Natural → Bool
     , fold :
@@ -305,8 +307,16 @@
         → ∀(succ : natural → natural)
         → ∀(zero : natural)
         → natural
+    , greaterThan :
+        ∀(x : Natural) → ∀(y : Natural) → Bool
+    , greaterThanEqual :
+        ∀(x : Natural) → ∀(y : Natural) → Bool
     , isZero :
         Natural → Bool
+    , lessThan :
+        ∀(x : Natural) → ∀(y : Natural) → Bool
+    , lessThanEqual :
+        ∀(x : Natural) → ∀(y : Natural) → Bool
     , odd :
         Natural → Bool
     , product :
@@ -319,16 +329,6 @@
         ∀(n : Natural) → Double
     , toInteger :
         Natural → Integer
-    , lessThan :
-        Natural → Natural → Bool
-    , lessThanEqual :
-        Natural → Natural → Bool
-    , equal :
-        Natural → Natural → Bool
-    , greaterThan :
-        Natural → Natural → Bool
-    , greaterThanEqual :
-        Natural → Natural → Bool
     }
 , Optional :
     { all :
@@ -389,12 +389,16 @@
         → Text
     , concatSep :
         ∀(separator : Text) → ∀(elements : List Text) → Text
+    , default :
+        ∀(o : Optional Text) → Text
+    , defaultMap :
+        ∀(a : Type) → ∀(f : a → Text) → ∀(o : Optional a) → Text
     , show :
         Text → Text
     }
 , XML :
     { attribute :
-        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
+        Text → Text → { mapKey : Text, mapValue : Text }
     , element :
           ∀ ( elem
             : { attributes :
