@@ -398,7 +398,7 @@
     }
 , XML :
     { attribute :
-        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
+        Text → Text → { mapKey : Text, mapValue : Text }
     , element :
           ∀ ( elem
             : { attributes :
