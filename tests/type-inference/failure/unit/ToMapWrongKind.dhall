@@ -1,1 +1,1 @@
-toMap { x : Bool }
+toMap { x = Bool }
