@@ -1060,6 +1060,12 @@ the fields it contains, simplify:
     t₀.{ xs… } ⇥ t₁
 
 
+    t₀ ⇥ l ⫽ r.{ rs… }
+    l.{ xs… \ rs… } ⫽ r.{ xs… ∩ rs… } ⇥ t₁
+    ──────────────────────────────────────────── ; "\" means set difference, "∩" means set intersection
+    t₀.{ xs… } ⇥ t₁
+
+
 Otherwise, normalize the argument and sort the fields:
 
 
