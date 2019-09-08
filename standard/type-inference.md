@@ -557,9 +557,9 @@ combined with recursive record merge:
     Γ ⊢ l : T₀
     Γ ⊢ r : T₁
     Γ ⊢ T₀ ⩓ T₁ : i
-    ───────────────────
-    Γ ⊢ l ∧ r : T₀ ⩓ T₁
-
+    T₀ ⩓ T₁ ⇥ T₂
+    ───────────────
+    Γ ⊢ l ∧ r : T₂
 
 
 The `toMap` operator can be applied only to a record value, and every field
