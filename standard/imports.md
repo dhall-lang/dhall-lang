@@ -724,7 +724,6 @@ in this way so MUST:
 * Otherwise, store the cached expression in
   `"${HOME}/.cache/dhall/1220${base16Hash}"` (`${LOCALAPPDATA}/dhall/1220${base16Hash}` on Windows) if the `$HOME` (`$LOCALAPPDATA` on Windows) environment variable is
   defined and the path is readable and writeable
-* Otherwise, store the cached expression in a path relative to current working directory `./.cache/dhall/1220${base16Hash}` if the path is readable and writeable
 * Otherwise, not cache the expression at all
 
 Cache filenames are prefixed with `1220` so that the filename is a valid
@@ -767,6 +766,12 @@ Or in judgment form:
     ─────────────────────────────────────────────────  ; Otherwise, import is cached under `$HOME`
     (Δ, here) × Γ ⊢ import₀ sha256:base16Hash ⇒ e ⊢ Γ
 
+    Γ("${LOCALAPPDATA}/dhall/1220${base16Hash}") = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash                ; Verify the hash
+    decode(binary) = e
+    ─────────────────────────────────────────────────  ; Otherwise, import is cached under `$LOCALAPPDATA`
+    (Δ, here) × Γ ⊢ import₀ sha256:base16Hash ⇒ e ⊢ Γ
 
     (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
     ε ⊢ e₁ : T
@@ -788,6 +793,16 @@ Or in judgment form:
     base16Encode(byteHash) = base16Hash  ; Verify the hash
     ───────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `HOME`
     (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${HOME}/.cache/dhall/1220${base16Hash}" = binary
+
+    (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
+    ε ⊢ e₁ : T
+    e₁ ⇥ e₂
+    e₂ ↦ e₃
+    encode(e₃) = binary
+    sha256(binary) = byteHash
+    base16Encode(byteHash) = base16Hash  ; Verify the hash
+    ──────────────────────────────────────────────────────────────────────────────────────────────────────────  ; Otherwise, try `LOCALAPPDATA`
+    (Δ, here) × Γ₀ ⊢ import₀ sha256:base16Hash ⇒ e₁ ⊢ Γ₁, "${LOCALAPPDATA}/dhall/1220${base16Hash}" = binary
 
 
     (Δ, here) × Γ₀ ⊢ import₀ ⇒ e₁ ⊢ Γ₁
