@@ -31,7 +31,13 @@
 , Integer :
     { show : Integer → Text, toDouble : Integer → Double }
 , JSON :
-    { array :
+    { Nesting :
+        Type
+    , Tagged :
+        ∀(a : Type) → Type
+    , Type :
+        Type
+    , array :
           ∀ ( x
             : List
                 (   ∀(JSON : Type)
@@ -268,8 +274,14 @@
         → ∀(xs : List { _1 : a, _2 : b })
         → { _1 : List a, _2 : List b }
     }
+, Location :
+    { Type : Type }
 , Map :
-    { keys :
+    { Entry :
+        ∀(k : Type) → ∀(v : Type) → Type
+    , Type :
+        ∀(k : Type) → ∀(v : Type) → Type
+    , keys :
           ∀(k : Type)
         → ∀(v : Type)
         → ∀(xs : List { mapKey : k, mapValue : v })
@@ -287,6 +299,8 @@
         → ∀(xs : List { mapKey : k, mapValue : v })
         → List v
     }
+, Monoid :
+    ∀(m : Type) → Type
 , Natural :
     { build :
           (   ∀(natural : Type)
@@ -323,6 +337,8 @@
         ∀(xs : List Natural) → Natural
     , show :
         Natural → Text
+    , subtract :
+        Natural → Natural → Natural
     , sum :
         ∀(xs : List Natural) → Natural
     , toDouble :
@@ -397,8 +413,10 @@
         Text → Text
     }
 , XML :
-    { attribute :
-        Text → Text → { mapKey : Text, mapValue : Text }
+    { Type :
+        Type
+    , attribute :
+        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
     , element :
           ∀ ( elem
             : { attributes :
