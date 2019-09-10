@@ -1,4 +1,7 @@
-{ attribute =
+{ Type =
+      ./Type sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+    ? ./Type
+, attribute =
       ./attribute sha256:f7b6c802ca5764d03d5e9a6e48d9cb167c01392f775d9c2c87b83cdaa60ea0cc
     ? ./attribute
 , render =
