@@ -450,19 +450,9 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e.x : T
 
 
-    Γ ⊢ e :⇥ { ts… }   Γ ⊢ { ts… } :⇥ Type
-    ──────────────────────────────────────
+    Γ ⊢ e :⇥ { ts… }
+    ────────────────
     Γ ⊢ e.{} : {}
-
-
-    Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Kind
-    ────────────────────────────────────────────────────
-    Γ ⊢ e.{ x } : { x : T }
-
-
-    Γ ⊢ e :⇥ { x : T, ts… }   Γ ⊢ { x : T, ts… } :⇥ Sort
-    ────────────────────────────────────────────────────
-    Γ ⊢ e.{ x } : { x : T }
 
 
     Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥ { ts₁… }
@@ -567,9 +557,9 @@ combined with recursive record merge:
     Γ ⊢ l : T₀
     Γ ⊢ r : T₁
     Γ ⊢ T₀ ⩓ T₁ : i
-    ───────────────────
-    Γ ⊢ l ∧ r : T₀ ⩓ T₁
-
+    T₀ ⩓ T₁ ⇥ T₂
+    ───────────────
+    Γ ⊢ l ∧ r : T₂
 
 
 The `toMap` operator can be applied only to a record value, and every field
