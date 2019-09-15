@@ -430,15 +430,16 @@ error.
 If there are duplicated fields (that is, if two fields have the same name),
 then that is a type error.
 
-Record values are also anonymous:
+Record values are also anonymous. The inferred record type has sorted fields
+and normalized field types.
 
 
     ────────────
     Γ ⊢ {=} : {}
 
 
-    Γ ⊢ t : T   Γ ⊢ { xs… } :⇥ { ts… }   Γ ⊢ { x : T, ts… } : i
-    ───────────────────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ t :⇥ T   Γ ⊢ { xs… } :⇥ { ts… }   Γ ⊢ { x : T, ts… } : i
+    ────────────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
 
