@@ -1,4 +1,13 @@
-{ keyText =
+{ Type =
+      ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+    ? ./Type
+, Tagged =
+      ./Tagged sha256:21feca7d2b23f210d0696131d792e18a7d24fdcc85d41a49ba85b98670eba194
+    ? ./Tagged
+, Nesting =
+      ./Nesting sha256:6284802edd41d5d725aa1ec7687e614e21ad1be7e14dd10996bfa9625105c335
+    ? ./Nesting
+, keyText =
       ./keyText sha256:f7b6c802ca5764d03d5e9a6e48d9cb167c01392f775d9c2c87b83cdaa60ea0cc
     ? ./keyText
 , keyValue =
