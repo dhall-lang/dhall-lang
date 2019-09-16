@@ -24,6 +24,7 @@ normalize.
 
 ## Table of contents
 
+* [Normalization](#normalization)
 * [Constants](#constants)
 * [Variables](#variables)
 * [`Bool`](#bool)
@@ -40,6 +41,16 @@ normalize.
 * [Type annotations](#type-annotations)
 * [Assertions](#assertions)
 * [Imports](#imports)
+
+## Normalization
+
+Types inferred according to the following rules will be in β-normal form, provided that
+all types in the input context `Γ` are in β-normal form.
+The advantage of β-normalizing all inferred types is that repeated normalization of the
+same types can largely be avoided.
+
+However implementations MAY choose to infer types that are not β-normalized as long as
+they are equivalent to the types specified here.
 
 ## Constants
 
