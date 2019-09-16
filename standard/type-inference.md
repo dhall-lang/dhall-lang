@@ -871,7 +871,7 @@ expression:
 
     Γ ⊢ T₀ : i   Γ ⊢ t : T₁   T₀ ≡ T₁
     ─────────────────────────────────
-    Γ ⊢ (t : T₀) : T₀
+    Γ ⊢ (t : T₀) : T₁
 
 
 Note that the above rule permits kind annotations, such as `List : Type → Type`.
