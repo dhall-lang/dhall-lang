@@ -565,7 +565,7 @@ of the record must have the same type, which in turn must be a `Type`.
 
     Γ ⊢ toMap e : T₀   T₀ ≡ T₁
     ──────────────────────────
-    Γ ⊢ ( toMap e : T₁ ) : T₁
+    Γ ⊢ ( toMap e : T₁ ) : T₀
 
 
 ## Unions
@@ -654,7 +654,7 @@ between the fields of the handler record and the alternatives of the union:
 
     Γ ⊢ merge t u : T₀   T₀ ≡ T₁
     ────────────────────────────
-    Γ ⊢ (merge t u : T₁) : T₁
+    Γ ⊢ (merge t u : T₁) : T₀
 
 
     Γ ⊢ t : { y : ∀(x : A₀) → T₀, ts… }
