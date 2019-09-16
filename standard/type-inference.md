@@ -908,8 +908,8 @@ An assertion checks that:
     Γ ⊢ T : Type
     T ⇥ x === y
     x ≡ y
-    ────────────────────
-    Γ ⊢ (assert : T) : T
+    ──────────────────────────
+    Γ ⊢ (assert : T) : x === y
 
 
 The inferred type of an assertion is the same as the provided annotation.
