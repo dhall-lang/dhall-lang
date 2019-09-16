@@ -781,9 +781,13 @@ as the type of the bound variable and whose output type (`B`) is the same as the
 inferred type of the body of the λ-expression (`b`).
 
 
-    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : c
-    ─────────────────────────────────────────────────────────────────
-    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+    Γ₀ ⊢ A₀ : c₀
+    A₀ ⇥ A₁
+    ↑(1, x, 0, (Γ₀, x : A₁)) = Γ₁
+    Γ₁ ⊢ b : B
+    Γ₀ ⊢ ∀(x : A₁) → B : c₁
+    ──────────────────────────────────
+    Γ₀ ⊢ λ(x : A₀) → b : ∀(x : A₁) → B
 
 
 Note that the above rule requires that the inferred function type must be
