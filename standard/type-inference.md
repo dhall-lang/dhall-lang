@@ -809,12 +809,22 @@ the input type that a function expects matches the inferred type of the
 function's argument:
 
 
+    Γ ⊢ f : ∀(x : c₀) → B₀
+    Γ ⊢ a₀ : c₁
+    c₀ ≡ c₁
+    a₀ ⇥ a₁                ; This normalization is necessary only if the type of a₀ is a constant
+    ↑(1, x, 0, a₁) = a₂
+    B₀[x ≔ a₂] = B₁
+    ↑(-1, x, 0, B₁) = B₂
+    ──────────────────────
+    Γ ⊢ f a₀ : B₂
+
+
     Γ ⊢ f : ∀(x : A₀) → B₀
     Γ ⊢ a₀ : A₁
     A₀ ≡ A₁
-    a₀ ⇥ a₁
-    ↑(1, x, 0, a₁) = a₂
-    B₀[x ≔ a₂] = B₁
+    ↑(1, x, 0, a₀) = a₁
+    B₀[x ≔ a₁] = B₁
     ↑(-1, x, 0, B₁) = B₂
     ──────────────────────
     Γ ⊢ f a₀ : B₂
