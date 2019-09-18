@@ -1,1 +1,1 @@
-[] : List { mapKey : Text, mapValue : Double }
+List { mapKey : Text, mapValue : Double }
