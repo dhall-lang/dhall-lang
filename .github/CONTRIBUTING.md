@@ -134,7 +134,7 @@ sketch of the following four soundness rules:
 - If an expression type-checks, normalizing that expression won't diverge
 - Normalizing an inferred type won't diverge
 - Normalizing an expression doesn't change its type
-- An inferred type is in β-normal form
+- All inferred types are in β-normal form
 
 
 ## How do I get the "commit bit"?
