@@ -309,6 +309,11 @@ The remaining rules are:
     (t₀.{ xs… })[x@n ≔ e] = t₁.{ xs… }
 
 
+    t₀[x@n ≔ e] = t₁
+    ────────────────────────
+    (t₀⸬x₀)[x@n ≔ e] = t₁⸬x₀
+
+
     T₀[x@n ≔ e] = T₁
     ────────────────────────────────────
     (assert : T₀)[x@n ≔ e] = assert : T₁

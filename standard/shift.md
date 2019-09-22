@@ -328,6 +328,11 @@ The remaining rules are:
     ↑(d, x, m, t₀.{ xs… }) = t₁.{ xs… }
 
 
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────
+    ↑(d, x, m, t₀⸬x) = t₁⸬x
+
+
     ↑(d, x, m, T₀) = T₁
     ─────────────────────────────────────
     ↑(d, x, m, assert : T₀) = assert : T₁
