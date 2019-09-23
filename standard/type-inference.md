@@ -24,7 +24,7 @@ normalize.
 
 ## Table of contents
 
-* [Reduction](#reduction)
+* [Normalization](#normalization)
 * [Constants](#constants)
 * [Variables](#variables)
 * [`Bool`](#bool)
@@ -42,19 +42,15 @@ normalize.
 * [Assertions](#assertions)
 * [Imports](#imports)
 
-## Reduction
+## Normalization
 
-Additionally, there is a separate helper judgment for inferring a type reduced
-to normal form:
+Types inferred according to the following rules will be in β-normal form, provided that
+all types in the input context `Γ` are in β-normal form.
+The advantage of β-normalizing all inferred types is that repeated normalization of the
+same types can largely be avoided.
 
-
-    Γ ⊢ a : A₀   A₀ ⇥ A₁
-    ────────────────────
-    Γ ⊢ a :⇥ A₁
-
-
-This judgment is identical to the judgment for type inference except that this
-judgment returns the inferred type in normal form.
+However implementations MAY choose to infer types that are not β-normalized as long as
+they are equivalent to the types specified here.
 
 ## Constants
 
@@ -90,7 +86,7 @@ Since `x` is a synonym for `x@0`, you can shorten this rule to:
 
 
     Γ ⊢ T : k
-    ──────────────────
+    ────────────────
     Γ, x : T ⊢ x : T
 
 
@@ -105,7 +101,7 @@ with each variable disambiguates which type annotation in the context to use:
 
 
     Γ ⊢ x@n : T
-    ───────────────────────  ; x ≠ y
+    ──────────────────  ; x ≠ y
     Γ, y : A ⊢ x@n : T
 
 
@@ -137,11 +133,11 @@ An `if` expression takes a predicate of type `Bool` and returns either the
 `then` or `else` branch of the expression, both of which must be the same type:
 
 
-    Γ ⊢ t :⇥ Bool
+    Γ ⊢ t : Bool
     Γ ⊢ l : L
     Γ ⊢ r : R
-    Γ ⊢ L :⇥ Type
-    Γ ⊢ R :⇥ Type
+    Γ ⊢ L : Type
+    Γ ⊢ R : Type
     L ≡ R
     ──────────────────────────
     Γ ⊢ if t then l else r : L
@@ -160,22 +156,22 @@ All of the logical operators take arguments of type `Bool` and return a result
 of type `Bool`:
 
 
-    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    Γ ⊢ l : Bool   Γ ⊢ r : Bool
     ───────────────────────────
     Γ ⊢ l || r : Bool
 
 
-    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    Γ ⊢ l : Bool   Γ ⊢ r : Bool
     ───────────────────────────
     Γ ⊢ l && r : Bool
 
 
-    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    Γ ⊢ l : Bool   Γ ⊢ r : Bool
     ───────────────────────────
     Γ ⊢ l == r : Bool
 
 
-    Γ ⊢ l :⇥ Bool   Γ ⊢ r :⇥ Bool
+    Γ ⊢ l : Bool   Γ ⊢ r : Bool
     ───────────────────────────
     Γ ⊢ l != r : Bool
 
@@ -202,12 +198,12 @@ The arithmetic operators take arguments of type `Natural` and return a result of
 type `Natural`:
 
 
-    Γ ⊢ x :⇥ Natural   Γ ⊢ y :⇥ Natural
+    Γ ⊢ x : Natural   Γ ⊢ y : Natural
     ─────────────────────────────────
     Γ ⊢ x + y : Natural
 
 
-    Γ ⊢ x :⇥ Natural   Γ ⊢ y :⇥ Natural
+    Γ ⊢ x : Natural   Γ ⊢ y : Natural
     ─────────────────────────────────
     Γ ⊢ x * y : Natural
 
@@ -282,8 +278,8 @@ The `Text` concatenation operator takes arguments of type `Text` and returns a
 result of type `Text`:
 
 
-    Γ ⊢ x :⇥ Text   Γ ⊢ y :⇥ Text
-    ─────────────────────────────
+    Γ ⊢ x : Text   Γ ⊢ y : Text
+    ───────────────────────────
     Γ ⊢ x ++ y : Text
 
 
@@ -302,13 +298,13 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
-    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   T₁ :⇥ Type
-    ──────────────────────────────────────
+    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   T₁ : Type
+    ─────────────────────────────────────
     Γ ⊢ ([] : T₀) : List T₁
 
 
-    Γ ⊢ t : T₀   T₀ :⇥ Type   Γ ⊢ [ ts… ] :⇥ List T₁   T₀ ≡ T₁
-    ──────────────────────────────────────────────────────────
+    Γ ⊢ t : T₀   T₀ : Type   Γ ⊢ [ ts… ] : List T₁   T₀ ≡ T₁
+    ────────────────────────────────────────────────────────
     Γ ⊢ [ t, ts… ] : List T₀
 
 
@@ -323,8 +319,8 @@ The `List` concatenation operator takes arguments that are both `List`s of the
 same type and returns a `List` of the same type:
 
 
-    Γ ⊢ x :⇥ List A₀
-    Γ ⊢ y :⇥ List A₁
+    Γ ⊢ x : List A₀
+    Γ ⊢ y : List A₁
     A₀ ≡ A₁
     ───────────────────
     Γ ⊢ x # y : List A₀
@@ -419,8 +415,8 @@ An empty record is a `Type`:
 A non-empty record can store terms, types and kinds:
 
 
-    Γ ⊢ T :⇥ t₀   Γ ⊢ { xs… } :⇥ t₁  t₀ ⋁ t₁ = t₂
-    ─────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ T : t₀   Γ ⊢ { xs… } : t₁  t₀ ⋁ t₁ = t₂
+    ───────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x : T, xs… } : t₂
 
 
@@ -438,26 +434,26 @@ and normalized field types.
     Γ ⊢ {=} : {}
 
 
-    Γ ⊢ t :⇥ T   Γ ⊢ { xs… } :⇥ { ts… }   Γ ⊢ { x : T, ts… } : i
-    ────────────────────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ t : T   Γ ⊢ { xs… } : { ts… }   Γ ⊢ { x : T, ts… } : i
+    ──────────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
 
 You can only select field(s) from the record if they are present:
 
 
-    Γ ⊢ e :⇥ { x : T, xs… }
-    ───────────────────────
+    Γ ⊢ e : { x : T, xs… }
+    ──────────────────────
     Γ ⊢ e.x : T
 
 
-    Γ ⊢ e :⇥ { ts… }
-    ────────────────
+    Γ ⊢ e : { ts… }
+    ───────────────
     Γ ⊢ e.{} : {}
 
 
-    Γ ⊢ e :⇥ { x : T, ts₀… }   Γ ⊢ e.{ xs… } :⇥ { ts₁… }
-    ────────────────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ e : { x : T, ts₀… }   Γ ⊢ e.{ xs… } : { ts₁… }
+    ──────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ e.{ x, xs… } : { x : T, ts₁… }
 
 
@@ -467,14 +463,14 @@ For instance, provided that `s` is a record type and `e` is the source record,
 respective fields from `e`.
 
 
-    Γ ⊢ e :⇥ { ts… }
+    Γ ⊢ e : { ts… }
     Γ ⊢ s : c
     s ⇥ {}
-    ────────────────
+    ───────────────
     Γ ⊢ e.(s) : {}
 
 
-    Γ ⊢ e :⇥ { x : T₀, ts… }
+    Γ ⊢ e : { x : T₀, ts… }
     Γ ⊢ s : c
     s ⇥ { x : T₁, ss… }
     T₀ ≡ T₁
@@ -491,23 +487,23 @@ If the field is absent from the record then that is a type error.
 Non-recursive right-biased merge also requires that both arguments are records:
 
 
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ r :⇥ {}
+    Γ ⊢ l : { ls… }
+    Γ ⊢ r : {}
     ───────────────────
     Γ ⊢ l ⫽ r : { ls… }
 
 
-    Γ ⊢ l :⇥ { ls… }
-    Γ ⊢ r :⇥ { a : A, rs… }
-    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ────────────────────────────────  ; a ∉ ls
+    Γ ⊢ l : { ls… }
+    Γ ⊢ r : { a : A, rs… }
+    Γ ⊢ { ls… } ⫽ { rs… } : { ts… }
+    ───────────────────────────────  ; a ∉ ls
     Γ ⊢ l ⫽ r : { a : A, ts… }
 
 
-    Γ ⊢ l :⇥ { a : A₀, ls… }
-    Γ ⊢ r :⇥ { a : A₁, rs… }
-    Γ ⊢ { ls… } ⫽ { rs… } :⇥ { ts… }
-    ────────────────────────────────
+    Γ ⊢ l : { a : A₀, ls… }
+    Γ ⊢ r : { a : A₁, rs… }
+    Γ ⊢ { ls… } ⫽ { rs… } : { ts… }
+    ───────────────────────────────
     Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
@@ -518,7 +514,7 @@ literals.  Any conflicting fields must be safe to recursively merge:
 
 
     Γ ⊢ l : t
-    Γ ⊢ r :⇥ Type
+    Γ ⊢ r : Type
     l ⇥ { ls… }
     r ⇥ {}
     ─────────────
@@ -567,20 +563,20 @@ The `toMap` operator can be applied only to a record value, and every field
 of the record must have the same type, which in turn must be a `Type`.
 
 
-    Γ ⊢ e :⇥ { x : T, xs… }
-    Γ ⊢ ( toMap { xs… } : List { mapKey : Text, mapValue : T } ) :⇥ List { mapKey : Text, mapValue : T }
-    ────────────────────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ e : { x : T, xs… }
+    Γ ⊢ ( toMap { xs… } : List { mapKey : Text, mapValue : T } ) : List { mapKey : Text, mapValue : T }
+    ───────────────────────────────────────────────────────────────────────────────────────────────────
     Γ ⊢ toMap e : List { mapKey : Text, mapValue : T }
 
 
-    Γ ⊢ e :⇥ {}   Γ ⊢ T₀ :⇥ Type   T₀ ⇥ List { mapKey : Text, mapValue : T₁ }
-    ─────────────────────────────────────────────────────────────────────────
+    Γ ⊢ e : {}   Γ ⊢ T₀ : Type   T₀ ⇥ List { mapKey : Text, mapValue : T₁ }
+    ───────────────────────────────────────────────────────────────────────
     Γ ⊢ ( toMap e : T₀ ) : List { mapKey : Text, mapValue : T₁ }
 
 
     Γ ⊢ toMap e : T₀   T₀ ≡ T₁
     ──────────────────────────
-    Γ ⊢ ( toMap e : T₁ ) : T₁
+    Γ ⊢ ( toMap e : T₁ ) : T₀
 
 
 ## Unions
@@ -595,41 +591,41 @@ A union can have alternatives of term-level values and functions:
     Γ ⊢ <> : Type
 
 
-    Γ ⊢ T :⇥ Type   Γ ⊢ < ts… > :⇥ Type
-    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ T : Type   Γ ⊢ < ts… > : Type
+    ─────────────────────────────────  ; x ∉ < ts… >
     Γ ⊢ < x : T | ts… > : Type
 
 
 ... or alternatives of types (if it is non-empty):
 
 
-    Γ ⊢ T :⇥ Kind
+    Γ ⊢ T : Kind
     ────────────────────
     Γ ⊢ < x : T > : Kind
 
 
-    Γ ⊢ T :⇥ Kind   Γ ⊢ < ts… > :⇥ Kind
-    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ T : Kind   Γ ⊢ < ts… > : Kind
+    ─────────────────────────────────  ; x ∉ < ts… >
     Γ ⊢ < x : T | ts… > : Kind
 
 
 ... or alternatives of kinds (if it is non-empty):
 
 
-    Γ ⊢ T :⇥ Sort
+    Γ ⊢ T : Sort
     ────────────────────
     Γ ⊢ < x : T > : Sort
 
 
-    Γ ⊢ T :⇥ Sort   Γ ⊢ < ts… > :⇥ Sort
-    ───────────────────────────────────  ; x ∉ < ts… >
+    Γ ⊢ T : Sort   Γ ⊢ < ts… > : Sort
+    ─────────────────────────────────  ; x ∉ < ts… >
     Γ ⊢ < x : T | ts… > : Sort
 
 
 A union type may contain alternatives without an explicit type label:
 
 
-    Γ ⊢ < ts… > :⇥ c
+    Γ ⊢ < ts… > : c
     ───────────────────  ; x ∉ < ts… >
     Γ ⊢ < x | ts… > : c
 
@@ -662,18 +658,18 @@ A `merge` expression is well-typed if there is a one-to-one correspondence
 between the fields of the handler record and the alternatives of the union:
 
 
-    Γ ⊢ t :⇥ {}   Γ ⊢ u :⇥ <>   Γ ⊢ T :⇥ Type
-    ─────────────────────────────────────────
+    Γ ⊢ t : {}   Γ ⊢ u : <>   Γ ⊢ T : Type
+    ──────────────────────────────────────
     Γ ⊢ (merge t u : T) : T
 
 
     Γ ⊢ merge t u : T₀   T₀ ≡ T₁
     ────────────────────────────
-    Γ ⊢ (merge t u : T₁) : T₁
+    Γ ⊢ (merge t u : T₁) : T₀
 
 
-    Γ ⊢ t :⇥ { y : ∀(x : A₀) → T₀, ts… }
-    Γ ⊢ u :⇥ < y : A₁ | us… >
+    Γ ⊢ t : { y : ∀(x : A₀) → T₀, ts… }
+    Γ ⊢ u : < y : A₁ | us… >
     Γ ⊢ (merge { ts… } < us… > : T₁) : T₂
     A₀ ≡ A₁
     ↑(-1, x, 0, T₀) = T₁
@@ -681,8 +677,8 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ merge t u : T₀
 
 
-    Γ ⊢ t :⇥ { y : T₀, ts… }
-    Γ ⊢ u :⇥ < y | us… >
+    Γ ⊢ t : { y : T₀, ts… }
+    Γ ⊢ u : < y | us… >
     Γ ⊢ (merge { ts… } < us… > : T₀) : T₁
     ─────────────────────────────────────
     Γ ⊢ merge t u : T₀
@@ -771,8 +767,8 @@ A function type is only well-typed if the input and output type are well-typed
 and if the inferred input and output type are allowed by the function check:
 
 
-    Γ₀ ⊢ A :⇥ i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B :⇥ o   i ↝ o : c
-    ────────────────────────────────────────────────────────────────────
+    Γ₀ ⊢ A : i   ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ B : o   i ↝ o : c
+    ──────────────────────────────────────────────────────────────────
     Γ₀ ⊢ ∀(x : A) → B : c
 
 
@@ -796,9 +792,13 @@ as the type of the bound variable and whose output type (`B`) is the same as the
 inferred type of the body of the λ-expression (`b`).
 
 
-    ↑(1, x, 0, (Γ₀, x : A)) = Γ₁   Γ₁ ⊢ b : B   Γ₀ ⊢ ∀(x : A) → B : c
-    ─────────────────────────────────────────────────────────────────
-    Γ₀ ⊢ λ(x : A) → b : ∀(x : A) → B
+    Γ₀ ⊢ A₀ : c₀
+    A₀ ⇥ A₁
+    ↑(1, x, 0, (Γ₀, x : A₁)) = Γ₁
+    Γ₁ ⊢ b : B
+    Γ₀ ⊢ ∀(x : A₁) → B : c₁
+    ──────────────────────────────────
+    Γ₀ ⊢ λ(x : A₀) → b : ∀(x : A₁) → B
 
 
 Note that the above rule requires that the inferred function type must be
@@ -809,14 +809,15 @@ the input type that a function expects matches the inferred type of the
 function's argument:
 
 
-    Γ ⊢ f :⇥ ∀(x : A₀) → B₀
+    Γ ⊢ f : ∀(x : A₀) → B₀
     Γ ⊢ a₀ : A₁
     A₀ ≡ A₁
     ↑(1, x, 0, a₀) = a₁
     B₀[x ≔ a₁] = B₁
     ↑(-1, x, 0, B₁) = B₂
-    ───────────────────────
-    Γ ⊢ f a₀ : B₂
+    B₂ ⇥ B₃
+    ──────────────────────
+    Γ ⊢ f a₀ : B₃
 
 
 If the function does not have a function type, then that is a type error.
@@ -881,7 +882,7 @@ expression:
 
     Γ ⊢ T₀ : i   Γ ⊢ t : T₁   T₀ ≡ T₁
     ─────────────────────────────────
-    Γ ⊢ (t : T₀) : T₀
+    Γ ⊢ (t : T₀) : T₁
 
 
 Note that the above rule permits kind annotations, such as `List : Type → Type`.
@@ -915,11 +916,11 @@ An assertion checks that:
 ... or in other words:
 
 
-    Γ ⊢ T :⇥ Type
+    Γ ⊢ T : Type
     T ⇥ x === y
     x ≡ y
-    ─────────────────────
-    Γ ⊢ (assert : T) : T
+    ──────────────────────────
+    Γ ⊢ (assert : T) : x === y
 
 
 The inferred type of an assertion is the same as the provided annotation.
@@ -933,8 +934,8 @@ To type-check an equivalence, verify that the two sides are terms:
 
     Γ ⊢ x : A₀
     Γ ⊢ y : A₁
-    Γ ⊢ A₀ :⇥ Type
-    Γ ⊢ A₁ :⇥ Type
+    Γ ⊢ A₀ : Type
+    Γ ⊢ A₁ : Type
     A₀ ≡ A₁
     ──────────────────
     Γ ⊢ x === y : Type
