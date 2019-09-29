@@ -421,9 +421,11 @@ lambda        = %x3BB  / "\"
 forall        = %x2200 / %x66.6f.72.61.6c.6c
 arrow         = %x2192 / "->"
 
-exponent = "e" [ "+" / "-" ] 1*DIGIT
+digits = 1*DIGIT *( 1*"_" 1*DIGIT )
 
-numeric-double-literal = [ "+" / "-" ] 1*DIGIT ( "." 1*DIGIT [ exponent ] / exponent)
+exponent = "e" [ "+" / "-" ] digits
+
+numeric-double-literal = [ "+" / "-" ] digits ( "." digits [ exponent ] / exponent)
 
 minus-infinity-literal = "-" Infinity
 plus-infinity-literal = Infinity
@@ -438,7 +440,7 @@ double-literal =
     ; "NaN"
     / NaN
 
-natural-literal = 1*DIGIT
+natural-literal = digits
 
 integer-literal = ( "+" / "-" ) natural-literal
 
