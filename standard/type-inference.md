@@ -668,6 +668,13 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ (merge t u : T₁) : T₀
 
 
+We use a trick to recursively check that all handlers have the same output type:
+Based on the types of the remaining fields and alternatives, we "invent" values
+(`t₁` and `u₁`) from which we can create the smaller `merge` expression.
+
+An implementation could simply loop over the underlying data structures.
+
+
     Γ ⊢ t₀ : { y : ∀(x : A₀) → T₀, ts… }
     Γ ⊢ u₀ : < y : A₁ | us… >
     A₀ ≡ A₁
