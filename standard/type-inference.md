@@ -671,9 +671,9 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ t₀ : { y : ∀(x : A₀) → T₀, ts… }
     Γ ⊢ u₀ : < y : A₁ | us… >
     A₀ ≡ A₁
-    ↑(-1, x, 0, T₀) = T₁
     Γ ⊢ t₁ : { ts… }
     Γ ⊢ u₁ : < us… >
+    ↑(-1, x, 0, T₀) = T₁
     Γ ⊢ (merge t₁ u₁ : T₁) : T₂
     ────────────────────────────────────  ; `x` not free in `T₀`
     Γ ⊢ merge t₀ u₀ : T₁
