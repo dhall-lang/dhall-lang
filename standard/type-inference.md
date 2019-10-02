@@ -672,7 +672,7 @@ We use a trick to recursively check that all handlers have the same output type:
 Based on the types of the remaining fields and alternatives, we "invent" values
 (`t₁` and `u₁`) from which we can create the smaller `merge` expression.
 
-An implementation could simply loop over the underlying data structures.
+An implementation could simply loop over the inferred record type.
 
 
     Γ ⊢ t₀ : { y : ∀(x : A₀) → T₀, ts… }
