@@ -18,13 +18,12 @@ let concatMapSep
                 (   λ(x : a)
                   → λ(status : Status)
                   → merge
-                      { Empty =
-                          Status.NonEmpty (f x)
-                      , NonEmpty =
-                            λ(result : Text)
-                          → Status.NonEmpty (f x ++ separator ++ result)
-                      }
-                      status
+                    { Empty = Status.NonEmpty (f x)
+                    , NonEmpty =
+                          λ(result : Text)
+                        → Status.NonEmpty (f x ++ separator ++ result)
+                    }
+                    status
                 )
                 Status.Empty
         
