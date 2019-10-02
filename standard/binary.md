@@ -550,6 +550,9 @@ Dhall union types translate to CBOR maps:
     encode(< x : T₀ | y | … >) = [ 11, { "x" = T₁, "y" = null, … } ]
 
 
+Union constructors (`U.x`) are encoded according to the rule for record field
+accesses above.
+
 The (now-removed) union literal syntax used to be encoded using a leading 12:
 
 
