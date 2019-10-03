@@ -117,7 +117,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / t.x                               ; Field selection
   / t.{ xs… }                         ; Field projection
   / t.(s)                             ; Field projection by type
-  / T⸬r                               ; Record override
+  / T::r                              ; Record override
   / assert : T                        ; Assert judgemental equality
   / n.n                               ; Double-precision floating point literal
   / n                                 ; Natural number literal

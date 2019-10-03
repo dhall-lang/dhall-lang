@@ -420,7 +420,7 @@ prefer        = %x2AFD / "//"
 lambda        = %x3BB  / "\"
 forall        = %x2200 / %x66.6f.72.61.6c.6c
 arrow         = %x2192 / "->"
-override      = %x2E2C / "::"
+override      = "::"
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 

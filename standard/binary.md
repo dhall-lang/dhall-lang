@@ -428,8 +428,8 @@ Operators are encoded as integer labels alongside their two arguments:
 
 
     encode(l₀) = l₁   encode(r₀) = r₁
-    ───────────────────────────────────
-    encode(l₀ ⸬ r₀) = [ 3, 13, l₁, r₁ ]
+    ────────────────────────────────────
+    encode(l₀ :: r₀) = [ 3, 13, l₁, r₁ ]
 
 
 ### `List`
@@ -1188,8 +1188,8 @@ Decode a CBOR array beginning with a `3` as an operator expression:
 
 
     decode(l₁) = l₀   decode(r₁) = r₀
-    ───────────────────────────────────
-    decode([ 3, 13, l₁, r₁ ]) = l₀ ⸬ r₀
+    ────────────────────────────────────
+    decode([ 3, 13, l₁, r₁ ]) = l₀ :: r₀
 
 
 ### `List`

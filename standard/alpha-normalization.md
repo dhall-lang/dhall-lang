@@ -256,9 +256,9 @@ sub-expressions for the remaining rules:
     t₀.{ xs… } ↦ t₁.{ xs… }
 
 
-    t₀ ↦ t₁
-    ─────────────
-    t₀::x ↦ t₁::x
+    T₀ ↦ T₁   r₀ ↦ r₁
+    ─────────────────
+    T₀::r₀ ↦ T₁::r₁
 
 
     T₀ ↦ T₁
