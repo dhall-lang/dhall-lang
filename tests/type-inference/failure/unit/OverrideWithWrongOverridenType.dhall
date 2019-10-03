@@ -3,4 +3,4 @@ let Example =
       , default = { name = "", id = None Natural }
       }
 
-in  Example∷{ name = True }
+in  Example::{ name = True }
