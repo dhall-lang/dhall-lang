@@ -15,12 +15,12 @@ let concatSep
                 (   λ(element : Text)
                   → λ(status : Status)
                   → merge
-                    { Empty = Status.NonEmpty element
-                    , NonEmpty =
-                          λ(result : Text)
-                        → Status.NonEmpty (element ++ separator ++ result)
-                    }
-                    status
+                      { Empty = Status.NonEmpty element
+                      , NonEmpty =
+                            λ(result : Text)
+                          → Status.NonEmpty (element ++ separator ++ result)
+                      }
+                      status
                 )
                 Status.Empty
         
