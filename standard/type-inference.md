@@ -583,9 +583,9 @@ of the record must have the same type, which in turn must be a `Type`.
     Γ ⊢ ( toMap e : T₁ ) : T₁
 
 
-You can instantiate a record literal using the override operator (`T::r`), which
-is syntactic sugar for `(T.default ⫽ r) : T.Type`.  The motivation for this
-operator is to easily create records without having to explicitly specify
+You can complete a record literal using the record completion operator (`T::r`),
+which is syntactic sugar for `(T.default ⫽ r) : T.Type`.  The motivation forx
+this operator is to easily create records without having to explicitly specify
 default-valued fields.
 
 In other words, given a a record `T` containing the following fields:
@@ -593,10 +593,11 @@ In other words, given a a record `T` containing the following fields:
 * A `Type` field with a record type
 * A `default` field with default fields for the record type
 
-... then `T::r` creates a record of type `T.Type` by overriding the default
-fields from `T.default` with the fields provided by `r`.
+... then `T::r` creates a record of type `T.Type` by extending the default
+fields from `T.default` with the fields provided by `r`, overriding if
+necessary.
 
-To type-check an override operation, desugar the operator and type-check the
+To type-check a record completion, desugar the operator and type-check the
 desugared form:
 
 

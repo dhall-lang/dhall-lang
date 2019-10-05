@@ -420,7 +420,7 @@ prefer        = %x2AFD / "//"
 lambda        = %x3BB  / "\"
 forall        = %x2200 / %x66.6f.72.61.6c.6c
 arrow         = %x2192 / "->"
-override      = "::"
+complete      = "::"
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
@@ -770,9 +770,9 @@ first-application-expression =
     
     / import-expression
 
-import-expression = import / override-expression
+import-expression = import / completion-expression
 
-override-expression = selector-expression [ override selector-expression ]
+completion-expression = selector-expression [ complete selector-expression ]
 
 ; `record.field` extracts one field of a record
 ;
