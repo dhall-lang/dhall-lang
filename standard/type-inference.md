@@ -584,7 +584,7 @@ of the record must have the same type, which in turn must be a `Type`.
 
 
 You can complete a record literal using the record completion operator (`T::r`),
-which is syntactic sugar for `(T.default ⫽ r) : T.Type`.  The motivation forx
+which is syntactic sugar for `(T.default ⫽ r) : T.Type`.  The motivation for
 this operator is to easily create records without having to explicitly specify
 default-valued fields.
 
