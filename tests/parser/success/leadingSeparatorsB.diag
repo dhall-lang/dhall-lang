@@ -1,0 +1,1 @@
+[8, {"emptyList": [4, "Natural"], "emptyRecordLiteral": [8, {}], "emptyRecordType": [7, {}], "emptyUnionType": [11, {}], "list": [4, null, [15, 1], [15, 2]], "recordLiteral": [8, {"x": [15, 1], "y": true}], "recordType": [7, {"x": "Natural", "y": "Bool"}], "unionType": [11, {"x": "Natural", "y": "Bool"}]}]

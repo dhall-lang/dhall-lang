@@ -731,7 +731,8 @@ annotated-expression = operator-expression [ whsp ":" whsp1 expression ]
 let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
 
 ; "[] : t"
-empty-list-literal = "[" whsp "]" whsp ":" whsp1 application-expression
+empty-list-literal =
+    "[" whsp [ "," whsp ] "]" whsp ":" whsp1 application-expression
 
 operator-expression = import-alt-expression
 
@@ -803,11 +804,11 @@ primitive-expression =
     
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
-    / "{" whsp record-type-or-literal whsp "}"
+    / "{" whsp [ "," whsp ] record-type-or-literal whsp "}"
     
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo | Bar : Bool >"
-    / "<" whsp union-type whsp ">"
+    / "<" whsp [ "|" whsp ] union-type whsp ">"
     
     ; "[1, 2, 3]"
     ; `empty-collection` handles empty lists
@@ -850,7 +851,8 @@ non-empty-union-type =
 ; x
 union-type-entry = any-label [ whsp ":" whsp1 expression ]
 
-non-empty-list-literal = "[" whsp expression whsp *("," whsp expression whsp) "]"
+non-empty-list-literal =
+    "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) "]"
 
 ; This just adds surrounding whitespace for the top-level of the program
 complete-expression = whsp expression whsp
