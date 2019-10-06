@@ -10,6 +10,9 @@
 , concat =
       ./concat sha256:b49a3b7dc49eb83d150977caa5ae347be1cbbe14e3b6d0e07349bd2e5f707d69
     ? ./concat
+, default =
+      ./default sha256:8f802473931b605422b545d7b81de20dbecb38f2ae63950c13f5381865a7f012
+    ? ./default
 , filter =
       ./filter sha256:b3d5e19a6cec592a76c12167a9e5e1e76649e776229d70a11c77b76cd29f617e
     ? ./filter

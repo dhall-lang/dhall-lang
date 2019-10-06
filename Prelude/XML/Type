@@ -48,15 +48,11 @@ let XML/Type
     : Type
     =   ∀(XML : Type)
       → ∀ ( xml
-          : { text :
-                Text → XML
+          : { text : Text → XML
             , element :
-                  { attributes :
-                      List { mapKey : Text, mapValue : Text }
-                  , content :
-                      List XML
-                  , name :
-                      Text
+                  { attributes : List { mapKey : Text, mapValue : Text }
+                  , content : List XML
+                  , name : Text
                   }
                 → XML
             }

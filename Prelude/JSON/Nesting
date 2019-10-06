@@ -28,4 +28,8 @@ in  { field =
 ```
 
 -}
-let Nesting : Type = < Inline | Nested : Text > in Nesting
+let Nesting
+    : Type
+    = < Inline | Nested : Text >
+
+in  Nesting

@@ -32,10 +32,8 @@ let render
     =   λ(j : JSON)
       → j
           Text
-          { string =
-              λ(x : Text) → Text/show x
-          , number =
-              λ(x : Double) → Double/show x
+          { string = λ(x : Text) → Text/show x
+          , number = λ(x : Double) → Double/show x
           , object =
                 λ(x : List { mapKey : Text, mapValue : Text })
               → let body =
@@ -53,10 +51,8 @@ let render
               → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
                 
                 in  "[${body} ]"
-          , bool =
-              λ(x : Bool) → if x then "true" else "false"
-          , null =
-              "null"
+          , bool = λ(x : Bool) → if x then "true" else "false"
+          , null = "null"
           }
 
 in  render
