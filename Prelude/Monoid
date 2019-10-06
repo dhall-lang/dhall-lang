@@ -36,4 +36,8 @@ Examples:
     : ./Monoid Text
 ```
 -}
-let Monoid : ∀(m : Type) → Type = λ(m : Type) → List m → m in Monoid
+let Monoid
+    : ∀(m : Type) → Type
+    = λ(m : Type) → List m → m
+
+in  Monoid

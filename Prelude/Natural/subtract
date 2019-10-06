@@ -1,7 +1,9 @@
 {-
 `subtract m n` computes `n - m`, truncating to `0` if `m > n`
 -}
-let subtract : Natural → Natural → Natural = Natural/subtract
+let subtract
+    : Natural → Natural → Natural
+    = Natural/subtract
 
 let example0 = assert : subtract 1 2 ≡ 1
 

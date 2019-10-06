@@ -668,20 +668,31 @@ between the fields of the handler record and the alternatives of the union:
     Γ ⊢ (merge t u : T₁) : T₀
 
 
-    Γ ⊢ t : { y : ∀(x : A₀) → T₀, ts… }
-    Γ ⊢ u : < y : A₁ | us… >
-    Γ ⊢ (merge { ts… } < us… > : T₁) : T₂
+We use a trick to recursively check that all handlers have the same output type:
+Based on the types of the remaining fields and alternatives, we "invent" values
+(`t₁` and `u₁`) from which we can create the smaller `merge` expression.
+
+An implementation could simply loop over the inferred record type.
+
+
+    Γ ⊢ t₀ : { y : ∀(x : A₀) → T₀, ts… }
+    Γ ⊢ u₀ : < y : A₁ | us… >
     A₀ ≡ A₁
+    Γ ⊢ t₁ : { ts… }
+    Γ ⊢ u₁ : < us… >
     ↑(-1, x, 0, T₀) = T₁
+    Γ ⊢ (merge t₁ u₁ : T₁) : T₂
     ────────────────────────────────────  ; `x` not free in `T₀`
-    Γ ⊢ merge t u : T₀
+    Γ ⊢ merge t₀ u₀ : T₁
 
 
-    Γ ⊢ t : { y : T₀, ts… }
-    Γ ⊢ u : < y | us… >
-    Γ ⊢ (merge { ts… } < us… > : T₀) : T₁
+    Γ ⊢ t₀ : { y : T₀, ts… }
+    Γ ⊢ u₀ : < y | us… >
+    Γ ⊢ t₁ : { ts… }
+    Γ ⊢ u₁ : < us… >
+    Γ ⊢ (merge t₁ u₁ : T₀) : T₁
     ─────────────────────────────────────
-    Γ ⊢ merge t u : T₀
+    Γ ⊢ merge t₀ u₀ : T₀
 
 
 If the first argument of a `merge` expression is not a record then that is a

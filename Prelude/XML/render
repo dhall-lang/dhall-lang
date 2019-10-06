@@ -43,16 +43,12 @@ let render
     =   λ(x : XML)
       → x
           Text
-          { text =
-              λ(d : Text) → d
+          { text = λ(d : Text) → d
           , element =
                 λ ( elem
-                  : { attributes :
-                        List { mapKey : Text, mapValue : Text }
-                    , content :
-                        List Text
-                    , name :
-                        Text
+                  : { attributes : List { mapKey : Text, mapValue : Text }
+                    , content : List Text
+                    , name : Text
                     }
                   )
               → let attribs = Text/concatMap Attr renderAttr elem.attributes

@@ -23,8 +23,7 @@ let shifted
                         → let length =
                                 List/length { index : Natural, value : a } kvs
                           
-                          in  { count =
-                                  y.count + length
+                          in  { count = y.count + length
                               , diff =
                                     λ(n : Natural)
                                   → List/fold
@@ -36,10 +35,8 @@ let shifted
                                             )
                                         → λ(z : list)
                                         → let kvNew =
-                                                { index =
-                                                    kvOld.index + n
-                                                , value =
-                                                    kvOld.value
+                                                { index = kvOld.index + n
+                                                , value = kvOld.value
                                                 }
                                           
                                           in  cons kvNew z

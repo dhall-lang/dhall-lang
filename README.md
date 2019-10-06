@@ -37,6 +37,11 @@ You can try the language live in your browser by visiting the official website:
         * [Text](#text)
 * [Design Philosophy](#design-philosophy)
 * [Name](#name)
+* [Contributors](#contributors)
+    * [Code Contributors](#code-contributors)
+    * [Financial Contributors](#financial-contributors)
+        * [Individuals](#individuals)
+        * [Organizations](#organizations)
 
 ## Getting started
 
@@ -682,7 +687,7 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 
 ### Code Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute. [[Contribute](.github/CONTRIBUTING.md)].
 <a href="https://github.com/dhall-lang/dhall-lang/graphs/contributors"><img src="https://opencollective.com/dhall/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors

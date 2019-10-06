@@ -57,18 +57,12 @@ let JSON/Type
     : Type
     =   ∀(JSON : Type)
       → ∀ ( json
-          : { string :
-                Text → JSON
-            , number :
-                Double → JSON
-            , object :
-                List { mapKey : Text, mapValue : JSON } → JSON
-            , array :
-                List JSON → JSON
-            , bool :
-                Bool → JSON
-            , null :
-                JSON
+          : { string : Text → JSON
+            , number : Double → JSON
+            , object : List { mapKey : Text, mapValue : JSON } → JSON
+            , array : List JSON → JSON
+            , bool : Bool → JSON
+            , null : JSON
             }
           )
       → JSON
