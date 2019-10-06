@@ -203,6 +203,13 @@
     { Entry : ∀(k : Type) → ∀(v : Type) → Type
     , Type : ∀(k : Type) → ∀(v : Type) → Type
     , empty : ∀(k : Type) → ∀(v : Type) → List { mapKey : k, mapValue : v }
+    , keyText :
+        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
+    , keyValue :
+          ∀(v : Type)
+        → ∀(key : Text)
+        → ∀(value : v)
+        → { mapKey : Text, mapValue : v }
     , keys :
           ∀(k : Type)
         → ∀(v : Type)
