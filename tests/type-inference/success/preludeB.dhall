@@ -186,6 +186,11 @@
     , length : ∀(a : Type) → List a → Natural
     , map : ∀(a : Type) → ∀(b : Type) → ∀(f : a → b) → ∀(xs : List a) → List b
     , null : ∀(a : Type) → ∀(xs : List a) → Bool
+    , partition :
+          ∀(a : Type)
+        → ∀(f : a → Bool)
+        → ∀(xs : List a)
+        → { false : List a, true : List a }
     , replicate : ∀(n : Natural) → ∀(a : Type) → ∀(x : a) → List a
     , reverse : ∀(a : Type) → List a → List a
     , shifted :
@@ -251,9 +256,14 @@
     , isZero : Natural → Bool
     , lessThan : ∀(x : Natural) → ∀(y : Natural) → Bool
     , lessThanEqual : ∀(x : Natural) → ∀(y : Natural) → Bool
+    , max : ∀(a : Natural) → ∀(b : Natural) → Natural
+    , maximum : ∀(xs : List Natural) → Optional Natural
+    , min : ∀(a : Natural) → ∀(b : Natural) → Natural
+    , minimum : ∀(xs : List Natural) → Optional Natural
     , odd : Natural → Bool
     , product : ∀(xs : List Natural) → Natural
     , show : Natural → Text
+    , sort : ∀(xs : List Natural) → List Natural
     , subtract : Natural → Natural → Natural
     , sum : ∀(xs : List Natural) → Natural
     , toDouble : ∀(n : Natural) → Double

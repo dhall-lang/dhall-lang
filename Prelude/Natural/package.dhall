@@ -46,6 +46,21 @@
 , greaterThan =
       ./greaterThan sha256:f702abcdfcd7ad73619b9285d7e41c3a1d017fb6b8d037cf40bd93bf30c09b2c
     ? ./greaterThan
+, min =
+      ./min sha256:f25f9c462e4dbf0eb15f9ff6ac840c6e9c82255a7f4f2ab408bdab338e028710
+    ? ./min
+, max =
+      ./max sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
+    ? ./max
+, minimum =
+      ./minimum sha256:89e0d9c23750efd8a8a2a6945579f21e46bd503b0655d4bfdd0e0e51e39c37cc
+    ? ./minimum
+, maximum =
+      ./maximum sha256:30917e8ca230ea6044c6d8ea6e72bcf6f76437aaecc347f790e8a5946c6aa0e5
+    ? ./maximum
+, sort =
+      ./sort sha256:ed2eb5a33c5c96ac9227b0b4c77bdbf8911026d721c603ac897ae84b2bfb5dcd
+    ? ./sort
 , subtract =
       ./subtract sha256:b9277ac637d09142a3a3ac79137ef5955c42f8b33b6746d59db2c9d75ccdd745
     ? ./subtract
