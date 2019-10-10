@@ -4,6 +4,15 @@
 , Entry =
       ./Entry sha256:f334283bdd9cd88e6ea510ca914bc221fc2dab5fb424d24514b2e0df600d5346
     ? ./Entry
+, empty =
+      ./empty sha256:4c612558b8bbe8f955550ed3fb295d57b1b864c85cd52615b52d0ee0e9682e52
+    ? ./empty
+, keyText =
+      ./keyText sha256:f7b6c802ca5764d03d5e9a6e48d9cb167c01392f775d9c2c87b83cdaa60ea0cc
+    ? ./keyText
+, keyValue =
+      ./keyValue sha256:a0a97199d280c4cce72ffcbbf93b7ceda0a569cf4d173ac98e0aaaa78034b98c
+    ? ./keyValue
 , keys =
       ./keys sha256:d13ec34e6acf7c349d82272ef09a37c7bdf37f0dab489e9df47a1ff215d9f5e7
     ? ./keys

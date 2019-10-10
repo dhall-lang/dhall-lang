@@ -555,6 +555,9 @@ Dhall union types translate to CBOR maps:
     encode(< x : T₀ | y | … >) = [ 11, { "x" = T₁, "y" = null, … } ]
 
 
+Union constructors (`U.x`) are encoded according to the rule for record field
+accesses above.
+
 The (now-removed) union literal syntax used to be encoded using a leading 12:
 
 
@@ -651,8 +654,12 @@ The 16-bit representation is used here to encode only the following special valu
     encode(n.n) = n.n_h(0xfc00)
 
 
-    ─────────────────────────────  ; n.n = 0.0
+    ─────────────────────────────  ; n.n = +0.0
     encode(n.n) = n.n_h(0x0000)
+
+
+    ─────────────────────────────  ; n.n = -0.0
+    encode(n.n) = n.n_h(0x8000)
 
 
 For the other values, encode `Double` literals using the smallest available
@@ -669,7 +676,8 @@ numeric representation, picking between 32-bit and 64-bit:
 
 In other words:
 - if n.n is a NaN, encode as a half (16-bit) float with the value 0x7e00
-- if n.n is 0.0, encode as a half (16-bit) float with the value 0x0000
+- if n.n is +0.0, encode as a half (16-bit) float with the value 0x0000
+- if n.n is -0.0, encode as a half (16-bit) float with the value 0x8000
 - if n.n is +Infinity, encode as a half (16-bit) float with the value 0x7c00
 - if n.n is -Infinity, encode as a half (16-bit) float with the value 0xfc00
 

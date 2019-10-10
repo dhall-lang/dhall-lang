@@ -1,0 +1,1 @@
+List Bool → Natural

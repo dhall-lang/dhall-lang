@@ -13,6 +13,12 @@
 , concatMap =
       ./concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
     ? ./concatMap
+, default =
+      ./default sha256:0ed2a04df6c1d55c08bcdbad82b30980af9ac40d2df7a1628f3663e3e8b4fe01
+    ? ./default
+, empty =
+      ./empty sha256:b2f561f35098c457353723c93a22bd5de28d26ecc5370814bef9dfda421e0147
+    ? ./empty
 , filter =
       ./filter sha256:8ebfede5bbfe09675f246c33eb83964880ac615c4b1be8d856076fdbc4b26ba6
     ? ./filter
