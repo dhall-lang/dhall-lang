@@ -13,7 +13,7 @@ let List/partition =
         ../List/partition sha256:38147ac6d750a6492736dd90cc967bf09aa405c499de943c64fab7b86ae02f03
       ? ../List/partition
 
-let Acc = { sorted : List Natural, rest : List Natural }
+let Accumulator = { sorted : List Natural, rest : List Natural }
 
 let partitionMinima =
         λ(xs : List Natural)
@@ -29,7 +29,7 @@ let test0 =
       : partitionMinima [ 2, 1, 1, 3 ] ≡ { true = [ 1, 1 ], false = [ 2, 3 ] }
 
 let step =
-        λ(x : Acc)
+        λ(x : Accumulator)
       → let p = partitionMinima x.rest
         
         in  { sorted = x.sorted # p.true, rest = p.false }
@@ -45,7 +45,7 @@ let sort
       → let x =
               Natural/fold
                 (List/length Natural xs)
-                Acc
+                Accumulator
                 step
                 { sorted = [] : List Natural, rest = xs }
         
