@@ -420,6 +420,7 @@ prefer        = %x2AFD / "//"
 lambda        = %x3BB  / "\"
 forall        = %x2200 / %x66.6f.72.61.6c.6c
 arrow         = %x2192 / "->"
+complete      = "::"
 
 exponent = "e" [ "+" / "-" ] 1*DIGIT
 
@@ -770,7 +771,9 @@ first-application-expression =
     
     / import-expression
 
-import-expression = import / selector-expression
+import-expression = import / completion-expression
+
+completion-expression = selector-expression [ complete selector-expression ]
 
 ; `record.field` extracts one field of a record
 ;

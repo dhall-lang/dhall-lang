@@ -1236,6 +1236,15 @@ If the record or the type is abstract, then normalize each subexpression:
     toMap t₀ ⇥ toMap t₁
 
 
+`T::r` is syntactic sugar for `(T.default ⫽ r) : T.Type` so substitute
+accordingly and continue to normalize:
+
+
+    ((T.default ⫽ r) : T.Type) ⇥ e
+    ──────────────────────────────
+    T::r ⇥ e
+
+
 ## Unions
 
 Normalizing a union type sorts the alternatives and normalizes the type of each

@@ -256,6 +256,11 @@ sub-expressions for the remaining rules:
     t₀.{ xs… } ↦ t₁.{ xs… }
 
 
+    T₀ ↦ T₁   r₀ ↦ r₁
+    ─────────────────
+    T₀::r₀ ↦ T₁::r₁
+
+
     T₀ ↦ T₁
     ─────────────────────────
     assert : T₀ ↦ assert : T₁
