@@ -5,6 +5,168 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v11.0.0`
+
+Breaking changes:
+
+* [Simplify `⫽` within record projection](https://github.com/dhall-lang/dhall-lang/pull/697)
+
+  This change allows the interpreter to simplify an expression like this:
+
+  ```dhall
+  (r ⫽ { x = 1, y = True }).{ x, z }
+  ```
+
+  ... to this:
+
+  ```dhall
+  r.{ z } ⫽ { x = 1 }
+  ```
+
+  This is a technically breaking change because it changes the normal form for
+  expressions that can be simplified in this way, which in turn perturbs
+  their hash if they are protected by a semantic integrity check.  However, in
+  practice this is unlikely to disrupt your code.
+
+* [Simplify nested record projection](https://github.com/dhall-lang/dhall-lang/pull/729)
+
+  This change allows the interpreter to simplify an expression like this:
+
+  ```dhall
+  r.{ x, y, z }.{ x, y }
+  ```
+
+  ... to this:
+
+  ```dhall
+  r.{ x, y }
+  ```
+
+  This is a technically breaking change because it changes the normal form for
+  expressions that can be simplified in this way, which in turn perturbs
+  their hash if they are protected by a semantic integrity check.  However, in
+  practice this is unlikely to disrupt your code.
+
+New features:
+
+* [Add support for leading separators](https://github.com/dhall-lang/dhall-lang/pull/755)
+
+  Record literals, record types, and union types all now support leading
+  separators, like this:
+
+  ```dhall
+  { , x = 1, y = True }
+
+  { , x : Natural, y : Bool }
+
+  < | x : Natural | y : Bool >
+  ```
+
+  ... which are more commonly used when formatting a multi-line expression so
+  that you can always add/remove entries with only a single-line change.
+
+  ```dhall
+  let example = {
+        , x = 1
+        , y = True
+        }
+  ```
+
+* [Standardize support for record completion](https://github.com/dhall-lang/dhall-lang/pull/767)
+
+  This adds a new operator:
+
+  ```dhall
+  T::r
+  ```
+
+  ... which is syntactic sugar for:
+
+  ```dhall
+  (T.default ⫽ r) : T.Type
+  ```
+
+  The motivation for this change is to handle configuration formats with a large
+  number of defaultable fields so that users can omit any default-valued fields
+  when creating a record:
+
+  ```dhall
+  let Example =
+        { Type = { foo : Text, bar : Optional Natural }
+        , default = { bar = None Natural }
+        }
+
+      -- No need to specify `bar` since it will default to `None Natural`
+  in  Example::{ foo = "ABC" }
+  ```
+
+* [Improved Windows support for caching](https://github.com/dhall-lang/dhall-lang/pull/730)
+
+  Interpreters will now use Windows-appropriate cache directories
+  (i.e. `${LOCALAPPDATA}`) when available
+
+* [Prelude: Include types in the `package.dhall` files](https://github.com/dhall-lang/dhall-lang/pull/732)
+
+  You can now access `Prelude.Map.Type`, `Prelude.JSON.Type` and other types
+  from the Prelude's `package.dhall`
+
+* [Prelude: Add `List.{default,empty}`, `Map.empty`, `Optional.default`](https://github.com/dhall-lang/dhall-lang/pull/764)
+
+  This adds the following new Prelude utilities:
+
+  ```dhall
+  Prelude.List.default
+    : ∀(a : Type) → Optional (List a) → List a
+
+  Prelude.List.empty
+    : ∀(a : Type) → List a
+
+  Prelude.Map.empty
+    : ∀(k : Type) → ∀(v : Type) → Map k v
+
+  Prelude.Optional.default
+    : ∀(a : Type) → a → Optional a → a
+  ```
+
+* [Prelude: Move `JSON.key{Text,Value}` to `Map`](https://github.com/dhall-lang/dhall-lang/pull/772)
+
+  `Prelude.JSON.keyText` is now also available from `Prelude.Map.keyText`
+
+  Similarly, `Prelude.JSON.keyValue` is now also available from
+  `Prelude.Map.keyValue`
+
+Other changes:
+
+* Fixes and improvements to the standard
+
+  * [β-normalize all inferred types](https://github.com/dhall-lang/dhall-lang/pull/745)
+
+    Now all inferred types are in β-normal form, which improves performance
+    and also makes the standard simpler and more consistent
+
+  * [Normalize the inferred type of a `∧`-expression](https://github.com/dhall-lang/dhall-lang/pull/722)
+  * [Generalize empty record projections](https://github.com/dhall-lang/dhall-lang/pull/720)
+  * [Clarify type inference for record literals](https://github.com/dhall-lang/dhall-lang/pull/740)
+  * [Fix type-inference rules for `merge`](https://github.com/dhall-lang/dhall-lang/pull/762)
+  * [Specify binary encoding of `-0.0`](https://github.com/dhall-lang/dhall-lang/pull/761)
+  * [Specify how to encoded union constructors](https://github.com/dhall-lang/dhall-lang/pull/765)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Merge `typecheck` and `type-inference` tests](https://github.com/dhall-lang/dhall-lang/pull/723)
+  * [Add failure test for `toMap` of record of kind `Kind`](https://github.com/dhall-lang/dhall-lang/pull/728)
+  * [Fix the `tests/type-inference/success/prelude` test](https://github.com/dhall-lang/dhall-lang/pull/736)
+  * [Test that the type annotation on a `toMap` of an empty record is normalized](https://github.com/dhall-lang/dhall-lang/pull/744)
+  * [Fix the `toMapEmptyNormalizeAnnotation` test case](https://github.com/dhall-lang/dhall-lang/pull/746)
+  * [Replace type-inference failure test for mismatching `merge` annotation](https://github.com/dhall-lang/dhall-lang/pull/747)
+  * [Add regression test](https://github.com/dhall-lang/dhall-lang/pull/750)
+  * [More tests, mostly parsing and type-inference](https://github.com/dhall-lang/dhall-lang/pull/758)
+  * [Merge type-inference tests using imports into import tests](https://github.com/dhall-lang/dhall-lang/pull/763)
+
+* Fixes and improvements to the Prelude:
+
+  * [Small improvements for `Prelude.Natural`](https://github.com/dhall-lang/dhall-lang/pull/719)
+
 ## `v10.0.0`
 
 Breaking changes:
