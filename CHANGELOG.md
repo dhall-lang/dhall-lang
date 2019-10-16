@@ -103,7 +103,7 @@ New features:
 * [Improved Windows support for caching](https://github.com/dhall-lang/dhall-lang/pull/730)
 
   Interpreters will now use Windows-appropriate cache directories
-  (i.e. `${LOCALAPPDATA}`) when available
+  (i.e. `%LOCALAPPDATA%`) when available
 
 * [Prelude: Include types in the `package.dhall` files](https://github.com/dhall-lang/dhall-lang/pull/732)
 
