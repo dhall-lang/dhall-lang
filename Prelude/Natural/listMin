@@ -1,5 +1,5 @@
 {-
-`minimum` returns the smallest element of a `List` or `None Natural` if the
+`listMin` returns the smallest element of a `List` or `None Natural` if the
 `List` is empty
 -}
 let min =
@@ -10,7 +10,7 @@ let Optional/map =
         ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
       ? ../Optional/map
 
-let minimum
+let listMin
     : List Natural → Optional Natural
     =   λ(xs : List Natural)
       → Optional/map
@@ -21,12 +21,12 @@ let minimum
           )
           (List/head Natural xs)
 
-let example0 = assert : minimum [ 0, 1 ] ≡ Some 0
+let example0 = assert : listMin [ 0, 1 ] ≡ Some 0
 
-let example1 = assert : minimum ([] : List Natural) ≡ None Natural
+let example1 = assert : listMin ([] : List Natural) ≡ None Natural
 
-let example2 = assert : minimum [ 3, 2, 1 ] ≡ Some 1
+let example2 = assert : listMin [ 3, 2, 1 ] ≡ Some 1
 
-let property0 = λ(n : Natural) → assert : minimum [ n ] ≡ Some n
+let property0 = λ(n : Natural) → assert : listMin [ n ] ≡ Some n
 
-in  minimum
+in  listMin

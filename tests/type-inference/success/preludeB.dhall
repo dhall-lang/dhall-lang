@@ -256,10 +256,10 @@
     , isZero : Natural → Bool
     , lessThan : ∀(x : Natural) → ∀(y : Natural) → Bool
     , lessThanEqual : ∀(x : Natural) → ∀(y : Natural) → Bool
+    , listMax : ∀(xs : List Natural) → Optional Natural
+    , listMin : ∀(xs : List Natural) → Optional Natural
     , max : ∀(a : Natural) → ∀(b : Natural) → Natural
-    , maximum : ∀(xs : List Natural) → Optional Natural
     , min : ∀(a : Natural) → ∀(b : Natural) → Natural
-    , minimum : ∀(xs : List Natural) → Optional Natural
     , odd : Natural → Bool
     , product : ∀(xs : List Natural) → Natural
     , show : Natural → Text

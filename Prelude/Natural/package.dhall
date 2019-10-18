@@ -52,12 +52,12 @@
 , max =
       ./max sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
     ? ./max
-, minimum =
-      ./minimum sha256:89e0d9c23750efd8a8a2a6945579f21e46bd503b0655d4bfdd0e0e51e39c37cc
-    ? ./minimum
-, maximum =
-      ./maximum sha256:30917e8ca230ea6044c6d8ea6e72bcf6f76437aaecc347f790e8a5946c6aa0e5
-    ? ./maximum
+, listMin =
+      ./listMin sha256:89e0d9c23750efd8a8a2a6945579f21e46bd503b0655d4bfdd0e0e51e39c37cc
+    ? ./listMin
+, listMax =
+      ./listMax sha256:30917e8ca230ea6044c6d8ea6e72bcf6f76437aaecc347f790e8a5946c6aa0e5
+    ? ./listMax
 , sort =
       ./sort sha256:ed2eb5a33c5c96ac9227b0b4c77bdbf8911026d721c603ac897ae84b2bfb5dcd
     ? ./sort

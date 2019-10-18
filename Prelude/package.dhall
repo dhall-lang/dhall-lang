@@ -23,7 +23,7 @@
       ./Monoid sha256:26fafa098600ef7a54ef9dba5ada416bbbdd21df1af306c052420c61553ad4af
     ? ./Monoid
 , Natural =
-      ./Natural/package.dhall sha256:59b5820432bd34b2a0d8d028c4e0c7838e7f2764c6aa04e43cc7a090add90027
+      ./Natural/package.dhall sha256:e230d4ee318826ab9517ae5d6f38d1a9359d7cff815cc32912cc6b991656bb1a
     ? ./Natural/package.dhall
 , Optional =
       ./Optional/package.dhall sha256:7608f2d38dabee8bfe6865b4adc11289059984220f422d2b023b15b3908f7a4c
