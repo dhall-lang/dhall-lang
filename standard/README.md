@@ -157,7 +157,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Integer/show                      ; Convert Integer to Text representation
   / Integer/negate                    ; Invert sign of Integers, with positive
                                       ; values becoming negative and vice-versa
-  / Integer/clampToNatural            ; Convert Integer to Natural by clamping
+  / Integer/clamp                     ; Convert Integer to Natural by clamping
                                       ; negative values to zero
   / Double/show                       ; Convert Double to Text representation
   / List/build                        ; List introduction

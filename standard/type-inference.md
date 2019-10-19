@@ -776,8 +776,8 @@ The built-in functions on `Integer` have the following types:
     Γ ⊢ Integer/negate : Integer → Integer
 
 
-    ──────────────────────────────────────────────
-    Γ ⊢ Integer/clampToNatural : Integer → Natural
+    ─────────────────────────────────────
+    Γ ⊢ Integer/clamp : Integer → Natural
 
 
 ## `Double`

@@ -227,8 +227,8 @@ matching their identifier.
     encode(Integer/negate) = "Integer/negate"
 
 
-    ─────────────────────────────────────────────────────────────
-    encode(Integer/clampToNatural) = "Integer/clampToNatural"
+    ───────────────────────────────────────────
+    encode(Integer/clamp) = "Integer/clamp"
 
 
     ───────────────────────────────────────
@@ -953,8 +953,8 @@ a built-in identifier if it matches any of the following strings:
     decode("Integer/negate") = Integer/negate
 
 
-    ─────────────────────────────────────────────────────────────
-    decode("Integer/clampToNatural") = Integer/clampToNatural
+    ───────────────────────────────────────────
+    decode("Integer/clamp") = Integer/clamp
 
 
     ───────────────────────────────────────

@@ -444,8 +444,8 @@ The remaining rules are:
     ↑(d, x, m, Integer/negate) = Integer/negate
 
 
-    ───────────────────────────────────────────────────────────
-    ↑(d, x, m, Integer/clampToNatural) = Integer/clampToNatural
+    ─────────────────────────────────────────
+    ↑(d, x, m, Integer/clamp) = Integer/clamp
 
 
     ─────────────────────────────────────

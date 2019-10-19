@@ -377,8 +377,8 @@ sub-expressions for the remaining rules:
     Integer/negate ↦ Integer/negate
 
 
-    ───────────────────────────────────────────────
-    Integer/clampToNatural ↦ Integer/clampToNatural
+    ─────────────────────────────
+    Integer/clamp ↦ Integer/clamp
 
 
     ─────────────────────────

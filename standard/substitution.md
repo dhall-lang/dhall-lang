@@ -425,8 +425,8 @@ The remaining rules are:
     Integer/negate[x@n ≔ e] = Integer/negate
 
 
-    ────────────────────────────────────────────────────────
-    Integer/clampToNatural[x@n ≔ e] = Integer/clampToNatural
+    ──────────────────────────────────────
+    Integer/clamp[x@n ≔ e] = Integer/clamp
 
 
     ──────────────────────────────────

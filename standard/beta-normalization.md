@@ -1388,17 +1388,17 @@ the number is negative.
     f a ⇥ +n
 
 
-`Integer/clampToNatural` converts an `Integer` to a `Natural` number, with
-negative numbers becoming `0`:
+`Integer/clamp` converts an `Integer` to a `Natural` number, with negative
+numbers becoming `0`:
 
 
-    f ⇥ Integer/clampToNatural   a ⇥ +n
-    ────────────────────────────────────
+    f ⇥ Integer/clamp   a ⇥ +n
+    ───────────────────────────
     f a ⇥ n
 
 
-    f ⇥ Integer/negate   a ⇥ -n
-    ─────────────────────────────────  ; Negative integers become `0`.
+    f ⇥ Integer/clamp   a ⇥ -n
+    ───────────────────────────  ; Negative integers become `0`.
     f a ⇥ 0
 
 
@@ -1417,8 +1417,8 @@ All of the built-in functions on `Integer`s are in normal form:
     Integer/negate ⇥ Integer/negate
 
 
-    ───────────────────────────────────────────────
-    Integer/clampToNatural ⇥ Integer/clampToNatural
+    ─────────────────────────────
+    Integer/clamp ⇥ Integer/clamp
 
 
 ## `Double`
