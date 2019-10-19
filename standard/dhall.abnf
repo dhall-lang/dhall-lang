@@ -347,6 +347,8 @@ builtin =
     / Natural-show
     / Integer-toDouble
     / Integer-show
+    / Integer-negate
+    / Integer-clampToNatural
     / Natural-subtract
     / Double-show
     / List-build
@@ -400,6 +402,8 @@ Natural-show      = %x4e.61.74.75.72.61.6c.2f.73.68.6f.77
 Natural-subtract  = %x4e.61.74.75.72.61.6c.2f.73.75.62.74.72.61.63.74
 Integer-toDouble  = %x49.6e.74.65.67.65.72.2f.74.6f.44.6f.75.62.6c.65
 Integer-show      = %x49.6e.74.65.67.65.72.2f.73.68.6f.77
+Integer-negate    = %x49.6e.74.65.67.65.72.2f.6e.65.67.61.74.65
+Integer-clampToNatural = %x49.6e.74.65.67.65.72.2f.63.6c.61.6d.70.54.6f.4e.61.74.75.72.61.6c
 Double-show       = %x44.6f.75.62.6c.65.2f.73.68.6f.77
 List-build        = %x4c.69.73.74.2f.62.75.69.6c.64
 List-fold         = %x4c.69.73.74.2f.66.6f.6c.64

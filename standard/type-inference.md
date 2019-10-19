@@ -772,6 +772,14 @@ The built-in functions on `Integer` have the following types:
     Γ ⊢ Integer/toDouble : Integer → Double
 
 
+    ──────────────────────────────────────
+    Γ ⊢ Integer/negate : Integer → Integer
+
+
+    ──────────────────────────────────────────────
+    Γ ⊢ Integer/clampToNatural : Integer → Natural
+
+
 ## `Double`
 
 `Double` is a type:

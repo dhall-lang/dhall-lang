@@ -440,6 +440,14 @@ The remaining rules are:
     ↑(d, x, m, Integer/show) = Integer/show
 
 
+    ───────────────────────────────────────────
+    ↑(d, x, m, Integer/negate) = Integer/negate
+
+
+    ───────────────────────────────────────────────────────────
+    ↑(d, x, m, Integer/clampToNatural) = Integer/clampToNatural
+
+
     ─────────────────────────────────────
     ↑(d, x, m, Double/show) = Double/show
 

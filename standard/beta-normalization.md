@@ -1369,6 +1369,39 @@ Note that the `Text` representation of the rendered `Integer` should include
 a leading `+` sign if the number is non-negative and a leading `-` sign if
 the number is negative.
 
+
+`Integer/negate` inverts the sign of an `Integer`, leaving `0` unchanged:
+
+
+    f ⇥ Integer/negate   a ⇥ +0
+    ────────────────────────────  ; `0` negated is still `0`.
+    f a ⇥ +0
+
+
+    f ⇥ Integer/negate   a ⇥ +n
+    ────────────────────────────
+    f a ⇥ -n
+
+
+    f ⇥ Integer/negate   a ⇥ -n
+    ────────────────────────────
+    f a ⇥ +n
+
+
+`Integer/clampToNatural` converts an `Integer` to a `Natural` number, with
+negative numbers becoming `0`:
+
+
+    f ⇥ Integer/clampToNatural   a ⇥ +n
+    ────────────────────────────────────
+    f a ⇥ n
+
+
+    f ⇥ Integer/negate   a ⇥ -n
+    ─────────────────────────────────  ; Negative integers become `0`.
+    f a ⇥ 0
+
+
 All of the built-in functions on `Integer`s are in normal form:
 
 
@@ -1379,6 +1412,13 @@ All of the built-in functions on `Integer`s are in normal form:
     ───────────────────────────────────
     Integer/toDouble ⇥ Integer/toDouble
 
+
+    ───────────────────────────────
+    Integer/negate ⇥ Integer/negate
+
+
+    ───────────────────────────────────────────────
+    Integer/clampToNatural ⇥ Integer/clampToNatural
 
 
 ## `Double`

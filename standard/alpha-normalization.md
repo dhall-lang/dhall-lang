@@ -373,6 +373,14 @@ sub-expressions for the remaining rules:
     Integer/show ↦ Integer/show
 
 
+    ───────────────────────────────
+    Integer/negate ↦ Integer/negate
+
+
+    ───────────────────────────────────────────────
+    Integer/clampToNatural ↦ Integer/clampToNatural
+
+
     ─────────────────────────
     Double/show ↦ Double/show
 
