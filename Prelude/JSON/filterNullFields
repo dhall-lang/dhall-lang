@@ -149,4 +149,6 @@ let example =
                 }
             )
 
+let example = assert : filterNullFields (array [ null ]) ≡ array [ null ]
+
 in  filterNullFields
