@@ -1,0 +1,28 @@
+{-
+`listMax` returns the largest element of a `List` or `None Natural` if the
+`List` is empty
+-}
+let max =
+        ./max sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
+      ? ./max
+
+let Optional/map =
+        ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
+      ? ../Optional/map
+
+let listMax
+    : List Natural → Optional Natural
+    =   λ(xs : List Natural)
+      → Optional/map
+          Natural
+          Natural
+          (λ(n : Natural) → List/fold Natural xs Natural max n)
+          (List/head Natural xs)
+
+let example0 = assert : listMax [ 1, 2 ] ≡ Some 2
+
+let example1 = assert : listMax ([] : List Natural) ≡ None Natural
+
+let property0 = λ(n : Natural) → assert : listMax [ n ] ≡ Some n
+
+in  listMax
