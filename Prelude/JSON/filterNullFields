@@ -1,0 +1,152 @@
+{-
+This utility filters out all `null` record fields, which is often the idiomatic
+way for a configuration to encode absent fields
+-}
+let JSON/Type =
+        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+      ? ./Type
+
+let string =
+        ./string sha256:7a8ac435d30a96092d72889f3d48eabf7cba47ecf553fd6bc07a79fdf473e8d2
+      ? ./string
+
+let number =
+        ./number sha256:534745568065ae19d2b0fe1d09eeb071e9717d0f392187eb0bc95f386b018bec
+      ? ./number
+
+let object =
+        ./object sha256:a4e047cf157c3971b026b3942a87d474c85950d9b9654f8ebc8631740abf75a9
+      ? ./object
+
+let array =
+        ./array sha256:3a4c06cf135f4c80619e48c0808f6600d19782705bc59ee7c27cfc2e0f097eb7
+      ? ./array
+
+let bool =
+        ./bool sha256:018d29f030b45d642aba6bb81bf2c19a7bf183684612ce7a2c8afd2099783c48
+      ? ./bool
+
+let null =
+        ./null sha256:52c1d45ab2ca54875b444bfb1afdea497c8c9b0652e5044fafd8b16d97f4b78d
+      ? ./null
+
+let List/concatMap =
+        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap
+
+let List/map =
+        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map
+
+let filterNullFields
+    : JSON/Type → JSON/Type
+    =   λ(old : JSON/Type)
+      → λ(JSON : Type)
+      → λ ( json
+          : { string : Text → JSON
+            , number : Double → JSON
+            , object : List { mapKey : Text, mapValue : JSON } → JSON
+            , array : List JSON → JSON
+            , bool : Bool → JSON
+            , null : JSON
+            }
+          )
+      → let result =
+              old
+                { value : JSON, isNull : Bool }
+                { string =
+                    λ(x : Text) → { value = json.string x, isNull = False }
+                , number =
+                    λ(x : Double) → { value = json.number x, isNull = False }
+                , object =
+                      λ ( keyValues
+                        : List
+                            { mapKey : Text
+                            , mapValue : { value : JSON, isNull : Bool }
+                            }
+                        )
+                    → let value =
+                            json.object
+                              ( List/concatMap
+                                  { mapKey : Text
+                                  , mapValue : { value : JSON, isNull : Bool }
+                                  }
+                                  { mapKey : Text, mapValue : JSON }
+                                  (   λ ( keyValue
+                                        : { mapKey : Text
+                                          , mapValue :
+                                              { value : JSON, isNull : Bool }
+                                          }
+                                        )
+                                    →       if keyValue.mapValue.isNull
+                                      
+                                      then  [] : List
+                                                   { mapKey : Text
+                                                   , mapValue : JSON
+                                                   }
+                                      
+                                      else  [   keyValue.{ mapKey }
+                                              ∧ { mapValue =
+                                                    keyValue.mapValue.value
+                                                }
+                                            ]
+                                  )
+                                  keyValues
+                              )
+                      
+                      in  { value = value, isNull = False }
+                , array =
+                      λ(xs : List { value : JSON, isNull : Bool })
+                    → let value =
+                            json.array
+                              ( List/map
+                                  { value : JSON, isNull : Bool }
+                                  JSON
+                                  (   λ(x : { value : JSON, isNull : Bool })
+                                    → x.value
+                                  )
+                                  xs
+                              )
+                      
+                      in  { value = value, isNull = False }
+                , bool = λ(x : Bool) → { value = json.bool x, isNull = False }
+                , null = { value = json.null, isNull = True }
+                }
+        
+        in  result.value
+
+let property =
+        λ(a : Text)
+      → λ(b : Double)
+      → λ(c : Bool)
+      →   assert
+        :   filterNullFields
+              ( object
+                  ( toMap
+                      { string = string a
+                      , number = number b
+                      , bool = bool c
+                      , null = null
+                      }
+                  )
+              )
+          ≡ object
+              (toMap { string = string a, number = number b, bool = bool c })
+
+let example =
+        assert
+      :   filterNullFields
+            ( object
+                (toMap { array = array [ object (toMap { null = null }) ] })
+            )
+        ≡ object
+            ( toMap
+                { array =
+                    array
+                      [ object
+                          ([] : List { mapKey : Text, mapValue : JSON/Type })
+                      ]
+                }
+            )
+
+in  filterNullFields
