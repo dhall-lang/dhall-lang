@@ -49,6 +49,9 @@
 , null =
       ./null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
     ? ./null
+, partition =
+      ./partition sha256:38147ac6d750a6492736dd90cc967bf09aa405c499de943c64fab7b86ae02f03
+    ? ./partition
 , replicate =
       ./replicate sha256:d4250b45278f2d692302489ac3e78280acb238d27541c837ce46911ff3baa347
     ? ./replicate
