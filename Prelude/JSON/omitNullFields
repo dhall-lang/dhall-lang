@@ -1,6 +1,6 @@
 {-
-This utility filters out all `null` record fields, which is often the idiomatic
-way for a configuration to encode absent fields
+This utility omits all `null` record fields, which is often the idiomatic way
+for a configuration to encode absent fields
 -}
 let JSON/Type =
         ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
@@ -38,7 +38,7 @@ let List/map =
         ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map
 
-let filterNullFields
+let omitNullFields
     : JSON/Type → JSON/Type
     =   λ(old : JSON/Type)
       → λ(JSON : Type)
@@ -120,7 +120,7 @@ let property =
       → λ(b : Double)
       → λ(c : Bool)
       →   assert
-        :   filterNullFields
+        :   omitNullFields
               ( object
                   ( toMap
                       { string = string a
@@ -135,7 +135,7 @@ let property =
 
 let example =
         assert
-      :   filterNullFields
+      :   omitNullFields
             ( object
                 (toMap { array = array [ object (toMap { null = null }) ] })
             )
@@ -149,6 +149,6 @@ let example =
                 }
             )
 
-let example = assert : filterNullFields (array [ null ]) ≡ array [ null ]
+let example = assert : omitNullFields (array [ null ]) ≡ array [ null ]
 
-in  filterNullFields
+in  omitNullFields

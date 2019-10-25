@@ -34,7 +34,7 @@
 , render =
       ./render sha256:81f5a84efbb35211b1556838e86d17ed497912cf765bfa4ab76708b21e5371f1
     ? ./render
-, filterNullFields =
-      ./filterNullFields sha256:c28270c553f48c406bd161c61776963315e278af5dae9331c4a320c3f4ecb4ec
-    ? ./filterNullFields
+, omitNullFields =
+      ./omitNullFields sha256:c28270c553f48c406bd161c61776963315e278af5dae9331c4a320c3f4ecb4ec
+    ? ./omitNullFields
 }
