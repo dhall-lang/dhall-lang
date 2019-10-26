@@ -72,4 +72,4 @@ we have included so far:
 * Integrations with other configuration formats (like [`./JSON/package.dhall`](./JSON/package.dhall))
 
 The [contributing instructions](../.github/CONTRIBUTING.md#how-do-i-change-the-language)
-provide more details about how to discuss or propose changes if you would like tocontribute to the Prelude.
+provide more details about how to discuss or propose changes if you would like to contribute to the Prelude.
