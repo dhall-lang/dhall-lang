@@ -336,6 +336,7 @@ keyword =
     / using / missing / as
     / Infinity / NaN
     / merge / Some / toMap
+    / assert
 
 builtin =
       Natural-fold
