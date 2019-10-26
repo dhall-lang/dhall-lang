@@ -5,6 +5,21 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v11.1.0`
+
+New features:
+
+* [Prelude: Add `List.partition` and `Natural.{max,listMax,min,listMin,sort}`](https://github.com/dhall-lang/dhall-lang/pull/774)
+
+Other changes:
+
+* [Fix referentially opaque Prelude test](https://github.com/dhall-lang/dhall-lang/pull/781)
+
+  This fixes the Prelude so that the top-level `package.dhall` can be imported
+  remotely
+
+* [Fix `assert` missing from keyword rule](https://github.com/dhall-lang/dhall-lang/pull/785)
+
 ## `v11.0.0`
 
 Breaking changes:
