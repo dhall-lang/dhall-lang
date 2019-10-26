@@ -56,9 +56,9 @@ The Prelude is hosted at:
 
   [https://prelude.dhall-lang.org/v10.0.0/Bool/not](https://prelude.dhall-lang.org/v10.0.0/Bool/not)
 
-The `prelude.dhall-lang.org` domain is CORS-enabled so the Prelude can be used as
-a transitive import of other packages without violating the Dhall language's CORS
-check.
+The `prelude.dhall-lang.org` domain is CORS-enabled so the Prelude can be used
+as a transitive import of other packages without violating the Dhall language's
+CORS check.
 
 ## Scope
 
