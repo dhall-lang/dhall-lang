@@ -12,7 +12,7 @@ The Prelude is hosted at:
 
 ... which you can use in several ways:
 
-* To browse the Prelude package, just visit:
+* To browse the latest release of the Prelude package, you can visit:
 
   [https://prelude.dhall-lang.org/](https://prelude.dhall-lang.org)
 
@@ -55,6 +55,10 @@ The Prelude is hosted at:
   This also works for individual expressions, too, such as:
 
   [https://prelude.dhall-lang.org/v10.0.0/Bool/not](https://prelude.dhall-lang.org/v10.0.0/Bool/not)
+
+  ... or for browsing a specific release of the Prelude:
+
+  [https://prelude.dhall-lang.org/v10.0.0](https://prelude.dhall-lang.org/v10.0.0)
 
 The `prelude.dhall-lang.org` domain is CORS-enabled so the Prelude can be used
 as a transitive import of other packages without violating the Dhall language's
