@@ -1,4 +1,8 @@
 -- Remove first `n` elements of a list
+let Natural/greaterThanEqual =
+        ../Natural/greaterThanEqual sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+      ? ../Natural/greaterThanEqual
+
 let drop
     : ∀(n : Natural) → ∀(a : Type) → List a → List a
     =   λ(n : Natural)
@@ -10,7 +14,7 @@ let drop
           (List a)
           (   λ(x : { index : Natural, value : a })
             → λ(xs : List a)
-            →       if Natural/isZero (Natural/subtract x.index n)
+            →       if Natural/greaterThanEqual x.index n
               
               then  [ x.value ] # xs
               

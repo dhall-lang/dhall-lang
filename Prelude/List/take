@@ -1,4 +1,8 @@
 -- Truncate a list to the first `n` elements
+let Natural/lessThan =
+        ../Natural/lessThan sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
+      ? ../Natural/lessThan
+
 let take
     : ∀(n : Natural) → ∀(a : Type) → List a → List a
     =   λ(n : Natural)
@@ -10,11 +14,7 @@ let take
           (List a)
           (   λ(x : { index : Natural, value : a })
             → λ(xs : List a)
-            →       if Natural/isZero (Natural/subtract x.index n) == False
-              
-              then  [ x.value ] # xs
-              
-              else  xs
+            → if Natural/lessThan x.index n then [ x.value ] # xs else xs
           )
           ([] : List a)
 
