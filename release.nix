@@ -62,8 +62,8 @@ let
           touch $out
         '';
 
-    expected-diagnostic-files =
-      pkgsNew.runCommand "expected-diagnostic-files" {} ''
+    expected-test-files =
+      pkgsNew.runCommand "expected-test-files" {} ''
         ${pkgsNew.rsync}/bin/rsync --archive ${./tests}/ "$out"
 
         ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
@@ -82,10 +82,12 @@ let
         ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
         XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
       done
+
+      ${pkgsNew.dhall}/bin/dhall type --file "$out/tests/type-inference/success/preludeA.dhall" > "$out/tests/type-inference/success/preludeB.dhall"
     '';
 
-    diagnostic-files-lint = pkgsNew.runCommand "diagnostic-files-lint" {} ''
-      ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-diagnostic-files}/ ./tests.expected
+    test-files-lint = pkgsNew.runCommand "test-files-lint" {} ''
+      ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-test-files}/ ./tests.expected
       ${pkgsNew.rsync}/bin/rsync --archive ${./tests}/ ./tests.actual
 
       ${pkgsNew.diffutils}/bin/diff --recursive ./tests.{actual,expected}
@@ -134,10 +136,10 @@ in
         pkgs.dhall-grammar
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
-        pkgs.diagnostic-files-lint
+        pkgs.test-files-lint
         rev
       ];
     };
 
-    inherit (pkgs) expected-prelude expected-diagnostic-files;
+    inherit (pkgs) expected-prelude expected-test-files;
   }
