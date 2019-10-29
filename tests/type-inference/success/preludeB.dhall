@@ -67,6 +67,31 @@
               }
             )
         → JSON
+    , filterNullFields :
+          ∀ ( old
+            :   ∀(JSON : Type)
+              → ∀ ( json
+                  : { array : List JSON → JSON
+                    , bool : Bool → JSON
+                    , null : JSON
+                    , number : Double → JSON
+                    , object : List { mapKey : Text, mapValue : JSON } → JSON
+                    , string : Text → JSON
+                    }
+                  )
+              → JSON
+            )
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , null : JSON
+              , number : Double → JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
     , keyText :
         ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
     , keyValue :
@@ -169,6 +194,7 @@
     , concatMap :
         ∀(a : Type) → ∀(b : Type) → ∀(f : a → List b) → ∀(xs : List a) → List b
     , default : ∀(a : Type) → ∀(o : Optional (List a)) → List a
+    , drop : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
     , empty : ∀(a : Type) → List a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → List a
     , fold :
@@ -197,6 +223,7 @@
           ∀(a : Type)
         → ∀(kvss : List (List { index : Natural, value : a }))
         → List { index : Natural, value : a }
+    , take : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
     , unzip :
           ∀(a : Type)
         → ∀(b : Type)

@@ -300,17 +300,6 @@ The `Natural` number type is in normal form:
     n ⇥ n
 
 
-`Natural/build` and `Natural/fold` are inverses of one another, which leads to
-the following fusion rule:
-
-
-    f ⇥ Natural/build   a ⇥ Natural/fold b
-    ──────────────────────────────────────
-    f a ⇥ b
-
-
-Otherwise, fall back on each function's respective implementation.
-
 `Natural/build` is the canonical introduction function for `Natural` numbers:
 
 
@@ -705,17 +694,6 @@ Lists are defined here via induction as if they were linked lists, but a real
 implementation might represent them using another data structure under the hood.
 Dhall does not impose time complexity requirements on list operations.
 
-`List/build` and `List/fold` are inverses of one another, which leads to the
-following fusion rule:
-
-
-    f ⇥ List/build A₀   a ⇥ List/fold A₁ b
-    ──────────────────────────────────────
-    f a ⇥ b
-
-
-Otherwise, fall back on each function's respective implementation.
-
 `List/build` is the canonical introduction function for `List`s:
 
 
@@ -891,15 +869,6 @@ Normalize a `Some` expression by normalizing its argument:
     t₀ ⇥ t₁
     ─────────────────
     Some t₀ ⇥ Some t₁
-
-
-`Optional/build` and `Optional/fold` are inverses of one another, which leads to
-the following fusion rule:
-
-
-    f ⇥ Optional/build A₀   a ⇥ Optional/fold A₁ b
-    ──────────────────────────────────────────────
-    f a ⇥ b
 
 
 `Optional/build` is the canonical introduction function for `Optional` values:

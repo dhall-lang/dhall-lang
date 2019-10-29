@@ -327,6 +327,7 @@ NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
 assert                = %x61.73.73.65.72.74
+forall                = %x2200 / %x66.6f.72.61.6c.6c ; "∀" / "forall"
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -336,6 +337,8 @@ keyword =
     / using / missing / as
     / Infinity / NaN
     / merge / Some / toMap
+    / assert
+    / forall
 
 builtin =
       Natural-fold
@@ -422,7 +425,6 @@ combine-types = %x2A53 / "//\\"
 equivalent    = %x2261 / "==="
 prefer        = %x2AFD / "//"
 lambda        = %x3BB  / "\"
-forall        = %x2200 / %x66.6f.72.61.6c.6c
 arrow         = %x2192 / "->"
 complete      = "::"
 
@@ -448,7 +450,7 @@ natural-literal = 1*DIGIT
 integer-literal = ( "+" / "-" ) natural-literal
 
 ; If the identifier matches one of the names in the `builtin` rule, then it is a
-; builtin, and should be treated as the curresponding item in the list of
+; builtin, and should be treated as the corresponding item in the list of
 ; "Reserved identifiers for builtins" specified in the `standard/README.md` document.
 ; It is a syntax error to specify a de Bruijn index in this case.
 ; Otherwise, this is a variable with name and index matching the label and index.

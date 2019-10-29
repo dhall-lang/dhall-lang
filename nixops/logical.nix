@@ -165,6 +165,8 @@
 
         virtualHosts =
           let
+            latestRelease = "v11.1.0";
+
             prelude = {
               forceSSL = true;
 
@@ -187,9 +189,10 @@
                     add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
                   }
 
-                  rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/master/Prelude redirect;
+                  rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/${latestRelease}/Prelude redirect;
+                  rewrite ^/(v[^/]+)$ https://github.com/dhall-lang/dhall-lang/tree/$1/Prelude redirect;
                   rewrite ^/(v[^/]+)/(.*)$ /dhall-lang/dhall-lang/$1/Prelude/$2 break;
-                  rewrite ^/(.*)$ /dhall-lang/dhall-lang/v10.0.0/Prelude/$1 break;
+                  rewrite ^/(.*)$ /dhall-lang/dhall-lang/${latestRelease}/Prelude/$1 break;
                 '';
                 proxyPass = "https://raw.githubusercontent.com";
               };
