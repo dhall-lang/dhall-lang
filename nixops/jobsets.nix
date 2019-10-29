@@ -34,14 +34,6 @@ let
 
         emailresponsible = false;
       };
-
-      nixpkgs = {
-        type = "git";
-
-        value = "https://github.com/NixOS/nixpkgs.git release-17.09";
-
-        emailresponsible = false;
-      };
     };
   };
 
