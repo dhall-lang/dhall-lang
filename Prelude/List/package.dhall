@@ -16,6 +16,9 @@
 , default =
       ./default sha256:0ed2a04df6c1d55c08bcdbad82b30980af9ac40d2df7a1628f3663e3e8b4fe01
     ? ./default
+, drop =
+      ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+    ? ./drop
 , empty =
       ./empty sha256:b2f561f35098c457353723c93a22bd5de28d26ecc5370814bef9dfda421e0147
     ? ./empty
@@ -61,6 +64,9 @@
 , shifted =
       ./shifted sha256:54fb22c7e952ebce1cfc0fcdd33ce4cfa817bff9d6564af268dea6685f8b5dfe
     ? ./shifted
+, take =
+      ./take sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
+    ? ./take
 , unzip =
       ./unzip sha256:4d6003e9e683a289fe33f4c90f958eb1e08ea0bbb474210fcd90d1885c9660e9
     ? ./unzip
