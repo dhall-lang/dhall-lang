@@ -20,6 +20,8 @@ Other changes:
 
 * [Fix `assert` missing from keyword rule](https://github.com/dhall-lang/dhall-lang/pull/785)
 
+* [Fix "curresponding" typo in ABNF](https://github.com/dhall-lang/dhall-lang/pull/787)
+
 ## `v11.0.0`
 
 Breaking changes:
