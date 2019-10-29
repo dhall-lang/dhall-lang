@@ -1,0 +1,15 @@
+{-
+Returns `True` if an `Integer` is negative or zero and `False` otherwise.
+-}
+
+let nonPositive
+    : Integer → Bool
+    = λ(n : Integer) → Natural/isZero (Integer/clamp n)
+
+let example0 = assert : nonPositive -3 ≡ True
+
+let example1 = assert : nonPositive +0 ≡ True
+
+let example2 = assert : nonPositive +4 ≡ False
+
+in  nonPositive

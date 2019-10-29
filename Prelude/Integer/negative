@@ -1,0 +1,19 @@
+{-
+Returns `True` if an `Integer` is negative or `False` if it is positive or zero.
+-}
+
+let Integer/nonNegative =
+        ./nonNegative sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
+      ? ./nonNegative
+
+let negative
+    : Integer → Bool
+    = λ(n : Integer) → Integer/nonNegative n == False
+
+let example0 = assert : negative -3 ≡ True
+
+let example1 = assert : negative +0 ≡ False
+
+let example2 = assert : negative +4 ≡ False
+
+in  negative

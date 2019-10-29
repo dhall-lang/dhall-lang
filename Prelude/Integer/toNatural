@@ -1,0 +1,19 @@
+{-
+Convert an `Integer` to an `Optional Natural`, with negative numbers becoming `None Natural`.
+-}
+let Integer/negative =
+        ./negative sha256:23e4b3c61eea9e878a7f83bf25fd0ea2c6a6d60174890d65be885828b690a570
+      ? ./negative
+
+let toNatural
+    : Integer → Optional Natural
+    =   λ(n : Integer)
+      → if Integer/negative n then None Natural else Some (Integer/clamp n)
+
+let example0 = assert : toNatural +7 ≡ Some 7
+
+let example2 = assert : toNatural +0 ≡ Some 0
+
+let example3 = assert : toNatural -3 ≡ None Natural
+
+in  toNatural

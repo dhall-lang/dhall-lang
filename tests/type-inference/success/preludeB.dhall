@@ -21,7 +21,18 @@
         → ∀(x : A)
         → C
     }
-, Integer : { show : Integer → Text, toDouble : Integer → Double }
+, Integer :
+    { abs : Integer → Natural
+    , clamp : Integer → Natural
+    , negate : Integer → Integer
+    , negative : Integer → Bool
+    , nonNegative : Integer → Bool
+    , nonPositive : Integer → Bool
+    , positive : Integer → Bool
+    , show : Integer → Text
+    , toDouble : Integer → Double
+    , toNatural : Integer → Optional Natural
+    }
 , JSON :
     { Nesting : Type
     , Tagged : ∀(a : Type) → Type
