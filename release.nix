@@ -71,6 +71,8 @@ let
         for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f -name '*.dhallb'); do
           ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
         done
+
+        ${pkgsNew.dhall}/bin/dhall type --file "${./.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
       '';
 
     expected-prelude = pkgsNew.runCommand "expected-prelude" {} ''
@@ -82,8 +84,6 @@ let
         ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
         XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
       done
-
-      ${pkgsNew.dhall}/bin/dhall type --file "$out/tests/type-inference/success/preludeA.dhall" > "$out/tests/type-inference/success/preludeB.dhall"
     '';
 
     test-files-lint = pkgsNew.runCommand "test-files-lint" {} ''

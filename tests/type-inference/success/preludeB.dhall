@@ -67,31 +67,6 @@
               }
             )
         → JSON
-    , filterNullFields :
-          ∀ ( old
-            :   ∀(JSON : Type)
-              → ∀ ( json
-                  : { array : List JSON → JSON
-                    , bool : Bool → JSON
-                    , null : JSON
-                    , number : Double → JSON
-                    , object : List { mapKey : Text, mapValue : JSON } → JSON
-                    , string : Text → JSON
-                    }
-                  )
-              → JSON
-            )
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , null : JSON
-              , number : Double → JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
     , keyText :
         ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
     , keyValue :
@@ -142,6 +117,31 @@
                         )
                     → JSON
                 }
+            )
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , null : JSON
+              , number : Double → JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
+    , omitNullFields :
+          ∀ ( old
+            :   ∀(JSON : Type)
+              → ∀ ( json
+                  : { array : List JSON → JSON
+                    , bool : Bool → JSON
+                    , null : JSON
+                    , number : Double → JSON
+                    , object : List { mapKey : Text, mapValue : JSON } → JSON
+                    , string : Text → JSON
+                    }
+                  )
+              → JSON
             )
         → ∀(JSON : Type)
         → ∀ ( json
