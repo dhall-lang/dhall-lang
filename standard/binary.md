@@ -223,6 +223,14 @@ matching their identifier.
     encode(Integer/show) = "Integer/show"
 
 
+    ─────────────────────────────────────────────
+    encode(Integer/negate) = "Integer/negate"
+
+
+    ───────────────────────────────────────────
+    encode(Integer/clamp) = "Integer/clamp"
+
+
     ───────────────────────────────────────
     encode(Double/show) = "Double/show"
 
@@ -939,6 +947,14 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────
     decode("Integer/show") = Integer/show
+
+
+    ─────────────────────────────────────────────
+    decode("Integer/negate") = Integer/negate
+
+
+    ───────────────────────────────────────────
+    decode("Integer/clamp") = Integer/clamp
 
 
     ───────────────────────────────────────
