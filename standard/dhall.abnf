@@ -446,7 +446,7 @@ natural-literal = 1*DIGIT
 integer-literal = ( "+" / "-" ) natural-literal
 
 ; If the identifier matches one of the names in the `builtin` rule, then it is a
-; builtin, and should be treated as the curresponding item in the list of
+; builtin, and should be treated as the corresponding item in the list of
 ; "Reserved identifiers for builtins" specified in the `standard/README.md` document.
 ; It is a syntax error to specify a de Bruijn index in this case.
 ; Otherwise, this is a variable with name and index matching the label and index.
