@@ -6,7 +6,7 @@ let Natural/lessThanEqual =
       ? ../Natural/lessThanEqual
 
 let Integer/abs =
-        ./abs sha256:4ebfb36ab84827d386ab728269ccf02b10c68c2ad42129ceb8e8b4e6a065c4b8
+        ./abs sha256:35212fcbe1e60cb95b033a4a9c6e45befca4a298aa9919915999d09e69ddced1
       ? ./abs
 
 let subtract

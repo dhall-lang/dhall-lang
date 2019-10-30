@@ -1,14 +1,10 @@
 {-
 Returns the absolute value of an `Integer`, i.e. its non-negative value.
 -}
-let Integer/negative =
-        ./negative sha256:23e4b3c61eea9e878a7f83bf25fd0ea2c6a6d60174890d65be885828b690a570
-      ? ./negative
-
 let abs
     : Integer → Natural
     =   λ(n : Integer)
-      →       if Integer/negative n
+      →       if Natural/isZero (Integer/clamp n)
         
         then  Integer/clamp (Integer/negate n)
         

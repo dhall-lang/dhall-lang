@@ -1,5 +1,5 @@
 { abs =
-      ./abs sha256:4ebfb36ab84827d386ab728269ccf02b10c68c2ad42129ceb8e8b4e6a065c4b8
+      ./abs sha256:35212fcbe1e60cb95b033a4a9c6e45befca4a298aa9919915999d09e69ddced1
     ? ./abs
 , add =
       ./add sha256:de6a9c0899906d9e77206fa1a114780f4c366d357aac8c78a6997c9df36ffa71
@@ -29,12 +29,12 @@
       ./show sha256:ecf8b0594cd5181bc45d3b7ea0d44d3ba9ad5dac6ec17bb8968beb65f4b1baa9
     ? ./show
 , subtract =
-      ./subtract sha256:04eb5b3cc68fa0613fc0e0f0de6c4fdd51e409ac487a206c013a23fbb90b30d2
+      ./subtract sha256:8de76d2e235eec1629750ae62e191f13631b36708bfda0425572d87e5a9a37e7
     ? ./subtract
 , toDouble =
       ./toDouble sha256:77bc5d635dc4d952f37cc96f2a681d5ac503b4e8b21fc00055b1946adb5beda7
     ? ./toDouble
 , toNatural =
-      ./toNatural sha256:aa01ae9c9edb41c49094045159c2ea2fca694c7b8e6410881287c3e03318bb13
+      ./toNatural sha256:43efbb17e2168c6cd9784066ece0b191bde9a93344dc380cfc2f79e324df1a25
     ? ./toNatural
 }
