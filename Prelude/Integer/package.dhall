@@ -2,25 +2,25 @@
       ./abs sha256:35212fcbe1e60cb95b033a4a9c6e45befca4a298aa9919915999d09e69ddced1
     ? ./abs
 , add =
-      ./add sha256:de6a9c0899906d9e77206fa1a114780f4c366d357aac8c78a6997c9df36ffa71
+      ./add sha256:96f1ae60f958febc911935ac4aa2685394642b116b7bddcec7e1ed201a69ed2c
     ? ./add
 , clamp =
       ./clamp sha256:ea42096cf3e024fadfaf910e0b839005b0ea7514fff11e5a3950a77694d9c5d2
     ? ./clamp
 , equal =
-      ./equal sha256:c7ee490e8a829cba9bfb0a89530f224a6288b996dae10b720b7c86752e2c4189
+      ./equal sha256:908a9d1b6ab2763b8d4c99b7df5c9b7b3b7b757e53fae36fb41e8670669c595e
     ? ./equal
 , greaterThan =
-      ./greaterThan sha256:3ddaecb2cf10dd1b853350b18099a639e4b4cc2c59dc9661998be3179404a53b
+      ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
     ? ./greaterThan
 , greaterThanEqual =
-      ./greaterThanEqual sha256:1735f32b4b55c44d6f4ef046d7bf813b942630517eb66866eae4714d2dce0e4d
+      ./greaterThanEqual sha256:cede1f63b58cb26623148ef741f18e6476ad71d9d541dd54be2b1ec4972a4ad0
     ? ./greaterThanEqual
 , lessThan =
-      ./lessThan sha256:b0cadcb59ab1cfa18a968c87e08d9b99028defe71db3c9f3e627cecb026207cb
+      ./lessThan sha256:14cc3bc6ca8757f7c3af338f079fcc18e0c7ee3ed0d20914a9693aec81ae628d
     ? ./lessThan
 , lessThanEqual =
-      ./lessThanEqual sha256:398756d90c99076b73035df21f26285ae0dd776931416e98d7ddcab9e31e0be4
+      ./lessThanEqual sha256:a849203a9cd270210588f9db23e02b819117a997df1c8131b6f9a634cb2e5c8d
     ? ./lessThanEqual
 , negate =
       ./negate sha256:2373c992e1de93634bc6a8781eb073b2a92a70170133e49762a785f3a136df5d
@@ -35,6 +35,6 @@
       ./toDouble sha256:77bc5d635dc4d952f37cc96f2a681d5ac503b4e8b21fc00055b1946adb5beda7
     ? ./toDouble
 , toNatural =
-      ./toNatural sha256:43efbb17e2168c6cd9784066ece0b191bde9a93344dc380cfc2f79e324df1a25
+      ./toNatural sha256:68dabff205ffdb1ca0df3dabc561ce717b7ae6521c9da9eed893b923ae5a0e1c
     ? ./toNatural
 }

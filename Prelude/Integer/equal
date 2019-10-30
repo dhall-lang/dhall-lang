@@ -2,7 +2,7 @@
 `equal` checks if two Integers are equal.
 -}
 let greaterThan =
-        ./greaterThan sha256:3ddaecb2cf10dd1b853350b18099a639e4b4cc2c59dc9661998be3179404a53b
+        ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
       ? ./greaterThan
 
 let Bool/not =

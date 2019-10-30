@@ -2,7 +2,7 @@
 `add m n` computes `m + n`.
 -}
 let Integer/subtract =
-        ./subtract sha256:04eb5b3cc68fa0613fc0e0f0de6c4fdd51e409ac487a206c013a23fbb90b30d2
+        ./subtract sha256:8de76d2e235eec1629750ae62e191f13631b36708bfda0425572d87e5a9a37e7
       ? ./subtract
 
 let add
