@@ -30,6 +30,7 @@
     , greaterThanEqual : Integer → Integer → Bool
     , lessThan : Integer → Integer → Bool
     , lessThanEqual : Integer → Integer → Bool
+    , multiply : Integer → Integer → Integer
     , negate : Integer → Integer
     , show : Integer → Text
     , subtract : Integer → Integer → Integer
