@@ -1,0 +1,145 @@
+{- Render a `JSON` value as `Text`
+
+   This is useful for debugging `JSON` values or for tests.  For anything
+   more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
+
+```
+let JSON = ./package.dhall
+
+in  JSON.renderYAML
+    ( JSON.array
+      [ JSON.bool True
+      , JSON.string "Hello"
+      , JSON.object
+        [ { mapKey = "foo", mapValue = JSON.null       }
+        , { mapKey = "bar", mapValue = JSON.number 1.0 }
+        ]
+      ]
+    )
+= "[ true, \"Hello\", { \"foo\": null, \"bar\": 1.0 } ]"
+```
+-}
+let JSON =
+        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+      ? ./Type
+
+let Text/concatSep = ../Text/concatSep
+
+let List/drop = ../List/drop
+
+let List/null = ../List/null
+
+let List/map = ../List/map
+
+let List/concat = ../List/concat
+
+let List/concatMap = ../List/concatMap
+
+let uncons =
+        λ(a : Type)
+      → λ(ls : List a)
+      → λ(r : Type)
+      → λ(nil : r)
+      → λ(cons : a → List a → r)
+      → Optional/fold
+          a
+          (List/head a ls)
+          r
+          (λ(head : a) → cons head (List/drop 1 a ls))
+          nil
+
+let Block = { head : Text, tail : List Text }
+
+let indentBlockWith =
+        λ(headIndent : Text)
+      → λ(tailIndent : Text)
+      → λ(block : Block)
+      → { head = headIndent ++ block.head
+        , tail = List/map Text Text (λ(t : Text) → tailIndent ++ t) block.tail
+        }
+
+let blockLines
+    : Block → List Text
+    = λ(block : Block) → List/concat Text [ [ block.head ], block.tail ]
+
+let concatBlocks
+    : Block → List Block → Block
+    =   λ(head : Block)
+      → λ(tail : List Block)
+      → { head = head.head
+        , tail =
+            List/concat
+              Text
+              [ head.tail, List/concatMap Block Text blockLines tail ]
+        }
+
+let manyBlocks
+    : Block → List Block → Block
+    =   λ(ifEmpty : Block)
+      → λ(blocks : List Block)
+      → uncons Block blocks Block ifEmpty concatBlocks
+
+let singleline
+    : Text → Block
+    = λ(text : Text) → { head = text, tail = [] : List Text }
+
+let indentKeyedBlock
+    : Text → Text → Text → Block → Block
+    =   λ(key : Text)
+      → λ(spacer : Text)
+      → λ(indentation : Text)
+      → λ(block : Block)
+      →       if List/null Text block.tail
+        
+        then  singleline (key ++ spacer ++ block.head)
+        
+        else  indentBlockWith
+                key
+                indentation
+                { head = "", tail = blockLines block }
+
+let blockToText
+    : Block → Text
+    = λ(block : Block) → Text/concatSep "\n" (blockLines block)
+
+let render
+    : JSON → Text
+    =   λ(json : JSON)
+      → let ObjectField = { mapKey : Text, mapValue : Block }
+        
+        in  blockToText
+              ( json
+                  Block
+                  { string = λ(x : Text) → singleline (Text/show x)
+                  , number = λ(x : Double) → singleline (Double/show x)
+                  , object =
+                        λ(o : List ObjectField)
+                      → let renderField
+                            : ObjectField → Block
+                            =   λ(e : ObjectField)
+                              → indentKeyedBlock
+                                  "${e.mapKey}:"
+                                  " "
+                                  "  "
+                                  e.mapValue
+                        
+                        in  manyBlocks
+                              (singleline "{}")
+                              (List/map ObjectField Block renderField o)
+                  , array =
+                        λ(elements : List Block)
+                      → manyBlocks
+                          (singleline "[]")
+                          ( List/map
+                              Block
+                              Block
+                              (indentBlockWith "- " "  ")
+                              elements
+                          )
+                  , bool =
+                      λ(x : Bool) → singleline (if x then "true" else "false")
+                  , null = singleline "null"
+                  }
+              )
+
+in  render
