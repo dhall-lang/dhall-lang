@@ -23,13 +23,16 @@
     }
 , Integer :
     { abs : Integer → Natural
+    , add : Integer → Integer → Integer
     , clamp : Integer → Natural
+    , equal : Integer → Integer → Bool
+    , greaterThan : Integer → Integer → Bool
+    , greaterThanEqual : Integer → Integer → Bool
+    , lessThan : Integer → Integer → Bool
+    , lessThanEqual : Integer → Integer → Bool
     , negate : Integer → Integer
-    , negative : Integer → Bool
-    , nonNegative : Integer → Bool
-    , nonPositive : Integer → Bool
-    , positive : Integer → Bool
     , show : Integer → Text
+    , subtract : Integer → Integer → Integer
     , toDouble : Integer → Double
     , toNatural : Integer → Optional Natural
     }

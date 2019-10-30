@@ -1,0 +1,26 @@
+{-
+`equal` checks if two Integers are equal.
+-}
+let greaterThan =
+        ./greaterThan sha256:3ddaecb2cf10dd1b853350b18099a639e4b4cc2c59dc9661998be3179404a53b
+      ? ./greaterThan
+
+let Bool/not =
+        ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
+      ? ../Bool/not
+
+let equal
+    : Integer → Integer → Bool
+    =   λ(a : Integer)
+      → λ(b : Integer)
+      → Bool/not (greaterThan a b || greaterThan b a)
+
+let example0 = assert : equal +5 +5 ≡ True
+
+let example1 = assert : equal +5 +6 ≡ False
+
+let example2 = assert : equal +5 -5 ≡ False
+
+let example3 = assert : equal -5 -5 ≡ True
+
+in  equal

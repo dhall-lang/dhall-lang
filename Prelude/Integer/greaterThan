@@ -1,0 +1,32 @@
+{-
+`greaterThan` checks if one Integer is greater than another.
+-}
+let Integer/subtract =
+        ./subtract sha256:04eb5b3cc68fa0613fc0e0f0de6c4fdd51e409ac487a206c013a23fbb90b30d2
+      ? ./subtract
+
+let Bool/not =
+        ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
+      ? ../Bool/not
+
+let greaterThan
+    : Integer → Integer → Bool
+    =   λ(x : Integer)
+      → λ(y : Integer)
+      → Bool/not (Natural/isZero (Integer/clamp (Integer/subtract y x)))
+
+let example0 = assert : greaterThan +5 +6 ≡ False
+
+let example1 = assert : greaterThan +5 +5 ≡ False
+
+let example2 = assert : greaterThan +5 +4 ≡ True
+
+let example3 = assert : greaterThan -5 +8 ≡ False
+
+let example4 = assert : greaterThan -5 -3 ≡ False
+
+let example5 = assert : greaterThan -3 -5 ≡ True
+
+let example6 = assert : greaterThan -3 -3 ≡ False
+
+in  greaterThan
