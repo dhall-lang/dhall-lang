@@ -421,6 +421,14 @@ The remaining rules are:
     Integer/show[x@n ≔ e] = Integer/show
 
 
+    ────────────────────────────────────────
+    Integer/negate[x@n ≔ e] = Integer/negate
+
+
+    ──────────────────────────────────────
+    Integer/clamp[x@n ≔ e] = Integer/clamp
+
+
     ──────────────────────────────────
     Double/show[x@n ≔ e] = Double/show
 
