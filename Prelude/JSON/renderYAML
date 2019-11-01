@@ -175,22 +175,44 @@ let renderYAML
               )
 
 let example0 =
-        assert
-      :   renderYAML
-            ( ./array
-                [ ./bool True
-                , ./string "Hello"
-                , ./object
-                    [ { mapKey = "foo", mapValue = ./null }
-                    , { mapKey = "bar", mapValue = ./number 1.0 }
+      let JSON =
+            { array =
+                  ./array sha256:3a4c06cf135f4c80619e48c0808f6600d19782705bc59ee7c27cfc2e0f097eb7
+                ? ./array
+            , bool =
+                  ./bool sha256:018d29f030b45d642aba6bb81bf2c19a7bf183684612ce7a2c8afd2099783c48
+                ? ./bool
+            , string =
+                  ./string sha256:7a8ac435d30a96092d72889f3d48eabf7cba47ecf553fd6bc07a79fdf473e8d2
+                ? ./string
+            , object =
+                  ./object sha256:a4e047cf157c3971b026b3942a87d474c85950d9b9654f8ebc8631740abf75a9
+                ? ./object
+            , number =
+                  ./number sha256:534745568065ae19d2b0fe1d09eeb071e9717d0f392187eb0bc95f386b018bec
+                ? ./number
+            , null =
+                  ./null sha256:52c1d45ab2ca54875b444bfb1afdea497c8c9b0652e5044fafd8b16d97f4b78d
+                ? ./null
+            , renderYAML = renderYAML
+            }
+      
+      in    assert
+          :   JSON.renderYAML
+                ( JSON.array
+                    [ JSON.bool True
+                    , JSON.string "Hello"
+                    , JSON.object
+                        [ { mapKey = "foo", mapValue = JSON.null }
+                        , { mapKey = "bar", mapValue = JSON.number 1.0 }
+                        ]
                     ]
-                ]
-            )
-        ≡ ''
-          - true
-          - "Hello"
-          - ! "foo": null
-            ! "bar": 1.0
-          ''
+                )
+            ≡ ''
+              - true
+              - "Hello"
+              - ! "foo": null
+                ! "bar": 1.0
+              ''
 
 in  renderYAML
