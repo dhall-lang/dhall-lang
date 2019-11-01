@@ -116,18 +116,20 @@ let render
                   , number = λ(x : Double) → singleLine (Double/show x)
                   , object =
                         λ(fields : List ObjectField)
-                      → let renderField
-                            : ObjectField → Block
-                            =   λ(e : ObjectField)
-                              → indentKeyedBlock
-                                  "! ${Text/show e.mapKey}:"
-                                  " "
-                                  "  "
-                                  e.mapValue
-                        
-                        in  manyBlocks
-                              (singleLine "{}")
-                              (List/map ObjectField Block renderField fields)
+                      → manyBlocks
+                          (singleLine "{}")
+                          ( List/map
+                              ObjectField
+                              Block
+                              (   λ(e : ObjectField)
+                                → indentKeyedBlock
+                                    "! ${Text/show e.mapKey}:"
+                                    " "
+                                    "  "
+                                    e.mapValue
+                              )
+                              fields
+                          )
                   , array =
                         λ(elements : List Block)
                       → manyBlocks
