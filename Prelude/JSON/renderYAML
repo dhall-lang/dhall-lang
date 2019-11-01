@@ -19,8 +19,9 @@ in  JSON.renderYAML
 = "[ true, \"Hello\", { \"foo\": null, \"bar\": 1.0 } ]"
 ```
 -}
-let JSON =
-        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+let JSON
+    : Type
+    =   ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
       ? ./Type
 
 let Text/concatSep =
@@ -47,7 +48,9 @@ let Optional/map =
         ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
       ? ../Optional/map
 
-let NonEmpty = λ(a : Type) → { head : a, tail : List a }
+let NonEmpty
+    : Type → Type
+    = λ(a : Type) → { head : a, tail : List a }
 
 let uncons
     : ∀(a : Type) → List a → Optional (NonEmpty a)
@@ -63,8 +66,9 @@ let nonEmptyToList
     : ∀(a : Type) → NonEmpty a → List a
     = λ(a : Type) → λ(nonEmpty : NonEmpty a) → [ nonEmpty.head ] # nonEmpty.tail
 
-let concatNonEmpty =
-        λ(a : Type)
+let concatNonEmpty
+    : ∀(a : Type) → NonEmpty (NonEmpty a) → NonEmpty a
+    =   λ(a : Type)
       → λ(lss : NonEmpty (NonEmpty a))
       → { head = lss.head.head
         , tail =
@@ -72,10 +76,13 @@ let concatNonEmpty =
             # List/concatMap (NonEmpty a) a (nonEmptyToList a) lss.tail
         }
 
-let Block = NonEmpty Text
+let Block
+    : Type
+    = NonEmpty Text
 
-let indentBlockWith =
-        λ(headIndent : Text)
+let indentBlockWith
+    : Text → Text → Block → Block
+    =   λ(headIndent : Text)
       → λ(tailIndent : Text)
       → λ(block : Block)
       → { head = headIndent ++ block.head
