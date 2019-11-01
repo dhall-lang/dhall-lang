@@ -23,17 +23,29 @@ let JSON =
         ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
       ? ./Type
 
-let Text/concatSep = ../Text/concatSep
+let Text/concatSep =
+        ../Text/concatSep sha256:e4401d69918c61b92a4c0288f7d60a6560ca99726138ed8ebc58dca2cd205e58
+      ? ../Text/concatSep
 
-let List/drop = ../List/drop
+let List/drop =
+        ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+      ? ../List/drop
 
-let List/null = ../List/null
+let List/null =
+        ../List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
+      ? ../List/null
 
-let List/map = ../List/map
+let List/map =
+        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map
 
-let List/concatMap = ../List/concatMap
+let List/concatMap =
+        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap
 
-let Optional/map = ../Optional/map
+let Optional/map =
+        ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
+      ? ../Optional/map
 
 let NonEmpty = λ(a : Type) → { head : a, tail : List a }
 
