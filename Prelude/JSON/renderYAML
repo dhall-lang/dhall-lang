@@ -1,7 +1,11 @@
-{- Render a `JSON` value as `Text`
+{- Render a `JSON` value as `Text` in YAML format.
 
-   This is useful for debugging `JSON` values or for tests.  For anything
-   more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
+   The generated YAML text will only contain escaped object keys and
+   string values and might therefore not be very human readable.
+
+   However, it is useful for debugging `JSON` values or for tests.
+   For anything more sophisticated you should use `dhall-to-json` or
+   `dhall-to-yaml`.
 
 ```
 let JSON = ./package.dhall
@@ -16,7 +20,12 @@ in  JSON.renderYAML
         ]
       ]
     )
-= "[ true, \"Hello\", { \"foo\": null, \"bar\": 1.0 } ]"
+= ''
+  - true
+  - "Hello"
+  - ! "foo": null
+    ! "bar": 1.0
+  ''
 ```
 -}
 let JSON
@@ -123,7 +132,7 @@ let blockToText
     : Block → Text
     = λ(block : Block) → Text/concatSep "\n" (nonEmptyToList Text block) ++ "\n"
 
-let render
+let renderYAML
     : JSON → Text
     =   λ(json : JSON)
       → let ObjectField = { mapKey : Text, mapValue : Block }
@@ -165,4 +174,23 @@ let render
                   }
               )
 
-in  render
+let example0 =
+        assert
+      :   renderYAML
+            ( ./array
+                [ ./bool True
+                , ./string "Hello"
+                , ./object
+                    [ { mapKey = "foo", mapValue = ./null }
+                    , { mapKey = "bar", mapValue = ./number 1.0 }
+                    ]
+                ]
+            )
+        ≡ ''
+          - true
+          - "Hello"
+          - ! "foo": null
+            ! "bar": 1.0
+          ''
+
+in  renderYAML
