@@ -31,24 +31,36 @@ let List/null = ../List/null
 
 let List/map = ../List/map
 
-let List/concat = ../List/concat
-
 let List/concatMap = ../List/concatMap
 
-let uncons =
-        λ(a : Type)
-      → λ(ls : List a)
-      → λ(r : Type)
-      → λ(nil : r)
-      → λ(cons : a → List a → r)
-      → Optional/fold
-          a
-          (List/head a ls)
-          r
-          (λ(head : a) → cons head (List/drop 1 a ls))
-          nil
+let Optional/map = ../Optional/map
 
-let Block = { head : Text, tail : List Text }
+let NonEmpty = λ(a : Type) → { head : a, tail : List a }
+
+let uncons
+    : ∀(a : Type) → List a → Optional (NonEmpty a)
+    =   λ(a : Type)
+      → λ(ls : List a)
+      → Optional/map
+          a
+          (NonEmpty a)
+          (λ(head : a) → { head = head, tail = List/drop 1 a ls })
+          (List/head a ls)
+
+let nonEmptyToList
+    : ∀(a : Type) → NonEmpty a → List a
+    = λ(a : Type) → λ(nonEmpty : NonEmpty a) → [ nonEmpty.head ] # nonEmpty.tail
+
+let concatNonEmpty =
+        λ(a : Type)
+      → λ(lss : NonEmpty (NonEmpty a))
+      → { head = lss.head.head
+        , tail =
+              lss.head.tail
+            # List/concatMap (NonEmpty a) a (nonEmptyToList a) lss.tail
+        }
+
+let Block = NonEmpty Text
 
 let indentBlockWith =
         λ(headIndent : Text)
@@ -58,28 +70,18 @@ let indentBlockWith =
         , tail = List/map Text Text (λ(t : Text) → tailIndent ++ t) block.tail
         }
 
-let blockLines
-    : Block → List Text
-    = λ(block : Block) → List/concat Text [ [ block.head ], block.tail ]
-
-let concatBlocks
-    : Block → List Block → Block
-    =   λ(head : Block)
-      → λ(tail : List Block)
-      → { head = head.head
-        , tail =
-            List/concat
-              Text
-              [ head.tail, List/concatMap Block Text blockLines tail ]
-        }
-
 let manyBlocks
     : Block → List Block → Block
     =   λ(ifEmpty : Block)
       → λ(blocks : List Block)
-      → uncons Block blocks Block ifEmpty concatBlocks
+      → Optional/fold
+          (NonEmpty Block)
+          (uncons Block blocks)
+          Block
+          (concatNonEmpty Text)
+          ifEmpty
 
-let singleline
+let singleLine
     : Text → Block
     = λ(text : Text) → { head = text, tail = [] : List Text }
 
@@ -91,16 +93,16 @@ let indentKeyedBlock
       → λ(block : Block)
       →       if List/null Text block.tail
         
-        then  singleline (key ++ spacer ++ block.head)
+        then  singleLine (key ++ spacer ++ block.head)
         
         else  indentBlockWith
                 key
                 indentation
-                { head = "", tail = blockLines block }
+                { head = "", tail = nonEmptyToList Text block }
 
 let blockToText
     : Block → Text
-    = λ(block : Block) → Text/concatSep "\n" (blockLines block)
+    = λ(block : Block) → Text/concatSep "\n" (nonEmptyToList Text block) ++ "\n"
 
 let render
     : JSON → Text
@@ -110,10 +112,10 @@ let render
         in  blockToText
               ( json
                   Block
-                  { string = λ(x : Text) → singleline (Text/show x)
-                  , number = λ(x : Double) → singleline (Double/show x)
+                  { string = λ(x : Text) → singleLine (Text/show x)
+                  , number = λ(x : Double) → singleLine (Double/show x)
                   , object =
-                        λ(o : List ObjectField)
+                        λ(fields : List ObjectField)
                       → let renderField
                             : ObjectField → Block
                             =   λ(e : ObjectField)
@@ -124,12 +126,12 @@ let render
                                   e.mapValue
                         
                         in  manyBlocks
-                              (singleline "{}")
-                              (List/map ObjectField Block renderField o)
+                              (singleLine "{}")
+                              (List/map ObjectField Block renderField fields)
                   , array =
                         λ(elements : List Block)
                       → manyBlocks
-                          (singleline "[]")
+                          (singleLine "[]")
                           ( List/map
                               Block
                               Block
@@ -137,8 +139,8 @@ let render
                               elements
                           )
                   , bool =
-                      λ(x : Bool) → singleline (if x then "true" else "false")
-                  , null = singleline "null"
+                      λ(x : Bool) → singleLine (if x then "true" else "false")
+                  , null = singleLine "null"
                   }
               )
 
