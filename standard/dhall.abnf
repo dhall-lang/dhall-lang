@@ -257,9 +257,38 @@ double-quote-escaped =
 ;
 ; * Surrogate pairs (i.e. `%xD800-DFFF`)
 ; * Non-characters (i.e. `%xNFFFE-xNFFFF` for each `N` in `{ 0 .. F }`)
+unicode-escape = valid-unbraced-escape / "{" valid-braced-escape "}"
+
+; Rule for excluding codepoints that are non-characters
+hex-dig-through-d = DIGIT / "A" / "B" / "C" / "D"
+
+; All valid last 4 digits for unicode codepoints (outside of Plane 0)
+valid-unicode-suffix = (hex-dig-through-d / "E") 3HEXDIG ; 0000-EFFF
+                     / "F" 2HEXDIG hex-dig-through-d ; F000-FFFD
+
+; All 4-hex digit unicode escape sequences that are not:
 ;
-; See the `valid-non-ascii` rule for the exact ranges that are not allowed
-unicode-escape = 4HEXDIG / "{" 1*HEXDIG "}"
+; * Surrogate pairs (i.e. `%xD800-DFFF`)
+; * Non-characters (i.e. `%xFFFE-FFFF`)
+;
+valid-unbraced-escape = (DIGIT / "A" / "B" / "C") 3HEXDIG ; %x0000-CFFF
+                      / "D" ("0" / "1" / "2" / "3" / "4" / "5" / "6" / "7") HEXDIG HEXDIG ; %xD000-D7FF
+                      ; %xD800-DFFF Surrogate pairs
+                      / "E" 3HEXDIG ; %xE000-EFFF
+                      /  "F" 2HEXDIG hex-dig-through-d ; %xF000-FFFD
+                      ; %xFFFE-FFFF Non-characters
+
+; All 1-6 digit unicode escape sequences that are not:
+;
+; * Surrogate pairs (i.e. `%xD800-DFFF`)
+; * Non-characters (i.e. `%xNFFFE-NFFFF` for each `N` in `{ 0 .. F }` or `%x10FFFE-10FFFF`)
+;
+valid-braced-codepoint = 1*3HEXDIG ; %x000-FFF
+                       / valid-unbraced-escape ; %x0000-FFFD (excluding surrogate pairs) (Plane 0)
+                       / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") valid-unicode-suffix; %xN0000-NFFFD for each `N` in `{ 0 .. F }` (Planes 1-15) and %x100000-10FFFD (Plane 16)
+
+; Allow zero padding valid codepoints
+valid-braced-escape = *"0" valid-braced-codepoint
 
 ; Printable characters except double quote and backslash
 double-quote-char =
