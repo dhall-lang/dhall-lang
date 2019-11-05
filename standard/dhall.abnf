@@ -253,10 +253,22 @@ double-quote-escaped =
     / %x74                 ; 't'    tab             U+0009
     / %x75 unicode-escape  ; 'uXXXX' / 'u{XXXX}'    U+XXXX
 
-; The parser must also reject Unicode escape sequences that are either:
+; Valid Unicode escape sequences are as follows:
 ;
-; * Surrogate pairs (i.e. `%xD800-DFFF`)
-; * Non-characters (i.e. `%xNFFFE-xNFFFF` for each `N` in `{ 0 .. F }`)
+; * Exactly 4 hexadecimal digits without braces:
+;       `\uXXXX`
+; * 1-6 hexadecimal digits within braces (with optional zero padding):
+;       `\u{XXXX}`, `\u{000X}`, `\u{XXXXX}`, `\u{00000XXXXX}`, etc.
+;   Any number of leading zeros are allowed within the braces preceding the 1-6
+;   digits specifying the codepoint.
+;
+; From these sequences, the parser must also reject any codepoints that are in
+; the following ranges:
+;
+; * Surrogate pairs: `%xD800-DFFF`
+; * Non-characters: `%xNFFFE-NFFFF` / `%x10FFFE-10FFFF` for `N` in `{ 0 .. F }`
+;
+; See the `valid-non-ascii` rule for the exact ranges that are not allowed
 unicode-escape = valid-unbraced-escape / "{" valid-braced-escape "}"
 
 ; Rule for excluding codepoints that are non-characters
@@ -278,11 +290,12 @@ valid-unbraced-escape = (DIGIT / "A" / "B" / "C") 3HEXDIG ; %x0000-CFFF
                       /  "F" 2HEXDIG hex-dig-through-d ; %xF000-FFFD
                       ; %xFFFE-FFFF Non-characters
 
-; All 1-6 digit unicode escape sequences that are not:
+; All 1-6 digit unicode codepoints that are not:
 ;
-; * Surrogate pairs (i.e. `%xD800-DFFF`)
-; * Non-characters (i.e. `%xNFFFE-NFFFF` for each `N` in `{ 0 .. F }` or `%x10FFFE-10FFFF`)
+; * Surrogate pairs: `%xD800-DFFF`
+; * Non-characters: `%xNFFFE-NFFFF` / `%x10FFFE-10FFFF` for `N` in `{ 0 .. F }`
 ;
+; See the `valid-non-ascii` rule for the exact ranges that are not allowed
 valid-braced-codepoint = 1*3HEXDIG ; %x000-FFF
                        / valid-unbraced-escape ; %x0000-FFFD (excluding surrogate pairs) (Plane 0)
                        / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") valid-unicode-suffix; %xN0000-NFFFD for each `N` in `{ 0 .. F }` (Planes 1-15) and %x100000-10FFFD (Plane 16)
