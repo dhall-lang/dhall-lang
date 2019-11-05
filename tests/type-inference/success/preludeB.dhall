@@ -22,20 +22,20 @@
         → C
     }
 , Integer :
-    { abs : Integer → Natural
-    , add : Integer → Integer → Integer
+    { abs : ∀(n : Integer) → Natural
+    , add : ∀(m : Integer) → ∀(n : Integer) → Integer
     , clamp : Integer → Natural
-    , equal : Integer → Integer → Bool
-    , greaterThan : Integer → Integer → Bool
-    , greaterThanEqual : Integer → Integer → Bool
-    , lessThan : Integer → Integer → Bool
-    , lessThanEqual : Integer → Integer → Bool
-    , multiply : Integer → Integer → Integer
+    , equal : ∀(a : Integer) → ∀(b : Integer) → Bool
+    , greaterThan : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , greaterThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , lessThan : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , lessThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , multiply : ∀(m : Integer) → ∀(n : Integer) → Integer
     , negate : Integer → Integer
     , show : Integer → Text
-    , subtract : Integer → Integer → Integer
+    , subtract : ∀(m : Integer) → ∀(n : Integer) → Integer
     , toDouble : Integer → Double
-    , toNatural : Integer → Optional Natural
+    , toNatural : ∀(n : Integer) → Optional Natural
     }
 , JSON :
     { Nesting : Type
