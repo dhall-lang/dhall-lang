@@ -8,7 +8,7 @@
       ./clamp sha256:ea42096cf3e024fadfaf910e0b839005b0ea7514fff11e5a3950a77694d9c5d2
     ? ./clamp
 , equal =
-      ./equal sha256:908a9d1b6ab2763b8d4c99b7df5c9b7b3b7b757e53fae36fb41e8670669c595e
+      ./equal sha256:e4414b9eef4142eed6bb0b52eb6fd0074210b68d210e96dd5161697b0f14426a
     ? ./equal
 , greaterThan =
       ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
