@@ -62,8 +62,8 @@ let
           touch $out
         '';
 
-    expected-diagnostic-files =
-      pkgsNew.runCommand "expected-diagnostic-files" {} ''
+    expected-test-files =
+      pkgsNew.runCommand "expected-test-files" {} ''
         ${pkgsNew.rsync}/bin/rsync --archive ${./tests}/ "$out"
 
         ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
@@ -71,6 +71,8 @@ let
         for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f -name '*.dhallb'); do
           ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
         done
+
+        ${pkgsNew.dhall}/bin/dhall type --file "${./.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
       '';
 
     expected-prelude = pkgsNew.runCommand "expected-prelude" {} ''
@@ -84,8 +86,8 @@ let
       done
     '';
 
-    diagnostic-files-lint = pkgsNew.runCommand "diagnostic-files-lint" {} ''
-      ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-diagnostic-files}/ ./tests.expected
+    test-files-lint = pkgsNew.runCommand "test-files-lint" {} ''
+      ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-test-files}/ ./tests.expected
       ${pkgsNew.rsync}/bin/rsync --archive ${./tests}/ ./tests.actual
 
       ${pkgsNew.diffutils}/bin/diff --recursive ./tests.{actual,expected}
@@ -134,10 +136,10 @@ in
         pkgs.dhall-grammar
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
-        pkgs.diagnostic-files-lint
+        pkgs.test-files-lint
         rev
       ];
     };
 
-    inherit (pkgs) expected-prelude expected-diagnostic-files;
+    inherit (pkgs) expected-prelude expected-test-files;
   }
