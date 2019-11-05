@@ -9,8 +9,8 @@
 -}
 
 let JSON =
-        ./build sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
-      ? ./build
+        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+      ? ./core.dhall
 
 let Text/concatSep =
         ../Text/concatSep sha256:e4401d69918c61b92a4c0288f7d60a6560ca99726138ed8ebc58dca2cd205e58

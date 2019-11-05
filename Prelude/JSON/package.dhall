@@ -8,6 +8,6 @@
         ./omitNullFields sha256:c28270c553f48c406bd161c61776963315e278af5dae9331c4a320c3f4ecb4ec
       ? ./omitNullFields
   }
-∧ (   ./build sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
-    ? ./build
+∧ (   ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+    ? ./core.dhall
   )

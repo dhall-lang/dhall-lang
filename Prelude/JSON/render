@@ -4,8 +4,8 @@
    more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
 -}
 let JSON =
-        ./build sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
-      ? ./build
+        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+      ? ./core.dhall
 
 let Text/concatMapSep =
         ../Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
