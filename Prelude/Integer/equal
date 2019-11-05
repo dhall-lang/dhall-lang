@@ -13,7 +13,7 @@ let equal
     : Integer → Integer → Bool
     =   λ(a : Integer)
       → λ(b : Integer)
-      → Bool/not (greaterThan a b || greaterThan b a)
+      → Bool/not (greaterThan a b) && Bool/not (greaterThan b a)
 
 let example0 = assert : equal +5 +5 ≡ True
 
