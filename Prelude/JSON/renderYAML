@@ -1,0 +1,175 @@
+{- Render a `JSON` value as `Text` in YAML format.
+
+   The generated YAML text will only contain escaped object keys and
+   string values and might therefore not be very human readable.
+
+   However, it is useful for debugging `JSON` values or for tests.
+   For anything more sophisticated you should use `dhall-to-json` or
+   `dhall-to-yaml`.
+-}
+
+let JSON =
+        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+      ? ./core.dhall
+
+let Text/concatSep =
+        ../Text/concatSep sha256:e4401d69918c61b92a4c0288f7d60a6560ca99726138ed8ebc58dca2cd205e58
+      ? ../Text/concatSep
+
+let List/drop =
+        ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+      ? ../List/drop
+
+let List/null =
+        ../List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
+      ? ../List/null
+
+let List/map =
+        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map
+
+let List/concatMap =
+        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap
+
+let Optional/map =
+        ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
+      ? ../Optional/map
+
+let NonEmpty
+    : Type → Type
+    = λ(a : Type) → { head : a, tail : List a }
+
+let uncons
+    : ∀(a : Type) → List a → Optional (NonEmpty a)
+    =   λ(a : Type)
+      → λ(ls : List a)
+      → Optional/map
+          a
+          (NonEmpty a)
+          (λ(head : a) → { head = head, tail = List/drop 1 a ls })
+          (List/head a ls)
+
+let nonEmptyToList
+    : ∀(a : Type) → NonEmpty a → List a
+    = λ(a : Type) → λ(nonEmpty : NonEmpty a) → [ nonEmpty.head ] # nonEmpty.tail
+
+let concatNonEmpty
+    : ∀(a : Type) → NonEmpty (NonEmpty a) → NonEmpty a
+    =   λ(a : Type)
+      → λ(lss : NonEmpty (NonEmpty a))
+      → { head = lss.head.head
+        , tail =
+              lss.head.tail
+            # List/concatMap (NonEmpty a) a (nonEmptyToList a) lss.tail
+        }
+
+let Block
+    : Type
+    = NonEmpty Text
+
+let indentBlockWith
+    : Text → Text → Block → Block
+    =   λ(headIndent : Text)
+      → λ(tailIndent : Text)
+      → λ(block : Block)
+      → { head = headIndent ++ block.head
+        , tail = List/map Text Text (λ(t : Text) → tailIndent ++ t) block.tail
+        }
+
+let manyBlocks
+    : Block → List Block → Block
+    =   λ(ifEmpty : Block)
+      → λ(blocks : List Block)
+      → Optional/fold
+          (NonEmpty Block)
+          (uncons Block blocks)
+          Block
+          (concatNonEmpty Text)
+          ifEmpty
+
+let singleLine
+    : Text → Block
+    = λ(text : Text) → { head = text, tail = [] : List Text }
+
+let indentKeyedBlock
+    : Text → Text → Text → Block → Block
+    =   λ(key : Text)
+      → λ(spacer : Text)
+      → λ(indentation : Text)
+      → λ(block : Block)
+      →       if List/null Text block.tail
+        
+        then  singleLine (key ++ spacer ++ block.head)
+        
+        else  indentBlockWith
+                key
+                indentation
+                { head = "", tail = nonEmptyToList Text block }
+
+let blockToText
+    : Block → Text
+    = λ(block : Block) → Text/concatSep "\n" (nonEmptyToList Text block) ++ "\n"
+
+let renderYAML
+    : JSON.Type → Text
+    =   λ(json : JSON.Type)
+      → let ObjectField = { mapKey : Text, mapValue : Block }
+        
+        in  blockToText
+              ( json
+                  Block
+                  { string = λ(x : Text) → singleLine (Text/show x)
+                  , number = λ(x : Double) → singleLine (Double/show x)
+                  , object =
+                        λ(fields : List ObjectField)
+                      → manyBlocks
+                          (singleLine "{}")
+                          ( List/map
+                              ObjectField
+                              Block
+                              (   λ(e : ObjectField)
+                                → indentKeyedBlock
+                                    "! ${Text/show e.mapKey}:"
+                                    " "
+                                    "  "
+                                    e.mapValue
+                              )
+                              fields
+                          )
+                  , array =
+                        λ(elements : List Block)
+                      → manyBlocks
+                          (singleLine "[]")
+                          ( List/map
+                              Block
+                              Block
+                              (indentBlockWith "- " "  ")
+                              elements
+                          )
+                  , bool =
+                      λ(x : Bool) → singleLine (if x then "true" else "false")
+                  , null = singleLine "null"
+                  }
+              )
+
+let example0 =
+        assert
+      :   renderYAML
+            ( JSON.array
+                [ JSON.bool True
+                , JSON.string "Hello"
+                , JSON.object
+                    [ { mapKey = "foo", mapValue = JSON.null }
+                    , { mapKey = "bar", mapValue = JSON.number 1.0 }
+                    ]
+                ]
+            )
+        ≡ ''
+          - true
+          - "Hello"
+          - ! "foo": null
+            ! "bar": 1.0
+          ''
+
+in  renderYAML
