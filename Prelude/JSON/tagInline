@@ -18,10 +18,11 @@ let tagInline
 let example0 =
       let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
       
-      in    tagInline "name" Example (Example.Left { foo = 2 })
-          ≡ { field = "name"
-            , nesting = Nesting.Inline
-            , contents = Example.Left { foo = 2 }
-            }
+      in    assert
+          :   tagInline "name" Example (Example.Left { foo = 2 })
+            ≡ { field = "name"
+              , nesting = Nesting.Inline
+              , contents = Example.Left { foo = 2 }
+              }
 
 in  tagInline

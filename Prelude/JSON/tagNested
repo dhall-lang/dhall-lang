@@ -22,10 +22,11 @@ let tagNested
 let example0 =
       let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
       
-      in    tagNested "value" "name" Example (Example.Left { foo = 2 })
-          ≡ { field = "name"
-            , nesting = Nesting.Nested "value"
-            , contents = Example.Left { foo = 2 }
-            }
+      in    assert
+          :   tagNested "value" "name" Example (Example.Left { foo = 2 })
+            ≡ { field = "name"
+              , nesting = Nesting.Nested "value"
+              , contents = Example.Left { foo = 2 }
+              }
 
 in  tagNested
