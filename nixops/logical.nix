@@ -163,6 +163,11 @@
 
         recommendedTlsSettings = true;
 
+        commonHttpConfig = ''
+          proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=prelude:1m inactive=1M;
+          proxy_cache_key "$uri";
+        '';
+
         virtualHosts =
           let
             latestRelease = "v11.1.0";
@@ -183,6 +188,7 @@
                     add_header 'Content-Length' 0;
                     return 204;
                   }
+
                   if ($request_method = 'GET') {
                     add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
                     add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
@@ -191,8 +197,21 @@
 
                   rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/${latestRelease}/Prelude redirect;
                   rewrite ^/(v[^/]+)$ https://github.com/dhall-lang/dhall-lang/tree/$1/Prelude redirect;
-                  rewrite ^/(v[^/]+)/(.*)$ /dhall-lang/dhall-lang/$1/Prelude/$2 break;
+
                   rewrite ^/(.*)$ /dhall-lang/dhall-lang/${latestRelease}/Prelude/$1 break;
+
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header Accept-Encoding "";
+
+                  proxy_cache prelude;
+                  add_header X-Proxy-Cache $upstream_cache_status;
+
+                  rewrite ^/(v[^/]+)/(.*)$ /dhall-lang/dhall-lang/$1/Prelude/$2 break;
                 '';
                 proxyPass = "https://raw.githubusercontent.com";
               };
