@@ -1,0 +1,30 @@
+{-
+`greaterThanEqual` checks if one Integer is greater than or equal to another.
+-}
+let greaterThan =
+        ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
+      ? ./greaterThan
+
+let Bool/not =
+        ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
+      ? ../Bool/not
+
+let greaterThanEqual
+    : Integer → Integer → Bool
+    = λ(x : Integer) → λ(y : Integer) → Bool/not (greaterThan y x)
+
+let example0 = assert : greaterThanEqual +5 +6 ≡ False
+
+let example1 = assert : greaterThanEqual +5 +5 ≡ True
+
+let example2 = assert : greaterThanEqual +5 +4 ≡ True
+
+let example3 = assert : greaterThanEqual -5 +8 ≡ False
+
+let example4 = assert : greaterThanEqual -5 -3 ≡ False
+
+let example5 = assert : greaterThanEqual -3 -5 ≡ True
+
+let example6 = assert : greaterThanEqual -3 -3 ≡ True
+
+in  greaterThanEqual

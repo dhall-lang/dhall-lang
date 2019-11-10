@@ -8,7 +8,7 @@
       ./Function/package.dhall sha256:74c3822b98b9d37f9f820af8e1a7ee790bcfac03050eabd45af4a255fb93e026
     ? ./Function/package.dhall
 , Integer =
-      ./Integer/package.dhall sha256:eb464566d3192dd16ce915a9bd874aaaad612d5c69beb356e5b7d2e0c4949dcf
+      ./Integer/package.dhall sha256:dbc82e5542a642b9372ce6126967028c0cade2b8ad6923312b086b686ad67e06
     ? ./Integer/package.dhall
 , List =
       ./List/package.dhall sha256:f0fdab7ab30415c128d89424589c42a15c835338be116fa14484086e4ba118d7
@@ -29,7 +29,7 @@
       ./Optional/package.dhall sha256:7608f2d38dabee8bfe6865b4adc11289059984220f422d2b023b15b3908f7a4c
     ? ./Optional/package.dhall
 , JSON =
-      ./JSON/package.dhall sha256:3b504fef8d9110bfb4960abb4d2b467e70ffe3f318e9c180e1c0b25c9425e4f9
+      ./JSON/package.dhall sha256:fc5c5b625ae0208437ba29e7ff58c3e228661c5c62f9790cf0280cbd306b1f46
     ? ./JSON/package.dhall
 , Text =
       ./Text/package.dhall sha256:0a0ad9f649aed94c2680491efb384925b5b2bb5b353f1b8a7eb134955c1ffe45

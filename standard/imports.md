@@ -417,7 +417,10 @@ A remote import such as `https://example.com/foo` is "referentially transparent"
 because the contents of the import does not change depending on which machine
 you import it from (with caveats, such as not tampering with DNS, etc.).
 
-All non-remote imports are "referentially opaque" because their contents depend
+A `missing` import is also referentially transparent because it always fails
+regardless of where you import `missing` from.
+
+All other imports are "referentially opaque" because their contents depend
 on which machine that you import them from.
 
 Referential transparency is checked using a judgment of the form:
@@ -434,11 +437,15 @@ There is no output: either the judgment matches or it does not.
 The rules for the referential transparency check ensure that a referentially
 transparent parent can never import a referentially opaque child.  In practice
 this means that remote imports can only import other remote imports (after
-both imports have been canonicalized):
+both imports have been canonicalized) or `missing` imports:
 
 
     ───────────────────────────────────────────────────────────────────────────────────────────
     referentiallySane(https://authority₀ directory₀ file₀, https://authority₁ directory₁ file₁)
+
+
+    ───────────────────────────────────────────────────────────────
+    referentiallySane(https://authority₀ directory₀ file₀, missing)
 
 
 ... whereas non-remote imports can import anything:
