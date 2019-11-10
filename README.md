@@ -1,4 +1,4 @@
-![](./img/dhall-logo.png)
+<img src="./img/dhall-logo.svg" width="600" alt="Dhall Logo">
 
 <head>
   <meta charset="UTF-8">
