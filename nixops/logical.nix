@@ -59,7 +59,7 @@
 
       loginAccounts = {
         "discourse@dhall-lang.org" = {
-          hashedPassword = "$6$sdBcX1Z1baN$RIg2hutTs/3YHNVVsJ6izfYnhihtS7ygILc/B8mSxiEYLHpajamPdjhyFYajfjeC5Hq8C/rPcyna0O/C3gcHt/";
+          hashedPassword = "$6$a0vB7DNq6iyKUW$U.OamanyfHzLt7.q.u61SIioGtd1k5ajtjVW/Tqv5Plbvxtv9/V2hJSqnBcVUFrog3F0vEEwFjvD3jX2Z5/F01";
 
           aliases = [ "postmaster@dhall-lang.org" ];
         };
