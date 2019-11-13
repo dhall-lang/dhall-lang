@@ -779,7 +779,8 @@ first-application-expression =
 
 import-expression = import / completion-expression
 
-completion-expression = selector-expression [ complete selector-expression ]
+completion-expression =
+    selector-expression [ whsp complete whsp selector-expression ]
 
 ; `record.field` extracts one field of a record
 ;
