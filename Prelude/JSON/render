@@ -2,34 +2,18 @@
 
    This is useful for debugging `JSON` values or for tests.  For anything
    more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
-
-```
-let JSON = ./package.dhall
-
-in  JSON.render
-    ( JSON.array
-      [ JSON.bool True
-      , JSON.string "Hello"
-      , JSON.object
-        [ { mapKey = "foo", mapValue = JSON.null       }
-        , { mapKey = "bar", mapValue = JSON.number 1.0 }
-        ]
-      ]
-    )
-= "[ true, \"Hello\", { \"foo\": null, \"bar\": 1.0 } ]"
-```
 -}
 let JSON =
-        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
-      ? ./Type
+        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+      ? ./core.dhall
 
 let Text/concatMapSep =
         ../Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
       ? ../Text/concatMapSep
 
 let render
-    : JSON → Text
-    =   λ(j : JSON)
+    : JSON.Type → Text
+    =   λ(j : JSON.Type)
       → j
           Text
           { string = λ(x : Text) → Text/show x
@@ -54,5 +38,19 @@ let render
           , bool = λ(x : Bool) → if x then "true" else "false"
           , null = "null"
           }
+
+let example0 =
+        assert
+      :   render
+            ( JSON.array
+                [ JSON.bool True
+                , JSON.string "Hello"
+                , JSON.object
+                    [ { mapKey = "foo", mapValue = JSON.null }
+                    , { mapKey = "bar", mapValue = JSON.number 1.0 }
+                    ]
+                ]
+            )
+        ≡ "[ true, \"Hello\", { \"foo\": null, \"bar\": 1.0 } ]"
 
 in  render
