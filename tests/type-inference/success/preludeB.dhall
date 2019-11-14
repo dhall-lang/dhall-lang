@@ -21,7 +21,22 @@
         → ∀(x : A)
         → C
     }
-, Integer : { show : Integer → Text, toDouble : Integer → Double }
+, Integer :
+    { abs : ∀(n : Integer) → Natural
+    , add : ∀(m : Integer) → ∀(n : Integer) → Integer
+    , clamp : Integer → Natural
+    , equal : ∀(a : Integer) → ∀(b : Integer) → Bool
+    , greaterThan : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , greaterThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , lessThan : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , lessThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
+    , multiply : ∀(m : Integer) → ∀(n : Integer) → Integer
+    , negate : Integer → Integer
+    , show : Integer → Text
+    , subtract : ∀(m : Integer) → ∀(n : Integer) → Integer
+    , toDouble : Integer → Double
+    , toNatural : ∀(n : Integer) → Optional Natural
+    }
 , JSON :
     { Nesting : Type
     , Tagged : ∀(a : Type) → Type

@@ -1,0 +1,43 @@
+{-
+`multiply m n` computes `m * n`.
+-}
+
+let Integer/abs =
+        ./abs sha256:35212fcbe1e60cb95b033a4a9c6e45befca4a298aa9919915999d09e69ddced1
+      ? ./abs
+
+let multiply
+    : Integer → Integer → Integer
+    =   λ(m : Integer)
+      → λ(n : Integer)
+      → let mAbs = Integer/abs m
+        
+        let nAbs = Integer/abs n
+        
+        let mNonPos = Natural/isZero (Integer/clamp m)
+        
+        let nNonPos = Natural/isZero (Integer/clamp n)
+        
+        in        if mNonPos == nNonPos
+            
+            then  Natural/toInteger (mAbs * nAbs)
+            
+            else  Integer/negate (Natural/toInteger (mAbs * nAbs))
+
+let example0 = assert : multiply +3 +5 ≡ +15
+
+let example1 = assert : multiply -3 +5 ≡ -15
+
+let example2 = assert : multiply -3 -5 ≡ +15
+
+let example3 = assert : multiply +0 +5 ≡ +0
+
+let example4 = assert : multiply +5 +0 ≡ +0
+
+let example5 = assert : multiply +0 +0 ≡ +0
+
+let example6 = assert : multiply +1 +5 ≡ +5
+
+let example7 = assert : multiply +3 -1 ≡ -3
+
+in  multiply
