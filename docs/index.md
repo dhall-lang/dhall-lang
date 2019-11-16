@@ -3,7 +3,15 @@ Dhall Documentation
 
 Welcome to the Dhall documentation!
 
-``` important:: This is a work in progress
+```eval_rst
+.. note::
+
+   This website's sources are located in the `dhall-lang project`_
+   docs directory. Please feel free to contribute, you can use the
+   `issue system`_ or send a **pull request**. Thanks!
+
+.. _`dhall-lang project`: https://github.com/dhall-lang/dhall-lang/tree/master/docs
+.. _`issue system`: https://github.com/dhall-lang/dhall-lang/issues/new
 ```
 
 The Dhall documentation is organized into the following [four sections][documentation]:
