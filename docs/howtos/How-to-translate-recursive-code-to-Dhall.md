@@ -42,7 +42,7 @@ result = everybody example
 
 ... which evaluates to:
 
-```bash
+```console
 $ ghci Example0.hs
 *Main> result
 ["John","Mary","Jane"]
@@ -90,7 +90,7 @@ in  result
 
 ... which evaluates to the same result:
 
-```bash
+```console
 $ dhall <<< './example0.dhall'
 List Text
 
@@ -201,7 +201,7 @@ result = toNatural example
 
 ... which produces this `result`:
 
-```bash
+```console
 $ ghci Example1.hs
 *Main> result
 3
@@ -232,7 +232,7 @@ in  result
 
 ... which produces the same `result`:
 
-```bash
+```console
 $ dhall <<< './example1.dhall'
 Natural
 
@@ -289,7 +289,7 @@ result = oddToNatural example
 
 ... which produces this `result`:
 
-```bash
+```console
 $ ghci Example2.hs
 *Main> result
 3
@@ -328,7 +328,7 @@ in  result
 
 ... which produces the same `result`:
 
-```bash
+```console
 $ dhall <<< './example2.dhall'
 Natural
 

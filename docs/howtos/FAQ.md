@@ -8,13 +8,13 @@ All top-level imports are relative to the current working directory.  For exampl
 have a file located at `./foo/bar.dhall` that tries to import `./foo/baz.dhall` via a
 relative import:
 
-```bash
+```console
 $ cat ./foo/bar.dhall
 ```
 ```haskell
 ./baz.dhall
 ```
-```bash
+```console
 $ cat ./foo/baz.dhall
 ```
 ```haskell
@@ -24,7 +24,7 @@ $ cat ./foo/baz.dhall
 ... that relative import will not work correctly if you feed that file to a Dhall
 interpreter via standard input:
 
-```bash
+```console
 $ dhall < ./foo/bar.dhall
 ↳ ./baz.dhall
 
@@ -38,7 +38,7 @@ process the relative import correctly.
 However, the relative import does work correctly if you pass the program using
 the `--file` flag, like this:
 
-```bash
+```console
 $ dhall --file ./foo/bar.dhall
 ```
 ```dhall
@@ -63,7 +63,7 @@ greet(greeting="Hola",name="Jane")
 
 ... which produces this result:
 
-```bash
+```console
 $ python greet.py
 Hello, John!
 Hola, John!
@@ -93,7 +93,7 @@ in  ''
 
 ... which produces the same result:
 
-```bash
+```console
 $ dhall text --file ./greet.dhall
 Hello, John!
 Hola, John!

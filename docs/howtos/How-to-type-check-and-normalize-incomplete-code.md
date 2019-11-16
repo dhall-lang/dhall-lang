@@ -44,7 +44,7 @@ The type `∀(a : Type) → a` is an impossible type that can never be created i
 so the `TODO` function argument can never be satisfied.  However, despite that we can
 still type-check the function and normalize the function body:
 
-```bash
+```console
 $ dhall --annotate <<< './example.dhall'
 ```
 ```haskell

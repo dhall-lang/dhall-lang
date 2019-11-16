@@ -47,7 +47,7 @@ the latest available version of `dhall-json`.
 Navigate to the directory where you downloaded the ZIP file and unzip the file
 by running:
 
-```bash
+```console
 $ unzip dhall-json-*-x86_64-windows.zip
 ```
 
@@ -59,7 +59,7 @@ That will produce the following two files:
 Run the following commands (no `.exe` suffix necessary) to verify that
 the executables work:
 
-```bash
+```console
 $ ./dhall-to-json --help
 $ ./dhall-to-yaml --help
 ```
@@ -73,7 +73,7 @@ $ cp ./dhall-to-{json,yaml} ~/bin
 ... and then run the following command to verify that the two
 executables are on your executable search `PATH`:
 
-```bash
+```console
 $ dhall-to-json --help
 $ dhall-to-yaml --help
 ```
@@ -82,7 +82,7 @@ $ dhall-to-yaml --help
 
 You can either use `brew`:
 
-```bash
+```console
 $ brew install dhall-json
 ```
 
@@ -94,35 +94,35 @@ $ brew install dhall-json
 the latest available version of `dhall-json`.  Then navigate to the directory where you
 downloaded the archive and run:
 
-```bash
+```console
 $ tar --extract --bzip2 --file dhall-json-*-x86_64-macos.tar.bz2
 ```
 
 That should create a `./bin` subdirectory underneath your current directory
 containing two executables:
 
-```bash
+```console
 $ ls ./bin
 dhall-to-json  dhall-to-yaml
 ```
 
 Run the following commands to verify that the executables work:
 
-```bash
+```console
 $ ./bin/dhall-to-json --help
 $ ./bin/dhall-to-yaml --help
 ```
 
 ... and then copy those executables to `/usr/local/bin`:
 
-```bash
+```console
 $ cp ./bin/dhall-to-{json,yaml} /usr/local/bin
 ```
 
 Finally, run the following command to verify that the two
 executables are on your executable search `PATH`:
 
-```bash
+```console
 $ dhall-to-json --help
 $ dhall-to-yaml --help
 ```
@@ -137,35 +137,35 @@ To install the latest stable release, visit the release page here:
 the latest available version of `dhall-json`.  Then navigate to the directory where you
 downloaded the archive and run:
 
-```bash
+```console
 $ tar --extract --bzip2 --file dhall-json-*-x86_64-linux.tar.bz2
 ```
 
 That should create a `./bin` subdirectory underneath your current directory
 containing two executables:
 
-```bash
+```console
 $ ls ./bin
 dhall-to-json  dhall-to-yaml
 ```
 
 Run the following commands to verify that the executables work:
 
-```bash
+```console
 $ ./bin/dhall-to-json --help
 $ ./bin/dhall-to-yaml --help
 ```
 
 ... and then copy those executables to `/usr/local/bin`:
 
-```bash
+```console
 $ cp ./bin/dhall-to-{json,yaml} /usr/local/bin
 ```
 
 ... and then run the following command to verify that the two
 executables are on your executable search `PATH`:
 
-```bash
+```console
 $ dhall-to-json --help
 $ dhall-to-yaml --help
 ```
@@ -179,7 +179,7 @@ JSON to standard output.
 
 > **Exercise:** Try to guess what either of the following commands will output:
 >
-> ```bash
+> ```console
 > $ dhall-to-yaml <<< '{ foo = [1, 2, 3], bar = True }'
 > $ dhall-to-json <<< '{ foo = [1, 2, 3], bar = True }'
 > ```
@@ -190,7 +190,7 @@ JSON to standard output.
 > standard input to the command on the left.  The above commands could have also
 > been written as:
 >
-> ```bash
+> ```console
 > $ echo '{ foo = [1, 2, 3], bar = True }' | dhall-to-json
 > $ echo '{ foo = [1, 2, 3], bar = True }' | dhall-to-yaml
 > ```
@@ -208,7 +208,7 @@ the `dhall-to-yaml` tool.
 The `dhall-to-json` help output indicates that the executable accepts a
 `--pretty` flag:
 
-```bash
+```console
 $ dhall-to-json --help
 Usage: dhall-to-json [--explain] [--pretty] [--omitNull] ([--key ARG]
                      [--value ARG] | [--noMaps])
@@ -229,7 +229,7 @@ Available options:
 
 > **Exercise:** Run this command to generate pretty-printed JSON output:
 >
-> ```bash
+> ```console
 > $ dhall-to-json --pretty <<< '{ foo = [1, 2, 3], bar = True }'
 > ```
 
@@ -251,7 +251,7 @@ expressions.
 >
 > What do you think the following command will output?
 >
-> ```bash
+> ```console
 > $ dhall-to-json --pretty <<< '[ ./example.dhall, ./example.dhall ]'
 > ```
 >
@@ -267,7 +267,7 @@ configurations that JSON would normally accept.
 For example, the following command fails because Dhall requires lists to have
 elements of the same type:
 
-```bash
+```console
 $ dhall-to-json <<< '[ 1, True ]'
 
 Error: List elements should all have the same type
@@ -283,7 +283,7 @@ True
 The error messages are terse by default, but if you check the `--help` output
 you can see that the executable accepts an `--explain` flag:
 
-```bash
+```console
 $ dhall-to-json --help
 Usage: dhall-to-json [--explain] [--pretty] [--omitNull] ([--key ARG]
                      [--value ARG] | [--noMaps])
@@ -304,7 +304,7 @@ Available options:
 
 > **Exercise**: Add the `--explain` flag to the previous command:
 >
-> ```bash
+> ```console
 > $ dhall-to-json --explain <<< '[ 1, True ]'
 > ```
 >
@@ -314,7 +314,7 @@ Available options:
 Dhall also supports type annotations, which are the Dhall analog of a JSON
 schema.  For example:
 
-```bash
+```console
 $ dhall-to-json <<< '{ foo = 1, bar = True } : { foo : Natural, bar : Bool }'
 {"foo":1,"bar":true}
 ```
@@ -322,13 +322,13 @@ $ dhall-to-json <<< '{ foo = 1, bar = True } : { foo : Natural, bar : Bool }'
 Anything in Dhall can be imported from another file, including the type in a
 type annotation.  This means that you can save the type annotation to a file:
 
-```bash
+```console
 $ echo '{ foo : Natural, bar : Bool }' > schema.dhall
 ```
 
 ... and reference that file in a type annotation:
 
-```bash
+```console
 $ dhall-to-json <<< '{ foo = 1, bar = True } : ./schema.dhall'
 {"foo":1,"bar":true}
 ```
@@ -336,7 +336,7 @@ $ dhall-to-json <<< '{ foo = 1, bar = True } : ./schema.dhall'
 If the expression doesn't match the "schema" (i.e. the type annotation) then
 "validation fails" (i.e. you get a type error):
 
-```bash
+```console
 $ dhall-to-json <<< '{ foo = 1, baz = True } : ./schema.dhall'
 
 
@@ -362,7 +362,7 @@ Dhall also differs from JSON by offering some programming language features.
 For example, you can reduce repetition by using a `let` expression to define a
 variable which can be referenced multiple times.
 
-```bash
+```console
 $ dhall-to-json <<< 'let x = [1, 2, 3] in [x, x, x]'
 ```
 ```json
@@ -371,7 +371,7 @@ $ dhall-to-json <<< 'let x = [1, 2, 3] in [x, x, x]'
 
 You can define multiple variables using multiple `let`s, like this:
 
-```bash
+```console
 $ dhall-to-json <<< 'let x = 1 let y = [x, x] in [y, y]'
 ```
 ```json
@@ -406,7 +406,7 @@ in  [x, y]
 >
 > What do you think the following command will output:
 >
-> ```bash
+> ```console
 > $ dhall-to-json --pretty <<< './employees.dhall'
 > ```
 >
@@ -483,7 +483,7 @@ For example, here is an anonymous function that takes a single argument named
 
 You can apply an anonymous function directly to an argument like this:
 
-```bash
+```console
 $ dhall-to-json <<< '(λ(x : Natural) → [x, x]) 2'
 ```
 ```json
@@ -493,7 +493,7 @@ $ dhall-to-json <<< '(λ(x : Natural) → [x, x]) 2'
 More commonly, you'll use a `let` expression to give the function a name and
 then use that name to apply the function to an argument:
 
-```bash
+```console
 $ dhall-to-json <<< 'let twice = λ(x : Natural) → [x, x] in twice 2'
 ```
 ```json
@@ -553,7 +553,7 @@ $ dhall-to-json <<< 'let twice = λ(x : Natural) → [x, x] in twice 2'
 
 You can nest anonymous functions to create a function of multiple arguments:
 
-```bash
+```console
 $ dhall-to-json <<< 'let both = λ(x : Natural) → λ(y : Natural) → [x, y] in both 1 2'
 ```
 ```json
@@ -594,7 +594,7 @@ represent using the Unicode `∧` character (U+2227).
 
 For example:
 
-```bash
+```console
 $ dhall-to-json <<< '{ foo = 1 } ∧ { bar = 2}'
 ```
 ```json
@@ -603,7 +603,7 @@ $ dhall-to-json <<< '{ foo = 1 } ∧ { bar = 2}'
 
 ... is the same as:
 
-```bash
+```console
 $ dhall-to-json <<< '{ foo = 1, bar = 2}'
 ```
 ```json
@@ -636,7 +636,7 @@ in  [ smallServer ∧ { hostName = "eu-west.example.com" }
 
 You can concatenate two strings using the `++` operator:
 
-```bash
+```console
 $ dhall-to-json <<< '[ "ABC" ++ "DEF" ]'
 ```
 ```json
@@ -645,7 +645,7 @@ $ dhall-to-json <<< '[ "ABC" ++ "DEF" ]'
 
 ... and you can concatenate two lists using the `#` operator:
 
-```bash
+```console
 $ dhall-to-json <<< '[1, 2, 3] # [4, 5, 6]'
 ```
 ```json
@@ -686,7 +686,7 @@ $ dhall-to-json <<< '[1, 2, 3] # [4, 5, 6]'
 
 Dhall's type system will reject the following common JSON idiom:
 
-```bash
+```console
 $ dhall-to-json <<< '[ { x = 1 }, { x = 2, y = 3 } ]'
 
 
@@ -723,7 +723,7 @@ absent (i.e. `None` followed by the type).
 `dhall-to-json` by default converts an empty (i.e. `None`) `Optional` value to
 `null`:
 
-```bash
+```console
 $ dhall-to-json <<< './optional.dhall'
 ```
 ```json
@@ -733,7 +733,7 @@ $ dhall-to-json <<< './optional.dhall'
 ... but also provides a `--omitNull` flag that you can use to omit `null` fields
 from records, like this:
 
-```bash
+```console
 $ dhall-to-json --omitNull <<< './optional.dhall'
 ```
 ```json
@@ -751,7 +751,7 @@ a record field.  For example, this is valid JSON, too:
 
 We would get a type error if we were to naively translate the above JSON to Dhall:
 
-```bash
+```console
 $ dhall-to-json <<< '[ 1, True ]'
 
 
@@ -790,7 +790,7 @@ The `dhall-to-json` executable strips the names when translating union literals
 to JSON.  This trick lets you bridge between strongly typed Dhall configuration
 files and their weakly typed JSON equivalents:
 
-```bash
+```console
 $ dhall-to-json <<< './union.dhall'
 ```
 ```json
@@ -903,7 +903,7 @@ list" (i.e. a list of key-value pairs), like this:
 that uses the field names `mapKey` and `mapValue` and converts that to the
 equivalent dynamic JSON record:
 
-```bash
+```console
 $ dhall-to-json --pretty <<< './students.dhall'
 ```
 ```json
@@ -927,7 +927,7 @@ fields.
 You have the option to disable this feature if you want using the `--noMaps`
 flag:
 
-```bash
+```console
 $ dhall-to-json --pretty --noMaps <<< './students.dhall'
 ```
 ```json
@@ -962,7 +962,7 @@ $ dhall-to-json --pretty --noMaps <<< './students.dhall'
 You can translate all of the above examples to YAML instead of JSON using the
 `dhall-to-yaml` executable.  For example:
 
-```bash
+```console
 $ dhall-to-yaml <<< 'let x = 1 in let y = [x, x] in [y, y]'
 ```
 ```yaml

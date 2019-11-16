@@ -721,7 +721,7 @@ import them from paths and this is how Dhall distributes the Prelude
 Every function from the Prelude has documentation, examples, and a type
 signature:
 
-```bash
+```console
 $ curl --location https://prelude.dhall-lang.org/List/map
 {-
 Transform a list by applying a function to each element
@@ -957,7 +957,7 @@ in  map
 JSON isn't the only file format that Dhall supports.  For example, we can
 convert our Dhall configuration to YAML:
 
-```bash
+```console
 $ dhall-to-yaml <<< './example6.dhall'
 - name: dhall
   author: Gabriel Gonzalez

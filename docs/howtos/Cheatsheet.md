@@ -6,7 +6,7 @@
 
 *   Feed Dhall expressions to `dhall`'s standard input to type-check and evaluate them:
 
-    ```bash
+    ```console
     $ dhall <<< 'True && False'
     ```
     ```haskell
@@ -253,13 +253,13 @@
     Adding `as Text` imports the contents of the import as a `Text` value instead of a
     Dhall expression:
 
-    ```bash
+    ```console
     $ dhall <<< 'https://prelude.dhall-lang.org/Bool/not'
     ```
     ```haskell
     λ(b : Bool) → b == False
     ```
-    ```bash
+    ```console
     $ dhall <<< 'https://prelude.dhall-lang.org/Bool/not as Text'
     ```
     ```haskell

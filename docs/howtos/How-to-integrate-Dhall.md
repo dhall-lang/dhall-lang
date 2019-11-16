@@ -87,7 +87,7 @@ in  ''
     ''
 ```
 
-```bash
+```console
 $ dhall text --file ./template.dhall
 # About me
 
@@ -108,7 +108,7 @@ let JSON = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelud
 in  JSON.render (JSON.array [ JSON.number 1.0, JSON.bool True ])
 ```
 
-```bash
+```console
 $ dhall text --file './json.dhall'
 [ 1.0, true ]
 ```

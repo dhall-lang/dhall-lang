@@ -173,7 +173,7 @@ that user, including the public and private key paths.
 We can use the `dhall-to-json` executable to convert any Dhall configuration
 file into a JSON configuration file:
 
-```bash
+```console
 $ dhall-to-json --pretty <<< './config0.dhall'
 ```
 ```json
@@ -271,7 +271,7 @@ in  [ ordinaryUser "john"
 
 ... and verify that the generated JSON matches what we expect:
 
-```bash
+```console
 $ dhall-to-json --pretty <<< './config2.dhall'
 ```
 ```json
@@ -321,7 +321,7 @@ Dhall expression by evaluating everything without converting to JSON.  We can do
 this using the `dhall` executable which reads a Dhall expression from standard
 input, evaluates the expression, and prints the result to standard output:
 
-```bash
+```console
 $ dhall <<< './config2.dhall'
 ```
 ```haskell
@@ -379,7 +379,7 @@ all of the programming language features removed, leaving behind an inert list
 of records.  We can translate this normalized program to JSON and confirm that
 we get the same result:
 
-```bash
+```console
 $ dhall <<< './config2.dhall' | dhall-to-json --pretty
 ```
 ```json
@@ -436,7 +436,7 @@ For example, this is what the `dhall-to-yaml` executable does:
 ... and here is an example of running `dhall-to-yaml` on the same
 `config2.dhall` file:
 
-```bash
+```console
 $ dhall-to-yaml <<< './config2.dhall'
 ```
 ```yaml

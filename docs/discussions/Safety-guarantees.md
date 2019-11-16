@@ -78,7 +78,7 @@ on the imported `concatSep` function for the first time.  You can use the
 command-line interpreter named `dhall` to retrieve, type-check, and remove all
 indirection in the expression, like this:
 
-```bash
+```console
 $ dhall --annotate <<< 'http://prelude.dhall-lang.org/Text/concatSep'
 ```
 
@@ -149,7 +149,7 @@ in  { name = env:USER as Text
 You can also automatically freeze all imports within a file using
 the following command:
 
-```bash
+```console
 $ dhall freeze --inplace ./example.dhall
 ```
 
@@ -450,7 +450,7 @@ Just because a computation succeeds does not mean that the computation will
 return a useful result.  For example, the following expression succeeds, but
 returns an empty value:
 
-```bash
+```console
 $ dhall <<< 'List/head Natural ([] : List Natural)'
 ```
 ```haskell
@@ -468,7 +468,7 @@ empty or failed values.
 
 For example, you can add any two `Natural` numbers using the `+` operator:
 
-```bash
+```console
 $ dhall <<< '2 + 3'
 ```
 ```haskell

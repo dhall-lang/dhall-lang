@@ -72,7 +72,7 @@ to get an intuition for how these keywords work.
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'Bool'
 ```
 ```dhall
@@ -90,7 +90,7 @@ Bool : Type
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'True'
 ```
 ```dhall
@@ -113,7 +113,7 @@ True : Bool
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'if True then 3 else 5'
 ```
 ```dhall
@@ -144,7 +144,7 @@ if False then l else r = r
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'True || False'
 ```
 ```dhall
@@ -181,7 +181,7 @@ x || (y && z) = (x || y) && (x || z)
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'True && False'
 ```
 ```dhall
@@ -218,7 +218,7 @@ x && (y || z) = (x && y) || (x && z)
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'True == False'
 ```
 ```dhall
@@ -249,7 +249,7 @@ True == x = x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'True != False'
 ```
 ```dhall
@@ -280,7 +280,7 @@ x != False = x
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'Natural'
 ```
 ```dhall
@@ -300,7 +300,7 @@ A `Natural` number literal is an unsigned non-negative integer
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< '2'
 ```
 ```dhall
@@ -324,7 +324,7 @@ n = 1 + 1 + … + 1 + 1  -- n times
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '2 + 3'
 ```
 ```dhall
@@ -353,7 +353,7 @@ x + 0 = x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '2 * 3'
 ```
 ```dhall
@@ -390,7 +390,7 @@ x * (y + z) = (x * y) + (x * z)
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/even 6'
 ```
 ```dhall
@@ -420,7 +420,7 @@ Natural/even (x * y) = Natural/even x || Natural/even y
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/odd 6'
 ```
 ```dhall
@@ -450,7 +450,7 @@ Natural/odd (x * y) = Natural/odd x && Natural/odd y
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/isZero 6'
 ```
 ```dhall
@@ -480,13 +480,13 @@ Natural/isZero (x * y) = Natural/isZero x || Natural/isZero y
 
 #### Examples
 
-```bash
+```console
 $ dhall <<< 'Natural/subtract 1 3'
 ```
 ```dhall
 2
 ```
-```bash
+```console
 $ dhall <<< 'Natural/subtract 3 1'
 ```
 ```dhall
@@ -516,7 +516,7 @@ Natural/subtract y (x + y) = x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/fold 40 Text (λ(t : Text) → t ++ "!") "Hello"'
 ```
 ```dhall
@@ -546,7 +546,7 @@ Natural/fold (x * y) n s = Natural/fold x n (Natural/fold y n s)
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/build (λ(natural : Type) → λ(succ : natural → natural) → λ(zero : natural) → succ (succ zero))'
 ```
 ```dhall
@@ -572,7 +572,7 @@ Natural/build (Natural/fold x) = x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/show 42'
 ```
 ```dhall
@@ -590,7 +590,7 @@ $ dhall <<< 'Natural/show 42'
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Natural/toInteger 2'
 ```
 ```dhall
@@ -608,7 +608,7 @@ $ dhall <<< 'Natural/toInteger 2'
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'Integer'
 ```
 ```dhall
@@ -629,14 +629,14 @@ a negative integer prefixed with a `-`.
 
 #### Examples
 
-```bash
+```console
 $ dhall --annotate <<< '+3'
 ```
 ```dhall
 +3 : Integer
 ```
 
-```bash
+```console
 $ dhall --annotate <<< '-2'
 ```
 ```dhall
@@ -654,14 +654,14 @@ $ dhall --annotate <<< '-2'
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Integer/toDouble +2'
 ```
 ```dhall
 2.0
 ```
 
-```bash
+```console
 $ dhall <<< 'Integer/toDouble -3'
 ```
 ```dhall
@@ -679,14 +679,14 @@ $ dhall <<< 'Integer/toDouble -3'
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Integer/show +2'
 ```
 ```dhall
 "+2"
 ```
 
-```bash
+```console
 $ dhall <<< 'Integer/show -3'
 ```
 ```dhall
@@ -704,7 +704,7 @@ $ dhall <<< 'Integer/show -3'
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'Double'
 ```
 ```dhall
@@ -725,14 +725,14 @@ A `Double` literal must have either at least one decimal place or an exponent
 
 #### Examples
 
-```bash
+```console
 $ dhall --annotate <<< '3.14159'
 ```
 ```dhall
 3.14159 : Double
 ```
 
-```bash
+```console
 $ dhall --annotate <<< '-2e10'
 ```
 ```dhall
@@ -750,14 +750,14 @@ $ dhall --annotate <<< '-2e10'
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Double/show 2.0'
 ```
 ```dhall
 "2.0"
 ```
 
-```bash
+```console
 $ dhall <<< 'Double/show -1e2'
 ```
 ```dhall
@@ -775,7 +775,7 @@ $ dhall <<< 'Double/show -1e2'
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'Text'
 ```
 ```dhall
@@ -796,14 +796,14 @@ escaping rules or a Nix-style multi-line string literal:
 
 #### Examples
 
-```bash
+```console
 $ dhall --annotate <<< '"ABC"'
 ```
 ```dhall
 "ABC" : Text
 ```
 
-```bash
+```console
 $ dhall <<EOF
 > ''
 >     Line 1
@@ -832,14 +832,14 @@ $ dhall <<EOF
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Text/show "ABC"'
 ```
 ```dhall
 "\"ABC\""
 ```
 
-```bash
+```console
 $ dhall <<< 'Text/show "\n🎉"'
 ```
 ```dhall
@@ -857,7 +857,7 @@ $ dhall <<< 'Text/show "\n🎉"'
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '"Hello, " ++ "world!"'
 ```
 ```dhall
@@ -886,7 +886,7 @@ x ++ "" = x
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'List'
 ```
 ```dhall
@@ -909,14 +909,14 @@ An empty `List` literal must end with a type annotation.
 
 #### Examples
 
-```bash
+```console
 $ dhall --annotate <<< '[ 1, 2, 3 ]'
 ```
 ```dhall
 [ 1, 2, 3 ] : List Natural
 ```
 
-```bash
+```console
 dhall <<< '[] : List Natural'
 ```
 ```dhall
@@ -941,7 +941,7 @@ dhall <<< '[] : List Natural'
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '[ 1, 2, 3] # [ 4, 5, 6 ]'
 ```
 ```dhall
@@ -970,7 +970,7 @@ xs # ([] : List a) = xs
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'List/fold Bool [True, False, True] Bool (λ(x : Bool) → λ(y : Bool) → x && y) True'
 ```
 ```dhall
@@ -998,7 +998,7 @@ List/fold a ([x] : List a) b c = c x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'List/build Natural (λ(list : Type) → λ(cons : Natural → list → list) → λ(nil : list) → cons 1 (cons 2 (cons 3 nil)))'
 ```
 ```dhall
@@ -1024,7 +1024,7 @@ List/fold t (List/build t x) = x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'List/length Natural [ 1, 2, 3 ]'
 ```
 ```dhall
@@ -1050,7 +1050,7 @@ List/length t [ x ] = 1
 
 #### Function: `List/head`
 
-```bash
+```console
 $ dhall <<< 'List/head Natural [ 1, 2, 3 ]'
 ```
 ```dhall
@@ -1084,7 +1084,7 @@ List/head a [ x ] = Some x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'List/last Natural [ 1, 2, 3 ]'
 ```
 ```dhall
@@ -1118,7 +1118,7 @@ List/last a [ x ] = Some x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'List/indexed Text [ "ABC", "DEF", "GHI" ]'
 ```
 ```dhall
@@ -1167,7 +1167,7 @@ List/indexed a [ x ] = [ { index = 0, value = x } ]
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'List/reverse Natural [ 1, 2, 3 ]'
 ```
 ```dhall
@@ -1195,7 +1195,7 @@ List/reverse a (xs # ys) = List/reverse a ys # List/reverse a xs
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'Optional'
 ```
 ```dhall
@@ -1216,14 +1216,14 @@ absent value using `None` followed by a type
 
 #### Example
 
-```bash
+```console
 $ dhall --annotate <<< 'None Natural'
 ```
 ```dhall
 None Natural : Optional Natural
 ```
 
-```bash
+```console
 $ dhall --annotate <<< 'Some 1'
 ```
 ```dhall
@@ -1248,7 +1248,7 @@ Some 1 : Optional Natural
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Optional/fold Text (Some "ABC") Text (λ(t : Text) → t) ""'
 ```
 ```dhall
@@ -1274,7 +1274,7 @@ Optional/fold a (Some x) o j n = j x
 
 #### Example
 
-```bash
+```console
 $ dhall <<< 'Optional/build Text (λ(optional : Type) → λ(just : Text → optional) → λ(nothing : optional) → just "abc")'
 ```
 ```dhall
@@ -1304,14 +1304,14 @@ A record type is a sequence of 0 or more key-type pairs inside curly braces.
 
 #### Examples
 
-```bash
+```console
 $ dhall --annotate <<< '{ foo : Natural, bar : Bool }'
 ```
 ```dhall
 { foo : Natural, bar : Bool } : Type
 ```
 
-```bash
+```console
 $ dhall --annotate <<< '{}'
 ```
 ```dhall
@@ -1333,14 +1333,14 @@ distinguish the empty record literal from the empty record type.
 
 #### Examples
 
-```bash
+```console
 $ dhall --annotate <<< '{ foo = 1, bar = True }'
 ```
 ```dhall
 { foo = 1, bar = True } : { foo : Natural, bar : Bool }
 ```
 
-```bash
+```console
 $ dhall --annotate <<< '{=}'
 ```
 ```dhall
@@ -1362,7 +1362,7 @@ The `⩓` operator recursively merges record types
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '{ foo : { bar : Bool } } ⩓ { foo : { baz : Text }, qux : List Natural }'
 ```
 ```dhall
@@ -1388,7 +1388,7 @@ The `∧` operator recursively merges record values
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '{ foo = { bar = True } } ∧ { foo = { baz = "ABC" }, qux = [1, 2, 3] }'
 ```
 ```dhall
@@ -1415,7 +1415,7 @@ record when they conflict
 
 #### Example
 
-```bash
+```console
 $ dhall <<< '{ foo = 1, bar = True } ⫽ { foo = 2 }'
 ```
 ```dhall
@@ -1440,7 +1440,7 @@ the expected `Type` and `default` values):
 
 #### Example
 
-```bash
+```console
 $ dhall <<EOF
 ```
 ```dhall
