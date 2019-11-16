@@ -11,6 +11,7 @@ html_theme_options = {
     'github_user': 'dhall-lang',
     'github_repo': 'dhall-lang',
     'logo': 'dhall-logo.svg',
+    'fixed_sidebar': True,
 }
 html_static_path = ['_static']
 
