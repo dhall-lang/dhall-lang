@@ -130,10 +130,6 @@ let
         sphinx-build ${./docs} $out
 
         cp ${./img/dhall-logo.svg} $out/_static/dhall-logo.svg
-
-        mkdir --parents $out/nix-support
-
-        echo "report docs $out/index.html" >> $out/nix-support/hydra-build-products
         '';
   };
 
