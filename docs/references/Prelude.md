@@ -1,7 +1,6 @@
 # Prelude
 
-> The latest release of the Dhall Prelude
+> The latest release of the Dhall Prelde available [https://prelude.dhall-lang.org/](https://prelude.dhall-lang.org/)
 
-* [Prelude](https://prelude.dhall-lang.org/)
-
-The latest release of the Dhall Prelude
+```note:: prelude doc generation to be defined here
+```
