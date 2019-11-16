@@ -11,6 +11,10 @@ $ nix build --file ./release.nix docs
 
 Then open `result/index.html`
 
+# Contribute
+
+Markdown references: https://commonmark.org/help/
+
 # References
 
 Sphinx configuration `conf.py` file documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
@@ -27,7 +31,3 @@ When importing current wiki content, here are some thing to remember:
 * For the Dhall-in-production and built-in-types documents, shift sections by replacing '^#' -> '^##'
 * Remove backtic in built-in-types type heading: '^## `\(.*\)`' -> '## \1'
 * Replace ':' with '_' in filename
-
-Remaining files to be imported/adapted:
-
-Awesome-Dhall.md  _Footer.md  Home.md  Learn-Dhall-in-Y-minutes.md  _Sidebar.md

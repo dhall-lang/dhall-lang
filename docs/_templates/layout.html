@@ -1,0 +1,18 @@
+{% extends '!layout.html' %}
+
+{% block footer %}
+<div class="footer">
+  <p>
+    {{ copyright }}.
+    This work is licensed under a
+    <a href="http://creativecommons.org/licenses/by/4.0/" rel="nofollow">
+      Creative Commons Attribution 4.0 International License
+    </a>.
+    {%- if show_source and has_source and sourcename %}
+    {% if show_copyright or theme_show_powered_by %}|{% endif %}
+    <a href="{{ pathto('_sources/' + sourcename, true)|e }}"
+       rel="nofollow">{{ _('Page source') }}</a>
+    {%- endif %}
+  </p>
+</div>
+{% endblock %}

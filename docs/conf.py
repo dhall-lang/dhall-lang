@@ -14,7 +14,7 @@ html_theme_options = {
     'fixed_sidebar': True,
 }
 html_static_path = ['_static']
-
+templates_path = ['_templates']
 # Add markdown support
 from recommonmark.parser import CommonMarkParser
 source_suffix = ['.md']
