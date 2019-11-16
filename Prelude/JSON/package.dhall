@@ -7,6 +7,12 @@
   , omitNullFields =
         ./omitNullFields sha256:c28270c553f48c406bd161c61776963315e278af5dae9331c4a320c3f4ecb4ec
       ? ./omitNullFields
+  , tagInline =
+        ./tagInline sha256:49559ac11906ba6cc9eac25753e31e7addb13bc760df108024174c55523984c4
+      ? ./tagInline
+  , tagNested =
+        ./tagNested sha256:93a7415853b7677c832246efadc8e880c1b641a23589286a836a384ca311d26f
+      ? ./tagNested
   }
 ∧ (   ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
     ? ./core.dhall
