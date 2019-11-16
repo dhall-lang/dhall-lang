@@ -21,8 +21,8 @@ These cookbooks teach you how to solve specific tasks:
 .. toctree::
    :maxdepth: 1
 
-   Migration_Deprecation-of-old-union-literal-syntax
-   Migration_Deprecation-of-old-Optional-literal-syntax
-   Migration_Deprecation-of-constructors-keyword
-   Migration_Swapped-syntax-for-Natural-numbers-and-Integers
+   migrations/Deprecation-of-old-union-literal-syntax
+   migrations/Deprecation-of-old-Optional-literal-syntax
+   migrations/Deprecation-of-constructors-keyword
+   migrations/Swapped-syntax-for-Natural-numbers-and-Integers
 ```
