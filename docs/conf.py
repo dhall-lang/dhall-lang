@@ -1,5 +1,5 @@
 # Sphinx project configuration
-project = 'Dhall Lang'
+project = 'Dhall'
 copyright = '2019, Dhall Contributors'
 author = 'Dhall Contributors'
 master_doc = 'index'

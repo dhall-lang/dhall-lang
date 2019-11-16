@@ -1,7 +1,7 @@
-Dhall Lang Documentation
-========================
+Dhall Documentation
+===================
 
-Welcome to the Dhall Lang documentation.
+Welcome to the Dhall documentation!
 
 ``` important:: This is a work in progress
 ```

@@ -1,4 +1,4 @@
-# How to add a new built in function
+# How to add a new built-in function
 
 The instructions for extending the language depend on which language binding
 you use:
