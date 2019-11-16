@@ -117,6 +117,24 @@ let
 
       touch $out
     '';
+
+    docs =
+      pkgsNew.runCommand "docs"
+        { nativeBuildInputs = [
+            pkgsNew.pythonPackages.sphinx
+            pkgsNew.pythonPackages.recommonmark
+            pkgsNew.pythonPackages.pygments
+          ];
+        }
+        ''
+        sphinx-build ${./docs} $out
+
+        cp ${./img/dhall-logo.svg} $out/_static/dhall-logo.svg
+
+        mkdir --parents $out/nix-support
+
+        echo "report docs $out/index.html" >> $out/nix-support/hydra-build-products
+        '';
   };
 
   pkgs = import nixpkgs { config = {}; overlays = [ overlay ]; };
@@ -141,5 +159,5 @@ in
       ];
     };
 
-    inherit (pkgs) expected-prelude expected-test-files;
+    inherit (pkgs) expected-prelude expected-test-files docs;
   }

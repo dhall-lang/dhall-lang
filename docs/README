@@ -5,10 +5,11 @@ The source code for docs.dhall-lang.org
 
 To build the website:
 
-* `nix-env -i python3.8-sphinx-1.8.3; nix-env -i python3.8-recommonmark-0.5.0 -i python3.8-commonmark-0.9.1; nix-env -i python3.8-Pygments-2.4.2`  (note: there must be a better way to list requirements...)
-* `sphinx-build . _site`
+```bash
+$ nix build --file ./release.nix docs
+```
 
-Then open `_site/index.html`.
+Then open `result/index.html`
 
 # References
 
