@@ -52,7 +52,7 @@ instructions:
     Then you can deploy the Hydra server by running:
 
     ```bash
-    $ nixops deploy --deployment dhall
+    $ NIX_PATH=nixpkgs=$(nix-instantiate --eval nixpkgs.nix | tr -d '"') nixops deploy --deployment ipfs --include=hydra
     ```
 
 *   Create an administrative user for `hydra`:

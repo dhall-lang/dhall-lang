@@ -3,9 +3,9 @@
       let
         nixos-mailserver =
           builtins.fetchTarball {
-            url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.2.0/nixos-mailserver-v2.2.0.tar.gz";
+            url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.2.1/nixos-mailserver-v2.2.0.tar.gz";
 
-            sha256 = "0gqzgy50hgb5zmdjiffaqp277a68564vflfpjvk1gv6079zahksc";
+            sha256 = "03d49v8qnid9g9rha0wg2z6vic06mhp0b049s3whccn1axvs2zzx";
           };
 
       in
@@ -59,7 +59,7 @@
 
       loginAccounts = {
         "discourse@dhall-lang.org" = {
-          hashedPassword = "$6$a0vB7DNq6iyKUW$U.OamanyfHzLt7.q.u61SIioGtd1k5ajtjVW/Tqv5Plbvxtv9/V2hJSqnBcVUFrog3F0vEEwFjvD3jX2Z5/F01";
+          hashedPassword = "$6$.vCIyiyMp4/HzO$FyW1OMFpL7tmPQvfDs2wDfhn5qTZW4NePBfDsrFQxPepIISrFYyjISeZS2kAHO6F/AolD7sus2mJUXsQUgCfv0";
 
           aliases = [ "postmaster@dhall-lang.org" ];
         };
@@ -84,13 +84,6 @@
       let
         modifyHydra = packagesNew: packagesOld: {
           hydra = packagesOld.hydra.overrideAttrs (old: {
-              src = packagesNew.fetchFromGitHub {
-                owner = "NixOS";
-                repo = "hydra";
-                rev = "63a294d4caa1124dd1c7d08c06ccef4113154bc8";
-                sha256 = "0xw6kph7zxlq2inb4aglp8g0hinnyz8z4x2dmkjnc2lhkhsdaq1j";
-              };
-
               patches = (old.patches or []) ++ [
                 ./hydra.patch
                 ./no-restrict-eval.patch
@@ -99,34 +92,8 @@
           );
         };
 
-        fixSimple = packagesNew: packagesOld: {
-          certbot = packagesOld.certbot.overrideAttrs (oldAttributes: rec {
-              version = "0.19.0";
-
-              src = packagesNew.fetchFromGitHub {
-                owner = "certbot";
-
-                repo = "certbot";
-
-                rev = "v${version}";
-
-                sha256 = "14i3q59v7j0q2pa1dri420fhil4h0vgl4vb471hp81f4y14gq6h7";
-              };
-            }
-          );
-
-          simp_le = packagesOld.simp_le.overrideAttrs (oldAttributes: {
-              version = "0.6.1";
-
-              src = oldAttributes.src.override {
-                sha256 = "0x4fky9jizs3xi55cdy217cvm3ikpghiabysan71b07ackkdfj6k";
-              };
-            }
-          );
-        };
-
       in
-        [ modifyHydra fixSimple ];
+        [ modifyHydra ];
 
     services = {
       fail2ban.enable = true;
@@ -229,7 +196,7 @@
 
                     root = "${website}";
                   };
-            };
+                };
 
             "cache.dhall-lang.org" = {
               forceSSL = true;
@@ -256,6 +223,24 @@
 
               locations."/".proxyPass = "http://unix:/var/discourse/shared/standalone/nginx.http.sock";
             };
+
+            "docs.dhall-lang.org" =
+              let
+                dhall-lang-derivations = import ../release.nix { };
+
+                inherit (dhall-lang-derivations) docs;
+
+              in
+                { forceSSL = true;
+
+                  enableACME = true;
+
+                  locations."/" = {
+                    index = "index.html";
+
+                    root = "${docs}";
+                  };
+                };
 
             "hydra.dhall-lang.org" = {
               forceSSL = true;
@@ -472,6 +457,13 @@
       };
     };
 
-    virtualisation.docker.enable = true;
+    virtualisation.docker = {
+      enable = true;
+
+      # Discourse complains if you use anything other than AUFS.  That warning
+      # can be overriden, but it's easier to just use AUFS since nothing else on
+      # this system uses `docker`
+      storageDriver = "aufs";
+    };
   };
 }
