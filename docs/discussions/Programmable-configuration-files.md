@@ -1,5 +1,7 @@
 # Programmable configuration file
 
+> Learn when it is appropriate to use the Dhall configuration language
+
 This section describes what a "programmable configuration file" is and the types
 of problems that programmable configuration files solve.
 

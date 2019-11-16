@@ -1,5 +1,7 @@
 # Core Language Features
 
+> Tour the core programming language features
+
 Let's motivate the Dhall configuration language by considering the
 following JSON configuration representing Haskell package metadata
 (wrapped to 80 columns):

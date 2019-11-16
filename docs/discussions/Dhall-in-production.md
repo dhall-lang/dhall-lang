@@ -1,5 +1,7 @@
 # Dhall In Production
 
+> Example commercial use cases for Dhall
+
 This section covers confirmed uses of Dhall in production, including official integrations with other tools/ecosystems and use within companies.  You can open an issue if you would like to list your company or tool here:
 
 ## Integrations

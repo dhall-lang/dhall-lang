@@ -1,5 +1,7 @@
 # Safety Gurantees
 
+> Study how Dhall configuration files provide programming language features without sacrificing safety
+
 The Dhall configuration language is designed to be programmable without
 sacrificing safety.  This section explains in detail what safety guarantees the
 language provides for security-conscious people comparing Dhall to other

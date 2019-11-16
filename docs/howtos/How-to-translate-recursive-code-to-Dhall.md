@@ -1,5 +1,7 @@
 # How to translate recursive code to Dhall
 
+> Embed recursive data types and functions in a non-recursive language
+
 The Dhall configuration language only provides built-in support for one
 recursive data type: `List`s.  However, the language does not provide native
 support for user-defined recursive types, recursive values, or recursive

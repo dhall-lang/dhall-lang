@@ -1,5 +1,7 @@
 # How to integrate Dhall
 
+> Quickly survey options for reading in Dhall configuration files
+
 You can integrate the Dhall configuration language into your project in one of the following three ways:
 
 * Language support for reading Dhall configuration files (this is the only way to get _complete_ support for Dhall, including invoking Dhall functions from your application)

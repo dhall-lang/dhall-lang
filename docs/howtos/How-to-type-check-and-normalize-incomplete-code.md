@@ -1,5 +1,7 @@
 # How to type-check and normalize incomplete code
 
+> Benefit from the language even when prototyping
+
 You can type-check and normalize incomplete code by introducing a function argument named
 `TODO` that has the following type:
 

@@ -1,5 +1,7 @@
 # Design choices
 
+> Read this if you're interested in the motivation behind various language design choices
+
 This page centrally documents some commonly cited design decisions that come up
 in various feature requests and language proposals.  However, note that these
 decisions are not set in stone and we're open to changing our minds.  The

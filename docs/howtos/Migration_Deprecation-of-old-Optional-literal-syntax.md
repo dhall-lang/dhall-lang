@@ -1,5 +1,7 @@
 # Deprecation of old Optional literal syntax
 
+> Migrate your code to remove obsolete `List`-like `Optional` literals
+
 On August 31, 2018 the [language standard changed](https://github.com/dhall-lang/dhall-lang/pull/227) to add new `Some`/`None` `Optional` literals to eventually replace the old `List`-like `Optional` literal syntax.  This section describes what changed and how to migrate your code.
 
 ## Changes

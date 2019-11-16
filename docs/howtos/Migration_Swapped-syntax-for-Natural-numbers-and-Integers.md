@@ -1,5 +1,7 @@
 # Swapped syntax for Natural numbers and Integers
 
+> Migrate your code to support the change in syntax for `Natural` numbers and `Integer`s
+
 On May 7, 2018 the [language standard changed][change] to swap the syntax for `Natural` numbers and `Integer`s.  This section describes what changed and how to migrate your code.
 
 ## Changes

@@ -1,5 +1,7 @@
 # Deprecation of constructors keyword
 
+> Migrate your code to remove the obsolete `constructors` keyword
+
 On November 20, 2018 the [language standard changed](https://github.com/dhall-lang/dhall-lang/pull/249)
 to remove the need for the `constructors` keyword and beginning the deprecation cycle for the
 `constructors` keyword.  This section describes what changed and how to migrate your code.

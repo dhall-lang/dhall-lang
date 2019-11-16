@@ -1,5 +1,7 @@
 # Deprecation of old union literal syntax
 
+> Migrate your code to remove the old union literal syntax
+
 On October 25, 2018 the [language standard changed](https://github.com/dhall-lang/dhall-lang/pull/249) to
 support a new way to represent union literals and on May 11, 2019 we proposed to
 [remove support for the old union literal syntax](https://github.com/dhall-lang/dhall-lang/issues/542)

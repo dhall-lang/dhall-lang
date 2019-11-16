@@ -1,5 +1,7 @@
 # Frequently Asked Questions (FAQ)
 
+> Common questions and workarounds for limitations of the language
+
 ## Imports relative to my top-level file are not working
 
 All top-level imports are relative to the current working directory.  For example, if you

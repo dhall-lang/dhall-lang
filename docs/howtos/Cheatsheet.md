@@ -1,5 +1,7 @@
 # Cheatsheet
 
+> Ramp up quickly with a cheat sheet if you're already familiar with functional programming
+
 ## Command line
 
 *   Feed Dhall expressions to `dhall`'s standard input to type-check and evaluate them:

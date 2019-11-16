@@ -1,5 +1,7 @@
 # Built-in types, functions, and operators
 
+> A list of all available built-in functionality
+
 This section describes all of the types, functions, and operators built into the
 Dhall language.
 

@@ -1,5 +1,7 @@
 # Getting started: Generate JSON or YAML
 
+> Use Dhall to simplify large and repetitive JSON or YAML configuration files
+
 This tutorial teaches you how to:
 
 * install the `dhall-to-json` and `dhall-to-yaml` executables

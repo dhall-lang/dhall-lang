@@ -27,7 +27,6 @@ When importing current wiki content, here are some thing to remember:
 * For the Dhall-in-production and built-in-types documents, shift sections by replacing '^#' -> '^##'
 * Remove backtic in built-in-types type heading: '^## `\(.*\)`' -> '## \1'
 * Replace ':' with '_' in filename
-* TODO: firuge out how to import the Home.md toc subtitles...
 
 Remaining files to be imported/adapted:
 
