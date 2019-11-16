@@ -1,0 +1,33 @@
+The source code for docs.dhall-lang.org
+=======================================
+
+# Build
+
+To build the website:
+
+* `nix-env -i python3.8-sphinx-1.8.3; nix-env -i python3.8-recommonmark-0.5.0 -i python3.8-commonmark-0.9.1; nix-env -i python3.8-Pygments-2.4.2`  (note: there must be a better way to list requirements...)
+* `sphinx-build . _site`
+
+Then open `_site/index.html`.
+
+# References
+
+Sphinx configuration `conf.py` file documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+Recommonmark config: https://recommonmark.readthedocs.io/en/latest/auto_structify.html
+
+Pygments lexer doc: https://pygments.org/docs/lexerdevelopment.html
+
+# Migration notes
+
+When importing current wiki content, here are some thing to remember:
+
+* Add '# doc-title' at the top
+* For the Dhall-in-production and built-in-types documents, shift sections by replacing '^#' -> '^##'
+* Remove backtic in built-in-types type heading: '^## `\(.*\)`' -> '## \1'
+* Replace ':' with '_' in filename
+* TODO: firuge out how to import the Home.md toc subtitles...
+
+Remaining files to be imported/adapted:
+
+Awesome-Dhall.md  _Footer.md  Home.md  Learn-Dhall-in-Y-minutes.md  _Sidebar.md
