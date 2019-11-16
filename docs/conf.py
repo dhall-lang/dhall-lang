@@ -8,6 +8,8 @@ pygments_style = 'sphinx'
 html_theme_options = {
     'show_related': True,
     'page_width': 'auto',
+    'github_user': 'dhall-lang',
+    'github_repo': 'dhall-lang',
     'logo': 'dhall-logo.svg',
 }
 html_static_path = ['_static']
