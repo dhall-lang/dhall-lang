@@ -52,7 +52,7 @@ The motivation behind this is to encourage the use of more structured
 representations that catch errors at type-checking time instead of silently
 failing at runtime .  For example, instead of this code:
 
-```haskell
+```dhall
 -- NOTE: This is not valid Dhall code
 
 let isWeekDay
@@ -69,7 +69,7 @@ in  isWeekDay "thursday" -- Oops!
 
 You would instead write this code:
 
-```haskell
+```dhall
 let DayOfWeek =
       < Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday >
 
@@ -102,14 +102,14 @@ in  isWeekDay DayOfWeek.Thursday
 All of the operators in the language are associative, meaning that for
 any operator (which we will denote `x`), the following property holds:
 
-```haskell
+```dhall
 (x + y) + z = x + (y + z)
 ```
 
 ... and every operator has an identity value (which we will denote `0`),
 such that:
 
-```haskell
+```dhall
 x + 0 = x
 
 0 + x = x
@@ -145,7 +145,7 @@ This is a consequence of Dhall values (especially `Text`) not being
 comparable so you cannot detect duplicate keys.  The closest Dhall
 data type would be an association list of the following type:
 
-```haskell
+```dhall
 [ { mapKey : Text, mapValue : a } ]
 ```
 

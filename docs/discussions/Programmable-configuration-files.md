@@ -141,7 +141,7 @@ configuration language, which you can think of as JSON + functions.
 For example, we can rewrite our original JSON configuration as the following
 Dhall configuration:
 
-```haskell
+```dhall
 -- config0.dhall
 
 let ordinaryUser =
@@ -204,7 +204,7 @@ $ dhall-to-json --pretty <<< './config0.dhall'
 Now adding a new user like `alice` is a one-line change since we can reuse our
 `ordinaryUser` helper function:
 
-```haskell
+```dhall
 -- config1.dhall
 
 let ordinaryUser =
@@ -232,7 +232,7 @@ in  [ ordinaryUser "john"
 We can also easily add a home directory for every ordinary user with a single
 change:
 
-```haskell
+```dhall
 -- config2.dhall
 
 let ordinaryUser =
@@ -324,7 +324,7 @@ input, evaluates the expression, and prints the result to standard output:
 ```console
 $ dhall <<< './config2.dhall'
 ```
-```haskell
+```dhall
 [ { home =
       "/home/john"
   , privateKey =

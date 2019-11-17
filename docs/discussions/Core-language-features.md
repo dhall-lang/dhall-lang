@@ -105,7 +105,7 @@ license texts formatted as long uninterrupted lines.  We can make the
 configuration more readable by converting the JSON configuration file to a Dhall
 configuration file, which supports multi-line string literals (like YAML):
 
-```haskell
+```dhall
 -- example0.dhall
 
 [ { name =
@@ -269,7 +269,7 @@ $ dhall-to-json --pretty <<< 'example0.dhall'
 We could add comments with the name of each license (since Dhall, unlike JSON,
 supports comments):
 
-```haskell
+```dhall
 [ { name =
       "dhall"
   , author =
@@ -335,7 +335,7 @@ supports comments):
 
 ... or we could define named functions to build each type of license, like this:
 
-```haskell
+```dhall
 -- example1.dhall
 
 let BSD-3-Clause =
@@ -429,13 +429,13 @@ use of comments
 
 Dhall supports anonymous functions using the following syntax:
 
-```haskell
+```dhall
 \(inputName : inputType) -> output
 ```
 
 ... or using Unicode syntax:
 
-```haskell
+```dhall
 λ(inputName : inputType) → output
 ```
 
@@ -457,7 +457,7 @@ they can refer to each other by their relative or absolute paths.  For example,
 we can factor out the `MIT` and `BSD-3-Clause` functions out into separate
 files, like this:
 
-```haskell
+```dhall
 -- BSD-3-Clause.dhall
 
     \(args : { year : Natural, author : Text })
@@ -491,7 +491,7 @@ files, like this:
     ''
 ```
 
-```haskell
+```dhall
 -- MIT.dhall
 
     \(args : { year : Natural, author : Text })
@@ -520,7 +520,7 @@ files, like this:
 
 ... and then refer to these files within our original configuration:
 
-```haskell
+```dhall
 -- example2.dhall
 
 [ { name =
@@ -564,7 +564,7 @@ the package author has to match the license author"*
 
 We can automate that away, too:
 
-```haskell
+```dhall
 -- example3.dhall
 
 let makePackage =
@@ -639,7 +639,7 @@ Dhall provides a Prelude of utilities to automate common tasks.  For example,
 the Prelude provides a `map` function that transforms every element of the list
 with the same function (such as `makePackage`):
 
-```haskell
+```dhall
 -- example4.dhall
 
 let map = https://prelude.dhall-lang.org/List/map
@@ -723,6 +723,8 @@ signature:
 
 ```console
 $ curl --location https://prelude.dhall-lang.org/List/map
+```
+```dhall
 {-
 Transform a list by applying a function to each element
 
@@ -754,7 +756,7 @@ in  map
 
 The type signature for `map`:
 
-```haskell
+```dhall
 let map : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
 ```
 
@@ -781,8 +783,8 @@ You can browse the latest version of the Prelude online by visiting:
 You can also import functions from the latest version of the Prelude using the
 same domain:
 
-```haskell
-    let map = http://prelude.dhall-lang.org/List/map
+```dhall
+let map = http://prelude.dhall-lang.org/List/map
 
 in  ...
 ```
@@ -797,7 +799,7 @@ in the source code"*
 
 You can use `let` expressions to define "type synonyms":
 
-```haskell
+```dhall
 -- example5.dhall
 
 let map = https://prelude.dhall-lang.org/List/map
@@ -870,7 +872,7 @@ in  map
 
 ... or you can store the types in files:
 
-```haskell
+```dhall
 -- Input.dhall
 { name :
     Text
@@ -883,14 +885,14 @@ in  map
 }
 ```
 
-```haskell
+```dhall
 -- Output.dhall
 { name : Text, author : Text, license : Text }
 ```
 
 ... and import those types like any other Dhall expression:
 
-```haskell
+```dhall
 -- example6.dhall
 
 let map = https://prelude.dhall-lang.org/List/map

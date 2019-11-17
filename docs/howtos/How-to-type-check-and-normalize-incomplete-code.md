@@ -5,14 +5,14 @@
 You can type-check and normalize incomplete code by introducing a function argument named
 `TODO` that has the following type:
 
-```haskell
+```dhall
 λ(TODO : ∀(a : Type) → a) → …
 ```
 
 Then you can use `TODO` to fill any gaps in your code that have not been
 implemented yet:
 
-```haskell
+```dhall
   λ(TODO : ∀(a : Type) → a)
 → let List/map =
         https://prelude.dhall-lang.org/List/map
@@ -47,7 +47,7 @@ still type-check the function and normalize the function body:
 ```console
 $ dhall --annotate <<< './example.dhall'
 ```
-```haskell
+```dhall
   (   λ(TODO : ∀(a : Type) → a)
     →     "["
       ++  (     TODO

@@ -11,13 +11,13 @@ relative import:
 ```console
 $ cat ./foo/bar.dhall
 ```
-```haskell
+```dhall
 ./baz.dhall
 ```
 ```console
 $ cat ./foo/baz.dhall
 ```
-```haskell
+```dhall
 1
 ```
 
@@ -73,7 +73,7 @@ Hola, Jane!
 
 The Dhall equivalent of the above code would be:
 
-```haskell
+```dhall
 let greet =
           \(args : { greeting : Text, name : Text })
       ->  "${args.greeting}, ${args.name}!"
@@ -119,7 +119,7 @@ Hola, Jane!
 
 You have to nest updates, like this:
 
-```haskell
+```dhall
 let example = { coordinate = { x = 5, y = 3 }, element = "Hg" }
 
 in  example // {
@@ -134,7 +134,7 @@ in  example // {
 Dhall cannot infer a polymorphic type for an empty list because Dhall represents
 polymorphic values as functions of types, like this:
 
-```haskell
+```dhall
 \(a : Type) -> [] : List a
 ```
 

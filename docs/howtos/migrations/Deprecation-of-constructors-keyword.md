@@ -11,7 +11,7 @@ to remove the need for the `constructors` keyword and beginning the deprecation 
 Before this change users would generate constructors for a union type using the `constructors`
 keyword, which converted a union type into a record of constructors:
 
-```haskell
+```dhall
 let Example = < Left : Natural | Right : Bool >
 
 let example = constructors Example
@@ -23,7 +23,7 @@ After this change, you can now access union constructors as if they were fields 
 original union type instead of creating an intermediate record of `constructors`.  For
 example, this is now valid:
 
-```haskell
+```dhall
 let Example = < Left : Natural | Right : Bool >
 
 in  [ Example.Left 1, Example.Right True ]
@@ -52,19 +52,19 @@ The `constructors` keyword is being phased out in three steps:
     to behaves as if it were the identity function for both type-checking and normalization
     purposes.  In other words, any Dhall expression of the form:
 
-    ```haskell
+    ```dhall
     constructors x
     ```
 
     ... behaves exactly as if it were just:
 
-    ```haskell
+    ```dhall
     x
     ```
 
     For the common idiom of:
 
-    ```haskell
+    ```dhall
     let SomeUnionType = …
     let someUnionType = constructors SomeUnionType
     in  … someUnionType.SomeConstructor …
@@ -82,7 +82,7 @@ The `constructors` keyword is being phased out in three steps:
     example, this means that you can no longer store the expression `constructors x` inside of a record
     containing other terms:
 
-    ```haskell
+    ```dhall
     -- This expression used to type-check before this change and
     -- no longer type-checks afterwards
     { foo = constructors MyUnionType

@@ -50,7 +50,7 @@ $ ghci Example0.hs
 
 The equivalent Dhall code would be:
 
-```haskell
+```dhall
 -- example0.dhall
 
 let Person
@@ -101,7 +101,7 @@ Carefully note that there is more than one bound variable named `Person` in the
 above example.  We can disambiguate them by prefixing some of them with an
 underscore (i.e. `_Person`):
 
-```haskell
+```dhall
 let Person
     : Type
     =   ∀(_Person : Type)
@@ -144,7 +144,7 @@ performing substitution.  In this specific case, `everybody` is:
 *   replacing each occurrence of the `MakePerson` function with the following
     anonymous function:
 
-    ```haskell
+    ```dhall
        λ(p : { children : List (List Text), name : Text })
     → [ p.name ] # concat Text p.children
     ```
@@ -152,7 +152,7 @@ performing substitution.  In this specific case, `everybody` is:
 ... which means that our previous example could also have been written like
 this:
 
-```haskell
+```dhall
 let concat = http://prelude.dhall-lang.org/List/concat
 
 let Person : Type = List Text
@@ -209,7 +209,7 @@ $ ghci Example1.hs
 
 ... corresponds to this Dhall code:
 
-```haskell
+```dhall
 -- example1.dhall
 
 let Nat : Type = ∀(Nat : Type) → ∀(Zero : Nat) → ∀(Succ : Nat → Nat) → Nat
@@ -247,7 +247,7 @@ Like before, our recursive `toNatural` function is performing substitution by:
 
 ... which means that we could have equivalently written:
 
-```haskell
+```dhall
 let Nat = Natural
 
 let Zero : Nat = 0
@@ -297,7 +297,7 @@ $ ghci Example2.hs
 
 ... corresponds to this Dhall code:
 
-```haskell
+```dhall
 let Odd
     : Type
     =   ∀(Even : Type)
@@ -352,7 +352,7 @@ by:
 
 ... which means that we could have equivalently written:
 
-```haskell
+```dhall
 let Odd : Type = Natural
 
 let Even : Type = Natural

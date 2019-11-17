@@ -9,7 +9,7 @@
     ```console
     $ dhall <<< 'True && False'
     ```
-    ```haskell
+    ```dhall
     Bool
 
     False
@@ -23,7 +23,7 @@
 
 *   `Bool`:
 
-    ```haskell
+    ```dhall
     True, False : Bool
 
     True || False = True
@@ -41,7 +41,7 @@
 
     A non-negative number (unsigned):
 
-    ```haskell
+    ```dhall
     0, 1, 2, … : Natural
 
     2 + 3 = 5
@@ -67,7 +67,7 @@
 
     An integer, prefixed with a `+` or `-` sign:
 
-    ```haskell
+    ```dhall
     …, -2, -1, +0, +1, +2, … : Integer
 
     Integer/toDouble -3 = -3.0
@@ -79,7 +79,7 @@
 
     A double-precision floating point number with optional scientific notation:
 
-    ```haskell
+    ```dhall
     -2.0, 3.14159, 1e10 : Double
 
     Double/show 2.0 = "2.0"
@@ -87,7 +87,7 @@
 
 *   `Text`:
 
-    ```haskell
+    ```dhall
     "", "Hello, world!", "☺", "  \u03bb(x : Type)\n\u2192 x" : Text
 
     ''
@@ -114,7 +114,7 @@
 
     Type annotation is mandatory for empty lists:
 
-    ```haskell
+    ```dhall
     [] : List Natural, [ 1, 2, 3 ]
 
     [ 1, 2, 3 ] # [ 4, 5, 6 ] = [ 1, 2, 3, 4, 5, 6 ]
@@ -136,7 +136,7 @@
 
 *   `Optional`:
 
-    ```haskell
+    ```dhall
     None Natural, Some 1 : Optional Natural
 
 
@@ -149,7 +149,7 @@
 
     A mapping from field names to values that can be different types
 
-    ```haskell
+    ```dhall
     {=} : {}  -- Empty record value requires an `=` to distinguish it from empty record type
 
     { foo = 1, bar = Bool } : { foo : Natural, bar : Type }
@@ -179,7 +179,7 @@
 
 *   Unions
 
-    ```haskell
+    ```dhall
     < Foo | Bar : Natural >.Foo, < Foo | Bar : Natural >.Bar 1 : < Foo | Bar : Natural >
 
     merge { Foo = False, Bar = Natural/even } < Foo | Bar : Natural >.Bar 2 = True
@@ -189,7 +189,7 @@
 
 *   `let` expressions:
 
-    ```haskell
+    ```dhall
     let x = True
 
     let y = False
@@ -199,7 +199,7 @@
 
     You can also use `let` expressions to name functions and imported values:
 
-    ```haskell
+    ```dhall
     let not = λ(x : Bool) → x == False
 
     let show = https://prelude.dhall-lang.org/Bool/show
@@ -211,7 +211,7 @@
 
     The type of a function's input argument is required and not inferred:
 
-    ```haskell
+    ```dhall
     \(inputArgument : inputType) -> outputResult : forall (inputArgument : inputType) -> outputType  -- ASCII syntax
 
     λ(inputArgument : inputType) → outputResult : ∀(inputArgument : inputType) → outputType  -- Unicode syntax
@@ -228,13 +228,13 @@
 
     Type abstraction and type application are explicit:
 
-    ```haskell
+    ```dhall
     let id = λ(a : Type) → λ(x : a) → x in id Natural 4 = 4
     ```
 
 *   Assertions
 
-    ```haskell
+    ```dhall
     let example0 = assert : Natural/even 2 === True
 
     let example1 = assert : Natural/even 2 ≡ True
@@ -246,7 +246,7 @@
 
     Imported paths or URLs are substituted for their contents:
 
-    ```haskell
+    ```dhall
     [ ./you/can/import/paths, https://example.com/you/can/import/urls ] : ./even/for/types
     ```
 
@@ -256,13 +256,13 @@
     ```console
     $ dhall <<< 'https://prelude.dhall-lang.org/Bool/not'
     ```
-    ```haskell
+    ```dhall
     λ(b : Bool) → b == False
     ```
     ```console
     $ dhall <<< 'https://prelude.dhall-lang.org/Bool/not as Text'
     ```
-    ```haskell
+    ```dhall
     ''
     {-
     Flip the value of a `Bool`
@@ -281,13 +281,13 @@
 
     This fallback expression can contain another import:
 
-    ```haskell
+    ```dhall
     https://prelude.dhall-lang.org/package.dhall ? ./Prelude/package.dhall
     ```
 
     ... or even be a pure value:
 
-    ```haskell
+    ```dhall
     Some (env:HOME as Text) ? None Text
     ```
 

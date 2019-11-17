@@ -242,7 +242,7 @@ expressions.
 > **Exercise:** Save the following Dhall expression to a file named
 > `example.dhall` in your current working directory:
 >
-> ```haskell
+> ```dhall
 > { foo = True
 > , bar = [1, 2, 3, 4, 5]
 > , baz = "ABC"
@@ -380,13 +380,13 @@ $ dhall-to-json <<< 'let x = 1 let y = [x, x] in [y, y]'
 
 The Dhall language is whitespace-insensitive (just like JSON), so this program:
 
-```haskell
+```dhall
 let x = 1 let y = 2 in [x, y]
 ```
 
 ... is the same as this program:
 
-```haskell
+```dhall
 let x = 1
 let y = 2
 in  [x, y]
@@ -394,7 +394,7 @@ in  [x, y]
 
 > **Exercise:** Save the following Dhall configuration to `employees.dhall`:
 >
-> ```haskell
+> ```dhall
 > let job = { department = "Data Platform", title = "Software Engineer" }
 >
 > let john = { age = 23, name = "John Doe", position = job }
@@ -453,13 +453,13 @@ in  [x, y]
 
 Dhall also lets you write anonymous functions of the form:
 
-```haskell
+```dhall
 \(inputName : inputType) -> output
 ```
 
 ... which you can also write using Unicode characters if you prefer:
 
-```haskell
+```dhall
 λ(inputName : inputType) → output
 ```
 
@@ -477,7 +477,7 @@ Unicode on your computer by following these instructions:
 For example, here is an anonymous function that takes a single argument named
 `x` of type `Natural` and returns a list of two `x`s:
 
-```haskell
+```dhall
 λ(x : Natural) → [x, x]
 ```
 
@@ -503,7 +503,7 @@ $ dhall-to-json <<< 'let twice = λ(x : Natural) → [x, x] in twice 2'
 > **Exercise**: What JSON do you think this Dhall configuration file will
 > generate?
 >
-> ```haskell
+> ```dhall
 > let smallServer =
 >         λ(hostName : Text)
 >       → { cpus =
@@ -563,7 +563,7 @@ $ dhall-to-json <<< 'let both = λ(x : Natural) → λ(y : Natural) → [x, y] i
 > **Exercise**: What JSON do you think this Dhall configuration file will
 > generate?
 >
-> ```haskell
+> ```dhall
 > let educationalBook =
 >         λ(publisher : Text)
 >       → λ(title : Text)
@@ -613,7 +613,7 @@ $ dhall-to-json <<< '{ foo = 1, bar = 2}'
 We can rewrite our previous server configuration example to use this operator
 instead of using functions:
 
-```haskell
+```dhall
 let smallServer = { cpus = 1, gigabytesOfRAM = 1, terabytesOfDisk = 1 }
 
 let mediumServer = { cpus = 8, gigabytesOfRAM = 16, terabytesOfDisk = 4 }
@@ -655,7 +655,7 @@ $ dhall-to-json <<< '[1, 2, 3] # [4, 5, 6]'
 > **Exercise:** What JSON do you think the following Dhall expression will
 > generate?
 >
-> ```haskell
+> ```dhall
 > let three = λ(x : Text) → [x ++ x ++ x] in three "A" # three "B" # three "C"
 > ```
 >
@@ -709,7 +709,7 @@ Despite this restriction, we still have a few options for generating the above
 JSON.  For example, you can make the `y` field `Optional` (i.e. the Dhall
 equivalent of a nullable value), like this:
 
-```haskell
+```dhall
 -- ./optional.dhall
 
 [ { x = 1, y = None Natural }
@@ -771,7 +771,7 @@ possible types.
 
 For example, the equivalent Dhall configuration would be:
 
-```haskell
+```dhall
 -- ./union.dhall
 
 let Element = < Left : Natural | Right : Bool >
@@ -800,7 +800,7 @@ $ dhall-to-json <<< './union.dhall'
 Here is a more sophisticated example showcasing how each union alternative
 can be a record with different fields present:
 
-```haskell
+```dhall
 -- ./package.dhall
 
 let Package =
@@ -890,7 +890,7 @@ the record would change every time you add or remove a student.
 The idiomatic way to encode the above information in Dhall is to use an "association
 list" (i.e. a list of key-value pairs), like this:
 
-```haskell
+```dhall
 -- ./students.dhall
 
 [ { mapKey = "daniel", mapValue = { age = 17 } }

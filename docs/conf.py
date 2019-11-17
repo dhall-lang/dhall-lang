@@ -32,19 +32,59 @@ def setup(app):
     app.add_transform(AutoStructify)
 
 # Add a custom lexer for dhall pygments
-from pygments.lexer import RegexLexer
+from pygments.lexer import RegexLexer, bygroups
 from pygments import token
 from sphinx.highlighting import lexers
 
 # TODO: finish the lexer
+DhallWords = r'|'.join((
+    r'->',
+    r'→',
+    r'λ',
+    r'∀',
+    r'##'
+    r'#',
+    r'!='
+    r'\?',
+    r'\+\+',
+    r'\+',
+    r'-',
+    r'&&',
+    r'&',
+    r'\|\|',
+    r'\|',
+    r'==',
+    r'=',
+    r':',
+    r'\∧'
+))
+DhallKeywords = '|'.join((
+    'if', 'then', 'else',
+    'let', 'in',
+    'as',
+    'using',
+    'merge',
+    'forall'
+))
 class DhallLexer(RegexLexer):
     name = 'dhall'
 
     tokens = {
         'root': [
-            (r'(let|in|merge)', token.Keyword),
-            (r'(=|->)', token.Operator),
-            (r'-- .*?$', token.Comment),
+            (r'^(.*)(-- .*)$', bygroups(token.Text, token.Comment)),
+            (r'{-(?:.|\n)*?-}', token.Comment),
+            (r"'[^']+'", token.String.Char),
+            (r'"[^"]+"', token.String.Char),
+            # / is a \breaker and this avoid prelude url to be highlighted
+            (r'(http[:a-zA-Z/\.-]+)', token.Text),
+            (r'(\'\'(?:.|\n)*?\'\')', token.String.Char),
+            (r'\b(\+\d+|-\d+|\d+)', token.Number.Integer),
+            (r'\b(None|Some|Bool|Natural|Integer|Double|Text|Type|List|Optional)\b', token.Keyword.Type),
+            (r'\b(%s)\b' % DhallKeywords, token.Keyword),
+            (r'(%s)' % DhallWords, token.Operator.Word),
+            (r'\b(True|False)\b', token.Name.Builtin.Pseudo),
+                        (r'-- .*$', token.Comment),
+            (r',', token.Punctuation),
             (r'.', token.Text),
         ]
     }

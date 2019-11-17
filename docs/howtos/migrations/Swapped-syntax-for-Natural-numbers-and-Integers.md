@@ -14,7 +14,7 @@ Before the change, the standard specified that:
 
 In other words:
 
-```haskell
+```dhall
 -- Before
 
 +2 : Natural
@@ -31,7 +31,7 @@ After the change, the standard specifies that:
 
 In other words:
 
-```haskell
+```dhall
 -- After
 
  2 : Natural
@@ -43,7 +43,7 @@ In other words:
 
 Additionally, `Natural/show` was changed to render `Natural` numbers without the leading sign and `Integer/show` was changed to render non-negative `Integer`s with a leading `+` sign:
 
-```haskell
+```dhall
 -- Before
 
 Natural/show +2 = "+2"
@@ -53,7 +53,7 @@ Integer/show  2 =  "2"
 Integer/show -2 = "-2"
 ```
 
-```haskell
+```dhall
 -- After
 
 Natural/show  2 =  "2"

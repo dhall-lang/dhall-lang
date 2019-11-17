@@ -11,19 +11,19 @@ in favor of the new syntax.
 
 Instead of a union literal being represented like this:
 
-```haskell
+```dhall
 < Foo = 0 | Bar : Bool >
 ```
 
 ... the canonical representation for a union literal will become:
 
-```haskell
+```dhall
 < Foo : Natural | Bar : Bool >.Foo 0
 ```
 
 ... although this would more commonly be written as:
 
-```haskell
+```dhall
 let Example = < Foo : Natural | Bar : Natural >
 
 in  Example.Foo 0
@@ -47,7 +47,7 @@ The new union literal syntax is preferred for the following reasons:
   union alternative may be able to store more than 1 value, analogous to a Haskell datatype
   definition:
 
-  ```haskell
+  ```dhall
   -- data Example = Point2D Double Double | Point3D Double Double Double
 
   let Example = < Point2D Double Double | Point3D Double Double Double >

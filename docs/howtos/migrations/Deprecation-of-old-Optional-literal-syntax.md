@@ -8,7 +8,7 @@ On August 31, 2018 the [language standard changed](https://github.com/dhall-lang
 
 Before this change, the normal form of an `Optional` literal resembled a list with at most 1 element:
 
-```haskell
+```dhall
 [ 1 ] : Optional Natural  -- An example present `Optional` literal
 
 [] : Optional Natural     -- An example absent `Optional` literal
@@ -16,7 +16,7 @@ Before this change, the normal form of an `Optional` literal resembled a list wi
 
 After this change, the normal form of an `Optional` literal is now either a `Some` or a `None` constructor:
 
-```haskell
+```dhall
 Some 1        -- An example present `Optional` literal
 
 None Natural  -- An example absent `Optional` literal
