@@ -7,8 +7,8 @@ Welcome to the Dhall documentation!
 .. note::
 
    This website's sources are located in the `dhall-lang project`_
-   docs directory. Please feel free to contribute, you can use the
-   `issue system`_ or send a **pull request**. Thanks!
+   docs directory. Please feel free to contribute by clicking the **Edit me** button
+   at the top right corner, or use the `issue system`_. Thanks!
 
 .. _`dhall-lang project`: https://github.com/dhall-lang/dhall-lang/tree/master/docs
 .. _`issue system`: https://github.com/dhall-lang/dhall-lang/issues/new
