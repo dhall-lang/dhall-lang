@@ -28,12 +28,12 @@ let render
                           → " ${Text/show e.mapKey}: ${e.mapValue}"
                         )
                         x
-                
+
                 in  "{${body} }"
           , array =
                 λ(x : List Text)
               → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
-                
+
                 in  "[${body} ]"
           , bool = λ(x : Bool) → if x then "true" else "false"
           , null = "null"

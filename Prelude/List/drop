@@ -15,9 +15,9 @@ let drop
           (   λ(x : { index : Natural, value : a })
             → λ(xs : List a)
             →       if Natural/greaterThanEqual x.index n
-              
+
               then  [ x.value ] # xs
-              
+
               else  xs
           )
           ([] : List a)

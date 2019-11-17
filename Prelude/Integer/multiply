@@ -11,17 +11,17 @@ let multiply
     =   λ(m : Integer)
       → λ(n : Integer)
       → let mAbs = Integer/abs m
-        
+
         let nAbs = Integer/abs n
-        
+
         let mNonPos = Natural/isZero (Integer/clamp m)
-        
+
         let nNonPos = Natural/isZero (Integer/clamp n)
-        
+
         in        if mNonPos == nNonPos
-            
+
             then  Natural/toInteger (mAbs * nAbs)
-            
+
             else  Integer/negate (Natural/toInteger (mAbs * nAbs))
 
 let example0 = assert : multiply +3 +5 ≡ +15

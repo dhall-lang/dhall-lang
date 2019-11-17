@@ -23,7 +23,7 @@ let concatSep
                       status
                 )
                 Status.Empty
-        
+
         in  merge { Empty = "", NonEmpty = λ(result : Text) → result } status
 
 let example0 = assert : concatSep ", " [ "ABC", "DEF", "GHI" ] ≡ "ABC, DEF, GHI"
