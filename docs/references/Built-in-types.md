@@ -16,57 +16,12 @@ Note that this page does not yet include certain keywords, such as:
 However, in the meantime you can still consult the [[Cheatsheet|Cheatsheet]]
 to get an intuition for how these keywords work.
 
-* [`Bool`](#bool)
-    * [Literals](#literals-bool)
-    * [`if`/`then`/`else`](#construct-ifthenelse)
-    * [`||`](#operator-)
-    * [`&&`](#operator--1)
-    * [`==`](#operator--2)
-    * [`!=`](#operator--3)
-* [`Natural`](#natural)
-    * [Literals](#literals-natural)
-    * [`+`](#operator--4)
-    * [`*`](#operator--5)
-    * [`Natural/even`](#function-naturaleven)
-    * [`Natural/odd`](#function-naturalodd)
-    * [`Natural/isZero`](#function-naturaliszero)
-    * [`Natural/subtract`](#function-naturalsubtract)
-    * [`Natural/fold`](#function-naturalfold)
-    * [`Natural/build`](#function-naturalbuild)
-    * [`Natural/show`](#function-naturalshow)
-    * [`Natural/toInteger`](#function-naturaltointeger)
-* [`Integer`](#integer)
-    * [Literals](#literals-integer)
-    * [`Integer/toDouble`](#function-integertodouble)
-    * [`Integer/show`](#function-integershow)
-* [`Double`](#double)
-    * [Literals](#literals-double)
-    * [`Double/show`](#function-doubleshow)
-* [`Text`](#text)
-    * [Literals](#literals-text)
-    * [`Text/show`](#function-textshow)
-    * [`++`](#operator--6)
-* [`List`](#list)
-    * [Literals](#literals-list)
-    * [`#`](#operator--7)
-    * [`List/fold`](#function-listfold)
-    * [`List/build`](#function-listbuild)
-    * [`List/length`](#function-listlength)
-    * [`List/head`](#function-listhead)
-    * [`List/last`](#function-listlast)
-    * [`List/indexed`](#function-listindexed)
-    * [`List/reverse`](#function-listreverse)
-* [`Optional`](#optional)
-    * [`Optional`](#literals-optional)
-    * [`Optional/fold`](#function-optionalfold)
-    * [`Optional/build`](#function-optionalbuild)
-* [Records](#records)
-    * [Record types](#record-types)
-    * [Record values](#record-values)
-    * [`⩓`](#operator--8)
-    * [`∧`](#operator--9)
-    * [`⫽`](#operator--10)
-    * [`::`](#operator--11)
+```eval_rst
+.. contents:: Table of Contents
+   :depth: 3
+   :backlinks: none
+```
+
 
 ## Bool
 
@@ -140,7 +95,7 @@ if True  then l else r = l
 if False then l else r = r
 ```
 
-### Operator: `||`
+### Operator: `||` <a op=or />
 
 #### Example
 
@@ -177,7 +132,7 @@ x || (y && z) = (x || y) && (x || z)
 (x && y) || z = (x || z) && (y || z)
 ```
 
-### Operator: `&&`
+### Operator: `&&` <a op=and />
 
 #### Example
 
@@ -214,7 +169,7 @@ x && (y || z) = (x && y) || (x && z)
 (x || y) && z = (x && z) || (y && z)
 ```
 
-### Operator: `==`
+### Operator: `==` <a op=equal />
 
 #### Example
 
@@ -245,7 +200,7 @@ True == x = x
 (x == y) == z = x == (y == z)
 ```
 
-### Operator: `!=`
+### Operator: `!=` <a op=diff />
 
 #### Example
 

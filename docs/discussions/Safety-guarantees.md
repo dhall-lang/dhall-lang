@@ -2,6 +2,11 @@
 
 > Study how Dhall configuration files provide programming language features without sacrificing safety
 
+```eval_rst
+.. contents:: Table of Contents
+   :backlinks: none
+```
+
 The Dhall configuration language is designed to be programmable without
 sacrificing safety.  This section explains in detail what safety guarantees the
 language provides for security-conscious people comparing Dhall to other

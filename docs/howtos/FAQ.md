@@ -2,6 +2,11 @@
 
 > Common questions and workarounds for limitations of the language
 
+```eval_rst
+.. contents:: Table of Contents
+   :backlinks: none
+```
+
 ## Imports relative to my top-level file are not working
 
 All top-level imports are relative to the current working directory.  For example, if you

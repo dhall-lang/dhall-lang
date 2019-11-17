@@ -2,6 +2,11 @@
 
 > Use Dhall to simplify large and repetitive JSON or YAML configuration files
 
+```eval_rst
+.. contents:: Table of Contents
+   :backlinks: none
+```
+
 This tutorial teaches you how to:
 
 * install the `dhall-to-json` and `dhall-to-yaml` executables

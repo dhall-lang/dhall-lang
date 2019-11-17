@@ -2,6 +2,12 @@
 
 > Learn when it is appropriate to use the Dhall configuration language
 
+```eval_rst
+.. contents:: Table of Contents
+   :backlinks: none
+
+```
+
 This section describes what a "programmable configuration file" is and the types
 of problems that programmable configuration files solve.
 
