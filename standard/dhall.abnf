@@ -861,7 +861,6 @@ primitive-expression =
     / "<" whsp [ "|" whsp ] union-type whsp ">"
     
     ; "[1, 2, 3]"
-    ; `empty-collection` handles empty lists
     / non-empty-list-literal
     
     ; "x"
