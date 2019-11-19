@@ -23,6 +23,6 @@ These guides help you get your hands dirty with working examples:
 
 > Study Dhall best practices in the context of the large and messy NetHack configuration format
 
-## [awsome-dhall](https://github.com/RyanSiu1995/awesome-dhall)
+## [awesome-dhall](https://github.com/RyanSiu1995/awesome-dhall)
 
 > A curated list of awesome dhall-lang binding, libraries and anything related to dhall-lang!
