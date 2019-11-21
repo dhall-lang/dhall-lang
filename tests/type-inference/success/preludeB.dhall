@@ -212,6 +212,17 @@
               }
             )
         → JSON
+    , tagInline :
+          ∀(tagFieldName : Text)
+        → ∀(a : Type)
+        → ∀(contents : a)
+        → { contents : a, field : Text, nesting : < Inline | Nested : Text > }
+    , tagNested :
+          ∀(contentsFieldName : Text)
+        → ∀(tagFieldName : Text)
+        → ∀(a : Type)
+        → ∀(contents : a)
+        → { contents : a, field : Text, nesting : < Inline | Nested : Text > }
     }
 , List :
     { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → Bool

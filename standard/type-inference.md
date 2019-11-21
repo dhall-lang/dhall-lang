@@ -917,9 +917,9 @@ the right-hand side of the assignment then that is a type error.
 
 ## Type annotations
 
-The inferred type of a type annotation is the annotation.  Type-checking also
-verifies that the annotation matches the inferred type of the annotated
-expression:
+Type-checking an annotated expression verifies that the annotation
+matches the inferred type of the annotated expression, and returns the
+inferred type as the type of the whole expression:
 
 
     Γ ⊢ T₀ : i   Γ ⊢ t : T₁   T₀ ≡ T₁
