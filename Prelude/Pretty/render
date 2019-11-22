@@ -1,0 +1,29 @@
+let Pretty = ./Type
+
+let concatSep = ../Text/concatSep
+
+let map = ../List/map
+
+let indent =
+        λ(n : Natural)
+      → λ(xs : List Text)
+      → let spacer = ../Text/concat (../List/replicate n Text " ")
+
+        in  map Text Text (λ(x : Text) → spacer ++ x) xs
+
+let render
+    : Pretty → Text
+    =   λ(p : Pretty)
+      → concatSep
+          ''
+
+          ''
+          ( p
+              (List Text)
+              { string = λ(x : Text) → [ x ]
+              , indent = indent
+              , align = λ(xs : List (List Text)) → ../List/concat Text xs
+              }
+          )
+
+in  render

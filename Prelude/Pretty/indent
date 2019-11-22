@@ -1,0 +1,16 @@
+let Pretty = ./Type
+
+let indent
+    : Natural → Pretty → Pretty
+    =   λ(n : Natural)
+      → λ(x : Pretty)
+      → λ(Pretty : Type)
+      → λ ( pretty
+          : { string : Text → Pretty
+            , indent : Natural → Pretty → Pretty
+            , align : List Pretty → Pretty
+            }
+          )
+      → pretty.indent n (x Pretty pretty)
+
+in  indent

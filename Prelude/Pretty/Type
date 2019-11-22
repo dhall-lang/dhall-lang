@@ -1,0 +1,12 @@
+let Pretty/Type
+    : Type
+    =   ∀(Pretty : Type)
+      → ∀ ( pretty
+          : { string : Text → Pretty
+            , indent : Natural -> Pretty -> Pretty
+            , align : List Pretty → Pretty
+            }
+          )
+      → Pretty
+
+in  Pretty/Type
