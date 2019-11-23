@@ -99,9 +99,9 @@ let indentKeyedBlock
       → λ(indentation : Text)
       → λ(block : Block)
       →       if List/null Text block.tail
-        
+
         then  singleLine (key ++ spacer ++ block.head)
-        
+
         else  indentBlockWith
                 key
                 indentation
@@ -115,7 +115,7 @@ let renderYAML
     : JSON.Type → Text
     =   λ(json : JSON.Type)
       → let ObjectField = { mapKey : Text, mapValue : Block }
-        
+
         in  blockToText
               ( json
                   Block

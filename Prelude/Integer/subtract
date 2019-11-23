@@ -14,25 +14,25 @@ let subtract
     =   λ(m : Integer)
       → λ(n : Integer)
       → let mAbs = Integer/abs m
-        
+
         let nAbs = Integer/abs n
-        
+
         let mNonPos = Natural/isZero (Integer/clamp m)
-        
+
         let nNonPos = Natural/isZero (Integer/clamp n)
-        
+
         let diff =
                     if mNonPos == nNonPos
-              
+
               then        if Natural/lessThanEqual mAbs nAbs
-                    
+
                     then  Integer/negate
                             (Natural/toInteger (Natural/subtract mAbs nAbs))
-                    
+
                     else  Natural/toInteger (Natural/subtract nAbs mAbs)
-              
+
               else  Natural/toInteger (mAbs + nAbs)
-        
+
         in  if mNonPos then diff else Integer/negate diff
 
 let example0 = assert : subtract +3 +5 ≡ +2

@@ -5,9 +5,9 @@ let abs
     : Integer → Natural
     =   λ(n : Integer)
       →       if Natural/isZero (Integer/clamp n)
-        
+
         then  Integer/clamp (Integer/negate n)
-        
+
         else  Integer/clamp n
 
 let example0 = assert : abs +7 ≡ 7

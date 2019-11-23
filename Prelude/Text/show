@@ -9,6 +9,11 @@ let show
 let example0 = assert : show "ABC" ≡ "\"ABC\""
 
 let example1 =
-      assert : show "\u0000 \$ \\ \n ☺" ≡ "\"\\u0000 \\u0024 \\\\ \\n ☺\""
+        assert
+      :   show
+            ''
+            ${"\u0000"} $ \ 
+            ${" "}☺''
+        ≡ "\"\\u0000 \\u0024 \\\\ \\n ☺\""
 
 in  show

@@ -31,7 +31,7 @@ let test0 =
 let step =
         λ(x : Accumulator)
       → let p = partitionMinima x.rest
-        
+
         in  { sorted = x.sorted # p.true, rest = p.false }
 
 let test1 =
@@ -48,7 +48,7 @@ let sort
                 Accumulator
                 step
                 { sorted = [] : List Natural, rest = xs }
-        
+
         in  x.sorted
 
 let example0 = assert : sort ([] : List Natural) ≡ ([] : List Natural)
