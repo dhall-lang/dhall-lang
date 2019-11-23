@@ -1,0 +1,28 @@
+{% extends '!layout.html' %}
+
+{% block extrahead %}
+<div class="footer" style="position: absolute; margin-top: 30px; margin-right: 10px; top: 0; right: 0;">
+  <a style="text-decoration: none"
+     href="https://github.com/dhall-lang/dhall-lang/edit/master/docs/{{ sourcename | replace('.txt', '') }}">
+  Edit me
+</a>
+</div>
+{% endblock %}
+
+{% block footer %}
+<div class="footer">
+  <p>
+    © {{ copyright }}.
+    This work is licensed under a
+    <a href="http://creativecommons.org/licenses/by/4.0/" rel="nofollow">
+      Creative Commons Attribution 4.0 International License
+    </a>.
+    {%- if show_source and has_source and sourcename %}
+    {% if show_copyright or theme_show_powered_by %}|{% endif %}
+    <a href="https://github.com/dhall-lang/dhall-lang/blob/master/docs/{{ sourcename | replace('.txt', '') }}"
+       style="margin-right: 10px"
+       rel="nofollow">{{ _('Page source') }}</a>
+    {%- endif %}
+  </p>
+</div>
+{% endblock %}

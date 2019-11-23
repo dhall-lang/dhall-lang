@@ -1,0 +1,33 @@
+The source code for docs.dhall-lang.org
+=======================================
+
+# Build
+
+To build the website:
+
+```bash
+$ nix build --file ./release.nix docs
+```
+
+Then open `result/index.html`
+
+# Contribute
+
+Markdown references: https://commonmark.org/help/
+
+# References
+
+Sphinx configuration `conf.py` file documentation: https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+Recommonmark config: https://recommonmark.readthedocs.io/en/latest/auto_structify.html
+
+Pygments lexer doc: https://pygments.org/docs/lexerdevelopment.html
+
+# Migration notes
+
+When importing current wiki content, here are some thing to remember:
+
+* Add '# doc-title' at the top
+* For the Dhall-in-production and built-in-types documents, shift sections by replacing '^#' -> '^##'
+* Remove backtic in built-in-types type heading: '^## `\(.*\)`' -> '## \1'
+* Replace ':' with '_' in filename
