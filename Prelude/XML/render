@@ -52,13 +52,13 @@ let render
                     }
                   )
               → let attribs = Text/concatMap Attr renderAttr elem.attributes
-                
+
                 in      "<${elem.name}${attribs}"
                     ++  (       if Natural/isZero
                                      (List/length Text elem.content)
-                          
+
                           then  "/>"
-                          
+
                           else  ">${Text/concat elem.content}</${elem.name}>"
                         )
           }

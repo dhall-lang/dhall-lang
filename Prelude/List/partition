@@ -18,9 +18,9 @@ let partition
           (   λ(x : a)
             → λ(p : Partition a)
             →       if f x
-              
+
               then  { true = [ x ] # p.true, false = p.false }
-              
+
               else  { true = p.true, false = [ x ] # p.false }
           )
           { true = [] : List a, false = [] : List a }

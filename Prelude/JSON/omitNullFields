@@ -55,12 +55,12 @@ let omitNullFields
                                           }
                                         )
                                     →       if keyValue.mapValue.isNull
-                                      
+
                                       then  [] : List
                                                    { mapKey : Text
                                                    , mapValue : JSON
                                                    }
-                                      
+
                                       else  [   keyValue.{ mapKey }
                                               ∧ { mapValue =
                                                     keyValue.mapValue.value
@@ -69,7 +69,7 @@ let omitNullFields
                                   )
                                   keyValues
                               )
-                      
+
                       in  { value = value, isNull = False }
                 , array =
                       λ(xs : List { value : JSON, isNull : Bool })
@@ -83,12 +83,12 @@ let omitNullFields
                                   )
                                   xs
                               )
-                      
+
                       in  { value = value, isNull = False }
                 , bool = λ(x : Bool) → { value = json.bool x, isNull = False }
                 , null = { value = json.null, isNull = True }
                 }
-        
+
         in  result.value
 
 let property =

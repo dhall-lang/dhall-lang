@@ -26,7 +26,7 @@ let concatMapSep
                       status
                 )
                 Status.Empty
-        
+
         in  merge { Empty = "", NonEmpty = λ(result : Text) → result } status
 
 let example0 =

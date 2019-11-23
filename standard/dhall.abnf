@@ -820,7 +820,8 @@ first-application-expression =
 
 import-expression = import / completion-expression
 
-completion-expression = selector-expression [ complete selector-expression ]
+completion-expression =
+    selector-expression [ whsp complete whsp selector-expression ]
 
 ; `record.field` extracts one field of a record
 ;
@@ -861,7 +862,6 @@ primitive-expression =
     / "<" whsp [ "|" whsp ] union-type whsp ">"
     
     ; "[1, 2, 3]"
-    ; `empty-collection` handles empty lists
     / non-empty-list-literal
     
     ; "x"
