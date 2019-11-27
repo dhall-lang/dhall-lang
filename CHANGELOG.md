@@ -5,6 +5,147 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v12.0.0`
+
+Breaking changes:
+
+* [New `Integer/negate` and `Integer/clamp` builtins](https://github.com/dhall-lang/dhall-lang/pull/780)
+
+  This change adds two new built-ins so that `Integer`s are no longer opaque.
+  These two built-ins permit transforming back and forth between `Integer`s and
+  `Natural` numbers, so you can in theory now implement arbitrary operations on
+  `Integer`s.
+
+  These two built-ins have the following types:
+
+  * `Integer/clamp : Integer → Natural` - Converts an `Integer` to a `Natural`
+     number, truncating to `0` if the `Integer` was negative
+
+  * `Integer/negate : Integer → Integer` - Negates an `Integer`
+
+  See below for the matching change to the Prelude to use these built-ins to
+  power several new Prelude utilities.
+
+* [Remove support for fusion](https://github.com/dhall-lang/dhall-lang/pull/792)
+
+  This removes support for `Natural`/`List`/`Optional` "fusion".
+
+  For example, before this change an expression such as:
+
+  ```dhall
+  λ(x : Natural) → Natural/build (Natural/fold x)
+  ```
+
+  ... would simplify to:
+
+  ```dhall
+  λ(x : Natural) → x
+  ```
+
+  ... or in other words paired occurrences of `Natural/build` and `Natural/fold`
+  would "fuse" away and disappear since they are inverses of one another.
+  Similarly, `List/build`/`List/fold` and `Optional/build`/`Optional/fold` would
+  fuse away in the same way.
+
+  After this change they no longer do so.  We removed language support for
+  fusion for two reasons:
+
+  * Fusion was specified in such a way that the language was no longer
+    [confluent](https://en.wikipedia.org/wiki/Confluence_(abstract_rewriting))
+
+    Note: We have not proven that the language is now confluent in the absence
+    of fusion, but we are certain that fusion was interfering with confluence.
+
+    A practical consequence of the absence confluence was that fusion-related
+    optimizations were brittle
+
+  * Fusion added implementation complexity
+
+    ... which in turn increased the difficulty of porting new language bindings
+
+  This is a technically breaking change because the normal forms for certain
+  expressions will differ if they relied on fusion, which in turn would perturb
+  semantic integrity checks protecting those expressions.  In practice, you are
+  unlikely to be affected by this change.
+
+New features:
+
+* [Add new `Integer` functions to Prelude](https://github.com/dhall-lang/dhall-lang/pull/797)
+
+  This change takes advantage of the newly added `Integer/{clamp,negate}`
+  built-ins to add the following operations on `Integer`s to the Prelude:
+
+  * `Integer/abs : Integer → Natural`
+
+  * `Integer/negative : Integer → Bool`
+
+  * `Integer/nonNegative : Integer → Bool`
+
+  * `Integer/nonPositive : Integer → Bool`
+
+  * `Integer/positive : Integer → Bool`
+
+  * `Integer/toNatural : Integer → Optional Natural`
+
+* [Implement `renderYAML`](https://github.com/dhall-lang/dhall-lang/pull/799)
+
+  You can now render `JSON` values as YAML documents using a new
+  `Prelude.JSON.renderYAML` utility
+
+  Note that this utility is not intended to be as featureful as the
+  `dhall-to-yaml` command-line tool, but can still prove to be useful for:
+
+  * Rendering YAML documents in pure Dhall when appropriate to do so
+  * Rendering JSON values as YAML `Text` for use in concise `assert` expressions
+
+* [Add a `Prelude.JSON.omitNullFields`](https://github.com/dhall-lang/dhall-lang/pull/784)
+
+  While `renderYAML` doesn't aim to be as comprehensive as `dhall-to-yaml` we
+  can still provide an `omitNull` utility which behaves similarly to the
+  `--omitNull` flag for the command-line tool.  This function removes all
+  `null`-valued record fields from a `JSON` expression:
+
+  * `JSON/omitNull : JSON → JSON`
+
+* [Add `List/{take,drop}`](https://github.com/dhall-lang/dhall-lang/pull/789)
+
+  This change exploits the recently-added `Natural/subtract` built-in to
+  implement high-performance list truncation utilities of the following types:
+
+  * `List/take : Natural → ∀(a : Type) → List a → List a`
+
+  * `List/drop : Natural → ∀(a : Type) → List a → List a`
+
+* [Add `JSON.tag{Inline,Nested}` helpers for union encoding](https://github.com/dhall-lang/dhall-lang/pull/810)
+
+  These are convenience utilities to support the `dhall-to-{json,yaml}`
+  executables which provide a mechanism for converting union literals to
+  tagged JSON records:
+
+  * `JSON/tagInline : ∀(tagFieldName : Text) → ∀(a : Type) → ∀(contents : a) → { contents : a, field : Text, nesting : < Inline | Nested : Text > }`
+
+  * `JSON/tagNested : ∀(contentsFieldName : Text) → ∀(tagFieldName : Text) → ∀(a : Type) → ∀(contents : a) → { contents : a, field : Text, nesting : < Inline | Nested : Text > }`
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [`dhall.abnf: Treat `forall` as a keyword, not an operator](https://github.com/dhall-lang/dhall-lang/pull/790)
+  * [Treat `missing` as referentially transparent](https://github.com/dhall-lang/dhall-lang/pull/804)
+  * [Fix type annotation standard text](https://github.com/dhall-lang/dhall-lang/pull/816)
+  * [Remove reference to `empty-collection` rule](https://github.com/dhall-lang/dhall-lang/pull/813)
+  * [Permit spaces around completion operator](https://github.com/dhall-lang/dhall-lang/pull/820)
+
+* Fixes and improvements to the Prelude:
+
+  * [Add a `README` for the Prelude](https://github.com/dhall-lang/dhall-lang/pull/793)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Test cases for parsing "missing"](https://github.com/dhall-lang/dhall-lang/pull/788)
+  * [Add tests for decoding big `Integer`s and `Natural`s](https://github.com/dhall-lang/dhall-lang/pull/819)
+  * [Add tests for invalid unbraced unicode escapes and for valid unassigned unicode escapes](https://github.com/dhall-lang/dhall-lang/pull/802)
+
 ## `v11.1.0`
 
 New features:

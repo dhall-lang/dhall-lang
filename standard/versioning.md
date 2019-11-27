@@ -9,7 +9,7 @@ The current version string is:
 
 
     ─────────────────────────
-    currentVersion = "11.1.0"
+    currentVersion = "12.0.0"
 
 
 This version string is used by implementations to:
