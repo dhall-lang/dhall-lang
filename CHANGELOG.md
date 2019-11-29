@@ -75,17 +75,29 @@ New features:
   This change takes advantage of the newly added `Integer/{clamp,negate}`
   built-ins to add the following operations on `Integer`s to the Prelude:
 
-  * `Integer/abs : Integer → Natural`
+  * `Integer.abs : Integer → Natural`
 
-  * `Integer/negative : Integer → Bool`
+  * `Integer.add : Integer → Integer → Integer`
 
-  * `Integer/nonNegative : Integer → Bool`
+  * `Integer.clamp : Integer → Natural`
 
-  * `Integer/nonPositive : Integer → Bool`
+  * `Integer.equal : Integer → Integer → Bool`
 
-  * `Integer/positive : Integer → Bool`
+  * `Integer.greaterThan : Integer → Integer → Bool`
 
-  * `Integer/toNatural : Integer → Optional Natural`
+  * `Integer.greaterThanEqual : Integer → Integer → Bool`
+
+  * `Integer.lessThan : Integer → Integer → Bool`
+
+  * `Integer.lessThanEqual : Integer → Integer → Bool`
+
+  * `Integer.multiply : Integer → Integer → Integer`
+
+  * `Integer.negate : Integer → Integer`
+
+  * `Integer.subtract: Integer → Integer → Integer`
+
+  * `Integer.toNatural : Integer → Optional Natural`
 
 * [Implement `renderYAML`](https://github.com/dhall-lang/dhall-lang/pull/799)
 
