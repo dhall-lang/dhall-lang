@@ -1003,7 +1003,7 @@ List/length t (xs # ys) = List/length t xs + List/length t ys
 List/length t [ x ] = 1
 ```
 
-#### Function: `List/head`
+### Function: `List/head`
 
 ```console
 $ dhall <<< 'List/head Natural [ 1, 2, 3 ]'
