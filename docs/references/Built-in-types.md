@@ -1143,7 +1143,17 @@ List/reverse a ([] : List a) = [] : List a
 
 List/reverse a [ x ] = [ x ]
 
+List/reverse a (List/reverse a xs) = xs
+
 List/reverse a (xs # ys) = List/reverse a ys # List/reverse a xs
+
+List/head a (List/reverse a xs) = List/last a xs
+
+List/last a (List/reverse a xs) = List/head a xs
+
+List/length a (List/reverse a xs) = List/length a xs
+
+List/reverse a (List/indexed a (List/reverse a xs)) = List/indexed a xs
 ```
 
 ## Optional
