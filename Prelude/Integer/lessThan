@@ -2,7 +2,7 @@
 `lessThan` checks if one Integer is less than another.
 -}
 let greaterThan =
-        ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
+        ./greaterThan sha256:0c9b847676939f9d6c462fd78fc5b010150dd3ce67b6e9ac6b8af7b902093a95
       ? ./greaterThan
 
 let lessThan

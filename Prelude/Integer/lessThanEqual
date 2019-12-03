@@ -1,17 +1,32 @@
 {-
 `lessThanEqual` checks if one Integer is less than or equal to another.
 -}
-let lessThan =
-        ./lessThan sha256:14cc3bc6ca8757f7c3af338f079fcc18e0c7ee3ed0d20914a9693aec81ae628d
-      ? ./lessThan
-
 let Bool/not =
         ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
       ? ../Bool/not
 
+let Natural/greaterThanEqual =
+        ../Natural/greaterThanEqual sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+      ? ../Natural/greaterThanEqual
+
+let Natural/lessThanEqual =
+        ../Natural/lessThanEqual sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+      ? ../Natural/lessThanEqual
+
+let nonPositive = λ(x : Integer) → Natural/isZero (Integer/clamp x)
+
 let lessThanEqual
     : Integer → Integer → Bool
-    = λ(x : Integer) → λ(y : Integer) → Bool/not (lessThan y x)
+    =   λ(x : Integer)
+      → λ(y : Integer)
+      →       if nonPositive x
+
+        then      Bool/not (nonPositive y)
+              ||  Natural/greaterThanEqual
+                    (Integer/clamp (Integer/negate x))
+                    (Integer/clamp (Integer/negate y))
+
+        else  Natural/lessThanEqual (Integer/clamp x) (Integer/clamp y)
 
 let example0 = assert : lessThanEqual +5 +6 ≡ True
 

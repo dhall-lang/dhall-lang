@@ -11,16 +11,16 @@
       ./equal sha256:e4414b9eef4142eed6bb0b52eb6fd0074210b68d210e96dd5161697b0f14426a
     ? ./equal
 , greaterThan =
-      ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
+      ./greaterThan sha256:0c9b847676939f9d6c462fd78fc5b010150dd3ce67b6e9ac6b8af7b902093a95
     ? ./greaterThan
 , greaterThanEqual =
-      ./greaterThanEqual sha256:cede1f63b58cb26623148ef741f18e6476ad71d9d541dd54be2b1ec4972a4ad0
+      ./greaterThanEqual sha256:4bc016975e600f4c45031c5b5d7722ac6c5b1e429cb12e5407e213d3591e5515
     ? ./greaterThanEqual
 , lessThan =
-      ./lessThan sha256:14cc3bc6ca8757f7c3af338f079fcc18e0c7ee3ed0d20914a9693aec81ae628d
+      ./lessThan sha256:1d6492e394d36c21ad93dbb015b927771b137e7cf7624994838e8e0a4798213a
     ? ./lessThan
 , lessThanEqual =
-      ./lessThanEqual sha256:a849203a9cd270210588f9db23e02b819117a997df1c8131b6f9a634cb2e5c8d
+      ./lessThanEqual sha256:b58763a060fc19f0b3614183488a99fb1779960d002bc571bb159c105485c2cf
     ? ./lessThanEqual
 , multiply =
       ./multiply sha256:71b2a720976c70f0cd06baba9c213867b9744e655927dc3857fa92c864c3cf86

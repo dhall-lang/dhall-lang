@@ -1,17 +1,13 @@
 {-
 `greaterThanEqual` checks if one Integer is greater than or equal to another.
 -}
-let greaterThan =
-        ./greaterThan sha256:accaa6b7cbca7ec2ace4a529e5f3bb57679df2b5ad962bde5b7867d9253d4b8c
-      ? ./greaterThan
-
-let Bool/not =
-        ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
-      ? ../Bool/not
+let lessThanEqual =
+        ./lessThanEqual sha256:b58763a060fc19f0b3614183488a99fb1779960d002bc571bb159c105485c2cf
+      ? ./lessThanEqual
 
 let greaterThanEqual
     : Integer → Integer → Bool
-    = λ(x : Integer) → λ(y : Integer) → Bool/not (greaterThan y x)
+    = λ(x : Integer) → λ(y : Integer) → lessThanEqual y x
 
 let example0 = assert : greaterThanEqual +5 +6 ≡ False
 
