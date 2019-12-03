@@ -70,6 +70,12 @@
     ```dhall
     …, -2, -1, +0, +1, +2, … : Integer
 
+    Integer/negate +2 = -2
+
+    Integer/clamp +2 = 2
+
+    Integer/clamp -3 = 0
+
     Integer/toDouble -3 = -3.0
 
     Integer/show +2 = "+2"
