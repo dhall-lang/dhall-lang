@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
 </head> 
 
-Dhall is a programmable configuration language that provides a
-non-repetitive alternative to YAML.
+Dhall is a programmable configuration language optimized for
+maintainability.
 
 You can think of Dhall as: JSON + functions + types + imports
 
@@ -157,9 +157,9 @@ as time permits.
 ## Name
 
 The language is named after a
-[Dustman from the game Planescape: Torment][dhall-name]
-who belongs to a faction obsessed with death (termination).  The logo represents
-his quill and inkwell
+[Dustman from the game Planescape: Torment][dhall-name] who belongs to a faction
+obsessed with death (termination).  The fountain pen in the logo is the modern
+analog of Dhall's quill.
 
 The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 "dɔːl" for a UK speaker using the International Phonetic Alphabet).
