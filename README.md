@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
 </head> 
 
-Dhall is a programmable configuration language that provides a
-non-repetitive alternative to YAML.
+Dhall is a programmable configuration language optimized for
+maintainability.
 
 You can think of Dhall as: JSON + functions + types + imports
 
