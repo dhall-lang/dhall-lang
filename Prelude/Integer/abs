@@ -1,14 +1,15 @@
 {-
 Returns the absolute value of an `Integer`, i.e. its non-negative value.
 -}
+let ifPositive =
+        ./ifPositive sha256:5d489fbcc2da522928dd9ca6dff957eeba67841928d2fe928b7c2b518166b233
+      ? ./ifPositive
+
+let identity = λ(n : Natural) → n
+
 let abs
     : Integer → Natural
-    =   λ(n : Integer)
-      →       if Natural/isZero (Integer/clamp n)
-
-        then  Integer/clamp (Integer/negate n)
-
-        else  Integer/clamp n
+    = ifPositive Natural identity identity
 
 let example0 = assert : abs +7 ≡ 7
 

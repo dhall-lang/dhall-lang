@@ -1,0 +1,30 @@
+{-
+A helper for destructuring `Integer`s via `Natural` operations.
+
+In `ifPositive T true false n` , the `true` Function is used when `n` is in the
+range `+1..∞` and applied to the corresponding `Natural`.
+`false` is used when `n` is in the range `-∞..+0` and applied to the
+corresponding negated `Natural in the range `0..∞`.
+-}
+let nonPositive =
+        ./nonPositive sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
+      ? ./nonPositive
+
+let ifPositive
+    : ∀(a : Type) → (Natural → a) → (Natural → a) → Integer → a
+    =   λ(a : Type)
+      → λ(true : Natural → a)
+      → λ(false : Natural → a)
+      → λ(i : Integer)
+      →       if nonPositive i
+
+        then  false (Integer/clamp (Integer/negate i))
+
+        else  true (Integer/clamp i)
+
+let example =
+      let abs = ifPositive Natural (λ(n : Natural) → n) (λ(n : Natural) → n)
+
+      in  assert : abs -3 ≡ 3
+
+in  ifPositive
