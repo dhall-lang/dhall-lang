@@ -38,6 +38,6 @@
       ./toDouble sha256:77bc5d635dc4d952f37cc96f2a681d5ac503b4e8b21fc00055b1946adb5beda7
     ? ./toDouble
 , toNatural =
-      ./toNatural sha256:f2b41b596f89b96588a494745d599721eaf89c17851cd5247ef7c8e0d0a63de6
+      ./toNatural sha256:4d128730d74e7f832e53873cb5204aa91b79758be5ce4e1aa991fe1951304a0e
     ? ./toNatural
 }

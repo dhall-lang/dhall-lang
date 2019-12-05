@@ -1,16 +1,14 @@
 {-
 Convert an `Integer` to an `Optional Natural`, with negative numbers becoming `None Natural`.
 -}
-let nonPositive = λ(x : Integer) → Natural/isZero (Integer/clamp x)
-
 let toNatural
     : Integer → Optional Natural
     =   λ(n : Integer)
-      →       if nonPositive n
+      →       if Natural/isZero (Integer/clamp (Integer/negate n))
 
-        then  if nonPositive (Integer/negate n) then Some 0 else None Natural
+        then  Some (Integer/clamp n)
 
-        else  Some (Integer/clamp n)
+        else  None Natural
 
 let example0 = assert : toNatural +7 ≡ Some 7
 
