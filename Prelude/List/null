@@ -3,7 +3,9 @@ Returns `True` if the `List` is empty and `False` otherwise
 -}
 let null
     : ∀(a : Type) → List a → Bool
-    = λ(a : Type) → λ(xs : List a) → Natural/isZero (List/length a xs)
+    =   λ(a : Type)
+      → λ(xs : List a)
+      → Optional/fold a (List/head a xs) Bool (λ(x : a) → False) True
 
 let example0 = assert : null Natural [ 0, 1, 2 ] ≡ False
 
