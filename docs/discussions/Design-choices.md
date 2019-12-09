@@ -135,7 +135,7 @@ As floating-point arithmetic is imprecise and prone to surprising results (e.g.
 loss of associativity/distributivity, loss of accuracy due to cancellation,
 difficulty testing for equality, etc.), `Double`s are opaque values as far as
 the language is concerned, meaning that a Dhall configuration file can hold them
-and shuffle them around but cannot cannot manipulate them.
+and shuffle them around but cannot manipulate them.
 
 ## No dictionaries/maps/hashes
 
