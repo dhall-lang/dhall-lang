@@ -126,18 +126,18 @@ type).
 
 ## Arithmetic
 
-You cannot perform arithmetic on `Integer`s or `Double`s.  Only `Natural`
-numbers support arithmetic and even they only support addition and
-multiplication, because those operations are associative and well-defined for
-all possible inputs.
+You cannot perform arithmetic on `Double`s.  Only `Natural`
+numbers and `Integer`s support arithmetic and even they only support addition,
+subtraction, and multiplication, because those operations are associative and
+well-defined for all possible inputs.
 
-`Natural`s hold a privileged status within the language because functions based
-on `Natural`s tend be "corner-case-free", meaning that they gracefully handle
-all possible inputs.
+`Natural`s and `Integer`s hold a privileged status within the language because
+functions based on them tend be "corner-case-free", meaning that they gracefully
+handle all possible inputs.
 
-`Integer` and `Double`s are opaque values as far as the language is concerned,
-meaning that a Dhall configuration file can hold them and shuffle them around,
-but cannot do anything interesting with them.
+`Double`s are opaque values as far as the language is concerned, meaning that a
+Dhall configuration file can hold them and shuffle them around but cannot do
+anything interesting with them.
 
 ## No dictionaries/maps/hashes
 
