@@ -17,7 +17,7 @@
 
 *   Add the `--explain` flag for detailed explanations of type errors.
 
-*   Add the `--pretty` flag to format output.
+*   Add the `--plain` flag to disable syntax highlighting.
 
 ## Primitive types
 
