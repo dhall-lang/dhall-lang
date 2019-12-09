@@ -17,8 +17,6 @@
 
 *   Add the `--explain` flag for detailed explanations of type errors.
 
-*   Add the `--plain` flag to disable syntax highlighting.
-
 ## Primitive types
 
 *   `Bool`:
