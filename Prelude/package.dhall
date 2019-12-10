@@ -8,7 +8,7 @@
       ./Function/package.dhall sha256:74c3822b98b9d37f9f820af8e1a7ee790bcfac03050eabd45af4a255fb93e026
     ? ./Function/package.dhall
 , Integer =
-      ./Integer/package.dhall sha256:9fb8d9071cd4c3c9a9e9fc08e307ee254c3e509aa953d2b71873b01422b4116e
+      ./Integer/package.dhall sha256:10e95a868ac36a92bdca5e3fd06491ebe396768c31fd43e3d92feaedb5dc1da4
     ? ./Integer/package.dhall
 , List =
       ./List/package.dhall sha256:f0fdab7ab30415c128d89424589c42a15c835338be116fa14484086e4ba118d7
