@@ -127,6 +127,8 @@ let
           ];
         }
         ''
+        SOURCE_DATE_EPOCH="$(${pkgsNew.coreutils}/bin/date '+%s')"
+
         sphinx-build ${./docs} $out
 
         cp ${./img/dhall-logo.svg} $out/_static/dhall-logo.svg
