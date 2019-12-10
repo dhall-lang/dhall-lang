@@ -23,7 +23,7 @@
       ./lessThanEqual sha256:b58763a060fc19f0b3614183488a99fb1779960d002bc571bb159c105485c2cf
     ? ./lessThanEqual
 , multiply =
-      ./multiply sha256:71b2a720976c70f0cd06baba9c213867b9744e655927dc3857fa92c864c3cf86
+      ./multiply sha256:dcb1ed7c8475ece8d67db92cd249fc728541778ff82509e28c3760e341880e4d
     ? ./multiply
 , negate =
       ./negate sha256:2373c992e1de93634bc6a8781eb073b2a92a70170133e49762a785f3a136df5d
