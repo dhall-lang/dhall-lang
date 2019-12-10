@@ -132,7 +132,7 @@
 
         virtualHosts =
           let
-            latestRelease = "v11.1.0";
+            latestRelease = "v12.0.0";
 
             prelude = {
               forceSSL = true;
