@@ -2,7 +2,7 @@
       ./abs sha256:35212fcbe1e60cb95b033a4a9c6e45befca4a298aa9919915999d09e69ddced1
     ? ./abs
 , add =
-      ./add sha256:96f1ae60f958febc911935ac4aa2685394642b116b7bddcec7e1ed201a69ed2c
+      ./add sha256:7da1306a0bf87c5668beead2a1db1b18861e53d7ce1f38057b2964b649f59c3b
     ? ./add
 , clamp =
       ./clamp sha256:ea42096cf3e024fadfaf910e0b839005b0ea7514fff11e5a3950a77694d9c5d2
@@ -32,7 +32,7 @@
       ./show sha256:ecf8b0594cd5181bc45d3b7ea0d44d3ba9ad5dac6ec17bb8968beb65f4b1baa9
     ? ./show
 , subtract =
-      ./subtract sha256:8de76d2e235eec1629750ae62e191f13631b36708bfda0425572d87e5a9a37e7
+      ./subtract sha256:a34d36272fa8ae4f1ec8b56222fe8dc8a2ec55ec6538b840de0cbe207b006fda
     ? ./subtract
 , toDouble =
       ./toDouble sha256:77bc5d635dc4d952f37cc96f2a681d5ac503b4e8b21fc00055b1946adb5beda7
