@@ -605,6 +605,72 @@ $ dhall --annotate <<< '-2'
 Γ ⊢ ±n : Integer
 ```
 
+### Function `Integer/negate`
+
+#### Example
+
+```console
+$ dhall <<< 'Integer/negate +2'
+```
+```dhall
+-2
+```
+
+```console
+$ dhall <<< 'Integer/negate -3'
+```
+```dhall
++3
+```
+
+#### Type
+
+```
+──────────────────────────────────────
+Γ ⊢ Integer/negate : Integer → Integer
+```
+
+#### Rules
+
+```dhall
+Integer/negate (Integer/negate x) = x
+```
+
+### Function `Integer/clamp`
+
+#### Example
+
+```console
+$ dhall <<< 'Integer/clamp +2'
+```
+```dhall
+2
+```
+
+```console
+$ dhall <<< 'Integer/clamp -3'
+```
+```dhall
+0
+```
+
+#### Type
+
+```
+─────────────────────────────────────
+Γ ⊢ Integer/clamp : Integer → Natural
+```
+
+#### Rules
+
+```dhall
+Natural/isZero (Integer/clamp -x) = True
+
+Integer/clamp (Natural/toInteger x) = x
+
+Natural/isZero (Integer/clamp x) || Natural/isZero (Integer/clamp (Integer/negate x)) = True
+```
+
 ### Function `Integer/toDouble`
 
 #### Example
@@ -1143,7 +1209,15 @@ List/reverse a ([] : List a) = [] : List a
 
 List/reverse a [ x ] = [ x ]
 
+List/reverse a (List/reverse a xs) = xs
+
 List/reverse a (xs # ys) = List/reverse a ys # List/reverse a xs
+
+List/head a (List/reverse a xs) = List/last a xs
+
+List/last a (List/reverse a xs) = List/head a xs
+
+List/length a (List/reverse a xs) = List/length a xs
 ```
 
 ## Optional
