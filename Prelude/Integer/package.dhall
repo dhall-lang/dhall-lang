@@ -28,6 +28,18 @@
 , negate =
       ./negate sha256:2373c992e1de93634bc6a8781eb073b2a92a70170133e49762a785f3a136df5d
     ? ./negate
+, negative =
+      ./negative sha256:23e4b3c61eea9e878a7f83bf25fd0ea2c6a6d60174890d65be885828b690a570
+    ? ./negative
+, nonNegative =
+      ./nonNegative sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
+    ? ./nonNegative
+, nonPositive =
+      ./nonPositive sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
+    ? ./nonPositive
+, positive =
+      ./positive sha256:7bdbf50fcdb83d01f74c7e2a92bf5c9104eff5d8c5b4587e9337f0caefcfdbe3
+    ? ./positive
 , show =
       ./show sha256:ecf8b0594cd5181bc45d3b7ea0d44d3ba9ad5dac6ec17bb8968beb65f4b1baa9
     ? ./show
