@@ -487,7 +487,7 @@ double-literal =
     / NaN
 
 natural-literal =
-    ; Hexadecimal
+    ; Hexadecimal with "0x" prefix
       "0" %x78 1*HEXDIG
     / 1*DIGIT
 
