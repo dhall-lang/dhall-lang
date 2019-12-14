@@ -486,7 +486,10 @@ double-literal =
     ; "NaN"
     / NaN
 
-natural-literal = 1*DIGIT
+natural-literal =
+    ; Hexadecimal
+      "0" %x78 1*HEXDIG
+    / 1*DIGIT
 
 integer-literal = ( "+" / "-" ) natural-literal
 
