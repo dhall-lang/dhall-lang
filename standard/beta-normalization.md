@@ -1283,6 +1283,30 @@ matching label:
     merge t u ⇥ v
 
 
+`Optional`s are handled as if they were union values of type
+`< None | Some : A >`:
+
+
+    t ⇥ { Some = f, … }   o ⇥ Some a   f a ⇥ b
+    ──────────────────────────────────────────
+    merge t o : T ⇥ b
+
+
+    t ⇥ { Some = f, … }   o ⇥ Some a   f a ⇥ b
+    ──────────────────────────────────────────
+    merge t o ⇥ b
+
+
+    t ⇥ { None = v, … }   o ⇥ None A
+    ────────────────────────────────
+    merge t o : T ⇥ v
+
+
+    t ⇥ { None = v, … }   o ⇥ None A
+    ────────────────────────────────
+    merge t o ⇥ v
+
+
 If the handler or union are abstract, then normalize each subexpression:
 
 
