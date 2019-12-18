@@ -1,46 +1,37 @@
 {-
 `subtract m n` computes `n - m`.
 -}
-let nonPositive =
-        ./nonPositive sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
-      ? ./nonPositive
+let ifPositive =
+        ./ifPositive sha256:5d489fbcc2da522928dd9ca6dff957eeba67841928d2fe928b7c2b518166b233
+      ? ./ifPositive
 
-let subtractNonNegative =
-        λ(xi : Integer)
-      → λ(yi : Integer)
-      → let xn = Integer/clamp xi
+let subtract =
+        λ(x : Natural)
+      → λ(y : Natural)
+      → let d = Natural/subtract x y
 
-        let yn = Integer/clamp yi
+        in        if Natural/isZero d
 
-        let dn = Natural/subtract xn yn
+            then  Integer/negate (Natural/toInteger (Natural/subtract y x))
 
-        in        if Natural/isZero dn
-
-            then  Integer/negate (Natural/toInteger (Natural/subtract yn xn))
-
-            else  Natural/toInteger dn
+            else  Natural/toInteger d
 
 let subtract
     : Integer → Integer → Integer
-    =   λ(m : Integer)
-      → λ(n : Integer)
-      →       if nonPositive m
-
-        then        if nonPositive n
-
-              then  subtractNonNegative (Integer/negate n) (Integer/negate m)
-
-              else  Natural/toInteger
-                      (Integer/clamp (Integer/negate m) + Integer/clamp n)
-
-        else  if nonPositive n
-
-        then  Integer/negate
-                ( Natural/toInteger
-                    (Integer/clamp m + Integer/clamp (Integer/negate n))
-                )
-
-        else  subtractNonNegative m n
+    = ifPositive
+        (Integer → Integer)
+        (   λ(m : Natural)
+          → ifPositive
+              Integer
+              (λ(n : Natural) → subtract m n)
+              (λ(n : Natural) → Integer/negate (Natural/toInteger (m + n)))
+        )
+        (   λ(m : Natural)
+          → ifPositive
+              Integer
+              (λ(n : Natural) → Natural/toInteger (m + n))
+              (λ(n : Natural) → subtract n m)
+        )
 
 let example0 = assert : subtract +3 +5 ≡ +2
 
