@@ -17,8 +17,6 @@
 
 *   Add the `--explain` flag for detailed explanations of type errors.
 
-*   Add the `--pretty` flag to format output.
-
 ## Primitive types
 
 *   `Bool`:
