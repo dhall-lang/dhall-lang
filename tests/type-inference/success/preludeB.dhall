@@ -32,6 +32,10 @@
     , lessThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
     , multiply : ∀(m : Integer) → ∀(n : Integer) → Integer
     , negate : Integer → Integer
+    , negative : ∀(n : Integer) → Bool
+    , nonNegative : ∀(n : Integer) → Bool
+    , nonPositive : ∀(n : Integer) → Bool
+    , positive : ∀(n : Integer) → Bool
     , show : Integer → Text
     , subtract : ∀(m : Integer) → ∀(n : Integer) → Integer
     , toDouble : Integer → Double
