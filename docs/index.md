@@ -6,9 +6,10 @@ Welcome to the Dhall documentation!
 ```eval_rst
 .. note::
 
-   This website's sources are located in the `dhall-lang project`_
-   docs directory. Please feel free to contribute by clicking the **Edit me** button
-   at the top right corner, or use the `issue system`_. Thanks!
+   This website's sources are located in the `dhall-lang project`_ docs
+   directory. Please feel free to contribute by clicking the
+   **Edit me on Github** button, located in the top right corner of each page,
+   or use the `issue system`_. Thanks!
 
 .. _`dhall-lang project`: https://github.com/dhall-lang/dhall-lang/tree/master/docs
 .. _`issue system`: https://github.com/dhall-lang/dhall-lang/issues/new
