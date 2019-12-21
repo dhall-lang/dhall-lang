@@ -269,6 +269,13 @@ $ dhall --annotate <<< '0xFF'
 255 : Natural
 ```
 
+```console
+$ dhall --annotate <<< '0xff'
+```
+```dhall
+255 : Natural
+```
+
 #### Type
 
 ```
@@ -599,6 +606,13 @@ $ dhall --annotate <<< '+3'
 ```
 
 ```console
+$ dhall --annotate <<< '-2'
+```
+```dhall
+-2 : Integer
+```
+
+```console
 $ dhall --annotate <<< '+0xFF'
 ```
 ```dhall
@@ -606,10 +620,10 @@ $ dhall --annotate <<< '+0xFF'
 ```
 
 ```console
-$ dhall --annotate <<< '-2'
+$ dhall --annotate <<< '+0xff'
 ```
 ```dhall
--2 : Integer
++255 : Integer
 ```
 
 #### Type
