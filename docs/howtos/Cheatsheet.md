@@ -42,6 +42,8 @@
     ```dhall
     0, 1, 2, … : Natural
 
+    0x0, 0x1, …, 0xE, 0xF, 0x10, … : Natural -- Hexadecimal notation
+
     2 + 3 = 5
 
     2 * 3 = 6
@@ -67,6 +69,8 @@
 
     ```dhall
     …, -2, -1, +0, +1, +2, … : Integer
+
+    …, -0x10, -0xF, -0xE, …, 0xE, 0xF, 0x10, … : Integer  -- Hexadecimal notation
 
     Integer/negate +2 = -2
 
