@@ -17,8 +17,6 @@
 
 *   Add the `--explain` flag for detailed explanations of type errors.
 
-*   Add the `--pretty` flag to format output.
-
 ## Primitive types
 
 *   `Bool`:
@@ -43,6 +41,8 @@
 
     ```dhall
     0, 1, 2, … : Natural
+
+    0x0, 0x1, …, 0xE, 0xF, 0x10, … : Natural -- Hexadecimal notation
 
     2 + 3 = 5
 
@@ -69,6 +69,8 @@
 
     ```dhall
     …, -2, -1, +0, +1, +2, … : Integer
+
+    …, -0x10, -0xF, -0xE, …, 0xE, 0xF, 0x10, … : Integer  -- Hexadecimal notation
 
     Integer/negate +2 = -2
 

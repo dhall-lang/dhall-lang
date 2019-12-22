@@ -262,6 +262,20 @@ $ dhall --annotate <<< '2'
 2 : Natural
 ```
 
+```console
+$ dhall --annotate <<< '0xFF'
+```
+```dhall
+255 : Natural
+```
+
+```console
+$ dhall --annotate <<< '0xff'
+```
+```dhall
+255 : Natural
+```
+
 #### Type
 
 ```
@@ -596,6 +610,20 @@ $ dhall --annotate <<< '-2'
 ```
 ```dhall
 -2 : Integer
+```
+
+```console
+$ dhall --annotate <<< '+0xFF'
+```
+```dhall
++255 : Integer
+```
+
+```console
+$ dhall --annotate <<< '+0xff'
+```
+```dhall
++255 : Integer
 ```
 
 #### Type
