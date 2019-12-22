@@ -89,7 +89,7 @@ actively maintained implementations of the Dhall language.  Votes are made
 using the GitHub pull request review feature.  Each implementation gets one
 vote.
 
-At the time of this writing the three actively supported implementations of Dhall
+At the time of this writing the four actively supported implementations of Dhall
 are:
 
 *   [`dhall-haskell` - Haskell bindings to Dhall](https://github.com/dhall-lang/dhall-haskell)
@@ -103,6 +103,10 @@ are:
 *   [`dhall-ruby` - ruby bindings to Dhall](https://git.sr.ht/~singpolyma/dhall-ruby)
 
     Led by @singpolyma
+
+*   [`dhall-rust` - Rust bindings to Dhall](https://github.com/Nadrieril/dhall-rust)
+
+    Led by @Nadrieril
 
 Each of those implementations get one vote cast by the lead contributor for each
 implementation.  In the case of a tie vote the proposal is still approved.
