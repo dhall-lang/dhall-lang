@@ -178,7 +178,6 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [dhall-eta]: https://github.com/eta-lang/dhall-eta
 [dhall-python]: https://github.com/SupraSummus/dhall-python
 [dhall-scala]: https://github.com/amarpotghan/dhall-scala
-[dhall-rust]: https://github.com/Nadrieril/dhall-rust
 [dhall-json]: https://github.com/dhall-lang/dhall-json
 [dhall-json-tutorial]: https://hackage.haskell.org/package/dhall-json/docs/Dhall-JSON.html
 [dhall-json-post]: http://www.haskellforall.com/2017/02/program-json-and-yaml-with-dhall.html
