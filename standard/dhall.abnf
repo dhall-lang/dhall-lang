@@ -223,7 +223,7 @@ label = ("`" quoted-label "`" / simple-label)
 ;    / !builtin label
 nonreserved-label = label
 
-; An any-label is allowed to be one of the reserved identifiers.
+; An any-label is allowed to be one of the reserved identifiers (but not a keyword).
 any-label = label
 
 
