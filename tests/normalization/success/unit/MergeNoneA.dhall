@@ -1,1 +1,1 @@
-merge { None = False, `Some` = \(b : Bool) -> b } (None Bool)
+merge { None = False, Some = \(b : Bool) -> b } (None Bool)

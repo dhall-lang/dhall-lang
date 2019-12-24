@@ -226,6 +226,9 @@ nonreserved-label = label
 ; An any-label is allowed to be one of the reserved identifiers (but not a keyword).
 any-label = label
 
+; Allow specifically `Some` in record and union labels.
+any-label-or-some = any-label / Some
+
 
 ; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
@@ -838,7 +841,7 @@ selector-expression = primitive-expression *(whsp "." whsp selector)
 
 selector = any-label / labels / type-selector
 
-labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
+labels = "{" whsp [ any-label-or-some whsp *("," whsp any-label-or-some whsp) ] "}"
 
 type-selector = "(" whsp expression whsp ")"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
@@ -883,13 +886,13 @@ empty-record-literal = "="
 empty-record-type = ""
 
 non-empty-record-type-or-literal =
-    any-label whsp (non-empty-record-literal / non-empty-record-type)
+    any-label-or-some whsp (non-empty-record-literal / non-empty-record-type)
 
 non-empty-record-type = ":" whsp1 expression *(whsp "," whsp record-type-entry)
-record-type-entry = any-label whsp ":" whsp1 expression
+record-type-entry = any-label-or-some whsp ":" whsp1 expression
 
 non-empty-record-literal = "=" whsp expression *(whsp "," whsp record-literal-entry)
-record-literal-entry = any-label whsp "=" whsp expression
+record-literal-entry = any-label-or-some whsp "=" whsp expression
 
 union-type =
       non-empty-union-type
@@ -902,7 +905,7 @@ non-empty-union-type =
 
 ; x : Natural
 ; x
-union-type-entry = any-label [ whsp ":" whsp1 expression ]
+union-type-entry = any-label-or-some [ whsp ":" whsp1 expression ]
 
 non-empty-list-literal =
     "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) "]"
