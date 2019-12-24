@@ -295,9 +295,9 @@ unbraced-escape =
 ;
 ; See the `valid-non-ascii` rule for the exact ranges that are not allowed
 braced-codepoint =
-      1*3HEXDIG ; %x000-FFF
+      ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") unicode-suffix; (Planes 1-16)
     / unbraced-escape ; (Plane 0)
-    / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") unicode-suffix; (Planes 1-16)
+    / 1*3HEXDIG ; %x000-FFF
 
 ; Allow zero padding for braced codepoints
 braced-escape = *"0" braced-codepoint
