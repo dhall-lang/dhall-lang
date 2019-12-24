@@ -718,11 +718,28 @@ An implementation could simply loop over the inferred record type.
     Γ ⊢ merge t₀ u₀ : T₀
 
 
+`Optional`s can also be `merge`d as if they had type `< None | Some : A >`:
+
+
+    Γ ⊢ o : Optional A
+    o ⇥ None A
+    Γ ⊢ merge t < None | Some : A >.None : T
+    ────────────────────────────────────────
+    Γ ⊢ merge t o : T
+
+
+    Γ ⊢ o : Optional A
+    o ⇥ Some a
+    Γ ⊢ merge t (< None | Some : A >.Some a) : T
+    ────────────────────────────────────────────
+    Γ ⊢ merge t o : T
+
+
 If the first argument of a `merge` expression is not a record then that is a
 type error.
 
-If the second argument of a `merge` expression is not a union then that is a
-type error.
+If the second argument of a `merge` expression is not a union or an `Optional`
+then that is a type error.
 
 If you `merge` an empty union without a type annotation then that is a type
 error.
