@@ -1,1 +1,1 @@
-λ(x : Natural) → Natural/fold x Natural (λ(n : Natural) → n + 1) 0
+λ(x : Natural) → Natural/fold x Natural (λ(x : Natural) → x + 1) 0
