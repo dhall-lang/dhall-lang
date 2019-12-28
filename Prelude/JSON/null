@@ -7,7 +7,7 @@ in  JSON.render JSON.null
 ```
 -}
 let JSON =
-        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+        ./Type sha256:88bc5a41073bad3d9d95cc2f9872482cdcd68de969a60069725bbfc240247c72
       ? ./Type
 
 let null
@@ -15,7 +15,9 @@ let null
     =   λ(JSON : Type)
       → λ ( json
           : { string : Text → JSON
-            , number : Double → JSON
+            , double : Double → JSON
+            , integer : Integer → JSON
+            , natural : Natural → JSON
             , object : List { mapKey : Text, mapValue : JSON } → JSON
             , array : List JSON → JSON
             , bool : Bool → JSON

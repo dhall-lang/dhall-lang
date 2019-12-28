@@ -17,7 +17,7 @@ let tagInline
 
 let example0 =
       let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
-
+      
       in    assert
           :   tagInline "name" Example (Example.Left { foo = 2 })
             ≡ { field = "name"

@@ -17,8 +17,12 @@
           Bool → JSON
       , null :
           JSON
-      , number :
+      , double :
           Double → JSON
+      , integer :
+          Integer → JSON
+      , natural :
+          Natural → JSON
       , object :
           List { mapKey : Text, mapValue : JSON } → JSON
       , string :
@@ -30,7 +34,7 @@
   , { mapKey =
         "bar"
     , mapValue =
-        json.array [ json.number 1.0, json.bool True ]
+        json.array [ json.double 1.0, json.bool True ]
     }
   ]
 ```
@@ -47,7 +51,7 @@ in  JSON.object
     , { mapKey =
           "bar"
       , mapValue =
-          JSON.array [ JSON.number 1.0, JSON.bool True ]
+          JSON.array [ JSON.double 1.0, JSON.bool True ]
       }
     ]
 ```
@@ -58,7 +62,9 @@ let JSON/Type
     =   ∀(JSON : Type)
       → ∀ ( json
           : { string : Text → JSON
-            , number : Double → JSON
+            , double : Double → JSON
+            , integer : Integer → JSON
+            , natural : Natural → JSON
             , object : List { mapKey : Text, mapValue : JSON } → JSON
             , array : List JSON → JSON
             , bool : Bool → JSON
