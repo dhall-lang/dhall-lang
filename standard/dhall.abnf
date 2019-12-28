@@ -223,8 +223,11 @@ label = ("`" quoted-label "`" / simple-label)
 ;    / !builtin label
 nonreserved-label = label
 
-; An any-label is allowed to be one of the reserved identifiers.
+; An any-label is allowed to be one of the reserved identifiers (but not a keyword).
 any-label = label
+
+; Allow specifically `Some` in record and union labels.
+any-label-or-some = any-label / Some
 
 
 ; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
@@ -295,9 +298,9 @@ unbraced-escape =
 ;
 ; See the `valid-non-ascii` rule for the exact ranges that are not allowed
 braced-codepoint =
-      1*3HEXDIG ; %x000-FFF
+      ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") unicode-suffix; (Planes 1-16)
     / unbraced-escape ; (Plane 0)
-    / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") unicode-suffix; (Planes 1-16)
+    / 1*3HEXDIG ; %x000-FFF
 
 ; Allow zero padding for braced codepoints
 braced-escape = *"0" braced-codepoint
@@ -486,7 +489,10 @@ double-literal =
     ; "NaN"
     / NaN
 
-natural-literal = 1*DIGIT
+natural-literal =
+    ; Hexadecimal with "0x" prefix
+      "0" %x78 1*HEXDIG
+    / 1*DIGIT
 
 integer-literal = ( "+" / "-" ) natural-literal
 
@@ -835,7 +841,7 @@ selector-expression = primitive-expression *(whsp "." whsp selector)
 
 selector = any-label / labels / type-selector
 
-labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
+labels = "{" whsp [ any-label-or-some whsp *("," whsp any-label-or-some whsp) ] "}"
 
 type-selector = "(" whsp expression whsp ")"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
@@ -880,13 +886,13 @@ empty-record-literal = "="
 empty-record-type = ""
 
 non-empty-record-type-or-literal =
-    any-label whsp (non-empty-record-literal / non-empty-record-type)
+    any-label-or-some whsp (non-empty-record-literal / non-empty-record-type)
 
 non-empty-record-type = ":" whsp1 expression *(whsp "," whsp record-type-entry)
-record-type-entry = any-label whsp ":" whsp1 expression
+record-type-entry = any-label-or-some whsp ":" whsp1 expression
 
 non-empty-record-literal = "=" whsp expression *(whsp "," whsp record-literal-entry)
-record-literal-entry = any-label whsp "=" whsp expression
+record-literal-entry = any-label-or-some whsp "=" whsp expression
 
 union-type =
       non-empty-union-type
@@ -899,7 +905,7 @@ non-empty-union-type =
 
 ; x : Natural
 ; x
-union-type-entry = any-label [ whsp ":" whsp1 expression ]
+union-type-entry = any-label-or-some [ whsp ":" whsp1 expression ]
 
 non-empty-list-literal =
     "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) "]"
