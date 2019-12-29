@@ -53,7 +53,9 @@
                       : { array : List JSON → JSON
                         , bool : Bool → JSON
                         , null : JSON
-                        , number : Double → JSON
+                        , double : Double → JSON
+                        , integer : Integer → JSON
+                        , natural : Natural → JSON
                         , object :
                             List { mapKey : Text, mapValue : JSON } → JSON
                         , string : Text → JSON
@@ -67,7 +69,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -80,7 +84,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -99,7 +105,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -112,7 +120,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -128,7 +138,9 @@
                         : { array : List JSON → JSON
                           , bool : Bool → JSON
                           , null : JSON
-                          , number : Double → JSON
+                          , double : Double → JSON
+                          , integer : Integer → JSON
+                          , natural : Natural → JSON
                           , object :
                               List { mapKey : Text, mapValue : JSON } → JSON
                           , string : Text → JSON
@@ -142,7 +154,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -155,7 +169,9 @@
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
                     , null : JSON
-                    , number : Double → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
+                    , natural : Natural → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -167,7 +183,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -180,7 +198,9 @@
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
                     , null : JSON
-                    , number : Double → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
+                    , natural : Natural → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -195,7 +215,9 @@
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
                     , null : JSON
-                    , number : Double → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
+                    , natural : Natural → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -210,7 +232,9 @@
             : { array : List JSON → JSON
               , bool : Bool → JSON
               , null : JSON
-              , number : Double → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
