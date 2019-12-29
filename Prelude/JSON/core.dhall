@@ -51,6 +51,6 @@
       ./null sha256:900eac8fb957f4c46fbba1480766de72b12851f24b0a17efb14b0467781377d1
     ? ./null
 , renderInteger =
-      ./renderInteger.dhall sha256:b37698bd4075b3db00e368f87c71c0a0c72e6384603d077b986d65ad2873a463
+      ./renderInteger.dhall sha256:15b8d2ae46d5002832741927af787761df49798c911e2bf85db7a7b9cb5c078c
     ? ./renderInteger.dhall
 }

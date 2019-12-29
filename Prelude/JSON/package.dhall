@@ -14,6 +14,6 @@
         ./tagNested sha256:93a7415853b7677c832246efadc8e880c1b641a23589286a836a384ca311d26f
       ? ./tagNested
   }
-∧ (   ./core.dhall sha256:c4c2fecc5ea7edd8f1832f3531596d1db6ea9834d2f12a6c2af547957c6e08fb
+∧ (   ./core.dhall sha256:0a73b23ced8d1a472aa77ec328bae9696b8246352e5424bb22f701fc6ec6eab6
     ? ./core.dhall
   )
