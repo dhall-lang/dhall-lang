@@ -92,6 +92,36 @@
               }
             )
         → JSON
+    , double :
+          ∀(x : Double)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
+    , integer :
+          ∀(x : Integer)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
     , keyText :
         ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
     , keyValue :
@@ -99,6 +129,21 @@
         → ∀(key : Text)
         → ∀(value : v)
         → { mapKey : Text, mapValue : v }
+    , natural :
+          ∀(x : Natural)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , natural : Natural → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
     , null :
           ∀(JSON : Type)
         → ∀ ( json
@@ -208,6 +253,7 @@
               → JSON
             )
         → Text
+    , renderInteger : ∀(integer : Integer) → Text
     , renderYAML :
           ∀ ( json
             :   ∀(JSON : Type)
