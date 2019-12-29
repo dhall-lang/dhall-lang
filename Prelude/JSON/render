@@ -4,7 +4,7 @@
    more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
 -}
 let JSON =
-        ./core.dhall sha256:c4c2fecc5ea7edd8f1832f3531596d1db6ea9834d2f12a6c2af547957c6e08fb
+        ./core.dhall sha256:0a73b23ced8d1a472aa77ec328bae9696b8246352e5424bb22f701fc6ec6eab6
       ? ./core.dhall
 
 let Text/concatMapSep =
