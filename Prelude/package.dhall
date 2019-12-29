@@ -5,7 +5,7 @@
       ./Double/package.dhall sha256:b8d20ab3216083622ae371fb42a6732bc67bb2d66e84989c8ddba7556a336cf7
     ? ./Double/package.dhall
 , Function =
-      ./Function/package.dhall sha256:74c3822b98b9d37f9f820af8e1a7ee790bcfac03050eabd45af4a255fb93e026
+      ./Function/package.dhall sha256:6d17cf0fd4fabe1737fb117f87c04b8ff82b299915a5b673c0a543b134b8fffe
     ? ./Function/package.dhall
 , Integer =
       ./Integer/package.dhall sha256:d1a572ca3a764781496847e4921d7d9a881c18ffcfac6ae28d0e5299066938a0

@@ -20,6 +20,7 @@
         → ∀(g : B → C)
         → ∀(x : A)
         → C
+    , identity : ∀(a : Type) → ∀(x : a) → a
     }
 , Integer :
     { abs : ∀(n : Integer) → Natural
