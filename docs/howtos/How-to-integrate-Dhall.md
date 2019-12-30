@@ -15,6 +15,7 @@ The following languages can read in Dhall configuration files directly using a p
 * [Clojure](https://github.com/f-f/dhall-clj) - Via the `dhall-clj` package
 * [Haskell](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall/README.md) - Via the `dhall` package
 * [Ruby](https://git.sr.ht/~singpolyma/dhall-ruby) - Via the `dhall-ruby` package
+* [Rust](https://crates.io/crates/serde_dhall) - Via the `serde_dhall` package
 
 The following languages can read in Dhall configuration files by building on top of one of the above three implementations:
 
@@ -25,7 +26,6 @@ The following languages can read in Dhall configuration files by building on top
 The following language bindings are currently in progress:
 
 * [Go](https://github.com/philandstuff/dhall-golang) - Via the `dhall-golang` package
-* [Rust](https://github.com/Nadrieril/dhall-rust/blob/master/README.md) - Via the `dhall-rust` package
 * [PureScript](https://github.com/MonoidMusician/dhall-purescript/blob/master/README.md) - Via the `dhall-purescript` package
 
 The following integrations built on top of another implementation are still in progress:
