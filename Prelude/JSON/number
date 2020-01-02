@@ -20,6 +20,6 @@ let double =
 
 let number
     : Double → JSON
-    = λ(x : Double) → double x
+    = double
 
 in  number
