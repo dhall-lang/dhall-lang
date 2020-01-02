@@ -4,7 +4,7 @@
    more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
 -}
 let JSON =
-        ./core.dhall sha256:0a73b23ced8d1a472aa77ec328bae9696b8246352e5424bb22f701fc6ec6eab6
+        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let Text/concatMapSep =
@@ -19,7 +19,6 @@ let render
           { string = λ(x : Text) → Text/show x
           , double = λ(x : Double) → Double/show x
           , integer = λ(x : Integer) → JSON.renderInteger x
-          , natural = λ(x : Natural) → Natural/show x
           , object =
                 λ(x : List { mapKey : Text, mapValue : Text })
               → let body =

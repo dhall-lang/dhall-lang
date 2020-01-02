@@ -3,7 +3,7 @@ This utility omits all `null` record fields, which is often the idiomatic way
 for a configuration to encode absent fields
 -}
 let JSON =
-        ./core.dhall sha256:0a73b23ced8d1a472aa77ec328bae9696b8246352e5424bb22f701fc6ec6eab6
+        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let List/concatMap =
@@ -23,7 +23,6 @@ let omitNullFields
             , bool : Bool → JSON
             , double : Double → JSON
             , integer : Integer → JSON
-            , natural : Natural → JSON
             , null : JSON
             , object : List { mapKey : Text, mapValue : JSON } → JSON
             , string : Text → JSON
@@ -38,8 +37,6 @@ let omitNullFields
                     λ(x : Double) → { value = json.double x, isNull = False }
                 , integer =
                     λ(x : Integer) → { value = json.integer x, isNull = False }
-                , natural =
-                    λ(x : Natural) → { value = json.natural x, isNull = False }
                 , object =
                       λ ( keyValues
                         : List
