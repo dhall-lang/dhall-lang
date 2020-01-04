@@ -5,6 +5,68 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v13.0.0`
+
+Breaking changes:
+
+* [Extend Prelude's JSON type to handle unlimited precision `Integer`s and `Natural`s](https://github.com/dhall-lang/dhall-lang/pull/873)
+
+  This adds new `Prelude.JSON.{double,integer,natural}` utilities and the
+  latter two utilities can store arbitrary `Integer`s and `Natural` without
+  loss of precision.
+
+  For example:
+
+  ```dhall
+  let JSON = https://prelude.dhall-lang.org/JSON/package.dhall
+
+  in  JSON.render (JSON.natural 1000000000000000000000000000000)
+  ```
+
+  `Prelude.JSON.number` still remains and is a synonym for `Prelude.JSON.double`
+
+  This is a technically breaking change because this alters `Prelude.JSON.Type`
+  but in practice this will not break code that treats that type as a black box.
+
+New features:
+
+* [Extend `merge` to work on `Optional`s](https://github.com/dhall-lang/dhall-lang/pull/860)
+
+  You can use `merge` on `Optional`s as if they were a union, like this:
+
+  ```dhall
+  merge { None = False, Some = λ(b : Bool) → b } (Some True)
+  ```
+
+* [Add support for hexadecimal numbers](https://github.com/dhall-lang/dhall-lang/pull/859)
+
+  You can now use hexadecimal literals for `Natural`s and `Integer`s, like this:
+
+  ```dhall
+  0xFF
+
+  -0xE1
+  ```
+
+* New additions to the Prelude
+
+  * [Add `Prelude.Integer.{negative,nonNegative,nonPositive,positive}](https://github.com/dhall-lang/dhall-lang/pull/857)
+  * [Add `Prelude.Function.identity`](https://github.com/dhall-lang/dhall-lang/pull/865)
+
+Other changes:
+
+* Fixes and improvements to the Prelude:
+
+  * [Simplify `Prelude.Integer.equal`](https://github.com/dhall-lang/dhall-lang/pull/842)
+  * [Simplify `Prelude.Integer.{greater,less}Than{,Equal}`](https://github.com/dhall-lang/dhall-lang/pull/843)
+  * [Simplify `Prelude.Integer.toNatural`](https://github.com/dhall-lang/dhall-lang/pull/844)
+  * [Make `Prelude.Integer.multiply` slightly more efficient](https://github.com/dhall-lang/dhall-lang/pull/846)
+  * [Improve `Prelude.Integer.subtract`](https://github.com/dhall-lang/dhall-lang/pull/845)
+
+* Fixes and improvements to the standard:
+
+  * [Some small grammar fixes](https://github.com/dhall-lang/dhall-lang/pull/871)
+
 ## `v12.0.0`
 
 Breaking changes:
