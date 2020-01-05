@@ -7,19 +7,20 @@ in  JSON.render JSON.null
 ```
 -}
 let JSON =
-        ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+        ./Type sha256:40edbc9371979426df63e064333b02689b969c4cfbbccfa481216d2d1a6e9759
       ? ./Type
 
 let null
     : JSON
     =   λ(JSON : Type)
       → λ ( json
-          : { string : Text → JSON
-            , number : Double → JSON
-            , object : List { mapKey : Text, mapValue : JSON } → JSON
-            , array : List JSON → JSON
+          : { array : List JSON → JSON
             , bool : Bool → JSON
+            , double : Double → JSON
+            , integer : Integer → JSON
             , null : JSON
+            , object : List { mapKey : Text, mapValue : JSON } → JSON
+            , string : Text → JSON
             }
           )
       → json.null
