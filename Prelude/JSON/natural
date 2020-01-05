@@ -1,22 +1,18 @@
-{- Create a JSON string from Dhall `Text`
+{- Create a JSON number from a Dhall `Natural`
 
 ```
 let JSON = ./package.dhall
-in  JSON.render (JSON.string "ABC $ \" 🙂")
-= "\"ABC \\u0024 \\\" 🙂\""
-
-let JSON = ./package.dhall
-in  JSON.render (JSON.string "")
-= "\"\""
+in  JSON.render (JSON.natural 42)
+= "42"
 ```
 -}
 let JSON =
         ./Type sha256:40edbc9371979426df63e064333b02689b969c4cfbbccfa481216d2d1a6e9759
       ? ./Type
 
-let string
-    : Text → JSON
-    =   λ(x : Text)
+let natural
+    : Natural → JSON
+    =   λ(x : Natural)
       → λ(JSON : Type)
       → λ ( json
           : { array : List JSON → JSON
@@ -28,6 +24,6 @@ let string
             , string : Text → JSON
             }
           )
-      → json.string x
+      → json.integer (Natural/toInteger x)
 
-in  string
+in  natural

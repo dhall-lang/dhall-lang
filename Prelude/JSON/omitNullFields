@@ -3,7 +3,7 @@ This utility omits all `null` record fields, which is often the idiomatic way
 for a configuration to encode absent fields
 -}
 let JSON =
-        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let List/concatMap =
@@ -19,12 +19,13 @@ let omitNullFields
     =   λ(old : JSON.Type)
       → λ(JSON : Type)
       → λ ( json
-          : { string : Text → JSON
-            , number : Double → JSON
-            , object : List { mapKey : Text, mapValue : JSON } → JSON
-            , array : List JSON → JSON
+          : { array : List JSON → JSON
             , bool : Bool → JSON
+            , double : Double → JSON
+            , integer : Integer → JSON
             , null : JSON
+            , object : List { mapKey : Text, mapValue : JSON } → JSON
+            , string : Text → JSON
             }
           )
       → let result =
@@ -32,8 +33,10 @@ let omitNullFields
                 { value : JSON, isNull : Bool }
                 { string =
                     λ(x : Text) → { value = json.string x, isNull = False }
-                , number =
-                    λ(x : Double) → { value = json.number x, isNull = False }
+                , double =
+                    λ(x : Double) → { value = json.double x, isNull = False }
+                , integer =
+                    λ(x : Integer) → { value = json.integer x, isNull = False }
                 , object =
                       λ ( keyValues
                         : List
@@ -100,7 +103,7 @@ let property =
               ( JSON.object
                   ( toMap
                       { string = JSON.string a
-                      , number = JSON.number b
+                      , double = JSON.double b
                       , bool = JSON.bool c
                       , null = JSON.null
                       }
@@ -109,7 +112,7 @@ let property =
           ≡ JSON.object
               ( toMap
                   { string = JSON.string a
-                  , number = JSON.number b
+                  , double = JSON.double b
                   , bool = JSON.bool c
                   }
               )

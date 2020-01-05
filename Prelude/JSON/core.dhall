@@ -9,7 +9,7 @@
    cycles.
 -}
 { Type =
-      ./Type sha256:5adb234f5868a5b0eddeb034d690aaba8cb94ea20d0d557003e90334fff6be3e
+      ./Type sha256:40edbc9371979426df63e064333b02689b969c4cfbbccfa481216d2d1a6e9759
     ? ./Type
 , Tagged =
       ./Tagged sha256:21feca7d2b23f210d0696131d792e18a7d24fdcc85d41a49ba85b98670eba194
@@ -24,21 +24,33 @@
       ./keyValue sha256:a0a97199d280c4cce72ffcbbf93b7ceda0a569cf4d173ac98e0aaaa78034b98c
     ? ./keyValue
 , string =
-      ./string sha256:7a8ac435d30a96092d72889f3d48eabf7cba47ecf553fd6bc07a79fdf473e8d2
+      ./string sha256:7ddb3a3b9f3ed09ed011d621a10ad9825185cd03503be98a81d42f6afb77940e
     ? ./string
 , number =
-      ./number sha256:534745568065ae19d2b0fe1d09eeb071e9717d0f392187eb0bc95f386b018bec
+      ./number sha256:e70162c73c4978ad0d0d99505f61c7d990f3abadfcc08b34388b29c0934a7a32
     ? ./number
+, double =
+      ./double sha256:e70162c73c4978ad0d0d99505f61c7d990f3abadfcc08b34388b29c0934a7a32
+    ? ./double
+, integer =
+      ./integer sha256:c81a417397fc6f62155ec71fdd8d2047f981f0881295b307de3dd88747bf7e40
+    ? ./integer
+, natural =
+      ./natural sha256:a839dc6789f19f820e9cbf70c60f41f3b057c59ece1d226d04db5aca447eb0e5
+    ? ./natural
 , object =
-      ./object sha256:a4e047cf157c3971b026b3942a87d474c85950d9b9654f8ebc8631740abf75a9
+      ./object sha256:869aede785c34798be9f9fd457ece73e7f683f352ae4555f791516a365faf4ac
     ? ./object
 , array =
-      ./array sha256:3a4c06cf135f4c80619e48c0808f6600d19782705bc59ee7c27cfc2e0f097eb7
+      ./array sha256:fb6346a9c63638fe3c59f8108e19eebdbddc51389ec5570bab4c25f890ccccc8
     ? ./array
 , bool =
-      ./bool sha256:018d29f030b45d642aba6bb81bf2c19a7bf183684612ce7a2c8afd2099783c48
+      ./bool sha256:e043d9ed01e5b45899059e128243f3dae7ce65f293f0015ce816fc36d30f7f39
     ? ./bool
 , null =
-      ./null sha256:52c1d45ab2ca54875b444bfb1afdea497c8c9b0652e5044fafd8b16d97f4b78d
+      ./null sha256:1eeb9aee38eb8dde0e64efbaf60f24612c8194cc00b510bfb627c2ee2e1877b8
     ? ./null
+, renderInteger =
+      ./renderInteger.dhall sha256:15b8d2ae46d5002832741927af787761df49798c911e2bf85db7a7b9cb5c078c
+    ? ./renderInteger.dhall
 }

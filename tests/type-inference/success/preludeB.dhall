@@ -53,8 +53,9 @@
                   → ∀ ( json
                       : { array : List JSON → JSON
                         , bool : Bool → JSON
+                        , double : Double → JSON
+                        , integer : Integer → JSON
                         , null : JSON
-                        , number : Double → JSON
                         , object :
                             List { mapKey : Text, mapValue : JSON } → JSON
                         , string : Text → JSON
@@ -67,8 +68,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -80,8 +82,37 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
+    , double :
+          ∀(x : Double)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
+    , integer :
+          ∀(x : Integer)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , null : JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -94,13 +125,28 @@
         → ∀(key : Text)
         → ∀(value : v)
         → { mapKey : Text, mapValue : v }
+    , natural :
+          ∀(x : Natural)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
     , null :
           ∀(JSON : Type)
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -112,8 +158,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -128,8 +175,9 @@
                     → ∀ ( json
                         : { array : List JSON → JSON
                           , bool : Bool → JSON
+                          , double : Double → JSON
+                          , integer : Integer → JSON
                           , null : JSON
-                          , number : Double → JSON
                           , object :
                               List { mapKey : Text, mapValue : JSON } → JSON
                           , string : Text → JSON
@@ -142,8 +190,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -155,8 +204,9 @@
               → ∀ ( json
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
                     , null : JSON
-                    , number : Double → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -167,8 +217,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -180,8 +231,9 @@
               → ∀ ( json
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
                     , null : JSON
-                    , number : Double → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -189,14 +241,16 @@
               → JSON
             )
         → Text
+    , renderInteger : ∀(integer : Integer) → Text
     , renderYAML :
           ∀ ( json
             :   ∀(JSON : Type)
               → ∀ ( json
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
                     , null : JSON
-                    , number : Double → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -210,8 +264,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
