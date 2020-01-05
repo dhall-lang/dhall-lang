@@ -128,6 +128,23 @@ always roll them back with a new proposal.
 If the change is approved quickly, there is still a minimum 3-day waiting
 period before merging for changes to the standard.
 
+The exact rules for merging a change are:
+
+* At least 7 days since the original submission if there are not more than
+  50% votes against
+
+* At least 3 days since the original submission if you have 100% approval
+
+* At least 24 hours since the last change (not counting merging `master` into
+  your branch)
+
+  You do not need to get changes re-approved if you edit your submission after
+  you already got an approval, although you may request a re-approval if you
+  believe your changes warrant a new review.
+
+  Remember that the worst case scenario if you merge something prematurely is
+  we can open a new proposal to fix any mistakes.
+
 ### Soundness of proposed changes
 
 For non-trivial changes there should be a proof-of-concept implementation as a
