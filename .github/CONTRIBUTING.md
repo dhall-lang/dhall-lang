@@ -109,7 +109,7 @@ are:
     Led by @Nadrieril
 
 Each of those implementations get one vote cast by the lead contributor for each
-implementation.  In the case of a tie vote the proposal is still approved.
+implementation.
 
 Implementations do not need to be useful or widely used to get a vote.  If you
 create a complete implementation as a side project that nobody uses and does not
@@ -120,30 +120,23 @@ integrations that are powered by the Haskell integration (such as `dhall-to-nix`
 and `dhall-to-json`), but they do not count as extra votes because they are not
 a separate reimplementation of the standard.
 
-Proposed changes require a response within 3 days and a vote within a week of
-submission.  The absence of a vote counts as a vote in favor.  The process is
-designed to be quick with a bias to action since if we make mistakes we can
-always roll them back with a new proposal.
+The rules for merging a change are:
 
-If the change is approved quickly, there is still a minimum 3-day waiting
-period before merging for changes to the standard.
+* You can merge a change 7 days after the original submission, even without
+  positive votes, so long as there are not 50% or more negative votes
 
-The exact rules for merging a change are:
+* You can merge a change 3 days after the original submission if you have
+  50% or more positive votes
 
-* At least 7 days since the original submission if there are at most
-  50% votes against
+* You must wait at least 24 hours since the last change before merging
 
-* At least 3 days since the original submission if you have 100% approval
+  Merging `master` into your branch does not count as a change for this
+  purpose
 
-* At least 24 hours since the last change (not counting merging `master` into
-  your branch)
+  You also do not need to get new changes re-approved.  Just wait 24 hours
 
-  You do not need to get changes re-approved if you edit your submission after
-  you already got an approval, although you may request a re-approval if you
-  believe your changes warrant a new review.
-
-  Remember that the worst case scenario if you merge something prematurely is
-  we can open a new proposal to fix any mistakes.
+The process is designed to be quick with a bias to action since if we make
+mistakes we can always roll them back with a new proposal.
 
 ### Soundness of proposed changes
 
