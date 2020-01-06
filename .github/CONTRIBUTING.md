@@ -130,7 +130,7 @@ period before merging for changes to the standard.
 
 The exact rules for merging a change are:
 
-* At least 7 days since the original submission if there are not more than
+* At least 7 days since the original submission if there are at most
   50% votes against
 
 * At least 3 days since the original submission if you have 100% approval
