@@ -123,7 +123,7 @@ a separate reimplementation of the standard.
 The rules for merging a change are:
 
 * You can merge a change 7 days after the original submission, even without
-  positive votes, so long as there are not 50% or more negative votes
+  positive votes, so long as there are less than 50% negative votes
 
 * You can merge a change 3 days after the original submission if you have
   50% or more positive votes
