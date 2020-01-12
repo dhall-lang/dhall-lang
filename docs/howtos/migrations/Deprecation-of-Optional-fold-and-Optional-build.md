@@ -60,10 +60,10 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
 
 ## Migration
 
-* Phase 1 + 2 - Manually migrate your code
+* Phase 1 + 2 - Automatically migrate your code
 
-  There are no automated migration utilities during this phase.  You will need to manually
-  updated code to use `merge`.
+  During these phases `dhall lint` will automatically migrate code using the deprecated builtins
+  to ease the migration process. This is a safe and behavior-preserving transformation.
 
 * Phase 3 - Your code breaks if you haven't migrated
 
