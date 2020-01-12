@@ -35,7 +35,6 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
 * Phase 1 - Extend `merge` to work on `Optional`s
 
   * Standard version: [13.0.0](https://github.com/dhall-lang/dhall-lang/releases/tag/v13.0.0)
-  * Clojure implementation version: To be determined
   * Haskell implementation version: 1.29.0
   * Ruby implementation version: To be determined
   * Rust implementation version: To be determined
@@ -53,7 +52,6 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
 * Phase 3 - Remove the `Optional/fold` and `Optional/fold` builtins
 
   * Standard version: 17.0.0
-  * Clojure implementation version: To be determined
   * Haskell implementation version: To be determined - probably 1.33.0
   * Ruby implementation version: To be determined
   * Rust implementation version: To be determined
