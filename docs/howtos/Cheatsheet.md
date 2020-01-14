@@ -301,7 +301,8 @@
 
 *   Prelude
 
-    You can find latest Prelude of importable functions at https://prelude.dhall-lang.org/
+    You can find latest Prelude of importable functions at 
+    [prelude.dhall-lang.org](https://prelude.dhall-lang.org/)
 
 *   Comments
 
