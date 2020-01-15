@@ -95,6 +95,8 @@
       in
         [ modifyHydra ];
 
+    security.sudo.wheelNeedsPassword = false;
+
     services = {
       fail2ban.enable = true;
 
@@ -455,6 +457,16 @@
 
         wantedBy = [ "multi-user.target" ];
       };
+    };
+
+    users.users.gabriel = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
+      ];
     };
 
     virtualisation.docker = {
