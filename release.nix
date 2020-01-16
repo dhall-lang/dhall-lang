@@ -10,7 +10,7 @@ let
 
   hydraNixpkgs =
     builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/2437bb394392322d28d4244a63ab9b7ae8cc18dd.tar.gz";
+      url = "https://codeload.github.com/NixOS/nixpkgs/tar.gz/2437bb394392322d28d4244a63ab9b7ae8cc18dd";
 
       sha256 = "1c26n0z2zsapc1hxww1rpj056f8ah76f11h4f6wqjzjlj40i8jrq";
     };
@@ -161,7 +161,7 @@ let
             127.0.0.1 hydra-encrypted
           '';
 
-          hostName = "hydra";
+          hostName = "dhall-lang";
         };
 
         system.nixos = {
