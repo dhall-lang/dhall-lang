@@ -62,7 +62,7 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
 
 * Phase 1 + 2 - Automatically migrate your code
 
-  During these phases `dhall lint` will automatically migrate code using the deprecated builtins
+  Starting in `dhall-1.30.0`, `dhall lint` will automatically migrate code using the deprecated builtins
   to ease the migration process. This is a safe and behavior-preserving transformation.
 
 * Phase 3 - Your code breaks if you haven't migrated
