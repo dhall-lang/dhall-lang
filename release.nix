@@ -146,7 +146,7 @@ let
   # master in).
   rev = pkgs.runCommand "rev" {} ''echo "${src.rev}" > $out'';
 
-  hydra =
+  machine =
     (import "${dhallLangNixpkgs}/nixos" {
       configuration = {
         imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
@@ -166,12 +166,12 @@ in
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
         pkgs.test-files-lint
-        hydra
+        machine
         rev
       ];
     };
 
     inherit (pkgs) expected-prelude expected-test-files docs;
 
-    inherit hydra;
+    inherit machine;
   }

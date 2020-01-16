@@ -504,7 +504,7 @@
 
             ${pkgs.git}/bin/git checkout FETCH_HEAD
 
-            ${pkgs.nix}/bin/nix-build --attr hydra ${repositoryDirectory}/release.nix
+            ${pkgs.nix}/bin/nix-build --attr machine ${repositoryDirectory}/release.nix
 
             ${pkgs.nix}/bin/nix-env --profile /nix/var/nix/profiles/system --set ${build}
 
