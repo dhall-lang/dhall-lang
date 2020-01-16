@@ -484,8 +484,9 @@
 
           after = [ "network-online.target" ];
 
-          environment.GIT_SSH_COMMAND =
-            "${pkgs.openssh}/bin/ssh -i ${workingDirectory}/id_ed25519";
+          path = [ pkgs.gnutar ];
+
+          serviceConfig.X-RestartIfChanged = false;
 
           script = ''
             if [ ! -e ${workingDirectory} ]; then
@@ -499,9 +500,9 @@
 
             cd ${repositoryDirectory}
 
-            ${pkgs.git}/bin/git fetch
+            ${pkgs.git}/bin/git fetch https://github.com/dhall-lang/dhall-lang.git gabriel/self-deploy_2 # TODO: Set to master
 
-            ${pkgs.git}/bin/git checkout gabriel/self-deploy_2  # TODO: Set to master
+            ${pkgs.git}/bin/git checkout FETCH_HEAD
 
             ${pkgs.nix}/bin/nix-build --attr hydra ${repositoryDirectory}/release.nix
 
