@@ -8,6 +8,13 @@ let
       sha256 = "0ri58704vwv6gnyw33vjirgnvh2f1201vbflk0ydj5ff7vpyy7hf";
     };
 
+  hydraNixpkgs =
+    builtins.fetchTarball {
+      url = "https://github.com/NixOS/nixpkgs/archive/2437bb394392322d28d4244a63ab9b7ae8cc18dd.tar.gz";
+
+      sha256 = "1c26n0z2zsapc1hxww1rpj056f8ah76f11h4f6wqjzjlj40i8jrq";
+    };
+
   overlay = pkgsNew: pkgsOld: {
     dhall =
       let
@@ -144,6 +151,29 @@ let
   # master in).
   rev = pkgs.runCommand "rev" {} ''echo "${src.rev}" > $out'';
 
+  hydra =
+    (import "${hydraNixpkgs}/nixos" {
+      configuration = {
+        imports = [ ./nixops/hydra-logical.nix ./nixops/hydra-physical.nix ];
+
+        networking = {
+          extraHosts = ''
+            127.0.0.1 hydra-encrypted
+          '';
+
+          hostName = "hydra";
+        };
+
+        system.nixos = {
+          version = "19.09.git.2437bb3";
+
+          revision = "2437bb3";
+        };
+      };
+
+      system = "x86_64-linux";
+    }).system;
+
 in
   { dhall-lang = pkgs.releaseTools.aggregate {
       name = "dhall-lang";
@@ -153,9 +183,12 @@ in
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
         pkgs.test-files-lint
+        hydra
         rev
       ];
     };
 
     inherit (pkgs) expected-prelude expected-test-files docs;
+
+    inherit hydra;
   }
