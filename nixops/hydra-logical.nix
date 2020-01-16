@@ -484,7 +484,7 @@
 
           after = [ "network-online.target" ];
 
-          path = [ pkgs.gnutar ];
+          path = [ pkgs.gnutar pkgs.gzip ];
 
           serviceConfig.X-RestartIfChanged = false;
 
