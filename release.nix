@@ -8,7 +8,7 @@ let
       sha256 = "0ri58704vwv6gnyw33vjirgnvh2f1201vbflk0ydj5ff7vpyy7hf";
     };
 
-  hydraNixpkgs =
+  dhallLangNixpkgs =
     builtins.fetchTarball {
       url = "https://github.com/NixOS/nixpkgs/archive/2437bb394392322d28d4244a63ab9b7ae8cc18dd.tar.gz";
 
@@ -152,23 +152,11 @@ let
   rev = pkgs.runCommand "rev" {} ''echo "${src.rev}" > $out'';
 
   hydra =
-    (import "${hydraNixpkgs}/nixos" {
+    (import "${dhallLangNixpkgs}/nixos" {
       configuration = {
-        imports = [ ./nixops/hydra-logical.nix ./nixops/hydra-physical.nix ];
+        imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
 
-        networking = {
-          extraHosts = ''
-            127.0.0.1 hydra-encrypted
-          '';
-
-          hostName = "dhall-lang";
-        };
-
-        system.nixos = {
-          version = "19.09.git.2437bb3";
-
-          revision = "2437bb3";
-        };
+        networking.hostName = "dhall-lang";
       };
 
       system = "x86_64-linux";
