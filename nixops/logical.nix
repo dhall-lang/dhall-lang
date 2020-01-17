@@ -312,6 +312,13 @@
 
         varDirectory = dirOf discourseDirectory;
 
+        discourseSmtpPassword =
+          let
+            eval = builtins.tryEval (builtins.readFile ./discourseSmtpPassword);
+
+          in
+            if eval.success then eval.value else "";
+
         discourseConfiguration =
           pkgs.writeText "discourse-app.yaml" ''
             templates:
@@ -345,7 +352,7 @@
 
               DISCOURSE_SMTP_USER_NAME: discourse@dhall-lang.org
 
-              DISCOURSE_SMTP_PASSWORD: '${builtins.readFile ./discourseSmtpPassword}'
+              DISCOURSE_SMTP_PASSWORD: '${discourseSmtpPassword}'
 
               # TODO: Use CDN?
               #
