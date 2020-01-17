@@ -314,10 +314,10 @@
 
         discourseSmtpPassword =
           let
-            eval = builtins.tryEval (builtins.readFile ./discourseSmtpPassword);
+            path = ./discourseSmtpPassword;
 
           in
-            if eval.success then eval.value else "";
+            if builtins.pathExists path then builtins.readFile path else "";
 
         discourseConfiguration =
           pkgs.writeText "discourse-app.yaml" ''
