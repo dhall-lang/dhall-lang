@@ -8,6 +8,8 @@ let
       sha256 = "0ri58704vwv6gnyw33vjirgnvh2f1201vbflk0ydj5ff7vpyy7hf";
     };
 
+  dhallLangNixpkgs = import ./nixops/dhallLangNixpkgs.nix;
+
   overlay = pkgsNew: pkgsOld: {
     dhall =
       let
@@ -144,6 +146,17 @@ let
   # master in).
   rev = pkgs.runCommand "rev" {} ''echo "${src.rev}" > $out'';
 
+  machine =
+    (import "${dhallLangNixpkgs}/nixos" {
+      configuration = {
+        imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
+
+        networking.hostName = "dhall-lang";
+      };
+
+      system = "x86_64-linux";
+    }).system;
+
 in
   { dhall-lang = pkgs.releaseTools.aggregate {
       name = "dhall-lang";
@@ -153,9 +166,12 @@ in
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
         pkgs.test-files-lint
+        machine
         rev
       ];
     };
 
     inherit (pkgs) expected-prelude expected-test-files docs;
+
+    inherit machine;
   }
