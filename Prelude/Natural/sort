@@ -17,12 +17,12 @@ let Accumulator = { sorted : List Natural, rest : List Natural }
 
 let partitionMinima =
         λ(xs : List Natural)
-      → Optional/fold
-          Natural
+      → merge
+          { Some =
+              λ(m : Natural) → List/partition Natural (greaterThanEqual m) xs
+          , None = { true = [] : List Natural, false = [] : List Natural }
+          }
           (listMin xs)
-          { true : List Natural, false : List Natural }
-          (λ(m : Natural) → List/partition Natural (greaterThanEqual m) xs)
-          { true = [] : List Natural, false = [] : List Natural }
 
 let test0 =
         assert

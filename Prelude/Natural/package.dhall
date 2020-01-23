@@ -59,7 +59,7 @@
       ./listMax sha256:30917e8ca230ea6044c6d8ea6e72bcf6f76437aaecc347f790e8a5946c6aa0e5
     ? ./listMax
 , sort =
-      ./sort sha256:ed2eb5a33c5c96ac9227b0b4c77bdbf8911026d721c603ac897ae84b2bfb5dcd
+      ./sort sha256:e0e4a233414279178804a269673e85c76aa973929cad78828396ba970fcc0092
     ? ./sort
 , subtract =
       ./subtract sha256:b9277ac637d09142a3a3ac79137ef5955c42f8b33b6746d59db2c9d75ccdd745

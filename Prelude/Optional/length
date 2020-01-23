@@ -5,7 +5,7 @@ let length
     : ∀(a : Type) → Optional a → Natural
     =   λ(a : Type)
       → λ(xs : Optional a)
-      → Optional/fold a xs Natural (λ(_ : a) → 1) 0
+      → merge { Some = λ(_ : a) → 1, None = 0 } xs
 
 let example0 = assert : length Natural (Some 2) ≡ 1
 
