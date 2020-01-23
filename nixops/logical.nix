@@ -184,23 +184,9 @@
         in
           { "dhall-lang.org" =
               let
-                json = builtins.fromJSON (builtins.readFile ./dhall-haskell.json);
+                inherit (pkgs) website;
 
-                dhall-haskell =
-                  pkgs.fetchFromGitHub {
-                    owner = "dhall-lang";
-
-                    repo = "dhall-haskell";
-
-                    inherit (json) rev sha256 fetchSubmodules;
-                  };
-
-              dhall-haskell-derivations =
-                import "${dhall-haskell}/default.nix";
-
-              inherit (dhall-haskell-derivations) website;
-
-            in
+              in
               { forceSSL = true;
 
                 default = true;
