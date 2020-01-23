@@ -39,16 +39,60 @@ on the hour.
 To update the website, create a pull request to amend
 [`./nixops/index.html`](./index.html).
 
+You can build the website using Nix to test your changes locally before
+submitting them.  Run the following command:
+
+```bash
+$ nix build --file ./release.nix website
+```
+
+... then open `./result/index.html` in your web browser.
+
 ## Updating `docs.dhall-lang.org`
 
 To update the documentation, create a pull request to amend the
 [`./docs`](../docs/README) directory.
+
+You can build the documentation using Nix to test your changes locally before
+submitting them.  Run the following command:
+
+```bash
+$ nix build --file ./release.nix docs
+```
+
+... then open `./result/index.html` in your web browser.
 
 ## Updating `{discourse,hydra,prelude,cache}.dhall-lang.org`
 
 All of these services are configured in
 [`./nixops/logical.nix`](./logical.nix), and you can update them by creating a
 pull request to amend that file.
+
+There currently is not a good way to locally test your changes, but you can at
+least locally verify that the machine configuration builds correctly by running:
+
+```bash
+$ nix build --file ./release.nix machine
+```
+
+If you have SSH access to the machine then you can also do a test deploy by
+running:
+
+```bash
+$ ssh dhall-lang.org
+
+$ nix-shell --packages git
+
+$ git clone https://github.com/dhall-lang/dhall-lang.git
+
+$ cd dhall-lang
+
+$ git checkout "${THE_BRANCH_YOU_WANT_TO_TEST}"
+
+$ nix build --file ./release.nix machine
+
+$ sudo result/bin/switch-to-configuration test
+```
 
 ## Obtaining SSH access to `dhall-lang.org`
 
@@ -100,7 +144,9 @@ somehow need to recreate everything from scratch:
 
     $ git clone https://github.com/dhall-lang/dhall-lang.git
 
-    $ nix build --file ./dhall-lang/release.nix machine
+    $ cd dhall-lang
+
+    $ nix build --file ./release.nix machine
 
     $ sudo result/bin/switch-to-configuration switch
     ```
