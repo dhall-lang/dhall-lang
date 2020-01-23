@@ -1,4 +1,4 @@
-# Safety Gurantees
+# Safety Guarantees
 
 > Study how Dhall configuration files provide programming language features without sacrificing safety
 
