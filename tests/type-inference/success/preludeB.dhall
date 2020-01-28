@@ -402,21 +402,22 @@
     , any : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
     , build :
           ∀(a : Type)
-        → (   ∀(optional : Type)
-            → ∀(just : a → optional)
-            → ∀(nothing : optional)
-            → optional
-          )
+        → ∀ ( build
+            :   ∀(optional : Type)
+              → ∀(some : a → optional)
+              → ∀(none : optional)
+              → optional
+            )
         → Optional a
     , concat : ∀(a : Type) → ∀(x : Optional (Optional a)) → Optional a
     , default : ∀(a : Type) → ∀(default : a) → ∀(o : Optional a) → a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Optional a
     , fold :
           ∀(a : Type)
-        → Optional a
+        → ∀(o : Optional a)
         → ∀(optional : Type)
-        → ∀(just : a → optional)
-        → ∀(nothing : optional)
+        → ∀(some : a → optional)
+        → ∀(none : optional)
         → optional
     , head : ∀(a : Type) → ∀(xs : List (Optional a)) → Optional a
     , last : ∀(a : Type) → ∀(xs : List (Optional a)) → Optional a

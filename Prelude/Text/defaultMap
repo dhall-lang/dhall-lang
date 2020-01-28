@@ -6,7 +6,7 @@ let defaultMap
     =   λ(a : Type)
       → λ(f : a → Text)
       → λ(o : Optional a)
-      → Optional/fold a o Text f ""
+      → merge { Some = f, None = "" } o
 
 let example0 = assert : defaultMap Natural Natural/show (Some 0) ≡ "0"
 

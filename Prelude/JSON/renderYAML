@@ -33,7 +33,7 @@ let List/concatMap =
       ? ../List/concatMap
 
 let Optional/map =
-        ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
+        ../Optional/map sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
       ? ../Optional/map
 
 let NonEmpty
@@ -81,12 +81,9 @@ let manyBlocks
     : Block → List Block → Block
     =   λ(ifEmpty : Block)
       → λ(blocks : List Block)
-      → Optional/fold
-          (NonEmpty Block)
+      → merge
+          { Some = concatNonEmpty Text, None = ifEmpty }
           (uncons Block blocks)
-          Block
-          (concatNonEmpty Text)
-          ifEmpty
 
 let singleLine
     : Text → Block

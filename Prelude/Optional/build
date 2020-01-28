@@ -9,7 +9,14 @@ let build
           → optional
         )
       → Optional a
-    = Optional/build
+    =   λ(a : Type)
+      → λ ( build
+          :   ∀(optional : Type)
+            → ∀(some : a → optional)
+            → ∀(none : optional)
+            → optional
+          )
+      → build (Optional a) (λ(x : a) → Some x) (None a)
 
 let example0 =
         assert

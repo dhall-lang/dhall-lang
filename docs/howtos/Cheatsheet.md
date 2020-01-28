@@ -301,4 +301,22 @@
 
 *   Prelude
 
-    You can find latest Prelude of importable functions at https://prelude.dhall-lang.org/
+    You can find latest Prelude of importable functions at 
+    [prelude.dhall-lang.org](https://prelude.dhall-lang.org/)
+
+*   Comments
+
+    Dhall has single-line and block comments (with a syntax borrowed from Haskell):
+
+    ```dhall
+    -- single-line comment
+
+    True -- Line comments may follow code on the same line
+
+    {- block
+       comment -}
+
+    {- block comments can be {- nested -} -}
+
+    let x {- block comments can appear inside of expressions like whitespace -} = 1 in x
+    ```
