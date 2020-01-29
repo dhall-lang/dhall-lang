@@ -8,7 +8,12 @@ let fold
       → ∀(some : a → optional)
       → ∀(none : optional)
       → optional
-    = Optional/fold
+    =   λ(a : Type)
+      → λ(o : Optional a)
+      → λ(optional : Type)
+      → λ(some : a → optional)
+      → λ(none : optional)
+      → merge { Some = some, None = none } o
 
 let example0 = assert : fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 ≡ 2
 

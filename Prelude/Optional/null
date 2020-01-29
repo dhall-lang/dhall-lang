@@ -5,7 +5,7 @@ let null
     : ∀(a : Type) → Optional a → Bool
     =   λ(a : Type)
       → λ(xs : Optional a)
-      → Optional/fold a xs Bool (λ(_ : a) → False) True
+      → merge { Some = λ(_ : a) → False, None = True } xs
 
 let example0 = assert : null Natural (Some 2) ≡ False
 

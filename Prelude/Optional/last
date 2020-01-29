@@ -11,7 +11,7 @@ let last
           (Optional a)
           (   λ(l : Optional a)
             → λ(r : Optional a)
-            → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+            → merge { Some = λ(x : a) → Some x, None = l } r
           )
           (None a)
 

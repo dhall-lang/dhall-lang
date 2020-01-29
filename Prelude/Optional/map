@@ -7,7 +7,7 @@ let map
       → λ(b : Type)
       → λ(f : a → b)
       → λ(o : Optional a)
-      → Optional/fold a o (Optional b) (λ(x : a) → Some (f x)) (None b)
+      → merge { Some = λ(x : a) → Some (f x), None = None b } o
 
 let example0 = assert : map Natural Bool Natural/even (Some 3) ≡ Some False
 
