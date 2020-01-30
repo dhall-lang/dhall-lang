@@ -207,35 +207,12 @@ the `dhall-to-yaml` tool.
 > **Exercise:** What Dhall expression generates the following JSON:
 >
 > ```json
-> [{"x":1,"y":"ABC"}]
-> ```
-
-The `dhall-to-json` help output indicates that the executable accepts a
-`--pretty` flag:
-
-```console
-$ dhall-to-json --help
-Usage: dhall-to-json [--explain] [--pretty] [--omitNull] ([--key ARG]
-                     [--value ARG] | [--noMaps])
-  Compile Dhall to JSON
-
-Available options:
-  -h,--help                Show this help text
-  --explain                Explain error messages in detail
-  --pretty                 Pretty print generated JSON
-  --omitNull               Omit record fields that are null
-  --key ARG                Reserved key field name for association
-                           lists (default: mapKey)
-  --value ARG              Reserved value field name for association
-                           lists (default: mapValue)
-  --noMaps                 Disable conversion of association lists to
-                           homogeneous maps
-```
-
-> **Exercise:** Run this command to generate pretty-printed JSON output:
->
-> ```console
-> $ dhall-to-json --pretty <<< '{ foo = [1, 2, 3], bar = True }'
+> [
+>   {
+>     "x": 1,
+>     "y": "ABC"
+>   }
+> ]
 > ```
 
 ## Imports
@@ -257,7 +234,7 @@ expressions.
 > What do you think the following command will output?
 >
 > ```console
-> $ dhall-to-json --pretty <<< '[ ./example.dhall, ./example.dhall ]'
+> $ dhall-to-json <<< '[ ./example.dhall, ./example.dhall ]'
 > ```
 >
 > Test your guess!
@@ -280,7 +257,7 @@ Error: List elements should all have the same type
 - Natural
 + Bool
 
-True
+1│      True
 
 (stdin):1:6
 ```
@@ -289,22 +266,31 @@ The error messages are terse by default, but if you check the `--help` output
 you can see that the executable accepts an `--explain` flag:
 
 ```console
-$ dhall-to-json --help
-Usage: dhall-to-json [--explain] [--pretty] [--omitNull] ([--key ARG]
-                     [--value ARG] | [--noMaps])
+Usage: dhall-to-json ([--explain] ([--pretty] | [--compact]) ([--omit-empty] |
+                     [--preserve-null]) ([--key ARG] [--value ARG] |
+                     [--no-maps]) [--approximate-special-doubles] [--file FILE]
+                     [--output FILE] | [--version])
   Compile Dhall to JSON
 
 Available options:
   -h,--help                Show this help text
   --explain                Explain error messages in detail
-  --pretty                 Pretty print generated JSON
-  --omitNull               Omit record fields that are null
+  --pretty                 Deprecated, will be removed soon. Pretty print
+                           generated JSON
+  --compact                Render JSON on one line
+  --omit-empty             Omit record fields that are null or empty records
+  --preserve-null          Preserve record fields that are null
   --key ARG                Reserved key field name for association
                            lists (default: mapKey)
   --value ARG              Reserved value field name for association
                            lists (default: mapValue)
-  --noMaps                 Disable conversion of association lists to
+  --no-maps                Disable conversion of association lists to
                            homogeneous maps
+  --approximate-special-doubles
+                           Use approximate representation for NaN/±Infinity
+  --file FILE              Read expression from a file instead of standard input
+  --output FILE            Write JSON to a file instead of standard output
+  --version                Display version
 ```
 
 > **Exercise**: Add the `--explain` flag to the previous command:
@@ -321,7 +307,10 @@ schema.  For example:
 
 ```console
 $ dhall-to-json <<< '{ foo = 1, bar = True } : { foo : Natural, bar : Bool }'
-{"foo":1,"bar":true}
+{
+  "bar": true,
+  "foo": 1
+}
 ```
 
 Anything in Dhall can be imported from another file, including the type in a
@@ -335,7 +324,10 @@ $ echo '{ foo : Natural, bar : Bool }' > schema.dhall
 
 ```console
 $ dhall-to-json <<< '{ foo = 1, bar = True } : ./schema.dhall'
-{"foo":1,"bar":true}
+{
+  "bar": true,
+  "foo": 1
+}
 ```
 
 If the expression doesn't match the "schema" (i.e. the type annotation) then
@@ -344,7 +336,6 @@ If the expression doesn't match the "schema" (i.e. the type annotation) then
 ```console
 $ dhall-to-json <<< '{ foo = 1, baz = True } : ./schema.dhall'
 
-
 Error: Expression doesn't match annotation
 
 { - bar : …
@@ -352,8 +343,7 @@ Error: Expression doesn't match annotation
 , …
 }
 
-{ foo = 1, baz = True } : ./schema.dhall
-
+1│ { foo = 1, baz = True } : ./schema.dhall
 
 (stdin):1:1
 ```
@@ -371,7 +361,23 @@ variable which can be referenced multiple times.
 $ dhall-to-json <<< 'let x = [1, 2, 3] in [x, x, x]'
 ```
 ```json
-[[1,2,3],[1,2,3],[1,2,3]]
+[
+  [
+    1,
+    2,
+    3
+  ],
+  [
+    1,
+    2,
+    3
+  ],
+  [
+    1,
+    2,
+    3
+  ]
+]
 ```
 
 You can define multiple variables using multiple `let`s, like this:
@@ -380,7 +386,16 @@ You can define multiple variables using multiple `let`s, like this:
 $ dhall-to-json <<< 'let x = 1 let y = [x, x] in [y, y]'
 ```
 ```json
-[[1,1],[1,1]]
+[
+  [
+    1,
+    1
+  ],
+  [
+    1,
+    1
+  ]
+]
 ```
 
 The Dhall language is whitespace-insensitive (just like JSON), so this program:
@@ -412,7 +427,7 @@ in  [x, y]
 > What do you think the following command will output:
 >
 > ```console
-> $ dhall-to-json --pretty <<< './employees.dhall'
+> $ dhall-to-json --file ./employees.dhall
 > ```
 >
 > Test your guess!
@@ -468,7 +483,7 @@ Dhall also lets you write anonymous functions of the form:
 λ(inputName : inputType) → output
 ```
 
-This tutorial will use the Unicode syntax for functions in the following
+This tutorial will use the ASCII syntax for functions in the following
 examples.  If you prefer the Unicode syntax you can learn how to input
 Unicode on your computer by following these instructions:
 
@@ -483,26 +498,32 @@ For example, here is an anonymous function that takes a single argument named
 `x` of type `Natural` and returns a list of two `x`s:
 
 ```dhall
-λ(x : Natural) → [x, x]
+\(x : Natural) -> [x, x]
 ```
 
 You can apply an anonymous function directly to an argument like this:
 
 ```console
-$ dhall-to-json <<< '(λ(x : Natural) → [x, x]) 2'
+$ dhall-to-json <<< '(\(x : Natural) -> [x, x]) 2'
 ```
 ```json
-[2,2]
+[
+  2,
+  2
+]
 ```
 
 More commonly, you'll use a `let` expression to give the function a name and
 then use that name to apply the function to an argument:
 
 ```console
-$ dhall-to-json <<< 'let twice = λ(x : Natural) → [x, x] in twice 2'
+$ dhall-to-json <<< 'let twice = \(x : Natural) -> [x, x] in twice 2'
 ```
 ```json
-[2,2]
+[
+  2,
+  2
+]
 ```
 
 > **Exercise**: What JSON do you think this Dhall configuration file will
@@ -510,41 +531,29 @@ $ dhall-to-json <<< 'let twice = λ(x : Natural) → [x, x] in twice 2'
 >
 > ```dhall
 > let smallServer =
->         λ(hostName : Text)
->       → { cpus =
->             1
->         , gigabytesOfRAM =
->             1
->         , hostName =
->             hostName
->         , terabytesOfDisk =
->             1
->         }
->
+>           \(hostName : Text)
+>       ->  { cpus = 1
+>           , gigabytesOfRAM = 1
+>           , hostName = hostName
+>           , terabytesOfDisk = 1
+>           }
+> 
 > let mediumServer =
->         λ(hostName : Text)
->       → { cpus =
->             8
->         , gigabytesOfRAM =
->             16
->         , hostName =
->             hostName
->         , terabytesOfDisk =
->             4
->         }
->
+>           \(hostName : Text)
+>       ->  { cpus = 8
+>           , gigabytesOfRAM = 16
+>           , hostName = hostName
+>           , terabytesOfDisk = 4
+>           }
+> 
 > let largeServer =
->         λ(hostName : Text)
->       → { cpus =
->             64
->         , gigabytesOfRAM =
->             256
->         , hostName =
->             hostName
->         , terabytesOfDisk =
->             16
->         }
->
+>           \(hostName : Text)
+>       ->  { cpus = 64
+>           , gigabytesOfRAM = 256
+>           , hostName = hostName
+>           , terabytesOfDisk = 16
+>           }
+> 
 > in  [ smallServer "eu-west.example.com"
 >     , largeServer "us-east.example.com"
 >     , largeServer "ap-northeast.example.com"
@@ -559,10 +568,13 @@ $ dhall-to-json <<< 'let twice = λ(x : Natural) → [x, x] in twice 2'
 You can nest anonymous functions to create a function of multiple arguments:
 
 ```console
-$ dhall-to-json <<< 'let both = λ(x : Natural) → λ(y : Natural) → [x, y] in both 1 2'
+$ dhall-to-json <<< 'let both = \(x : Natural) -> \(y : Natural) -> [x, y] in both 1 2'
 ```
 ```json
-[1,2]
+[
+  1,
+  2
+]
 ```
 
 > **Exercise**: What JSON do you think this Dhall configuration file will
@@ -570,20 +582,16 @@ $ dhall-to-json <<< 'let both = λ(x : Natural) → λ(y : Natural) → [x, y] i
 >
 > ```dhall
 > let educationalBook =
->         λ(publisher : Text)
->       → λ(title : Text)
->       → { category =
->             "Nonfiction"
->         , department =
->             "Books"
->         , publisher =
->             publisher
->         , title =
->             title
->         }
->
+>           \(publisher : Text)
+>       ->  \(title : Text)
+>       ->  { category = "Nonfiction"
+>           , department = "Books"
+>           , publisher = publisher
+>           , title = title
+>           }
+> 
 > let makeOreilly = educationalBook "O'Reilly Media"
->
+> 
 > in  [ makeOreilly "Microservices for Java Developers"
 >     , educationalBook "Addison Wesley" "The Go Programming Language"
 >     , makeOreilly "Parallel and Concurrent Programming in Haskell"
@@ -600,10 +608,13 @@ represent using the Unicode `∧` character (U+2227).
 For example:
 
 ```console
-$ dhall-to-json <<< '{ foo = 1 } ∧ { bar = 2}'
+$ dhall-to-json <<< '{ foo = 1 } /\ { bar = 2}'
 ```
 ```json
-{"foo":1,"bar":2}
+{
+  "bar": 2,
+  "foo": 1
+}
 ```
 
 ... is the same as:
@@ -612,7 +623,10 @@ $ dhall-to-json <<< '{ foo = 1 } ∧ { bar = 2}'
 $ dhall-to-json <<< '{ foo = 1, bar = 2}'
 ```
 ```json
-{"foo":1,"bar":2}
+{
+  "bar": 2,
+  "foo": 1
+}
 ```
 
 We can rewrite our previous server configuration example to use this operator
@@ -625,12 +639,12 @@ let mediumServer = { cpus = 8, gigabytesOfRAM = 16, terabytesOfDisk = 4 }
 
 let largeServer = { cpus = 64, gigabytesOfRAM = 256, terabytesOfDisk = 16 }
 
-in  [ smallServer ∧ { hostName = "eu-west.example.com" }
-    , largeServer ∧ { hostName = "us-east.example.com" }
-    , largeServer ∧ { hostName = "ap-northeast.example.com" }
-    , mediumServer ∧ { hostName = "us-west.example.com" }
-    , smallServer ∧ { hostName = "sa-east.example.com" }
-    , largeServer ∧ { hostName = "ca-central.example.com" }
+in  [ smallServer /\ { hostName = "eu-west.example.com" }
+    , largeServer /\ { hostName = "us-east.example.com" }
+    , largeServer /\ { hostName = "ap-northeast.example.com" }
+    , mediumServer /\ { hostName = "us-west.example.com" }
+    , smallServer /\ { hostName = "sa-east.example.com" }
+    , largeServer /\ { hostName = "ca-central.example.com" }
     ]
 ```
 
@@ -645,7 +659,9 @@ You can concatenate two strings using the `++` operator:
 $ dhall-to-json <<< '[ "ABC" ++ "DEF" ]'
 ```
 ```json
-["ABCDEF"]
+[
+  "ABCDEF"
+]
 ```
 
 ... and you can concatenate two lists using the `#` operator:
@@ -654,14 +670,21 @@ $ dhall-to-json <<< '[ "ABC" ++ "DEF" ]'
 $ dhall-to-json <<< '[1, 2, 3] # [4, 5, 6]'
 ```
 ```json
-[1,2,3,4,5,6]
+[
+  1,
+  2,
+  3,
+  4,
+  5,
+  6
+]
 ```
 
 > **Exercise:** What JSON do you think the following Dhall expression will
 > generate?
 >
 > ```dhall
-> let three = λ(x : Text) → [x ++ x ++ x] in three "A" # three "B" # three "C"
+> let three = \(x : Text) -> [x ++ x ++ x] in three "A" # three "B" # three "C"
 > ```
 >
 > Test your guess!
@@ -694,14 +717,13 @@ Dhall's type system will reject the following common JSON idiom:
 ```console
 $ dhall-to-json <<< '[ { x = 1 }, { x = 2, y = 3 } ]'
 
-
 Error: List elements should all have the same type
 
 { + y : …
 , …
 }
 
-{ x = 2, y = 3 }
+1│              { x = 2, y = 3 }
 
 (stdin):1:14
 ```
@@ -725,24 +747,41 @@ equivalent of a nullable value), like this:
 `Optional` values can either be present (i.e. `Some` followed by the value) or
 absent (i.e. `None` followed by the type).
 
-`dhall-to-json` by default converts an empty (i.e. `None`) `Optional` value to
-`null`:
+`dhall-to-json` by default omits `Optional` fields if they are empty (i.e.
+`None`):
 
 ```console
-$ dhall-to-json <<< './optional.dhall'
+$ dhall-to-json --file ./optional.dhall
 ```
 ```json
-[{"x":1,"y":null},{"x":2,"y":3}]
+[
+  {
+    "x": 1
+  },
+  {
+    "x": 2,
+    "y": 3
+  }
+]
 ```
 
-... but also provides a `--omitNull` flag that you can use to omit `null` fields
-from records, like this:
+... but also provides a `--preserve-null` flag that you can use to represent
+these fields as `null` if you prefer:
 
 ```console
-$ dhall-to-json --omitNull <<< './optional.dhall'
+$ dhall-to-json --preserve-null --file ./optional.dhall
 ```
 ```json
-[{"x":1},{"x":2,"y":3}]
+[
+  {
+    "x": 1,
+    "y": null
+  },
+  {
+    "x": 2,
+    "y": 3
+  }
+]
 ```
 
 ## Unions
@@ -759,13 +798,12 @@ We would get a type error if we were to naively translate the above JSON to Dhal
 ```console
 $ dhall-to-json <<< '[ 1, True ]'
 
-
 Error: List elements should all have the same type
 
 - Natural
 + Bool
 
-True
+1│      True
 
 (stdin):1:6
 ```
@@ -784,8 +822,8 @@ let Element = < Left : Natural | Right : Bool >
 in  [ Element.Left 1, Element.Right True ]
 ```
 
-Every union type has multiple possible alternatives, each labeled by a name and a
-type.  For example, the union type named `Element` in the above Dhall
+Every union type has multiple possible alternatives, each labeled by a name and
+a type.  For example, the union type named `Element` in the above Dhall
 configuration has two alternatives:
 
 * The first alternative is named `Left` and can store `Natural` numbers
@@ -796,10 +834,13 @@ to JSON.  This trick lets you bridge between strongly typed Dhall configuration
 files and their weakly typed JSON equivalents:
 
 ```console
-$ dhall-to-json <<< './union.dhall'
+$ dhall-to-json --file ./union.dhall
 ```
 ```json
-[1,true]
+[
+  1,
+  true
+]
 ```
 
 Here is a more sophisticated example showcasing how each union alternative
@@ -809,29 +850,23 @@ can be a record with different fields present:
 -- ./package.dhall
 
 let Package =
-      < Local :
-          { relativePath : Text }
-      | GitHub :
-          { repository : Text, revision : Text }
-      | Hackage :
-          { package : Text, version : Text }
+      < Local : { relativePath : Text }
+      | GitHub : { repository : Text, revision : Text }
+      | Hackage : { package : Text, version : Text }
       >
 
 in  [ Package.GitHub
-      { repository =
-          "https://github.com/Gabriel439/Haskell-Turtle-Library.git"
-      , revision =
-          "ae5edf227b515b34c1cb6c89d9c58ea0eece12d5"
-      }
+        { repository =
+            "https://github.com/Gabriel439/Haskell-Turtle-Library.git"
+        , revision = "ae5edf227b515b34c1cb6c89d9c58ea0eece12d5"
+        }
     , Package.Local { relativePath = "~/proj/optparse-applicative" }
     , Package.Local { relativePath = "~/proj/discrimination" }
     , Package.Hackage { package = "lens", version = "4.15.4" }
     , Package.GitHub
-      { repository =
-          "https://github.com/haskell/text.git"
-      , revision =
-          "ccbfabedea1cf5b38ff19f37549feaf01225e537"
-      }
+        { repository = "https://github.com/haskell/text.git"
+        , revision = "ccbfabedea1cf5b38ff19f37549feaf01225e537"
+        }
     , Package.Local { relativePath = "~/proj/servant-swagger" }
     , Package.Hackage { package = "aeson", version = "1.2.3.0" }
     ]
@@ -841,31 +876,31 @@ in  [ Package.GitHub
 
 ```json
 [
-    {
-        "repository": "https://github.com/Gabriel439/Haskell-Turtle-Library.git",
-        "revision": "ae5edf227b515b34c1cb6c89d9c58ea0eece12d5"
-    },
-    {
-        "relativePath": "~/proj/optparse-applicative"
-    },
-    {
-        "relativePath": "~/proj/discrimination"
-    },
-    {
-        "version": "4.15.4",
-        "package": "lens"
-    },
-    {
-        "repository": "https://github.com/haskell/text.git",
-        "revision": "ccbfabedea1cf5b38ff19f37549feaf01225e537"
-    },
-    {
-        "relativePath": "~/proj/servant-swagger"
-    },
-    {
-        "version": "1.2.3.0",
-        "package": "aeson"
-    }
+  {
+    "repository": "https://github.com/Gabriel439/Haskell-Turtle-Library.git",
+    "revision": "ae5edf227b515b34c1cb6c89d9c58ea0eece12d5"
+  },
+  {
+    "relativePath": "~/proj/optparse-applicative"
+  },
+  {
+    "relativePath": "~/proj/discrimination"
+  },
+  {
+    "package": "lens",
+    "version": "4.15.4"
+  },
+  {
+    "repository": "https://github.com/haskell/text.git",
+    "revision": "ccbfabedea1cf5b38ff19f37549feaf01225e537"
+  },
+  {
+    "relativePath": "~/proj/servant-swagger"
+  },
+  {
+    "package": "aeson",
+    "version": "1.2.3.0"
+  }
 ]
 ```
 
@@ -909,19 +944,19 @@ that uses the field names `mapKey` and `mapValue` and converts that to the
 equivalent dynamic JSON record:
 
 ```console
-$ dhall-to-json --pretty <<< './students.dhall'
+$ dhall-to-json --file ./students.dhall
 ```
 ```json
 {
-    "aiden": {
-        "age": 16
-    },
-    "daniel": {
-        "age": 17
-    },
-    "rebecca": {
-        "age": 17
-    }
+  "aiden": {
+    "age": 16
+  },
+  "daniel": {
+    "age": 17
+  },
+  "rebecca": {
+    "age": 17
+  }
 }
 ```
 
@@ -933,28 +968,28 @@ You have the option to disable this feature if you want using the `--noMaps`
 flag:
 
 ```console
-$ dhall-to-json --pretty --noMaps <<< './students.dhall'
+$ dhall-to-json --no-maps --file ./students.dhall
 ```
 ```json
 [
-    {
-        "mapKey": "daniel",
-        "mapValue": {
-            "age": 17
-        }
-    },
-    {
-        "mapKey": "rebecca",
-        "mapValue": {
-            "age": 17
-        }
-    },
-    {
-        "mapKey": "aiden",
-        "mapValue": {
-            "age": 16
-        }
+  {
+    "mapKey": "daniel",
+    "mapValue": {
+      "age": 17
     }
+  },
+  {
+    "mapKey": "rebecca",
+    "mapValue": {
+      "age": 17
+    }
+  },
+  {
+    "mapKey": "aiden",
+    "mapValue": {
+      "age": 16
+    }
+  }
 ]
 ```
 
@@ -971,9 +1006,11 @@ You can translate all of the above examples to YAML instead of JSON using the
 $ dhall-to-yaml <<< 'let x = 1 in let y = [x, x] in [y, y]'
 ```
 ```yaml
-- - 1
+- 
   - 1
-- - 1
+  - 1
+- 
+  - 1
   - 1
 ```
 

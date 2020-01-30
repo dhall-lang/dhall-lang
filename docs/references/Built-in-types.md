@@ -13,7 +13,7 @@ Note that this page does not yet include certain keywords, such as:
 * `using`/`as` - Used to modify imports
 * `assert` - Used to write tests
 
-However, in the meantime you can still consult the [[Cheatsheet|Cheatsheet]]
+However, in the meantime you can still consult the [Cheatsheet][cheatsheet]
 to get an intuition for how these keywords work.
 
 ```eval_rst
@@ -1512,3 +1512,5 @@ EOF
 ```dhall
 T::r = (T.default ⫽ r) : T.Type
 ```
+
+[cheatsheet]: <../howtos/Cheatsheet>

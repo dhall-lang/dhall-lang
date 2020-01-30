@@ -151,6 +151,6 @@ otherwise.
 ## Does Dhall support user-defined recursive types?
 
 No, but you can translate recursive code to non-recursive code by following
-this guide:
+this guide: [How to translate recursive code to Dhall][howto-recursive]
 
-[[How to translate recursive code to Dhall|How to translate recursive code to Dhall]]
+[howto-recursive]: <../howtos/How-to-translate-recursive-code-to-Dhall>
