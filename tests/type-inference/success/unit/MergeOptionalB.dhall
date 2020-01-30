@@ -1,0 +1,1 @@
+∀(x : Optional Bool) → Natural
