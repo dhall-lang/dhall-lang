@@ -1064,6 +1064,7 @@ main = do
 **User:** *"What's a union?"*
 
 At this point if you are still curious you should read the longer
-[[JSON tutorial|Getting started: Generate JSON or YAML]]
+[Getting started: Generate JSON or YAML][getting-started-json-yaml]
 
+[getting-started-json-yaml]: <../tutorials/Getting-started_Generate-JSON-or-YAML>
 [dhall-haskell]: https://github.com/dhall-lang/dhall-haskell
