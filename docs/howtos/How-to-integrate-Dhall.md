@@ -36,7 +36,7 @@ The following integrations built on top of another implementation are still in p
 
 You can convert Dhall to one of the following configuration formats if your language does not natively support Dhall.
 
-* [YAML](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-json/README.md) - Via the `dhall-to-yaml` executable
+* [YAML](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-yaml/README.md) - Via the `dhall-to-yaml` executable
 
 * [JSON](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-json/README.md) - Via the `dhall-to-json` executable
 
