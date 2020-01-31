@@ -423,8 +423,9 @@ A non-empty record can store terms, types and kinds:
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
 error.
 
-If there are duplicated fields (that is, if two fields have the same name),
-then that is a type error.
+Carefully note that there should be no need to handle duplicate fields by this
+point because the [desugaring rules for record literals](./record.md) merge
+duplicate fields into unique fields.
 
 Record values are also anonymous. The inferred record type has sorted fields
 and normalized field types.
