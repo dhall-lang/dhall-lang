@@ -174,6 +174,10 @@
 
     { foo = 1, bar = Bool } ⫽ { bar = "Hi" } = { foo = 1, bar = "Hi" }
 
+    { foo.bar = 1 } = { foo = { bar = 1 } }
+
+    { foo.bar = 1, foo.baz = 2 } = { foo = { bar = 1, baz = 2 } }
+
     toMap { foo = 1, bar = 2 }
     = [ { mapKey = "foo", mapValue = 1 }
       , { mapKey = "bar", mapValue = 2 }
