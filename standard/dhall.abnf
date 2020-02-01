@@ -888,16 +888,15 @@ non-empty-record-type-or-literal =
     (non-empty-record-literal / non-empty-record-type)
 
 non-empty-record-type =
-    any-label-or-some whsp ":" whsp1 expression *(whsp "," whsp record-type-entry)
-
-dotted-fields = any-label-or-some *("." any-label-or-some)
+    record-type-entry *(whsp "," whsp record-type-entry)
 
 record-type-entry = any-label-or-some whsp ":" whsp1 expression
 
 non-empty-record-literal =
-    dotted-fields "=" whsp expression *(whsp "," whsp record-literal-entry)
+    record-literal-entry *(whsp "," whsp record-literal-entry)
 
-record-literal-entry = dotted-fields whsp "=" whsp expression
+record-literal-entry =
+    any-label-or-some *("." any-label-or-some) whsp "=" whsp expression
 
 union-type =
       non-empty-union-type
