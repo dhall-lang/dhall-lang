@@ -896,7 +896,7 @@ non-empty-record-literal =
     record-literal-entry *(whsp "," whsp record-literal-entry)
 
 record-literal-entry =
-    any-label-or-some *("." any-label-or-some) whsp "=" whsp expression
+    any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
 
 union-type =
       non-empty-union-type
