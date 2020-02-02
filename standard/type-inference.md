@@ -721,18 +721,11 @@ An implementation could simply loop over the inferred record type.
 
 `Optional`s can also be `merge`d as if they had type `< None | Some : A >`:
 
-
-    Γ ⊢ o : Optional A
-    o ⇥ None A
-    Γ ⊢ merge t < None | Some : A >.None : T
-    ────────────────────────────────────────
-    Γ ⊢ merge t o : T
-
-
-    Γ ⊢ o : Optional A
-    o ⇥ Some a
-    Γ ⊢ merge t (< None | Some : A >.Some a) : T
-    ────────────────────────────────────────────
+    
+    Γ₀ ⊢ o : Optional A
+    ↑(1, x, 0, (Γ₀, x : < None | Some : A >)) = Γ₁
+    Γ₁ ⊢ merge t x : T
+    ──────────────────────────────────
     Γ ⊢ merge t o : T
 
 
