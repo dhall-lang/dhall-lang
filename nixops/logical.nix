@@ -137,8 +137,35 @@
       notificationSender = "noreply@dhall-lang.org";
     };
 
+    journald.extraConfig = ''
+      SystemMaxUse=100M
+    '';
+
+    logrotate = {
+      enable = true;
+
+      config = ''
+        /var/spool/nginx/logs/*.log {
+          create 0644 nginx nginx
+          daily
+          rotate 7
+          missingok
+          notifempty
+          compress
+          sharedscripts
+          postrotate
+            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx.pid 2>/dev/null)" > /dev/null || true
+          endscript
+        }
+      '';
+    };
+
     nginx = {
       enable = true;
+
+      appendConfig = ''
+        pid /run/nginx.pid;
+      '';
 
       recommendedGzipSettings = true;
 
@@ -378,7 +405,9 @@
 
             cd ${discourseDirectory}
 
-            ${pkgs.git}/bin/git checkout 77edaf675a47729bb693d09b94713a2a98b5d686
+            ${pkgs.git}/bin/git fetch https://github.com/discourse/discourse_docker.git 77edaf675a47729bb693d09b94713a2a98b5d686
+
+            ${pkgs.git}/bin/git checkout FETCH_HEAD
 
             ${pkgs.coreutils}/bin/cp ${discourseConfiguration} ${discourseDirectory}/containers/app.yml
 
@@ -528,9 +557,6 @@
   virtualisation.docker = {
     enable = true;
 
-    # Discourse complains if you use anything other than AUFS.  That warning
-    # can be overriden, but it's easier to just use AUFS since nothing else on
-    # this system uses `docker`
-    storageDriver = "aufs";
+    storageDriver = "overlay2";
   };
 }
