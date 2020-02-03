@@ -123,6 +123,7 @@ let
       pkgsNew.runCommand "docs"
         { nativeBuildInputs = [
             pkgsNew.pythonPackages.sphinx
+            pkgsNew.pythonPackages.sphinx_rtd_theme
             pkgsNew.pythonPackages.recommonmark
             pkgsNew.pythonPackages.pygments
           ];

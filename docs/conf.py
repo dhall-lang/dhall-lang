@@ -4,17 +4,22 @@ copyright = '2019, Dhall Contributors'
 author = 'Dhall Contributors'
 master_doc = 'index'
 
-pygments_style = 'sphinx'
-html_theme_options = {
-    'show_related': True,
-    'page_width': 'auto',
+html_theme = 'sphinx_rtd_theme'
+html_context = {
     'github_user': 'dhall-lang',
     'github_repo': 'dhall-lang',
-    'logo': 'dhall-logo.svg',
-    # sticky sidebar
-    #'fixed_sidebar': True,
-    'sidebar_collapse': False,
+    'github_version': 'master',
+    'conf_py_path': '/docs/',
+    'display_github': True,
+    'theme_vcs_pageview_mode': 'edit',
 }
+html_theme_options = {
+    'canonical_url': 'https://docs.dhall-lang.org/',
+    # https://github.com/readthedocs/sphinx_rtd_theme/issues/872
+    # 'logo_only': True,
+}
+# html_logo = '_static/dhall-logo.svg'
+
 html_static_path = ['_static']
 templates_path = ['_templates']
 extensions = [
