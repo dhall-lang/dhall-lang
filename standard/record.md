@@ -1,5 +1,81 @@
 # Record syntactic sugar
 
+There are two desugaring steps applied to records as they parsed, before they
+are further interpreted:
+
+* First, dotted syntax like `{ x.y = a }` desugars to `{ x = { y = a } }`
+* Second, duplicate fields like `{ x = a, x = b }` desugar to `{ x = a ∧ b }`
+
+The following example illustrates how these two features interact:
+
+```dhall
+{ x.y = a, x.z = b }
+```
+
+The above expression first desugars to:
+
+```dhall
+{ x = { y = a }, x = { z = b } }
+```
+
+... which then further desugars to:
+
+```dhall
+{ x = { y = a } ∧ { z = b } }
+```
+
+... which eventually β-normalizes to:
+
+```dhall
+{ x = { y = a, z = b } }
+```
+
+## Dotted syntax
+
+Dhall records permit dot-separated field labels to specify nested records, like
+this:
+
+```dhall
+{ x.y.z = a }
+```
+
+Dot-separated fields like the above desugar to nested records.  For example,
+the above Dhall expression desugars to:
+
+```dhall
+{ x = { y = { z = a } } }
+```
+
+The above translation is governed by the following judgment which converts
+a record containing dot-separated fields to a record without dot-separated
+fields:
+
+    desugar-dotted-fields(r₀) = r₁
+
+... where:
+
+* `r₀` (the input) is a record literal potentially containing dot-separated
+  fields
+* `r₁` (the output) is a record literal free of dot-separated fields
+
+The rules for the translation are:
+
+    desugar-dotted-fields({ xs… = { x = e }, ys… }) = r   ; Induction: More than
+    ────────────────────────────────────────────────────  ; one dot-separated
+    desugar-dotted-fields({ xs….x = e, ys… }) = r         ; field
+
+
+    desugar-dotted-fields({ ys₀… }) = { ys₁… }                ; Base case for
+    ────────────────────────────────────────────────────────  ; no more
+    desugar-dotted-fields({ x = e, ys₀… }) = { x = e, ys₁… }  ; remaining dots
+
+
+    ───────────────────────────────────────────────────────  ; Base care for an
+    desugar-dotted-fields({=}) = {=}                         ; empty record
+
+
+## Duplicate fields
+
 Dhall records permit duplicate record fields, like this:
 
 ```dhall

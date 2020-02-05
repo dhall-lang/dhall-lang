@@ -229,7 +229,6 @@ any-label = label
 ; Allow specifically `Some` in record and union labels.
 any-label-or-some = any-label / Some
 
-
 ; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
 ; * Dhall strings support string interpolation
@@ -889,13 +888,18 @@ empty-record-literal = "="
 empty-record-type = ""
 
 non-empty-record-type-or-literal =
-    any-label-or-some whsp (non-empty-record-literal / non-empty-record-type)
+    (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type = ":" whsp1 expression *(whsp "," whsp record-type-entry)
+non-empty-record-type =
+    record-type-entry *(whsp "," whsp record-type-entry)
+
 record-type-entry = any-label-or-some whsp ":" whsp1 expression
 
-non-empty-record-literal = "=" whsp expression *(whsp "," whsp record-literal-entry)
-record-literal-entry = any-label-or-some whsp "=" whsp expression
+non-empty-record-literal =
+    record-literal-entry *(whsp "," whsp record-literal-entry)
+
+record-literal-entry =
+    any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
 
 union-type =
       non-empty-union-type
