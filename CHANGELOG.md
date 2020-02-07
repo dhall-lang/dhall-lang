@@ -5,7 +5,19 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
-## `v13.1.0`
+## `v14.0.0`
+
+Breaking changes:
+
+* [Disallow Natural literals with leading zeros](https://github.com/dhall-lang/dhall-lang/pull/898)
+
+  `Natural` numbers can no longer start with a leading zero, for two main
+  reasons:
+
+  * So that users will not confuse them with octal numbers
+
+  * So that implementations are less likely to inadvertently parse them as octal
+    numbers
 
 New features:
 
