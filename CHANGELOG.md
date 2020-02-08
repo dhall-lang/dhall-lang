@@ -7,6 +7,14 @@ For more info about our versioning policy, see [versioning.md](standard/versioni
 
 ## `v14.0.0`
 
+Deprecation notice:
+
+* [The `Optional/fold` and` `Optional/build` built-ins are deprecated](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-Optional-fold-and-Optional-build.html)
+
+  These built-ins will be removed in the following release in an effort to
+  slowly simplify the standard.  See the above link to the migration guide for
+  more details.
+
 Breaking changes:
 
 * [Disallow Natural literals with leading zeros](https://github.com/dhall-lang/dhall-lang/pull/898)
