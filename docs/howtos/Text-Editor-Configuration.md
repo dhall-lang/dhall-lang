@@ -26,25 +26,6 @@ Using [LanguageClient](https://github.com/autozimu/LanguageClient-neovim):
 
 ### Installation
 
-#### Manually
-
-Install the plugin from scratch by running:
-
-```console
-git clone --depth 1 https://github.com/vmchale/dhall-vim ~/.vim
-mkdir -p ~/.vim-plugins
-cd ~/.vim-plugins
-git clone --depth 1 https://github.com/autozimu/LanguageClient-neovim.git
-cd LanguageClient-neovim
-bash install.sh
-```
-
-Then add this to your `~/.vimrc` file:
-
-```
-set runtimepath+=~/.vim-plugins/LanguageClient-neovim
-```
-
 #### Using `vim-plug`
 
 If it is not already installed, you can setup vim-plug by running:
@@ -132,11 +113,6 @@ If it is not already installed, you can setup `use-package` by adding this to yo
 ```
 
 Or read the other possible integration at [lsp-mode configuration][lsp-mode-configuration]
-To make it work with dhall, you need to enable the dhall-mode hook:
-
-```emacs-lisp
-(add-hook 'dhall-mode-hook #'lsp-deferred)
-```
 
 ### Configuration
 
