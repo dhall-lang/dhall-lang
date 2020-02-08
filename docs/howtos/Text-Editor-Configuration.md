@@ -198,4 +198,21 @@ Here are the commands you need to know:
 
 ## vscode
 
-> TODO: document vscode configuration
+Using [PanAeon/vscode-dhall-lsp-server][vscode-dhall]:
+
+![](../_static/lsp-codium.png)
+
+
+### Installation
+
+Click on the `Extensions` button and install:
+
+* Dhall Language Support
+* Dhall LSP Server
+
+
+### Configuration and Usage
+
+Check the extensions [README][vscode-dhall]
+
+[vscode-dhall]: https://github.com/PanAeon/vscode-dhall-lsp-server
