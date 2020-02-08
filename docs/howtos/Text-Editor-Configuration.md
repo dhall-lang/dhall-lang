@@ -1,15 +1,22 @@
 # Text Editor Configuration
 
-You can use the language server protocol `dhall-lsp-server` with different editors.
+You can use the language server protocol `dhall-lsp-server` with different editors:
 
-```eval_rst
-.. contents:: Table of Contents
-   :depth: 2
-   :backlinks: none
-```
+* [Vim](#VIM)
+* [Emacs](#EMACS)
+* [Visual Studio Code](#vscode)
 
-> TODO: document dhall-lsp-server installation
-> TODO: document vscode configuration
+The current LSP implementation features the following extensions:
+
+* completion
+* documentFormatting
+* hover
+
+Follow the [install instructions][installation] from the getting started tutorial
+to download the `dhall-lsp-server`. Make sure the command is in your search `PATH`.
+
+[installation]: <tutorials/Getting-started_Generate-JSON-or-YAML:installation>
+
 
 ## VIM
 
@@ -21,9 +28,10 @@ Using [LanguageClient](https://github.com/autozimu/LanguageClient-neovim):
 
 #### Manually
 
-Install the plugin manually by running:
+Install the plugin from scratch by running:
 
 ```console
+git clone --depth 1 https://github.com/vmchale/dhall-vim ~/.vim
 mkdir -p ~/.vim-plugins
 cd ~/.vim-plugins
 git clone --depth 1 https://github.com/autozimu/LanguageClient-neovim.git
@@ -56,28 +64,46 @@ Plug 'autozimu/LanguageClient-neovim', {
     \ 'do': 'bash install.sh',
     \ }
 
+Plug 'vmchale/dhall-vim'
+
 call plug#end()
 ```
+
+Finally, restart vim and run `:PlugInstall`
 
 ### Configuration
 
 To enable dhall-lsp-server with vim LanguageClient, add this to your `~/.vimrc` file:
 
 ```
-augroup filetype_dhall
-    autocmd!
-    autocmd BufReadPost *.dhall setlocal filetype=dhall
-augroup END
-
 let g:LanguageClient_serverCommands = {
-    \ 'dhall': ['/usr/bin/dhall-lsp-server'],
+    \ 'dhall': ['dhall-lsp-server'],
     \ }
+
+" comment the next line to disable automatic format on save
+let g:dhall_format=1
 
 " Always draw sign column. Prevent buffer moving when adding/deleting sign.
 set signcolumn=yes
+
 " Required for operations modifying multiple buffers like rename.
 set hidden
+
+" Map keybinding
+nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
 ```
+
+### Usage
+
+Here are the commands you need to know:
+
+Keys | Action
+---- | ------
+`C-x C-o` | auto complete, should work automatically when using deoplete/nvim-completion-manager
+`:cn` or `:cp` | navigate to the next or previous error
+`K` | describe thing
+`F5` | show all lsp client functions
 
 
 ## EMACS
@@ -103,12 +129,10 @@ If it is not already installed, you can setup `use-package` by adding this to yo
 ;; install use-package
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
-(setq use-package-always-ensure t)
 ```
 
-Or read the other possible integration at:
-https://github.com/emacs-lsp/lsp-mode#configure-lsp-mode
-To make it work with dhall, you just need to enable the dhall-mode hook:
+Or read the other possible integration at [lsp-mode configuration][lsp-mode-configuration]
+To make it work with dhall, you need to enable the dhall-mode hook:
 
 ```emacs-lisp
 (add-hook 'dhall-mode-hook #'lsp-deferred)
@@ -119,19 +143,59 @@ To make it work with dhall, you just need to enable the dhall-mode hook:
 To enable dhall-lsp-server with emacs lsp-mode, add this to your `~/.emacs.d/init.el` file:
 
 ```emacs-lisp
+;; dhall-mode highlight the syntax and run dhall format on save
 (use-package dhall-mode
+  :ensure t
   :config
   (setq
+    ;; uncomment the next line to disable automatic format
+    ;; dhall-format-at-save nil
+
+    ;; comment the next line to use unicode syntax
     dhall-format-arguments (\` ("--ascii"))
+
+    ;; header-line is obsoleted by lsp-mode
     dhall-use-header-line nil))
 
+;; lsp-mode provides the lsp client and it configure flymake to explain errors
 (use-package lsp-mode
+  :ensure t
+  :init (setq lsp-keymap-prefix "C-c l")
   :hook ((dhall-mode . lsp))
   :commands lsp)
 ```
 
+For a more complete integration, add these extra packages:
+
+```emacs-lisp
+;; lsp-ui shows type annotations on hover
+(use-package lsp-ui
+  :ensure t
+  :hook ((lsp-mode-hook . lsp-ui-mode)))
+
+;; company-lsp simplifies completion-at-point
+(use-package company-lsp
+  :ensure t
+  :after company
+  :init
+    (push 'company-lsp company-backends))
+```
+
+Check [lsp-mode configuration][lsp-mode-configuration] to configure `helm`, `ivy` and `which-key`.
+
+
 ### Usage
 
-Here are the commands and default keybindings you need to know:
+Here are the commands you need to know:
 
-* M-x flymake-goto-next-error
+* completion-at-point
+* flymake-goto-next-error
+* lsp-describe-thing-at-point  (not needed when using `lsp-ui`)
+* lsp-describe-session
+
+[lsp-mode-configuration]: https://github.com/emacs-lsp/lsp-mode#configure-lsp-mode
+
+
+## vscode
+
+> TODO: document vscode configuration
