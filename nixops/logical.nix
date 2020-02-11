@@ -414,6 +414,8 @@
             ${pkgs.bash}/bin/bash ${discourseDirectory}/launcher rebuild app
           '';
 
+          serviceConfig.RemainAfterExit = true;
+
           wantedBy = [ "multi-user.target" ];
 
           wants = [ "docker.service" ];
