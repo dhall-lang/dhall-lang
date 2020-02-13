@@ -192,9 +192,13 @@
 *   Unions
 
     ```dhall
-    < Foo | Bar : Natural >.Foo, < Foo | Bar : Natural >.Bar 1 : < Foo | Bar : Natural >
+    let FooBar = < Foo | Bar : Natural >
 
-    merge { Foo = False, Bar = Natural/even } < Foo | Bar : Natural >.Bar 2 = True
+    let isEven =
+        \(foobar : FooBar) -> merge { Foo = False, Bar = Natural/even } foobar
+
+    in  [ isEven FooBar.Foo, isEven (FooBar.Bar 3), isEven (FooBar.Bar 4) ]
+    = [ False, False, True ]
     ```
 
 ## Programming
@@ -307,6 +311,14 @@
 
     You can find latest Prelude of importable functions at 
     [prelude.dhall-lang.org](https://prelude.dhall-lang.org/)
+
+    You can import Prelude as a whole with:
+
+    ```dhall
+    let Prelude = https://prelude.dhall-lang.org/package.dhall
+
+    in Prelude.List.last Natural [2, 3, 4]
+    ```
 
 *   Comments
 
