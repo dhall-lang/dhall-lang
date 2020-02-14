@@ -5,6 +5,132 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v14.0.0`
+
+Deprecation notice:
+
+* [The `Optional/fold` and` `Optional/build` built-ins are deprecated](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-Optional-fold-and-Optional-build.html)
+
+  These built-ins will be removed in three more releases in an effort to slowly
+  simplify the standard.  See the above link to the migration guide for more
+  details.
+
+Breaking changes:
+
+* [Disallow Natural literals with leading zeros](https://github.com/dhall-lang/dhall-lang/pull/898)
+
+  `Natural` numbers can no longer start with a leading zero, for two main
+  reasons:
+
+  * So that users will not confuse them with octal numbers
+
+  * So that implementations are less likely to inadvertently parse them as octal
+    numbers
+
+New features:
+
+* [Add support for duplicate record fields](https://github.com/dhall-lang/dhall-lang/pull/896)
+
+  Up until now, the Dhall interpreter would reject duplicate fields within
+  records, such as:
+
+  ```dhall
+  { x = { y = 1 }, x = { z = 1 } }
+  ```
+
+  However, several other configuration languages permit duplicate fields so
+  long as (A) they are records and (B) their nested fields do not conflict
+  (such as in the above example).  Now the Dhall configuration language behaves
+  that way, too.
+
+  Specifically, the rules are that more than one occurrence of a field desugars
+  to use of the `∧` operator to combine the duplicate occurrences.  So, for
+  example, the above expression is now syntactic sugar for:
+
+  ```dhall
+  { a = { b = 1 } ∧ { c = 1 } }
+  ```
+
+  ... which then further evaluates to:
+
+  ```dhall
+  { a = { b = 1, c = 1 } }
+  ```
+
+  Other cases for duplicate fields are still rejected as type errors.  For
+  example, this expression:
+
+  ```dhall
+  { a = 0, a = 0 }
+  ```
+
+  ... desugars to:
+
+  ```dhall
+  { a = 0 ∧ 0 }
+  ```
+
+  ... which is a type error.
+
+  This feature combines well with the following feature for dotted field
+  syntax.
+
+* [Add support for dotted field syntax](https://github.com/dhall-lang/dhall-lang/pull/901)
+
+  You can now compress deeply nested record hierarchies by chaining nested
+  fields with dots.
+
+  For example, the following record:
+
+  ```dhall
+  { a.b.c = 1 }
+  ```
+
+  ... is syntactic sugar for nesting records like this:
+
+  ```dhall
+  { a = { b = { c = 1 } } }
+  ```
+
+  You can combine this feature with the previous feature for duplicate
+  fields.  For example, the following record:
+
+  ```dhall
+  { a.b.c = 1, a.b.d = True }
+  ```
+
+  ... desugars to:
+
+  ```dhall
+  { a = { b = { c = 1 } }, a = { b = { d = True } } }
+  ```
+
+  ... and the duplicate fields merge to produce:
+
+  ```dhall
+  { a = { b = { c = 1, d = True } } }
+  ```
+
+* [Fix typing rule for merging `Optional`s](https://github.com/dhall-lang/dhall-lang/pull/899)
+
+  The previous released introduced `merge` support for `Optional` values, such
+  as:
+
+  ```dhall
+  merge { None = 0, Some = λ(n : Natural) → n } (Some 4)
+  ```
+
+  However, the final argument to `merge` was limited to `Optional` literals
+  (e.g. `Some` or `None`), but did not work on abstract `Optional` values, such
+  as bound variables.  For example, the following example would fail to
+  type-check:
+
+  ```dhall
+  λ(o : Optional Natural) → merge { None = 0, Some = λ(n : Natural) → n } o
+  ```
+
+  This release fixes that and the above example is now valid Dhall code.
+
 ## `v13.0.0`
 
 Breaking changes:
