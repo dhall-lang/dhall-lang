@@ -10,19 +10,13 @@ let unzip
       → λ(b : Type)
       → λ(xs : Optional { _1 : a, _2 : b })
       → { _1 =
-            Optional/fold
-              { _1 : a, _2 : b }
+            merge
+              { Some = λ(x : { _1 : a, _2 : b }) → Some x._1, None = None a }
               xs
-              (Optional a)
-              (λ(x : { _1 : a, _2 : b }) → Some x._1)
-              (None a)
         , _2 =
-            Optional/fold
-              { _1 : a, _2 : b }
+            merge
+              { Some = λ(x : { _1 : a, _2 : b }) → Some x._2, None = None b }
               xs
-              (Optional b)
-              (λ(x : { _1 : a, _2 : b }) → Some x._2)
-              (None b)
         }
 
 let example0 =

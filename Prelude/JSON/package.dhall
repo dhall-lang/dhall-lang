@@ -1,13 +1,19 @@
   { render =
-        ./render sha256:81f5a84efbb35211b1556838e86d17ed497912cf765bfa4ab76708b21e5371f1
+        ./render sha256:f7c372fcc954bfbbc7f83deec2006608a48efa2b08e8753bfdf73dc0aa7b4faf
       ? ./render
   , renderYAML =
-        ./renderYAML sha256:862b535f6b905f1ce4b83207c58dd53ce5af0026da4c0960a3aec90fdbbb3eb0
+        ./renderYAML sha256:b3a9d9b0349c90af9a4985c615c60ac4a85031a7bf9de78f2883126481d35aa0
       ? ./renderYAML
   , omitNullFields =
-        ./omitNullFields sha256:c28270c553f48c406bd161c61776963315e278af5dae9331c4a320c3f4ecb4ec
+        ./omitNullFields sha256:e6850e70094540b75edeb46f4d6038324a62def8d63544a1e9541f79739db6f0
       ? ./omitNullFields
+  , tagInline =
+        ./tagInline sha256:49559ac11906ba6cc9eac25753e31e7addb13bc760df108024174c55523984c4
+      ? ./tagInline
+  , tagNested =
+        ./tagNested sha256:93a7415853b7677c832246efadc8e880c1b641a23589286a836a384ca311d26f
+      ? ./tagNested
   }
-∧ (   ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+∧ (   ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
     ? ./core.dhall
   )

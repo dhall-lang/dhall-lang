@@ -5,7 +5,7 @@ let toList
     : ∀(a : Type) → Optional a → List a
     =   λ(a : Type)
       → λ(o : Optional a)
-      → Optional/fold a o (List a) (λ(x : a) → [ x ] : List a) ([] : List a)
+      → merge { Some = λ(x : a) → [ x ] : List a, None = [] : List a } o
 
 let example0 = assert : toList Natural (Some 1) ≡ [ 1 ]
 

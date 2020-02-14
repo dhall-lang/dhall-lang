@@ -14,7 +14,7 @@
       ./concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
     ? ./concatMap
 , default =
-      ./default sha256:0ed2a04df6c1d55c08bcdbad82b30980af9ac40d2df7a1628f3663e3e8b4fe01
+      ./default sha256:fd77809e497227403f42848ffcda05a3efab442d961027c34f3e31d5d24e6379
     ? ./default
 , drop =
       ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf

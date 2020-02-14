@@ -223,9 +223,11 @@ label = ("`" quoted-label "`" / simple-label)
 ;    / !builtin label
 nonreserved-label = label
 
-; An any-label is allowed to be one of the reserved identifiers.
+; An any-label is allowed to be one of the reserved identifiers (but not a keyword).
 any-label = label
 
+; Allow specifically `Some` in record and union labels.
+any-label-or-some = any-label / Some
 
 ; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
@@ -253,13 +255,54 @@ double-quote-escaped =
     / %x74                 ; 't'    tab             U+0009
     / %x75 unicode-escape  ; 'uXXXX' / 'u{XXXX}'    U+XXXX
 
-; The parser must also reject Unicode escape sequences that are either:
+; Valid Unicode escape sequences are as follows:
 ;
-; * Surrogate pairs (i.e. `%xD800-DFFF`)
-; * Non-characters (i.e. `%xNFFFE-xNFFFF` for each `N` in `{ 0 .. F }`)
+; * Exactly 4 hexadecimal digits without braces:
+;       `\uXXXX`
+; * 1-6 hexadecimal digits within braces (with optional zero padding):
+;       `\u{XXXX}`, `\u{000X}`, `\u{XXXXX}`, `\u{00000XXXXX}`, etc.
+;   Any number of leading zeros are allowed within the braces preceding the 1-6
+;   digits specifying the codepoint.
+;
+; From these sequences, the parser must also reject any codepoints that are in
+; the following ranges:
+;
+; * Surrogate pairs: `%xD800-DFFF`
+; * Non-characters: `%xNFFFE-NFFFF` / `%x10FFFE-10FFFF` for `N` in `{ 0 .. F }`
 ;
 ; See the `valid-non-ascii` rule for the exact ranges that are not allowed
-unicode-escape = 4HEXDIG / "{" 1*HEXDIG "}"
+unicode-escape = unbraced-escape / "{" braced-escape "}"
+
+; All valid last 4 digits for unicode codepoints (outside Plane 0): `0000-FFFD`
+unicode-suffix = (DIGIT / "A" / "B" / "C" / "D" / "E") 3HEXDIG
+               / "F" 2HEXDIG (DIGIT / "A" / "B" / "C" / "D")
+
+; All 4-hex digit unicode escape sequences that are not:
+;
+; * Surrogate pairs (i.e. `%xD800-DFFF`)
+; * Non-characters (i.e. `%xFFFE-FFFF`)
+;
+unbraced-escape =
+      (DIGIT / "A" / "B" / "C") 3HEXDIG
+    / "D" ("0" / "1" / "2" / "3" / "4" / "5" / "6" / "7") HEXDIG HEXDIG
+    ; %xD800-DFFF Surrogate pairs
+    / "E" 3HEXDIG
+    / "F" 2HEXDIG (DIGIT / "A" / "B" / "C" / "D")
+    ; %xFFFE-FFFF Non-characters
+
+; All 1-6 digit unicode codepoints that are not:
+;
+; * Surrogate pairs: `%xD800-DFFF`
+; * Non-characters: `%xNFFFE-NFFFF` / `%x10FFFE-10FFFF` for `N` in `{ 0 .. F }`
+;
+; See the `valid-non-ascii` rule for the exact ranges that are not allowed
+braced-codepoint =
+      ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C" / "D" / "E" / "F" / "10") unicode-suffix; (Planes 1-16)
+    / unbraced-escape ; (Plane 0)
+    / 1*3HEXDIG ; %x000-FFF
+
+; Allow zero padding for braced codepoints
+braced-escape = *"0" braced-codepoint
 
 ; Printable characters except double quote and backslash
 double-quote-char =
@@ -445,7 +488,13 @@ double-literal =
     ; "NaN"
     / NaN
 
-natural-literal = 1*DIGIT
+natural-literal =
+    ; Hexadecimal with "0x" prefix
+      "0" %x78 1*HEXDIG
+    ; Decimal; leading 0 digits are not allowed
+    / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9") *DIGIT
+    ; ... except for 0 itself
+    / "0"
 
 integer-literal = ( "+" / "-" ) natural-literal
 
@@ -779,7 +828,8 @@ first-application-expression =
 
 import-expression = import / completion-expression
 
-completion-expression = selector-expression [ complete selector-expression ]
+completion-expression =
+    selector-expression [ whsp complete whsp selector-expression ]
 
 ; `record.field` extracts one field of a record
 ;
@@ -793,7 +843,7 @@ selector-expression = primitive-expression *(whsp "." whsp selector)
 
 selector = any-label / labels / type-selector
 
-labels = "{" whsp [ any-label whsp *("," whsp any-label whsp) ] "}"
+labels = "{" whsp [ any-label-or-some whsp *("," whsp any-label-or-some whsp) ] "}"
 
 type-selector = "(" whsp expression whsp ")"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
@@ -820,7 +870,6 @@ primitive-expression =
     / "<" whsp [ "|" whsp ] union-type whsp ">"
     
     ; "[1, 2, 3]"
-    ; `empty-collection` handles empty lists
     / non-empty-list-literal
     
     ; "x"
@@ -839,13 +888,18 @@ empty-record-literal = "="
 empty-record-type = ""
 
 non-empty-record-type-or-literal =
-    any-label whsp (non-empty-record-literal / non-empty-record-type)
+    (non-empty-record-literal / non-empty-record-type)
 
-non-empty-record-type = ":" whsp1 expression *(whsp "," whsp record-type-entry)
-record-type-entry = any-label whsp ":" whsp1 expression
+non-empty-record-type =
+    record-type-entry *(whsp "," whsp record-type-entry)
 
-non-empty-record-literal = "=" whsp expression *(whsp "," whsp record-literal-entry)
-record-literal-entry = any-label whsp "=" whsp expression
+record-type-entry = any-label-or-some whsp ":" whsp1 expression
+
+non-empty-record-literal =
+    record-literal-entry *(whsp "," whsp record-literal-entry)
+
+record-literal-entry =
+    any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
 
 union-type =
       non-empty-union-type
@@ -858,7 +912,7 @@ non-empty-union-type =
 
 ; x : Natural
 ; x
-union-type-entry = any-label [ whsp ":" whsp1 expression ]
+union-type-entry = any-label-or-some [ whsp ":" whsp1 expression ]
 
 non-empty-list-literal =
     "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) "]"

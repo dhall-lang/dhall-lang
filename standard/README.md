@@ -295,6 +295,39 @@ You can find the details of this judgment in the following separate document:
 
 * [Multi-line literal semantics](./multiline.md)
 
+## Record syntactic sugar
+
+Dhall supports syntactic sugar for records that also occurs at parse time.
+
+For example, a record literal of the form:
+
+    { x.y = 1, x.z = 1 } }
+
+... first desugars dotted fields to nested records:
+
+    { x = { y = 1 }, x = { z = 1 } }
+
+... and then desugars duplicate fields by merging them using `∧`:
+
+    { x = { y = 1 } ∧ { z = 1} }
+
+Because this conversion occurs at parse-time all of the following judgments
+only deal with records that have no dotted fields and that have unique keys.
+
+Desugaring record literals with dotted fields is implemented by the following
+judgment:
+
+    desugar-dotted-fields(r₀) = r₁
+
+... and desugaring record literals with duplicate fields is handled by the
+following judgment:
+
+    desugar-duplicates(r₀) = r₁
+
+You can find the details of these judgments in the following separate document:
+
+* [Record syntactic sugar](./record.md)
+
 ## Shift
 
 Dhall allows variables to reference shadowed variables of the same name using De

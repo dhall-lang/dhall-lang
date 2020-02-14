@@ -1,80 +1,204 @@
 # Dhall infrastructure
 
-This directory contains a NixOps specification for hosting Dhall infrastructure,
-which currently consists of a Hydra server for Dhall's continuous integration.
+This directory contains code for Dhall's shared infrastructure, including:
 
-Deploying the Hydra server requires an account with read/write access to the
-Dhall repositories and also requires non-interactive `root` SSH access to the
-`hydra.dhall-lang.org` server (currently provisioned out-of-band via Linode).
-This directory exists mainly to document the current deployment, but you can
-adapt the deployment to your own machines/projects/accounts if desired.
+* [dhall-lang.org](https://dhall-lang.org) - The website that serves as an
+  entrypoint to the language
 
-You can deploy your own copy of this infrastructure using the following
-instructions:
+* [discourse.dhall-lang.org](https://discourse.dhall-lang.org) - Our Discourse
+  forum
 
-*   Installing Nix by following these instructions:
+* [prelude.dhall-lang.org](https://prelude.dhall-lang.org) - The standard
+  Prelude
 
-    [https://nixos.org/nix/download.html](https://nixos.org/nix/download.html)
+* [hydra.dhall-lang.org](https://hydra.dhall-lang.org) - Continuous integration
+  (CI) server for Dhall repositories
 
-*   Installing the necessary toolchain, either permanently:
+* [cache.dhall-lang.org](https://cache.dhall-lang.org) - Binary cache serving
+  anything built by CI
+
+The only exception is:
+
+* [docs.dhall-lang.org](https://docs.dhall-lang.org) - Documentation for the
+  Dhall ecosystem
+
+... whose code is located in the [`./docs`](../docs/README) subdirectory.
+
+All of these services are hosted on the same server.
+
+This infrastructure is managed using continuous delivery, meaning that the
+server updates itself every hour to pick up changes merged into the `master`
+branch of this repository.
+
+That means that all you need to do to update any of these services is to create
+a pull request and once your work is merged the server will auto-update itself
+on the hour.
+
+## Updating `dhall-lang.org`
+
+To update the website, create a pull request to amend
+[`./nixops/index.html`](./index.html).
+
+You can build the website using Nix to test your changes locally before
+submitting them.  Run the following command:
+
+```bash
+$ nix build --file ./release.nix website
+```
+
+... then open `./result/index.html` in your web browser.
+
+## Updating `docs.dhall-lang.org`
+
+To update the documentation, create a pull request to amend the
+[`./docs`](../docs/README) directory.
+
+You can build the documentation using Nix to test your changes locally before
+submitting them.  Run the following command:
+
+```bash
+$ nix build --file ./release.nix docs
+```
+
+... then open `./result/index.html` in your web browser.
+
+## Updating `{discourse,hydra,prelude,cache}.dhall-lang.org`
+
+All of these services are configured in
+[`./nixops/logical.nix`](./logical.nix), and you can update them by creating a
+pull request to amend that file.
+
+There currently is not a good way to locally test your changes, but you can at
+least locally verify that the machine configuration builds correctly by running:
+
+```bash
+$ nix build --file ./release.nix machine
+```
+
+If you have SSH access to the machine then you can also do a test deploy by
+running:
+
+```bash
+$ ssh dhall-lang.org
+
+$ nix-shell --packages git
+
+$ git clone https://github.com/dhall-lang/dhall-lang.git
+
+$ cd dhall-lang
+
+$ git checkout "${THE_BRANCH_YOU_WANT_TO_TEST}"
+
+$ nix build --file ./release.nix machine
+
+$ sudo result/bin/switch-to-configuration test
+```
+
+## Obtaining SSH access to `dhall-lang.org`
+
+Add yourself as an authorized user on the server by creating a pull request to
+add your account and public SSH key here:
+
+* [`users.users`](https://github.com/dhall-lang/dhall-lang/blob/b20476014e508be2218adbafa656996d0fd217bc/nixops/logical.nix#L532-L540)
+
+After your pull request is merged and the server updates itself you should be
+able to log in as:
+
+```bash
+$ ssh dhall-lang.org
+```
+
+... and you should have `sudo` privileges if you included yourself in the
+`wheel` group.
+
+## Bootstrapping
+
+This section records how the `dhall-lang.org` server was bootstrapped in case we
+somehow need to recreate everything from scratch:
+
+*   Provision a NixOS machine with the following specs
+
+    * 4 cores
+    * 8 GB RAM
+    * 160 GB disk
+    * static IP address
+
+    ... that you can `ssh` into as an account with `sudo` privileges
+
+*   Set `dhall-lang.org` and all subdomains to point to the static IP address of
+    the above server
+
+    Note that currently @Gabriel439 owns the `dhall-lang.org` domain.  Contact
+    him if you need to update the domain.
+
+    If you are interested in setting up the same infrastructure underneath a
+    different domain that you have purchased, then replace all references in
+    the code and these instructions with your preferred domain name.
+
+*   Run the following commands:
 
     ```bash
-    $ nix-env --install --attr nixops
+    $ ssh dhall-lang.org
+
+    $ nix-shell --packages git
+
+    $ git clone https://github.com/dhall-lang/dhall-lang.git
+
+    $ cd dhall-lang
+
+    $ nix build --file ./release.nix machine
+
+    $ sudo result/bin/switch-to-configuration switch
     ```
 
-    ... or transiently:
+    From this point on the server will track the `master` branch of this
+    repository.
 
-    ```bash
-    $ nix-shell --packages nixops
-    ```
+    This initial deployment step will enable some services but others will fail
+    due to insufficient permissions, which the following steps will address.
 
-*   Provide the `discourse@dhall-lang.org` account password
+*   Enable Discourse by saving the `discourse@dhall-lang.org` account password
 
     Save the account password using:
 
     ```bash
-    $ echo -n "${PASSWORD}" > nixops/discourseSmtpPassword
+    $ echo -n "${PASSWORD}" > /var/lib/self-deploy/dhall-lang/nixops/discourseSmtpPassword
     ```
 
     If you are creating this account for the first time , then pick any password
     and then update the
     `mailserver.loginAccounts."discourse@dhall-lang.org".hashedPassword`
-    NixOS configuration option in `nixops/logical.nix` to match.
-
-*   Deploy the infrastructure using `nixops`:
-
-    First, create the deployment specification:
-
-    ```bash
-    $ nixops create -d dhall logical.nix physical.nix
-    ```
-
-    Then you can deploy the Hydra server by running:
-
-    ```bash
-    $ nixops deploy --deployment dhall
-    ```
-
-*   Create an administrative user for `hydra`:
-
-    ```bash
-    $ nixops ssh --deployment dhall hydra hydra-create-user "${USERNAME}" --fullname "${FULL_NAME}" --email "${EMAIL}" --password "${PASSWORD}" --role admin
-    ```
+    NixOS configuration option in [`nixops/logical.nix`](./logical.nix) to
+    match.
 
 *   Get a personal access token for the
-    [`@dhall-bot`](https://github.com/dhall-bot) user with the `repo` permission
+    [`@dhall-bot`](https://github.com/dhall-bot) user with the `repo`
+    permission.  This token is used by CI to authenticate GitHub requests.
+
+    This GitHub account is currently operated by @Gabriel439.  Ask him if you
+    need to obtain access to this account.
+
+    If you are setting up your own parallel infrastructure then you can use
+    a personal access token for any GitHub account of your own.
 
 *   Save the personal access token to `/etc/hydra/authorization` on the `hydra`
     machine:
 
     ```bash
-    $ nixops ssh --deployment dhall hydra 'cat > /etc/hydra/authorization/dhall-lang' <<< "${TOKEN}"
+    $ echo "${TOKEN}" > /etc/hydra/authorization/dhall-lang
     ```
 
-*   Add `hydra` to the `hydra-queue-runner` user's known hosts:
+*   Update NixOS configuration to match the SSH public key for `dhall-lang.org`
+
+    Note that this configuration change needs to be merged into `master` by
+    creating a pull request to modify the following option:
+
+    * [`programs.ssh.knownHosts`](https://github.com/dhall-lang/dhall-lang/blob/b20476014e508be2218adbafa656996d0fd217bc/nixops/logical.nix#L106-L109)
+
+*   Create an administrative user for `hydra`:
 
     ```bash
-    $ nixops ssh --deployment dhall hydra 'sudo -u hydra-queue-runner ssh -i /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa hydra-queue-runner@hydra.dhall-lang.org'
+    $ hydra-create-user "${USERNAME}" --fullname "${FULL_NAME}" --email "${EMAIL}" --password "${PASSWORD}" --role admin
     ```
 
 *   Log into [Hydra](https://hydra.dhall-lang.org) with the account created
@@ -104,4 +228,20 @@ instructions:
 
     * [`nixos-mailserver` - A Complete Setup Guide](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/A-Complete-Setup-Guide)
 
-*   You're done!
+*   Optional - Redeploy the server
+
+    ... by running the following command on the server:
+
+    ```bash
+    $ sudo systemctl restart self-deploy
+    ```
+
+    Or just wait.  The `self-deploy` service runs every hour and updates the
+    server to match the `master` branch of this repository.
+
+*   Hopefully, you're done!
+
+    There may have been setup steps that I have forgotten about.  If something
+    is still not working check [`./nixops/logical.nix`](./logical.nix) to see
+    if there are any hard-coded values that need to be fixed via pull
+    requests.

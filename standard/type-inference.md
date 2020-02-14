@@ -423,8 +423,9 @@ A non-empty record can store terms, types and kinds:
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
 error.
 
-If there are duplicated fields (that is, if two fields have the same name),
-then that is a type error.
+Carefully note that there should be no need to handle duplicate fields by this
+point because the [desugaring rules for record literals](./record.md) merge
+duplicate fields into unique fields.
 
 Record values are also anonymous. The inferred record type has sorted fields
 and normalized field types.
@@ -718,11 +719,21 @@ An implementation could simply loop over the inferred record type.
     Γ ⊢ merge t₀ u₀ : T₀
 
 
+`Optional`s can also be `merge`d as if they had type `< None | Some : A >`:
+
+    
+    Γ₀ ⊢ o : Optional A
+    ↑(1, x, 0, (Γ₀, x : < None | Some : A >)) = Γ₁
+    Γ₁ ⊢ merge t x : T
+    ──────────────────────────────────
+    Γ ⊢ merge t o : T
+
+
 If the first argument of a `merge` expression is not a record then that is a
 type error.
 
-If the second argument of a `merge` expression is not a union then that is a
-type error.
+If the second argument of a `merge` expression is not a union or an `Optional`
+then that is a type error.
 
 If you `merge` an empty union without a type annotation then that is a type
 error.
@@ -917,9 +928,9 @@ the right-hand side of the assignment then that is a type error.
 
 ## Type annotations
 
-The inferred type of a type annotation is the annotation.  Type-checking also
-verifies that the annotation matches the inferred type of the annotated
-expression:
+Type-checking an annotated expression verifies that the annotation
+matches the inferred type of the annotated expression, and returns the
+inferred type as the type of the whole expression:
 
 
     Γ ⊢ T₀ : i   Γ ⊢ t : T₁   T₀ ≡ T₁

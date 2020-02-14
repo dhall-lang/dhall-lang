@@ -4,7 +4,7 @@
    more sophisticated you should use `dhall-to-json` or `dhall-to-yaml`
 -}
 let JSON =
-        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let Text/concatMapSep =
@@ -17,7 +17,8 @@ let render
       → j
           Text
           { string = λ(x : Text) → Text/show x
-          , number = λ(x : Double) → Double/show x
+          , double = λ(x : Double) → Double/show x
+          , integer = λ(x : Integer) → JSON.renderInteger x
           , object =
                 λ(x : List { mapKey : Text, mapValue : Text })
               → let body =
@@ -28,12 +29,12 @@ let render
                           → " ${Text/show e.mapKey}: ${e.mapValue}"
                         )
                         x
-                
+
                 in  "{${body} }"
           , array =
                 λ(x : List Text)
               → let body = Text/concatMapSep "," Text (λ(y : Text) → " ${y}") x
-                
+
                 in  "[${body} ]"
           , bool = λ(x : Bool) → if x then "true" else "false"
           , null = "null"
@@ -47,7 +48,7 @@ let example0 =
                 , JSON.string "Hello"
                 , JSON.object
                     [ { mapKey = "foo", mapValue = JSON.null }
-                    , { mapKey = "bar", mapValue = JSON.number 1.0 }
+                    , { mapKey = "bar", mapValue = JSON.double 1.0 }
                     ]
                 ]
             )

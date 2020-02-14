@@ -7,7 +7,7 @@ let all
     =   λ(a : Type)
       → λ(f : a → Bool)
       → λ(xs : Optional a)
-      → Optional/fold a xs Bool f True
+      → merge { Some = f, None = True } xs
 
 let example0 = assert : all Natural Natural/even (Some 3) ≡ False
 

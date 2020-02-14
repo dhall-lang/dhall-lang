@@ -1,39 +1,46 @@
 {-
 `subtract m n` computes `n - m`.
 -}
-let Natural/lessThanEqual =
-        ../Natural/lessThanEqual sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
-      ? ../Natural/lessThanEqual
+let nonPositive =
+        ./nonPositive sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
+      ? ./nonPositive
 
-let Integer/abs =
-        ./abs sha256:35212fcbe1e60cb95b033a4a9c6e45befca4a298aa9919915999d09e69ddced1
-      ? ./abs
+let subtractNonNegative =
+        λ(xi : Integer)
+      → λ(yi : Integer)
+      → let xn = Integer/clamp xi
+
+        let yn = Integer/clamp yi
+
+        let dn = Natural/subtract xn yn
+
+        in        if Natural/isZero dn
+
+            then  Integer/negate (Natural/toInteger (Natural/subtract yn xn))
+
+            else  Natural/toInteger dn
 
 let subtract
     : Integer → Integer → Integer
     =   λ(m : Integer)
       → λ(n : Integer)
-      → let mAbs = Integer/abs m
-        
-        let nAbs = Integer/abs n
-        
-        let mNonPos = Natural/isZero (Integer/clamp m)
-        
-        let nNonPos = Natural/isZero (Integer/clamp n)
-        
-        let diff =
-                    if mNonPos == nNonPos
-              
-              then        if Natural/lessThanEqual mAbs nAbs
-                    
-                    then  Integer/negate
-                            (Natural/toInteger (Natural/subtract mAbs nAbs))
-                    
-                    else  Natural/toInteger (Natural/subtract nAbs mAbs)
-              
-              else  Natural/toInteger (mAbs + nAbs)
-        
-        in  if mNonPos then diff else Integer/negate diff
+      →       if nonPositive m
+
+        then        if nonPositive n
+
+              then  subtractNonNegative (Integer/negate n) (Integer/negate m)
+
+              else  Natural/toInteger
+                      (Integer/clamp (Integer/negate m) + Integer/clamp n)
+
+        else  if nonPositive n
+
+        then  Integer/negate
+                ( Natural/toInteger
+                    (Integer/clamp m + Integer/clamp (Integer/negate n))
+                )
+
+        else  subtractNonNegative m n
 
 let example0 = assert : subtract +3 +5 ≡ +2
 

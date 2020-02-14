@@ -20,6 +20,7 @@
         → ∀(g : B → C)
         → ∀(x : A)
         → C
+    , identity : ∀(a : Type) → ∀(x : a) → a
     }
 , Integer :
     { abs : ∀(n : Integer) → Natural
@@ -32,6 +33,10 @@
     , lessThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
     , multiply : ∀(m : Integer) → ∀(n : Integer) → Integer
     , negate : Integer → Integer
+    , negative : ∀(n : Integer) → Bool
+    , nonNegative : ∀(n : Integer) → Bool
+    , nonPositive : ∀(n : Integer) → Bool
+    , positive : ∀(n : Integer) → Bool
     , show : Integer → Text
     , subtract : ∀(m : Integer) → ∀(n : Integer) → Integer
     , toDouble : Integer → Double
@@ -48,8 +53,9 @@
                   → ∀ ( json
                       : { array : List JSON → JSON
                         , bool : Bool → JSON
+                        , double : Double → JSON
+                        , integer : Integer → JSON
                         , null : JSON
-                        , number : Double → JSON
                         , object :
                             List { mapKey : Text, mapValue : JSON } → JSON
                         , string : Text → JSON
@@ -62,8 +68,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -75,8 +82,37 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
+    , double :
+          ∀(x : Double)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
+    , integer :
+          ∀(x : Integer)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , null : JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -89,13 +125,28 @@
         → ∀(key : Text)
         → ∀(value : v)
         → { mapKey : Text, mapValue : v }
+    , natural :
+          ∀(x : Natural)
+        → ∀(JSON : Type)
+        → ∀ ( json
+            : { array : List JSON → JSON
+              , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
+              , null : JSON
+              , object : List { mapKey : Text, mapValue : JSON } → JSON
+              , string : Text → JSON
+              }
+            )
+        → JSON
     , null :
           ∀(JSON : Type)
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -107,8 +158,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -123,8 +175,9 @@
                     → ∀ ( json
                         : { array : List JSON → JSON
                           , bool : Bool → JSON
+                          , double : Double → JSON
+                          , integer : Integer → JSON
                           , null : JSON
-                          , number : Double → JSON
                           , object :
                               List { mapKey : Text, mapValue : JSON } → JSON
                           , string : Text → JSON
@@ -137,8 +190,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -150,8 +204,9 @@
               → ∀ ( json
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
                     , null : JSON
-                    , number : Double → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -162,8 +217,9 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
@@ -175,8 +231,9 @@
               → ∀ ( json
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
                     , null : JSON
-                    , number : Double → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -184,14 +241,16 @@
               → JSON
             )
         → Text
+    , renderInteger : ∀(integer : Integer) → Text
     , renderYAML :
           ∀ ( json
             :   ∀(JSON : Type)
               → ∀ ( json
                   : { array : List JSON → JSON
                     , bool : Bool → JSON
+                    , double : Double → JSON
+                    , integer : Integer → JSON
                     , null : JSON
-                    , number : Double → JSON
                     , object : List { mapKey : Text, mapValue : JSON } → JSON
                     , string : Text → JSON
                     }
@@ -205,13 +264,25 @@
         → ∀ ( json
             : { array : List JSON → JSON
               , bool : Bool → JSON
+              , double : Double → JSON
+              , integer : Integer → JSON
               , null : JSON
-              , number : Double → JSON
               , object : List { mapKey : Text, mapValue : JSON } → JSON
               , string : Text → JSON
               }
             )
         → JSON
+    , tagInline :
+          ∀(tagFieldName : Text)
+        → ∀(a : Type)
+        → ∀(contents : a)
+        → { contents : a, field : Text, nesting : < Inline | Nested : Text > }
+    , tagNested :
+          ∀(contentsFieldName : Text)
+        → ∀(tagFieldName : Text)
+        → ∀(a : Type)
+        → ∀(contents : a)
+        → { contents : a, field : Text, nesting : < Inline | Nested : Text > }
     }
 , List :
     { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → Bool
@@ -331,21 +402,22 @@
     , any : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
     , build :
           ∀(a : Type)
-        → (   ∀(optional : Type)
-            → ∀(just : a → optional)
-            → ∀(nothing : optional)
-            → optional
-          )
+        → ∀ ( build
+            :   ∀(optional : Type)
+              → ∀(some : a → optional)
+              → ∀(none : optional)
+              → optional
+            )
         → Optional a
     , concat : ∀(a : Type) → ∀(x : Optional (Optional a)) → Optional a
     , default : ∀(a : Type) → ∀(default : a) → ∀(o : Optional a) → a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Optional a
     , fold :
           ∀(a : Type)
-        → Optional a
+        → ∀(o : Optional a)
         → ∀(optional : Type)
-        → ∀(just : a → optional)
-        → ∀(nothing : optional)
+        → ∀(some : a → optional)
+        → ∀(none : optional)
         → optional
     , head : ∀(a : Type) → ∀(xs : List (Optional a)) → Optional a
     , last : ∀(a : Type) → ∀(xs : List (Optional a)) → Optional a

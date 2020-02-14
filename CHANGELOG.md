@@ -5,6 +5,347 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v14.0.0`
+
+Deprecation notice:
+
+* [The `Optional/fold` and` `Optional/build` built-ins are deprecated](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-Optional-fold-and-Optional-build.html)
+
+  These built-ins will be removed in three more releases in an effort to slowly
+  simplify the standard.  See the above link to the migration guide for more
+  details.
+
+Breaking changes:
+
+* [Disallow Natural literals with leading zeros](https://github.com/dhall-lang/dhall-lang/pull/898)
+
+  `Natural` numbers can no longer start with a leading zero, for two main
+  reasons:
+
+  * So that users will not confuse them with octal numbers
+
+  * So that implementations are less likely to inadvertently parse them as octal
+    numbers
+
+New features:
+
+* [Add support for duplicate record fields](https://github.com/dhall-lang/dhall-lang/pull/896)
+
+  Up until now, the Dhall interpreter would reject duplicate fields within
+  records, such as:
+
+  ```dhall
+  { x = { y = 1 }, x = { z = 1 } }
+  ```
+
+  However, several other configuration languages permit duplicate fields so
+  long as (A) they are records and (B) their nested fields do not conflict
+  (such as in the above example).  Now the Dhall configuration language behaves
+  that way, too.
+
+  Specifically, the rules are that more than one occurrence of a field desugars
+  to use of the `∧` operator to combine the duplicate occurrences.  So, for
+  example, the above expression is now syntactic sugar for:
+
+  ```dhall
+  { a = { b = 1 } ∧ { c = 1 } }
+  ```
+
+  ... which then further evaluates to:
+
+  ```dhall
+  { a = { b = 1, c = 1 } }
+  ```
+
+  Other cases for duplicate fields are still rejected as type errors.  For
+  example, this expression:
+
+  ```dhall
+  { a = 0, a = 0 }
+  ```
+
+  ... desugars to:
+
+  ```dhall
+  { a = 0 ∧ 0 }
+  ```
+
+  ... which is a type error.
+
+  This feature combines well with the following feature for dotted field
+  syntax.
+
+* [Add support for dotted field syntax](https://github.com/dhall-lang/dhall-lang/pull/901)
+
+  You can now compress deeply nested record hierarchies by chaining nested
+  fields with dots.
+
+  For example, the following record:
+
+  ```dhall
+  { a.b.c = 1 }
+  ```
+
+  ... is syntactic sugar for nesting records like this:
+
+  ```dhall
+  { a = { b = { c = 1 } } }
+  ```
+
+  You can combine this feature with the previous feature for duplicate
+  fields.  For example, the following record:
+
+  ```dhall
+  { a.b.c = 1, a.b.d = True }
+  ```
+
+  ... desugars to:
+
+  ```dhall
+  { a = { b = { c = 1 } }, a = { b = { d = True } } }
+  ```
+
+  ... and the duplicate fields merge to produce:
+
+  ```dhall
+  { a = { b = { c = 1, d = True } } }
+  ```
+
+* [Fix typing rule for merging `Optional`s](https://github.com/dhall-lang/dhall-lang/pull/899)
+
+  The previous released introduced `merge` support for `Optional` values, such
+  as:
+
+  ```dhall
+  merge { None = 0, Some = λ(n : Natural) → n } (Some 4)
+  ```
+
+  However, the final argument to `merge` was limited to `Optional` literals
+  (e.g. `Some` or `None`), but did not work on abstract `Optional` values, such
+  as bound variables.  For example, the following example would fail to
+  type-check:
+
+  ```dhall
+  λ(o : Optional Natural) → merge { None = 0, Some = λ(n : Natural) → n } o
+  ```
+
+  This release fixes that and the above example is now valid Dhall code.
+
+## `v13.0.0`
+
+Breaking changes:
+
+* [Extend Prelude's JSON type to handle unlimited precision `Integer`s and `Natural`s](https://github.com/dhall-lang/dhall-lang/pull/873)
+
+  This adds new `Prelude.JSON.{double,integer,natural}` utilities and the
+  latter two utilities can store arbitrary `Integer`s and `Natural` without
+  loss of precision.
+
+  For example:
+
+  ```dhall
+  let JSON = https://prelude.dhall-lang.org/JSON/package.dhall
+
+  in  JSON.render (JSON.natural 1000000000000000000000000000000)
+  ```
+
+  `Prelude.JSON.number` still remains and is a synonym for `Prelude.JSON.double`
+
+  This is a technically breaking change because this alters `Prelude.JSON.Type`
+  but in practice this will not break code that treats that type as a black box.
+
+New features:
+
+* [Extend `merge` to work on `Optional`s](https://github.com/dhall-lang/dhall-lang/pull/860)
+
+  You can use `merge` on `Optional`s as if they were a union, like this:
+
+  ```dhall
+  merge { None = False, Some = λ(b : Bool) → b } (Some True)
+  ```
+
+* [Add support for hexadecimal numbers](https://github.com/dhall-lang/dhall-lang/pull/859)
+
+  You can now use hexadecimal literals for `Natural`s and `Integer`s, like this:
+
+  ```dhall
+  0xFF
+
+  -0xE1
+  ```
+
+* New additions to the Prelude
+
+  * [Add `Prelude.Integer.{negative,nonNegative,nonPositive,positive}](https://github.com/dhall-lang/dhall-lang/pull/857)
+  * [Add `Prelude.Function.identity`](https://github.com/dhall-lang/dhall-lang/pull/865)
+
+Other changes:
+
+* Fixes and improvements to the Prelude:
+
+  * [Simplify `Prelude.Integer.equal`](https://github.com/dhall-lang/dhall-lang/pull/842)
+  * [Simplify `Prelude.Integer.{greater,less}Than{,Equal}`](https://github.com/dhall-lang/dhall-lang/pull/843)
+  * [Simplify `Prelude.Integer.toNatural`](https://github.com/dhall-lang/dhall-lang/pull/844)
+  * [Make `Prelude.Integer.multiply` slightly more efficient](https://github.com/dhall-lang/dhall-lang/pull/846)
+  * [Improve `Prelude.Integer.subtract`](https://github.com/dhall-lang/dhall-lang/pull/845)
+
+* Fixes and improvements to the standard:
+
+  * [Some small grammar fixes](https://github.com/dhall-lang/dhall-lang/pull/871)
+
+## `v12.0.0`
+
+Breaking changes:
+
+* [New `Integer/negate` and `Integer/clamp` builtins](https://github.com/dhall-lang/dhall-lang/pull/780)
+
+  This change adds two new built-ins so that `Integer`s are no longer opaque.
+  These two built-ins permit transforming back and forth between `Integer`s and
+  `Natural` numbers, so you can in theory now implement arbitrary operations on
+  `Integer`s.
+
+  These two built-ins have the following types:
+
+  * `Integer/clamp : Integer → Natural` - Converts an `Integer` to a `Natural`
+     number, truncating to `0` if the `Integer` was negative
+
+  * `Integer/negate : Integer → Integer` - Negates an `Integer`
+
+  See below for the matching change to the Prelude to use these built-ins to
+  power several new Prelude utilities.
+
+* [Remove support for fusion](https://github.com/dhall-lang/dhall-lang/pull/792)
+
+  This removes support for `Natural`/`List`/`Optional` "fusion".
+
+  For example, before this change an expression such as:
+
+  ```dhall
+  λ(x : Natural) → Natural/build (Natural/fold x)
+  ```
+
+  ... would simplify to:
+
+  ```dhall
+  λ(x : Natural) → x
+  ```
+
+  ... or in other words paired occurrences of `Natural/build` and `Natural/fold`
+  would "fuse" away and disappear since they are inverses of one another.
+  Similarly, `List/build`/`List/fold` and `Optional/build`/`Optional/fold` would
+  fuse away in the same way.
+
+  After this change they no longer do so.  We removed language support for
+  fusion for two reasons:
+
+  * Fusion was specified in such a way that the language was no longer
+    [confluent](https://en.wikipedia.org/wiki/Confluence_(abstract_rewriting))
+
+    Note: We have not proven that the language is now confluent in the absence
+    of fusion, but we are certain that fusion was interfering with confluence.
+
+    A practical consequence of the absence confluence was that fusion-related
+    optimizations were brittle
+
+  * Fusion added implementation complexity
+
+    ... which in turn increased the difficulty of porting new language bindings
+
+  This is a technically breaking change because the normal forms for certain
+  expressions will differ if they relied on fusion, which in turn would perturb
+  semantic integrity checks protecting those expressions.  In practice, you are
+  unlikely to be affected by this change.
+
+New features:
+
+* [Add new `Integer` functions to Prelude](https://github.com/dhall-lang/dhall-lang/pull/797)
+
+  This change takes advantage of the newly added `Integer/{clamp,negate}`
+  built-ins to add the following operations on `Integer`s to the Prelude:
+
+  * `Integer.abs : Integer → Natural`
+
+  * `Integer.add : Integer → Integer → Integer`
+
+  * `Integer.clamp : Integer → Natural`
+
+  * `Integer.equal : Integer → Integer → Bool`
+
+  * `Integer.greaterThan : Integer → Integer → Bool`
+
+  * `Integer.greaterThanEqual : Integer → Integer → Bool`
+
+  * `Integer.lessThan : Integer → Integer → Bool`
+
+  * `Integer.lessThanEqual : Integer → Integer → Bool`
+
+  * `Integer.multiply : Integer → Integer → Integer`
+
+  * `Integer.negate : Integer → Integer`
+
+  * `Integer.subtract: Integer → Integer → Integer`
+
+  * `Integer.toNatural : Integer → Optional Natural`
+
+* [Implement `renderYAML`](https://github.com/dhall-lang/dhall-lang/pull/799)
+
+  You can now render `JSON` values as YAML documents using a new
+  `Prelude.JSON.renderYAML` utility
+
+  Note that this utility is not intended to be as featureful as the
+  `dhall-to-yaml` command-line tool, but can still prove to be useful for:
+
+  * Rendering YAML documents in pure Dhall when appropriate to do so
+  * Rendering JSON values as YAML `Text` for use in concise `assert` expressions
+
+* [Add a `Prelude.JSON.omitNullFields`](https://github.com/dhall-lang/dhall-lang/pull/784)
+
+  While `renderYAML` doesn't aim to be as comprehensive as `dhall-to-yaml` we
+  can still provide an `omitNull` utility which behaves similarly to the
+  `--omitNull` flag for the command-line tool.  This function removes all
+  `null`-valued record fields from a `JSON` expression:
+
+  * `JSON/omitNull : JSON → JSON`
+
+* [Add `List/{take,drop}`](https://github.com/dhall-lang/dhall-lang/pull/789)
+
+  This change exploits the recently-added `Natural/subtract` built-in to
+  implement high-performance list truncation utilities of the following types:
+
+  * `List/take : Natural → ∀(a : Type) → List a → List a`
+
+  * `List/drop : Natural → ∀(a : Type) → List a → List a`
+
+* [Add `JSON.tag{Inline,Nested}` helpers for union encoding](https://github.com/dhall-lang/dhall-lang/pull/810)
+
+  These are convenience utilities to support the `dhall-to-{json,yaml}`
+  executables which provide a mechanism for converting union literals to
+  tagged JSON records:
+
+  * `JSON/tagInline : ∀(tagFieldName : Text) → ∀(a : Type) → ∀(contents : a) → { contents : a, field : Text, nesting : < Inline | Nested : Text > }`
+
+  * `JSON/tagNested : ∀(contentsFieldName : Text) → ∀(tagFieldName : Text) → ∀(a : Type) → ∀(contents : a) → { contents : a, field : Text, nesting : < Inline | Nested : Text > }`
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [`dhall.abnf: Treat `forall` as a keyword, not an operator](https://github.com/dhall-lang/dhall-lang/pull/790)
+  * [Treat `missing` as referentially transparent](https://github.com/dhall-lang/dhall-lang/pull/804)
+  * [Fix type annotation standard text](https://github.com/dhall-lang/dhall-lang/pull/816)
+  * [Remove reference to `empty-collection` rule](https://github.com/dhall-lang/dhall-lang/pull/813)
+  * [Permit spaces around completion operator](https://github.com/dhall-lang/dhall-lang/pull/820)
+
+* Fixes and improvements to the Prelude:
+
+  * [Add a `README` for the Prelude](https://github.com/dhall-lang/dhall-lang/pull/793)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Test cases for parsing "missing"](https://github.com/dhall-lang/dhall-lang/pull/788)
+  * [Add tests for decoding big `Integer`s and `Natural`s](https://github.com/dhall-lang/dhall-lang/pull/819)
+  * [Add tests for invalid unbraced unicode escapes and for valid unassigned unicode escapes](https://github.com/dhall-lang/dhall-lang/pull/802)
+
 ## `v11.1.0`
 
 New features:

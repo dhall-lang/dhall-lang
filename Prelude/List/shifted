@@ -22,7 +22,7 @@ let shifted
                         → λ(y : { count : Natural, diff : Natural → list })
                         → let length =
                                 List/length { index : Natural, value : a } kvs
-                          
+
                           in  { count = y.count + length
                               , diff =
                                     λ(n : Natural)
@@ -38,14 +38,14 @@ let shifted
                                                 { index = kvOld.index + n
                                                 , value = kvOld.value
                                                 }
-                                          
+
                                           in  cons kvNew z
                                       )
                                       (y.diff (n + length))
                               }
                       )
                       { count = 0, diff = λ(_ : Natural) → nil }
-              
+
               in  result.diff 0
           )
 

@@ -6,7 +6,7 @@ let greaterThanEqual =
       ? ./greaterThanEqual
 
 let listMin =
-        ./listMin sha256:89e0d9c23750efd8a8a2a6945579f21e46bd503b0655d4bfdd0e0e51e39c37cc
+        ./listMin sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
       ? ./listMin
 
 let List/partition =
@@ -17,12 +17,12 @@ let Accumulator = { sorted : List Natural, rest : List Natural }
 
 let partitionMinima =
         λ(xs : List Natural)
-      → Optional/fold
-          Natural
+      → merge
+          { Some =
+              λ(m : Natural) → List/partition Natural (greaterThanEqual m) xs
+          , None = { true = [] : List Natural, false = [] : List Natural }
+          }
           (listMin xs)
-          { true : List Natural, false : List Natural }
-          (λ(m : Natural) → List/partition Natural (greaterThanEqual m) xs)
-          { true = [] : List Natural, false = [] : List Natural }
 
 let test0 =
         assert
@@ -31,7 +31,7 @@ let test0 =
 let step =
         λ(x : Accumulator)
       → let p = partitionMinima x.rest
-        
+
         in  { sorted = x.sorted # p.true, rest = p.false }
 
 let test1 =
@@ -48,7 +48,7 @@ let sort
                 Accumulator
                 step
                 { sorted = [] : List Natural, rest = xs }
-        
+
         in  x.sorted
 
 let example0 = assert : sort ([] : List Natural) ≡ ([] : List Natural)

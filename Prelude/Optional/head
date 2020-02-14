@@ -11,7 +11,7 @@ let head
           (Optional a)
           (   λ(l : Optional a)
             → λ(r : Optional a)
-            → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
+            → merge { Some = λ(x : a) → Some x, None = r } l
           )
           (None a)
 

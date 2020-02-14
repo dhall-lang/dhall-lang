@@ -6,7 +6,7 @@ let default
     =   λ(a : Type)
       → λ(default : a)
       → λ(o : Optional a)
-      → Optional/fold a o a (λ(x : a) → x) default
+      → merge { Some = λ(x : a) → x, None = default } o
 
 let example0 = assert : default Bool False (None Bool) ≡ False
 

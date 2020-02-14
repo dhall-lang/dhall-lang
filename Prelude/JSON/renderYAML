@@ -9,7 +9,7 @@
 -}
 
 let JSON =
-        ./core.dhall sha256:22ba363a8622642e788ffdd8fb98e5a51b1be8ebfcbefe2853e74932078a60af
+        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let Text/concatSep =
@@ -33,7 +33,7 @@ let List/concatMap =
       ? ../List/concatMap
 
 let Optional/map =
-        ../Optional/map sha256:e7f44219250b89b094fbf9996e04b5daafc0902d864113420072ae60706ac73d
+        ../Optional/map sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
       ? ../Optional/map
 
 let NonEmpty
@@ -81,12 +81,9 @@ let manyBlocks
     : Block → List Block → Block
     =   λ(ifEmpty : Block)
       → λ(blocks : List Block)
-      → Optional/fold
-          (NonEmpty Block)
+      → merge
+          { Some = concatNonEmpty Text, None = ifEmpty }
           (uncons Block blocks)
-          Block
-          (concatNonEmpty Text)
-          ifEmpty
 
 let singleLine
     : Text → Block
@@ -99,9 +96,9 @@ let indentKeyedBlock
       → λ(indentation : Text)
       → λ(block : Block)
       →       if List/null Text block.tail
-        
+
         then  singleLine (key ++ spacer ++ block.head)
-        
+
         else  indentBlockWith
                 key
                 indentation
@@ -115,12 +112,13 @@ let renderYAML
     : JSON.Type → Text
     =   λ(json : JSON.Type)
       → let ObjectField = { mapKey : Text, mapValue : Block }
-        
+
         in  blockToText
               ( json
                   Block
                   { string = λ(x : Text) → singleLine (Text/show x)
-                  , number = λ(x : Double) → singleLine (Double/show x)
+                  , double = λ(x : Double) → singleLine (Double/show x)
+                  , integer = λ(x : Integer) → singleLine (JSON.renderInteger x)
                   , object =
                         λ(fields : List ObjectField)
                       → manyBlocks
@@ -161,7 +159,7 @@ let example0 =
                 , JSON.string "Hello"
                 , JSON.object
                     [ { mapKey = "foo", mapValue = JSON.null }
-                    , { mapKey = "bar", mapValue = JSON.number 1.0 }
+                    , { mapKey = "bar", mapValue = JSON.double 1.0 }
                     ]
                 ]
             )
