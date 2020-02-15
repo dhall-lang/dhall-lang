@@ -101,6 +101,27 @@ parsed/resolved/type-checked/normalized successfully before must continue to do
 so (modulo imported resources vanishing).  The exception is the semantic
 integrity check, which always changes with a new release of the standard.
 
+## Deprecation of existing features
+
+Sometimes we may wish to deprecate and eventually remove a feature
+from Dhall.  To do this:
+
+ - First, ensure there is consensus to deprecate the feature, most
+   likely via discussion on an issue or pull request on this
+   repository.
+ - Plan for how you will remove the feature.  Consider a phased
+   approach, where new features are added to the language first and
+   coexist with the deprecated features, to give users time to migrate
+   their code.  Also consider using tools to make migration easier:
+   for example by making deprecated features normalize to
+   non-deprecated features, or by updating `dhall format` to remove
+   deprecated features.
+ - Write a migration guide in `docs/howtos/migrations/` to explain how
+   to change code that uses the deprecated feature to still work, and
+   when the deprecated feature will be removed.
+
+For examples, see the previous migration guides in that directory.
+
 ## Compliance
 
 The key words "MUST", "MUST NOT", "SHOULD", and "MAY" in this document are to
