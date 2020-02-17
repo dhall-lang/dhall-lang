@@ -377,10 +377,10 @@ forall                = %x2200 / %x66.6f.72.61.6c.6c ; "∀" / "forall"
 keyword =
       if / then / else
     / let / in
-    / using / missing / as
+    / using / missing 
+    / assert / as
     / Infinity / NaN
     / merge / Some / toMap
-    / assert
     / forall
 
 builtin =
