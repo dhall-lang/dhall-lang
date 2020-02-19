@@ -22,6 +22,7 @@ These cookbooks teach you how to solve specific tasks:
 .. toctree::
    :maxdepth: 1
 
+   migrations/Deprecation-of-quoted-paths-in-URLs
    migrations/Deprecation-of-Optional-fold-and-Optional-build
    migrations/Deprecation-of-old-union-literal-syntax
    migrations/Deprecation-of-old-Optional-literal-syntax

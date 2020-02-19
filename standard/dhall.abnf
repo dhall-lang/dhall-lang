@@ -330,8 +330,8 @@ single-quote-continue =
       interpolation single-quote-continue
     / escaped-quote-pair single-quote-continue
     / escaped-interpolation single-quote-continue
-    / single-quote-char single-quote-continue
     / "''" ; End of text literal
+    / single-quote-char single-quote-continue
 
 ; Escape two single quotes (i.e. replace this sequence with "''")
 escaped-quote-pair = "'''"
