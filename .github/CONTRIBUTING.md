@@ -39,9 +39,10 @@ The two most common repositories that we often redirect people to are:
 
 ## What is the correct way to ask a question?
 
-You can either open issues [here][dhall-lang-issues] to ask a question or use
-[Stack Overflow][stack-overflow].  I (@Gabriel439) subscribe by e-mail to any
-issues created with that tag.
+You can either open issues [here][dhall-lang-issues] to ask a question
+or use the [Dhall discourse][dhall-discourse].  You can also use
+[Stack Overflow][stack-overflow].  I (@Gabriel439) subscribe by e-mail
+to any issues created with that tag.
 
 ## Do I belong here?
 
@@ -166,6 +167,7 @@ Learn by doing and get your hands dirty!
 [infrastructure]: https://github.com/dhall-lang/dhall-lang/tree/master/nixops
 [standard]: https://github.com/dhall-lang/dhall-lang/tree/master/standard
 [prelude]: https://github.com/dhall-lang/dhall-lang/tree/master/Prelude
+[dhall-discourse]: https://discourse.dhall-lang.org/
 [dhall-haskell-issues]: https://github.com/dhall-lang/dhall-haskell/issues
 [dhall-lang-issues]: https://github.com/dhall-lang/dhall-lang/issues
 [dhall-lang-pulls]: https://github.com/dhall-lang/dhall-lang/pulls
