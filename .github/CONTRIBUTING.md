@@ -42,7 +42,7 @@ The two most common repositories that we often redirect people to are:
 You can either open issues [here][dhall-lang-issues] to ask a question
 or use the [Dhall discourse][dhall-discourse].  You can also use
 [Stack Overflow][stack-overflow].  I (@Gabriel439) subscribe by e-mail
-to any issues created with that tag.
+to any Stack Overflow issues created with the tag `dhall`.
 
 ## Do I belong here?
 
