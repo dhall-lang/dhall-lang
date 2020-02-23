@@ -1,0 +1,42 @@
+diff --git a/recommonmark/parser.py b/recommonmark/parser.py
+index 451b3b6..ce59a8f 100644
+--- a/recommonmark/parser.py
++++ b/recommonmark/parser.py
+@@ -147,11 +147,17 @@ class CommonMarkParser(parsers.Parser):
+         # Check destination is supported for cross-linking and remove extension
+         destination = mdnode.destination
+         _, ext = splitext(destination)
++
++        url_check = urlparse(destination)
++        known_url_schemes = self.config.get('known_url_schemes')
++        if known_url_schemes:
++            scheme_known = url_check.scheme in known_url_schemes
++        else:
++            scheme_known = bool(url_check.scheme)
++
+         # TODO check for other supported extensions, such as those specified in
+         # the Sphinx conf.py file but how to access this information?
+-        # TODO this should probably only remove the extension for local paths,
+-        # i.e. not uri's starting with http or other external prefix.
+-        if ext.replace('.', '') in self.supported:
++        if not scheme_known and ext.replace('.', '') in self.supported:
+             destination = destination.replace(ext, '')
+         ref_node['refuri'] = destination
+         # TODO okay, so this is acutally not always the right line number, but
+@@ -162,16 +168,9 @@ class CommonMarkParser(parsers.Parser):
+             ref_node['title'] = mdnode.title
+         next_node = ref_node
+ 
+-        url_check = urlparse(destination)
+         # If there's not a url scheme (e.g. 'https' for 'https:...' links),
+         # or there is a scheme but it's not in the list of known_url_schemes,
+         # then assume it's a cross-reference and pass it to Sphinx as an `:any:` ref.
+-        known_url_schemes = self.config.get('known_url_schemes')
+-        if known_url_schemes:
+-            scheme_known = url_check.scheme in known_url_schemes
+-        else:
+-            scheme_known = bool(url_check.scheme)
+-
+         if not url_check.fragment and not scheme_known:
+             wrap_node = addnodes.pending_xref(
+                 reftarget=unquote(destination),
