@@ -73,7 +73,7 @@ let
                       (pkgsNew.fetchpatch {
                           url = "https://patch-diff.githubusercontent.com/raw/readthedocs/recommonmark/pull/181.patch";
 
-                          sha256 = "0sm6x6n0h9ip234ykz66hrvi9nrj8004dkxvkvbm021qhq10fsif";
+                          sha256 = "0rp6qi95cml1g1mplfkmc7lpv7czmg5rs1zqjkf5b4d3mkzm6bjs";
                         }
                       )
                     ];
