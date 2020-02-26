@@ -40,6 +40,18 @@ record with { x.y.z = a }
 ... which desugars to:
 
 ```dhall
+let _ = record in _ // { x =
+    let _ = _.x    in _ // { y =
+        let _ = _.y    in _ // { z =
+            a
+        }
+    }
+}
+```
+
+... which is easier to understand as the following equivalent expression:
+
+```dhall
 record // { x = record.x // { y = record.x.y // { z = a } } }
 ```
 
@@ -245,9 +257,9 @@ A `with` expression with a single update but multiple dotted labels is equivalen
 to chained uses of the `//` operator:
 
 
-    desugar-with(e₀ // { k₀ = e₀.k₀ with { k₁.ks… = v₀} }) = e₁  ; Inductive case
-    ──────────────────────────────────────────────────────────   ; for more than
-    desugar-with(e₀ with { k₀.k₁.ks… = v₀ }) = e₁                ; one label
+    desugar-with(let _ = e₀ in _ // { k₀ = _.k₀ with { k₁.ks… = v₀} }) = e₁
+    ─────────────────────────────────────────────  ; Inductive case for more than
+    desugar-with(e₀ with { k₀.k₁.ks… = v₀ }) = e₁  ; one label
 
 
 ... and if there is only one update with one label then the `with` keyword is a
