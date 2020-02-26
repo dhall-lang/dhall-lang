@@ -1,8 +1,8 @@
-{- The purpose of this test is to demonstrate that chained `with`
-   expressions are the same as a single `with` expression with multiple
-   updates
+{- This test ensures that `with` is purely syntactic sugar, meaning that it is
+   desugared before encoding and therefore is encoded as the desugared expression
+   in the CBOR encoding.
 
-   Compare to the `With` test in this same folder which encodes to the same
-   value
+   This test also ensures that implementations desugar the code exactly as
+   specified (e.g. using an intermediate `let` binding)
 -}
-{ a.b = 1, c.d = 2 } with { a.b = 3 } with { c.e = 4 }
+{ a.b = 1, c.d = 2 } with { a.b = 3, c.e = 4 }
