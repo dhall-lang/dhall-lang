@@ -27,7 +27,7 @@ wiki][dhall-json-tutorial-wiki].
 
 For other ways to integrate Dhall in your project, read:
 
-* [How to integrate Dhall](dhall-integration-howto)
+* [How to integrate Dhall][dhall-integration-howto]
 
 ## Tutorials
 
@@ -69,7 +69,7 @@ You can also read about the original motivation behind the language here:
 
 Finally, we have a cheatsheet for a very condensed overview and quick lookup:
 
-* [Dhall Cheatsheet](dhall-cheatsheet)
+* [Dhall Cheatsheet][dhall-cheatsheet]
 
 ## Standard Library
 
