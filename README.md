@@ -78,7 +78,7 @@ work with the builtin types. Where to find it:
 
 * [Official link - https://prelude.dhall-lang.org](https://prelude.dhall-lang.org)
 * [Github repo](https://github.com/dhall-lang/dhall-lang/tree/master/Prelude)
-* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix):
+* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/build-dhall-package.nix):
   both `dhall` and `dhall.prelude` derivations are built, install the `Prelude`
   with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
