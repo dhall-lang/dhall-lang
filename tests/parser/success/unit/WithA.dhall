@@ -3,4 +3,4 @@
     implementation should not use an intermediate `let` when desugaring this
     base case.
 -}
-{ a = 1 } with { a = 2 }
+{ a = 1 } with a = 2

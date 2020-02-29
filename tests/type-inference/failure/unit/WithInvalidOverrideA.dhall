@@ -3,4 +3,4 @@
     In the following example, the `a` field is not a record, therefore there is
     no possibility of adding or overriding `a` with an inner `b` field
 -}
-{ a = 1 } with { a.b = 2 }
+{ a = 1 } with a.b = 2

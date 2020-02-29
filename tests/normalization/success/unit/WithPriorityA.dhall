@@ -3,4 +3,4 @@
 
     In this example, the `a` field is updated twice, and the latter update wins
 -}
-{ a = 1 } with { a = 2, a = 3 }
+{ a = 1 } with a = 2 with a = 3

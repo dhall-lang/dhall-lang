@@ -9,4 +9,4 @@
     ... due to the nested update clobbering the inner record.  A compliant
     implementation extends inner records.
 -}
-{ a.b = 1 } with { a.c = 2 }
+{ a.b = 1 } with a.c = 2

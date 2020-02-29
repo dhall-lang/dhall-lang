@@ -1,5 +1,13 @@
-{-  The purpose of this test is to illustrate that `with` has higher precedence
-    than function application, since it's probably not going to be immediately
-    intuitive to people which one should be higher precedence
+{-  The purpose of this test is to illustrate that function application has
+    higher precedence than `with` so that chained with expressions parse
+    correctly
+
+    The following expression should parse as:
+
+        ({ a = Some 1 } with a = Some 2) with a = Some 3
+
+    ... and not parse as:
+
+        { a = Some 1 } with a = (Some 2 with a = Some 3)
 -}
-\(f : { a : Natural } -> Bool) -> f { a = 1 } with { a = 2 }
+{ a = Some 1 } with a = Some 2 with a = Some 3

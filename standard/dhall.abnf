@@ -760,7 +760,7 @@ expression =
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / merge whsp1 with-expression whsp1 with-expression whsp ":" whsp1 application-expression
+    / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
     
     ; "[] : t"
     ;
@@ -773,7 +773,7 @@ expression =
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / toMap whsp1 with-expression whsp ":" whsp1 application-expression
+    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
     
     ; "assert : Natural/even 1 === False"
     / assert whsp ":" whsp1 expression
@@ -807,31 +807,28 @@ combine-types-expression = times-expression         *(whsp combine-types whsp ti
 times-expression         = equal-expression         *(whsp "*" whsp equal-expression)
 equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-expression)
 not-equal-expression     = equivalent-expression    *(whsp "!=" whsp equivalent-expression)
-equivalent-expression    = application-expression   *(whsp equivalent whsp application-expression)
+equivalent-expression    = with-expression          *(whsp equivalent whsp with-expression)
+
+with-expression =
+    application-expression *(whsp1 "with" whsp1 any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp application-expression)
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
 ; or "apply the import `./a` to label `b`"
 application-expression =
-    first-application-expression *(whsp1 with-expression)
+    first-application-expression *(whsp1 import-expression)
 
 first-application-expression =
     ; "merge e1 e2"
-      merge whsp1 with-expression whsp1 with-expression
+      merge whsp1 import-expression whsp1 import-expression
     
     ; "Some e"
-    / Some whsp1 with-expression
+    / Some whsp1 import-expression
     
     ; "toMap e"
-    / toMap whsp1 with-expression
+    / toMap whsp1 import-expression
     
-    / with-expression
-
-; Even though updates are parsed the same as a record literal, they are
-; semantically different from record literals.  Specifically, the dotted label
-; syntax is not desugared to nested records.
-with-expression =
-      import-expression *( whsp1 "with" whsp "{" whsp [ "," whsp ] non-empty-record-literal whsp "}" )
+    / import-expression
 
 import-expression = import / completion-expression
 

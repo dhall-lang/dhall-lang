@@ -5,4 +5,4 @@
    This test also ensures that implementations desugar the code exactly as
    specified (e.g. using an intermediate `let` binding)
 -}
-{ a.b = 1, c.d = 2 } with { a.b = 3, c.e = 4 }
+{ a.b = 1, c.d = 2 } with a.b = 3 with c.e = 4

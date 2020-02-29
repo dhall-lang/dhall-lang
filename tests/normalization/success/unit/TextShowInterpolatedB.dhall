@@ -1,1 +1,1 @@
-λ(with : Text) → Text/show "text ${with} interpolation"
+λ(containing: Text) → Text/show "text ${containing} interpolation"
