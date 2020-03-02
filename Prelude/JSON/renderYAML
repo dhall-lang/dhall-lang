@@ -157,6 +157,9 @@ let example0 =
                     , { mapKey = "baz"
                       , mapValue = JSON.array [ JSON.integer +0 ]
                       }
+                    , { mapKey = "obj"
+                      , mapValue = JSON.object [ { mapKey = "k", mapValue = JSON.string "v" } ]
+                      }
                     ]
                 ]
             )
@@ -169,6 +172,9 @@ let example0 =
               1.0
             ! "baz":
               - 0
+            ! "obj":
+              ! "k":
+                "v"
           ''
 
 in  renderYAML
