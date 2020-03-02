@@ -27,7 +27,7 @@ wiki][dhall-json-tutorial-wiki].
 
 For other ways to integrate Dhall in your project, read:
 
-* [How to integrate Dhall](https://github.com/dhall-lang/dhall-lang/wiki/How-to-integrate-Dhall)
+* [How to integrate Dhall][dhall-integration-howto]
 
 ## Tutorials
 
@@ -69,7 +69,7 @@ You can also read about the original motivation behind the language here:
 
 Finally, we have a cheatsheet for a very condensed overview and quick lookup:
 
-* [Dhall Cheatsheet](https://github.com/dhall-lang/dhall-lang/wiki/Cheatsheet)
+* [Dhall Cheatsheet][dhall-cheatsheet]
 
 ## Standard Library
 
@@ -78,7 +78,7 @@ work with the builtin types. Where to find it:
 
 * [Official link - https://prelude.dhall-lang.org](https://prelude.dhall-lang.org)
 * [Github repo](https://github.com/dhall-lang/dhall-lang/tree/master/Prelude)
-* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/default.nix):
+* [Nix](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/dhall/build-dhall-package.nix):
   both `dhall` and `dhall.prelude` derivations are built, install the `Prelude`
   with e.g. `nix-env -iA nixpkgs.dhall.prelude`
 
@@ -192,10 +192,12 @@ The name rhymes with "tall"/"call"/"hall" (i.e. "dɔl" for a US speaker or
 [hcl]: https://github.com/hashicorp/hcl
 [learn-dhall-in-y-minutes]: https://learnxinyminutes.com/docs/dhall/
 [readme-before-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/blob/1b74481c87b3ed83ecd613420c11de92335652a3/README.md
-[migration-nat-int-swap]: https://github.com/dhall-lang/dhall-lang/wiki/Migration%3A-Swapped-syntax-for-Natural-numbers-and-Integers
+[migration-nat-int-swap]: https://docs.dhall-lang.org/howtos/migrations/Swapped-syntax-for-Natural-numbers-and-Integers.html
 [issue-tracker]: https://github.com/dhall-lang/dhall-lang/issues
-[core-language-features]: https://github.com/dhall-lang/dhall-lang/wiki/Core-language-features
-[dhall-json-tutorial-wiki]: https://github.com/dhall-lang/dhall-lang/wiki/Getting-started%3A-Generate-JSON-or-YAML
+[core-language-features]: https://docs.dhall-lang.org/discussions/Core-language-features.html
+[dhall-json-tutorial-wiki]: https://docs.dhall-lang.org/tutorials/Getting-started_Generate-JSON-or-YAML.html
+[dhall-integration-howto]: https://docs.dhall-lang.org/howtos/How-to-integrate-Dhall.html
+[dhall-cheatsheet]: https://docs.dhall-lang.org/howtos/Cheatsheet.html
 
 ## Contributors
 
