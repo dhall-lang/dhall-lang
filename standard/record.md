@@ -40,18 +40,6 @@ record with x.y.z = a
 ... which desugars to:
 
 ```dhall
-let _ = record in _ // { x =
-    let _ = _.x    in _ // { y =
-        let _ = _.y    in _ // { z =
-            a
-        }
-    }
-}
-```
-
-... which is easier to understand as the following equivalent expression:
-
-```dhall
 record // { x = record.x // { y = record.x.y // { z = a } } }
 ```
 
@@ -218,8 +206,7 @@ A `with` expression with multiple dotted labels is equivalent to chained uses of
 the `//` operator:
 
 
-    ↑(1, _, 0, v₀) = v₁
-    desugar-with(let _ = e₀ in _ // { k₀ = _.k₀ with k₁.ks… = v₁ }) = e₁
+    desugar-with(e₀ // { k₀ = e₀.k₀ with k₁.ks… = v₁ }) = e₁
     ─────────────────────────────────────────  ; Inductive case for more than one
     desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁  ; label
 
