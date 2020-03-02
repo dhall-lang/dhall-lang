@@ -154,7 +154,9 @@ let example0 =
                       , mapValue = JSON.array [ JSON.integer +0 ]
                       }
                     , { mapKey = "obj"
-                      , mapValue = JSON.object [ { mapKey = "k", mapValue = JSON.string "v" } ]
+                      , mapValue =
+                          JSON.object
+                            [ { mapKey = "k", mapValue = JSON.string "v" } ]
                       }
                     ]
                 ]
