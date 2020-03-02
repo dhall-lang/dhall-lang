@@ -92,17 +92,12 @@ let singleLine
 let indentKeyedBlock
     : Text → Text → Text → Block → Block
     =   λ(key : Text)
-      → λ(spacer : Text)
       → λ(indentation : Text)
       → λ(block : Block)
-      →       if List/null Text block.tail
-
-        then  singleLine (key ++ spacer ++ block.head)
-
-        else  indentBlockWith
-                key
-                indentation
-                { head = "", tail = nonEmptyToList Text block }
+      → indentBlockWith
+          key
+          indentation
+          { head = "", tail = nonEmptyToList Text block }
 
 let blockToText
     : Block → Text
@@ -129,7 +124,6 @@ let renderYAML
                               (   λ(e : ObjectField)
                                 → indentKeyedBlock
                                     "! ${Text/show e.mapKey}:"
-                                    " "
                                     "  "
                                     e.mapValue
                               )
@@ -160,14 +154,21 @@ let example0 =
                 , JSON.object
                     [ { mapKey = "foo", mapValue = JSON.null }
                     , { mapKey = "bar", mapValue = JSON.double 1.0 }
+                    , { mapKey = "baz"
+                      , mapValue = JSON.array [ JSON.integer +0 ]
+                      }
                     ]
                 ]
             )
         ≡ ''
           - true
           - "Hello"
-          - ! "foo": null
-            ! "bar": 1.0
+          - ! "foo":
+              null
+            ! "bar":
+              1.0
+            ! "baz":
+              - 0
           ''
 
 in  renderYAML
