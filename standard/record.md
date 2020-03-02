@@ -30,8 +30,8 @@ The above expression first desugars to:
 { x = { y = a, z = b } }
 ```
 
-Additionally, the language supports *record-like* syntax for updating a record
-using the `with` keyword, like this:
+Additionally, the language supports syntax for updating a field nested within a
+record using the `with` keyword, like this:
 
 ```dhall
 record with x.y.z = a
