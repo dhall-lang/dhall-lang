@@ -1,0 +1,1 @@
+(0 : Natural) : Bool
