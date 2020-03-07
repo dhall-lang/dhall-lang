@@ -12,7 +12,7 @@
 	"https://prelude.dhall-lang.org/package.dhall"
 , _5 =
 	< Local : Text | Remote : Text | Environment : Text | Missing >.Environment
-	"env:HOME"
+	"HOME"
 , _6 =
 	< Local : Text | Remote : Text | Environment : Text | Missing >.Missing
 , _7 =
