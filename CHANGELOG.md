@@ -35,7 +35,7 @@ New features:
   records, such as:
 
   ```dhall
-  { x = { y = 1 }, x = { z = 1 } }
+  { a = { b = 1 }, a = { c = 1 } }
   ```
 
   However, several other configuration languages permit duplicate fields so
