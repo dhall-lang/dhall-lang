@@ -810,8 +810,11 @@ equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-e
 not-equal-expression     = equivalent-expression    *(whsp "!=" whsp equivalent-expression)
 equivalent-expression    = with-expression          *(whsp equivalent whsp with-expression)
 
-with-expression =
-    application-expression *(whsp1 with whsp1 any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp application-expression)
+with-expression = application-expression *(whsp1 with whsp1 with-clause)
+
+with-clause =
+    any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp application-expression
+
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
