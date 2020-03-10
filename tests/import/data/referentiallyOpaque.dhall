@@ -9,12 +9,10 @@
    this file attempts to import a referentially opaque import (an environment
    variable in this case) to verify that the import fails.
 
-   For this test file we need to select a referentially opaque import that would
-   likely succeed if imported on its own, so that a non-compliant implementation
-   doesn't fail this test for the wrong reason (i.e. due to the referentially
-   opaque not being present).  In general, we can't guarantee that referentially
-   opaque imports exist (because they are referentially opaque!), but the
-   `HOME` environment variable has a high likelihood of bring present on a POSIX
-   system.
+   For this test file we need to select a referentially opaque import that
+   would succeed if imported on its own, so that a non-compliant implementation
+   doesn't fail this test for the wrong reason (i.e. due to the import not
+   being present).  We thus use the `DHALL_TEST_VAR` environment variable, that
+   is expected to be set when running import tests.
 -}
-env:HOME as Text
+env:DHALL_TEST_VAR as Text
