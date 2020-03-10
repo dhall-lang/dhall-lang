@@ -3,9 +3,9 @@
 let
   nixpkgs =
     builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/55b8860aa209e987f6f15c523811e4861d97d6af.tar.gz";
+      url = "https://github.com/NixOS/nixpkgs/archive/fc7efd51d616858af206d5c3e33ebf4b77487e38.tar.gz";
 
-      sha256 = "0ri58704vwv6gnyw33vjirgnvh2f1201vbflk0ydj5ff7vpyy7hf";
+      sha256 = "1n75xcad22bmp4x7vzrfwqblvq0z0x7xkmn0id9rj14qy2vlkq6d";
     };
 
   dhallLangNixpkgs = import ./nixops/dhallLangNixpkgs.nix;
@@ -62,6 +62,31 @@ let
 
           touch $out
         '';
+
+    pythonPackages = pkgsOld.pythonPackages.override (old: {
+        overrides =
+          let
+            extension = pythonPackagesNew: pythonPackagesOld: {
+              recommonmark = pythonPackagesOld.recommonmark.overrideAttrs (old: {
+                  patches =
+                    (old.patches or []) ++ [
+                      (pkgsNew.fetchpatch {
+                          url = "https://patch-diff.githubusercontent.com/raw/readthedocs/recommonmark/pull/181.patch";
+
+                          sha256 = "0rp6qi95cml1g1mplfkmc7lpv7czmg5rs1zqjkf5b4d3mkzm6bjs";
+                        }
+                      )
+                    ];
+                }
+              );
+            };
+
+          in
+            pkgsNew.lib.composeExtensions
+              (old.overrides or (_: _: {}))
+              extension;
+      }
+    );
 
     expected-test-files =
       pkgsNew.runCommand "expected-test-files" {} ''

@@ -30,6 +30,19 @@ The above expression first desugars to:
 { x = { y = a, z = b } }
 ```
 
+Additionally, the language supports syntax for updating a field nested within a
+record using the `with` keyword, like this:
+
+```dhall
+record with x.y.z = a
+```
+
+... which desugars to:
+
+```dhall
+record // { x = record.x // { y = record.x.y // { z = a } } }
+```
+
 ## Dotted syntax
 
 Dhall records permit dot-separated field labels to specify nested records, like
@@ -158,3 +171,54 @@ associativity.  For example, the following expression:
     left-associative, but they are included for clarity
 -}
 ```
+
+## `with` keyword
+
+You can use the `with` keyword for ergonomic updates to deeply-nested records,
+like this:
+
+```dhall
+let record = { a.b = { c = 1, d = True } }
+
+in  record with a.b.d = False with a.b.e = 2.0
+```
+
+... which evaluates to:
+
+```dhall
+{ a.b = { c = 1, d = False, e = 2.0 } }
+```
+
+This desugaring uses the following judgment that translates the `with` keyword to
+the `//` operator:
+
+    desugar-with(e₀ with ks = v) = e₁
+
+... where:
+
+* `e₀` (an input) is an expression representing a record to update
+* `ks` (an input) is one or more dot-separated record labels representing the
+  record path to the value to insert
+* `v`  (an input) is the value to insert
+* `e₁` (the output) is the desugared expression
+
+A `with` expression with multiple dotted labels is equivalent to chained uses of
+the `//` operator:
+
+
+    desugar-with(e₀ // { k₀ = e₀.k₀ with k₁.ks… = v₁ }) = e₁
+    ─────────────────────────────────────────  ; Inductive case for more than one
+    desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁  ; label
+
+
+... and if there is only one update with one label then the `with` keyword is a
+synonym for the `//` operator:
+
+
+    desugar-with(e₀ // { k = v }) = e₁
+    ──────────────────────────────────  ; Base case for exactly one
+    desugar-with(e₀ with k = v) = e₁    ; label
+
+
+For all other cases, `desugar-with` descends into sub-expressions and ignores
+anything that is not a `with` expression.

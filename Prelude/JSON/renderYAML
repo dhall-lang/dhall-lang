@@ -12,17 +12,17 @@ let JSON =
         ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
-let Text/concatSep =
-        ../Text/concatSep sha256:e4401d69918c61b92a4c0288f7d60a6560ca99726138ed8ebc58dca2cd205e58
-      ? ../Text/concatSep
+let Function/identity =
+        ../Function/identity sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
+      ? ../Function/identity
+
+let Text/concatMap =
+        ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+      ? ../Text/concatMap
 
 let List/drop =
         ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
       ? ../List/drop
-
-let List/null =
-        ../List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
-      ? ../List/null
 
 let List/map =
         ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
@@ -40,7 +40,7 @@ let NonEmpty
     : Type → Type
     = λ(a : Type) → { head : a, tail : List a }
 
-let uncons
+let List/uncons
     : ∀(a : Type) → List a → Optional (NonEmpty a)
     =   λ(a : Type)
       → λ(ls : List a)
@@ -50,106 +50,130 @@ let uncons
           (λ(head : a) → { head = head, tail = List/drop 1 a ls })
           (List/head a ls)
 
-let nonEmptyToList
+let NonEmpty/singleton
+    : ∀(a : Type) → a → NonEmpty a
+    = λ(a : Type) → λ(x : a) → { head = x, tail = [] : List a }
+
+let NonEmpty/toList
     : ∀(a : Type) → NonEmpty a → List a
     = λ(a : Type) → λ(nonEmpty : NonEmpty a) → [ nonEmpty.head ] # nonEmpty.tail
 
-let concatNonEmpty
+let NonEmpty/concat
     : ∀(a : Type) → NonEmpty (NonEmpty a) → NonEmpty a
     =   λ(a : Type)
       → λ(lss : NonEmpty (NonEmpty a))
       → { head = lss.head.head
         , tail =
               lss.head.tail
-            # List/concatMap (NonEmpty a) a (nonEmptyToList a) lss.tail
+            # List/concatMap (NonEmpty a) a (NonEmpty/toList a) lss.tail
         }
 
-let Block
+let Lines
     : Type
     = NonEmpty Text
 
+let Block
+    : Type
+    = < Simple : Text | Complex : Lines >
+
+let Block/toLines
+    : Block → Lines
+    =   λ(block : Block)
+      → merge
+          { Simple = NonEmpty/singleton Text
+          , Complex = Function/identity Lines
+          }
+          block
+
 let indentBlockWith
-    : Text → Text → Block → Block
+    : Text → Text → Lines → Lines
     =   λ(headIndent : Text)
       → λ(tailIndent : Text)
-      → λ(block : Block)
-      → { head = headIndent ++ block.head
-        , tail = List/map Text Text (λ(t : Text) → tailIndent ++ t) block.tail
+      → λ(lines : Lines)
+      → { head = headIndent ++ lines.head
+        , tail = List/map Text Text (λ(t : Text) → tailIndent ++ t) lines.tail
         }
 
 let manyBlocks
-    : Block → List Block → Block
-    =   λ(ifEmpty : Block)
-      → λ(blocks : List Block)
+    : Text → List Lines → Block
+    =   λ(ifEmpty : Text)
+      → λ(liness : List Lines)
       → merge
-          { Some = concatNonEmpty Text, None = ifEmpty }
-          (uncons Block blocks)
-
-let singleLine
-    : Text → Block
-    = λ(text : Text) → { head = text, tail = [] : List Text }
-
-let indentKeyedBlock
-    : Text → Text → Text → Block → Block
-    =   λ(key : Text)
-      → λ(spacer : Text)
-      → λ(indentation : Text)
-      → λ(block : Block)
-      →       if List/null Text block.tail
-
-        then  singleLine (key ++ spacer ++ block.head)
-
-        else  indentBlockWith
-                key
-                indentation
-                { head = "", tail = nonEmptyToList Text block }
+          { Some =
+                λ(liness : NonEmpty Lines)
+              → Block.Complex (NonEmpty/concat Text liness)
+          , None = Block.Simple ifEmpty
+          }
+          (List/uncons Lines liness)
 
 let blockToText
     : Block → Text
-    = λ(block : Block) → Text/concatSep "\n" (nonEmptyToList Text block) ++ "\n"
+    =   λ(block : Block)
+      → Text/concatMap
+          Text
+          (λ(line : Text) → line ++ "\n")
+          (NonEmpty/toList Text (Block/toLines block))
 
 let renderYAML
     : JSON.Type → Text
     =   λ(json : JSON.Type)
-      → let ObjectField = { mapKey : Text, mapValue : Block }
+      → blockToText
+          ( json
+              Block
+              { string = λ(x : Text) → Block.Simple (Text/show x)
+              , double = λ(x : Double) → Block.Simple (Double/show x)
+              , integer = λ(x : Integer) → Block.Simple (JSON.renderInteger x)
+              , object =
+                  let ObjectField = { mapKey : Text, mapValue : Block }
 
-        in  blockToText
-              ( json
-                  Block
-                  { string = λ(x : Text) → singleLine (Text/show x)
-                  , double = λ(x : Double) → singleLine (Double/show x)
-                  , integer = λ(x : Integer) → singleLine (JSON.renderInteger x)
-                  , object =
-                        λ(fields : List ObjectField)
+                  in    λ(fields : List ObjectField)
                       → manyBlocks
-                          (singleLine "{}")
+                          "{}"
                           ( List/map
                               ObjectField
-                              Block
+                              Lines
                               (   λ(e : ObjectField)
-                                → indentKeyedBlock
-                                    "! ${Text/show e.mapKey}:"
-                                    " "
-                                    "  "
-                                    e.mapValue
+                                → let key = "! ${Text/show e.mapKey}:"
+
+                                  let block = e.mapValue
+
+                                  in  merge
+                                        { Simple =
+                                              λ(line : Text)
+                                            → NonEmpty/singleton
+                                                Text
+                                                (key ++ " " ++ line)
+                                        , Complex =
+                                              λ(lines : Lines)
+                                            → indentBlockWith
+                                                key
+                                                "  "
+                                                { head = ""
+                                                , tail =
+                                                    NonEmpty/toList Text lines
+                                                }
+                                        }
+                                        block
                               )
                               fields
                           )
-                  , array =
-                        λ(elements : List Block)
-                      → manyBlocks
-                          (singleLine "[]")
-                          ( List/map
-                              Block
-                              Block
-                              (indentBlockWith "- " "  ")
-                              elements
+              , array =
+                    λ(elements : List Block)
+                  → manyBlocks
+                      "[]"
+                      ( List/map
+                          Block
+                          Lines
+                          (   λ(block : Block)
+                            → indentBlockWith "- " "  " (Block/toLines block)
                           )
-                  , bool =
-                      λ(x : Bool) → singleLine (if x then "true" else "false")
-                  , null = singleLine "null"
-                  }
-              )
+                          elements
+                      )
+              , bool =
+                  λ(x : Bool) → Block.Simple (if x then "true" else "false")
+              , null = Block.Simple "null"
+              }
+          )
 
 let example0 =
         assert
@@ -168,6 +192,58 @@ let example0 =
           - "Hello"
           - ! "foo": null
             ! "bar": 1.0
+          ''
+
+let example1 =
+        assert
+      :   renderYAML
+            ( JSON.object
+                [ { mapKey = "zero"
+                  , mapValue = JSON.array ([] : List JSON.Type)
+                  }
+                , { mapKey = "one", mapValue = JSON.array [ JSON.string "a" ] }
+                , { mapKey = "two"
+                  , mapValue = JSON.array [ JSON.string "a", JSON.string "b" ]
+                  }
+                ]
+            )
+        ≡ ''
+          ! "zero": []
+          ! "one":
+            - "a"
+          ! "two":
+            - "a"
+            - "b"
+          ''
+
+let example2 =
+        assert
+      :   renderYAML
+            ( JSON.object
+                [ { mapKey = "zero"
+                  , mapValue =
+                      JSON.object
+                        ( toMap
+                            {=}
+                          : List { mapKey : Text, mapValue : JSON.Type }
+                        )
+                  }
+                , { mapKey = "one"
+                  , mapValue = JSON.object (toMap { a = JSON.null })
+                  }
+                , { mapKey = "two"
+                  , mapValue =
+                      JSON.object (toMap { a = JSON.null, b = JSON.null })
+                  }
+                ]
+            )
+        ≡ ''
+          ! "zero": {}
+          ! "one":
+            ! "a": null
+          ! "two":
+            ! "a": null
+            ! "b": null
           ''
 
 in  renderYAML

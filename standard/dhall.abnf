@@ -371,6 +371,7 @@ Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
 assert                = %x61.73.73.65.72.74
 forall                = %x2200 / %x66.6f.72.61.6c.6c ; "∀" / "forall"
+with                  = %x77.69.74.68
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
@@ -382,6 +383,7 @@ keyword =
     / Infinity / NaN
     / merge / Some / toMap
     / forall
+    / with
 
 builtin =
       Natural-fold
@@ -806,7 +808,10 @@ combine-types-expression = times-expression         *(whsp combine-types whsp ti
 times-expression         = equal-expression         *(whsp "*" whsp equal-expression)
 equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-expression)
 not-equal-expression     = equivalent-expression    *(whsp "!=" whsp equivalent-expression)
-equivalent-expression    = application-expression   *(whsp equivalent whsp application-expression)
+equivalent-expression    = with-expression          *(whsp equivalent whsp with-expression)
+
+with-expression =
+    application-expression *(whsp1 with whsp1 any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp application-expression)
 
 ; Import expressions need to be separated by some whitespace, otherwise there
 ; would be ambiguity: `./ab` could be interpreted as "import the file `./ab`",
