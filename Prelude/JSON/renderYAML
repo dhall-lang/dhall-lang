@@ -20,6 +20,10 @@ let Text/concatMap =
         ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap
 
+let List/take =
+        ../List/take sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
+      ? ../List/take
+
 let List/drop =
         ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
       ? ../List/drop
@@ -94,6 +98,28 @@ let NonEmpty/mapTail
       → λ(ls : NonEmpty a)
       → ls ⫽ { tail = List/map a a fn ls.tail }
 
+let Pair = λ(a : Type) → λ(b : Type) → { first : a, second : b }
+
+let NonEmpty/splitLast
+    : ∀(a : Type) → NonEmpty a → Pair (Optional (NonEmpty a)) a
+    =   λ(a : Type)
+      → λ(ls : NonEmpty a)
+      → merge
+          { None = { first = None (NonEmpty a), second = ls.head }
+          , Some =
+                λ(last : a)
+              → let newTail =
+                      List/take
+                        (Natural/subtract 1 (List/length a ls.tail))
+                        a
+                        ls.tail
+
+                in  { first = Some { head = ls.head, tail = newTail }
+                    , second = last
+                    }
+          }
+          (List/last a ls.tail)
+
 let NonEmpty/prepend
     : ∀(a : Type) → a → NonEmpty a → NonEmpty a
     =   λ(a : Type)
@@ -107,6 +133,43 @@ let NonEmpty/append
       → λ(suffix : a)
       → λ(ls : NonEmpty a)
       → { head = ls.head, tail = ls.tail # [ suffix ] }
+
+let NonEmpty/mapLast
+    : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(fn : a → a)
+      → λ(ls : NonEmpty a)
+      → let pair = NonEmpty/splitLast a ls
+
+        let leading = pair.first
+
+        let last = pair.second
+
+        in  merge
+              { None = { head = fn last, tail = [] : List a }
+              , Some =
+                  λ(leading : NonEmpty a) → NonEmpty/append a (fn last) leading
+              }
+              leading
+
+let NonEmpty/mapLeading
+    : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(fn : a → a)
+      → λ(ls : NonEmpty a)
+      → let pair = NonEmpty/splitLast a ls
+
+        let leading = pair.first
+
+        let last = pair.second
+
+        in  merge
+              { None = { head = last, tail = [] : List a }
+              , Some =
+                    λ(leading : NonEmpty a)
+                  → NonEmpty/append a last (NonEmpty/map a a fn leading)
+              }
+              leading
 
 let Lines
     : Type
@@ -161,11 +224,11 @@ let renderJSONStruct =
       → λ(blocks : NonEmpty Lines)
       → let indent = NonEmpty/map Text Text addIndent
 
-        let prefixComma
+        let appendComma
             : Lines → Lines
-            = NonEmpty/mapHead Text (addPrefix ",")
+            = NonEmpty/mapLast Text (λ(line : Text) → line ++ ",")
 
-        let blocks = NonEmpty/mapTail Lines prefixComma blocks
+        let blocks = NonEmpty/mapLeading Lines appendComma blocks
 
         let block = NonEmpty/concat Text blocks
 
