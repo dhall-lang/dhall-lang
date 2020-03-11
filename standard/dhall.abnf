@@ -887,6 +887,7 @@ primitive-expression =
     ; "( e )"
     / "(" complete-expression ")"
 
+
 record-type-or-literal =
       empty-record-literal
     / non-empty-record-type-or-literal
@@ -896,7 +897,7 @@ empty-record-literal = "="
 empty-record-type = ""
 
 non-empty-record-type-or-literal =
-    (non-empty-record-literal / non-empty-record-type)
+    (non-empty-record-type / non-empty-record-literal)
 
 non-empty-record-type =
     record-type-entry *(whsp "," whsp record-type-entry)
@@ -907,7 +908,12 @@ non-empty-record-literal =
     record-literal-entry *(whsp "," whsp record-literal-entry)
 
 record-literal-entry =
-    any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
+    any-label-or-some (record-literal-normal-entry / record-literal-punned-entry)
+
+record-literal-normal-entry =
+    *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
+record-literal-punned-entry = ""
+
 
 union-type =
       non-empty-union-type
@@ -921,6 +927,7 @@ non-empty-union-type =
 ; x : Natural
 ; x
 union-type-entry = any-label-or-some [ whsp ":" whsp1 expression ]
+
 
 non-empty-list-literal =
     "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) "]"
