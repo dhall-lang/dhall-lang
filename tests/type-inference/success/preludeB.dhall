@@ -226,7 +226,7 @@
             )
         → JSON
     , render :
-          ∀ ( j
+          ∀ ( json
             :   ∀(JSON : Type)
               → ∀ ( json
                   : { array : List JSON → JSON
