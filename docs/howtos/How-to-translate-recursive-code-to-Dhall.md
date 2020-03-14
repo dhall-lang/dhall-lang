@@ -178,7 +178,7 @@ in  result
 ## Recursive sum type
 
 Sum types work in the same way, except that instead of one constructor (i.e.
-`MakePerson`) we now have two constructors: `Succ` and `Nat`.  For example, this
+`MakePerson`) we now have two constructors: `Succ` and `Zero`.  For example, this
 Haskell code:
 
 ```haskell
