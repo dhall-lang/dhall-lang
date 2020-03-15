@@ -6,6 +6,8 @@
    However, it is useful for debugging `JSON` values or for tests.
    For anything more sophisticated you should use `dhall-to-json` or
    `dhall-to-yaml`.
+
+   For examples, see `./renderAs`
 -}
 
 let JSON =
@@ -20,8 +22,8 @@ let Format =
         ./Format sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
       ? ./Format
 
-let render
+let renderYAML
     : JSON.Type → Text
     = renderAs Format.YAML
 
-in  render
+in  renderYAML
