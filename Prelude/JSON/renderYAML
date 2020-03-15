@@ -7,7 +7,6 @@
    For anything more sophisticated you should use `dhall-to-json` or
    `dhall-to-yaml`.
 
-   For examples, see `./renderAs`
 -}
 
 let JSON =
@@ -25,5 +24,24 @@ let Format =
 let renderYAML
     : JSON.Type → Text
     = renderAs Format.YAML
+
+let example0 =
+        assert
+      :   renderYAML
+            ( JSON.array
+                [ JSON.bool True
+                , JSON.string "Hello"
+                , JSON.object
+                    [ { mapKey = "foo", mapValue = JSON.null }
+                    , { mapKey = "bar", mapValue = JSON.double 1.0 }
+                    ]
+                ]
+            )
+        ≡ ''
+          - true
+          - "Hello"
+          - "foo": null
+            "bar": 1.0
+          ''
 
 in  renderYAML
