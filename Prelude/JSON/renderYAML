@@ -133,7 +133,7 @@ let renderYAML
                               ObjectField
                               Lines
                               (   λ(e : ObjectField)
-                                → let key = "! ${Text/show e.mapKey}:"
+                                → let key = "${Text/show e.mapKey}:"
 
                                   let block = e.mapValue
 
@@ -190,8 +190,8 @@ let example0 =
         ≡ ''
           - true
           - "Hello"
-          - ! "foo": null
-            ! "bar": 1.0
+          - "foo": null
+            "bar": 1.0
           ''
 
 let example1 =
@@ -208,10 +208,10 @@ let example1 =
                 ]
             )
         ≡ ''
-          ! "zero": []
-          ! "one":
+          "zero": []
+          "one":
             - "a"
-          ! "two":
+          "two":
             - "a"
             - "b"
           ''
@@ -238,12 +238,12 @@ let example2 =
                 ]
             )
         ≡ ''
-          ! "zero": {}
-          ! "one":
-            ! "a": null
-          ! "two":
-            ! "a": null
-            ! "b": null
+          "zero": {}
+          "one":
+            "a": null
+          "two":
+            "a": null
+            "b": null
           ''
 
 in  renderYAML
