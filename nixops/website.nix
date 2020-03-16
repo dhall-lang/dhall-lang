@@ -26,7 +26,7 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${logo.dhallLarge} $out/img/dhall-large-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.dhallSmall} $out/img/dhall-small-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.discourse} $out/img/discourse-logo.svg
-  ${coreutils}/bin/ln --symbolic ${logo.github}/PNG/GitHub-Mark-32px.png $out/img/github-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.github}/GitHub-Mark/PNG/GitHub-Mark-32px.png $out/img/github-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.haskell} $out/img/haskell-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.json} $out/img/json-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.kops} $out/img/kops-logo.svg

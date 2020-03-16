@@ -206,7 +206,12 @@ let
 
       discourse = ./nixops/discourse.svg;
 
-      github = pkgsNew.callPackage ./nixops/githubLogo.nix { };
+      github =
+        pkgsNew.fetchzip {
+          url    = "https://github-media-downloads.s3.amazonaws.com/GitHub-Mark.zip";
+          sha256 = "0qy901f9rjzi0dyd1rb7zas50lcxy42sc7wnxpz2j2hr9ckg2zlz";
+          stripRoot = false;
+        };
 
       haskell =
         pkgsNew.fetchurl {
