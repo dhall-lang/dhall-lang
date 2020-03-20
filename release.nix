@@ -180,6 +180,14 @@ let
           sha256 = "0mrjzv690g9mxljzxsvay8asyr8vlxhhs9smmax7mp3psd49b43g";
         };
 
+      golang =
+        pkgsNew.fetchzip {
+          # See also https://blog.golang.org/go-brand
+          url    = "https://storage.googleapis.com/golang-assets/go-logos-v1.0.zip";
+          sha256 = "06vlpk22nxl1a3mz9rpk9fyq483rc4ml8f7lkkfqmabbia9ah7np";
+          stripRoot = false;
+        };
+
       ruby =
         pkgsNew.fetchurl {
           url    = "https://upload.wikimedia.org/wikipedia/commons/7/73/Ruby_logo.svg";
