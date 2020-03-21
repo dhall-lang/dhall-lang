@@ -1,12 +1,13 @@
 # Record syntactic sugar
 
-There are two desugaring steps applied to records as they parsed, before they
+There are three desugaring steps applied to records as they parsed, before they
 are further interpreted:
 
-* First, dotted syntax like `{ x.y = a }` desugars to `{ x = { y = a } }`
-* Second, duplicate fields like `{ x = a, x = b }` desugar to `{ x = a ∧ b }`
+* First, a field without rhs like `{ x }` desugars to `{ x = x }`
+* Second, dotted syntax like `{ x.y = a }` desugars to `{ x = { y = a } }`
+* Third, duplicate fields like `{ x = a, x = b }` desugar to `{ x = a ∧ b }`
 
-The following example illustrates how these two features interact:
+The following example illustrates how the two latter features interact:
 
 ```dhall
 { x.y = a, x.z = b }
@@ -42,6 +43,50 @@ record with x.y.z = a
 ```dhall
 record // { x = record.x // { y = record.x.y // { z = a } } }
 ```
+
+## Record puns
+
+When assigning a variable to a field of the same name, Dhall allows eliding the repetition. For example:
+
+```dhall
+{ x = x }
+```
+
+can equivalently be written like this:
+
+```dhall
+{ x }
+```
+
+The above translation is governed by the following judgment which converts
+a record containing record puns to a record without record puns:
+
+    desugar-puns(r₀) = r₁
+
+... where:
+
+* `r₀` (the input) is a record literal potentially containing record puns
+* `r₁` (the output) is a record literal free of record puns
+
+The rules for the translation are:
+
+    ───────────────────────────────────────────────────────  ; Base case for an
+    desugar-puns({=}) = {=}                                  ; empty record
+
+
+    desugar-puns({ ys₀… }) = { ys₁… }
+    ───────────────────────────────────────────────  ; Normal fields are
+    desugar-puns({ x = e, ys₀… }) = { x = e, ys₁… }  ; left untouched
+
+
+    desugar-puns({ ys₀… }) = { ys₁… }
+    ───────────────────────────────────────────  ; Record puns are
+    desugar-puns({ x, ys₀… }) = { x = x, ys₁… }  ; desugared
+
+
+For all other cases, `desugar-puns` descends into sub-expressions and ignores
+anything that is not a record literal.
+
 
 ## Dotted syntax
 
@@ -83,8 +128,11 @@ The rules for the translation are:
     desugar-dotted-fields({ x = e, ys₀… }) = { x = e, ys₁… }  ; remaining dots
 
 
-    ───────────────────────────────────────────────────────  ; Base care for an
+    ───────────────────────────────────────────────────────  ; Base case for an
     desugar-dotted-fields({=}) = {=}                         ; empty record
+
+For all other cases, `desugar-dotted-fields` descends into sub-expressions and ignores
+anything that is not a record literal.
 
 
 ## Duplicate fields
