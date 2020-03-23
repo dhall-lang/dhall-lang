@@ -5,6 +5,148 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v15.0.0`
+
+Deprecation notice:
+
+* [URLs with quoted paths are deprecated](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-quoted-paths-in-URLs.html)
+
+  In other words, you will no longer be able to do this:
+
+  ```dhall
+  https://example.com/"foo bar"
+  ```
+
+  Instead, you will need to percent-encode URLs, like this:
+
+  ```dhall
+  https://example.com/foo%20bar
+  ```
+
+  Support for quoted URL paths will be removed in two more releases in an effort
+  to slowly simplify the standard.  See the above link to the migration guide
+  for more details.
+
+Breaking changes:
+
+* [Add support for `with` keyword](https://github.com/dhall-lang/dhall-lang/pull/923)
+
+  You can now update a deeply-nested record using the `with` keyword, like this:
+
+  ```dhall
+  let record = { x.y = 1 }
+
+  in  record with x.y = 2 with x.z = True
+  ```
+
+  ... which evaluates to:
+
+  ```dhall
+  { x = { y = 2, z = True } }
+  ```
+
+  The `with` keyword is syntactic sugar for using `//` repeatedly to override
+  nested fields.  For example, this expression:
+
+  ```dhall
+  record with x.y = 2
+  ```
+
+  ... is syntactic sugar for:
+
+  ```dhall
+  record // { x = record.x // { y = 2 } }
+  ```
+
+  This feature is a technically breaking change because the `with` keyword is
+  now reserved.
+
+* [JSON: support pretty JSON formatting](https://github.com/dhall-lang/dhall-lang/pull/936)
+
+  `Prelude.JSON.render` now pretty-prints JSON instead of rendering on a single
+  line
+
+  For example:
+
+  ```dhall
+  JSON.render
+    ( JSON.array
+        [ JSON.bool True
+        , JSON.string "Hello"
+        , JSON.object
+            [ { mapKey = "foo", mapValue = JSON.null }
+            , { mapKey = "bar", mapValue = JSON.double 1.0 }
+            ]
+        ]
+    )
+  ```
+
+  ... evaluates to:
+
+  ```dhall
+  ''
+  [
+    true,
+    "Hello",
+    {
+      "foo": null,
+      "bar": 1.0
+    }
+  ]
+  ''
+  ```
+
+  This feature is a breaking change to the output (the old compact rendering
+  was not preserved), but the generated JSON is semantically the same.
+
+New features:
+
+* [Standardize record puns](https://github.com/dhall-lang/dhall-lang/issues/867)
+
+  The language now supports record "puns" to easily create fields from
+  identifiers of the same name already in scope.
+
+  For example, this expression:
+
+  ```dhall
+  let x = 1
+
+  let y = 2
+
+  in  { x, y }
+  ```
+
+  ... is the same thing as:
+
+  ```dhall
+  let x = 1
+
+  let y = 2
+
+  in  { x = x, y = y }
+  ```
+
+  This comes in handy when creating records that package several locally-defined
+  identifiers.
+
+  Note that this does not yet support the same syntax for destructuring records.
+  Currently this feature only affects record assembly.
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [`using toMap` requires parentheses](https://github.com/dhall-lang/dhall-lang/pull/914)
+  * [Don't parse single-quote strings too greedily](https://github.com/dhall-lang/dhall-lang/pull/911)
+  * [Fix keyword ordering for simple-label rule](https://github.com/dhall-lang/dhall-lang/pull/916)
+  * [Tweak instructions for how to run import tests](https://github.com/dhall-lang/dhall-lang/pull/917)
+  * [Add a bunch of tests](https://github.com/dhall-lang/dhall-lang/pull/933)
+
+* Fixes and improvements to the Prelude:
+
+  * [Fix `JSON/renderYAML` for singleton arrays/objects](https://github.com/dhall-lang/dhall-lang/pull/929)
+  * [Change `renderYAML` to not emit exclamation marks](https://github.com/dhall-lang/dhall-lang/pull/934)
+
 ## `v14.0.0`
 
 Deprecation notice:
