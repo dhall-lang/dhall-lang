@@ -1,0 +1,443 @@
+{- Render a `JSON` value as `Text` in either JSON or YAML format. -}
+
+let JSON =
+        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
+      ? ./core.dhall
+
+let Function/identity =
+        ../Function/identity sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
+      ? ../Function/identity
+
+let Text/concatMap =
+        ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+      ? ../Text/concatMap
+
+let List/take =
+        ../List/take sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
+      ? ../List/take
+
+let List/drop =
+        ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+      ? ../List/drop
+
+let List/null =
+        ../List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
+      ? ../List/null
+
+let List/map =
+        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map
+
+let List/concatMap =
+        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap
+
+let Optional/map =
+        ../Optional/map sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
+      ? ../Optional/map
+
+let NonEmpty
+    : Type → Type
+    = λ(a : Type) → { head : a, tail : List a }
+
+let List/uncons
+    : ∀(a : Type) → List a → Optional (NonEmpty a)
+    =   λ(a : Type)
+      → λ(ls : List a)
+      → Optional/map
+          a
+          (NonEmpty a)
+          (λ(head : a) → { head = head, tail = List/drop 1 a ls })
+          (List/head a ls)
+
+let NonEmpty/singleton
+    : ∀(a : Type) → a → NonEmpty a
+    = λ(a : Type) → λ(x : a) → { head = x, tail = [] : List a }
+
+let NonEmpty/toList
+    : ∀(a : Type) → NonEmpty a → List a
+    = λ(a : Type) → λ(nonEmpty : NonEmpty a) → [ nonEmpty.head ] # nonEmpty.tail
+
+let NonEmpty/concat
+    : ∀(a : Type) → NonEmpty (NonEmpty a) → NonEmpty a
+    =   λ(a : Type)
+      → λ(lss : NonEmpty (NonEmpty a))
+      → { head = lss.head.head
+        , tail =
+              lss.head.tail
+            # List/concatMap (NonEmpty a) a (NonEmpty/toList a) lss.tail
+        }
+
+let NonEmpty/map
+    : ∀(a : Type) → ∀(b : Type) → (a → b) → NonEmpty a → NonEmpty b
+    =   λ(a : Type)
+      → λ(b : Type)
+      → λ(fn : a → b)
+      → λ(ls : NonEmpty a)
+      → { head = fn ls.head, tail = List/map a b fn ls.tail }
+
+let NonEmpty/mapHead
+    : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(fn : a → a)
+      → λ(ls : NonEmpty a)
+      → ls ⫽ { head = fn ls.head }
+
+let NonEmpty/mapTail
+    : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(fn : a → a)
+      → λ(ls : NonEmpty a)
+      → ls ⫽ { tail = List/map a a fn ls.tail }
+
+let List/splitAt
+    : Natural → ∀(a : Type) → List a → { head : List a, tail : List a }
+    =   λ(index : Natural)
+      → λ(a : Type)
+      → λ(ls : List a)
+      → { head = List/take index a ls, tail = List/drop index a ls }
+
+let _testSplitAt0 =
+        assert
+      :   List/splitAt 0 Natural [ 1, 2, 3 ]
+        ≡ { head = [] : List Natural, tail = [ 1, 2, 3 ] }
+
+let _testSplitAt1 =
+        assert
+      : List/splitAt 1 Natural [ 1, 2, 3 ] ≡ { head = [ 1 ], tail = [ 2, 3 ] }
+
+let _testSplitAt3 =
+        assert
+      :   List/splitAt 3 Natural [ 1, 2, 3 ]
+        ≡ { head = [ 1, 2, 3 ], tail = [] : List Natural }
+
+let _testSplitAt =
+        assert
+      :   List/splitAt 1 Natural ([] : List Natural)
+        ≡ { head = [] : List Natural, tail = [] : List Natural }
+
+let List/splitLast =
+        λ(a : Type)
+      → λ(ls : List a)
+      → List/splitAt (Natural/subtract 1 (List/length a ls)) a ls
+
+let NonEmpty/prepend
+    : ∀(a : Type) → a → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(prefix : a)
+      → λ(ls : NonEmpty a)
+      → { head = prefix, tail = NonEmpty/toList a ls }
+
+let NonEmpty/append
+    : ∀(a : Type) → a → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(suffix : a)
+      → λ(ls : NonEmpty a)
+      → { head = ls.head, tail = ls.tail # [ suffix ] }
+
+let NonEmpty/mapLast
+    : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(fn : a → a)
+      → λ(ls : NonEmpty a)
+      →       if List/null a ls.tail
+
+        then  { head = fn ls.head, tail = [] : List a }
+
+        else  let split = List/splitLast a ls.tail
+
+              in  { head = ls.head
+                  , tail = split.head # List/map a a fn split.tail
+                  }
+
+let NonEmpty/mapLeading
+    : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
+    =   λ(a : Type)
+      → λ(fn : a → a)
+      → λ(ls : NonEmpty a)
+      →       if List/null a ls.tail
+
+        then  ls
+
+        else  let split = List/splitLast a ls.tail
+
+              in  { head = fn ls.head
+                  , tail = List/map a a fn split.head # split.tail
+                  }
+
+let Lines
+    : Type
+    = NonEmpty Text
+
+let Block
+    : Type
+    = < Simple : Text | Complex : Lines >
+
+let Block/toLines
+    : Block → Lines
+    =   λ(block : Block)
+      → merge
+          { Simple = NonEmpty/singleton Text
+          , Complex = Function/identity Lines
+          }
+          block
+
+let manyBlocks
+    : ∀(a : Type) → Text → (NonEmpty a → Lines) → List a → Block
+    =   λ(a : Type)
+      → λ(ifEmpty : Text)
+      → λ(render : NonEmpty a → Lines)
+      → λ(inputs : List a)
+      → merge
+          { Some = λ(inputs : NonEmpty a) → Block.Complex (render inputs)
+          , None = Block.Simple ifEmpty
+          }
+          (List/uncons a inputs)
+
+let blockToText
+    : Block → Text
+    =   λ(block : Block)
+      → Text/concatMap
+          Text
+          (λ(line : Text) → line ++ "\n")
+          (NonEmpty/toList Text (Block/toLines block))
+
+let addPrefix = λ(prefix : Text) → λ(line : Text) → prefix ++ line
+
+let addIndent = addPrefix "  "
+
+let indentTail = NonEmpty/mapTail Text addIndent
+
+let Format =
+        ./Format sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
+      ? ./Format
+
+let ObjectField = { mapKey : Text, mapValue : Block }
+
+let renderJSONStruct =
+        λ(prefix : Text)
+      → λ(suffix : Text)
+      → λ(blocks : NonEmpty Lines)
+      → let indent = NonEmpty/map Text Text addIndent
+
+        let appendComma
+            : Lines → Lines
+            = NonEmpty/mapLast Text (λ(line : Text) → line ++ ",")
+
+        let blocks = NonEmpty/mapLeading Lines appendComma blocks
+
+        let block = NonEmpty/concat Text blocks
+
+        in        if List/null Text block.tail
+
+            then  NonEmpty/singleton Text "${prefix} ${block.head} ${suffix}"
+
+            else  NonEmpty/prepend
+                    Text
+                    prefix
+                    (NonEmpty/append Text suffix (indent block))
+
+let renderObject =
+        λ(format : Format)
+      → λ(fields : NonEmpty ObjectField)
+      → let keystr = λ(field : ObjectField) → "${Text/show field.mapKey}:"
+
+        let prefixKeyOnFirst =
+                λ(field : ObjectField)
+              → NonEmpty/mapHead
+                  Text
+                  (addPrefix "${keystr field} ")
+                  (Block/toLines field.mapValue)
+
+        let prependKeyLine =
+                λ(field : ObjectField)
+              → NonEmpty/prepend
+                  Text
+                  (keystr field)
+                  (Block/toLines field.mapValue)
+
+        let renderYAMLField =
+                λ(field : ObjectField)
+              → merge
+                  { Simple =
+                        λ(line : Text)
+                      → NonEmpty/singleton Text "${keystr field} ${line}"
+                  , Complex = λ(_ : Lines) → indentTail (prependKeyLine field)
+                  }
+                  field.mapValue
+
+        in  merge
+              { JSON =
+                  renderJSONStruct
+                    "{"
+                    "}"
+                    (NonEmpty/map ObjectField Lines prefixKeyOnFirst fields)
+              , YAML =
+                  NonEmpty/concat
+                    Text
+                    (NonEmpty/map ObjectField Lines renderYAMLField fields)
+              }
+              format
+
+let renderYAMLArrayField =
+        λ(block : Block)
+      → NonEmpty/mapHead
+          Text
+          (addPrefix "- ")
+          (indentTail (Block/toLines block))
+
+let renderArray =
+        λ(format : Format)
+      → λ(fields : NonEmpty Block)
+      → merge
+          { JSON =
+              renderJSONStruct
+                "["
+                "]"
+                (NonEmpty/map Block Lines Block/toLines fields)
+          , YAML =
+              NonEmpty/concat
+                Text
+                (NonEmpty/map Block Lines renderYAMLArrayField fields)
+          }
+          format
+
+let renderAs
+    : Format → JSON.Type → Text
+    =   λ(format : Format)
+      → λ(json : JSON.Type)
+      → blockToText
+          ( json
+              Block
+              { string = λ(x : Text) → Block.Simple (Text/show x)
+              , double = λ(x : Double) → Block.Simple (Double/show x)
+              , integer = λ(x : Integer) → Block.Simple (JSON.renderInteger x)
+              , object = manyBlocks ObjectField "{}" (renderObject format)
+              , array = manyBlocks Block "[]" (renderArray format)
+              , bool =
+                  λ(x : Bool) → Block.Simple (if x then "true" else "false")
+              , null = Block.Simple "null"
+              }
+          )
+
+let example0 =
+      let data =
+            JSON.array
+              [ JSON.bool True
+              , JSON.string "Hello"
+              , JSON.object
+                  [ { mapKey = "foo", mapValue = JSON.null }
+                  , { mapKey = "bar", mapValue = JSON.double 1.0 }
+                  ]
+              ]
+
+      let yaml =
+              assert
+            :   renderAs Format.YAML data
+              ≡ ''
+                - true
+                - "Hello"
+                - "foo": null
+                  "bar": 1.0
+                ''
+
+      let json =
+              assert
+            :   renderAs Format.JSON data
+              ≡ ''
+                [
+                  true,
+                  "Hello",
+                  {
+                    "foo": null,
+                    "bar": 1.0
+                  }
+                ]
+                ''
+
+      in  True
+
+let example1 =
+      let data =
+            JSON.object
+              [ { mapKey = "zero", mapValue = JSON.array ([] : List JSON.Type) }
+              , { mapKey = "one", mapValue = JSON.array [ JSON.string "a" ] }
+              , { mapKey = "two"
+                , mapValue = JSON.array [ JSON.string "a", JSON.string "b" ]
+                }
+              ]
+
+      let yaml =
+              assert
+            :   renderAs Format.YAML data
+              ≡ ''
+                "zero": []
+                "one":
+                  - "a"
+                "two":
+                  - "a"
+                  - "b"
+                ''
+
+      let json =
+              assert
+            :   renderAs Format.JSON data
+              ≡ ''
+                {
+                  "zero": [],
+                  "one": [ "a" ],
+                  "two": [
+                    "a",
+                    "b"
+                  ]
+                }
+                ''
+
+      in  True
+
+let example2 =
+      let data =
+            JSON.object
+              [ { mapKey = "zero"
+                , mapValue =
+                    JSON.object
+                      (toMap {=} : List { mapKey : Text, mapValue : JSON.Type })
+                }
+              , { mapKey = "one"
+                , mapValue = JSON.object (toMap { a = JSON.null })
+                }
+              , { mapKey = "two"
+                , mapValue =
+                    JSON.object (toMap { a = JSON.null, b = JSON.null })
+                }
+              ]
+
+      let yaml =
+              assert
+            :   renderAs Format.YAML data
+              ≡ ''
+                "zero": {}
+                "one":
+                  "a": null
+                "two":
+                  "a": null
+                  "b": null
+                ''
+
+      let json =
+              assert
+            :   renderAs Format.JSON data
+              ≡ ''
+                {
+                  "zero": {},
+                  "one": { "a": null },
+                  "two": {
+                    "a": null,
+                    "b": null
+                  }
+                }
+                ''
+
+      in  True
+
+in  renderAs
