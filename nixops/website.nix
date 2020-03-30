@@ -33,6 +33,7 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${logo.kops} $out/img/kops-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.kubernetes} $out/img/kubernetes-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.nix} $out/img/nix-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.openCollective} $out/img/opencollective-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.prometheus} $out/img/prometheus-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.ruby} $out/img/ruby-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.rust} $out/img/rust-logo.png
