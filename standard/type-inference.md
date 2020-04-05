@@ -415,8 +415,8 @@ An empty record is a `Type`:
 A non-empty record can store terms, types and kinds:
 
 
-    Γ ⊢ T : t₀   Γ ⊢ { xs… } : t₁  t₀ ⋁ t₁ = t₂
-    ───────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ T : t₀   Γ ⊢ { xs… } : t₁   t₀ ⋁ t₁ = t₂
+    ────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x : T, xs… } : t₂
 
 
@@ -721,7 +721,7 @@ An implementation could simply loop over the inferred record type.
 
 `Optional`s can also be `merge`d as if they had type `< None | Some : A >`:
 
-    
+
     Γ₀ ⊢ o : Optional A
     ↑(1, x, 0, (Γ₀, x : < None | Some : A >)) = Γ₁
     Γ₁ ⊢ merge t x : T

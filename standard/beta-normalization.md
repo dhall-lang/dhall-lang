@@ -728,8 +728,8 @@ arguments normalize to `List` literals:
     ls₀ ⇥ [ ls₁… ]
     rs₀ ⇥ [ rs₁… ]
     [ ls₁… ] # [ rs₁… ] ⇥ t
-    ───────────────────────   ;  "[ ls₁… ] # [ rs₁… ]" means "use machine
-    ls₀ # rs₀ ⇥ t             ;  concatenation"
+    ───────────────────────  ;  "[ ls₁… ] # [ rs₁… ]" means "use machine
+    ls₀ # rs₀ ⇥ t            ;  concatenation"
 
 
 Also, simplify the "list concatenation" operator if either argument normalizes
@@ -750,7 +750,7 @@ Otherwise, normalize each argument:
 
 
     ls₀ ⇥ ls₁   rs₀ ⇥ rs₁
-    ─────────────────────   ; If no other rule matches
+    ─────────────────────  ; If no other rule matches
     ls₀ # rs₀ ⇥ ls₁ # rs₁
 
 
@@ -957,7 +957,7 @@ record literal, we can simplify further:
 
 
     t₀ ⇥ { xs… } ⫽ t₁   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
+    ────────────────────────────  ; x ∉ xs
     t₀.x ⇥ v
 
 
@@ -967,7 +967,7 @@ record literal, we can simplify further:
 
 
     t₀ ⇥ t₁ ⫽ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
+    ────────────────────────────  ; x ∉ xs
     t₀.x ⇥ v
 
 
@@ -981,7 +981,7 @@ literal, we can simplify it similarly:
 
 
     t₀ ⇥ { xs… } ∧ t₁   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
+    ────────────────────────────  ; x ∉ xs
     t₀.x ⇥ v
 
 
@@ -991,7 +991,7 @@ literal, we can simplify it similarly:
 
 
     t₀ ⇥ t₁ ∧ { xs… }   t₁.x ⇥ v
-    ──────────────────────────── ; x ∉ xs
+    ────────────────────────────  ; x ∉ xs
     t₀.x ⇥ v
 
 
@@ -1033,7 +1033,7 @@ the fields it contains, simplify:
     t₀ ⇥ l ⫽ { rs… }
     keys(rs…) = ks…
     l.{ xs… \ ks… } ⫽ { rs… }.{ xs… ∩ ks… } ⇥ t₁
-    ──────────────────────────────────────────── ; "\" means set difference, "∩" means set intersection
+    ────────────────────────────────────────────  ; "\" means set difference, "∩" means set intersection
     t₀.{ xs… } ⇥ t₁
 
 
@@ -1090,7 +1090,7 @@ collide.  The type system ensures that colliding fields must be records:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────   ; If no other rule matches
+    ─────────────────  ; If no other rule matches
     l₀ ∧ r₀ ⇥ l₁ ∧ r₁
 
 
@@ -1130,7 +1130,7 @@ from the left record:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────   ; If no other rule matches
+    ─────────────────  ; If no other rule matches
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
 
@@ -1166,7 +1166,7 @@ record types:
 
 
     l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────   ; If no other rule matches
+    ─────────────────  ; If no other rule matches
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
