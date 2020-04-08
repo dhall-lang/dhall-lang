@@ -14,6 +14,7 @@ The following languages can read in Dhall configuration files directly using a p
 
 * [Clojure](https://github.com/f-f/dhall-clj) - Via the `dhall-clj` package
 * [Haskell](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall/README.md) - Via the `dhall` package
+* [Go](https://github.com/philandstuff/dhall-golang) - Via the `dhall-golang` package
 * [Ruby](https://git.sr.ht/~singpolyma/dhall-ruby) - Via the `dhall-ruby` package
 * [Rust](https://crates.io/crates/serde_dhall) - Via the `serde_dhall` package
 
@@ -25,7 +26,6 @@ The following languages can read in Dhall configuration files by building on top
 
 The following language bindings are currently in progress:
 
-* [Go](https://github.com/philandstuff/dhall-golang) - Via the `dhall-golang` package
 * [PureScript](https://github.com/MonoidMusician/dhall-purescript/blob/master/README.md) - Via the `dhall-purescript` package
 
 The following integrations built on top of another implementation are still in progress:
@@ -55,11 +55,6 @@ You can convert Dhall to one of the following configuration formats if your lang
 * [Kubernetes](https://github.com/dhall-lang/dhall-kubernetes/blob/master/README.md) - Via the `dhall-to-yaml` executable
 
   `dhall-kubernetes` is a repository containing Kubernetes-related Dhall types and functions.  However, you still need to use `dhall-to-yaml` to generate the YAML configuration that Kubernetes expects since Kubernetes is not Dhall-aware
-
-* [Go](https://github.com/andrewchambers/go-dhallconfig/blob/master/README.md) - Via the `dhall-to-json` executable
-
-  This implementation invokes a `dhall-to-json` subprocess to convert a Dhall configuration file to JSON and then
-  read the JSON configuration into Go
 
 ## Render within Dhall
 
