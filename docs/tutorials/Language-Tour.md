@@ -342,6 +342,9 @@ numbers and all `Integer` literals require an explicit sign:
 
 `Integer`s also permit hexadecimal notation, like `Natural` numbers.
 
+Both `Natural` numbers and `Integer`s are unlimited precision, which means that
+there is no maximum value for either type.
+
 `Double`s represent IEEE 754 double-precision floating point numbers, such as:
 
 ```
@@ -371,3 +374,27 @@ The language provides the following arithmetic operators which only work on
 * `*` - multiplication
 
   Example: `2 * 3` evaluates to `6`
+
+These operators do not work on `Integer`s or `Double` values, although you can
+convert between `Natural` numbers and `Integer`s using two built-in functions:
+
+* `Natural/toInteger : Natural -> Integer` - Convert a `Natural` number to an
+  `Integer`
+
+* `Integer/clamp : Integer -> Natural` - Convert an `Integer` to a `Natural`
+  number, clamping all negative `Integer`s to `0`
+
+In general, the language design tries to encourage the use of `Natural` numbers
+as much as possible.
+
+The fundamental function to consume `Natural` numbers is `Natural/fold`, which
+you can use to repeat a function N times for a given `Natural` number `N`.
+For example, the `List/replicate` utility from the Prelude creates a list of
+N identical elements by prepending the given element to a list N times.
+
+> **Exercise:** Run the following command to see how the `List/replicate`
+> utility from the Prelude is implemented in terms of `Natural/fold`:
+>
+> ```bash
+> $ dhall <<< 'https://prelude.dhall-lang.org/v15.0.0/List/replicate as Text'
+> ```
