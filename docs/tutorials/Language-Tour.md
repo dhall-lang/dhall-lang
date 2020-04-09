@@ -145,7 +145,7 @@ conversion.
 >
 > ... and verify that you get the same result as interpreting `plain.dhall`.
 
-A Dhall interpreter processes expressions in five phases:
+A Dhall interpreter processes expressions in six phases:
 
 * Desugaring
 
@@ -251,3 +251,123 @@ interpreter processes the code.
 > Which imports are resolved by the interpreter?
 >
 > Does the expression type-check?
+
+## `Bool` values
+
+The `Bool` type is one of the simplest types that the language provides
+built-in support for.
+
+The only two valid `Bool` constants are `False` and `True` and the language
+provides the following logical operators which work on `Bool`s:
+
+* `&&` - logical "and"
+
+  Example: `True && False` evaluates to `False`
+
+* `||` - logical "or"
+
+  Example: `True || False` evaluates to `True`
+
+* `==` - equality
+
+  Example: `True == False` evaluates to `False`
+
+* `!=` - inequality
+
+  Example: `True != False` evaluates to `True`
+
+Carefully note that the `==` and `!=` operators only work on values of type
+`Bool`.  This is one important way that Dhall differs from many other languages.
+For example, you cannot compare `Text` or `Natural` numbers for equality or
+inequality using these operators.
+
+> **Exercise:** Try to compare two numbers for equality and see what happens:
+>
+> ```bash
+> $ dhall <<< '1 == 1'
+> ```
+>
+> Which interpreter phase do you think rejected the expression?
+
+Additionally the language provides built-in support for `if` expressions.
+
+> **Exercise:** What do you think is the result of interpreting the following
+> expression:
+>
+> ```dhall
+> "${if True then "Hello" else "Goodbye"}, world!"
+> ```
+>
+> Test your guess!
+
+## Numbers
+
+`Natural` numbers are non-negative integers.  In other words:
+
+```
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, …
+```
+
+All `Natural` number literals are unsigned.  You can also use hexadecimal
+notation if you prefer:
+
+```
+0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, …
+```
+
+`Natural` numbers are the "fundamental" numeric type for the language, since
+many useful functions will prefer to use `Natural` numbers in their types to
+forbid negative inputs or output.
+
+For example, the type of the built-in `List/length` function guarantees that the
+function can never return a negative length:
+
+```dhall
+List/length : forall (a : Type) -> List a -> Natural
+```
+
+The `Natural` number type is also a good default choice for many configuration
+options where negative values are not sensible, like:
+
+* A person's age
+* The number of CPUs to provision for a machine
+* The maximum number of permitted retries for a failing service
+
+`Integer`s are a different numeric type which is not the same as `Natural`
+numbers and all `Integer` literals require an explicit sign:
+
+```
+…, -7, -6, -5, -4, -3, -2, -1, +0, +1, +2, +3, +4, +5, +6, +7, …
+```
+
+`Integer`s also permit hexadecimal notation, like `Natural` numbers.
+
+`Double`s represent IEEE 754 double-precision floating point numbers, such as:
+
+```
+-1.0, 3.14159265359, 6.0221409e+23, 1e6
+```
+
+> **Exercise:** What do you think will happen if you input a `Double` literal
+> that is out of the valid range for a double-precision floating point number?
+>
+> ```bash
+> $ dhall <<< '1e10000'
+> ```
+>
+> Run the above command to find out!
+
+`Double` literals require an explicit decimal point or an exponent (if using
+scientific notation).  The `Double` type is also a distinct numeric type from
+`Natural` numbers and `Integer`s.
+
+The language provides the following arithmetic operators which only work on
+`Natural` numbers:
+
+* `+` - addition
+
+  Example: `2 + 3` evaluates to `5`
+
+* `*` - multiplication
+
+  Example: `2 * 3` evaluates to `6`
