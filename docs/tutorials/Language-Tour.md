@@ -252,6 +252,29 @@ interpreter processes the code.
 >
 > Does the expression type-check?
 
+## Comments
+
+You can add comments to Dhall expressions which are ignored by the
+interpreter.  These comments come in two forms:
+
+* Single-line comments that begin with `--`
+* Block comments that begin with `{-` and end with -}`
+
+For example:
+
+```dhall
+-- This is a single-line comment
+
+{- This is
+   a block
+   comment
+
+   {- Block comments can be nested -}
+-}
+
+2 + {- Block comments can also go anywhere -} 2
+```
+
 ## `Bool` values
 
 The `Bool` type is one of the simplest types that the language provides
@@ -403,7 +426,7 @@ However, you can convert `Integer`s (and therefore also `Natural` numbers) to
 `Text` is the most complex of the primitive types because:
 
 * the language supports `Text` interpolation
-* the language supports multi-line `Text` literals
+* the language also supports multi-line `Text` literals
 
 In the simple case a `Text` literal is surrounded by double quotes:
 
@@ -642,9 +665,12 @@ will not type-check:
 ... because `1` has type `Natural` whereas `True` has type `Bool`, which is a
 type mismatch.
 
+Don't worry; later we'll illustrate ways to mix different types.
+
 Empty lists require an explicit type annotation, like this:
 
 ```dhall
 [] : List Natural
 ```
+
 
