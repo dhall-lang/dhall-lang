@@ -384,17 +384,163 @@ convert between `Natural` numbers and `Integer`s using two built-in functions:
 * `Integer/clamp : Integer -> Natural` - Convert an `Integer` to a `Natural`
   number, clamping all negative `Integer`s to `0`
 
-In general, the language design tries to encourage the use of `Natural` numbers
-as much as possible.
+In general, the language design encourages the use of `Natural` numbers as much
+as possible.
 
-The fundamental function to consume `Natural` numbers is `Natural/fold`, which
-you can use to repeat a function N times for a given `Natural` number `N`.
-For example, the `List/replicate` utility from the Prelude creates a list of
-N identical elements by prepending the given element to a list N times.
+## `Text`
 
-> **Exercise:** Run the following command to see how the `List/replicate`
-> utility from the Prelude is implemented in terms of `Natural/fold`:
+`Text` is the most complex of the primitive types because:
+
+* the language supports `Text` interpolation
+* the language supports multi-line `Text` literals
+
+In the simple case a `Text` literal is surrounded by double quotes:
+
+```dhall
+"Hello, world!"
+```
+
+... and these literals permit escape sequences similar to JSON escape sequences
+using backslash:
+
+```dhall
+"Line 1\nLine 2\n"
+```
+
+The full set of escape sequences are:
+
+* `\"` - Escape a quotation mark
+* `\\` - Escape a backslash
+* `\/` - Escape a forward slash
+* `\b` - Escape a backspace
+* `\f` - Escape a form feed
+* `\n` - Escape a line feed
+* `\r` - Escape a carriage return
+* `\t` - Escape a tab
+* `\$` - Escape a dollar sign
+* `\uXXXX` / `\u{XXXX}` - Escape a Unicode sequence (specified using hex)
+
+The language also permits Unicode characters in `Text` literals, too.
+
+> **Exercise:** Run the following command to test Dhall's support for special
+> characters:
 >
 > ```bash
-> $ dhall <<< 'https://prelude.dhall-lang.org/v15.0.0/List/replicate as Text'
+> $ dhall <<< '"🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"'
 > ```
+
+Dhall supports multi-line `Text` literals surrounded by two single quotes
+on both side, like this:
+
+```bash
+$ dhall <<< '"Line 1\nLine 2\nLine 3\n"'
+```
+```dhall
+''
+Line 1
+Line 2
+Line 3
+''
+```
+
+You can think of the two single quotes on each side as "big double quotes" if
+you need a convenient mnemonic for this feature.
+
+Multi-line `Text` literals automatically strip leading indentation for all
+lines after the opening quotes, meaning that this expression
+
+```dhall
+''
+ABC
+DEF
+'''
+```
+
+... is the same as this expression
+
+```dhall
+    ''
+    ABC
+    DEF
+    ''
+```
+
+... which is also the same as this expression:
+
+```dhall
+                   ''
+    ABC
+    DEF
+    ''
+```
+
+... all three of which are syntactic sugar for the following plain `Text`
+literal:
+
+```dhall
+"ABC\nDEF\n"
+```
+
+However, the preceding multi-line literals are **NOT** the same as this
+expression:
+
+```dhall
+''
+    ABC
+    DEF
+''
+```
+
+... which desugars to:
+
+```dhall
+"    ABC\n    DEF\n"
+```
+
+This latter multi-line string literal does not strip the leading four-space
+prefix because there are not four spaces before the closing quotes.
+
+However, blank lines within the interior of the multi-line string literal
+are ignored for the purposes of computing the shared indentation to strip.  For
+example, this expression does not have leading spaces in the middle line:
+
+```dhall
+␠␠␠␠␠␠''
+␠␠␠␠␠␠foo
+
+␠␠␠␠␠␠bar
+␠␠␠␠␠␠''
+```
+
+... but the indentation is still stripped, making the expression equivalent to:
+
+```dhall
+''
+foo
+
+bar
+''
+```
+
+Both leading tabs and leading spaces are stripped in this way, so long as the
+pattern of tabs and spaces match for each line that isn't blank.
+
+All multi-line string literals begin with an obligatory newline character (which
+is not included in the final string).  For example, this is not valid:
+
+```dhall
+''ABC''
+```
+
+... but this is valid:
+
+```dhall
+''
+ABC''
+```
+
+... which desugars to:
+
+```dhall
+"ABC"
+```
