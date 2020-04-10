@@ -429,6 +429,8 @@ The language also permits Unicode characters in `Text` literals, too.
 > $ dhall <<< '"🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"'
 > ```
 
+### Multi-line `Text` literals
+
 Dhall supports multi-line `Text` literals surrounded by two single quotes
 on both side, like this:
 
@@ -544,3 +546,44 @@ ABC''
 ```dhall
 "ABC"
 ```
+
+> **Exercise:** What does this multi-line `Text` literal desugar to?
+>
+> ```dhall
+>       ''
+>     ABC
+>   DEF
+> ''
+> ```
+>
+> Test your guess by interpreting the equivalent plain `Text` literal (which th
+
+### `Text` interpolation
+
+You can also interpolate Dhall expressions into `Text` using `${…}`, like this:
+
+```dhall
+let greeting = "Hello"
+
+in  "${greeting}, world!"
+```
+
+The expression that you interpolate must have type `Text` and the language will
+not automatically convert non-`Text` values to `Text`.  For example, this will
+not type-check:
+
+```dhall
+let answer = 42
+
+in  "The answer to life, the universe, and everything: ${answer}"
+```
+
+You have to instead render values as `Text` using explicit conversion functions,
+like this:
+
+```dhall
+let answer = 42
+
+in  "The answer to life, the universe, and everything: ${Natural/show answer}"
+```
+
