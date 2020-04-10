@@ -387,6 +387,17 @@ convert between `Natural` numbers and `Integer`s using two built-in functions:
 In general, the language design encourages the use of `Natural` numbers as much
 as possible.
 
+`Double`s are essentially "opaque", meaning that the only thing you can do with
+them is to render them as `Text` using the following built-in:
+
+* `Double/show : Double -> Text`
+
+In particular, you cannot convert `Double`s to `Integer`s nor `Natural` numbers.
+However, you can convert `Integer`s (and therefore also `Natural` numbers) to
+`Double`s:
+
+* `Integer/toDouble : Integer -> Double`
+
 ## `Text`
 
 `Text` is the most complex of the primitive types because:
@@ -428,6 +439,22 @@ The language also permits Unicode characters in `Text` literals, too.
 > ```bash
 > $ dhall <<< '"🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"'
 > ```
+
+## `Text` operations
+
+You can concatenate `Text` literals using the `++` operator:
+
+```bash
+$ dhall <<< '"123" ++ "456"'
+```
+```dhall
+"123456"
+```
+
+Other than that, `Text` literals are essentially opaque.  You cannot parse
+`Text` literals nor can you compare them for equality.  This is because the
+language encourages using more precise types (like enums) instead of `Text`
+when the value matters.
 
 ### Multi-line `Text` literals
 
@@ -585,5 +612,39 @@ like this:
 let answer = 42
 
 in  "The answer to life, the universe, and everything: ${Natural/show answer}"
+```
+
+> **Exercise:** What result do you get when you evaluate the following
+> expression:
+>
+> ```dhall
+> \(x : Text) -> "${x}"
+> ```
+>
+> How does the result differ from the original expression?
+
+## `List`s
+
+A `List` literal is surrounded by square brackets and elements are separated
+by commas, like this:
+
+```dhall
+[ 2, 3, 5 ]
+```
+
+All list elements must be the same type.  For example, the following expression
+will not type-check:
+
+```dhall
+[ 1, True ]
+```
+
+... because `1` has type `Natural` whereas `True` has type `Bool`, which is a
+type mismatch.
+
+Empty lists require an explicit type annotation, like this:
+
+```dhall
+[] : List Natural
 ```
 
