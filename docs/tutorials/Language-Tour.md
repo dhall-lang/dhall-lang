@@ -11,7 +11,7 @@ This tutorial covers all of the Dhall configuration language features, in a
 way that is not specific to an integration (e.g. JSON / YAML) or language binding
 (e.g. Go / Rust).  In other words, this tutorial assumes that you've already
 figured out use Dhall within a project and you want to dive more comprehensively
-into Dhall.
+into the language.
 
 ## Prerequisites
 
@@ -36,6 +36,24 @@ executable for Windows / OS X / Linux from the following release page:
 > 4
 > ```
 
+## REPL
+
+The `dhall` command-line tool includes a REPL, which you can use like this:
+
+```
+$ dhall repl
+Welcome to the Dhall v1.31.1 REPL! Type :help for more information.
+⊢ 2 + 2
+
+4
+```
+
+Whenever you see an exercise prompt beginning with `⊢ `, that means to use the
+REPL.
+
+> **Exercise:** Within the REPL, type the `:help` command and try to learn one
+> new command
+
 ## Introduction
 
 All Dhall integrations support some way to load "plain" data into the desired
@@ -53,7 +71,7 @@ file format or language binding.  These "plain" values include:
 ... and possibly also unions, depending on the integration.
 
 Some languages can even load Dhall functions, meaning that they are dynamically
-translated to functions in the host language.  However, this tutorial will not
+interpreted as functions in the host language.  However, this tutorial will not
 cover that.
 
 Here is an example of a "plain" expression that can likely be loaded into any
@@ -306,8 +324,8 @@ inequality using these operators.
 
 > **Exercise:** Try to compare two numbers for equality and see what happens:
 >
-> ```bash
-> $ dhall <<< '1 == 1'
+> ```dhall
+> ⊢ 1 == 1
 > ```
 >
 > Which interpreter phase do you think rejected the expression?
@@ -318,29 +336,29 @@ Additionally the language provides built-in support for `if` expressions.
 > expression:
 >
 > ```dhall
-> "${if True then "Hello" else "Goodbye"}, world!"
+> ⊢ "${if True then "Hello" else "Goodbye"}, world!"
 > ```
 >
-> Test your guess!
+> Test your guess in the REPL!
 
 ## Numbers
 
 `Natural` numbers are non-negative integers.  In other words:
 
-```
+```dhall
 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, …
 ```
 
 All `Natural` number literals are unsigned.  You can also use hexadecimal
 notation if you prefer:
 
-```
+```dhall
 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, …
 ```
 
-`Natural` numbers are the "fundamental" numeric type for the language, since
-many useful functions will prefer to use `Natural` numbers in their types to
-forbid negative inputs or output.
+`Natural` numbers are the most commonly used numeric type for programming
+utilities, since many useful functions use `Natural` numbers to forbid negative
+inputs or output.
 
 For example, the type of the built-in `List/length` function guarantees that the
 function can never return a negative length:
@@ -356,10 +374,10 @@ options where negative values are not sensible, like:
 * The number of CPUs to provision for a machine
 * The maximum number of permitted retries for a failing service
 
-`Integer`s are a different numeric type which is not the same as `Natural`
-numbers and all `Integer` literals require an explicit sign:
+`Integer`s are a different numeric type and they are not the same as `Natural`
+numbers.  All `Integer` literals require an explicit sign:
 
-```
+```dhall
 …, -7, -6, -5, -4, -3, -2, -1, +0, +1, +2, +3, +4, +5, +6, +7, …
 ```
 
@@ -370,15 +388,15 @@ there is no maximum value for either type.
 
 `Double`s represent IEEE 754 double-precision floating point numbers, such as:
 
-```
+```dhall
 -1.0, 3.14159265359, 6.0221409e+23, 1e6
 ```
 
 > **Exercise:** What do you think will happen if you input a `Double` literal
 > that is out of the valid range for a double-precision floating point number?
 >
-> ```bash
-> $ dhall <<< '1e10000'
+> ```dhall
+> ⊢ '1e10000'
 > ```
 >
 > Run the above command to find out!
@@ -386,6 +404,97 @@ there is no maximum value for either type.
 `Double` literals require an explicit decimal point or an exponent (if using
 scientific notation).  The `Double` type is also a distinct numeric type from
 `Natural` numbers and `Integer`s.
+
+The language provides the following built-in functions for `Natural` numbers,
+`Integer`s, and `Double`s:
+
+* `Natural/even : Natural -> Bool`
+
+  Returns `True` if the input is even, `False` otherwise
+
+  ```dhall
+  ⊢ Natural/even 2
+
+  True
+  ```
+
+* `Natural/odd : Natural -> Bool`
+
+  Returns `True` if the input is odd, `False` otherwise
+
+  ```dhall
+  ⊢ Natural/odd 2
+
+  False
+  ```
+
+* `Natural/isZero : Natural -> Bool`
+
+  Returns `True` if the input is `0`, `False`, otherwise
+
+  ```dhall
+  ⊢ Natural/isZero 2
+
+  False
+  ```
+
+* `Natural/subtract : Natural -> Natural -> Natural`
+
+  `Natural/subtract n m` is the same as `m - n`, except clamping to `0` if the
+  result is negative
+
+  ```dhall
+  ⊢ Natural/subtract 2 1
+
+  False
+  ```
+
+* `Natural/fold : Natural -> ∀(n : Type) -> (n -> n) -> n -> n`
+
+  Repeatedly apply a function N times
+
+  For example:
+
+  ```dhall
+  ⊢ Natural/fold 10 Text (\(t : Text) -> t ++ "!") "Hi"'
+
+  "Hi!!!!!!!!!!"
+  ```
+
+  This is the most general way to consume a `Natural` number
+
+* `Natural/build : (∀(n : Type) -> (n -> n) -> n -> n) -> Natural`
+
+  Create a `Natural` number (the hard way 🙂)
+
+  ```dhall
+  ⊢ Natural/build (\(n : Type) -> \(s : n -> n) -> \(z : n) -> s (s (s z)))
+
+  3
+  ```
+
+  This is the most general way to create a `Natural` number and is the inverse
+  of `Natural/fold`
+
+* `Natural/toInteger : Natural -> Integer`
+
+  Convert a `Natural` number to the corresponding `Integer`
+
+  ```dhall
+  ⊢ Natural/toInteger 2
+
+  +2
+  ```
+
+* `Natural/show : Natural -> Text`
+
+  Render a `Natural` number as `Text`
+
+  ```dhall
+  ⊢ Natural/show 2
+
+  "2"
+  ```
 
 The language provides the following arithmetic operators which only work on
 `Natural` numbers:
@@ -398,6 +507,7 @@ The language provides the following arithmetic operators which only work on
 
   Example: `2 * 3` evaluates to `6`
 
+... and 
 These operators do not work on `Integer`s or `Double` values, although you can
 convert between `Natural` numbers and `Integer`s using two built-in functions:
 
@@ -407,8 +517,8 @@ convert between `Natural` numbers and `Integer`s using two built-in functions:
 * `Integer/clamp : Integer -> Natural` - Convert an `Integer` to a `Natural`
   number, clamping all negative `Integer`s to `0`
 
-In general, the language design encourages the use of `Natural` numbers as much
-as possible.
+In general, the language design encourages using `Natural` numbers as much as
+possible.
 
 `Double`s are essentially "opaque", meaning that the only thing you can do with
 them is to render them as `Text` using the following built-in:
@@ -420,6 +530,10 @@ However, you can convert `Integer`s (and therefore also `Natural` numbers) to
 `Double`s:
 
 * `Integer/toDouble : Integer -> Double`
+
+> **Exercise:** Complete 
+>
+> 
 
 ## `Text`
 
@@ -459,18 +573,17 @@ The language also permits Unicode characters in `Text` literals, too.
 > **Exercise:** Run the following command to test Dhall's support for special
 > characters:
 >
-> ```bash
-> $ dhall <<< '"🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"'
+> ```dhall
+> ⊢ "🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"
 > ```
 
 ## `Text` operations
 
 You can concatenate `Text` literals using the `++` operator:
 
-```bash
-$ dhall <<< '"123" ++ "456"'
-```
 ```dhall
+⊢ "123" ++ "456"
+
 "123456"
 ```
 
@@ -484,10 +597,9 @@ when the value matters.
 Dhall supports multi-line `Text` literals surrounded by two single quotes
 on both side, like this:
 
-```bash
-$ dhall <<< '"Line 1\nLine 2\nLine 3\n"'
-```
 ```dhall
+⊢ "Line 1\nLine 2\nLine 3\n"
+
 ''
 Line 1
 Line 2
@@ -605,8 +717,6 @@ ABC''
 >   DEF
 > ''
 > ```
->
-> Test your guess by interpreting the equivalent plain `Text` literal (which th
 
 ### `Text` interpolation
 
@@ -641,7 +751,7 @@ in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 > expression:
 >
 > ```dhall
-> \(x : Text) -> "${x}"
+> ⊢ \(x : Text) -> "${x}"
 > ```
 >
 > How does the result differ from the original expression?
