@@ -54,6 +54,38 @@ REPL.
 > **Exercise:** Within the REPL, type the `:help` command and try to learn one
 > new command
 
+You can also use the REPL to interpret larger expressions by saving them to a
+file and then referencing the file path
+
+> **Exercise:** Save the following Dhall code to a file named `./test.dhall`
+>
+> ```dhall
+> let x = 1
+> 
+> let y = 2
+> 
+> in  x + y
+> ```
+>
+> ... and then interpret the file within the REPL using this command:
+>
+> ```dhall
+> ⊢ ./test.dhall
+> ```
+>
+> Carefully note that you need the leading `./` in the file name.  If you enter
+> only `test.dhall` then the command will fail with the following error message:
+>
+> ```
+> ⊢ test.dhall
+> 
+> Error: Unbound variable: test
+> 
+> 1│ test
+> 
+> (stdin):1:1
+> ```
+
 ## Introduction
 
 All Dhall integrations support some way to load "plain" data into the desired
@@ -67,12 +99,11 @@ file format or language binding.  These "plain" values include:
 * `Optional` values
 * `List`s
 * Records
-
-... and possibly also unions, depending on the integration.
+* Unions
 
 Some languages can even load Dhall functions, meaning that they are dynamically
 interpreted as functions in the host language.  However, this tutorial will not
-cover that.
+cover that since that can only be illustrated with a specific language binding.
 
 Here is an example of a "plain" expression that can likely be loaded into any
 such integration:
@@ -496,44 +527,109 @@ The language provides the following built-in functions for `Natural` numbers,
   "2"
   ```
 
-The language provides the following arithmetic operators which only work on
+* `Integer/clamp : Integer -> Natural`
+
+  Convert an `Integer` to a `Natural` number, clamping negative `Integer`s to
+  `0`
+
+  ```dhall
+  ⊢ Integer/clamp +3
+
+  3
+  ```
+
+* `Integer/negate : Integer -> Integer`
+
+  Negate an `Integer`
+
+  ```dhall
+  ⊢ Integer/negate +3
+
+  -3
+  ```
+
+* `Integer/toDouble : Integer -> Double`
+
+  Convert an `Integer` to the corresponding `Double`
+
+  ```dhall
+  ⊢ Integer/toDouble +3
+
+  3.0
+  ```
+
+* `Integer/show : Integer -> Text`
+
+  Render an `Integer` as `Text` (including the obligatory sign)
+
+  ```dhall
+  ⊢ Integer/show +3
+
+  "+3"
+  ```
+
+* `Double/show : Double -> Text`
+
+  Render a `Double` as `Text`
+
+  ```dhall
+  ⊢ Double/show 3.0
+
+  "3.0"
+  ```
+
+The language also provides the following arithmetic operators which only work on
 `Natural` numbers:
 
 * `+` - addition
 
-  Example: `2 + 3` evaluates to `5`
+  ```dhall
+  ⊢ 2 + 3
+
+  5
+  ```
 
 * `*` - multiplication
 
-  Example: `2 * 3` evaluates to `6`
+  ```dhall
+  ⊢ 2 * 3
 
-... and 
+  6
+  ```
+
 These operators do not work on `Integer`s or `Double` values, although you can
-convert between `Natural` numbers and `Integer`s using two built-in functions:
-
-* `Natural/toInteger : Natural -> Integer` - Convert a `Natural` number to an
-  `Integer`
-
-* `Integer/clamp : Integer -> Natural` - Convert an `Integer` to a `Natural`
-  number, clamping all negative `Integer`s to `0`
-
-In general, the language design encourages using `Natural` numbers as much as
-possible.
+convert between `Natural` numbers and `Integer`s using the above built-in
+functions.
 
 `Double`s are essentially "opaque", meaning that the only thing you can do with
-them is to render them as `Text` using the following built-in:
+them is to render them as `Text`.  In particular, you cannot convert `Double`s
+to `Integer`s nor `Natural` numbers.  However, you can convert `Integer`s and
+`Natural` numbers to `Double`s.
 
-* `Double/show : Double -> Text`
-
-In particular, you cannot convert `Double`s to `Integer`s nor `Natural` numbers.
-However, you can convert `Integer`s (and therefore also `Natural` numbers) to
-`Double`s:
-
-* `Integer/toDouble : Integer -> Double`
-
-> **Exercise:** Complete 
+> **Challenge exercise:** Implement the following `puzzle` function to render an
+> `Integer` without the leading sign if it is positive:
 >
+> ```dhall
+> -- ./puzzle.dhall
+>
+> let puzzle = \(i : Integer) -> ???
 > 
+> let test0 = assert : puzzle +2 === "2"
+> 
+> let test1 = assert : puzzle -2 === "-2"
+> 
+> let test2 = assert : puzzle +0 === "0"
+> 
+> in  puzzle
+> ```
+>
+> You can test if you got the right answer by type-checking the file:
+>
+> ```bash
+> $ dhall type --quiet --file puzzle.dhall
+> ```
+>
+> ... which will run the acceptance tests at the bottom of the file.
 
 ## `Text`
 
@@ -747,14 +843,7 @@ let answer = 42
 in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 ```
 
-> **Exercise:** What result do you get when you evaluate the following
-> expression:
->
-> ```dhall
-> ⊢ \(x : Text) -> "${x}"
-> ```
->
-> How does the result differ from the original expression?
+> **Exercise:** How can you escape `Text` interpolation?
 
 ## `List`s
 
