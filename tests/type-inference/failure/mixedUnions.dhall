@@ -1,1 +1,0 @@
-< Left : Natural | Right : Type >
