@@ -792,9 +792,10 @@ let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "="
 empty-list-literal =
     "[" whsp [ "," whsp ] "]" whsp ":" whsp1 application-expression
 
-operator-expression = import-alt-expression
+operator-expression = equivalent-expression
 
 ; Nonempty-whitespace to disambiguate `http://a/a?a`
+equivalent-expression    = import-alt-expression    *(whsp equivalent whsp import-alt-expression)
 import-alt-expression    = or-expression            *(whsp "?" whsp1 or-expression)
 or-expression            = plus-expression          *(whsp "||" whsp plus-expression)
 ; Nonempty-whitespace to disambiguate `f +2`
@@ -807,8 +808,7 @@ prefer-expression        = combine-types-expression *(whsp prefer whsp combine-t
 combine-types-expression = times-expression         *(whsp combine-types whsp times-expression)
 times-expression         = equal-expression         *(whsp "*" whsp equal-expression)
 equal-expression         = not-equal-expression     *(whsp "==" whsp not-equal-expression)
-not-equal-expression     = equivalent-expression    *(whsp "!=" whsp equivalent-expression)
-equivalent-expression    = with-expression          *(whsp equivalent whsp with-expression)
+not-equal-expression     = with-expression          *(whsp "!=" whsp with-expression)
 
 with-expression = application-expression *(whsp1 with whsp1 with-clause)
 
