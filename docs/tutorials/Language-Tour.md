@@ -92,12 +92,10 @@ All Dhall integrations support some way to load "plain" data into the desired
 file format or language binding.  These "plain" values include:
 
 * `Bool` values
-* `Double` values
-* `Natural` values
-* `Integer` values
+* `Natural` numbers, `Integer`s, and `Double`s
 * `Text` values
-* `Optional` values
 * `List`s
+* `Optional` values
 * Records
 * Unions
 
@@ -436,28 +434,7 @@ there is no maximum value for either type.
 scientific notation).  The `Double` type is also a distinct numeric type from
 `Natural` numbers and `Integer`s.
 
-The language provides the following built-in functions for `Natural` numbers,
-`Integer`s, and `Double`s:
-
-* `Natural/even : Natural -> Bool`
-
-  Returns `True` if the input is even, `False` otherwise
-
-  ```dhall
-  ⊢ Natural/even 2
-
-  True
-  ```
-
-* `Natural/odd : Natural -> Bool`
-
-  Returns `True` if the input is odd, `False` otherwise
-
-  ```dhall
-  ⊢ Natural/odd 2
-
-  False
-  ```
+Some commonly used built-in functions on numbers are:
 
 * `Natural/isZero : Natural -> Bool`
 
@@ -479,33 +456,6 @@ The language provides the following built-in functions for `Natural` numbers,
 
   False
   ```
-
-* `Natural/fold : Natural -> ∀(n : Type) -> (n -> n) -> n -> n`
-
-  Repeatedly apply a function N times
-
-  For example:
-
-  ```dhall
-  ⊢ Natural/fold 10 Text (\(t : Text) -> t ++ "!") "Hi"'
-
-  "Hi!!!!!!!!!!"
-  ```
-
-  This is the most general way to consume a `Natural` number
-
-* `Natural/build : (∀(n : Type) -> (n -> n) -> n -> n) -> Natural`
-
-  Create a `Natural` number (the hard way 🙂)
-
-  ```dhall
-  ⊢ Natural/build (\(n : Type) -> \(s : n -> n) -> \(z : n) -> s (s (s z)))
-
-  3
-  ```
-
-  This is the most general way to create a `Natural` number and is the inverse
-  of `Natural/fold`
 
 * `Natural/toInteger : Natural -> Integer`
 
@@ -602,12 +552,11 @@ convert between `Natural` numbers and `Integer`s using the above built-in
 functions.
 
 `Double`s are essentially "opaque", meaning that the only thing you can do with
-them is to render them as `Text`.  In particular, you cannot convert `Double`s
-to `Integer`s nor `Natural` numbers.  However, you can convert `Integer`s and
-`Natural` numbers to `Double`s.
+them is to render them as `Text`.
 
-> **Challenge exercise:** Implement the following `puzzle` function to render an
-> `Integer` without the leading sign if it is positive:
+> **Challenge exercise:** Using the above built-in functions, implement the
+> following `puzzle` function that can render an `Integer` without the leading
+> sign if it is positive:
 >
 > ```dhall
 > -- ./puzzle.dhall
@@ -630,6 +579,9 @@ to `Integer`s nor `Natural` numbers.  However, you can convert `Integer`s and
 > ```
 >
 > ... which will run the acceptance tests at the bottom of the file.
+>
+> Later on we'll see how we can simplify functions like these with shared
+> utilities from the Dhall Prelude.
 
 ## `Text`
 
@@ -672,21 +624,6 @@ The language also permits Unicode characters in `Text` literals, too.
 > ```dhall
 > ⊢ "🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"
 > ```
-
-## `Text` operations
-
-You can concatenate `Text` literals using the `++` operator:
-
-```dhall
-⊢ "123" ++ "456"
-
-"123456"
-```
-
-Other than that, `Text` literals are essentially opaque.  You cannot parse
-`Text` literals nor can you compare them for equality.  This is because the
-language encourages using more precise types (like enums) instead of `Text`
-when the value matters.
 
 ### Multi-line `Text` literals
 
@@ -845,6 +782,37 @@ in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 
 > **Exercise:** How can you escape `Text` interpolation?
 
+### `Text` operations
+
+You can concatenate `Text` literals using the `++` operator:
+
+```dhall
+⊢ "123" ++ "456"
+
+"123456"
+```
+
+... and you can also render `Text` literals as valid Dhall source code, using:
+
+* `Text/show : Text -> Text`
+
+  Render a `Text` literal within a `Text` literal
+
+  ```dhall
+  ⊢ Text/show "I heard you like `Text` literals"
+
+  "\"I heard you like `Text` literals\""
+  ```
+
+Other than that, `Text` literals are essentially opaque.  You currently cannot
+parse `Text` literals nor can you compare them for equality.  This is because
+the language promotes using more precise types (like enums) instead of `Text`
+when the value matters.
+
+> **Exercise:** How many backslashes do you think the result will contain?
+>
+> ⊢ Text/show (Text/show (Text/show (Text/show "\n")))
+
 ## `List`s
 
 A `List` literal is surrounded by square brackets and elements are separated
@@ -854,7 +822,7 @@ by commas, like this:
 [ 2, 3, 5 ]
 ```
 
-All list elements must be the same type.  For example, the following expression
+list elements must be the same type.  For example, the following expression
 will not type-check:
 
 ```dhall
@@ -864,12 +832,91 @@ will not type-check:
 ... because `1` has type `Natural` whereas `True` has type `Bool`, which is a
 type mismatch.
 
-Don't worry; later we'll illustrate ways to mix different types.
+However, other than that restriction you can store essentially anything type
+of value inside of a list so long as all elements share the same type.  For
+example, we can stick the following two functions in a list because both
+functions have the same type:
+
+```dhall
+[ Natural/even, Natural/odd ]
+```
+
+> **Exercise**: Ask the REPL what the type of the above list is:
+>
+> ```dhall
+> ⊢ :type [ Natural/even, Natural/odd ]
+> ```
+
+Don't worry!  Later we'll illustrate ways to safely mix different types.
 
 Empty lists require an explicit type annotation, like this:
 
 ```dhall
 [] : List Natural
+```
+
+You can concatenate lists using the `#` operator:
+
+```dhall
+⊢ [ 1, 2 ] # [ 3, 4 ]
+
+[ 1, 2, 3, 4 ]
+```
+
+The language also provides several built-in functions for working with `List`s,
+but we'll defer covering them until further below when introduce the Prelude,
+since many useful utilities on `List`s are not built-in but rather derived
+from lower-level functions.
+
+## `Optional` values
+
+By default, all Dhall types require the corresponding value to be present,
+meaning that there is no special `nil` / `null` / `None` value that you can
+stick anywhere you like.
+
+For example, if a Dhall expression has type `Bool` that means that
+interpreting the expression must produce a `True` or `False` value.  No
+other value is possible, and in particular an empty value is not possible.
+
+However, you can opt-in to support for empty values by wrapping types in
+`Optional`.  For example, an `Optional Natural` is a `Natural` number that
+might be present or might be absent.
+
+There are two ways to create a value of type `Optional Natural`.  If the
+`Natural` number is present then you wrap the `Natural` number in a `Some` to
+get an `Optional Natural` number:
+
+```dhall
+⊢ :type Some 1
+
+Optional Natural
+```
+
+If the `Natural` number is absent, then you can provide an empty placeholder
+by specifying `None Natural`:
+
+```dhall
+⊢ :type None Natural
+
+Optional Natural
+```
+
+In other words, both `Some 1` and `None Natural` have the same type, which is
+`Optional Natural`.  However, a naked `1` has type `Natural`, which is a
+different type.  For example, if we try to stick a `1` and a `Some 1` inside of
+the same list then we will get a type error:
+
+```dhall
+⊢ [ Some 1, 1 ]
+
+Error: List elements should all have the same type
+
+- Optional …
++ Natural
+
+1│           1
+
+(stdin):1:11
 ```
 
 
