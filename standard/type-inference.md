@@ -298,13 +298,13 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
-    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   T₁ : Type
-    ─────────────────────────────────────
+    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   Γ ⊢ T₁ : Type
+    ─────────────────────────────────────────
     Γ ⊢ ([] : T₀) : List T₁
 
 
-    Γ ⊢ t : T₀   T₀ : Type   Γ ⊢ [ ts… ] : List T₁   T₀ ≡ T₁
-    ────────────────────────────────────────────────────────
+    Γ ⊢ t : T₀   Γ ⊢ T₀ : Type   Γ ⊢ [ ts… ] : List T₁   T₀ ≡ T₁
+    ────────────────────────────────────────────────────────────
     Γ ⊢ [ t, ts… ] : List T₀
 
 
