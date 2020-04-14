@@ -608,42 +608,19 @@ desugared form:
 Union types are "anonymous", meaning that they are uniquely defined by the names
 and types of their alternatives.
 
-A union can have alternatives of term-level values and functions:
+An empty union is a `Type`:
 
 
     ─────────────
     Γ ⊢ <> : Type
 
 
-    Γ ⊢ T : Type   Γ ⊢ < ts… > : Type
-    ─────────────────────────────────  ; x ∉ < ts… >
-    Γ ⊢ < x : T | ts… > : Type
+A non-empty union can have alternatives of terms, types and kinds:
 
 
-... or alternatives of types (if it is non-empty):
-
-
-    Γ ⊢ T : Kind
-    ────────────────────
-    Γ ⊢ < x : T > : Kind
-
-
-    Γ ⊢ T : Kind   Γ ⊢ < ts… > : Kind
-    ─────────────────────────────────  ; x ∉ < ts… >
-    Γ ⊢ < x : T | ts… > : Kind
-
-
-... or alternatives of kinds (if it is non-empty):
-
-
-    Γ ⊢ T : Sort
-    ────────────────────
-    Γ ⊢ < x : T > : Sort
-
-
-    Γ ⊢ T : Sort   Γ ⊢ < ts… > : Sort
-    ─────────────────────────────────  ; x ∉ < ts… >
-    Γ ⊢ < x : T | ts… > : Sort
+    Γ ⊢ T : t₀   Γ ⊢ < xs… > : t₁  t₀ ⋁ t₁ = t₂
+    ───────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ < x : T | xs… > : t₂
 
 
 A union type may contain alternatives without an explicit type label:
