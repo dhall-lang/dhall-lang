@@ -298,13 +298,13 @@ A `List` literal's type is inferred either from the type of the elements (if
 non-empty) or from the type annotation (if empty):
 
 
-    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   T₁ : Type
-    ─────────────────────────────────────
+    Γ ⊢ T₀ : c   T₀ ⇥ List T₁   Γ ⊢ T₁ : Type
+    ─────────────────────────────────────────
     Γ ⊢ ([] : T₀) : List T₁
 
 
-    Γ ⊢ t : T₀   T₀ : Type   Γ ⊢ [ ts… ] : List T₁   T₀ ≡ T₁
-    ────────────────────────────────────────────────────────
+    Γ ⊢ t : T₀   Γ ⊢ T₀ : Type   Γ ⊢ [ ts… ] : List T₁   T₀ ≡ T₁
+    ────────────────────────────────────────────────────────────
     Γ ⊢ [ t, ts… ] : List T₀
 
 
@@ -415,8 +415,8 @@ An empty record is a `Type`:
 A non-empty record can store terms, types and kinds:
 
 
-    Γ ⊢ T : t₀   Γ ⊢ { xs… } : t₁  t₀ ⋁ t₁ = t₂
-    ───────────────────────────────────────────  ; x ∉ { xs… }
+    Γ ⊢ T : t₀   Γ ⊢ { xs… } : t₁   t₀ ⋁ t₁ = t₂
+    ────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x : T, xs… } : t₂
 
 
