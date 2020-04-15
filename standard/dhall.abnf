@@ -203,7 +203,7 @@ simple-label = simple-label-first-char *simple-label-next-char
 
 ; A label like simple label but that can be a `_` as it will be used for union
 ; wildcard
-non-underscore-label = ALPHA *simple-label-next-char
+simple-non-underscore-label = ALPHA *simple-label-next-char
 
 quoted-label-char =
       %x20-5F
@@ -217,7 +217,7 @@ quoted-label = 1*quoted-label-char
 label = ("`" quoted-label "`" / simple-label)
 
 ; non-underscore-label is similar to label but without `_`
-non-underscore-label = ("`" quoted-label "`" / non-underscore-label)
+non-underscore-label = ("`" quoted-label "`" / simple-non-underscore-label)
 
 ; A nonreserved-label cannot not be any of the reserved identifiers for builtins
 ; (unless quoted).
