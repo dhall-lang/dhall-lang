@@ -201,6 +201,10 @@ simple-label-first-char = ALPHA / "_"
 simple-label-next-char = ALPHANUM / "-" / "/" / "_"
 simple-label = simple-label-first-char *simple-label-next-char
 
+; A label like simple label but that can be a `_` as it will be used for union
+; wildcard
+non-underscore-label = ALPHA *simple-label-next-char
+
 quoted-label-char =
       %x20-5F
         ; %x60 = '`'
@@ -211,6 +215,9 @@ quoted-label = 1*quoted-label-char
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
 label = ("`" quoted-label "`" / simple-label)
+
+; non-underscore-label is similar to label but without `_`
+non-underscore-label = ("`" quoted-label "`" / non-underscore-label)
 
 ; A nonreserved-label cannot not be any of the reserved identifiers for builtins
 ; (unless quoted).
@@ -225,9 +232,11 @@ nonreserved-label = label
 
 ; An any-label is allowed to be one of the reserved identifiers (but not a keyword).
 any-label = label
+any-non-underscore-label = non-underscore-label
 
 ; Allow specifically `Some` in record and union labels.
 any-label-or-some = any-label / Some
+any-non-underscore-label-or-some = any-non-underscore-label / Some
 
 ; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
@@ -932,7 +941,7 @@ non-empty-union-type =
 
 ; x : Natural
 ; x
-union-type-entry = any-label-or-some [ whsp ":" whsp1 expression ]
+union-type-entry = any-non-underscore-label-or-some [ whsp ":" whsp1 expression ]
 
 
 non-empty-list-literal =
