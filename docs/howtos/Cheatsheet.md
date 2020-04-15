@@ -201,6 +201,16 @@
     = [ False, False, True ]
     ```
 
+    Wildcard can be used to consume union:
+
+    ```dhall
+    let Color = < Red | Green | Blue >
+
+    let isRed = \(c : Color) -> merge { Red = True, _ = False } c
+
+    in  isRed Color.Green
+    ```
+
 ## Programming
 
 *   `let` expressions:

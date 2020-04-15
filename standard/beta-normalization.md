@@ -1269,6 +1269,14 @@ the same label to the wrapped value of the union constructor:
     merge t u ⇥ b
 
 
+The record of handlers may contains a wildcard handler using the `_` label:
+
+
+    t ⇥ { _ = v, … }   u ⇥ < x | … >.x
+    ──────────────────────────────────
+    merge t u : T ⇥ v
+
+
 For union constructors specifying empty alternatives, return the handler of the
 matching label:
 
