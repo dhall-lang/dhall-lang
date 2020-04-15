@@ -1273,7 +1273,7 @@ The record of handlers may contains a wildcard handler using the `_` label:
 
 
     t ⇥ { _ = v, … }   u ⇥ < x | … >.x
-    ──────────────────────────────────
+    ────────────────────────────────── ; x ∉ { xs… }
     merge t u : T ⇥ v
 
 
