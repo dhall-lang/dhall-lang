@@ -318,7 +318,7 @@ For example:
 ```
 
 Comments have no effect on how the code is interpreted.  They are purely for
-the benefit of humans.
+the benefit of people reading the code.
 
 ## `Bool` values
 
@@ -375,14 +375,11 @@ inequality using these operators.
 
 Additionally the language provides built-in support for `if` expressions.
 
-> **Exercise:** What do you think is the result of interpreting the following
-> expression:
->
-> ```dhall
-> ⊢ "${if True then "Hello" else "Goodbye"}, world!"
-> ```
->
-> Test your guess in the REPL!
+```dhall
+⊢ if True then "Hello" else "Goodbye"
+
+"Hello"
+```
 
 ## Numbers
 
@@ -468,11 +465,11 @@ The language also provides the following arithmetic operators which only work on
   ```
 
 These operators do not work on `Integer`s or `Double` values, although you can
-convert between `Natural` numbers and `Integer`s using the above built-in
-functions.
+convert between `Natural` numbers and `Integer`s using built-in functions that
+we will cover later in this tutorial.
 
-`Double`s are essentially "opaque", meaning that the only thing you can do with
-them is to render them as `Text`.
+On the other hand, `Double`s are essentially "opaque", meaning that you cannot
+perform any arithmetic with them.
 
 ## `Text`
 
@@ -487,8 +484,8 @@ In the simple case a `Text` literal is surrounded by double quotes:
 "Hello, world!"
 ```
 
-... and these literals permit escape sequences similar to JSON escape sequences
-using backslash:
+... and these literals permit escape sequences similar to JSON using a
+backslash:
 
 ```dhall
 "Line 1\nLine 2\n"
@@ -519,7 +516,7 @@ The language also permits Unicode characters in `Text` literals, too.
 ### Multi-line `Text` literals
 
 Dhall supports multi-line `Text` literals surrounded by two single quotes
-on both side, like this:
+on each side, like this:
 
 ```dhall
 ⊢ "Line 1\nLine 2\nLine 3\n"
@@ -531,8 +528,8 @@ Line 3
 ''
 ```
 
-You can think of the two single quotes on each side as "big double quotes" if
-you need a convenient mnemonic for this feature.
+You can think of two single quotes as "big double quotes" if you need a
+convenient mnemonic for this feature.
 
 Multi-line `Text` literals automatically strip leading indentation for all
 lines after the opening quotes, meaning that this expression
@@ -556,7 +553,7 @@ DEF
 ... which is also the same as this expression:
 
 ```dhall
-                   ''
+{- Leading indentation here is not part of the multi-line literal -}        ''
     ABC
     DEF
     ''
@@ -586,9 +583,10 @@ expression:
 ```
 
 This latter multi-line string literal does not strip the leading four-space
-prefix because there are not four spaces before the closing quotes.
+prefix because the final line before the closing quotes does not share the
+same four-space prefix.
 
-However, blank lines within the interior of the multi-line string literal
+However, other blank lines within the interior of the multi-line string literal
 are ignored for the purposes of computing the shared indentation to strip.  For
 example, this expression does not have leading spaces in the middle line:
 
@@ -600,7 +598,7 @@ example, this expression does not have leading spaces in the middle line:
 ␠␠␠␠␠␠''
 ```
 
-... but the indentation is still stripped, making the expression equivalent to:
+... yet the indentation is still stripped, making the expression equivalent to:
 
 ```dhall
 ''
@@ -652,9 +650,9 @@ let greeting = "Hello"
 in  "${greeting}, world!"
 ```
 
-The expression that you interpolate must have type `Text` and the language will
-not automatically convert non-`Text` values to `Text`.  For example, this will
-not type-check:
+The expression that you interpolate must have type `Text`.  Also, the language
+will not automatically convert non-`Text` values to `Text`.  For example, this
+will not type-check:
 
 ```dhall
 let answer = 42
@@ -662,8 +660,9 @@ let answer = 42
 in  "The answer to life, the universe, and everything: ${answer}"
 ```
 
-You have to instead render values as `Text` using explicit conversion functions,
-like this:
+You have to instead render values as `Text` using explicit conversion functions.
+For example, you can use the `Natural/show` built-in function to convert a
+`Natural` number to `Text`:
 
 ```dhall
 let answer = 42
@@ -671,7 +670,10 @@ let answer = 42
 in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 ```
 
-> **Exercise:** How can you escape `Text` interpolation?
+> **Exercise:** How do you escape `Text` interpolation?
+>
+> In other words, how do you get the interpreter to ignore string contents that
+> use the same `${…}` pattern as string interpolation?
 
 ### `Text` operations
 
@@ -694,7 +696,7 @@ Before introducing complex types we will take a detour to introduce Dhall's
 support for types and type annotations.
 
 Every Dhall expression has a type and whenever you see `x : T` that means that
-the expression `x` has type `T`.  For example:
+the expression `x` is a `T`.  For example:
 
 ```dhall
 True : Bool        -- The expression `True` has type `Bool`
@@ -702,7 +704,14 @@ True : Bool        -- The expression `True` has type `Bool`
 (2 + 2) : Natural  -- The expression `(2 + 2)` has type `Natural`
 ```
 
-The `:` symbol is the type annotation operator.
+The `:` symbol is the type annotation operator.  This operator takes two
+arguments:
+
+* The left-hand side is the expression to type-check
+* The right-hand side is the expected type of the left-hand side
+
+... and the operator returns the left-hand side after type-checking it against
+the right-hand side.
 
 > **Exercise:** Ask the REPL for the type of the `Natural/even` function
 >
@@ -710,7 +719,18 @@ The `:` symbol is the type annotation operator.
 > ⊢ :type Natural/even
 > ```
 
-Types are expressions, too, which means that types can themselves have types:
+You can insert this operator anywhere within Dhall code (although you may
+need to wrap things in parentheses).  For example, this is a valid Dhall
+expression:
+
+```dhall
+> ⊢ (2 : Natural) + (2 : Natural)
+
+4
+```
+
+Types are expressions, too, which means that types can themselves have type
+annotations:
 
 ```dhall
 Bool : Type  -- The expression `Bool` has type `Type`
@@ -764,7 +784,7 @@ different "levels" of the type hierarchy:
 > * `Type -> Type`
 
 If you don't feel like classifying things, you can always call something an
-"expression".  All terms, types, and kinds are expressions.
+"expression".  All terms, types, and kinds are expressions, too.
 
 ## `List`s
 
@@ -775,17 +795,27 @@ by commas, like this:
 [ 2, 3, 5 ]
 ```
 
-List elements must be the same type.  For example, the following expression
-will not type-check:
+... and the type of a list is `List T` where `T` is the type of each element.
+For example, the type of the above `List` is:
+
+```dhall
+⊢ :type [ 2, 3, 5 ]
+
+List Natural
+```
+
+This implies that `List` elements must share the same type.  For example, the
+following expression will not type-check:
 
 ```dhall
 [ 1, True ]
 ```
 
-... because `1` has type `Natural` whereas `True` has type `Bool`, which is a
-type mismatch.
+... because `1` has type `Natural` whereas `True` has type `Bool`, and those two
+types do not match.
 
-Don't worry!  Later we'll illustrate ways to safely mix different types.
+Don't worry!  Later we'll illustrate ways to safely mix different types within
+the same `List`.
 
 However, other than that restriction you can store essentially any type of value
 inside of a list so long as all elements share the same type.  For example, we
@@ -818,20 +848,14 @@ Also, you can concatenate lists using the `#` operator:
 
 > **Exercise:** Concatenate two empty lists
 
-The language provides several built-in functions for working with `List`s, but
-we'll defer covering them until further below when introduce the Prelude, since
-many useful utilities on `List`s are not built-in but rather derived from
-lower-level functions.
-
 ## `Optional` values
 
-By default, all Dhall types require the corresponding value to be present,
-meaning that there is no special `nil` / `null` / `None` value that you can
-stick anywhere you like.
+By default, all Dhall types are not "nullable", meaning that there is no special
+`nil` / `null` / `None` value that suffices for those types.
 
 For example, if a Dhall expression has type `Bool` that means that
 interpreting the expression must produce a `True` or `False` value.  No
-other value is possible, and in particular an empty value is not possible.
+other result is possible, and in particular a null value is not possible.
 
 However, you can opt in to empty values by wrapping types in `Optional`.  For
 example, an `Optional Natural` is a `Natural` number that might be present or
@@ -856,10 +880,18 @@ by specifying `None Natural`:
 Optional Natural
 ```
 
-In other words, both `Some 1` and `None Natural` have the same type, which is
-`Optional Natural`.  However, a naked `1` has type `Natural`, which is a
-different type.  For example, if we try to stick a `1` and a `Some 1` inside of
-the same list then we will get a type error:
+In other words, both `Some 1` and `None Natural` share the same type, which is
+`Optional Natural`, so we could store both inside a `List`:
+
+```dhall
+⊢ :type [ Some 1, None Natural ]
+
+List (Optional Natural)
+```
+
+However, a "bare" `1` has type `Natural`, which is a different type.  For
+example, if we try to store a `1` and a `Some 1` inside of the same list then we
+will get a type error:
 
 ```dhall
 ⊢ [ Some 1, 1 ]
@@ -874,18 +906,8 @@ Error: List elements should all have the same type
 (input):1:11
 ```
 
-You can make arbitrary expressions `Optional`.  Here are some more interesting
-`Optional` types that are all valid:
-
-* `Optional (Natural -> Bool)
-
-  An `Optional` function from a `Natural` number to a `Bool`.  For example:
-
-  ```dhall
-  Some Natural/even
-
-  None (Natural -> Bool)
-  ```
+You can make arbitrary expressions `Optional`.  Here are some nested `Optional`
+types that are valid:
 
 * `Optional (List Text)`
 
@@ -902,7 +924,7 @@ You can make arbitrary expressions `Optional`.  Here are some more interesting
 
 * `Optional (Optional Bool)`
 
-  All of the following values have this type:
+  All of the following values share this type:
 
   ```dhall
   Some (Some True)
@@ -912,10 +934,22 @@ You can make arbitrary expressions `Optional`.  Here are some more interesting
   None (Optional Bool)
   ```
 
-> **Exercise:** Create an expression that has the following type:
+  ... yet all three values are distinct and do not mean the same thing.
+
+`Some` is a keyword that requires an argument, meaning that `Some 1` is a valid
+expression, but `Some` in isolation is not valid.  However, `None` is more
+flexible, because `None` is an ordinary function.
+
+> **Exercise:** What is the type of `None`?
 >
 > ```dhall
-> List (Optional Text)
+> ⊢ :type None
+> ```
+>
+> What happens if you try to enter `Some` by itself?
+>
+> ```dhall
+> ⊢ :type Some
 > ```
 
 ## Functions
