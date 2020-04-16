@@ -906,8 +906,11 @@ Error: List elements should all have the same type
 (input):1:11
 ```
 
-You can make arbitrary expressions `Optional`.  Here are some nested `Optional`
-types that are valid:
+More generally, the type of an optional value is `Optional T` where `T` is the
+type of the element that might be present.
+
+You can make arbitrary expressions `Optional`, such as the following nested
+`Optional` types that are valid:
 
 * `Optional (List Text)`
 
@@ -951,6 +954,62 @@ flexible, because `None` is an ordinary function.
 > ```dhall
 > ⊢ :type Some
 > ```
+
+## Records
+
+A record literal is comma-separated key-value pairs surrounded by braces:
+
+```dhall
+{ name = "John Doe", age = 24 }
+```
+
+The above record literal has two fields: a field called `name` whose value is
+`"John Doe"` and a field called `age` whose value is `24`.
+
+A record type is comma-separated key-type pairs surrounded by braces:
+
+```dhall
+{ name : Text, age : Natural }
+```
+
+The above record type is the type of the previous record literal:
+
+```dhall
+{ name = "John Doe", age = 24 } : { name : Text, age : Natural }
+```
+
+... and you can read the type as saying that the field called `name` stores
+a value of type `Text` and the field called `age` stores a value of type
+`Natural`.
+
+The way to denote an empty record literal with 0 key-value pairs is:
+
+```dhall
+{=}
+```
+
+... and the way to denote an empty record type with 0 key-type pairs is:
+
+```dhall
+{}
+```
+
+> **Exercise:** What is the type of this expression?
+>
+> ```dhall
+> [ { name = "John" , manager = Some "Alice" }
+> , { name = "Alice", manager = None Text    }
+> ]
+> ```
+
+You can access the fields of a record using `.` (the field access operator),
+like this:
+
+```dhall
+let exampleRecord = { x = 1.4, y = -25.0 }
+
+in  exampleRecord.x + exampleRecord.y
+```
 
 ## Functions
 
@@ -1111,17 +1170,6 @@ For example, some commonly used built-in functions on numbers are:
   ⊢ Natural/isZero 2
 
   False
-  ```
-
-* `Natural/subtract : Natural -> Natural -> Natural`
-
-  `Natural/subtract n m` is the same as `m - n`, except clamping to `0` if the
-  result is negative
-
-  ```dhall
-  ⊢ Natural/subtract 2 1
-
-  0
   ```
 
 * `Natural/toInteger : Natural -> Integer`
