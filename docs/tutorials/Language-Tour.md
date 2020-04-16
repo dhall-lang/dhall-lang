@@ -8,10 +8,10 @@ Walk through all language features
 ```
 
 This tutorial covers all of the Dhall configuration language features, in a
-way that is not specific to an integration (e.g. JSON / YAML) or language binding
-(e.g. Go / Rust).  In other words, this tutorial assumes that you've already
-figured out use Dhall within a project and you want to dive more comprehensively
-into the language.
+way that is not specific to an integration (like JSON or YAML) or language
+binding (like Go or Rust).  In other words, this tutorial assumes that you've
+already figured out use Dhall within a project and you want to dive more
+comprehensively into the language.
 
 ## Prerequisites
 
@@ -19,13 +19,13 @@ This tutorial assumes that you have already completed the JSON/YAML tutorial:
 
 * [Getting started: Generate JSON or YAML](./Getting-started_Generate-JSON-or-YAML.md)
 
-This tutorial will use the command-line `dhall` tool to illustrate language
-features independent of any specific integration.  You can install a prebuilt
-executable for Windows / OS X / Linux from the following release page:
+You will need to install the command-line `dhall` tool in order to follow along.
+You can install a prebuilt executable for Windows / OS X / Linux from the
+following release page:
 
 * [`dhall-lang/dhall-haskell` - Releases](https://github.com/dhall-lang/dhall-haskell/releases)
 
-> **Exercise**: Verify that you have correctly installed the tool by running:
+> **Exercise:** Verify that you have correctly installed the tool by running:
 >
 > ```bash
 > $ dhall <<< '2 + 2'
@@ -40,7 +40,7 @@ executable for Windows / OS X / Linux from the following release page:
 
 The `dhall` command-line tool includes a REPL, which you can use like this:
 
-```
+```dhall
 $ dhall repl
 Welcome to the Dhall v1.31.1 REPL! Type :help for more information.
 ⊢ 2 + 2
@@ -48,16 +48,20 @@ Welcome to the Dhall v1.31.1 REPL! Type :help for more information.
 4
 ```
 
-Whenever you see an exercise prompt beginning with `⊢ `, that means to use the
-REPL.
+Whenever you see an exercise prompt beginning with `⊢ `, that means to enter
+the remainder of the line as a command within the REPL.
 
 > **Exercise:** Within the REPL, type the `:help` command and try to learn one
-> new command
+> new command:
+>
+> ```dhall
+> ⊢ :help
+> ```
 
 You can also use the REPL to interpret larger expressions by saving them to a
 file and then referencing the file path
 
-> **Exercise:** Save the following Dhall code to a file named `./test.dhall`
+> **Exercise:** Save the following Dhall code to a file named `test.dhall`
 >
 > ```dhall
 > let x = 1
@@ -143,8 +147,8 @@ expression:
 > $ dhall --file plain.dhall
 > ```
 >
-> The only change you should see is that the interpreter sorts the record
-> fields.
+> The only difference you should notice between the input and output is that the
+> output sorts the record fields.
 
 All integrations can go a step further and interpret the Dhall expression before
 converting the expression into the desired format or language.  For example,
@@ -180,10 +184,10 @@ in  List/filter Person isAdmin [ alice, bob, carlo ]
 ```
 
 This is because every Dhall integration includes a built-in interpreter capable
-of evaluating Dhall expressions, reducing them to plain data before further
-conversion.
+of evaluating Dhall expressions, reducing them to plain data before converting
+them further to the desired host language or file format.
 
-> **Exercise**: Save the above Dhall expression to a file named `example.dhall`
+> **Exercise:** Save the above Dhall expression to a file named `example.dhall`
 > and run:
 >
 > ```bash
@@ -192,9 +196,9 @@ conversion.
 >
 > ... and verify that you get the same result as interpreting `plain.dhall`.
 
-A Dhall interpreter processes expressions in six phases:
+A Dhall interpreter processes expressions in five phases:
 
-* Desugaring
+* **Desugaring**
 
   Some higher-level language features are "syntactic sugar" for lower-level
   language-features.  "Desugaring" is the process of translating higher-level
@@ -202,7 +206,7 @@ A Dhall interpreter processes expressions in six phases:
 
   Example: `{ x.y = 1 }` desugars to `{ x = { y = 1 } }`
 
-* Import resolution
+* **Import resolution**
 
   This phase replaces URLs, file paths, and environment variables with the
   expressions that they refer to.
@@ -210,23 +214,24 @@ A Dhall interpreter processes expressions in six phases:
   Example: `https://prelude.dhall-lang.org/v15.0.0/Bool/not False` resolves to
   `(\(b : Bool) -> b == False) False`
 
-* Type checking
+* **Type checking**
 
   This phase ensures that the code is safe to evaluate by detecting and
   forbidding expressions that might lead to crashes, loops, or internal errors.
 
-  Example: `Natural/even False` will fail to type-check
+  Example: `1 + False` will fail to type-check
 
-* Normalization (a.k.a. "Evaluation")
+* **Normalization** (a.k.a. "Evaluation")
 
   This phase eliminates all indirection in the expression by evaluating all
   remaining programming language features that were not already covered by one
   of the preceding phases.  The result is an expression in a canonical "normal
   form".
 
-  Example: `\(x : Natural) -> x + 0` will normalize to `\(x : Natural) -> x`
+  Example: `\(x : Natural) -> [ 2 + 2, x ]` will normalize to
+  `\(x : Natural) -> [ 4, x ]`
 
-* Marshalling
+* **Marshalling**
 
   The Dhall expression is converted a file in the desired format or an
   expression within the desired language.
@@ -257,26 +262,11 @@ use the `dhall` command-line tool to separate out some of these steps.
 > ```bash
 > $ # `dhall normalize` normalizes the resolved expression
 > $ dhall normalize --file ./resolved.dhall | tee ./normalized.dhall
-> [ { admin = True, age = 24, name = "Alice" }
-> , { admin = True, age = 49, name = "Bob" }
-> ]
 > ```
 >
 > ```bash
 > $ # `dhall-to-json` marshals the normalized expression into JSON
 > $ dhall-to-json --file ./normalized.dhall 
-> [
->   {
->     "admin": true,
->     "age": 24,
->     "name": "Alice"
->   },
->   {
->     "admin": true,
->     "age": 49,
->     "name": "Bob"
->   }
-> ]
 > ```
 > 
 > ... and study how the Dhall expression evolves between phases.
@@ -305,7 +295,7 @@ You can add comments to Dhall expressions which are ignored by the
 interpreter.  These comments come in two forms:
 
 * Single-line comments that begin with `--`
-* Block comments that begin with `{-` and end with -}`
+* Block comments that begin with `{-` and end with `-}`
 
 For example:
 
@@ -322,6 +312,9 @@ For example:
 2 + {- Block comments can also go anywhere -} 2
 ```
 
+Comments have no effect on how the code is interpreted.  They are purely for
+the benefit of humans.
+
 ## `Bool` values
 
 The `Bool` type is one of the simplest types that the language provides
@@ -332,19 +325,35 @@ provides the following logical operators which work on `Bool`s:
 
 * `&&` - logical "and"
 
-  Example: `True && False` evaluates to `False`
+  ```dhall
+  ⊢ True && False
+
+  False
+  ```
 
 * `||` - logical "or"
 
-  Example: `True || False` evaluates to `True`
+  ```dhall
+  ⊢ True || False
+
+  True
+  ```
 
 * `==` - equality
 
-  Example: `True == False` evaluates to `False`
+  ```dhall
+  ⊢ True == False
+
+  False
+  ```
 
 * `!=` - inequality
 
-  Example: `True != False` evaluates to `True`
+  ```dhall
+  ⊢ True != False
+
+  True
+  ```
 
 Carefully note that the `==` and `!=` operators only work on values of type
 `Bool`.  This is one important way that Dhall differs from many other languages.
@@ -375,14 +384,14 @@ Additionally the language provides built-in support for `if` expressions.
 `Natural` numbers are non-negative integers.  In other words:
 
 ```dhall
-0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, …
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, …
 ```
 
 All `Natural` number literals are unsigned.  You can also use hexadecimal
 notation if you prefer:
 
 ```dhall
-0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, …
+0x0, 0x1, 0x2, …, 0xE, 0xF, 0x10, 0x11, …
 ```
 
 `Natural` numbers are the most commonly used numeric type for programming
@@ -454,7 +463,7 @@ Some commonly used built-in functions on numbers are:
   ```dhall
   ⊢ Natural/subtract 2 1
 
-  False
+  0
   ```
 
 * `Natural/toInteger : Natural -> Integer`
@@ -555,21 +564,21 @@ functions.
 them is to render them as `Text`.
 
 > **Challenge exercise:** Using the above built-in functions, implement the
-> following `puzzle` function that can render an `Integer` without the leading
-> sign if it is positive:
+> following `Integer/showWithoutPlus` function that can render an `Integer`
+> without the leading sign if it is positive:
 >
 > ```dhall
 > -- ./puzzle.dhall
 >
-> let puzzle = \(i : Integer) -> ???
+> let showWithoutPlus = \(i : Integer) -> ???
 > 
-> let test0 = assert : puzzle +2 === "2"
+> let test0 = assert : showWithoutPlus +2 === "2"
 > 
-> let test1 = assert : puzzle -2 === "-2"
+> let test1 = assert : showWithoutPlus -2 === "-2"
 > 
-> let test2 = assert : puzzle +0 === "0"
+> let test2 = assert : showWithoutPlus +0 === "0"
 > 
-> in  puzzle
+> in  showWithoutPlus
 > ```
 >
 > You can test if you got the right answer by type-checking the file:
@@ -811,7 +820,9 @@ when the value matters.
 
 > **Exercise:** How many backslashes do you think the result will contain?
 >
+> ```dhall
 > ⊢ Text/show (Text/show (Text/show (Text/show "\n")))
+> ```
 
 ## `List`s
 
@@ -822,7 +833,7 @@ by commas, like this:
 [ 2, 3, 5 ]
 ```
 
-list elements must be the same type.  For example, the following expression
+List elements must be the same type.  For example, the following expression
 will not type-check:
 
 ```dhall
@@ -832,22 +843,22 @@ will not type-check:
 ... because `1` has type `Natural` whereas `True` has type `Bool`, which is a
 type mismatch.
 
-However, other than that restriction you can store essentially anything type
-of value inside of a list so long as all elements share the same type.  For
-example, we can stick the following two functions in a list because both
-functions have the same type:
+Don't worry!  Later we'll illustrate ways to safely mix different types.
+
+However, other than that restriction you can store essentially any type of value
+inside of a list so long as all elements share the same type.  For example, we
+can stick the following two functions in a list because both functions have the
+same type:
 
 ```dhall
 [ Natural/even, Natural/odd ]
 ```
 
-> **Exercise**: Ask the REPL what the type of the above list is:
+> **Exercise:** Ask the REPL what the type of the above list is:
 >
 > ```dhall
 > ⊢ :type [ Natural/even, Natural/odd ]
 > ```
-
-Don't worry!  Later we'll illustrate ways to safely mix different types.
 
 Empty lists require an explicit type annotation, like this:
 
@@ -855,7 +866,7 @@ Empty lists require an explicit type annotation, like this:
 [] : List Natural
 ```
 
-You can concatenate lists using the `#` operator:
+Also, you can concatenate lists using the `#` operator:
 
 ```dhall
 ⊢ [ 1, 2 ] # [ 3, 4 ]
@@ -863,10 +874,12 @@ You can concatenate lists using the `#` operator:
 [ 1, 2, 3, 4 ]
 ```
 
-The language also provides several built-in functions for working with `List`s,
-but we'll defer covering them until further below when introduce the Prelude,
-since many useful utilities on `List`s are not built-in but rather derived
-from lower-level functions.
+> **Exercise:** Concatenate two empty lists
+
+The language provides several built-in functions for working with `List`s, but
+we'll defer covering them until further below when introduce the Prelude, since
+many useful utilities on `List`s are not built-in but rather derived from
+lower-level functions.
 
 ## `Optional` values
 
@@ -878,9 +891,9 @@ For example, if a Dhall expression has type `Bool` that means that
 interpreting the expression must produce a `True` or `False` value.  No
 other value is possible, and in particular an empty value is not possible.
 
-However, you can opt-in to support for empty values by wrapping types in
-`Optional`.  For example, an `Optional Natural` is a `Natural` number that
-might be present or might be absent.
+However, you can opt in to empty values by wrapping types in `Optional`.  For
+example, an `Optional Natural` is a `Natural` number that might be present or
+might be absent.
 
 There are two ways to create a value of type `Optional Natural`.  If the
 `Natural` number is present then you wrap the `Natural` number in a `Some` to
@@ -916,7 +929,7 @@ Error: List elements should all have the same type
 
 1│           1
 
-(stdin):1:11
+(input):1:11
 ```
 
 
