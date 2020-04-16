@@ -93,11 +93,16 @@ file and then referencing the file path
 ## Introduction
 
 All Dhall integrations support some way to load "plain" data into the desired
-file format or language binding.  These "plain" values include:
+file format or language binding.
+
+These "plain" values include simple types like:
 
 * `Bool` values
 * `Natural` numbers, `Integer`s, and `Double`s
 * `Text` values
+
+... and complex types like:
+
 * `List`s
 * `Optional` values
 * Records
@@ -824,6 +829,83 @@ when the value matters.
 > ⊢ Text/show (Text/show (Text/show (Text/show "\n")))
 > ```
 
+## Types
+
+Before introducing complex types we will take a detour to introduce Dhall's
+support for types and type annotations.
+
+Every Dhall expression has a type and whenever you see `x : T` that means that
+the expression `x` has type `T`.  For example:
+
+```dhall
+True : Bool  -- The expression `True` has type `Bool`
+
+(2 + 2) : Natural  -- The expression `(2 + 2)` has type `Natural`
+```
+
+The `:` symbol is the type annotation operator.
+
+Types are expressions, too, which means that types can themselves have types:
+
+```dhall
+Bool : Type  -- The expression `Bool` has type `Type`
+
+Type : Kind  -- The expression `Type` has type `Kind`
+
+Kind : Sort  -- The expression `Kind` has type `Sort`
+```
+
+You can chain the type annotation operator, so we could have condensed things
+to:
+
+```dhall
+True : Bool : Type : Kind : Sort
+```
+
+... the hierarchy of types stops at `Sort`.  There is nothing above that.
+
+Dhall has some standard terminology for distinguishing between expressions at
+different "levels" of the type hierarchy:
+
+* An expression `x` is a lowercase-'t' "term" if the type of the type of `x` is
+  `Type`
+
+  For example, `1` is a "term" because `1 : Natural : Type`
+
+  `Natural/show` is also a "term" because
+  `Natural/show : Natural -> Text : Type`
+
+* An expression `x` is a lowercase-'t' "type" if the type of the type of `x` is
+  `Kind`
+
+  For example, `Bool` is a "type" because `Bool : Type : Kind`
+
+  Also, `List` is a "type" because `List : Type -> Type : Kind`
+
+* An expression `x` is a lowercase-'k' "kind" if the type of the type of `x` is
+  `Sort`
+
+  For example, `Type` is a "kind" because `Type : Kind : Sort`
+
+> **Exercise:** Classify the following expressions as either "terms", "types",
+> or "kinds":
+>
+> * `2 + 2`
+>
+> * `List Natural`
+>
+> * `{ x = True, y = "ABC" }`
+>
+> * `Type -> Type`
+
+If you don't feel like classifying things, you can always call something an
+"expression".  All terms, types, and kinds are expressions.
+
+## Functions
+
+We also need to introduce language support for functions and function types
+before introducing complex data structures.
+
 ## `List`s
 
 A `List` literal is surrounded by square brackets and elements are separated
@@ -932,4 +1014,40 @@ Error: List elements should all have the same type
 (input):1:11
 ```
 
+You can make arbitrary expressions `Optional`.  Here are some more interesting
+`Optional` types that are all valid:
 
+* `Optional (Natural -> Bool)
+
+  An `Optional` function from a `Natural` number to a `Bool`.  For example:
+
+  ```dhall
+  Some Natural/even
+
+  None (Natural -> Bool)
+  ```
+
+* `Optional (List Text)`
+
+  An `Optional` `List` of `Text` values.  For example:
+
+
+  ```dhall
+  Some [ "ABC", "DEF" ]  -- A present list that is non-empty
+
+  Some ([] : List Text)  -- A present list that is empty
+
+  None (List Text)       -- An absent list
+  ```
+
+* `Optional (Optional Bool)`
+
+  All of the following values have this type:
+
+  ```dhall
+  Some (Some True)
+
+  Some (None Bool)
+
+  None (Optional Bool)
+  ```
