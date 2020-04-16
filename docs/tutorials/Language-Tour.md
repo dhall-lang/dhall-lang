@@ -1016,7 +1016,7 @@ Omitting the argument name is the same thing as naming the argument `_`.
 In other words, `Natural -> Natural` is syntactic sugar for
 `forall (_ : Natural) -> Natural`.
 
-In other cases the argument name matters if the name is referenced within the
+In other cases, the argument name matters if you reference the name within the
 rest of the type.  For example, the type of the `List/length` function is:
 
 ```dhall
@@ -1025,9 +1025,9 @@ List/length : forall (a : Type) -> List a -> Natural
 
 The first argument (named `a`) is referenced within the type of the second
 argument (`List a`), so the name `a` cannot be omitted from the type.  However,
-we can still rename `a` so long as we also rename other occurrences.  For
-example, the following types are the same type as far as the type-checker is
-concerned:
+we can still rename `a` so long as we also rename other occurrences within the
+same type.  For example, the following types are the same type as far as the
+type-checker is concerned:
 
 ```dhall
 forall (a : Type) -> List a -> Natural
@@ -1077,6 +1077,14 @@ let increment = \(x : Natural) -> x + 1
 in  increment 1
 ```
 
+> **Exercise:** Write a function that negates a `Bool` value:
+>
+> ```dhall
+> let not = ???
+>
+> in  not True  -- … which should return `False`
+> ```
+
 > **Exercise:** What happens if you try to define a recursive function, like
 > this?
 >
@@ -1090,8 +1098,8 @@ in  increment 1
 
 ## Built-in functions
 
-The Dhall language also has a few built-in functions that you can either use
-directly or indirectly through higher-level utilities.
+The Dhall language also has a few built-in functions for processing built-in
+types.
 
 For example, some commonly used built-in functions on numbers are:
 
