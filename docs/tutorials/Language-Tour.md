@@ -1218,6 +1218,9 @@ can "simulate" a function of multiple arguments:
   [ True, False ]
   ```
 
+  The advantage of "currying" is that you can "partially apply" a "curried"
+  function to one argument at a time.
+
 * **Records**
 
   You can create a function that expects a record containing multiple fields as
@@ -1233,19 +1236,22 @@ can "simulate" a function of multiple arguments:
   [ True, False ]
   ```
 
-The advantage of "currying" is that you can "partially apply" a "curried"
-function to one argument at a time.  The advantage of input records is that
-using fields to name function arguments can sometimes improve code
-comprehension.  Neither approach is strictly better than the other, but you
-will typically see the following idioms in the Dhall ecosystem:
+  The advantage of input records is that using fields to name function arguments
+  can sometimes improve code comprehension, especially for functions with a
+  large number of arguments.
 
-* Currying is more commonly used for simple and highly reusable utilities
+Neither approach is strictly better than the other, but you will typically see
+the following convention in the Dhall ecosystem:
+
+* Currying is more commonly used for simple and highly reusable utilities with
+  a few arguments
 
   Think: "library code"
 
   For example, currying is used pervasively in built-in functions and the
   Prelude
 
-* Records are used more commonly for complex and special-purpose utilities
+* Records are used more commonly for complex and special-purpose utilities with
+  a large number of arguments
 
   Think: "application code"
