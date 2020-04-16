@@ -448,100 +448,6 @@ there is no maximum value for either type.
 scientific notation).  The `Double` type is also a distinct numeric type from
 `Natural` numbers and `Integer`s.
 
-Some commonly used built-in functions on numbers are:
-
-* `Natural/isZero : Natural -> Bool`
-
-  Returns `True` if the input is `0`, `False`, otherwise
-
-  ```dhall
-  ⊢ Natural/isZero 2
-
-  False
-  ```
-
-* `Natural/subtract : Natural -> Natural -> Natural`
-
-  `Natural/subtract n m` is the same as `m - n`, except clamping to `0` if the
-  result is negative
-
-  ```dhall
-  ⊢ Natural/subtract 2 1
-
-  0
-  ```
-
-* `Natural/toInteger : Natural -> Integer`
-
-  Convert a `Natural` number to the corresponding `Integer`
-
-  ```dhall
-  ⊢ Natural/toInteger 2
-
-  +2
-  ```
-
-* `Natural/show : Natural -> Text`
-
-  Render a `Natural` number as `Text`
-
-  ```dhall
-  ⊢ Natural/show 2
-
-  "2"
-  ```
-
-* `Integer/clamp : Integer -> Natural`
-
-  Convert an `Integer` to a `Natural` number, clamping negative `Integer`s to
-  `0`
-
-  ```dhall
-  ⊢ Integer/clamp +3
-
-  3
-  ```
-
-* `Integer/negate : Integer -> Integer`
-
-  Negate an `Integer`
-
-  ```dhall
-  ⊢ Integer/negate +3
-
-  -3
-  ```
-
-* `Integer/toDouble : Integer -> Double`
-
-  Convert an `Integer` to the corresponding `Double`
-
-  ```dhall
-  ⊢ Integer/toDouble +3
-
-  3.0
-  ```
-
-* `Integer/show : Integer -> Text`
-
-  Render an `Integer` as `Text` (including the obligatory sign)
-
-  ```dhall
-  ⊢ Integer/show +3
-
-  "+3"
-  ```
-
-* `Double/show : Double -> Text`
-
-  Render a `Double` as `Text`
-
-  ```dhall
-  ⊢ Double/show 3.0
-
-  "3.0"
-  ```
-
 The language also provides the following arithmetic operators which only work on
 `Natural` numbers:
 
@@ -567,35 +473,6 @@ functions.
 
 `Double`s are essentially "opaque", meaning that the only thing you can do with
 them is to render them as `Text`.
-
-> **Challenge exercise:** Using the above built-in functions, implement the
-> following `Integer/showWithoutPlus` function that can render an `Integer`
-> without the leading sign if it is positive:
->
-> ```dhall
-> -- ./puzzle.dhall
->
-> let showWithoutPlus = \(i : Integer) -> ???
-> 
-> let test0 = assert : showWithoutPlus +2 === "2"
-> 
-> let test1 = assert : showWithoutPlus -2 === "-2"
-> 
-> let test2 = assert : showWithoutPlus +0 === "0"
-> 
-> in  showWithoutPlus
-> ```
->
-> You can test if you got the right answer by type-checking the file:
->
-> ```bash
-> $ dhall type --quiet --file puzzle.dhall
-> ```
->
-> ... which will run the acceptance tests at the bottom of the file.
->
-> Later on we'll see how we can simplify functions like these with shared
-> utilities from the Dhall Prelude.
 
 ## `Text`
 
@@ -806,28 +683,10 @@ You can concatenate `Text` literals using the `++` operator:
 "123456"
 ```
 
-... and you can also render `Text` literals as valid Dhall source code, using:
-
-* `Text/show : Text -> Text`
-
-  Render a `Text` literal within a `Text` literal
-
-  ```dhall
-  ⊢ Text/show "I heard you like `Text` literals"
-
-  "\"I heard you like `Text` literals\""
-  ```
-
 Other than that, `Text` literals are essentially opaque.  You currently cannot
 parse `Text` literals nor can you compare them for equality.  This is because
 the language promotes using more precise types (like enums) instead of `Text`
 when the value matters.
-
-> **Exercise:** How many backslashes do you think the result will contain?
->
-> ```dhall
-> ⊢ Text/show (Text/show (Text/show (Text/show "\n")))
-> ```
 
 ## Types
 
@@ -838,12 +697,18 @@ Every Dhall expression has a type and whenever you see `x : T` that means that
 the expression `x` has type `T`.  For example:
 
 ```dhall
-True : Bool  -- The expression `True` has type `Bool`
+True : Bool        -- The expression `True` has type `Bool`
 
 (2 + 2) : Natural  -- The expression `(2 + 2)` has type `Natural`
 ```
 
 The `:` symbol is the type annotation operator.
+
+> **Exercise:** Ask the REPL for the type of the `Natural/even` function
+>
+> ```dhall
+> ⊢ :type Natural/even
+> ```
 
 Types are expressions, too, which means that types can themselves have types:
 
@@ -900,11 +765,6 @@ different "levels" of the type hierarchy:
 
 If you don't feel like classifying things, you can always call something an
 "expression".  All terms, types, and kinds are expressions.
-
-## Functions
-
-We also need to introduce language support for functions and function types
-before introducing complex data structures.
 
 ## `List`s
 
@@ -1051,3 +911,341 @@ You can make arbitrary expressions `Optional`.  Here are some more interesting
 
   None (Optional Bool)
   ```
+
+> **Exercise:** Create an expression that has the following type:
+>
+> ```dhall
+> List (Optional Text)
+> ```
+
+## Functions
+
+All function types are of the form `A -> B` where `A` is the type of the
+function's input and `B` is the type of the function's output.
+
+For example, `Natural/even : Natural -> Text` means that the `Natural/even`
+function converts an input of type `Natural` to an output of type `Text`:
+
+```dhall
+⊢ :type Natural/even
+
+Natural → Bool
+
+⊢ :type 2
+
+Natural
+
+⊢ :type Natural/even 2
+
+Bool
+```
+
+Functions types can name their input arguments using the `forall` or `∀`
+keyword.  For example, the following function:
+
+```dhall
+⊢ :let example = \(x : Natural) -> x + 1
+```
+
+... has this inferred type:
+
+```dhall
+example : forall (x : Natural) -> Natural
+```
+
+... which says that `example` is a function whose input is an argument named
+`x` whose type is `Natural` and the output type is also `Natural`.
+
+The equivalent Unicode type would be:
+
+```dhall
+∀(x : Natural) → Natural
+```
+
+... where `∀` (U+2200) is the Unicode equivalent of `forall` and `→` (U+2192) is
+the Unicode equivalent of `->`.
+
+Sometimes the argument name is optional, like in the above function type,
+meaning that the name (e.g. `x`) is purely informative and can be changed or
+omitted without affecting the type.  For example, all of the following types are
+the same type as far as the type-checker is concerned:
+
+```dhall
+forall (x : Natural) -> Natural
+
+forall (y : Natural) -> Natural
+
+Natural -> Natural
+```
+
+Omitting the argument name is the same thing as naming the argument `_`.
+In other words, `Natural -> Natural` is syntactic sugar for
+`forall (_ : Natural) -> Natural`.
+
+In other cases the argument name matters if the name is referenced within the
+rest of the type.  For example, the type of the `List/length` function is:
+
+```dhall
+List/length : forall (a : Type) -> List a -> Natural
+```
+
+The first argument (named `a`) is referenced within the type of the second
+argument (`List a`), so the name `a` cannot be omitted from the type.  However,
+we can still rename `a` so long as we also rename other occurrences.  For
+example, the following types are the same type as far as the type-checker is
+concerned:
+
+```dhall
+forall (a : Type) -> List a -> Natural
+
+forall (b : Type) -> List b -> Natural
+
+forall (elementType : Type) -> List elementType -> Natural
+```
+
+> **Exercise:** Actually, you can omit the `forall` for the type of
+> `List/length`.  Devise an equivalent type for `List/length` that does not
+> use a `forall` or `∀` and check your answer in the REPL by giving
+> `List/length` that type as an annotation:
+>
+> ```dhall
+> ⊢ List/length : ???
+> ```
+
+In Dhall the simplest way to create a function is to introduce an anonymous
+function using the following syntax:
+
+```dhall
+\(input : InputType) -> output
+```
+
+... or if you prefer Unicode you can use :
+
+```dhall
+λ(input : InputType) → output
+```
+
+... where `λ` (U+03BB) is the Unicode equivalent of `\`.
+
+For example, the following function takes an input named `x` of type `Natural`
+and returns the next `Natural` number (`x + 1`):
+
+```dhall
+\(x : Natural) -> x + 1
+```
+
+In practice, most anonymous Dhall functions are given a name using a `let`
+binding, like this:
+
+```dhall
+let increment = \(x : Natural) -> x + 1
+
+in  increment 1
+```
+
+> **Exercise:** What happens if you try to define a recursive function, like
+> this?
+>
+> ```dhall
+> let recursive = \(x : Natural) -> recursive (x + 1)
+>
+> in  recursive 0
+> ```
+>
+> Interpret that expression to find out!
+
+## Built-in functions
+
+The Dhall language also has a few built-in functions that you can either use
+directly or indirectly through higher-level utilities.
+
+For example, some commonly used built-in functions on numbers are:
+
+* `Natural/isZero : Natural -> Bool`
+
+  Returns `True` if the input is `0`, `False`, otherwise
+
+  ```dhall
+  ⊢ Natural/isZero 2
+
+  False
+  ```
+
+* `Natural/subtract : Natural -> Natural -> Natural`
+
+  `Natural/subtract n m` is the same as `m - n`, except clamping to `0` if the
+  result is negative
+
+  ```dhall
+  ⊢ Natural/subtract 2 1
+
+  0
+  ```
+
+* `Natural/toInteger : Natural -> Integer`
+
+  Convert a `Natural` number to the corresponding `Integer`
+
+  ```dhall
+  ⊢ Natural/toInteger 2
+
+  +2
+  ```
+
+* `Natural/show : Natural -> Text`
+
+  Render a `Natural` number as `Text`
+
+  ```dhall
+  ⊢ Natural/show 2
+
+  "2"
+  ```
+
+* `Integer/clamp : Integer -> Natural`
+
+  Convert an `Integer` to a `Natural` number, clamping negative `Integer`s to
+  `0`
+
+  ```dhall
+  ⊢ Integer/clamp +3
+
+  3
+  ```
+
+* `Integer/negate : Integer -> Integer`
+
+  Negate an `Integer`
+
+  ```dhall
+  ⊢ Integer/negate +3
+
+  -3
+  ```
+
+* `Integer/toDouble : Integer -> Double`
+
+  Convert an `Integer` to the corresponding `Double`
+
+  ```dhall
+  ⊢ Integer/toDouble +3
+
+  3.0
+  ```
+
+* `Integer/show : Integer -> Text`
+
+  Render an `Integer` as `Text` (including the obligatory sign)
+
+  ```dhall
+  ⊢ Integer/show +3
+
+  "+3"
+  ```
+
+* `Double/show : Double -> Text`
+
+  Render a `Double` as `Text`
+
+  ```dhall
+  ⊢ Double/show 3.0
+
+  "3.0"
+  ```
+
+> **Challenge exercise:** Using the above built-in functions, implement the
+> following `Integer/showWithoutPlus` function that can render an `Integer`
+> without the leading sign if it is positive:
+>
+> ```dhall
+> -- ./puzzle.dhall
+>
+> let showWithoutPlus = \(i : Integer) -> ???
+> 
+> let test0 = assert : showWithoutPlus +2 === "2"
+> 
+> let test1 = assert : showWithoutPlus -2 === "-2"
+> 
+> let test2 = assert : showWithoutPlus +0 === "0"
+> 
+> in  showWithoutPlus
+> ```
+>
+> You can test if you got the right answer by type-checking the file:
+>
+> ```bash
+> $ dhall type --quiet --file puzzle.dhall
+> ```
+>
+> ... which will run the acceptance tests at the bottom of the file.
+>
+> Later on we'll see how we can simplify functions like these with shared
+> utilities from the Dhall Prelude.
+
+This tutorial does not cover all available built-in functions.  If you are
+interested in the full list, see:
+
+* [Built-in types, functions, and operators](../references/Built-in-types.md)
+
+## Multiple function arguments
+
+All Dhall functions are functions of one argument, and there are two ways you
+can "simulate" a function of multiple arguments:
+
+* **Currying**
+
+  You can have a function return another function.  For example:
+
+  ```dhall
+  ⊢ :let example = \(x : Bool) -> \(y : Bool) -> [ x, y ]
+
+  example : ∀(x : Bool) → ∀(y : Bool) → List Bool
+
+  ⊢ example True
+
+  λ(y : Bool) → [ True, y ]
+
+  ⊢ example True False
+
+  [ True, False ]
+
+  ⊢ :let intermediate = example True
+
+  intermediate : ∀(y : Bool) → List Bool
+
+  ⊢ intermediate False
+
+  [ True, False ]
+  ```
+
+* **Records**
+
+  You can create a function that expects a record containing multiple fields as
+  the function's input.  For example:
+
+  ```dhall
+  ⊢ :let example = \(args : { x : Bool, y : Bool }) -> [ args.x, args.y ]
+
+  example : ∀(args : { x : Bool, y : Bool }) → List Bool
+
+  ⊢ example { x = True, y = False }
+
+  [ True, False ]
+  ```
+
+The advantage of "currying" is that you can "partially apply" a "curried"
+function to one argument at a time.  The advantage of input records is that
+using fields to name function arguments can sometimes improve code
+comprehension.  Neither approach is strictly better than the other, but you
+will typically see the following idioms in the Dhall ecosystem:
+
+* Currying is more commonly used for simple and highly reusable utilities
+
+  Think: "library code"
+
+  For example, currying is used pervasively in built-in functions and the
+  Prelude
+
+* Records are used more commonly for complex and special-purpose utilities
+
+  Think: "application code"
