@@ -11,7 +11,7 @@ This tutorial covers all of the Dhall configuration language features, in a
 way that is not specific to an integration (like JSON or YAML) or language
 binding (like Go or Rust).  In other words, this tutorial assumes that you've
 already figured out use Dhall within a project and you want to dive more
-comprehensively into the language.
+comprehensively into the core language features.
 
 ## Prerequisites
 
@@ -87,8 +87,15 @@ file and then referencing the file path
 > 
 > 1│ test
 > 
-> (stdin):1:1
+> (input):1:1
 > ```
+>
+> This is because the REPL interprets Dhall code and the language provides
+> built-in support for relative paths *if* they begin with `./`.  We'll cover
+> this more when we get to import resolution.
+>
+> The REPL uses Unicode punctuation by default.  If you prefer ASCII, then
+> start the REPL using `dhall repl --ascii` instead.
 
 ## Introduction
 
@@ -107,10 +114,6 @@ These "plain" values include simple types like:
 * `Optional` values
 * Records
 * Unions
-
-Some languages can even load Dhall functions, meaning that they are dynamically
-interpreted as functions in the host language.  However, this tutorial will not
-cover that since that can only be illustrated with a specific language binding.
 
 Here is an example of a "plain" expression that can likely be loaded into any
 such integration:
@@ -238,7 +241,7 @@ A Dhall interpreter processes expressions in five phases:
 
 * **Marshalling**
 
-  The Dhall expression is converted a file in the desired format or an
+  The Dhall expression is converted into a file in the desired format or an
   expression within the desired language.
 
   Example (converting to Bash):
@@ -311,10 +314,10 @@ For example:
    a block
    comment
 
-   {- Block comments can be nested -}
+   {- You can nested block comments -}
 -}
 
-2 + {- Block comments can also go anywhere -} 2
+2 + {- You can embed block comments anywhere -} 2
 ```
 
 Comments have no effect on how the code is interpreted.  They are purely for
@@ -553,7 +556,7 @@ DEF
 ... which is also the same as this expression:
 
 ```dhall
-{- Leading indentation here is not part of the multi-line literal -}        ''
+{- Leading indentation here has no effect and is not part of the literal -}  ''
     ABC
     DEF
     ''
@@ -672,8 +675,8 @@ in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 
 > **Exercise:** How do you escape `Text` interpolation?
 >
-> In other words, how do you get the interpreter to ignore string contents that
-> use the same `${…}` pattern as string interpolation?
+> In other words, how do you get the interpreter to not interpolate into a
+> `Text` literal with the characters `${…}`?
 
 ### `Text` operations
 
@@ -696,7 +699,7 @@ Before introducing complex types we will take a detour to introduce Dhall's
 support for types and type annotations.
 
 Every Dhall expression has a type and whenever you see `x : T` that means that
-the expression `x` is a `T`.  For example:
+the expression `x` has type `T`.  For example:
 
 ```dhall
 True : Bool        -- The expression `True` has type `Bool`
@@ -713,11 +716,14 @@ arguments:
 ... and the operator returns the left-hand side after type-checking it against
 the right-hand side.
 
-> **Exercise:** Ask the REPL for the type of the `Natural/even` function
+> **Exercise:** Ask the REPL for the type of the `Natural/even` function:
 >
 > ```dhall
 > ⊢ :type Natural/even
 > ```
+>
+> Then verify that the type is correct by giving a type annotation to the
+> `Natural/even` function.
 
 You can insert this operator anywhere within Dhall code (although you may
 need to wrap things in parentheses).  For example, this is a valid Dhall
@@ -740,8 +746,7 @@ Type : Kind  -- The expression `Type` has type `Kind`
 Kind : Sort  -- The expression `Kind` has type `Sort`
 ```
 
-You can chain the type annotation operator, so we could have condensed things
-to:
+You can chain the type annotation operator, so we could also write:
 
 ```dhall
 True : Bool : Type : Kind : Sort
@@ -749,8 +754,8 @@ True : Bool : Type : Kind : Sort
 
 ... the hierarchy of types stops at `Sort`.  There is nothing above that.
 
-Dhall has some standard terminology for distinguishing between expressions at
-different "levels" of the type hierarchy:
+Dhall has standard terminology for referring to expressions at different
+"levels" of the type hierarchy:
 
 * An expression `x` is a lowercase-'t' "term" if the type of the type of `x` is
   `Type`
@@ -788,8 +793,8 @@ If you don't feel like classifying things, you can always call something an
 
 ## `List`s
 
-A `List` literal is surrounded by square brackets and elements are separated
-by commas, like this:
+A `List` literal is comma-separated elements surrounded by square brackets, like
+this:
 
 ```dhall
 [ 2, 3, 5 ]
@@ -814,7 +819,7 @@ following expression will not type-check:
 ... because `1` has type `Natural` whereas `True` has type `Bool`, and those two
 types do not match.
 
-Don't worry!  Later we'll illustrate ways to safely mix different types within
+Don't worry!  Later we'll illustrate ways to sensibly mix different types within
 the same `List`.
 
 However, other than that restriction you can store essentially any type of value
@@ -881,7 +886,7 @@ Optional Natural
 ```
 
 In other words, both `Some 1` and `None Natural` share the same type, which is
-`Optional Natural`, so we could store both inside a `List`:
+`Optional Natural`, so we could store both inside the same `List`:
 
 ```dhall
 ⊢ :type [ Some 1, None Natural ]
@@ -937,11 +942,13 @@ You can make arbitrary expressions `Optional`, such as the following nested
   None (Optional Bool)
   ```
 
-  ... yet all three values are distinct and do not mean the same thing.
+  Carefully note that the last two values do not mean the same thing.  Many
+  languages only permit only one "level" of nullability, but in Dhall you can
+  nest the `Optional` type to an arbitrary depth and each layer is distinct.
 
 `Some` is a keyword that requires an argument, meaning that `Some 1` is a valid
-expression, but `Some` in isolation is not valid.  However, `None` is more
-flexible, because `None` is an ordinary function.
+expression, but `Some` by itself is not valid.  However, `None` is more
+flexible, because `None` is an ordinary function that is valid in isolation.
 
 > **Exercise:** What is the type of `None`?
 >
@@ -957,7 +964,7 @@ flexible, because `None` is an ordinary function.
 
 ## Records
 
-A record literal is comma-separated key-value pairs surrounded by braces:
+A record literal is comma-separated key-value pairs surrounded by curly braces:
 
 ```dhall
 { name = "John Doe", age = 24 }
@@ -966,7 +973,7 @@ A record literal is comma-separated key-value pairs surrounded by braces:
 The above record literal has two fields: a field called `name` whose value is
 `"John Doe"` and a field called `age` whose value is `24`.
 
-A record type is comma-separated key-type pairs surrounded by braces:
+A record type is comma-separated key-type pairs surrounded by curly braces:
 
 ```dhall
 { name : Text, age : Natural }
@@ -982,13 +989,13 @@ The above record type is the type of the previous record literal:
 a value of type `Text` and the field called `age` stores a value of type
 `Natural`.
 
-The way to denote an empty record literal with 0 key-value pairs is:
+The way to denote an empty record literal with zero key-value pairs is:
 
 ```dhall
 {=}
 ```
 
-... and the way to denote an empty record type with 0 key-type pairs is:
+... and the way to denote an empty record type with zero key-type pairs is:
 
 ```dhall
 {}
@@ -1006,7 +1013,7 @@ You can access the fields of a record using `.` (the field access operator),
 like this:
 
 ```dhall
-let exampleRecord = { x = 1.4, y = -25.0 }
+let exampleRecord = { x = 1, y = 2 }
 
 in  exampleRecord.x + exampleRecord.y
 ```
@@ -1014,7 +1021,9 @@ in  exampleRecord.x + exampleRecord.y
 ## Functions
 
 All function types are of the form `A -> B` where `A` is the type of the
-function's input and `B` is the type of the function's output.
+function's input and `B` is the type of the function's output.  You can also
+use the Unicode right arrow `→` (U+2192) to represent a function type as
+`A → B`.
 
 For example, `Natural/even : Natural -> Text` means that the `Natural/even`
 function converts an input of type `Natural` to an output of type `Text`:
@@ -1055,8 +1064,7 @@ The equivalent Unicode type would be:
 ∀(x : Natural) → Natural
 ```
 
-... where `∀` (U+2200) is the Unicode equivalent of `forall` and `→` (U+2192) is
-the Unicode equivalent of `->`.
+... where `∀` (U+2200) is the Unicode equivalent of `forall`.
 
 Sometimes the argument name is optional, like in the above function type,
 meaning that the name (e.g. `x`) is purely informative and can be changed or
@@ -1075,38 +1083,17 @@ Omitting the argument name is the same thing as naming the argument `_`.
 In other words, `Natural -> Natural` is syntactic sugar for
 `forall (_ : Natural) -> Natural`.
 
-In other cases, the argument name matters if you reference the name within the
-rest of the type.  For example, the type of the `List/length` function is:
+You can apply a function to an argument by simply separating the function and
+the argument by whitespace, like this:
 
 ```dhall
-List/length : forall (a : Type) -> List a -> Natural
+Natural/even 2
 ```
 
-The first argument (named `a`) is referenced within the type of the second
-argument (`List a`), so the name `a` cannot be omitted from the type.  However,
-we can still rename `a` so long as we also rename other occurrences within the
-same type.  For example, the following types are the same type as far as the
-type-checker is concerned:
+You don't need to parenthesize function arguments.
 
-```dhall
-forall (a : Type) -> List a -> Natural
-
-forall (b : Type) -> List b -> Natural
-
-forall (elementType : Type) -> List elementType -> Natural
-```
-
-> **Exercise:** Actually, you can omit the `forall` for the type of
-> `List/length`.  Devise an equivalent type for `List/length` that does not
-> use a `forall` or `∀` and check your answer in the REPL by giving
-> `List/length` that type as an annotation:
->
-> ```dhall
-> ⊢ List/length : ???
-> ```
-
-In Dhall the simplest way to create a function is to introduce an anonymous
-function using the following syntax:
+The simplest way to create a function is to introduce an anonymous function
+using the following syntax:
 
 ```dhall
 \(input : InputType) -> output
@@ -1127,13 +1114,15 @@ and returns the next `Natural` number (`x + 1`):
 \(x : Natural) -> x + 1
 ```
 
+> **Exercise**: Apply the above anonymous function directly to the argument `2`
+
 In practice, most anonymous Dhall functions are given a name using a `let`
 binding, like this:
 
 ```dhall
 let increment = \(x : Natural) -> x + 1
 
-in  increment 1
+in  increment 2
 ```
 
 > **Exercise:** Write a function that negates a `Bool` value:
@@ -1144,23 +1133,60 @@ in  increment 1
 > in  not True  -- … which should return `False`
 > ```
 
-> **Exercise:** What happens if you try to define a recursive function, like
-> this?
+In some cases, the argument name matters if you reference the name within the
+rest of the type.  For example, the type of the `List/length` function is:
+
+```dhall
+List/length : forall (a : Type) -> List a -> Natural
+```
+
+The first argument (named `a`) is referenced within the type of the second
+argument (`List a`), so the name `a` cannot be omitted from the type.  However,
+we can still rename `a` so long as we also rename other occurrences within the
+same type.  For example, the following types are the same type as far as the
+type-checker is concerned:
+
+```dhall
+forall (a : Type) -> List a -> Natural
+
+forall (b : Type) -> List b -> Natural
+
+forall (elementType : Type) -> List elementType -> Natural
+```
+
+A function type is "polymorphic" if the type of one argument depends on the name
+of another argument in this way.  For example, the `List/length` function has a
+polymorphic type:
+
+```dhall
+List/length : forall (a : Type) -> List a -> Natural
+```
+
+> **Exercise:** Ask the REPL for the type of the `List/length` function after
+> applying the function to one argument:
 >
 > ```dhall
-> let recursive = \(x : Natural) -> recursive (x + 1)
->
-> in  recursive 0
+> ⊢ :type List/length Natural
 > ```
 >
-> Interpret that expression to find out!
+> ... and then apply the `List/length function` to one more argument (a `List`)
+> to compute the length of that `List`.
+
+> **Challenge exercise:** Actually, you can omit the `forall` for the type of
+> `List/length`.  Devise an equivalent type for `List/length` that does not
+> use a `forall` or `∀` and check your answer in the REPL by giving
+> `List/length` that type as an annotation:
+>
+> ```dhall
+> ⊢ List/length : ???
+> ```
 
 ## Built-in functions
 
 The Dhall language also has a few built-in functions for processing built-in
 types.
 
-For example, some commonly used built-in functions on numbers are:
+For example, some built-in functions on numbers are:
 
 * `Natural/isZero : Natural -> Bool`
 
@@ -1277,6 +1303,55 @@ interested in the full list, see:
 
 * [Built-in types, functions, and operators](../references/Built-in-types.md)
 
+## Tests
+
+The language provides built-in support for testing that two expressions are
+equal using the `assert` keyword, like this:
+
+```dhall
+⊢ assert : (2 + 2) === 4
+
+assert : 4 ≡ 4
+```
+
+This keyword lets you compare two expressions for equality at type-checking
+time using the `===` or `≡` (U+2261) operator.
+
+If the expressions do not match then type-checking will fail and the
+interpreter will display a diff:
+
+```dhall
+⊢ assert : (2 + 2) === 5
+
+Error: Assertion failed
+
+- 4
++ 5
+
+1│ assert : (2 + 2) === 5
+
+(input):1:1
+```
+
+You don't have to limit yourself to comparing "plain" expressions.  You can
+compare functions or abstract expressions for equality in this way, too:
+
+```dhall
+⊢ \(x : Natural) -> assert : List/length Natural [ x, x ] === 2
+
+λ(x : Natural) → assert : 2 ≡ 2
+
+⊢ \(x : Bool) -> assert : (x && True) === x
+
+λ(x : Bool) → assert : x ≡ x
+```
+
+The interpreter cannot always verify that two abstract expressions are the same
+(this is impossible in general), but the interpreter can detect some simple
+equalities.  You can use this feature to author "property tests", except
+verifying that the property holds for all possible values instead of a randomly
+selected sample of values.
+
 ## Multiple function arguments
 
 All Dhall functions are functions of one argument, and there are two ways you
@@ -1345,3 +1420,21 @@ the following convention in the Dhall ecosystem:
   a large number of arguments
 
   Think: "application code"
+
+We've already seen one example of a "curried" function, which is
+`List/length`:
+
+```dhall
+List/length : forall (a : Type) -> List a -> Natural
+```
+
+We can make the currying more explicit by adding the following parentheses to
+the type:
+
+```dhall
+List/length : forall (a : Type) -> (List a -> Natural)
+```
+
+In other words, `List/length` is a function that takes one argument (a `Type`),
+and returns a new intermediate function which in turn takes a separate
+argument (a `List a`).
