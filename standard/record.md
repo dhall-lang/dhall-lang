@@ -254,18 +254,17 @@ A `with` expression with multiple dotted labels is equivalent to chained uses of
 the `//` operator:
 
 
-    desugar-with(e₀ // { k₀ = e₀.k₀ with k₁.ks… = v₁ }) = e₁
-    ─────────────────────────────────────────  ; Inductive case for more than one
-    desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁  ; label
+    desugar-with(e₀.k with ks… = v ) = e₁
+    ───────────────────────────────────────────────────  ; Inductive case for more than one
+    desugar-with(e₀ with k.ks… = v ) = e₀ // { k = e₁ }  ; label
 
 
 ... and if there is only one update with one label then the `with` keyword is a
 synonym for the `//` operator:
 
 
-    desugar-with(e₀ // { k = v }) = e₁
-    ──────────────────────────────────  ; Base case for exactly one
-    desugar-with(e₀ with k = v) = e₁    ; label
+    ───────────────────────────────────────────  ; Base case for exactly one
+    desugar-with(e with k = v) = e // { k = v }  ; label
 
 
 For all other cases, `desugar-with` descends into sub-expressions and ignores
