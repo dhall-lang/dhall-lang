@@ -94,6 +94,13 @@ file and then referencing the file path
 > built-in support for relative paths *if* they begin with `./`.  We'll cover
 > this more when we get to import resolution.
 >
+> Alternatively, you can also interpret the file from the command line, like
+> this:
+>
+> ```bash
+> $ dhall --file test.dhall
+> ```
+>
 > The REPL uses Unicode punctuation by default.  If you prefer ASCII, then
 > start the REPL using `dhall repl --ascii` instead.
 
@@ -791,6 +798,59 @@ Dhall has standard terminology for referring to expressions at different
 If you don't feel like classifying things, you can always call something an
 "expression".  All terms, types, and kinds are expressions, too.
 
+## `let` expressions
+
+Some of the subsequent examples will not fit on one line, so 
+
+## Tests
+
+The language provides built-in support for testing that two expressions are
+equal using the `assert` keyword, like this:
+
+```dhall
+⊢ assert : (2 + 2) === 4
+
+assert : 4 ≡ 4
+```
+
+This keyword lets you compare two expressions for equality at type-checking
+time using the `===` or `≡` (U+2261) operator.
+
+If the expressions do not match then type-checking will fail and the
+interpreter will display a diff:
+
+```dhall
+⊢ assert : (2 + 2) === 5
+
+Error: Assertion failed
+
+- 4
++ 5
+
+1│ assert : (2 + 2) === 5
+
+(input):1:1
+```
+
+You don't have to limit yourself to comparing "plain" expressions.  You can
+compare functions or abstract expressions for equality in this way, too:
+
+```dhall
+⊢ \(x : Natural) -> assert : List/length Natural [ x, x ] === 2
+
+λ(x : Natural) → assert : 2 ≡ 2
+
+⊢ \(x : Bool) -> assert : (x && True) === x
+
+λ(x : Bool) → assert : x ≡ x
+```
+
+The interpreter cannot always verify that two abstract expressions are the same
+(this is impossible in general), but the interpreter can detect some simple
+equalities.  You can use this feature to author "property tests", except
+verifying that the property holds for all possible values instead of a randomly
+selected sample of values.
+
 ## `List`s
 
 A `List` literal is comma-separated elements surrounded by square brackets, like
@@ -852,6 +912,9 @@ Also, you can concatenate lists using the `#` operator:
 ```
 
 > **Exercise:** Concatenate two empty lists
+
+There are other things you can do with `List`s, but we will cover that later
+when we get to the Dhall Prelude.
 
 ## `Optional` values
 
@@ -961,6 +1024,9 @@ flexible, because `None` is an ordinary function that is valid in isolation.
 > ```dhall
 > ⊢ :type Some
 > ```
+
+You can do more with `Optional` values, which we will cover later when we
+discuss the Dhall Prelude.
 
 ## Records
 
@@ -1181,177 +1247,6 @@ List/length : forall (a : Type) -> List a -> Natural
 > ```dhall
 > ⊢ List/length : ???
 > ```
-
-## Built-in functions
-
-The Dhall language also has a few built-in functions for processing built-in
-types.
-
-For example, some built-in functions on numbers are:
-
-* `Natural/isZero : Natural -> Bool`
-
-  Returns `True` if the input is `0`, `False`, otherwise
-
-  ```dhall
-  ⊢ Natural/isZero 2
-
-  False
-  ```
-
-* `Natural/toInteger : Natural -> Integer`
-
-  Convert a `Natural` number to the corresponding `Integer`
-
-  ```dhall
-  ⊢ Natural/toInteger 2
-
-  +2
-  ```
-
-* `Natural/show : Natural -> Text`
-
-  Render a `Natural` number as `Text`
-
-  ```dhall
-  ⊢ Natural/show 2
-
-  "2"
-  ```
-
-* `Integer/clamp : Integer -> Natural`
-
-  Convert an `Integer` to a `Natural` number, clamping negative `Integer`s to
-  `0`
-
-  ```dhall
-  ⊢ Integer/clamp +3
-
-  3
-  ```
-
-* `Integer/negate : Integer -> Integer`
-
-  Negate an `Integer`
-
-  ```dhall
-  ⊢ Integer/negate +3
-
-  -3
-  ```
-
-* `Integer/toDouble : Integer -> Double`
-
-  Convert an `Integer` to the corresponding `Double`
-
-  ```dhall
-  ⊢ Integer/toDouble +3
-
-  3.0
-  ```
-
-* `Integer/show : Integer -> Text`
-
-  Render an `Integer` as `Text` (including the obligatory sign)
-
-  ```dhall
-  ⊢ Integer/show +3
-
-  "+3"
-  ```
-
-* `Double/show : Double -> Text`
-
-  Render a `Double` as `Text`
-
-  ```dhall
-  ⊢ Double/show 3.0
-
-  "3.0"
-  ```
-
-> **Challenge exercise:** Using the above built-in functions, implement the
-> following `Integer/showWithoutPlus` function that can render an `Integer`
-> without the leading sign if it is positive:
->
-> ```dhall
-> -- ./puzzle.dhall
->
-> let showWithoutPlus = \(i : Integer) -> ???
-> 
-> let test0 = assert : showWithoutPlus +2 === "2"
-> 
-> let test1 = assert : showWithoutPlus -2 === "-2"
-> 
-> let test2 = assert : showWithoutPlus +0 === "0"
-> 
-> in  showWithoutPlus
-> ```
->
-> You can test if you got the right answer by type-checking the file:
->
-> ```bash
-> $ dhall type --quiet --file puzzle.dhall
-> ```
->
-> ... which will run the acceptance tests at the bottom of the file.
->
-> Later on we'll see how we can simplify functions like these with shared
-> utilities from the Dhall Prelude.
-
-This tutorial does not cover all available built-in functions.  If you are
-interested in the full list, see:
-
-* [Built-in types, functions, and operators](../references/Built-in-types.md)
-
-## Tests
-
-The language provides built-in support for testing that two expressions are
-equal using the `assert` keyword, like this:
-
-```dhall
-⊢ assert : (2 + 2) === 4
-
-assert : 4 ≡ 4
-```
-
-This keyword lets you compare two expressions for equality at type-checking
-time using the `===` or `≡` (U+2261) operator.
-
-If the expressions do not match then type-checking will fail and the
-interpreter will display a diff:
-
-```dhall
-⊢ assert : (2 + 2) === 5
-
-Error: Assertion failed
-
-- 4
-+ 5
-
-1│ assert : (2 + 2) === 5
-
-(input):1:1
-```
-
-You don't have to limit yourself to comparing "plain" expressions.  You can
-compare functions or abstract expressions for equality in this way, too:
-
-```dhall
-⊢ \(x : Natural) -> assert : List/length Natural [ x, x ] === 2
-
-λ(x : Natural) → assert : 2 ≡ 2
-
-⊢ \(x : Bool) -> assert : (x && True) === x
-
-λ(x : Bool) → assert : x ≡ x
-```
-
-The interpreter cannot always verify that two abstract expressions are the same
-(this is impossible in general), but the interpreter can detect some simple
-equalities.  You can use this feature to author "property tests", except
-verifying that the property holds for all possible values instead of a randomly
-selected sample of values.
 
 ## Unions
 
@@ -1609,6 +1504,132 @@ This type indicates that `List/length` is a function that takes one argument
 takes an argument of its own (a `List a`) and returns the final result (a
 `Natural`).  Or in other words, `List/length` is a "function that returns a
 function that returns a number".
+
+## Built-in functions
+
+The Dhall language also has a few built-in functions for processing built-in
+types.
+
+For example, some built-in functions on numbers are:
+
+* `Natural/isZero : Natural -> Bool`
+
+  Returns `True` if the input is `0`, `False`, otherwise
+
+  ```dhall
+  ⊢ Natural/isZero 2
+
+  False
+  ```
+
+* `Natural/toInteger : Natural -> Integer`
+
+  Convert a `Natural` number to the corresponding `Integer`
+
+  ```dhall
+  ⊢ Natural/toInteger 2
+
+  +2
+  ```
+
+* `Natural/show : Natural -> Text`
+
+  Render a `Natural` number as `Text`
+
+  ```dhall
+  ⊢ Natural/show 2
+
+  "2"
+  ```
+
+* `Integer/clamp : Integer -> Natural`
+
+  Convert an `Integer` to a `Natural` number, clamping negative `Integer`s to
+  `0`
+
+  ```dhall
+  ⊢ Integer/clamp +3
+
+  3
+  ```
+
+* `Integer/negate : Integer -> Integer`
+
+  Negate an `Integer`
+
+  ```dhall
+  ⊢ Integer/negate +3
+
+  -3
+  ```
+
+* `Integer/toDouble : Integer -> Double`
+
+  Convert an `Integer` to the corresponding `Double`
+
+  ```dhall
+  ⊢ Integer/toDouble +3
+
+  3.0
+  ```
+
+* `Integer/show : Integer -> Text`
+
+  Render an `Integer` as `Text` (including the obligatory sign)
+
+  ```dhall
+  ⊢ Integer/show +3
+
+  "+3"
+  ```
+
+* `Double/show : Double -> Text`
+
+  Render a `Double` as `Text`
+
+  ```dhall
+  ⊢ Double/show 3.0
+
+  "3.0"
+  ```
+
+> **Challenge exercise:** Using the above built-in functions, implement the
+> following `Integer/showWithoutPlus` function that can render an `Integer`
+> without the leading sign if it is positive:
+>
+> ```dhall
+> -- ./puzzle.dhall
+>
+> let showWithoutPlus = \(i : Integer) -> ???
+> 
+> let test0 = assert : showWithoutPlus +2 === "2"
+> 
+> let test1 = assert : showWithoutPlus -2 === "-2"
+> 
+> let test2 = assert : showWithoutPlus +0 === "0"
+> 
+> in  showWithoutPlus
+> ```
+>
+> You can test if you got the right answer by type-checking the file:
+>
+> ```bash
+> $ dhall type --quiet --file puzzle.dhall
+> ```
+>
+> ... which will run the acceptance tests at the bottom of the file.
+>
+> Later on we'll see how we can simplify functions like these with shared
+> utilities from the Dhall Prelude.
+
+This tutorial does not cover all available built-in functions.  If you are
+interested in the full list, see:
+
+* [Built-in types, functions, and operators](../references/Built-in-types.md)
+
+## Imports
+
+* ... using the Prelude as the example
 
 ## Naming conventions
 
