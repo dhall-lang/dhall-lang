@@ -1090,7 +1090,8 @@ the argument by whitespace, like this:
 Natural/even 2
 ```
 
-You don't need to parenthesize function arguments.
+You don't need to parenthesize function arguments (similar to function calls
+in Haskell or Bash).
 
 The simplest way to create a function is to introduce an anonymous function
 using the following syntax:
@@ -1352,6 +1353,165 @@ equalities.  You can use this feature to author "property tests", except
 verifying that the property holds for all possible values instead of a randomly
 selected sample of values.
 
+## Unions
+
+Previously, we noted that we could not store elements of different types within
+the same `List`:
+
+```dhall
+[ 1, True ]  -- This will not type-check
+```
+
+However, we can wrap elements of different types so that they agree upon a
+shared composite type.  These composite types are called "unions".
+
+A union type is bar-delimited key-type pairs surrounded by angle brackets, like
+this:
+
+```dhall
+< Number : Natural | Boolean : Bool >
+```
+
+Each key is called an "alternative" and the above union type has two
+alternatives named `Number` and `Boolean`.  The alternative names can be
+whatever you want them to be (hopefully descriptive names!).
+
+Each alternative may optionally be paired with a type of value that you can
+store within that alternative.  The above union type can store a `Natural`
+number within the `Number` alternative or a `Bool` value within the `Boolean`
+alternative.
+
+To wrap a value in a union type, use the following syntax:
+
+```dhall
+UnionType.Alternative valueToWrap
+```
+
+The result will be a value whose type is the union's type.  For example:
+
+```dhall
+⊢ :let Example = < Number : Natural | Boolean : Bool >
+
+Example : Type
+
+⊢ :type Example.Number 1
+
+< Boolean : Bool | Number : Natural >
+
+⊢ :type Example.Boolean True
+
+< Boolean : Bool | Number : Natural >
+```
+
+Since the types match, we can store the wrapped values within the same `List`:
+
+```dhall
+let Example = < Number : Natural | Boolean : Bool >
+
+in  [ Example.Number 1, Example.Boolean True ]
+```
+
+> **Exercise:** Add another alternative to the `Example` type and then add
+> a value wrapped in that alternative to the above `List`.
+
+You can extract a value from a union type using the `merge` keyword.  This
+keyword expects a record containing one function per alternative, like this:
+
+```dhall
+let Example = < Number : Natural | Boolean : Bool >
+
+let renderExample
+    : Example -> Text
+    =     \(example : Example)
+      ->  merge
+            { Number = \(n : Natural) -> Natural/show n
+            , Boolean = \(b : Bool) -> if b then "True" else "False"
+            }
+            example
+
+let example0 = assert : renderExample (Example.Number 42) === "42"
+
+let example1 = assert : renderExample (Example.Boolean False) === "False"
+
+in  renderExample
+```
+
+The functions stored within this record are called "handlers" because each of
+them "handles" one potential alternative.  We don't know in advance which
+alternative might be stored within our union type, so we need to be prepared to
+handle all of them.
+
+The language does not let you ignore alternatives.  If you forget to provide a
+handler, then that is a type error.
+
+> **Exercise:** Delete the `Boolean` handler from the above example and
+> interpret the expression to see what happens.
+
+Each handler is a function whose input is the value wrapped within that
+alternative and whose output is a result of any type, so long as each handler
+shares the same result type.  In our `renderExample` function each
+handler has a different input type, but they all share the same output type:
+`Text`.
+
+> **Exercise:** Implement a function that converts an `Example` to a `Natural`
+> number with the following behavior:
+>
+> * If the alternative is a `Number`, return the wrapped number
+> * If the alternative is a `Boolean`, then return `0` if `False` and `1` if
+>   `True`
+>
+> Check your answer by writing tests for your function using `assert`.
+
+Alternatives can be empty.  For example, you can define an "enum" as a union
+with all empty alternatives:
+
+```dhall
+let DayOfWeek =
+      < Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday >
+
+let isWeekend
+    : DayOfWeek -> Bool
+    =     \(day : DayOfWeek)
+      ->  merge
+            { Sunday = True
+            , Monday = False
+            , Tuesday = False
+            , Wednesday = False
+            , Thursday = False
+            , Friday = False
+            , Saturday = False
+            }
+            day
+
+in  isWeekend
+```
+
+A handler for an empty alternative requires no input (since an empty alternative
+does not store a value).
+
+You can also mix empty and non-empty alternatives.  For example, you could
+define the `Optional` type like this:
+
+```dhall
+let Optional = \(a : Type) -> < Some : a | None >
+```
+
+... although that's not how the type actually works (it's built into the
+language).  Even so, you can still use the `merge` keyword to process `Optional`
+values *as if* they had the above type:
+
+```dhall
+let default =
+          \(o : Optional Natural)
+      ->  merge { Some = \(n : Natural) -> n, None = 0 } o
+
+let example0 = assert : default (Some 42) === 42
+
+let example1 = assert : default (None Natural) === 0
+
+in  default
+```
+
 ## Multiple function arguments
 
 All Dhall functions are functions of one argument, and there are two ways you
@@ -1435,6 +1595,12 @@ the type:
 List/length : forall (a : Type) -> (List a -> Natural)
 ```
 
-In other words, `List/length` is a function that takes one argument (a `Type`),
-and returns a new intermediate function which in turn takes a separate
-argument (a `List a`).
+This type indicates that `List/length` is a function that takes one argument
+(a `Type`), and returns a new intermediate function.  This intermediate function
+takes an argument of its own (a `List a`) and returns the final result (a
+`Natural`).  Or in other words, `List/length` is a "function that returns a
+function that returns a number".
+
+## Naming conventions
+
+* Talk about what things are conventionally uppercase and lowercase
