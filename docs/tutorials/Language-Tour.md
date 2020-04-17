@@ -1411,6 +1411,15 @@ let Example = < Number : Natural | Boolean : Bool >
 in  [ Example.Number 1, Example.Boolean True ]
 ```
 
+> **Exercise:** `Example.Number` and `Example.Boolean` are functions.  Use the
+> REPL to ask for the type of each function:
+>
+> ```dhall
+> ⊢ :let Example = < Number : Natural | Boolean : Bool >
+> ⊢ :type Example.Number
+> ⊢ :type Example.Boolean
+> ```
+
 > **Exercise:** Add another alternative to the `Example` type and then add
 > a value wrapped in that alternative to the above `List`.
 
