@@ -90,10 +90,6 @@ file and then referencing the file path
 > (input):1:1
 > ```
 >
-> This is because the REPL interprets Dhall code and the language provides
-> built-in support for relative paths *if* they begin with `./`.  We'll cover
-> this more when we get to import resolution.
->
 > Alternatively, you can also interpret the file from the command line, like
 > this:
 >
@@ -321,7 +317,7 @@ For example:
    a block
    comment
 
-   {- You can nested block comments -}
+   {- You can nest block comments -}
 -}
 
 2 + {- You can embed block comments anywhere -} 2
@@ -336,7 +332,7 @@ The `Bool` type is one of the simplest types that the language provides
 built-in support for.
 
 The only two valid `Bool` constants are `False` and `True` and the language
-provides the following logical operators which work on `Bool`s:
+provides the following logical operators which work on `Bool` valus:
 
 * `&&` - logical "and"
 
@@ -548,7 +544,7 @@ lines after the opening quotes, meaning that this expression
 ''
 ABC
 DEF
-'''
+''
 ```
 
 ... is the same as this expression
@@ -798,10 +794,6 @@ Dhall has standard terminology for referring to expressions at different
 If you don't feel like classifying things, you can always call something an
 "expression".  All terms, types, and kinds are expressions, too.
 
-## `let` expressions
-
-Some of the subsequent examples will not fit on one line, so 
-
 ## Tests
 
 The language provides built-in support for testing that two expressions are
@@ -846,10 +838,9 @@ compare functions or abstract expressions for equality in this way, too:
 ```
 
 The interpreter cannot always verify that two abstract expressions are the same
-(this is impossible in general), but the interpreter can detect some simple
-equalities.  You can use this feature to author "property tests", except
-verifying that the property holds for all possible values instead of a randomly
-selected sample of values.
+(which is impossible in general), but the interpreter can detect some simple
+equalities.  You can use this feature to author tests that exhaustively
+verify that a property holds for all possible values of a variable.
 
 ## `List`s
 
@@ -1006,8 +997,9 @@ You can make arbitrary expressions `Optional`, such as the following nested
   ```
 
   Carefully note that the last two values do not mean the same thing.  Many
-  languages only permit only one "level" of nullability, but in Dhall you can
-  nest the `Optional` type to an arbitrary depth and each layer is distinct.
+  languages only permit one "level" of nullability, but in Dhall you can nest
+  the `Optional` type to an arbitrary depth and each layer is tracked
+  separately.
 
 `Some` is a keyword that requires an argument, meaning that `Some 1` is a valid
 expression, but `Some` by itself is not valid.  However, `None` is more
@@ -1067,12 +1059,11 @@ The way to denote an empty record literal with zero key-value pairs is:
 {}
 ```
 
-> **Exercise:** What is the type of this expression?
+> **Exercise:** Ask the interpreter for the type of the `./example.dhall` file
+> from earlier in the tutorial:
 >
 > ```dhall
-> [ { name = "John" , manager = Some "Alice" }
-> , { name = "Alice", manager = None Text    }
-> ]
+> ⊢ :type ./example.dhall
 > ```
 
 You can access the fields of a record using `.` (the field access operator),
@@ -1083,6 +1074,135 @@ let exampleRecord = { x = 1, y = 2 }
 
 in  exampleRecord.x + exampleRecord.y
 ```
+
+## `let` expressions
+
+Some of the following examples will not fit on one line, so we can use
+`let` expressions to split our code into smaller expressions over multiple
+lines.
+
+We've already come across some `let` expressions, like in our first example:
+
+```dhall
+let List/filter = https://prelude.dhall-lang.org/List/filter
+
+let Person = { name : Text, age : Natural, admin : Bool }
+
+let alice : Person =
+      { name = "Alice"
+      , age = 24
+      , admin = True
+      }
+
+let bob : Person =
+      { name = "Bob"
+      , age = 49
+      , admin = True
+      }
+
+let carlo : Person =
+      { name = "Carlo"
+      , age = 20
+      , admin = False
+      }
+
+let isAdmin = \(person : Person) -> person.admin
+
+in  List/filter Person isAdmin [ alice, bob, carlo ]
+```
+
+... and the above example illustrates how `let` expressions can come in one of
+two forms:
+
+* A `let` expression with a type annotation:
+
+  ```dhall
+  let variableName : VariableType = expression
+
+  in  result
+  ```
+
+* A `let` expression without a type annotation
+
+  ```dhall
+  let variableName = expression
+
+  in  result
+  ```
+
+Both types of `let` expression create a variable that is a short-hand synonym
+for the expression on the right-hand side of the `=` sign.  For example, this
+expression:
+
+```dhall
+let x = 1
+
+let y = 2
+
+in  x + y
+```
+
+... is the same thing as:
+
+```dhall
+1 + 2
+```
+
+... since all that we've done is replaced all occurrences of `x` with `1` and
+replaced all occurrences of `y` with `2`.
+
+The first part of the `let` expression (before the `in` keyword) is known as
+a "`let` binding" and a `let` expression can have more than one `let` binding.
+
+There are very few restrictions on what you can create a synonym for with a
+`let` expression.  For example, you can use a `let` expression to create a
+synonym for a type and we saw one case of that in `example.dhall`:
+
+```dhall
+…
+
+-- `Person` is a synonym for a record type …
+let Person = { name : Text, age : Natural, admin : Bool }
+
+-- … which we can use as the type annotation for this `let` expression
+let alice : Person =
+      { name = "Alice"
+      , age = 24
+      , admin = True
+      }
+
+…
+```
+
+The main restrictions are:
+
+* You cannot create synonyms for keywords (e.g. `merge`, `if`, `Some`, etc.)
+
+  You can only create synonyms for expressions
+
+* You cannot create a `let` expression that refers to itself
+
+  General recursion is not permitted
+
+> **Exercise:** What happens if you try to define a recursive `let`
+> binding?
+>
+> ```dhall
+> ⊢ :let x = x + 1
+> ```
+>
+> If the error message does not make sense, then enable more detailed error
+> messages with the following command:
+>
+> ```dhall
+> :set --explain
+> ```
+>
+> ... and repeat the experiment.
+
+Dhall code idiomatically uses `let` expressions heavily, so don't be afraid to
+split large expressions into lots of smaller `let` bindings.  You can always
+interpret the code to remove indirection if necessary.
 
 ## Functions
 
@@ -1182,6 +1302,7 @@ and returns the next `Natural` number (`x + 1`):
 ```
 
 > **Exercise**: Apply the above anonymous function directly to the argument `2`
+> (without using a `let` expression).
 
 In practice, most anonymous Dhall functions are given a name using a `let`
 binding, like this:
@@ -1197,7 +1318,7 @@ in  increment 2
 > ```dhall
 > let not = ???
 >
-> in  not True  -- … which should return `False`
+> in  not True
 > ```
 
 In some cases, the argument name matters if you reference the name within the
@@ -1383,7 +1504,7 @@ let isWeekend
             , Wednesday = False
             , Thursday = False
             , Friday = False
-            , Saturday = False
+            , Saturday = True
             }
             day
 
@@ -1629,7 +1750,131 @@ interested in the full list, see:
 
 ## Imports
 
-* ... using the Prelude as the example
+Dhall supports importing expressions from:
+
+* local filepaths
+* remote URLs
+* environment variables
+
+For example, run the following command to save the expression `2` to a file
+named `./two.dhall`:
+
+```dhall
+⊢ :save ./two.dhall = 2
+Expression saved to `./two.dhall`
+```
+
+... and then add that file to itself:
+
+```dhall
+⊢ ./two.dhall + ./two.dhall
+
+4
+```
+
+This works because of Dhall's "import resolution" phase, where filepaths are
+replaced with the expressions stored within those files.  In the above
+example, the interpreter replaces the expression:
+
+```dhall
+./two.dhall + ./two.dhall
+```
+
+... with:
+
+```dhall
+2 + 2
+```
+
+... and then continues to interpret the expression to produce `4`.
+
+You can store essentially any expression within an import (just like a `let`
+binding).  For example, you can store a type inside of an import if you want
+to use that import as a "schema file":
+
+```dhall
+⊢ :save ./Person.dhall = { name : Text, age : Natural }
+Expression saved to `./Person.dhall`
+
+⊢ { name = "John Doe", age = 24 } : ./Person.dhall
+
+{ age = 24, name = "John Doe" }
+```
+
+... or you can store a function inside of a file and apply that file to a
+function argument:
+
+```dhall
+⊢ :save ./increment.dhall = \(x : Natural) -> x + 1
+Expression saved to `./increment.dhall`
+
+⊢ ./increment.dhall 2
+
+3
+```
+
+Dhall files that you import in this way can themselves import other files
+(also known as "transitive" dependencies).
+
+> **Exercise:** Outside of the REPL, create the following file:
+>
+> ```dhall
+> -- ./infant.dhall
+>
+> { name = "Jerry", age = ./two.dhall } : ./Person.dhall
+> ```
+>
+> ... and then inside the REPL enter:
+>
+> ```dhall
+> ⊢ (./infant.dhall).age
+> ```
+
+> **Exercise:** What happens if you interpret a Dhall expression that imports
+> itself?
+
+Dhall expressions can import URLs, too, and this is how Dhall packages are
+distributed.  For example, the most commonly used Dhall package is the Prelude,
+which you can use like this:
+
+```dhall
+let Prelude = https://prelude.dhall-lang.org/package.dhall
+
+in  Prelude.Text.concatSep "," [ "apple", "banana", "pineapple" ]
+```
+
+If importing from URLs concerns you then take a moment to read about the safety
+guarantees provided by the language:
+
+* [Safety guarantees](../discussions/Safety-guarantees.md)
+
+Most Dhall packages are essentially large records that you can import that
+contain useful types and functions as their fields.
+
+> **Exercise:** Import the Prelude within the REPL:
+>
+> ```dhall
+> ⊢ :let Prelude = https://prelude.dhall-lang.org/package.dhall
+> ```
+>
+> ... and then use tab completion to explore what fields are available:
+>
+> ```dhall
+> ⊢ Prelude.<TAB>
+> Prelude.Bool      Prelude.JSON      Prelude.Monoid    Prelude.XML
+> Prelude.Double    Prelude.List      Prelude.Natural
+> Prelude.Function  Prelude.Location  Prelude.Optional
+> Prelude.Integer   Prelude.Map       Prelude.Text
+> ⊢ Prelude.List.<TAB>
+> Prelude.List.all        Prelude.List.filter     Prelude.List.map
+> Prelude.List.any        Prelude.List.fold       Prelude.List.null
+> Prelude.List.build      Prelude.List.generate   Prelude.List.partition
+> Prelude.List.concat     Prelude.List.head       Prelude.List.replicate
+> Prelude.List.concatMap  Prelude.List.indexed    Prelude.List.reverse
+> Prelude.List.default    Prelude.List.iterate    Prelude.List.shifted
+> Prelude.List.drop       Prelude.List.last       Prelude.List.take
+> Prelude.List.empty      Prelude.List.length     Prelude.List.unzip
+> ```
 
 ## Naming conventions
 
