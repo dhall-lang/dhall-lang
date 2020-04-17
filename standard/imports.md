@@ -402,7 +402,7 @@ The grammar for imports permits quoted path components for both file paths:
 
     https://example.com/foo/"bar?baz"?qux
 
-The first path component must not be quoted (this is a parse error).
+A leading `.`, `..` or `~` may not be quoted (this is a parse error).
 
 Path components after parsing and in the binary encoding are always unescaped
 (as if originally quoted).
