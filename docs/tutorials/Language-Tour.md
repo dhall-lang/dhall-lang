@@ -2297,7 +2297,84 @@ this:
 
 ## Record completion
 
-* TODO
+The language includes one last record operator useful for working with large
+records with many default-valued fields:
+
+* `::` - Record completion
+
+  ```dhall
+  let Person =
+        { Type = { name : Text, friends : List Text }
+        , default = { friends = [] : List Text }
+        }
+
+  let examples =
+        [ Person::{ name = "John" }
+        , Person::{ name = "Alice", friends = [ "Charles" ] }
+        ]
+
+  let results =
+        [ { name = "John", friends = [] : List Text }
+        , { name = "Alice", friends = [ "Charles" ] }
+        ]
+
+  let test = assert : examples === results
+
+  in  Person
+  ```
+
+This operator expects two arguments:
+
+* The left argument is a "schema" record containing two fields:
+
+  * A field named `Type` containing the desired record type
+
+  * A field named `default` containing default values for any of the fields
+
+* The right argument is a record that you want to "complete" by providing
+  default values for unspecified fields
+
+... and an expression of the form `T::r` is syntactic sugar for
+`(T.default // r) : T.Type`
+
+In the above example, `Person::{ name = "John" }` extends the record to add
+a `friends` field with a default value of `[] : List Text`.  This works because:
+
+```dhall
+Person::{ name = "John" }
+
+= (Person.default // { name = "John" }) : Person.Type
+
+= ({ friends = [] : List Text } // { name = "John" }) : Person.Type
+
+= { name = "John", friends = [] : List Text } : Person.Type
+
+= { name = "John", friends = [] : List Text } : { name : Text, friends : List Text }
+
+= { name = "John", friends = [] : List Text }
+```
+
+> **Exercise:** Create a "schema" named `Image` for a Docker image with the
+> following fields:
+>
+> * An optional `registry` field of type `Text` that defaults to `"docker.io"`
+> * A required `repository` field of type `Text`
+> * A required `name` field of type `Text`
+> * An optional `tag` field of type `Text` that defaults to `"latest"`
+>
+> ... then use your schema to create a sample record:
+>
+> ```dhall
+> ⊢ Image::{ repository = "library", name = "postgres" }
+> ```
+
+The type annotation ensures that any "required" fields are present, where a
+"required" field is a field where no default value is specified.  In the above
+example, the `name` field is required because the Person "schema" does not
+specify a default value for the `name` field.
+
+> **Exercise:** See what happens if you omit the `name` field required by the
+> `Person` schema by interpreting the expression `Person::{=}`
 
 ## Naming conventions
 
