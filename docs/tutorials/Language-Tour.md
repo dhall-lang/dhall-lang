@@ -1786,6 +1786,14 @@ example, the interpreter replaces the expression:
 
 ... and then continues to interpret the expression to produce `4`.
 
+There are three types of filepath imports that Dhall understands:
+
+* Relative imports (e.g. `./example.dhall` or `../sibling/example.dhall`)
+* Absolute imports (e.g. `/usr/local/share/dhall/Prelude/package.dhall`)
+* Home-anchored imports (e.g. `~/lib/utils.dhall`)
+
+... although this tutorial will only use relative imports.
+
 You can store essentially any expression within an import (just like a `let`
 binding).  For example, you can store a type inside of an import if you want
 to use that import as a "schema file":
@@ -1876,6 +1884,8 @@ contain useful types and functions as their fields.
 > Prelude.List.empty      Prelude.List.length     Prelude.List.unzip
 > ```
 
+## Prelude
+
 You can browse the Prelude online here:
 
 * [Prelude - https://prelude.dhall-lang.org](https://prelude.dhall-lang.org)
@@ -1890,6 +1900,11 @@ Each Prelude function contains a comment explaining how to use the function.
 > `List/generate` utility here:
 >
 > * [Prelude - `List/generate`](https://prelude.dhall-lang.org/v15.0.0/List/generate)
+
+... and the Prelude also re-exports all of the language built-ins (e.g.
+`Natural/show`, `Integer/clamp`, etc.), including documentation and examples for
+each built-in.  So you can use the Prelude to better understand and explore the
+available built-in functions.
 
 You can use the Prelude's `List/generate` function as a nested field of the
 Prelude record: `Prelude.List.generate`.  For example:
@@ -2051,12 +2066,238 @@ never successfully resolve to a value other than `True`.  Every integrity
 check uniquely identifies the corresponding Dhall expression (ignoring
 highly improbable hash collisions).
 
+Since the integrity check uniquely identifies the corresponding expression the
+integrity check is "authoritative", meaning that an import will succeed if the
+corresponding expression is already cached, regardless of whether or not the
+import is available.
+
+> **Exercise:** First resolve the Prelude with an integrity check within the
+> REPL:
+>
+> ```dhall
+> ⊢ :let Prelude = https://prelude.dhall-lang.org/package.dhall sha256:6b90326dc39ab738d7ed87b970ba675c496bed0194071b332840a87261649dcd
+> ```
+>
+> ... now replace the URL with any other arbitrary URL and run the command
+> again.  The import should still succeed!
+
+The language has a special import that will always fail to resolve, called
+`missing`:
+
+```dhall
+⊢ missing
+
+Error: No valid imports
+
+1│ missing
+
+(input):1:1
+```
+
+... but the import will succeed if you attach an integrity check for an
+import that is already cached:
+
+```dhall
+⊢ :let Prelude = missing sha256:6b90326dc39ab738d7ed87b970ba675c496bed0194071b332840a87261649dcd
+```
+
+You can use this trick to fetch any import from your local cache based on the
+import's hash.  Continuing with the metaphor of "installing" a package, fetching
+an import from a URL is analogous to installing a source package and fetching
+an import from the local cache based on the hash is analogous to installing a
+binary package.  In fact, locally cached imports are stored in a compressed
+binary representation for efficiency, so you can really think of them as binary
+packages that your interpreter downloaded and installed along the way.
+
 Imports that don't have an integrity check will be resolved every time you
 interpret them.  However, those imports may have transitive dependencies of
 their own that are protected by integrity checks and those transitive
 dependencies will be locally cached.  For example, the top-level Prelude
 `package.dhall` import protects its own transitive dependencies in this way, as
 an optimization to minimize network traffic.
+
+## Importing raw `Text`
+
+Sometimes you want to import `Text` from a file that is not a Dhall expression.
+For example, you might want to import your SSH public key as a `Text` literal,
+like this:
+
+```dhall
+⊢ ~/.ssh/id_ed25519.pub as Text
+```
+
+More generally, you can turn any import into a raw `Text` import by adding
+`as Text` to the end of the import.
+
+> **Exercise:** You can use this feature to turn `dhall` into a makeshift
+> `curl`!  Try this:
+>
+> ```dhall
+> ⊢ https://example.com as Text
+> ```
+
+## Environment variable imports
+
+You can also import Dhall expressions from environment variables, too, using
+the following syntax:
+
+```dhall
+env:FOO
+```
+
+... replacing `FOO` with the desired environment variable.
+
+However, you will more commonly import environment variables as raw `Text`,
+like this:
+
+```dhall
+⊢ env:USER as Text  -- Get your current username
+```
+
+## Alternative imports
+
+Sometimes you might want to provide a fallback import if import resolution
+fails, which can happen for a number of reasons:
+
+* A file path is missing
+* A remote import is temporarily unavailable
+* An environment variable is unset
+
+The language provides a built-in `?` operator which lets you specify an
+arbitrary expression as a fallback if an import fails.
+
+For example, you could get the current `HOME` environment variable wrapped in a
+`Some` if the variable is present, and return `None Text` if the environment
+variable is unset:
+
+```dhall
+Some (env:HOME as Text) ? None Text
+```
+
+... or you could provide a fallback mirror if a URL is unavailable:
+
+```dhall
+  https://example.com/us-east/package.dhall
+? https://example.com/us-west/package.dhall
+```
+
+... or you can provide multiple levels of fallbacks that let you override
+imports for customization purposes:
+
+```dhall
+  env:DHALL_PRELUDE
+? /usr/local/share/dhall/Prelude
+? https://prelude.dhall-lang.org/v15.0.0/package.dhall
+```
+
+## Records - Part 2
+
+Record management is a significant aspect of using Dhall "in anger", so the
+language has several features designed to simplify working with records.
+
+First, there are three operators which you can use to extend record values or
+record types:
+
+* `/\` - Recursive record value merge - Unicode: `∧` (U+2227)
+
+  ```dhall
+  ⊢ { a = { b = 1 }, d = True } /\ { a = { c = 1 } }
+
+  { a = { b = 1, c = 1 }, d = True }
+  ```
+
+  This operator recursively merges two records, but fails with a type error if
+  any two non-record fields "collide".
+
+* `//` - Shallow right-based record type merge - Unicode: `⫽` (U+2AFD)
+
+  ```dhall
+  ⊢ { a = { b = 1 } } // { a = 1, d = True }
+
+  { a = 1, d = True }
+  ```
+
+  This operator merges two records, preferring fields from the right record if
+  there is a collision.  Unlike `/\`, this operator does not recursively merge
+  nested fields if two record-valued fields collide.
+
+* `//\\` - Recursive record type merge - Unicode: `⩓` (U+2A53)
+
+  ```dhall
+  ⊢ { a : { b : Natural }, d : Bool } //\\ { a : { c : Natural } }
+
+  { a : { b : Natural, c : Natural }, d : Bool }
+  ```
+
+  This operator is the type-level analog of `/\`, recursively merging two
+  record types, failing if there are any collisions.
+
+Additionally, record literals provide two types of syntactic sugar for working
+with deeply-nested records.
+
+First, you can represent nested fields more compactly using "dot" syntax for
+nested fields, like this:
+
+```dhall
+{ a.b.c = 1 }
+```
+
+... which is syntactic sugar for:
+
+```dhall
+{ a = { b = { c = 1 } } }
+```
+
+Second, if you specify the same field twice, the interpreter will merge the
+two fields using `/\`.  In other words, this expression:
+
+```dhall
+{ a = { b = { c = 1 } }, a = { b = { d = True } } }
+```
+
+... is syntactic sugar for:
+
+```dhall
+{ a = { b = { c = 1 } } /\ { b = { d = True } } }
+```
+
+... which normalizes to:
+
+```dhall
+{ a = { b = { c = 1, d = True } } }
+```
+
+This feature comes in handy when paired with the dot syntax for nested fields,
+because you can then easily specify multiple nested fields by specifying the
+"path" to each field:
+
+```dhall
+⊢ { a.b.c = 1, a.b.d = True }
+
+{ a.b = { c = 1, d = True } }
+```
+
+> **Exercise:** Does `{ a = 1, a = 1 }` type-check?  Test your guess!
+
+> **Challenge exercise:** When is `{ a = foo, a.b = bar }` valid?  In other
+> words, what conditions must be true about `foo` and/or `bar` for that
+> expression to type-check?
+
+You can also easily override or add nested fields using `with` expressions, like
+this:
+
+```dhall
+⊢ { a.b.c = 1, a.b.d = True } with a.b.c = 2 with a.b.e = "Hey"
+
+{ a.b = { c = 2, d = True, e = "Hey" } }
+```
+
+> **Exercise:** Can you use a `with` expression to change the type of a nested
+> field?  Test your guess
+
+## Record completion
+
+* TODO
 
 ## Naming conventions
 
