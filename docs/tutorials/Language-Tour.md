@@ -10,7 +10,7 @@ Walk through all language features
 This tutorial covers all of the Dhall configuration language features, in a
 way that is not specific to an integration (like JSON or YAML) or language
 binding (like Go or Rust).  In other words, this tutorial assumes that you've
-already figured out use Dhall within a project and you want to dive more
+already figured out how to use Dhall within a project and you want to dive more
 comprehensively into the core language features.
 
 ## Prerequisites
@@ -24,6 +24,10 @@ You can install a prebuilt executable for Windows / OS X / Linux from the
 following release page:
 
 * [`dhall-lang/dhall-haskell` - Releases](https://github.com/dhall-lang/dhall-haskell/releases)
+
+The installation instructions are essentially the same as in
+[Getting started: Generate JSON or YAML](./Getting-started_Generate-JSON-or-YAML.md),
+except replacing `dhall-json` with `dhall`.
 
 > **Exercise:** Verify that you have correctly installed the tool by running:
 >
@@ -98,8 +102,8 @@ file and then referencing the file path
 > ```
 >
 > This tutorial will not cover everything that the command-line utility can do,
-> but as a general rule anything you can do within the REPL you can also do
-> from the command line, too.
+> but as a general rule anything you can do within the REPL you can also be
+> done from the command line without the REPL.
 >
 > The REPL uses Unicode punctuation by default.  If you prefer ASCII, then
 > start the REPL using `dhall repl --ascii` instead.
@@ -122,8 +126,8 @@ These "plain" values include simple types like:
 * Records
 * Unions
 
-Here is an example of a "plain" expression that can likely be loaded into any
-such integration:
+Here is an example of a "plain" expression that can be loaded into most
+languages or file formats:
 
 ```dhall
 [ { name = "Alice"
@@ -171,6 +175,8 @@ the following expression is equivalent to our original example (albeit more
 indirect, just to illustrate a point):
 
 ```dhall
+-- ./example.dhall
+
 let List/filter = https://prelude.dhall-lang.org/v15.0.0/List/filter
 
 let Person = { name : Text, age : Natural, admin : Bool }
@@ -245,6 +251,11 @@ A Dhall interpreter processes expressions in five phases:
 
   Example: `\(x : Natural) -> [ 2 + 2, x ]` will normalize to
   `\(x : Natural) -> [ 4, x ]`
+
+  Evaluation is a special-case of normalization where the result is a plain
+  value.
+
+  Example: `if True && False then 1 else 0` evaluates to 0
 
 * **Marshalling**
 
@@ -681,9 +692,6 @@ in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 ```
 
 > **Exercise:** How do you escape `Text` interpolation?
->
-> In other words, how do you get the interpreter to not interpolate into a
-> `Text` literal with the characters `${…}`?
 
 ### `Text` operations
 
@@ -720,17 +728,17 @@ arguments:
 * The left-hand side is the expression to type-check
 * The right-hand side is the expected type of the left-hand side
 
-... and the operator returns the left-hand side after type-checking it against
+... and the operator returns the left-hand side after checking it's type against
 the right-hand side.
 
-> **Exercise:** Ask the REPL for the type of the `Natural/even` function:
+> **Exercise:** Ask the REPL for the type of the following expression:
 >
 > ```dhall
-> ⊢ :type Natural/even
+> ⊢ :type [ True, False ]
 > ```
 >
 > Then verify that the type is correct by giving a type annotation to the
-> `Natural/even` function.
+> same expression.
 
 You can insert this operator anywhere within Dhall code (although you may
 need to wrap things in parentheses).  For example, this is a valid Dhall
@@ -777,7 +785,7 @@ Dhall has standard terminology for referring to expressions at different
 
   For example, `Bool` is a "type" because `Bool : Type : Kind`
 
-  Also, `List` is a "type" because `List : Type -> Type : Kind`
+  A `List` is also a "type" because `List : Type -> Type : Kind`
 
 * An expression `x` is a lowercase-'k' "kind" if the type of the type of `x` is
   `Sort`
@@ -810,7 +818,7 @@ assert : 4 ≡ 4
 ```
 
 This keyword lets you compare two expressions for equality at type-checking
-time using the `===` or `≡` (U+2261) operator.
+time in conjunction with the `===` or `≡` (U+2261) operator.
 
 If the expressions do not match then type-checking will fail and the
 interpreter will display a diff:
@@ -848,8 +856,8 @@ verify that a property holds for all possible values of a variable.
 
 ## `List`s
 
-A `List` literal is comma-separated elements surrounded by square brackets, like
-this:
+A `List` literal is represented by comma-separated elements surrounded by square
+brackets, like this:
 
 ```dhall
 [ 2, 3, 5 ]
@@ -918,11 +926,11 @@ By default, all Dhall types are not "nullable", meaning that there is no special
 
 For example, if a Dhall expression has type `Bool` that means that
 interpreting the expression must produce a `True` or `False` value.  No
-other result is possible, and in particular a null value is not possible.
+other result is possible, and in particular a null value is impossible.
 
-However, you can opt in to empty values by wrapping types in `Optional`.  For
-example, an `Optional Natural` is a `Natural` number that might be present or
-might be absent.
+However, you can opt in to potentially empty types by wrapping types in
+`Optional`.  For example, an `Optional Natural` is a `Natural` number that might
+be present or might be absent.
 
 There are two ways to create a value of type `Optional Natural`.  If the
 `Natural` number is present then you wrap the `Natural` number in a `Some` to
@@ -1000,10 +1008,10 @@ You can make arbitrary expressions `Optional`, such as the following nested
   None (Optional Bool)
   ```
 
-  Carefully note that the last two values do not mean the same thing.  Many
-  languages only permit one "level" of nullability, but in Dhall you can nest
-  the `Optional` type to an arbitrary depth and each layer is tracked
-  separately.
+Carefully note `Some (None Bool)` and `None (Optional Bool)` do not necessarily
+mean the same thing.  Many languages only permit one "level" of nullability, but
+in Dhall you can nest the `Optional` type to an arbitrary depth and each layer
+is tracked separately.
 
 `Some` is a keyword that requires an argument, meaning that `Some 1` is a valid
 expression, but `Some` by itself is not valid.  However, `None` is more
@@ -1077,6 +1085,32 @@ like this:
 let exampleRecord = { x = 1, y = 2 }
 
 in  exampleRecord.x + exampleRecord.y
+```
+
+You can also "project" out a subset of fields using comma-separate field names
+in braces, like this:
+
+```dhall
+⊢ :let point = { x = 10.3, y = 2.1, z = 9.1 }
+
+point : { x : Double, y : Double, z : Double }
+
+⊢ point.{ x, y }
+
+{ x = 10.3, y = 2.1 }
+```
+
+You can also "project" out a subset of fields by the expected type, too, if
+you surround the type in parentheses:
+
+```dhall
+⊢ :let Point2D = { x : Double, y : Double }
+
+Point2D : Type
+
+⊢ point.(Point2D)
+
+{ x = 10.3, y = 2.1 }
 ```
 
 ## `let` expressions
@@ -1305,7 +1339,7 @@ and returns the next `Natural` number (`x + 1`):
 \(x : Natural) -> x + 1
 ```
 
-> **Exercise**: Apply the above anonymous function directly to the argument `2`
+> **Exercise:** Apply the above anonymous function directly to the argument `2`
 > (without using a `let` expression).
 
 In practice, most anonymous Dhall functions are given a name using a `let`
@@ -1371,6 +1405,37 @@ List/length : forall (a : Type) -> List a -> Natural
 >
 > ```dhall
 > ⊢ List/length : ???
+> ```
+
+"Polymorphic" functions like `List/length` require you to explicitly specify
+types as their arguments.  For example, the first argument of `List/length`
+is the type of the `List` that we want to count.  This type argument cannot be
+omitted.
+
+A more interesting example is the type of the `List/map` function from the
+Prelude (which we'll get to below):
+
+```dhall
+List/map
+  : forall (a : Type) -> forall (b : Type) -> (a -> b) -> List a -> List b
+```
+
+`List/map` transforms a `List` by applying a function to each element.
+
+This function takes four arguments which are, in order:
+
+* A `Type` (named `a`) which is the type of the elements for our input `List`
+* A `Type` (named `b`) which is the type of the elements for our output `List`
+* A function that can convert a value of type `a` into a value of type `b`
+* An input `List` with elements of type `a`
+
+... and the function returns an output `List` with elements of type `b`
+
+> **Exercise:** Can you guess what this function does based on the function's
+> name and type?
+>
+> ```dhall
+> List/filter : forall (a : Type) -> (a -> Bool) -> List a -> List a
 > ```
 
 ## Unions
@@ -1512,11 +1577,21 @@ let isWeekend
             }
             day
 
-in  isWeekend
+in  isWeekend DayOfWeek.Sunday
 ```
 
 A handler for an empty alternative requires no input (since an empty alternative
 does not store a value).
+
+> **Exercise:** Change the following expression to use an enum to represent each
+> person's favorite color instead of `Text`:
+>
+> ```dhall
+> [ { name = "Alice", favoriteColor = "Green" }
+> , { name = "Bob"  , favoriteColor = "Blue"  }
+> , { name = "Carlo", favoriteColor = "Red"   }
+> ]
+> ```
 
 You can also mix empty and non-empty alternatives.  For example, you could
 define the `Optional` type like this:
@@ -1572,8 +1647,8 @@ can "simulate" a function of multiple arguments:
   [ True, False ]
   ```
 
-  The advantage of "currying" is that you can "partially apply" a "curried"
-  function to one argument at a time.
+  This trick is known as "currying" and the advantage of currying is that you
+  can "partially apply" a "curried" function to one argument at a time.
 
 * **Records**
 
@@ -1639,7 +1714,7 @@ For example, some built-in functions on numbers are:
 
 * `Natural/isZero : Natural -> Bool`
 
-  Returns `True` if the input is `0`, `False`, otherwise
+  Returns `True` if the input is `0`, `False` otherwise
 
   ```dhall
   ⊢ Natural/isZero 2
@@ -1743,9 +1818,6 @@ For example, some built-in functions on numbers are:
 > ```
 >
 > ... which will run the acceptance tests at the bottom of the file.
->
-> Later on we'll see how we can simplify functions like these with shared
-> utilities from the Dhall Prelude.
 
 This tutorial does not cover all available built-in functions.  If you are
 interested in the full list, see:
@@ -1785,6 +1857,21 @@ example, the interpreter replaces the expression:
 ```
 
 ... and then continues to interpret the expression to produce `4`.
+
+> **Exercise:** Why does the interpreter reject the following expression?
+>
+> ```dhall
+> ⊢ ./two.dhall: Natural
+> ```
+
+Expressions imported in this way must be "closed", meaning that the imported
+file cannot refer to variables that are not defined within the same file.  For
+example, if you save the expression `x` to a file named `./x.dhall` then that
+file can never be successfully imported, even if you write:
+
+```dhall
+let x = 1 in ./x.dhall  -- Still not valid
+```
 
 There are three types of filepath imports that Dhall understands:
 
@@ -1856,8 +1943,47 @@ guarantees provided by the language:
 
 * [Safety guarantees](../discussions/Safety-guarantees.md)
 
-Most Dhall packages are essentially large records that you can import that
-contain useful types and functions as their fields.
+You can customize the HTTP headers used to fetch an import with the `using`
+keyword, like this:
+
+```dhall
+⊢ https://httpbin.org/headers using [ { mapKey = "Accept", mapValue = "application/json" } ] as Text
+
+''
+{
+  "headers": {
+    "Accept": "application/json", 
+    "Accept-Encoding": "gzip", 
+    "Host": "httpbin.org", 
+    "X-Amzn-Trace-Id": "Root=1-5e9b359d-aa07e5ccfb136c70db276b79"
+  }
+}
+''
+```
+
+These extra headers are not able to access variables that are in scope (in order
+to protect against leaking program secrets).  For example:
+
+```dhall
+⊢ :let secret = "Very secret"
+
+secret : Text
+
+⊢ https://httpbin.org/headers using [ { mapKey = "Secret", mapValue = secret } ] as Text
+
+Error: Unbound variable: secret
+
+1│                                                                     secret
+
+(input):1:69
+
+1│ https://httpbin.org/headers using [ { mapKey = "Secret", mapValue = secret } ] as Text
+
+(input):1:1
+```
+
+Most Dhall packages are essentially large (possibly nested) records that you can
+import that contain useful types and functions as their fields.
 
 > **Exercise:** Import the Prelude within the REPL:
 >
@@ -1953,6 +2079,41 @@ List/generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) �
 > ```dhall
 > ⊢ List/generate 10
 > ```
+
+> **Challenge exercise:** Save the following expression to `./Value.dhall`
+> 
+> ```dhall
+> -- ./Value.dhall
+> 
+> < N : Natural | I : Integer | B : Bool >
+> ```
+> 
+> ... then save the following expression to `./input.dhall`:
+> 
+> ```dhall
+> -- ./input.dhall
+> 
+> let Value = ./Value.dhall
+> 
+> in  [ Value.N 1, Value.I +2, Value.B True ]
+> ```
+> 
+> ... and then create a Dhall expression in a `./solution.dhall` file that
+> renders each element of the list on a separate line such that the result looks
+> like this:
+> 
+> ```bash
+> $ dhall --file ./solution.dhall 
+> ```
+> ```dhall
+> ''
+> 1
+> +2
+> True
+> ''
+> ```
+>
+> The Prelude provides utilities that may come in handy for this exercise.
 
 ## Installing packages
 
@@ -2112,9 +2273,9 @@ packages that your interpreter downloaded and installed along the way.
 Imports that don't have an integrity check will be resolved every time you
 interpret them.  However, those imports may have transitive dependencies of
 their own that are protected by integrity checks and those transitive
-dependencies will be locally cached.  For example, the top-level Prelude
-`package.dhall` import protects its own transitive dependencies in this way, as
-an optimization to minimize network traffic.
+dependencies will be locally cached.  For example, the top-level `package.dhall`
+expression that we import from the Prelude protects its own transitive
+dependencies in this way, as an optimization to minimize network traffic.
 
 ## Importing raw `Text`
 
@@ -2153,6 +2314,10 @@ like this:
 ```dhall
 ⊢ env:USER as Text  -- Get your current username
 ```
+
+> **Exercise:** Store a Dhall function in an environment variable and then use
+> the function stored inside that environment variable within a larger Dhall
+> expression.
 
 ## Alternative imports
 
@@ -2376,6 +2541,139 @@ specify a default value for the `name` field.
 > **Exercise:** See what happens if you omit the `name` field required by the
 > `Person` schema by interpreting the expression `Person::{=}`
 
-## Naming conventions
+## Names
 
-* Talk about what things are conventionally uppercase and lowercase
+You might wonder which names are supposed to be uppercase or lowercase.  The
+language does not care how you capitalize names, but you will typically
+encounter the following conventions in the wild:
+
+* Terms are given lowercase names
+* Types are given uppercase names
+* Fields that store terms are given lowercase names
+* Fields that store types are given uppercase names
+* Union alternatives are given uppercase names
+
+However, these are not hard rules and you should feel free to deviate from them
+if doing so more accurately mirrors the domain that you're trying to model.
+
+In fact, the language gives you quite even more leeway about naming things if
+you're willing to escape the names using backticks, like this:
+
+```dhall
+⊢ :let `Avogadro's Number` = 6.0221409e+23
+```
+
+You can also escape record field names and union alternative names in the same
+way.
+
+Escaping variable names permits ASCII whitespace and punctuation, but does not
+permit arbitrary Unicode characters.  In other words, you can't have a variable
+with an emoji name.
+
+## Maps
+
+Several Dhall features, tools, packages use `Map`s, where a `Map` is defined as
+a list of key-value pairs:
+
+```dhall
+⊢ https://prelude.dhall-lang.org/v15.0.0/Map/Type as Text
+
+''
+{- This is the canonical way to encode a dynamic list of key-value pairs.
+
+   Tools (such as `dhall-to-json`/`dhall-to-yaml` will recognize values of this
+   type and convert them to maps/dictionaries/hashes in the target language
+
+   For example, `dhall-to-json` converts a Dhall value like this:
+
+   ```
+   [ { mapKey = "foo", mapValue = 1 }
+   , { mapKey = "bar", mapValue = 2 }
+   ] : ./Map Text Natural
+   ```
+
+   ... to a JSON value like this:
+
+   ```
+   { "foo": 1, "bar", 2 }
+   ```
+-}
+let Map
+    : Type → Type → Type
+    = λ(k : Type) → λ(v : Type) → List { mapKey : k, mapValue : v }
+
+in  Map
+''
+```
+
+`Map` is our first example of a custom type-level function.  `Map` is a function
+that takes two function arguments (the type of each key and the type of each
+value), and returns a new type (a `List` of key-value pairs).
+
+For example, earlier we introduced support for custom headers which are
+specified as a value of type `Map Text Text`:
+
+```dhall
+⊢ :let Map = https://prelude.dhall-lang.org/v15.0.0/Map/Type
+
+Map : ∀(k : Type) → ∀(v : Type) → Type
+
+⊢ Map Text Text
+
+List { mapKey : Text, mapValue : Text }
+
+⊢ [ { mapKey = "Accept", mapValue = "application/json" } ] : Map Text Text
+
+[ { mapKey = "Accept", mapValue = "application/json" } ]
+```
+
+The language also includes a `toMap` keyword which you can use to convert
+records to `Map`s.  For example:
+
+```dhall
+⊢ toMap { Accept = "application/json" }
+
+[ { mapKey = "Accept", mapValue = "application/json" } ]
+```
+
+... so we could use `toMap` to specify HTTP custom headers:
+
+```dhall
+⊢ https://httpbin.org/headers using (toMap { Accept = "application/json" }) as Text
+```
+
+A `Map` is a "homogeneous" map, meaning that all values must have the same type.
+That implies that you can't use `toMap` on a "heterogeneous" record with
+different types of values:
+
+```dhall
+⊢ toMap { x = 1, y = True }
+
+Error: ❰toMap❱ expects a homogenous record
+
+1│ toMap { x = 1, y = True }
+
+(input):1:1
+```
+
+Also, if you use `toMap` on an empty record, then you need to supply an
+explicit type annotation (just like an empty `List`):
+
+```dhall
+⊢ toMap {=} : Map Text Natural
+
+[] : List { mapKey : Text, mapValue : Natural }
+```
+
+## Conclusion
+
+That concludes the language tour!  By this point you should have touched on
+every language feature.
+
+Please let us know if this tutorial is missing any language features by opening
+an issue here:
+
+* [`dhall-lang/dhall-lang` - Issues](https://github.com/dhall-lang/dhall-lang/issues)
+
+We do our best to keep the tutorial up-to-date as the language evolves, but we
+sometimes miss things.
