@@ -14,6 +14,6 @@ let property =
 
 let example0 = assert : index 1 Natural [ 2, 3, 5 ] ≡ Some 3
 
-let example0 = assert : index 1 Natural ([] : List Natural) ≡ None Natural
+let example1 = assert : index 1 Natural ([] : List Natural) ≡ None Natural
 
 in  index
