@@ -1,5 +1,11 @@
 # Shift
 
+```haskell
+module Shift where
+
+import Syntax
+```
+
 Dhall uses a shift function internally to avoid variable capture in the
 implementation of De Bruijn indices.  This function increases or decreases the
 indices of free variables within an expression.
@@ -21,6 +27,10 @@ This shift function has the form:
       function
 * `e₀` (an input expression) is the expression to shift
 * `e₁` (the output expression) is the shifted expression
+
+```haskell
+shift :: Int -> Text -> Natural -> Expression -> Expression
+```
 
 ## Table of contents
 
@@ -51,6 +61,11 @@ large as the lower bound:
     ↑(d, x, m, x@n) = x@(n + d)
 
 
+```haskell
+shift d x m (Variable x' n)
+    | x == x' && m <= n = Variable x' (n + fromIntegral d)
+```
+
 Don't shift the index if the index falls short of the lower bound:
 
 
@@ -64,6 +79,10 @@ Also, don't shift the index if the variable name does not match:
     ─────────────────────  ; x ≠ y
     ↑(d, x, m, y@n) = y@n
 
+
+```haskell
+shift _d _x _m (Variable y n) = Variable y n
+```
 
 ## Bound variables
 
@@ -95,6 +114,14 @@ variable of the same name in order to avoid shifting the bound variable:
     ↑(d, x, m, λ(x : A₀) → b₀) = λ(x : A₁) → b₁
 
 
+```haskell
+shift d x m (Lambda x' _A₀ b₀)
+    | x == x' = Lambda x' _A₁ b₁
+  where
+    _A₁ = shift d x m _A₀
+
+    b₁ = shift d x (m + 1) b₀
+```
 Note that the bound variable, `x`, is not in scope for its own type, `A₀`, so
 do not increase the lower bound, `m`, when shifting the bound variable's type.
 
@@ -106,6 +133,14 @@ Descend as normal if the bound variable name does not match:
     ↑(d, x, m, λ(y : A₀) → b₀) = λ(y : A₁) → b₁
 
 
+```haskell
+shift d x m (Lambda y _A₀ b₀) = Lambda y _A₁ b₁
+  where
+    _A₁ = shift d x m _A₀
+
+    b₁ = shift d x m b₀
+```
+
 Function types also introduce bound variables, so increase the minimum bound
 when descending past such a bound variable:
 
@@ -114,6 +149,15 @@ when descending past such a bound variable:
     ─────────────────────────────────────────────
     ↑(d, x, m, ∀(x : A₀) → B₀) = ∀(x : A₁) → B₁
 
+
+```haskell
+shift d x m (Pi x' _A₀ _B₀)
+    | x == x' = Pi x' _A₁ _B₁
+  where
+    _A₁ = shift d x m _A₀
+
+    _B₁ = shift d x (m + 1) _B₀
+```
 
 Again, the bound variable, `x`, is not in scope for its own type, `A₀`, so do
 not increase the lower bound, `m`, when shifting the bound variable's type.
@@ -125,6 +169,14 @@ Descend as normal if the bound variable name does not match:
     ───────────────────────────────────────────  ; x ≠ y
     ↑(d, x, m, ∀(y : A₀) → B₀) = ∀(y : A₁) → B₁
 
+
+```haskell
+shift d x m (Pi y _A₀ _B₀) = Pi y _A₁ _B₁
+  where
+    _A₁ = shift d x m _A₀
+
+    _B₁ = shift d x m _B₀
+```
 
 `let` expressions also introduce bound variables, so increase the minimum bound
 when descending past such a bound variable:
@@ -539,3 +591,6 @@ The remaining rules are:
     ───────────────────────
     ↑(d, x, m, Sort) = Sort
 
+```haskell
+shift d x m expression = transform (shift d x m) expression
+```

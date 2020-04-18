@@ -1,0 +1,26 @@
+cabal-version:       >=1.10
+name:                standard
+version:             1.0.0
+synopsis:            Literate Haskell semantics for Dhall
+description:         The Dhall semantics are written in literate Haskell,
+                     meaning that the logical jugdments are written side-by-side
+                     with the equivalent Haskell code in order to minimize
+                     ambiguity.
+license-file:        LICENSE
+build-type:          Simple
+
+library
+  build-depends:       base
+                     , lens
+                     , markdown-unlit
+                     , text
+  exposed-modules:     Syntax
+                     , Shift
+  hs-source-dirs:      ./.
+  default-language:    Haskell2010
+  default-extensions:  DeriveAnyClass
+                     , DeriveDataTypeable
+                     , DeriveGeneric
+                     , DerivingStrategies
+                     , DuplicateRecordFields
+  ghc-options:         -pgmL markdown-unlit -Wall -Werror
