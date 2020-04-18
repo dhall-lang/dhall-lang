@@ -307,7 +307,7 @@
         → list
     , generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) → List a
     , head : ∀(a : Type) → List a → Optional a
-    , index : Natural → ∀(a : Type) → List a → Optional a
+    , index : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → Optional a
     , indexed : ∀(a : Type) → List a → List { index : Natural, value : a }
     , iterate : ∀(n : Natural) → ∀(a : Type) → ∀(f : a → a) → ∀(x : a) → List a
     , last : ∀(a : Type) → List a → Optional a
