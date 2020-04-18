@@ -97,6 +97,10 @@ file and then referencing the file path
 > $ dhall --file test.dhall
 > ```
 >
+> This tutorial will not cover everything that the command-line utility can do,
+> but as a general rule anything you can do within the REPL you can also do
+> from the command line, too.
+>
 > The REPL uses Unicode punctuation by default.  If you prefer ASCII, then
 > start the REPL using `dhall repl --ascii` instead.
 
@@ -167,7 +171,7 @@ the following expression is equivalent to our original example (albeit more
 indirect, just to illustrate a point):
 
 ```dhall
-let List/filter = https://prelude.dhall-lang.org/List/filter
+let List/filter = https://prelude.dhall-lang.org/v15.0.0/List/filter
 
 let Person = { name : Text, age : Natural, admin : Bool }
 
@@ -292,8 +296,8 @@ interpreter processes the code.
 >
 > ```dhall
 > if True
-> then https://prelude.dhall-lang.org/Bool/not True
-> else https://prelude.dhall-lang.org/Natural/sum [ 2, 3, 5 ]
+> then https://prelude.dhall-lang.org/v15.0.0/Bool/not True
+> else https://prelude.dhall-lang.org/v15.0.0/Natural/sum [ 2, 3, 5 ]
 > ```
 >
 > Which imports are resolved by the interpreter?
@@ -1084,7 +1088,7 @@ lines.
 We've already come across some `let` expressions, like in our first example:
 
 ```dhall
-let List/filter = https://prelude.dhall-lang.org/List/filter
+let List/filter = https://prelude.dhall-lang.org/v15.0.0/List/filter
 
 let Person = { name : Text, age : Natural, admin : Bool }
 
@@ -1748,16 +1752,10 @@ interested in the full list, see:
 
 * [Built-in types, functions, and operators](../references/Built-in-types.md)
 
-## Imports
+## File imports
 
-Dhall supports importing expressions from:
-
-* local filepaths
-* remote URLs
-* environment variables
-
-For example, run the following command to save the expression `2` to a file
-named `./two.dhall`:
+Dhall supports importing expressions from local filepaths.  For example, run the
+following command to save the expression `2` to a file named `./two.dhall`:
 
 ```dhall
 ⊢ :save ./two.dhall = 2
@@ -1833,12 +1831,14 @@ Dhall files that you import in this way can themselves import other files
 > **Exercise:** What happens if you interpret a Dhall expression that imports
 > itself?
 
+## URL imports
+
 Dhall expressions can import URLs, too, and this is how Dhall packages are
 distributed.  For example, the most commonly used Dhall package is the Prelude,
 which you can use like this:
 
 ```dhall
-let Prelude = https://prelude.dhall-lang.org/package.dhall
+let Prelude = https://prelude.dhall-lang.org/v15.0.0/package.dhall
 
 in  Prelude.Text.concatSep "," [ "apple", "banana", "pineapple" ]
 ```
@@ -1854,7 +1854,7 @@ contain useful types and functions as their fields.
 > **Exercise:** Import the Prelude within the REPL:
 >
 > ```dhall
-> ⊢ :let Prelude = https://prelude.dhall-lang.org/package.dhall
+> ⊢ :let Prelude = https://prelude.dhall-lang.org/v15.0.0/package.dhall
 > ```
 >
 > ... and then use tab completion to explore what fields are available:
@@ -1875,6 +1875,188 @@ contain useful types and functions as their fields.
 > Prelude.List.drop       Prelude.List.last       Prelude.List.take
 > Prelude.List.empty      Prelude.List.length     Prelude.List.unzip
 > ```
+
+You can browse the Prelude online here:
+
+* [Prelude - https://prelude.dhall-lang.org](https://prelude.dhall-lang.org)
+
+In particular, you might find the `README` helpful:
+
+* [Prelude `README`](https://github.com/dhall-lang/dhall-lang/blob/master/Prelude/README.md)
+
+Each Prelude function contains a comment explaining how to use the function.
+
+> **Exercise:** Browse the documentation and source code for the
+> `List/generate` utility here:
+>
+> * [Prelude - `List/generate`](https://prelude.dhall-lang.org/v15.0.0/List/generate)
+
+You can use the Prelude's `List/generate` function as a nested field of the
+Prelude record: `Prelude.List.generate`.  For example:
+
+```dhall
+⊢ Prelude.List.generate 10 Text (\(n : Natural) -> "Result #${Natural/show n}")
+
+[ "Result #0"
+, "Result #1"
+, "Result #2"
+, "Result #3"
+, "Result #4"
+, "Result #5"
+, "Result #6"
+, "Result #7"
+, "Result #8"
+, "Result #9"
+]
+```
+
+... or you can import the function individually, like this:
+
+```dhall
+⊢ :let List/generate = https://prelude.dhall-lang.org/v15.0.0/List/generate
+
+List/generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) → List a
+
+⊢ List/generate 10 Text (\(n : Natural) -> "Result #${Natural/show n}")
+
+[ "Result #0"
+, "Result #1"
+, "Result #2"
+, "Result #3"
+, "Result #4"
+, "Result #5"
+, "Result #6"
+, "Result #7"
+, "Result #8"
+, "Result #9"
+]
+```
+
+> **Exercise:** What happens if you apply `List/generate` to just one
+> argument?
+>
+> ```dhall
+> ⊢ List/generate 10
+> ```
+
+## Installing packages
+
+You can make an import "installable" by protecting the import with an integrity
+check of the form `sha256:${HASH}`.  This check belongs immediately after the
+import, like this:
+
+```dhall
+let Prelude =
+      https://prelude.dhall-lang.org/v15.0.0/package.dhall sha256:6b90326dc39ab738d7ed87b970ba675c496bed0194071b332840a87261649dcd
+
+in  Prelude.Text.concatSep "," [ "apple", "banana", "pineapple" ]
+```
+
+There are two main ways you can obtain the hash:
+
+* Recommended: Use `dhall freeze`
+
+  ```bash
+  $ dhall freeze --inplace ./example.dhall
+  ```
+
+* Use `dhall hash` from the command line or the `:hash` command in the REPL
+
+  ```dhall
+  ⊢ :hash https://prelude.dhall-lang.org/v15.0.0/package.dhall
+  sha256:6b90326dc39ab738d7ed87b970ba675c496bed0194071b332840a87261649dcd
+  ```
+
+The interpreter will then locally cache any import annotated with an
+integrity check the first time the import is resolved.  This can greatly
+accelerate the interpreter once all imports are locally cached and no longer
+require the network.
+
+> **Exercise:** Time how long the interpreter takes to interpret the above
+> example with and without the integrity check.
+
+Adding an integrity check in this way also ensures that the import will no
+longer change.  The interpreter always verifies integrity checks, whether
+fetching the import for the first time, or loading the import from the local
+cache.
+
+These integrity checks are resilient to cosmetic changes in the imported
+expression, meaning that the hash of an expression does not change if you
+make behavior-preserving changes to that expression, such as:
+
+* Adding/removing comments
+* Refactoring the code
+
+> **Exercise:** Save the following expressions to `./example0.dhall` and
+> `./example1.dhall`, respectively:
+>
+> ```dhall
+> -- ./example0.dhall
+> 
+> [ { name = "Alice"
+>   , age = 24
+>   , admin = True
+>   }
+> , { name = "Bob"
+>   , age = 49
+>   , admin = True
+>   }
+> ]
+> ```
+>
+> ```dhall
+> -- ./example1.dhall
+> 
+> let List/filter = https://prelude.dhall-lang.org/v15.0.0/List/filter
+> 
+> let Person = { name : Text, age : Natural, admin : Bool }
+> 
+> let alice : Person =
+>       { name = "Alice"
+>       , age = 24
+>       , admin = True
+>       }
+> 
+> let bob : Person =
+>       { name = "Bob"
+>       , age = 49
+>       , admin = True
+>       }
+> 
+> let carlo : Person =
+>       { name = "Carlo"
+>       , age = 20
+>       , admin = False
+>       }
+> 
+> let isAdmin = \(person : Person) -> person.admin
+> 
+> in  List/filter Person isAdmin [ alice, bob, carlo ]
+> ```
+>
+> ... then hash both expressions.  The hashes should match.
+
+The hash is resilient to behavior-preserving changes because the integrity check
+is a "semantic" integrity check, meaning that it is a hash of a canonical
+encoding of the program's syntax tree and not a hash of the program's source
+code.  Also, the program is interpreted before hashing so that the hash is
+insensitive to program indirection.
+
+This integrity check protects against any sort of tampering with the import.
+At worst import resolution will fail (if there is a hash mismatch), but you
+will never get the wrong import.  For example, an import annotated with an
+integrity check of
+`sha256:27abdeddfe8503496adeb623466caa47da5f63abd2bc6fa19f6cfcb73ecfed70` can
+never successfully resolve to a value other than `True`.  Every integrity
+check uniquely identifies the corresponding Dhall expression (ignoring
+highly improbable hash collisions).
+
+Imports that don't have an integrity check will be resolved every time you
+interpret them.  However, those imports may have transitive dependencies of
+their own that are protected by integrity checks and those transitive
+dependencies will be locally cached.  For example, the top-level Prelude
+`package.dhall` import protects its own transitive dependencies in this way, as
+an optimization to minimize network traffic.
 
 ## Naming conventions
 
