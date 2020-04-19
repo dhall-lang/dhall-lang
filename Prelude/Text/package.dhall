@@ -16,6 +16,9 @@
 , defaultMap =
       ./defaultMap sha256:3a3fa1264f6198800c27483cb144de2c5366484876d60b9c739a710ce0288588
     ? ./defaultMap
+, generateWhitespace =
+      ./generateWhitespace sha256:50db8ca95c3465fb50fe1dacee7d2e72d34cddf6f3e72cb9008ab52449287f3b
+    ? ./generateWhitespace
 , show =
       ./show sha256:c9dc5de3e5f32872dbda57166804865e5e80785abe358ff61f1d8ac45f1f4784
     ? ./show
