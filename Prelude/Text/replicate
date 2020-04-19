@@ -16,6 +16,6 @@ let replicate
 
 let example0 = assert : replicate 3 "foo" ≡ "foofoofoo"
 
-let property = \(text : Text) -> assert : replicate 0 text ≡ ""
+let property = λ(text : Text) → assert : replicate 0 text ≡ ""
 
 in  replicate
