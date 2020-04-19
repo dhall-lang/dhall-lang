@@ -922,7 +922,7 @@ when we get to the Dhall Prelude.
 ## `Optional` values
 
 By default, all Dhall types are not "nullable", meaning that there is no special
-`nil` / `null` / `None` value that suffices for those types.
+`nil` / `null` value that suffices for those types.
 
 For example, if a Dhall expression has type `Bool` that means that
 interpreting the expression must produce a `True` or `False` value.  No
