@@ -167,6 +167,10 @@
         pid /run/nginx.pid;
       '';
 
+      package = pkgs.nginxStable.override {
+        modules = [ pkgs.nginxModules.develkit pkgs.nginxModules.set-misc ];
+      };
+
       recommendedGzipSettings = true;
 
       recommendedOptimisation = true;
@@ -301,6 +305,11 @@
                     if ($http_test = "") {
                       return 403;
                     }
+                  '';
+                  locations."/random-string".extraConfig = ''
+                    set_secure_random_alphanum $res 32;
+                    echo $res;
+                    return 200;
                   '';
                 }
               ];
