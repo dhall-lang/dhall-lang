@@ -1013,6 +1013,20 @@ You can make arbitrary expressions `Optional`, such as the following nested
   nullability, but in Dhall you can nest the `Optional` type to an arbitrary
   depth and each layer is tracked separately.
 
+* `List (Optional Bool)`
+
+  All of the following values share this type:
+
+  ```dhall
+  [ Some True ]
+
+  [ Some False ]
+
+  [ None Bool ]
+
+  [] : List (Optional Bool)
+  ```
+
 `Some` is a keyword that requires an argument, meaning that `Some 1` is a valid
 expression, but `Some` by itself is not valid.  However, `None` is more
 flexible, because `None` is an ordinary function that is valid in isolation.
