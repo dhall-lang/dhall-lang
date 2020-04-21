@@ -1008,10 +1008,10 @@ You can make arbitrary expressions `Optional`, such as the following nested
   None (Optional Bool)
   ```
 
-Carefully note `Some (None Bool)` and `None (Optional Bool)` do not necessarily
-mean the same thing.  Many languages only permit one "level" of nullability, but
-in Dhall you can nest the `Optional` type to an arbitrary depth and each layer
-is tracked separately.
+  Carefully note `Some (None Bool)` and `None (Optional Bool)` do not
+  necessarily mean the same thing.  Many languages only permit one "level" of
+  nullability, but in Dhall you can nest the `Optional` type to an arbitrary
+  depth and each layer is tracked separately.
 
 `Some` is a keyword that requires an argument, meaning that `Some 1` is a valid
 expression, but `Some` by itself is not valid.  However, `None` is more
