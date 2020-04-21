@@ -2600,17 +2600,13 @@ a list of key-value pairs:
 
    For example, `dhall-to-json` converts a Dhall value like this:
 
-   ```
    [ { mapKey = "foo", mapValue = 1 }
    , { mapKey = "bar", mapValue = 2 }
    ] : ./Map Text Natural
-   ```
 
    ... to a JSON value like this:
 
-   ```
    { "foo": 1, "bar", 2 }
-   ```
 -}
 let Map
     : Type → Type → Type
