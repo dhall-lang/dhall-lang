@@ -3,7 +3,8 @@ Zip two `List` into a single `List`
 
 Resulting `List` will have the length of the shortest of its arguments.
 -}
-let List/drop = ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+let List/drop =
+      ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
 
 let zip
     : ∀(a : Type) → List a → ∀(b : Type) → List b → List { _1 : a, _2 : b }
