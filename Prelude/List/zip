@@ -1,0 +1,52 @@
+{-
+Zip two `List` into a single `List`
+
+Resulting `List` will have the length of the shortest of its arguments.
+-}
+let List/drop = ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+
+let zip
+    : ∀(a : Type) → List a → ∀(b : Type) → List b → List { _1 : a, _2 : b }
+    =   λ(a : Type)
+      → λ(xa : List a)
+      → λ(b : Type)
+      → λ(xb : List b)
+      → let Carry = { acc : List { _1 : a, _2 : b }, context : List b }
+
+        let cons =
+                λ(elem : a)
+              → λ(prev : Carry)
+              → let nextAcc =
+                      merge
+                        { Some =
+                            λ(bb : b) → [ { _1 = elem, _2 = bb } ] # prev.acc
+                        , None = prev.acc
+                        }
+                        (List/head b prev.context)
+
+                in  { acc = nextAcc, context = List/drop 1 b prev.context }
+
+        let result =
+              List/fold
+                a
+                xa
+                Carry
+                cons
+                { acc = [] : List { _1 : a, _2 : b }, context = xb }
+
+        in  result.acc
+
+let example0 =
+        assert
+      :   zip Text [ "ABC", "DEF", "GHI" ] Bool [ True, False, True ]
+        ≡ [ { _1 = "ABC", _2 = True }
+          , { _1 = "DEF", _2 = False }
+          , { _1 = "GHI", _2 = True }
+          ]
+
+let example1 =
+        assert
+      :   zip Text [ "ABC" ] Bool ([] : List Bool)
+        ≡ ([] : List { _1 : Text, _2 : Bool })
+
+in  zip
