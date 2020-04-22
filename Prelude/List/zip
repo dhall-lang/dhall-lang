@@ -27,13 +27,9 @@ let zip
 
                 in  { acc = nextAcc, context = List/drop 1 b prev.context }
 
-        let result =
-              List/fold
-                a
-                xa
-                Carry
-                cons
-                { acc = [] : List { _1 : a, _2 : b }, context = xb }
+        let nil = { acc = [] : List { _1 : a, _2 : b }, context = xb }
+
+        let result = List/fold a xa Carry cons nil
 
         in  result.acc
 
