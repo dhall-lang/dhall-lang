@@ -168,7 +168,7 @@
       '';
 
       package = pkgs.nginxStable.override {
-        modules = [ pkgs.nginxModules.develkit pkgs.nginxModules.set-misc ];
+        modules = with pkgs.nginxModules; [ develkit echo set-misc ];
       };
 
       recommendedGzipSettings = true;
@@ -309,7 +309,6 @@
                   locations."/random-string".extraConfig = ''
                     set_secure_random_alphanum $res 32;
                     echo $res;
-                    return 200;
                   '';
                 }
               ];
