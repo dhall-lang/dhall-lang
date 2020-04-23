@@ -1,303 +1,250 @@
 { Bool :
-    { and : ∀(xs : List Bool) → Bool
-    , build :
-        ∀(f : ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool) → Bool
-    , even : ∀(xs : List Bool) → Bool
-    , fold :
-        ∀(b : Bool) → ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool
-    , not : ∀(b : Bool) → Bool
-    , odd : ∀(xs : List Bool) → Bool
-    , or : ∀(xs : List Bool) → Bool
-    , show : ∀(b : Bool) → Text
+    { and : List Bool → Bool
+    , build : (Type → _ → _@1 → _@2) → Bool
+    , even : List Bool → Bool
+    , fold : Bool → Type → _ → _@1 → _@2
+    , not : Bool → Bool
+    , odd : List Bool → Bool
+    , or : List Bool → Bool
+    , show : Bool → Text
     }
 , Double : { show : Double → Text }
 , Function :
-    { compose :
-          ∀(A : Type)
-        → ∀(B : Type)
-        → ∀(C : Type)
-        → ∀(f : A → B)
-        → ∀(g : B → C)
-        → ∀(x : A)
-        → C
-    , identity : ∀(a : Type) → ∀(x : a) → a
+    { compose : Type → Type → Type → (_@2 → _@2) → (_@2 → _@2) → _@4 → _@3
+    , identity : Type → _ → _@1
+    , sequence : Type → Type → List (_@1 → _@1) → _@2 → List _@2
     }
 , Integer :
-    { abs : ∀(n : Integer) → Natural
-    , add : ∀(m : Integer) → ∀(n : Integer) → Integer
+    { abs : Integer → Natural
+    , add : Integer → Integer → Integer
     , clamp : Integer → Natural
-    , equal : ∀(a : Integer) → ∀(b : Integer) → Bool
-    , greaterThan : ∀(x : Integer) → ∀(y : Integer) → Bool
-    , greaterThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
-    , lessThan : ∀(x : Integer) → ∀(y : Integer) → Bool
-    , lessThanEqual : ∀(x : Integer) → ∀(y : Integer) → Bool
-    , multiply : ∀(m : Integer) → ∀(n : Integer) → Integer
+    , equal : Integer → Integer → Bool
+    , greaterThan : Integer → Integer → Bool
+    , greaterThanEqual : Integer → Integer → Bool
+    , lessThan : Integer → Integer → Bool
+    , lessThanEqual : Integer → Integer → Bool
+    , multiply : Integer → Integer → Integer
     , negate : Integer → Integer
-    , negative : ∀(n : Integer) → Bool
-    , nonNegative : ∀(n : Integer) → Bool
-    , nonPositive : ∀(n : Integer) → Bool
-    , positive : ∀(n : Integer) → Bool
+    , negative : Integer → Bool
+    , nonNegative : Integer → Bool
+    , nonPositive : Integer → Bool
+    , positive : Integer → Bool
     , show : Integer → Text
-    , subtract : ∀(m : Integer) → ∀(n : Integer) → Integer
+    , subtract : Integer → Integer → Integer
     , toDouble : Integer → Double
-    , toNatural : ∀(n : Integer) → Optional Natural
+    , toNatural : Integer → Optional Natural
     }
 , JSON :
     { Nesting : Type
-    , Tagged : ∀(a : Type) → Type
+    , Tagged : Type → Type
     , Type : Type
     , array :
-          ∀ ( x
-            : List
-                (   ∀(JSON : Type)
-                  → ∀ ( json
-                      : { array : List JSON → JSON
-                        , bool : Bool → JSON
-                        , double : Double → JSON
-                        , integer : Integer → JSON
-                        , null : JSON
-                        , object :
-                            List { mapKey : Text, mapValue : JSON } → JSON
-                        , string : Text → JSON
-                        }
-                      )
-                  → JSON
-                )
-            )
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , bool :
-          ∀(x : Bool)
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , double :
-          ∀(x : Double)
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , integer :
-          ∀(x : Integer)
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , keyText :
-        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
-    , keyValue :
-          ∀(v : Type)
-        → ∀(key : Text)
-        → ∀(value : v)
-        → { mapKey : Text, mapValue : v }
-    , natural :
-          ∀(x : Natural)
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , null :
-          ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , number :
-          ∀(x : Double)
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
-    , object :
-          ∀ ( x
-            : List
-                { mapKey : Text
-                , mapValue :
-                      ∀(JSON : Type)
-                    → ∀ ( json
-                        : { array : List JSON → JSON
-                          , bool : Bool → JSON
-                          , double : Double → JSON
-                          , integer : Integer → JSON
-                          , null : JSON
-                          , object :
-                              List { mapKey : Text, mapValue : JSON } → JSON
-                          , string : Text → JSON
-                          }
-                        )
-                    → JSON
+          List
+            (   Type
+              → { array : List _ → _@1
+                , bool : Bool → _@1
+                , double : Double → _@1
+                , integer : Integer → _@1
+                , null : _
+                , object : List { mapKey : Text, mapValue : _ } → _@1
+                , string : Text → _@1
                 }
+              → _@1
             )
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , bool :
+          Bool
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , double :
+          Double
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , integer :
+          Integer
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , keyText : Text → Text → { mapKey : Text, mapValue : Text }
+    , keyValue : Type → Text → _@1 → { mapKey : Text, mapValue : _@2 }
+    , natural :
+          Natural
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , null :
+          Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , number :
+          Double
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
+    , object :
+          List
+            { mapKey : Text
+            , mapValue :
+                  Type
+                → { array : List _ → _@1
+                  , bool : Bool → _@1
+                  , double : Double → _@1
+                  , integer : Integer → _@1
+                  , null : _
+                  , object : List { mapKey : Text, mapValue : _ } → _@1
+                  , string : Text → _@1
+                  }
+                → _@1
+            }
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
     , omitNullFields :
-          ∀ ( old
-            :   ∀(JSON : Type)
-              → ∀ ( json
-                  : { array : List JSON → JSON
-                    , bool : Bool → JSON
-                    , double : Double → JSON
-                    , integer : Integer → JSON
-                    , null : JSON
-                    , object : List { mapKey : Text, mapValue : JSON } → JSON
-                    , string : Text → JSON
-                    }
-                  )
-              → JSON
-            )
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
+          (   Type
+            → { array : List _ → _@1
+              , bool : Bool → _@1
+              , double : Double → _@1
+              , integer : Integer → _@1
+              , null : _
+              , object : List { mapKey : Text, mapValue : _ } → _@1
+              , string : Text → _@1
               }
-            )
-        → JSON
+            → _@1
+          )
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
     , render :
-          ∀ ( json
-            :   ∀(JSON : Type)
-              → ∀ ( json
-                  : { array : List JSON → JSON
-                    , bool : Bool → JSON
-                    , double : Double → JSON
-                    , integer : Integer → JSON
-                    , null : JSON
-                    , object : List { mapKey : Text, mapValue : JSON } → JSON
-                    , string : Text → JSON
-                    }
-                  )
-              → JSON
-            )
+          (   Type
+            → { array : List _ → _@1
+              , bool : Bool → _@1
+              , double : Double → _@1
+              , integer : Integer → _@1
+              , null : _
+              , object : List { mapKey : Text, mapValue : _ } → _@1
+              , string : Text → _@1
+              }
+            → _@1
+          )
         → Text
-    , renderInteger : ∀(integer : Integer) → Text
+    , renderInteger : Integer → Text
     , renderYAML :
-          ∀ ( json
-            :   ∀(JSON : Type)
-              → ∀ ( json
-                  : { array : List JSON → JSON
-                    , bool : Bool → JSON
-                    , double : Double → JSON
-                    , integer : Integer → JSON
-                    , null : JSON
-                    , object : List { mapKey : Text, mapValue : JSON } → JSON
-                    , string : Text → JSON
-                    }
-                  )
-              → JSON
-            )
+          (   Type
+            → { array : List _ → _@1
+              , bool : Bool → _@1
+              , double : Double → _@1
+              , integer : Integer → _@1
+              , null : _
+              , object : List { mapKey : Text, mapValue : _ } → _@1
+              , string : Text → _@1
+              }
+            → _@1
+          )
         → Text
     , string :
-          ∀(x : Text)
-        → ∀(JSON : Type)
-        → ∀ ( json
-            : { array : List JSON → JSON
-              , bool : Bool → JSON
-              , double : Double → JSON
-              , integer : Integer → JSON
-              , null : JSON
-              , object : List { mapKey : Text, mapValue : JSON } → JSON
-              , string : Text → JSON
-              }
-            )
-        → JSON
+          Text
+        → Type
+        → { array : List _ → _@1
+          , bool : Bool → _@1
+          , double : Double → _@1
+          , integer : Integer → _@1
+          , null : _
+          , object : List { mapKey : Text, mapValue : _ } → _@1
+          , string : Text → _@1
+          }
+        → _@1
     , tagInline :
-          ∀(tagFieldName : Text)
-        → ∀(a : Type)
-        → ∀(contents : a)
-        → { contents : a, field : Text, nesting : < Inline | Nested : Text > }
+          Text
+        → Type
+        → _
+        → { contents : _@1, field : Text, nesting : < Inline | Nested : Text > }
     , tagNested :
-          ∀(contentsFieldName : Text)
-        → ∀(tagFieldName : Text)
-        → ∀(a : Type)
-        → ∀(contents : a)
-        → { contents : a, field : Text, nesting : < Inline | Nested : Text > }
+          Text
+        → Text
+        → Type
+        → _
+        → { contents : _@1, field : Text, nesting : < Inline | Nested : Text > }
     }
 , List :
-    { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → Bool
-    , any : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → Bool
+    { all : Type → (_ → Bool) → List _@1 → Bool
+    , any : Type → (_ → Bool) → List _@1 → Bool
     , build :
           ∀(a : Type)
         → (∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list)
         → List a
-    , concat : ∀(a : Type) → ∀(xss : List (List a)) → List a
-    , concatMap :
-        ∀(a : Type) → ∀(b : Type) → ∀(f : a → List b) → ∀(xs : List a) → List b
-    , default : ∀(a : Type) → ∀(o : Optional (List a)) → List a
-    , drop : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
-    , empty : ∀(a : Type) → List a
-    , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → List a
+    , concat : Type → List (List _) → List _@1
+    , concatMap : Type → Type → (_@1 → List _@1) → List _@2 → List _@2
+    , default : Type → Optional (List _) → List _@1
+    , drop : Natural → Type → List _ → List _@1
+    , empty : Type → List _
+    , filter : Type → (_ → Bool) → List _@1 → List _@2
     , fold :
           ∀(a : Type)
         → List a
@@ -305,63 +252,47 @@
         → ∀(cons : a → list → list)
         → ∀(nil : list)
         → list
-    , generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) → List a
+    , generate : Natural → Type → (Natural → _@1) → List _@1
     , head : ∀(a : Type) → List a → Optional a
     , indexed : ∀(a : Type) → List a → List { index : Natural, value : a }
-    , iterate : ∀(n : Natural) → ∀(a : Type) → ∀(f : a → a) → ∀(x : a) → List a
+    , iterate : Natural → Type → (_ → _@1) → _@1 → List _@2
     , last : ∀(a : Type) → List a → Optional a
     , length : ∀(a : Type) → List a → Natural
-    , map : ∀(a : Type) → ∀(b : Type) → ∀(f : a → b) → ∀(xs : List a) → List b
-    , null : ∀(a : Type) → ∀(xs : List a) → Bool
+    , map : Type → Type → (_@1 → _@1) → List _@2 → List _@2
+    , null : Type → List _ → Bool
     , partition :
-          ∀(a : Type)
-        → ∀(f : a → Bool)
-        → ∀(xs : List a)
-        → { false : List a, true : List a }
-    , replicate : ∀(n : Natural) → ∀(a : Type) → ∀(x : a) → List a
+        Type → (_ → Bool) → List _@1 → { false : List _@2, true : List _@2 }
+    , replicate : Natural → Type → _ → List _@1
     , reverse : ∀(a : Type) → List a → List a
     , shifted :
-          ∀(a : Type)
-        → ∀(kvss : List (List { index : Natural, value : a }))
-        → List { index : Natural, value : a }
-    , take : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
+          Type
+        → List (List { index : Natural, value : _ })
+        → List { index : Natural, value : _@1 }
+    , take : Natural → Type → List _ → List _@1
     , unzip :
-          ∀(a : Type)
-        → ∀(b : Type)
-        → ∀(xs : List { _1 : a, _2 : b })
-        → { _1 : List a, _2 : List b }
+          Type
+        → Type
+        → List { _1 : _@1, _2 : _ }
+        → { _1 : List _@2, _2 : List _@1 }
     }
 , Location : { Type : Type }
 , Map :
-    { Entry : ∀(k : Type) → ∀(v : Type) → Type
-    , Type : ∀(k : Type) → ∀(v : Type) → Type
-    , empty : ∀(k : Type) → ∀(v : Type) → List { mapKey : k, mapValue : v }
-    , keyText :
-        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
-    , keyValue :
-          ∀(v : Type)
-        → ∀(key : Text)
-        → ∀(value : v)
-        → { mapKey : Text, mapValue : v }
-    , keys :
-          ∀(k : Type)
-        → ∀(v : Type)
-        → ∀(xs : List { mapKey : k, mapValue : v })
-        → List k
+    { Entry : Type → Type → Type
+    , Type : Type → Type → Type
+    , empty : Type → Type → List { mapKey : _@1, mapValue : _ }
+    , keyText : Text → Text → { mapKey : Text, mapValue : Text }
+    , keyValue : Type → Text → _@1 → { mapKey : Text, mapValue : _@2 }
+    , keys : Type → Type → List { mapKey : _@1, mapValue : _ } → List _@2
     , map :
-          ∀(k : Type)
-        → ∀(a : Type)
-        → ∀(b : Type)
-        → ∀(f : a → b)
-        → ∀(m : List { mapKey : k, mapValue : a })
-        → List { mapKey : k, mapValue : b }
-    , values :
-          ∀(k : Type)
-        → ∀(v : Type)
-        → ∀(xs : List { mapKey : k, mapValue : v })
-        → List v
+          Type
+        → Type
+        → Type
+        → (_@1 → _@1)
+        → List { mapKey : _@3, mapValue : _@2 }
+        → List { mapKey : _@4, mapValue : _@2 }
+    , values : Type → Type → List { mapKey : _@1, mapValue : _ } → List _@1
     }
-, Monoid : ∀(m : Type) → Type
+, Monoid : Type → Type
 , Natural :
     { build :
           (   ∀(natural : Type)
@@ -370,8 +301,8 @@
             → natural
           )
         → Natural
-    , enumerate : ∀(n : Natural) → List Natural
-    , equal : ∀(a : Natural) → ∀(b : Natural) → Bool
+    , enumerate : Natural → List Natural
+    , equal : Natural → Natural → Bool
     , even : Natural → Bool
     , fold :
           Natural
@@ -379,163 +310,120 @@
         → ∀(succ : natural → natural)
         → ∀(zero : natural)
         → natural
-    , greaterThan : ∀(x : Natural) → ∀(y : Natural) → Bool
-    , greaterThanEqual : ∀(x : Natural) → ∀(y : Natural) → Bool
+    , greaterThan : Natural → Natural → Bool
+    , greaterThanEqual : Natural → Natural → Bool
     , isZero : Natural → Bool
-    , lessThan : ∀(x : Natural) → ∀(y : Natural) → Bool
-    , lessThanEqual : ∀(x : Natural) → ∀(y : Natural) → Bool
-    , listMax : ∀(xs : List Natural) → Optional Natural
-    , listMin : ∀(xs : List Natural) → Optional Natural
-    , max : ∀(a : Natural) → ∀(b : Natural) → Natural
-    , min : ∀(a : Natural) → ∀(b : Natural) → Natural
+    , lessThan : Natural → Natural → Bool
+    , lessThanEqual : Natural → Natural → Bool
+    , listMax : List Natural → Optional Natural
+    , listMin : List Natural → Optional Natural
+    , max : Natural → Natural → Natural
+    , min : Natural → Natural → Natural
     , odd : Natural → Bool
-    , product : ∀(xs : List Natural) → Natural
+    , product : List Natural → Natural
     , show : Natural → Text
-    , sort : ∀(xs : List Natural) → List Natural
+    , sort : List Natural → List Natural
     , subtract : Natural → Natural → Natural
-    , sum : ∀(xs : List Natural) → Natural
-    , toDouble : ∀(n : Natural) → Double
+    , sum : List Natural → Natural
+    , toDouble : Natural → Double
     , toInteger : Natural → Integer
     }
 , Optional :
-    { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
-    , any : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
-    , build :
-          ∀(a : Type)
-        → ∀ ( build
-            :   ∀(optional : Type)
-              → ∀(some : a → optional)
-              → ∀(none : optional)
-              → optional
-            )
-        → Optional a
-    , concat : ∀(a : Type) → ∀(x : Optional (Optional a)) → Optional a
-    , default : ∀(a : Type) → ∀(default : a) → ∀(o : Optional a) → a
-    , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Optional a
-    , fold :
-          ∀(a : Type)
-        → ∀(o : Optional a)
-        → ∀(optional : Type)
-        → ∀(some : a → optional)
-        → ∀(none : optional)
-        → optional
-    , head : ∀(a : Type) → ∀(xs : List (Optional a)) → Optional a
-    , last : ∀(a : Type) → ∀(xs : List (Optional a)) → Optional a
-    , length : ∀(a : Type) → ∀(xs : Optional a) → Natural
-    , map :
-          ∀(a : Type)
-        → ∀(b : Type)
-        → ∀(f : a → b)
-        → ∀(o : Optional a)
-        → Optional b
-    , null : ∀(a : Type) → ∀(xs : Optional a) → Bool
-    , toList : ∀(a : Type) → ∀(o : Optional a) → List a
+    { all : Type → (_ → Bool) → Optional _@1 → Bool
+    , any : Type → (_ → Bool) → Optional _@1 → Bool
+    , build : Type → (Type → (_@1 → _@1) → _@1 → _@2) → Optional _@1
+    , concat : Type → Optional (Optional _) → Optional _@1
+    , default : Type → _ → Optional _@1 → _@2
+    , filter : Type → (_ → Bool) → Optional _@1 → Optional _@2
+    , fold : Type → Optional _ → Type → (_@2 → _@1) → _@1 → _@2
+    , head : Type → List (Optional _) → Optional _@1
+    , last : Type → List (Optional _) → Optional _@1
+    , length : Type → Optional _ → Natural
+    , map : Type → Type → (_@1 → _@1) → Optional _@2 → Optional _@2
+    , null : Type → Optional _ → Bool
+    , toList : Type → Optional _ → List _@1
     , unzip :
-          ∀(a : Type)
-        → ∀(b : Type)
-        → ∀(xs : Optional { _1 : a, _2 : b })
-        → { _1 : Optional a, _2 : Optional b }
+          Type
+        → Type
+        → Optional { _1 : _@1, _2 : _ }
+        → { _1 : Optional _@2, _2 : Optional _@1 }
     }
 , Text :
-    { concat : ∀(xs : List Text) → Text
-    , concatMap : ∀(a : Type) → ∀(f : a → Text) → ∀(xs : List a) → Text
-    , concatMapSep :
-          ∀(separator : Text)
-        → ∀(a : Type)
-        → ∀(f : a → Text)
-        → ∀(elements : List a)
-        → Text
-    , concatSep : ∀(separator : Text) → ∀(elements : List Text) → Text
-    , default : ∀(o : Optional Text) → Text
-    , defaultMap : ∀(a : Type) → ∀(f : a → Text) → ∀(o : Optional a) → Text
+    { concat : List Text → Text
+    , concatMap : Type → (_ → Text) → List _@1 → Text
+    , concatMapSep : Text → Type → (_ → Text) → List _@1 → Text
+    , concatSep : Text → List Text → Text
+    , default : Optional Text → Text
+    , defaultMap : Type → (_ → Text) → Optional _@1 → Text
     , show : Text → Text
     }
 , XML :
     { Type : Type
-    , attribute :
-        ∀(key : Text) → ∀(value : Text) → { mapKey : Text, mapValue : Text }
+    , attribute : Text → Text → { mapKey : Text, mapValue : Text }
     , element :
-          ∀ ( elem
-            : { attributes : List { mapKey : Text, mapValue : Text }
-              , content :
-                  List
-                    (   ∀(XML : Type)
-                      → ∀ ( xml
-                          : { element :
-                                  { attributes :
-                                      List { mapKey : Text, mapValue : Text }
-                                  , content : List XML
-                                  , name : Text
-                                  }
-                                → XML
-                            , text : Text → XML
-                            }
-                          )
-                      → XML
-                    )
-              , name : Text
-              }
-            )
-        → ∀(XML : Type)
-        → ∀ ( xml
-            : { element :
-                    { attributes : List { mapKey : Text, mapValue : Text }
-                    , content : List XML
-                    , name : Text
-                    }
-                  → XML
-              , text : Text → XML
-              }
-            )
-        → XML
-    , emptyAttributes : List { mapKey : Text, mapValue : Text }
-    , leaf :
-          ∀ ( elem
-            : { attributes : List { mapKey : Text, mapValue : Text }
-              , name : Text
-              }
-            )
-        → ∀(XML : Type)
-        → ∀ ( xml
-            : { element :
-                    { attributes : List { mapKey : Text, mapValue : Text }
-                    , content : List XML
-                    , name : Text
-                    }
-                  → XML
-              , text : Text → XML
-              }
-            )
-        → XML
-    , render :
-          ∀ ( x
-            :   ∀(XML : Type)
-              → ∀ ( xml
-                  : { element :
+          { attributes : List { mapKey : Text, mapValue : Text }
+          , content :
+              List
+                (   Type
+                  → { element :
                           { attributes : List { mapKey : Text, mapValue : Text }
-                          , content : List XML
+                          , content : List _
                           , name : Text
                           }
-                        → XML
-                    , text : Text → XML
+                        → _@1
+                    , text : Text → _@1
                     }
-                  )
-              → XML
-            )
-        → Text
-    , text :
-          ∀(d : Text)
-        → ∀(XML : Type)
-        → ∀ ( xml
-            : { element :
+                  → _@1
+                )
+          , name : Text
+          }
+        → Type
+        → { element :
+                { attributes : List { mapKey : Text, mapValue : Text }
+                , content : List _
+                , name : Text
+                }
+              → _@1
+          , text : Text → _@1
+          }
+        → _@1
+    , emptyAttributes : List { mapKey : Text, mapValue : Text }
+    , leaf :
+          { attributes : List { mapKey : Text, mapValue : Text }, name : Text }
+        → Type
+        → { element :
+                { attributes : List { mapKey : Text, mapValue : Text }
+                , content : List _
+                , name : Text
+                }
+              → _@1
+          , text : Text → _@1
+          }
+        → _@1
+    , render :
+          (   Type
+            → { element :
                     { attributes : List { mapKey : Text, mapValue : Text }
-                    , content : List XML
+                    , content : List _
                     , name : Text
                     }
-                  → XML
-              , text : Text → XML
+                  → _@1
+              , text : Text → _@1
               }
-            )
-        → XML
+            → _@1
+          )
+        → Text
+    , text :
+          Text
+        → Type
+        → { element :
+                { attributes : List { mapKey : Text, mapValue : Text }
+                , content : List _
+                , name : Text
+                }
+              → _@1
+          , text : Text → _@1
+          }
+        → _@1
     }
 }

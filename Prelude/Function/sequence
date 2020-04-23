@@ -1,0 +1,22 @@
+let sequence
+    : ∀(a : Type) → ∀(b : Type) → List (a → b) → a → List b
+    =   λ(A : Type)
+      → λ(B : Type)
+      → λ(fs : List (A → B))
+      → λ(a : A)
+      → let cons = λ(elem : A → B) → λ(acc : List B) → [ elem a ] # acc
+
+        let nil = [] : List B
+
+        in  List/fold (A → B) fs (List B) cons nil
+
+let example0 =
+        assert
+      :   sequence
+            Natural
+            Text
+            [ Natural/show, λ(n : Natural) → Natural/show (n + 1) ]
+            42
+        ≡ [ "42", "43" ]
+
+in  sequence

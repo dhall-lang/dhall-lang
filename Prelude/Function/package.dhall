@@ -4,4 +4,7 @@
 , identity =
       ./identity sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
     ? ./identity
+, sequence =
+      ./sequence sha256:946f1c25d5c7554c5021237aa9f0e37377ec4dee490126e14c2f7a8866f9a0ab
+    ? ./sequence
 }
