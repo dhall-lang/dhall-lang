@@ -20,6 +20,10 @@ These guides help you get your hands dirty with working examples:
 
 > Take a whirlwind tour of the language taught using one large Dhall file
 
+## [Language tour](./Language-Tour.md)
+
+> A longer tutorial that briefly touches on all language features
+
 ## [dhall-nethack](https://github.com/dhall-lang/dhall-nethack)
 
 > Study Dhall best practices in the context of the large and messy NetHack configuration format
