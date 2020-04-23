@@ -1026,4 +1026,4 @@ $ dhall-to-yaml <<< 'let x = 1 in let y = [x, x] in [y, y]'
 This concludes the tutorial on how to use the Dhall configuration language to
 simplify repetitive JSON and YAML configurations.  By this point you should
 understand how to some basic features of Dhall and you can learn more by reading
-the main language tutorial.
+the [main language tutorial](./Language-Tour.md).
