@@ -334,7 +334,7 @@
           ∀(a : Type)
         → ∀(xa : List a)
         → ∀(b : Type)
-        → ∀(xb : List a)
+        → ∀(xb : List b)
         → List { _1 : a, _2 : b }
     }
 , Location : { Type : Type }
