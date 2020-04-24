@@ -708,7 +708,7 @@ importing the file a Dhall expression:
     parent </> import₀ = import₁
     canonicalize(import₁) = env:FOO
     ───────────────────────────────────────────────────────────────────────────  ; Headers are not included in the path
-    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Environment "env:FOO" ⊢ Γ
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Environment "FOO" ⊢ Γ
 
 
     parent </> import₀ = import₁
