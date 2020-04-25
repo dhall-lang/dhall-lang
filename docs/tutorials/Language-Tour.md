@@ -255,7 +255,7 @@ A Dhall interpreter processes expressions in five phases:
   Evaluation is a special-case of normalization where the result is a plain
   value.
 
-  Example: `if True && False then 1 else 0` evaluates to 0
+  Example: `if True && False then 1 else 0` evaluates to `0`
 
 * **Marshalling**
 
@@ -457,7 +457,7 @@ there is no maximum value for either type.
 > that is out of the valid range for a double-precision floating point number?
 >
 > ```dhall
-> ⊢ '1e10000'
+> ⊢ 1e10000
 > ```
 >
 > Run the above command to find out!
@@ -745,7 +745,7 @@ need to wrap things in parentheses).  For example, this is a valid Dhall
 expression:
 
 ```dhall
-> ⊢ (2 : Natural) + (2 : Natural)
+⊢ (2 : Natural) + (2 : Natural)
 
 4
 ```
@@ -767,7 +767,7 @@ You can chain the type annotation operator, so we could also write:
 True : Bool : Type : Kind : Sort
 ```
 
-... the hierarchy of types stops at `Sort`.  There is nothing above that.
+The hierarchy of types stops at `Sort`.  There is nothing above that.
 
 Dhall has standard terminology for referring to expressions at different
 "levels" of the type hierarchy:
@@ -2533,6 +2533,14 @@ Person::{ name = "John" }
 = { name = "John", friends = [] : List Text }
 ```
 
+The type annotation ensures that any "required" fields are present, where a
+"required" field is a field where no default value is specified.  In the above
+example, the `name` field is required because the Person "schema" does not
+specify a default value for the `name` field.
+
+> **Exercise:** See what happens if you omit the `name` field required by the
+> `Person` schema by interpreting the expression `Person::{=}`
+
 > **Exercise:** Create a "schema" named `Image` for a Docker image with the
 > following fields:
 >
@@ -2546,14 +2554,6 @@ Person::{ name = "John" }
 > ```dhall
 > ⊢ Image::{ repository = "library", name = "postgres" }
 > ```
-
-The type annotation ensures that any "required" fields are present, where a
-"required" field is a field where no default value is specified.  In the above
-example, the `name` field is required because the Person "schema" does not
-specify a default value for the `name` field.
-
-> **Exercise:** See what happens if you omit the `name` field required by the
-> `Person` schema by interpreting the expression `Person::{=}`
 
 ## Names
 
@@ -2570,8 +2570,8 @@ encounter the following conventions in the wild:
 However, these are not hard rules and you should feel free to deviate from them
 if doing so more accurately mirrors the domain that you're trying to model.
 
-In fact, the language gives you quite even more leeway about naming things if
-you're willing to escape the names using backticks, like this:
+In fact, the language gives you even more leeway about naming things if you're
+willing to escape the names using backticks, like this:
 
 ```dhall
 ⊢ :let `Avogadro's Number` = 6.0221409e+23
