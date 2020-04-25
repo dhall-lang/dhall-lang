@@ -331,6 +331,33 @@ let
       system = "x86_64-linux";
     }).system;
 
+  vm =
+    (import "${dhallLangNixpkgs}/nixos" {
+      configuration = {
+        imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
+
+        networking.hostName = "dhall-lang";
+
+        nixpkgs.overlays = [ overlay ];
+
+        systemd.services.self-deploy.enable = false;
+
+        users = {
+          mutableUsers = false;
+
+          users.root.password = "";
+        };
+
+        virtualisation = {
+          cores = 2;
+
+          memorySize = "4096";
+        };
+      };
+
+      system = "x86_64-linux";
+    }).vm;
+
 in
   { dhall-lang = pkgs.releaseTools.aggregate {
       name = "dhall-lang";
@@ -341,11 +368,12 @@ in
         pkgs.prelude-lint
         pkgs.test-files-lint
         machine
+        vm
         rev
       ];
     };
 
     inherit (pkgs) expected-prelude expected-test-files docs website;
 
-    inherit machine;
+    inherit machine vm;
   }
