@@ -16,7 +16,13 @@
 , defaultMap =
       ./defaultMap sha256:3a3fa1264f6198800c27483cb144de2c5366484876d60b9c739a710ce0288588
     ? ./defaultMap
+, replicate =
+      ./replicate sha256:1b398b1d464b3a6c7264a690ac3cacb443b5683b43348c859d68e7c2cb925c4f
+    ? ./replicate
 , show =
       ./show sha256:c9dc5de3e5f32872dbda57166804865e5e80785abe358ff61f1d8ac45f1f4784
     ? ./show
+, spaces =
+      ./spaces sha256:fccfd4f26601e006bf6a79ca948dbd37c676cdd0db439554447320293d23b3dc
+    ? ./spaces
 }

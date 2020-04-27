@@ -646,54 +646,52 @@ Encode `Integer` literals using the smallest available numeric representation:
 
 ### `Double`
 
-CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations.
-The 16-bit representation is used here to encode only the following special values:
+CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations. As
+recommended by the [working draft of the CBOR Working Group][rfc7049bis],
+encode a `Double` literal using the shortest floating point encoding that
+preserves its value.
+
+[rfc7049bis]: https://tools.ietf.org/html/draft-ietf-cbor-7049bis-04#section-4.6
 
 
-    ─────────────────────────────  ; isNaN(n.n)
-    encode(n.n) = n.n_h(0x7e00)
+    ─────────────────────────────  ; toDouble(toHalf(n.n)) = n.n
+    encode(n.n) = n.n_h
 
 
-    ─────────────────────────────  ; n.n = +Infinity
-    encode(n.n) = n.n_h(0x7c00)
+    ─────────────────────────────  ; toDouble(toHalf(n.n)) ≠ n.n AND toDouble(toSingle(n.n)) = n.n
+    encode(n.n) = n.n_s
 
 
-    ─────────────────────────────  ; n.n = -Infinity
-    encode(n.n) = n.n_h(0xfc00)
+    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n
+    encode(n.n) = n.n
 
 
-    ─────────────────────────────  ; n.n = +0.0
-    encode(n.n) = n.n_h(0x0000)
+Note in particular the encoding of these special values:
 
 
-    ─────────────────────────────  ; n.n = -0.0
-    encode(n.n) = n.n_h(0x8000)
+    ───────────────────────────
+    encode(NaN) = n.n_h(0x7e00)
 
 
-For the other values, encode `Double` literals using the smallest available
-numeric representation, picking between 32-bit and 64-bit:
+    ────────────────────────────────
+    encode(Infinity) = n.n_h(0x7c00)
 
 
-    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n              ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
+    ─────────────────────────────────
+    encode(-Infinity) = n.n_h(0xfc00)
 
 
-    ─────────────────────────────  ; toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n_s            ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
+    ────────────────────────────
+    encode(+0.0) = n.n_h(0x0000)
 
 
-In other words:
-- if n.n is a NaN, encode as a half (16-bit) float with the value 0x7e00
-- if n.n is +0.0, encode as a half (16-bit) float with the value 0x0000
-- if n.n is -0.0, encode as a half (16-bit) float with the value 0x8000
-- if n.n is +Infinity, encode as a half (16-bit) float with the value 0x7c00
-- if n.n is -Infinity, encode as a half (16-bit) float with the value 0xfc00
+    ────────────────────────────
+    encode(-0.0) = n.n_h(0x8000)
+
+
 
 These values ensure identical semantic hashes on different platforms.
 
-For all other values, convert to `Single` and back to `Double` and check for equality with
-the original. If they are the same, then there is no loss of precision using the smaller
-representation, so that should be used.
 
 ### `Text`
 
