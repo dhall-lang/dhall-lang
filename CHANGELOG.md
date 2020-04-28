@@ -64,7 +64,7 @@ Breaking changes:
   recommendation how to canonically encode floating point values.  Specifically,
   these values are now encoded using the smallest available CBOR representation,
   (which could be half precision floating point values).  Previously, the Dhall
-  standard will always use at least 32 bits for encoding floating point values.
+  standard would always use at least 32 bits for encoding floating point values.
 
   This is a technically breaking change because this affects the computed
   integrity checks for frozen imports, but you are less likely to hit this in
