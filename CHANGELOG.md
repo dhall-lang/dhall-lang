@@ -18,19 +18,19 @@ Breaking changes:
     For example, now these parentheses are required:
 
     ```dhall
-    ({ x = 0 } // { y = 1 }) with x = 1
+    ({ x = 0 } ∧ { y = 1 }) with x = 1
     ```
 
     Previously, if you omitted the parentheses, like this:
 
     ```dhall
-    { x = 0 } // { y = 1 } with x = 1
+    { x = 0 } ∧ { y = 1 } with x = 1
     ```
 
     ... that would have parsed as:
 
     ```dhall
-    { x = 0 } // ({ y = 1 } with x = 1)
+    { x = 0 } ∧ ({ y = 1 } with x = 1)
     ```
 
     ... but now you would get a failed parse if you were to omit the
