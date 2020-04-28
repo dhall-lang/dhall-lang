@@ -35,9 +35,38 @@ Breaking changes:
 
     ... but now you would get a failed parse if you were to omit the
     parentheses.
- 
-    This is definitely a breaking change, since such expressions were previously
-    valid now require explicit parentheses, otherwise they will fail to parse.
+
+    This restriction forbids expressions that might have been ambiguous to
+    readers.  This is definitely a breaking change, since such expressions were
+    previously valid now require explicit parentheses, otherwise they will fail
+    to parse.
+
+    Along the same lines, an expression like this:
+
+    ```dhall
+    record with x.y = {} // {}
+    ```
+
+    ... used to parse as:
+
+    ```dhall
+    (record with x.y = {}) // { x = 1 }
+    ```
+
+    ... but now parses as:
+
+    ```dhall
+    record with x.y = ({} // { x = 1 })
+    ```
+
+    ... which is a different expression.
+
+    The motivation for the latter change in precedence is to permit right-hand
+    sides that contain operators without explicit parentheses, like this:
+
+    ```dhall
+    record with x.y = 2 + 2
+    ```
 
   * The precedence of `===` is now lower than all of the operators
 
