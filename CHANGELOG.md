@@ -44,7 +44,7 @@ Breaking changes:
     Along the same lines, an expression like this:
 
     ```dhall
-    record with x.y = {} // {}
+    record with x.y = {} // { x = 1 }
     ```
 
     ... used to parse as:
