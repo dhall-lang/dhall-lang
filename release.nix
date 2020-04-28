@@ -251,6 +251,12 @@ let
           sha256 = "1hrz7wr7i0b2bips60ygacbkmdzv466lsbxi22hycg42kv4m0173";
         };
 
+      openCollective =
+        pkgsNew.fetchurl {
+          url    = "https://opencollective.com/static/images/opencollective-icon.svg";
+          sha256 = "0i4hngjycmrj6gk2knsxqy35sx1ksmc268lr56s1fwfdp6afsh4z";
+        };
+
       prometheus =
         pkgsNew.fetchurl {
           url    = "https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg";
@@ -325,6 +331,33 @@ let
       system = "x86_64-linux";
     }).system;
 
+  vm =
+    (import "${dhallLangNixpkgs}/nixos" {
+      configuration = {
+        imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
+
+        networking.hostName = "dhall-lang";
+
+        nixpkgs.overlays = [ overlay ];
+
+        systemd.services.self-deploy.enable = false;
+
+        users = {
+          mutableUsers = false;
+
+          users.root.password = "";
+        };
+
+        virtualisation = {
+          cores = 2;
+
+          memorySize = "4096";
+        };
+      };
+
+      system = "x86_64-linux";
+    }).vm;
+
 in
   { dhall-lang = pkgs.releaseTools.aggregate {
       name = "dhall-lang";
@@ -335,11 +368,12 @@ in
         pkgs.prelude-lint
         pkgs.test-files-lint
         machine
+        vm
         rev
       ];
     };
 
     inherit (pkgs) expected-prelude expected-test-files docs website;
 
-    inherit machine;
+    inherit machine vm;
   }

@@ -1,1 +1,0 @@
-{ x = Type, y = Kind }

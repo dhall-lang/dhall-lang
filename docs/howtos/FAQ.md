@@ -134,6 +134,16 @@ in  example // {
     }
 ```
 
+You can also use the `with` keyword as a more concise syntactic sugar for the same expression:
+
+```dhall
+let example = { coordinate = { x = 5, y = 3 }, element = "Hg" }
+in  example
+  with coordinate.x = (example.coordinate.x + 1)
+```
+
+See [Add support for `with` keyword](https://github.com/dhall-lang/dhall-lang/pull/923) for more details.
+
 ## Why do empty lists require a type annotation?
 
 Dhall cannot infer a polymorphic type for an empty list because Dhall represents
