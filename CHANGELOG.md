@@ -86,8 +86,7 @@ New features:
   ... or more generally you can mix terms, types, and kinds within the same
   union (similar to how you can mix them within records).
 
-  Besides permitting a more expressions this change also simplifies the
-  standard.
+  Besides permitting more expressions this change also simplifies the standard.
 
 * New additions to the Prelude
 
