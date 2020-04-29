@@ -117,7 +117,15 @@ cache.  For example, on unix systems you could set the environment
 variable `XDG_CACHE_HOME` to the absolute location of
 `dhall-lang/tests/import/cache`.  This is so that we can test that an
 import with an integrity check is fetched from cache (for example, see
-`hashFromCacheA.dhall`).
+`hashFromCacheA.dhall`).  Your tests should not make persistent writes
+to this cache – for example, you could:
+
+ - treat this cache directory as read-only, or
+ - reset the cache after test runs to discard any writes your
+   implementation does (for example, run `git clean -f
+   tests/import/cache`), or
+ - copy the cache to a fresh temporary directory for each test run.
+
 You should make it so that the environment variable `DHALL_TEST_VAR` is set to
 the string "6 * 7". This enables testing importing from environment variables.
 
