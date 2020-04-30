@@ -25,10 +25,10 @@ in
 
           device = "nodev";
 
-          timeout = 10;
-
           version = 2;
         };
+
+        timeout = 10;
       };
     };
 
