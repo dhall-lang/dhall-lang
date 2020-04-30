@@ -8,6 +8,7 @@ These guides help you get your hands dirty with working examples:
    :maxdepth: 1
 
    Getting-started_Generate-JSON-or-YAML
+   Language-Tour
    string-matrix
 ```
 
@@ -19,10 +20,6 @@ These guides help you get your hands dirty with working examples:
 ## [Learn Dhall in Y minutes](https://learnxinyminutes.com/docs/dhall/)
 
 > Take a whirlwind tour of the language taught using one large Dhall file
-
-## [Language tour](./Language-Tour.md)
-
-> A longer tutorial that briefly touches on all language features
 
 ## [dhall-nethack](https://github.com/dhall-lang/dhall-nethack)
 
