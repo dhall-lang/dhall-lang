@@ -331,6 +331,12 @@
         → ∀(b : Type)
         → ∀(xs : List { _1 : a, _2 : b })
         → { _1 : List a, _2 : List b }
+    , zip :
+          ∀(a : Type)
+        → ∀(xa : List a)
+        → ∀(b : Type)
+        → ∀(xb : List b)
+        → List { _1 : a, _2 : b }
     }
 , Location : { Type : Type }
 , Map :
