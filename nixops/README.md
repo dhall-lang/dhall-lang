@@ -111,6 +111,33 @@ $ ssh dhall-lang.org
 ... and you should have `sudo` privileges if you included yourself in the
 `wheel` group.
 
+## Testing
+
+If you have a Linux machine with Nix installed, you can test the same
+configuration inside of a VM using this script:
+
+```bash
+./scripts/test-vm.sh
+```
+
+You can then log into the VM using the `root` user with an empty password.
+
+You can also forward a port from the guest machine to the host machine using the
+following command:
+
+```bash
+QEMU_NET_OPTS="hostfwd=tcp::${HOST_PORT}-:${GUEST_PORT}" ./scripts/test-vm.sh 
+```
+
+For example, you can browse the website hosted by the VM by running the
+following command:
+
+```bash
+QEMU_NET_OPTS='hostfwd=tcp::8443-:443' ./scripts/test-vm.sh 
+```
+
+... and then opening https://localhost:8443 in your browser.
+
 ## Bootstrapping
 
 This section records how the `dhall-lang.org` server was bootstrapped in case we

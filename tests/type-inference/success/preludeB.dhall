@@ -307,6 +307,7 @@
         → list
     , generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) → List a
     , head : ∀(a : Type) → List a → Optional a
+    , index : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → Optional a
     , indexed : ∀(a : Type) → List a → List { index : Natural, value : a }
     , iterate : ∀(n : Natural) → ∀(a : Type) → ∀(f : a → a) → ∀(x : a) → List a
     , last : ∀(a : Type) → List a → Optional a
@@ -454,7 +455,9 @@
     , concatSep : ∀(separator : Text) → ∀(elements : List Text) → Text
     , default : ∀(o : Optional Text) → Text
     , defaultMap : ∀(a : Type) → ∀(f : a → Text) → ∀(o : Optional a) → Text
+    , replicate : ∀(num : Natural) → ∀(text : Text) → Text
     , show : Text → Text
+    , spaces : ∀(a : Natural) → Text
     }
 , XML :
     { Type : Type
