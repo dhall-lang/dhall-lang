@@ -129,10 +129,13 @@ Other changes:
 
   * [Improve whitespace consistency](https://github.com/dhall-lang/dhall-lang/pull/947)
   * [Add missed type-inference context sets](https://github.com/dhall-lang/dhall-lang/pull/948)
+  * [Clarify `as Location` semantics](https://github.com/dhall-lang/dhall-lang/pull/972)
 
 * Fixes and improvements to the standard test suite:
 
   * [Add regression test for partially saturated `{List,Natural}/fold`](https://github.com/dhall-lang/dhall-lang/pull/950)
+  * [Remove dependency on `csrng.net`](https://github.com/dhall-lang/dhall-lang/pull/969)
+  * [Add test that we ignore poisoned cache entries](https://github.com/dhall-lang/dhall-lang/pull/983)
 
 ## `v15.0.0`
 
