@@ -122,6 +122,7 @@ New features:
 
   * [Add `Prelude.List.index`](https://github.com/dhall-lang/dhall-lang/pull/966)
   * [Add `Text/{replicate,spaces}`](https://github.com/dhall-lang/dhall-lang/pull/967)
+  * [Add `List/zip`](https://github.com/dhall-lang/dhall-lang/pull/971)
 
 Other changes:
 
