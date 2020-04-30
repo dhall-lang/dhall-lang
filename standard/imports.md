@@ -670,20 +670,58 @@ importing the file a Dhall expression:
 
 
     parent </> import₀ = import₁
-    canonicalize(import₁) = child
-    ε ⊢ child : < Local : Text | Remote : Text | Environment : Text | Missing >
+    canonicalize(import₁) = ./relative/path
     ───────────────────────────────────────────────────────────────────────────
-    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ child ⊢ Γ
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Location "./relative/path" ⊢ Γ
 
 
-Carefully note that `child` in the above judgment is loosely used both as an
-unresolved, non-Dhall value, and as a Dhall value to represent the same data.
+    parent </> import₀ = import₁
+    canonicalize(import₁) = ../parent/path
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Location "../parent/path" ⊢ Γ
 
-Also note that since the expression is not resolved in any way - that is, we only
-read in its location - there's no need to check if the path exists, if it's
-referentially transparent, if it honours CORS, no header forwarding necessary, etc.
-Canonicalization and chaining are the only transformations applied to the import.
 
+    parent </> import₀ = import₁
+    canonicalize(import₁) = /absolute/path
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Location "/absolute/path" ⊢ Γ
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = ~/home/path
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Location "~/home/path" ⊢ Γ
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = https://example.com/path
+    ───────────────────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Remote "https://example.com/path" ⊢ Γ
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = https://example.com/path using headers
+    ───────────────────────────────────────────────────────────────────────────  ; Headers are not included in the path
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Remote "https://example.com/path" ⊢ Γ
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = env:FOO
+    ───────────────────────────────────────────────────────────────────────────  ; Headers are not included in the path
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Environment "FOO" ⊢ Γ
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = missing
+    ───────────────────────────────────────────────────────────────────────────  ; Headers are not included in the path
+    (Δ, parent) × Γ ⊢ import₀ as Location ⇒ < Local : Text | Remote : Text | Environment : Text | Missing >.Missing ⊢ Γ
+
+
+Also note that since the expression is not resolved in any way - that is, we
+only read in its location - there's no need to check if the path exists, if it's
+referentially transparent, if it honours CORS, no header forwarding necessary,
+etc.  Canonicalization and chaining are the only transformations applied to the
+import.
 
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
