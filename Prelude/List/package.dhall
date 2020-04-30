@@ -34,6 +34,9 @@
 , head =
       ./head sha256:0d2e65ba0aea908377e46d22020dc3ad970284f4ee4eb8e6b8c51e53038c0026
     ? ./head
+, index =
+      ./index sha256:e657b55ecae4d899465c3032cb1a64c6aa6dc2aa3034204f3c15ce5c96c03e63
+    ? ./index
 , indexed =
       ./indexed sha256:58bb44457fa81adf26f5123c1b2e8bef0c5aa22dac5fa5ebdfb7da84563b027f
     ? ./indexed
