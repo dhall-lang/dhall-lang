@@ -270,7 +270,7 @@ let
           url =
             "https://brandfolder.com/slack/attachments/pl546j-7le8zk-afym5u?dl=true&resource_key=pl53se-o7edc-2zw45a&resource_type=Collection";
 
-          sha256 = "08zjckbg949rlnxrchjf75d99yn1cwivc9ny3yrklb0514j3i1d9";
+          sha256 = "0i4yjjgkcky6zfbim17rryy23pbrsc4255jzy14lgy7ja3a5jabk";
 
           postFetch =
             "${pkgs.imagemagickBig}/bin/mogrify -format png -crop 300x300+100+100 $downloadedFile";
