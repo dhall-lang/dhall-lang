@@ -68,12 +68,14 @@ All of these services are configured in
 [`./nixops/logical.nix`](./logical.nix), and you can update them by creating a
 pull request to amend that file.
 
-There currently is not a good way to locally test your changes, but you can at
-least locally verify that the machine configuration builds correctly by running:
+Verify that the machine configuration builds correctly by running:
 
 ```bash
 $ nix build --file ./release.nix machine
 ```
+
+See the section [Testing](#testing) on how to run the built configuration locally
+in a virtual machine.
 
 If you have SSH access to the machine then you can also do a test deploy by
 running:
