@@ -263,6 +263,19 @@ let
           sha256 = "19ff8l1kp3i3gxxbd5na9wbzxkpflcxw0lz2ysb1d6s4ybvr0fnb";
         };
 
+      slack =
+        pkgsNew.fetchurl {
+          name = "slack-logo.png";
+
+          url =
+            "https://brandfolder.com/slack/attachments/pl546j-7le8zk-afym5u?dl=true&resource_key=pl53se-o7edc-2zw45a&resource_type=Collection";
+
+          sha256 = "0i4yjjgkcky6zfbim17rryy23pbrsc4255jzy14lgy7ja3a5jabk";
+
+          postFetch =
+            "${pkgs.imagemagickBig}/bin/mogrify -format png -crop 300x300+100+100 $downloadedFile";
+        };
+
       stackOverflow =
         pkgsNew.fetchurl {
           url    = "https://cdn.sstatic.net/Sites/stackoverflow/company/img/logos/so/so-icon.svg";
@@ -281,6 +294,12 @@ let
         pkgsNew.fetchurl {
           url    = "https://raw.githubusercontent.com/yaml/yaml-spec/a6f764e13de58d5f753877f588a01b35dc9a5168/logo.png";
           sha256 = "12grgaxpqi755p2rnvw3x02zc69brpnzx208id1f0z42w387j4hi";
+        };
+
+      zulip =
+        pkgsNew.fetchurl {
+          url    = "https://raw.githubusercontent.com/zulip/zulip/28d58c848d60b2b93e82b2aa61c560268806ebb6/static/images/logo/zulip-icon-128x128.png";
+          sha256 = "0j7khvym2p4f8dqdl7k7k4rypj1hai2rj0pjzb6h41fvjyjmbrrr";
         };
     };
 
