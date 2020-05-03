@@ -1,0 +1,33 @@
+{--
+Unpack Optionals in a list, filtering out None values
+--}
+
+let List/map = ./map
+
+let List/concat = ./concat
+
+let unpackItems
+    : ∀(a : Type) → ∀(l : List (Optional a)) → List a
+    =   λ(a : Type)
+      → λ(l : List (Optional a))
+      → let mapper =
+                λ(t : Type)
+              → λ(item : Optional t)
+              → merge
+                  { None = [] : List t, Some = λ(value : t) → [ value ] }
+                  item
+
+        in  List/concat a (List/map (Optional a) (List a) (mapper a) l)
+
+let example0 =
+      assert : unpackItems Natural [ Some 1, None Natural, Some 3 ] ≡ [ 1, 3 ]
+
+let example1 =
+        assert
+      : unpackItems Natural ([] : List (Optional Natural)) ≡ ([] : List Natural)
+
+let example1 =
+        assert
+      : unpackItems Natural [ None Natural, None Natural ] ≡ ([] : List Natural)
+
+in  unpackItems
