@@ -2,9 +2,13 @@
 Unpack Optionals in a list, filtering out None values
 --}
 
-let List/map = ./map
+let List/map =
+        ./map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ./map
 
-let List/concat = ./concat
+let List/concat =
+        ./concat sha256:54e43278be13276e03bd1afa89e562e94a0a006377ebea7db14c7562b0de292b
+      ? ./concat
 
 let unpackItems
     : ∀(a : Type) → ∀(l : List (Optional a)) → List a
