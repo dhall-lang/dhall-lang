@@ -2,26 +2,17 @@
 Unpack Optionals in a list, filtering out None values
 --}
 
-let List/map =
-        ./map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
-      ? ./map
+let List/concatMap =
+      ./concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+    ? ./concatMap
 
-let List/concat =
-        ./concat sha256:54e43278be13276e03bd1afa89e562e94a0a006377ebea7db14c7562b0de292b
-      ? ./concat
+let Optional/toList =
+      ../Optional/toList sha256:d78f160c619119ef12389e48a629ce293d69f7624c8d016b7a4767ab400344c4
+    ? ../Optional/toList
 
 let unpackItems
     : ∀(a : Type) → ∀(l : List (Optional a)) → List a
-    =   λ(a : Type)
-      → λ(l : List (Optional a))
-      → let mapper =
-                λ(t : Type)
-              → λ(item : Optional t)
-              → merge
-                  { None = [] : List t, Some = λ(value : t) → [ value ] }
-                  item
-
-        in  List/concat a (List/map (Optional a) (List a) (mapper a) l)
+    = λ(a : Type) → List/concatMap (Optional a) a (Optional/toList a)
 
 let example0 =
       assert : unpackItems Natural [ Some 1, None Natural, Some 3 ] ≡ [ 1, 3 ]
