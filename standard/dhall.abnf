@@ -911,13 +911,16 @@ record-type-entry = any-label-or-some whsp ":" whsp1 expression
 non-empty-record-literal =
     record-literal-entry *(whsp "," whsp record-literal-entry)
 
+; If the `record-literal-normal-entry` is absent, that represents a punned
+; record entry, such as in `{ x }`, which is a short-hand for `{ x = x }`
 record-literal-entry =
     any-label-or-some [record-literal-normal-entry]
 
 record-literal-normal-entry =
     *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
 
-
+; If the `union-type-entry` is absent, that represents an empty union
+; alternative, such as in `< Heads | Tails >`
 union-type =
     [union-type-entry *(whsp "|" whsp union-type-entry)]
 
