@@ -167,6 +167,10 @@
         pid /run/nginx.pid;
       '';
 
+      package = pkgs.nginxStable.override {
+        modules = with pkgs.nginxModules; [ develkit echo set-misc ];
+      };
+
       recommendedGzipSettings = true;
 
       recommendedOptimisation = true;
@@ -175,7 +179,7 @@
 
       virtualHosts =
         let
-          latestRelease = "v15.0.0";
+          latestRelease = "v16.0.0";
 
           prelude = {
             forceSSL = true;
@@ -301,6 +305,10 @@
                     if ($http_test = "") {
                       return 403;
                     }
+                  '';
+                  locations."/random-string".extraConfig = ''
+                    set_secure_random_alphanum $res 32;
+                    echo $res;
                   '';
                 }
               ];
