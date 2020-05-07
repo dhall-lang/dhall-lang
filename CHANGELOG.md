@@ -5,6 +5,139 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v16.0.0`
+
+Breaking changes:
+
+* [Adjust precedence of `===` and `with`](https://github.com/dhall-lang/dhall-lang/pull/954)
+
+  This includes two precedence changes:
+
+  * `with` expressions now forbid operators for their left-hand agument
+
+    For example, now these parentheses are required:
+
+    ```dhall
+    ({ x = 0 } ∧ { y = 1 }) with x = 1
+    ```
+
+    Previously, if you omitted the parentheses, like this:
+
+    ```dhall
+    { x = 0 } ∧ { y = 1 } with x = 1
+    ```
+
+    ... that would have parsed as:
+
+    ```dhall
+    { x = 0 } ∧ ({ y = 1 } with x = 1)
+    ```
+
+    ... but now you would get a failed parse if you were to omit the
+    parentheses.
+
+    This restriction forbids expressions that might have been ambiguous to
+    readers.  This is definitely a breaking change, since such expressions were
+    previously valid now require explicit parentheses, otherwise they will fail
+    to parse.
+
+    Along the same lines, an expression like this:
+
+    ```dhall
+    record with x.y = {} // { x = 1 }
+    ```
+
+    ... used to parse as:
+
+    ```dhall
+    (record with x.y = {}) // { x = 1 }
+    ```
+
+    ... but now parses as:
+
+    ```dhall
+    record with x.y = ({} // { x = 1 })
+    ```
+
+    ... which is a different expression.
+
+    The motivation for the latter change in precedence is to permit right-hand
+    sides that contain operators without explicit parentheses, like this:
+
+    ```dhall
+    record with x.y = 2 + 2
+    ```
+
+  * The precedence of `===` is now lower than all of the operators
+
+    The motivation for this change is to that you no longer need to parenthesize
+    tests just because they use operators.  For example, previously the
+    following parentheses were mandatory:
+
+    ```dhall
+    let example = assert : (2 + 2) === 4
+    ```
+
+    ... and now you can safely omit the parentheses:
+
+    ```dhall
+    let example = assert : 2 + 2 === 4
+    ```
+
+    This part is not a breaking change because any expression affected by this
+    change in precedence would not have type-checked anyway.
+
+* [Update encoding of floating point values to RFC7049bis](https://github.com/dhall-lang/dhall-lang/pull/958)
+
+  This changes how `Double` literals are encoded to match a new standard
+  recommendation how to canonically encode floating point values.  Specifically,
+  these values are now encoded using the smallest available CBOR representation,
+  (which could be half precision floating point values).  Previously, the Dhall
+  standard would always use at least 32 bits for encoding floating point values
+  (except for special values like `Infinity` or `NaN`).
+
+  This is a technically breaking change because this affects the computed
+  integrity checks for frozen imports, but you are less likely to hit this in
+  practice because: (A) usually only Dhall packages containing reusable
+  utilities are frozen using integrity checks and (B) there are essentially
+  no useful utilities one could write in Dhall using specific `Double` literals
+  since they are opaque.
+
+New features:
+
+* [Allow unions with mixed kinds](https://github.com/dhall-lang/dhall-lang/pull/957)
+
+  Now, a union type like this one is valid:
+
+  ```dhall
+  < x : Bool | y | z : Type > 
+  ```
+
+  ... or more generally you can mix terms, types, and kinds within the same
+  union (similar to how you can mix them within records).
+
+  Besides permitting more expressions this change also simplifies the standard.
+
+* New additions to the Prelude
+
+  * [Add `Prelude.List.index`](https://github.com/dhall-lang/dhall-lang/pull/966)
+  * [Add `Text/{replicate,spaces}`](https://github.com/dhall-lang/dhall-lang/pull/967)
+  * [Add `List/zip`](https://github.com/dhall-lang/dhall-lang/pull/971)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Improve whitespace consistency](https://github.com/dhall-lang/dhall-lang/pull/947)
+  * [Add missed type-inference context sets](https://github.com/dhall-lang/dhall-lang/pull/948)
+  * [Clarify `as Location` semantics](https://github.com/dhall-lang/dhall-lang/pull/972)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Add regression test for partially saturated `{List,Natural}/fold`](https://github.com/dhall-lang/dhall-lang/pull/950)
+  * [Remove dependency on `csrng.net`](https://github.com/dhall-lang/dhall-lang/pull/969)
+  * [Add test that we ignore poisoned cache entries](https://github.com/dhall-lang/dhall-lang/pull/983)
+
 ## `v15.0.0`
 
 Deprecation notice:
@@ -318,7 +451,7 @@ New features:
 
 * New additions to the Prelude
 
-  * [Add `Prelude.Integer.{negative,nonNegative,nonPositive,positive}](https://github.com/dhall-lang/dhall-lang/pull/857)
+  * [Add `Prelude.Integer.{negative,nonNegative,nonPositive,positive}`](https://github.com/dhall-lang/dhall-lang/pull/857)
   * [Add `Prelude.Function.identity`](https://github.com/dhall-lang/dhall-lang/pull/865)
 
 Other changes:

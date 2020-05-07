@@ -1,1 +1,1 @@
-[8, {"example1": [25, "let", null, [15, 1], ["let", 0]], "example2": [25, ":.", null, [15, 1], [":.", 0]], "example3": [25, "$ref", null, [15, 1], ["$ref", 0]]}]
+[8, {"example1": [25, "let", null, [15, 1], ["let", 0]], "example2": [25, ":.", null, [15, 1], [":.", 0]], "example3": [25, "$ref", null, [15, 1], ["$ref", 0]], "example4": [25, "", null, [15, 1], ["", 0]]}]

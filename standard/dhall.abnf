@@ -206,7 +206,7 @@ quoted-label-char =
         ; %x60 = '`'
     / %x61-7E
 
-quoted-label = 1*quoted-label-char
+quoted-label = *quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
