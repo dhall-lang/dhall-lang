@@ -3,8 +3,8 @@
 -}
 let build
     : (∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool) → Bool
-    =   λ(f : ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool)
-      → f Bool True False
+    = λ(f : ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool) →
+        f Bool True False
 
 let example0 =
         assert

@@ -20,18 +20,18 @@ let XML =
 
 let text
     : Text → XML
-    =   λ(d : Text)
-      → λ(XML : Type)
-      → λ ( xml
-          : { text : Text → XML
-            , element :
-                  { attributes : List { mapKey : Text, mapValue : Text }
-                  , content : List XML
-                  , name : Text
-                  }
-                → XML
-            }
-          )
-      → xml.text d
+    = λ(d : Text) →
+      λ(XML : Type) →
+      λ ( xml
+        : { text : Text → XML
+          , element :
+              { attributes : List { mapKey : Text, mapValue : Text }
+              , content : List XML
+              , name : Text
+              } →
+                XML
+          }
+        ) →
+        xml.text d
 
 in  text

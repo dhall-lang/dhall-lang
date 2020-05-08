@@ -3,14 +3,14 @@ Concatenate a `List` of `List`s into a single `List`
 -}
 let concat
     : ∀(a : Type) → List (List a) → List a
-    =   λ(a : Type)
-      → λ(xss : List (List a))
-      → List/build
+    = λ(a : Type) →
+      λ(xss : List (List a)) →
+        List/build
           a
-          (   λ(list : Type)
-            → λ(cons : a → list → list)
-            → λ(nil : list)
-            → List/fold
+          ( λ(list : Type) →
+            λ(cons : a → list → list) →
+            λ(nil : list) →
+              List/fold
                 (List a)
                 xss
                 list

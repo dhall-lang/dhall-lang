@@ -4,15 +4,15 @@ results
 -}
 let concatMap
     : ∀(a : Type) → ∀(b : Type) → (a → List b) → List a → List b
-    =   λ(a : Type)
-      → λ(b : Type)
-      → λ(f : a → List b)
-      → λ(xs : List a)
-      → List/build
+    = λ(a : Type) →
+      λ(b : Type) →
+      λ(f : a → List b) →
+      λ(xs : List a) →
+        List/build
           b
-          (   λ(list : Type)
-            → λ(cons : b → list → list)
-            → List/fold a xs list (λ(x : a) → List/fold b (f x) list cons)
+          ( λ(list : Type) →
+            λ(cons : b → list → list) →
+              List/fold a xs list (λ(x : a) → List/fold b (f x) list cons)
           )
 
 let example0 =

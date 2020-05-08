@@ -4,20 +4,21 @@ Zip two `List` into a single `List`
 Resulting `List` will have the length of the shortest of its arguments.
 -}
 let List/drop =
-      ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+        ./drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+      ? ./drop
 
 let zip
     : ∀(a : Type) → List a → ∀(b : Type) → List b → List { _1 : a, _2 : b }
-    =   λ(a : Type)
-      → λ(xa : List a)
-      → λ(b : Type)
-      → λ(xb : List b)
-      → let Carry = { acc : List { _1 : a, _2 : b }, context : List b }
+    = λ(a : Type) →
+      λ(xa : List a) →
+      λ(b : Type) →
+      λ(xb : List b) →
+        let Carry = { acc : List { _1 : a, _2 : b }, context : List b }
 
         let cons =
-                λ(elem : a)
-              → λ(prev : Carry)
-              → let nextAcc =
+              λ(elem : a) →
+              λ(prev : Carry) →
+                let nextAcc =
                       merge
                         { Some =
                             λ(bb : b) → [ { _1 = elem, _2 = bb } ] # prev.acc

@@ -5,14 +5,14 @@ Examples:
 -}
 let filter
     : ∀(a : Type) → (a → Bool) → List a → List a
-    =   λ(a : Type)
-      → λ(f : a → Bool)
-      → λ(xs : List a)
-      → List/build
+    = λ(a : Type) →
+      λ(f : a → Bool) →
+      λ(xs : List a) →
+        List/build
           a
-          (   λ(list : Type)
-            → λ(cons : a → list → list)
-            → List/fold
+          ( λ(list : Type) →
+            λ(cons : a → list → list) →
+              List/fold
                 a
                 xs
                 list

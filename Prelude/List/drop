@@ -5,19 +5,17 @@ let Natural/greaterThanEqual =
 
 let drop
     : ∀(n : Natural) → ∀(a : Type) → List a → List a
-    =   λ(n : Natural)
-      → λ(a : Type)
-      → λ(xs : List a)
-      → List/fold
+    = λ(n : Natural) →
+      λ(a : Type) →
+      λ(xs : List a) →
+        List/fold
           { index : Natural, value : a }
           (List/indexed a xs)
           (List a)
-          (   λ(x : { index : Natural, value : a })
-            → λ(xs : List a)
-            →       if Natural/greaterThanEqual x.index n
-
+          ( λ(x : { index : Natural, value : a }) →
+            λ(xs : List a) →
+              if    Natural/greaterThanEqual x.index n
               then  [ x.value ] # xs
-
               else  xs
           )
           ([] : List a)

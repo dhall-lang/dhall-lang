@@ -1120,10 +1120,10 @@ List/head a ([] : List a) = None a
 
 List/head a (xs # ys) =
       let combine =
-              λ(a : Type)
-            → λ(l : Optional a)
-            → λ(r : Optional a)
-            → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
+            λ(a : Type) →
+            λ(l : Optional a) →
+            λ(r : Optional a) →
+              Optional/fold a l (Optional a) (λ(x : a) → Some x) r
   in  combine a (List/head a xs) (List/head a ys)
 
 List/head a [ x ] = Some x
@@ -1154,10 +1154,10 @@ List/last a ([] : List a) = None a
 
 List/last a (xs # ys) =
       let combine =
-              λ(a : Type)
-            → λ(l : Optional a)
-            → λ(r : Optional a)
-            → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+            λ(a : Type) →
+            λ(l : Optional a) →
+            λ(r : Optional a) →
+              Optional/fold a r (Optional a) (λ(x : a) → Some x) l
   in  combine a (List/last a xs) (List/last a ys)
 
 List/last a [ x ] = Some x
@@ -1188,15 +1188,15 @@ List/indexed a ([] : List a) = [] : List { index : Natural, value : a }
 
 List/indexed a (xs # ys) =
       let combine =
-          λ(a : Type)
-        → λ(xs : List { index : Natural, value : a })
-        → λ(ys : List { index : Natural, value : a })
-        →   xs
+        λ(a : Type) →
+        λ(xs : List { index : Natural, value : a }) →
+        λ(ys : List { index : Natural, value : a }) →
+            xs
           # List/build
             { index : Natural, value : a }
-            (   λ(list : Type)
-              → λ(cons : { index : Natural, value : a } → list → list)
-              → List/fold
+            ( λ(list : Type) →
+              λ(cons : { index : Natural, value : a } → list → list) →
+                List/fold
                 { index : Natural, value : a }
                 ys
                 list

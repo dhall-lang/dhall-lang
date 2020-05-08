@@ -4,10 +4,10 @@ Returns `True` if the supplied function returns `True` for a present element and
 -}
 let any
     : ∀(a : Type) → (a → Bool) → Optional a → Bool
-    =   λ(a : Type)
-      → λ(f : a → Bool)
-      → λ(xs : Optional a)
-      → merge { Some = f, None = False } xs
+    = λ(a : Type) →
+      λ(f : a → Bool) →
+      λ(xs : Optional a) →
+        merge { Some = f, None = False } xs
 
 let example0 = assert : any Natural Natural/even (Some 2) ≡ True
 
