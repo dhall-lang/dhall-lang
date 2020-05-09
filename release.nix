@@ -168,6 +168,12 @@ let
           sha256 = "0gvfd7y7ihqyz93by730w0f6kdfs8dlvxv45ydccih94rxj3j7ac";
         };
 
+      ansible =
+        pkgsNew.fetchurl {
+          url    = "https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Mango.png";
+          sha256 = "1zmd6gnx6gx9z6n5i02ipidc2ypakhhv07nznr3a5jjbyl4qqj3y";
+        };
+
       bash =
         pkgsNew.fetchurl {
           url    = "https://raw.githubusercontent.com/odb/official-bash-logo/master/assets/Logos/Icons/PNG/128x128.png";
