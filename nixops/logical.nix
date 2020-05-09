@@ -85,7 +85,7 @@
   nixpkgs.overlays =
     let
       modifyHydra = packagesNew: packagesOld: {
-        hydra-migration = packagesOld.hydra-migration.overrideAttrs (old: {
+        hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
             patches = (old.patches or []) ++ [
               ./hydra.patch
               ./no-restrict-eval.patch
