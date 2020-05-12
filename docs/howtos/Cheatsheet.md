@@ -233,11 +233,11 @@
     λ(inputArgument : inputType) → outputResult : ∀(inputArgument : inputType) → outputType  -- Unicode syntax
 
     let describe =
-        λ(name : Text)
-      → λ(age : Natural)
-      → "Name: ${name}, Age: ${Natural/show age}"
+      λ(name : Text) →
+      λ(age : Natural) →
+        "Name: ${name}, Age: ${Natural/show age}"
 
-    in  describe "John Doe" 21 = "Name: John Doe, Age: 21"
+    in  describe "John Doe" 21 -- "Name: John Doe, Age: 21"
     ```
 
 *   Polymorphism

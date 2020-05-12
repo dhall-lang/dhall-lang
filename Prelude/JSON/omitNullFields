@@ -16,19 +16,19 @@ let List/map =
 
 let omitNullFields
     : JSON.Type → JSON.Type
-    =   λ(old : JSON.Type)
-      → λ(JSON : Type)
-      → λ ( json
-          : { array : List JSON → JSON
-            , bool : Bool → JSON
-            , double : Double → JSON
-            , integer : Integer → JSON
-            , null : JSON
-            , object : List { mapKey : Text, mapValue : JSON } → JSON
-            , string : Text → JSON
-            }
-          )
-      → let result =
+    = λ(old : JSON.Type) →
+      λ(JSON : Type) →
+      λ ( json
+        : { array : List JSON → JSON
+          , bool : Bool → JSON
+          , double : Double → JSON
+          , integer : Integer → JSON
+          , null : JSON
+          , object : List { mapKey : Text, mapValue : JSON } → JSON
+          , string : Text → JSON
+          }
+        ) →
+        let result =
               old
                 { value : JSON, isNull : Bool }
                 { string =
@@ -38,32 +38,30 @@ let omitNullFields
                 , integer =
                     λ(x : Integer) → { value = json.integer x, isNull = False }
                 , object =
-                      λ ( keyValues
-                        : List
-                            { mapKey : Text
-                            , mapValue : { value : JSON, isNull : Bool }
-                            }
-                        )
-                    → let value =
+                    λ ( keyValues
+                      : List
+                          { mapKey : Text
+                          , mapValue : { value : JSON, isNull : Bool }
+                          }
+                      ) →
+                      let value =
                             json.object
                               ( List/concatMap
                                   { mapKey : Text
                                   , mapValue : { value : JSON, isNull : Bool }
                                   }
                                   { mapKey : Text, mapValue : JSON }
-                                  (   λ ( keyValue
-                                        : { mapKey : Text
-                                          , mapValue :
-                                              { value : JSON, isNull : Bool }
-                                          }
-                                        )
-                                    →       if keyValue.mapValue.isNull
-
+                                  ( λ ( keyValue
+                                      : { mapKey : Text
+                                        , mapValue :
+                                            { value : JSON, isNull : Bool }
+                                        }
+                                      ) →
+                                      if    keyValue.mapValue.isNull
                                       then  [] : List
                                                    { mapKey : Text
                                                    , mapValue : JSON
                                                    }
-
                                       else  [   keyValue.{ mapKey }
                                               ∧ { mapValue =
                                                     keyValue.mapValue.value
@@ -73,21 +71,21 @@ let omitNullFields
                                   keyValues
                               )
 
-                      in  { value = value, isNull = False }
+                      in  { value, isNull = False }
                 , array =
-                      λ(xs : List { value : JSON, isNull : Bool })
-                    → let value =
+                    λ(xs : List { value : JSON, isNull : Bool }) →
+                      let value =
                             json.array
                               ( List/map
                                   { value : JSON, isNull : Bool }
                                   JSON
-                                  (   λ(x : { value : JSON, isNull : Bool })
-                                    → x.value
+                                  ( λ(x : { value : JSON, isNull : Bool }) →
+                                      x.value
                                   )
                                   xs
                               )
 
-                      in  { value = value, isNull = False }
+                      in  { value, isNull = False }
                 , bool = λ(x : Bool) → { value = json.bool x, isNull = False }
                 , null = { value = json.null, isNull = True }
                 }
@@ -95,10 +93,10 @@ let omitNullFields
         in  result.value
 
 let property =
-        λ(a : Text)
-      → λ(b : Double)
-      → λ(c : Bool)
-      →   assert
+      λ(a : Text) →
+      λ(b : Double) →
+      λ(c : Bool) →
+          assert
         :   omitNullFields
               ( JSON.object
                   ( toMap

@@ -2,19 +2,19 @@
 Unzip a `List` into two separate `List`s
 -}
 let unzip
-    :   ∀(a : Type)
-      → ∀(b : Type)
-      → List { _1 : a, _2 : b }
-      → { _1 : List a, _2 : List b }
-    =   λ(a : Type)
-      → λ(b : Type)
-      → λ(xs : List { _1 : a, _2 : b })
-      → { _1 =
+    : ∀(a : Type) →
+      ∀(b : Type) →
+      List { _1 : a, _2 : b } →
+        { _1 : List a, _2 : List b }
+    = λ(a : Type) →
+      λ(b : Type) →
+      λ(xs : List { _1 : a, _2 : b }) →
+        { _1 =
             List/build
               a
-              (   λ(list : Type)
-                → λ(cons : a → list → list)
-                → List/fold
+              ( λ(list : Type) →
+                λ(cons : a → list → list) →
+                  List/fold
                     { _1 : a, _2 : b }
                     xs
                     list
@@ -23,9 +23,9 @@ let unzip
         , _2 =
             List/build
               b
-              (   λ(list : Type)
-                → λ(cons : b → list → list)
-                → List/fold
+              ( λ(list : Type) →
+                λ(cons : b → list → list) →
+                  List/fold
                     { _1 : a, _2 : b }
                     xs
                     list

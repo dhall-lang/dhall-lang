@@ -2,14 +2,14 @@
 Unzip an `Optional` value into two separate `Optional` values
 -}
 let unzip
-    :   ∀(a : Type)
-      → ∀(b : Type)
-      → Optional { _1 : a, _2 : b }
-      → { _1 : Optional a, _2 : Optional b }
-    =   λ(a : Type)
-      → λ(b : Type)
-      → λ(xs : Optional { _1 : a, _2 : b })
-      → { _1 =
+    : ∀(a : Type) →
+      ∀(b : Type) →
+      Optional { _1 : a, _2 : b } →
+        { _1 : Optional a, _2 : Optional b }
+    = λ(a : Type) →
+      λ(b : Type) →
+      λ(xs : Optional { _1 : a, _2 : b }) →
+        { _1 =
             merge
               { Some = λ(x : { _1 : a, _2 : b }) → Some x._1, None = None a }
               xs

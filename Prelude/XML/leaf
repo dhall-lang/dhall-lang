@@ -18,13 +18,11 @@ let element =
       ? ./element
 
 let leaf
-    :   { attributes : List { mapKey : Text, mapValue : Text }, name : Text }
-      → XML
-    =   λ ( elem
-          : { attributes : List { mapKey : Text, mapValue : Text }
-            , name : Text
-            }
-          )
-      → element (elem ⫽ { content = [] : List XML })
+    : { attributes : List { mapKey : Text, mapValue : Text }, name : Text } →
+        XML
+    = λ ( elem
+        : { attributes : List { mapKey : Text, mapValue : Text }, name : Text }
+        ) →
+        element (elem ⫽ { content = [] : List XML })
 
 in  leaf

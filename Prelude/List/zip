@@ -9,24 +9,24 @@ let List/index =
 
 let zip
     : ∀(a : Type) → List a → ∀(b : Type) → List b → List { _1 : a, _2 : b }
-    =   λ(a : Type)
-      → λ(xs : List a)
-      → λ(b : Type)
-      → λ(ys : List b)
-      → let ixs = List/indexed a xs
+    = λ(a : Type) →
+      λ(xs : List a) →
+      λ(b : Type) →
+      λ(ys : List b) →
+        let ixs = List/indexed a xs
 
         in  List/build
               { _1 : a, _2 : b }
-              (   λ(list : Type)
-                → λ(cons : { _1 : a, _2 : b } → list → list)
-                → λ(nil : list)
-                → List/fold
+              ( λ(list : Type) →
+                λ(cons : { _1 : a, _2 : b } → list → list) →
+                λ(nil : list) →
+                  List/fold
                     { index : Natural, value : a }
                     ixs
                     list
-                    (   λ(ix : { index : Natural, value : a })
-                      → λ(rest : list)
-                      → merge
+                    ( λ(ix : { index : Natural, value : a }) →
+                      λ(rest : list) →
+                        merge
                           { None = rest
                           , Some =
                               λ(y : b) → cons { _1 = ix.value, _2 = y } rest

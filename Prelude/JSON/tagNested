@@ -10,13 +10,13 @@ let Tagged =
 
 let tagNested
     : Text → Text → ∀(a : Type) → a → Tagged a
-    =   λ(contentsFieldName : Text)
-      → λ(tagFieldName : Text)
-      → λ(a : Type)
-      → λ(contents : a)
-      → { nesting = Nesting.Nested contentsFieldName
+    = λ(contentsFieldName : Text) →
+      λ(tagFieldName : Text) →
+      λ(a : Type) →
+      λ(contents : a) →
+        { nesting = Nesting.Nested contentsFieldName
         , field = tagFieldName
-        , contents = contents
+        , contents
         }
 
 let example0 =

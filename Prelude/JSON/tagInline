@@ -10,10 +10,10 @@ let Tagged =
 
 let tagInline
     : Text → ∀(a : Type) → a → Tagged a
-    =   λ(tagFieldName : Text)
-      → λ(a : Type)
-      → λ(contents : a)
-      → { nesting = Nesting.Inline, field = tagFieldName, contents = contents }
+    = λ(tagFieldName : Text) →
+      λ(a : Type) →
+      λ(contents : a) →
+        { nesting = Nesting.Inline, field = tagFieldName, contents }
 
 let example0 =
       let Example = < Left : { foo : Natural } | Right : { bar : Bool } >
