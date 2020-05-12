@@ -27,7 +27,10 @@ let
       in
         import "${dhall-haskell}/default.nix";
 
-    inherit (pkgsNew.dhall-haskell-derivations) dhall dhall-try;
+    inherit (pkgsNew.dhall-haskell-derivations) dhall-try;
+
+    dhall =
+      pkgsNew.haskell.lib.dontCheck pkgsNew.dhall-haskell-derivations.dhall;
 
     instaparse-check = pkgsNew.writeText "build.boot" ''
       (require '[instaparse.core :refer [parser]])
