@@ -1,0 +1,1 @@
+<foo: Natural|``: Natural|` `: Natural>

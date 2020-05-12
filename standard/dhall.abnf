@@ -206,7 +206,7 @@ quoted-label-char =
         ; %x60 = '`'
     / %x61-7E
 
-quoted-label = 1*quoted-label-char
+quoted-label = *quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
@@ -896,11 +896,9 @@ primitive-expression =
 
 record-type-or-literal =
       empty-record-literal
-    / non-empty-record-type-or-literal
-    / empty-record-type
+    / [non-empty-record-type-or-literal]
 
 empty-record-literal = "="
-empty-record-type = ""
 
 non-empty-record-type-or-literal =
     (non-empty-record-type / non-empty-record-literal)
@@ -913,22 +911,18 @@ record-type-entry = any-label-or-some whsp ":" whsp1 expression
 non-empty-record-literal =
     record-literal-entry *(whsp "," whsp record-literal-entry)
 
+; If the `record-literal-normal-entry` is absent, that represents a punned
+; record entry, such as in `{ x }`, which is a short-hand for `{ x = x }`
 record-literal-entry =
-    any-label-or-some (record-literal-normal-entry / record-literal-punned-entry)
+    any-label-or-some [record-literal-normal-entry]
 
 record-literal-normal-entry =
     *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
-record-literal-punned-entry = ""
 
-
+; If the `union-type-entry` is absent, that represents an empty union
+; alternative, such as in `< Heads | Tails >`
 union-type =
-      non-empty-union-type
-    / empty-union-type
-
-empty-union-type = ""
-
-non-empty-union-type =
-    union-type-entry *(whsp "|" whsp union-type-entry)
+    [union-type-entry *(whsp "|" whsp union-type-entry)]
 
 ; x : Natural
 ; x
