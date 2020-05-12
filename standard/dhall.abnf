@@ -356,22 +356,22 @@ text-literal = (double-quote-literal / single-quote-literal)
 ;
 ; If you don't feel like reading hex, these are all the same as the rule name.
 ; Keywords that should never be parsed as identifiers
-if                    = %x69.66
-then                  = %x74.68.65.6e
-else                  = %x65.6c.73.65
-let                   = %x6c.65.74
-in                    = %x69.6e
-as                    = %x61.73
-using                 = %x75.73.69.6e.67
-merge                 = %x6d.65.72.67.65
-missing               = %x6d.69.73.73.69.6e.67
-Infinity              = %x49.6e.66.69.6e.69.74.79
-NaN                   = %x4e.61.4e
-Some                  = %x53.6f.6d.65
-toMap                 = %x74.6f.4d.61.70
-assert                = %x61.73.73.65.72.74
-forall                = %x2200 / %x66.6f.72.61.6c.6c ; "∀" / "forall"
-with                  = %x77.69.74.68
+if       = %x69.66
+then     = %x74.68.65.6e
+else     = %x65.6c.73.65
+let      = %x6c.65.74
+in       = %x69.6e
+as       = %x61.73
+using    = %x75.73.69.6e.67
+merge    = %x6d.65.72.67.65
+missing  = %x6d.69.73.73.69.6e.67
+Infinity = %x49.6e.66.69.6e.69.74.79
+NaN      = %x4e.61.4e
+Some     = %x53.6f.6d.65
+toMap    = %x74.6f.4d.61.70
+assert   = %x61.73.73.65.72.74
+forall   = %x2200 / %x66.6f.72.61.6c.6c  ; "Unicode FOR ALL" / "forall"
+with     = %x77.69.74.68
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.
