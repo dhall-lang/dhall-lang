@@ -70,6 +70,9 @@
 , take =
       ./take sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
     ? ./take
+, unpackOptionals =
+      ./unpackOptionals sha256:0cbaa920f429cf7fc3907f8a9143203fe948883913560e6e1043223e6b3d05e4
+    ? ./unpackOptionals
 , unzip =
       ./unzip sha256:4d6003e9e683a289fe33f4c90f958eb1e08ea0bbb474210fcd90d1885c9660e9
     ? ./unzip
