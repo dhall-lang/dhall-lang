@@ -324,6 +324,7 @@
         ∀(kvss : List (List { index : Natural, value : a })) →
           List { index : Natural, value : a }
     , take : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
+    , unpackOptionals : ∀(a : Type) → ∀(xs : List (Optional a)) → List a
     , unzip :
         ∀(a : Type) →
         ∀(b : Type) →
@@ -331,9 +332,9 @@
           { _1 : List a, _2 : List b }
     , zip :
         ∀(a : Type) →
-        ∀(xa : List a) →
+        ∀(xs : List a) →
         ∀(b : Type) →
-        ∀(xb : List b) →
+        ∀(ys : List b) →
           List { _1 : a, _2 : b }
     }
 , Location : { Type : Type }

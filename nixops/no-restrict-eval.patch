@@ -1,11 +1,12 @@
 diff -Naur source.old/src/hydra-eval-jobs/hydra-eval-jobs.cc source.new/src/hydra-eval-jobs/hydra-eval-jobs.cc
 --- source.old/src/hydra-eval-jobs/hydra-eval-jobs.cc	1970-01-01 00:00:01.000000000 +0000
-+++ source.new/src/hydra-eval-jobs/hydra-eval-jobs.cc	2018-12-09 19:12:29.170888722 +0000
-@@ -275,7 +275,7 @@
++++ source.new/src/hydra-eval-jobs/hydra-eval-jobs.cc	2020-05-09 23:19:50.400673151 +0000
+@@ -281,7 +281,7 @@
  
-                 /* Prevent access to paths outside of the Nix search path and
-                    to the environment. */
--                evalSettings.restrictEval = true;
-+                evalSettings.restrictEval = false;
+         /* Prevent access to paths outside of the Nix search path and
+            to the environment. */
+-        evalSettings.restrictEval = true;
++        evalSettings.restrictEval = false;
  
-                 if (releaseExpr == "") throw UsageError("no expression specified");
+         /* When building a flake, use pure evaluation (no access to
+            'getEnv', 'currentSystem' etc. */
