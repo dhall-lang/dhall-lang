@@ -334,9 +334,9 @@
         → { _1 : List a, _2 : List b }
     , zip :
           ∀(a : Type)
-        → ∀(xa : List a)
+        → ∀(xs : List a)
         → ∀(b : Type)
-        → ∀(xb : List b)
+        → ∀(ys : List b)
         → List { _1 : a, _2 : b }
     }
 , Location : { Type : Type }

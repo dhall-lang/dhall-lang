@@ -77,6 +77,6 @@
       ./unzip sha256:4d6003e9e683a289fe33f4c90f958eb1e08ea0bbb474210fcd90d1885c9660e9
     ? ./unzip
 , zip =
-      ./zip sha256:7be343f42cddb7e3b5884611ae5c8731e76e52b22d7bb45420cae7c9a82be0ca
+      ./zip sha256:85ed955eabf3998767f4ad2a28e57d40cd4c68a95519d79e9b622f1d26d979da
     ? ./zip
 }
