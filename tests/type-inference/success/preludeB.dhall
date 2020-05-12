@@ -326,6 +326,7 @@
         → ∀(kvss : List (List { index : Natural, value : a }))
         → List { index : Natural, value : a }
     , take : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
+    , unpackOptionals : ∀(a : Type) → ∀(xs : List (Optional a)) → List a
     , unzip :
           ∀(a : Type)
         → ∀(b : Type)
