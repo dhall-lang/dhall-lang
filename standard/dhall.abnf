@@ -370,7 +370,9 @@ NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
 assert                = %x61.73.73.65.72.74
-forall                = %x2200 / %x66.6f.72.61.6c.6c ; "∀" / "forall"
+forall-keyword        = %x66.6f.72.61.6c.6c ; "forall"
+forall-symbol         = %x2200 ; "∀"
+forall                = forall-symbol / forall-keyword
 with                  = %x77.69.74.68
 
 ; Unused rule that could be used as negative lookahead in the
@@ -382,7 +384,7 @@ keyword =
     / assert / as
     / Infinity / NaN
     / merge / Some / toMap
-    / forall
+    / forall-keyword
     / with
 
 builtin =
