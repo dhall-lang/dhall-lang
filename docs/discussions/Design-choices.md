@@ -57,12 +57,12 @@ failing at runtime .  For example, instead of this code:
 
 let isWeekDay
     : String -> Bool
-    =     \(d : String)
-      ->      d == "Monday"
-          ||  d == "Tuesday"
-          ||  d == "Wednesday"
-          ||  d == "Thursday"
-          ||  d == "Friday"
+    = \(d : String) ->
+            d == "Monday"
+        ||  d == "Tuesday"
+        ||  d == "Wednesday"
+        ||  d == "Thursday"
+        ||  d == "Friday"
 
 in  isWeekDay "thursday" -- Oops!
 ```
@@ -75,22 +75,15 @@ let DayOfWeek =
 
 let isWeekDay
     : DayOfWeek -> Bool
-    =     \(d : DayOfWeek)
-      ->  merge
-          { Sunday =
-              False
-          , Monday =
-              True
-          , Tuesday =
-              True
-          , Wednesday =
-              True
-          , Thursday =
-              True
-          , Friday =
-              True
-          , Saturday =
-              False
+    = \(d : DayOfWeek) ->
+        merge
+          { Sunday = False
+          , Monday = True
+          , Tuesday = True
+          , Wednesday = True
+          , Thursday = True
+          , Friday = True
+          , Saturday = False
           }
           d
 

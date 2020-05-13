@@ -14,11 +14,9 @@ implemented yet:
 
 ```dhall
   λ(TODO : ∀(a : Type) → a)
-→ let List/map =
-        https://prelude.dhall-lang.org/List/map
+→ let List/map = https://prelude.dhall-lang.org/List/map
 
-  let Text/concatSep =
-        https://prelude.dhall-lang.org/Text/concatSep
+  let Text/concatSep = https://prelude.dhall-lang.org/Text/concatSep
 
   let Person = { name : Text, age : Natural }
 
@@ -30,14 +28,14 @@ implemented yet:
 
   let renderPeople
       : List Person → Text
-      =   λ(people : List Person)
-        → renderList (List/map Person Text renderPerson people)
+      = λ(people : List Person) →
+          renderList (List/map Person Text renderPerson people)
 
   in  renderPeople
-      [ { name = "John", age = 23 }
-      , TODO Person  -- ← You can also leave values unimplemented
-      , { name = "Mary", age = 24 }
-      ]
+        [ { name = "John", age = 23 }
+        , TODO Person  -- ← You can also leave values unimplemented
+        , { name = "Mary", age = 24 }
+        ]
 ```
 
 The type `∀(a : Type) → a` is an impossible type that can never be created in Dhall,
@@ -48,19 +46,19 @@ still type-check the function and normalize the function body:
 $ dhall --annotate <<< './example.dhall'
 ```
 ```dhall
-  (   λ(TODO : ∀(a : Type) → a)
-    →     "["
+  ( λ(TODO : ∀(a : Type) → a) →
+          "["
       ++  (     TODO
-                ({ age : Natural, name : Text } → Text)
-                { age = 23, name = "John" }
+                  ({ age : Natural, name : Text } → Text)
+                  { age = 23, name = "John" }
             ++  ", "
             ++  TODO
-                ({ age : Natural, name : Text } → Text)
-                (TODO { age : Natural, name : Text })
+                  ({ age : Natural, name : Text } → Text)
+                  (TODO { age : Natural, name : Text })
             ++  ", "
             ++  TODO
-                ({ age : Natural, name : Text } → Text)
-                { age = 24, name = "Mary" }
+                  ({ age : Natural, name : Text } → Text)
+                  { age = 24, name = "Mary" }
           )
       ++  "]"
   )

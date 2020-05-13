@@ -16,8 +16,8 @@ let List/partition =
 let Accumulator = { sorted : List Natural, rest : List Natural }
 
 let partitionMinima =
-        λ(xs : List Natural)
-      → merge
+      λ(xs : List Natural) →
+        merge
           { Some =
               λ(m : Natural) → List/partition Natural (greaterThanEqual m) xs
           , None = { true = [] : List Natural, false = [] : List Natural }
@@ -29,8 +29,8 @@ let test0 =
       : partitionMinima [ 2, 1, 1, 3 ] ≡ { true = [ 1, 1 ], false = [ 2, 3 ] }
 
 let step =
-        λ(x : Accumulator)
-      → let p = partitionMinima x.rest
+      λ(x : Accumulator) →
+        let p = partitionMinima x.rest
 
         in  { sorted = x.sorted # p.true, rest = p.false }
 
@@ -41,8 +41,8 @@ let test1 =
 
 let sort
     : List Natural → List Natural
-    =   λ(xs : List Natural)
-      → let x =
+    = λ(xs : List Natural) →
+        let x =
               Natural/fold
                 (List/length Natural xs)
                 Accumulator

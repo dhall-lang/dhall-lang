@@ -8,19 +8,17 @@ let Partition
 
 let partition
     : ∀(a : Type) → (a → Bool) → List a → Partition a
-    =   λ(a : Type)
-      → λ(f : a → Bool)
-      → λ(xs : List a)
-      → List/fold
+    = λ(a : Type) →
+      λ(f : a → Bool) →
+      λ(xs : List a) →
+        List/fold
           a
           xs
           (Partition a)
-          (   λ(x : a)
-            → λ(p : Partition a)
-            →       if f x
-
+          ( λ(x : a) →
+            λ(p : Partition a) →
+              if    f x
               then  { true = [ x ] # p.true, false = p.false }
-
               else  { true = p.true, false = [ x ] # p.false }
           )
           { true = [] : List a, false = [] : List a }

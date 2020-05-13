@@ -151,21 +151,18 @@ Dhall configuration:
 -- config0.dhall
 
 let ordinaryUser =
-          \(user : Text)
-      ->  let privateKey = "/home/${user}/.ssh/id_rsa"
+      \(user : Text) ->
+        let privateKey = "/home/${user}/.ssh/id_rsa"
 
-          let publicKey = "${privateKey}.pub"
+        let publicKey = "${privateKey}.pub"
 
-          in  { privateKey = privateKey, publicKey = publicKey, user = user }
+        in  { privateKey, publicKey, user }
 
 in  [ ordinaryUser "john"
     , ordinaryUser "jane"
-    , { privateKey =
-          "/etc/jenkins/jenkins_rsa"
-      , publicKey =
-          "/etc/jenkins/jenkins_rsa.pub"
-      , user =
-          "jenkins"
+    , { privateKey = "/etc/jenkins/jenkins_rsa"
+      , publicKey = "/etc/jenkins/jenkins_rsa.pub"
+      , user = "jenkins"
       }
     , ordinaryUser "chad"
     ]
@@ -214,21 +211,18 @@ Now adding a new user like `alice` is a one-line change since we can reuse our
 -- config1.dhall
 
 let ordinaryUser =
-          \(user : Text)
-      ->  let privateKey = "/home/${user}/.ssh/id_rsa"
+      \(user : Text) ->
+        let privateKey = "/home/${user}/.ssh/id_rsa"
 
-          let publicKey = "${privateKey}.pub"
+        let publicKey = "${privateKey}.pub"
 
-          in  { privateKey = privateKey, publicKey = publicKey, user = user }
+        in  { privateKey, publicKey, user }
 
 in  [ ordinaryUser "john"
     , ordinaryUser "jane"
-    , { privateKey =
-          "/etc/jenkins/jenkins_rsa"
-      , publicKey =
-          "/etc/jenkins/jenkins_rsa.pub"
-      , user =
-          "jenkins"
+    , { privateKey = "/etc/jenkins/jenkins_rsa"
+      , publicKey = "/etc/jenkins/jenkins_rsa.pub"
+      , user = "jenkins"
       }
     , ordinaryUser "chad"
     , ordinaryUser "alice"
@@ -242,33 +236,21 @@ change:
 -- config2.dhall
 
 let ordinaryUser =
-          \(user : Text)
-      ->  let home = "/home/${user}"
+      \(user : Text) ->
+        let home = "/home/${user}"
 
-          let privateKey = "${home}/.ssh/id_rsa"
+        let privateKey = "${home}/.ssh/id_rsa"
 
-          let publicKey = "${privateKey}.pub"
+        let publicKey = "${privateKey}.pub"
 
-          in  { home =
-                  home
-              , privateKey =
-                  privateKey
-              , publicKey =
-                  publicKey
-              , user =
-                  user
-              }
+        in  { home, privateKey, publicKey, user }
 
 in  [ ordinaryUser "john"
     , ordinaryUser "jane"
-    , { home =
-          "/home/jenkins"
-      , privateKey =
-          "/etc/jenkins/jenkins_rsa"
-      , publicKey =
-          "/etc/jenkins/jenkins_rsa.pub"
-      , user =
-          "jenkins"
+    , { home = "/home/jenkins"
+      , privateKey = "/etc/jenkins/jenkins_rsa"
+      , publicKey = "/etc/jenkins/jenkins_rsa.pub"
+      , user = "jenkins"
       }
     , ordinaryUser "chad"
     , ordinaryUser "alice"
@@ -331,50 +313,30 @@ input, evaluates the expression, and prints the result to standard output:
 $ dhall <<< './config2.dhall'
 ```
 ```dhall
-[ { home =
-      "/home/john"
-  , privateKey =
-      "/home/john/.ssh/id_rsa"
-  , publicKey =
-      "/home/john/.ssh/id_rsa.pub"
-  , user =
-      "john"
+[ { home = "/home/john"
+  , privateKey = "/home/john/.ssh/id_rsa"
+  , publicKey = "/home/john/.ssh/id_rsa.pub"
+  , user = "john"
   }
-, { home =
-      "/home/jane"
-  , privateKey =
-      "/home/jane/.ssh/id_rsa"
-  , publicKey =
-      "/home/jane/.ssh/id_rsa.pub"
-  , user =
-      "jane"
+, { home = "/home/jane"
+  , privateKey = "/home/jane/.ssh/id_rsa"
+  , publicKey = "/home/jane/.ssh/id_rsa.pub"
+  , user = "jane"
   }
-, { home =
-      "/home/jenkins"
-  , privateKey =
-      "/etc/jenkins/jenkins_rsa"
-  , publicKey =
-      "/etc/jenkins/jenkins_rsa.pub"
-  , user =
-      "jenkins"
+, { home = "/home/jenkins"
+  , privateKey = "/etc/jenkins/jenkins_rsa"
+  , publicKey = "/etc/jenkins/jenkins_rsa.pub"
+  , user = "jenkins"
   }
-, { home =
-      "/home/chad"
-  , privateKey =
-      "/home/chad/.ssh/id_rsa"
-  , publicKey =
-      "/home/chad/.ssh/id_rsa.pub"
-  , user =
-      "chad"
+, { home = "/home/chad"
+  , privateKey = "/home/chad/.ssh/id_rsa"
+  , publicKey = "/home/chad/.ssh/id_rsa.pub"
+  , user = "chad"
   }
-, { home =
-      "/home/alice"
-  , privateKey =
-      "/home/alice/.ssh/id_rsa"
-  , publicKey =
-      "/home/alice/.ssh/id_rsa.pub"
-  , user =
-      "alice"
+, { home = "/home/alice"
+  , privateKey = "/home/alice/.ssh/id_rsa"
+  , publicKey = "/home/alice/.ssh/id_rsa.pub"
+  , user = "alice"
   }
 ]
 ```

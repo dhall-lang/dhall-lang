@@ -19,15 +19,13 @@ let nonNegative =
 
 let lessThanEqual
     : Integer → Integer → Bool
-    =   λ(x : Integer)
-      → λ(y : Integer)
-      →       if nonPositive x
-
+    = λ(x : Integer) →
+      λ(y : Integer) →
+        if    nonPositive x
         then      nonNegative y
               ||  Natural/greaterThanEqual
                     (Integer/clamp (Integer/negate x))
                     (Integer/clamp (Integer/negate y))
-
         else  Natural/lessThanEqual (Integer/clamp x) (Integer/clamp y)
 
 let example0 = assert : lessThanEqual +5 +6 ≡ True

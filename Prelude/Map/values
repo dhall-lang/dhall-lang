@@ -15,9 +15,9 @@ let List/map =
 
 let values
     : ∀(k : Type) → ∀(v : Type) → Map k v → List v
-    =   λ(k : Type)
-      → λ(v : Type)
-      → List/map (Entry k v) v (λ(x : Entry k v) → x.mapValue)
+    = λ(k : Type) →
+      λ(v : Type) →
+        List/map (Entry k v) v (λ(x : Entry k v) → x.mapValue)
 
 let example0 =
         assert

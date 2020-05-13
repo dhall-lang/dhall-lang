@@ -12,12 +12,12 @@ let Optional/map =
 
 let listMin
     : List Natural → Optional Natural
-    =   λ(xs : List Natural)
-      → Optional/map
+    = λ(xs : List Natural) →
+        Optional/map
           Natural
           Natural
-          (   λ(n : Natural)
-            → if Natural/isZero n then n else List/fold Natural xs Natural min n
+          ( λ(n : Natural) →
+              if Natural/isZero n then n else List/fold Natural xs Natural min n
           )
           (List/head Natural xs)
 

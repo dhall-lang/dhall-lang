@@ -3,15 +3,15 @@ Returns the first non-empty `Optional` value in a `List`
 -}
 let head
     : ∀(a : Type) → List (Optional a) → Optional a
-    =   λ(a : Type)
-      → λ(xs : List (Optional a))
-      → List/fold
+    = λ(a : Type) →
+      λ(xs : List (Optional a)) →
+        List/fold
           (Optional a)
           xs
           (Optional a)
-          (   λ(l : Optional a)
-            → λ(r : Optional a)
-            → merge { Some = λ(x : a) → Some x, None = r } l
+          ( λ(l : Optional a) →
+            λ(r : Optional a) →
+              merge { Some = λ(x : a) → Some x, None = r } l
           )
           (None a)
 

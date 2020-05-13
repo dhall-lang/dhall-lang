@@ -6,22 +6,22 @@ let Status = < Empty | NonEmpty : Text >
 
 let concatMapSep
     : ∀(separator : Text) → ∀(a : Type) → (a → Text) → List a → Text
-    =   λ(separator : Text)
-      → λ(a : Type)
-      → λ(f : a → Text)
-      → λ(elements : List a)
-      → let status =
+    = λ(separator : Text) →
+      λ(a : Type) →
+      λ(f : a → Text) →
+      λ(elements : List a) →
+        let status =
               List/fold
                 a
                 elements
                 Status
-                (   λ(x : a)
-                  → λ(status : Status)
-                  → merge
+                ( λ(x : a) →
+                  λ(status : Status) →
+                    merge
                       { Empty = Status.NonEmpty (f x)
                       , NonEmpty =
-                            λ(result : Text)
-                          → Status.NonEmpty (f x ++ separator ++ result)
+                          λ(result : Text) →
+                            Status.NonEmpty (f x ++ separator ++ result)
                       }
                       status
                 )
