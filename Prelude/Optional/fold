@@ -2,18 +2,18 @@
 `fold` is the primitive function for consuming `Optional` values
 -}
 let fold
-    :   ∀(a : Type)
-      → Optional a
-      → ∀(optional : Type)
-      → ∀(some : a → optional)
-      → ∀(none : optional)
-      → optional
-    =   λ(a : Type)
-      → λ(o : Optional a)
-      → λ(optional : Type)
-      → λ(some : a → optional)
-      → λ(none : optional)
-      → merge { Some = some, None = none } o
+    : ∀(a : Type) →
+      Optional a →
+      ∀(optional : Type) →
+      ∀(some : a → optional) →
+      ∀(none : optional) →
+        optional
+    = λ(a : Type) →
+      λ(o : Optional a) →
+      λ(optional : Type) →
+      λ(some : a → optional) →
+      λ(none : optional) →
+        merge { Some = some, None = none } o
 
 let example0 = assert : fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 ≡ 2
 

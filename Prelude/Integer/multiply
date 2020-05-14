@@ -7,26 +7,20 @@ let nonPositive =
       ? ./nonPositive
 
 let multiplyNonNegative =
-        λ(x : Integer)
-      → λ(y : Integer)
-      → Natural/toInteger (Integer/clamp x * Integer/clamp y)
+      λ(x : Integer) →
+      λ(y : Integer) →
+        Natural/toInteger (Integer/clamp x * Integer/clamp y)
 
 let multiply
     : Integer → Integer → Integer
-    =   λ(m : Integer)
-      → λ(n : Integer)
-      →       if nonPositive m
-
-        then        if nonPositive n
-
+    = λ(m : Integer) →
+      λ(n : Integer) →
+        if    nonPositive m
+        then  if    nonPositive n
               then  multiplyNonNegative (Integer/negate m) (Integer/negate n)
-
               else  Integer/negate (multiplyNonNegative (Integer/negate m) n)
-
         else  if nonPositive n
-
         then  Integer/negate (multiplyNonNegative m (Integer/negate n))
-
         else  multiplyNonNegative m n
 
 let example0 = assert : multiply +3 +5 ≡ +15

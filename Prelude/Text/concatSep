@@ -5,20 +5,20 @@ let Status = < Empty | NonEmpty : Text >
 
 let concatSep
     : ∀(separator : Text) → ∀(elements : List Text) → Text
-    =   λ(separator : Text)
-      → λ(elements : List Text)
-      → let status =
+    = λ(separator : Text) →
+      λ(elements : List Text) →
+        let status =
               List/fold
                 Text
                 elements
                 Status
-                (   λ(element : Text)
-                  → λ(status : Status)
-                  → merge
+                ( λ(element : Text) →
+                  λ(status : Status) →
+                    merge
                       { Empty = Status.NonEmpty element
                       , NonEmpty =
-                            λ(result : Text)
-                          → Status.NonEmpty (element ++ separator ++ result)
+                          λ(result : Text) →
+                            Status.NonEmpty (element ++ separator ++ result)
                       }
                       status
                 )

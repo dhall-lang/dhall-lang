@@ -80,8 +80,8 @@ The Dhall equivalent of the above code would be:
 
 ```dhall
 let greet =
-          \(args : { greeting : Text, name : Text })
-      ->  "${args.greeting}, ${args.name}!"
+      \(args : { greeting : Text, name : Text }) ->
+        "${args.greeting}, ${args.name}!"
 
 let Greeting =
       { Type = { greeting : Text, name : Text }
@@ -122,24 +122,13 @@ Hola, Jane!
 
 ## How do I update nested fields in a record?
 
-You have to nest updates, like this:
+You can use the `with` keyword for this purpose:
 
 ```dhall
 let example = { coordinate = { x = 5, y = 3 }, element = "Hg" }
 
-in  example // {
-      coordinate = example.coordinate // {
-        x = example.coordinate.x + 1
-      }
-    }
-```
-
-You can also use the `with` keyword as a more concise syntactic sugar for the same expression:
-
-```dhall
-let example = { coordinate = { x = 5, y = 3 }, element = "Hg" }
 in  example
-  with coordinate.x = (example.coordinate.x + 1)
+  with coordinate.x = example.coordinate.x + 1
 ```
 
 See [Add support for `with` keyword](https://github.com/dhall-lang/dhall-lang/pull/923) for more details.

@@ -812,7 +812,7 @@ The language provides built-in support for testing that two expressions are
 equal using the `assert` keyword, like this:
 
 ```dhall
-⊢ assert : (2 + 2) === 4
+⊢ assert : 2 + 2 === 4
 
 assert : 4 ≡ 4
 ```
@@ -824,14 +824,14 @@ If the expressions do not match then type-checking will fail and the
 interpreter will display a diff:
 
 ```dhall
-⊢ assert : (2 + 2) === 5
+⊢ assert : 2 + 2 === 5
 
 Error: Assertion failed
 
 - 4
 + 5
 
-1│ assert : (2 + 2) === 5
+1│ assert : 2 + 2 === 5
 
 (input):1:1
 ```
@@ -1530,12 +1530,12 @@ let Example = < Number : Natural | Boolean : Bool >
 
 let renderExample
     : Example -> Text
-    =     \(example : Example)
-      ->  merge
-            { Number = \(n : Natural) -> Natural/show n
-            , Boolean = \(b : Bool) -> if b then "True" else "False"
-            }
-            example
+    = \(example : Example) ->
+        merge
+          { Number = \(n : Natural) -> Natural/show n
+          , Boolean = \(b : Bool) -> if b then "True" else "False"
+          }
+          example
 
 let example0 = assert : renderExample (Example.Number 42) === "42"
 
@@ -1579,17 +1579,17 @@ let DayOfWeek =
 
 let isWeekend
     : DayOfWeek -> Bool
-    =     \(day : DayOfWeek)
-      ->  merge
-            { Sunday = True
-            , Monday = False
-            , Tuesday = False
-            , Wednesday = False
-            , Thursday = False
-            , Friday = False
-            , Saturday = True
-            }
-            day
+    = \(day : DayOfWeek) ->
+        merge
+          { Sunday = True
+          , Monday = False
+          , Tuesday = False
+          , Wednesday = False
+          , Thursday = False
+          , Friday = False
+          , Saturday = True
+          }
+          day
 
 in  isWeekend DayOfWeek.Sunday
 ```
@@ -1620,8 +1620,8 @@ values *as if* they had the above type:
 
 ```dhall
 let default =
-          \(o : Optional Natural)
-      ->  merge { Some = \(n : Natural) -> n, None = 0 } o
+      \(o : Optional Natural) ->
+        merge { Some = \(n : Natural) -> n, None = 0 } o
 
 let example0 = assert : default (Some 42) === 42
 

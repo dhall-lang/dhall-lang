@@ -155,6 +155,42 @@ sketch of the following four soundness rules:
 - Normalizing an expression doesn't change its type
 - All inferred types are in β-normal form
 
+## How do I update generated test files?
+
+There are two sets of files you may need to update in the course of a change:
+
+* If you add or modify any `.cbor` files in the test suite then you will need to
+  generate the matching `.diag` files
+
+* If you add or update any Prelude utilities then you will need to lint them
+  and re-freeze downstream files
+
+CI will remind you to update these files if you forget.  Specifically, a test
+failure will show up on your pull request displaying a diff between what CI
+expected and what was found.
+
+There are two ways you can apply the change:
+
+* You can manually update the code to match the diff that CI displayed
+
+* You can run a script that produces an output exactly matching what CI
+  expected
+
+Since CI uses Nix the latter scripts require you to install Nix:
+
+* [Nix](https://nixos.org/nix/)
+
+You can also use the same cache that CI uses to avoid rebuilding the world by
+following these instructions:
+
+* [Use our shared caches](https://github.com/dhall-lang/dhall-haskell#nix)
+
+Once you do that, you can run the following scripts:
+
+* `./script/generate-test-files.sh` - This generates `.diag` files from `.cbor`
+  files
+
+* `./script/lint-prelude.sh` - This freezes and lints the Prelude
 
 ## How do I get the "commit bit"?
 

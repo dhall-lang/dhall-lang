@@ -12,8 +12,8 @@ let Optional/map =
 
 let listMax
     : List Natural → Optional Natural
-    =   λ(xs : List Natural)
-      → Optional/map
+    = λ(xs : List Natural) →
+        Optional/map
           Natural
           Natural
           (λ(n : Natural) → List/fold Natural xs Natural max n)

@@ -42,12 +42,12 @@ let NonEmpty
 
 let List/uncons
     : ∀(a : Type) → List a → Optional (NonEmpty a)
-    =   λ(a : Type)
-      → λ(ls : List a)
-      → Optional/map
+    = λ(a : Type) →
+      λ(ls : List a) →
+        Optional/map
           a
           (NonEmpty a)
-          (λ(head : a) → { head = head, tail = List/drop 1 a ls })
+          (λ(head : a) → { head, tail = List/drop 1 a ls })
           (List/head a ls)
 
 let NonEmpty/singleton
@@ -60,9 +60,9 @@ let NonEmpty/toList
 
 let NonEmpty/concat
     : ∀(a : Type) → NonEmpty (NonEmpty a) → NonEmpty a
-    =   λ(a : Type)
-      → λ(lss : NonEmpty (NonEmpty a))
-      → { head = lss.head.head
+    = λ(a : Type) →
+      λ(lss : NonEmpty (NonEmpty a)) →
+        { head = lss.head.head
         , tail =
               lss.head.tail
             # List/concatMap (NonEmpty a) a (NonEmpty/toList a) lss.tail
@@ -70,32 +70,32 @@ let NonEmpty/concat
 
 let NonEmpty/map
     : ∀(a : Type) → ∀(b : Type) → (a → b) → NonEmpty a → NonEmpty b
-    =   λ(a : Type)
-      → λ(b : Type)
-      → λ(fn : a → b)
-      → λ(ls : NonEmpty a)
-      → { head = fn ls.head, tail = List/map a b fn ls.tail }
+    = λ(a : Type) →
+      λ(b : Type) →
+      λ(fn : a → b) →
+      λ(ls : NonEmpty a) →
+        { head = fn ls.head, tail = List/map a b fn ls.tail }
 
 let NonEmpty/mapHead
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
-    =   λ(a : Type)
-      → λ(fn : a → a)
-      → λ(ls : NonEmpty a)
-      → ls ⫽ { head = fn ls.head }
+    = λ(a : Type) →
+      λ(fn : a → a) →
+      λ(ls : NonEmpty a) →
+        ls ⫽ { head = fn ls.head }
 
 let NonEmpty/mapTail
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
-    =   λ(a : Type)
-      → λ(fn : a → a)
-      → λ(ls : NonEmpty a)
-      → ls ⫽ { tail = List/map a a fn ls.tail }
+    = λ(a : Type) →
+      λ(fn : a → a) →
+      λ(ls : NonEmpty a) →
+        ls ⫽ { tail = List/map a a fn ls.tail }
 
 let List/splitAt
     : Natural → ∀(a : Type) → List a → { head : List a, tail : List a }
-    =   λ(index : Natural)
-      → λ(a : Type)
-      → λ(ls : List a)
-      → { head = List/take index a ls, tail = List/drop index a ls }
+    = λ(index : Natural) →
+      λ(a : Type) →
+      λ(ls : List a) →
+        { head = List/take index a ls, tail = List/drop index a ls }
 
 let _testSplitAt0 =
         assert
@@ -117,33 +117,31 @@ let _testSplitAt =
         ≡ { head = [] : List Natural, tail = [] : List Natural }
 
 let List/splitLast =
-        λ(a : Type)
-      → λ(ls : List a)
-      → List/splitAt (Natural/subtract 1 (List/length a ls)) a ls
+      λ(a : Type) →
+      λ(ls : List a) →
+        List/splitAt (Natural/subtract 1 (List/length a ls)) a ls
 
 let NonEmpty/prepend
     : ∀(a : Type) → a → NonEmpty a → NonEmpty a
-    =   λ(a : Type)
-      → λ(prefix : a)
-      → λ(ls : NonEmpty a)
-      → { head = prefix, tail = NonEmpty/toList a ls }
+    = λ(a : Type) →
+      λ(prefix : a) →
+      λ(ls : NonEmpty a) →
+        { head = prefix, tail = NonEmpty/toList a ls }
 
 let NonEmpty/append
     : ∀(a : Type) → a → NonEmpty a → NonEmpty a
-    =   λ(a : Type)
-      → λ(suffix : a)
-      → λ(ls : NonEmpty a)
-      → { head = ls.head, tail = ls.tail # [ suffix ] }
+    = λ(a : Type) →
+      λ(suffix : a) →
+      λ(ls : NonEmpty a) →
+        { head = ls.head, tail = ls.tail # [ suffix ] }
 
 let NonEmpty/mapLast
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
-    =   λ(a : Type)
-      → λ(fn : a → a)
-      → λ(ls : NonEmpty a)
-      →       if List/null a ls.tail
-
+    = λ(a : Type) →
+      λ(fn : a → a) →
+      λ(ls : NonEmpty a) →
+        if    List/null a ls.tail
         then  { head = fn ls.head, tail = [] : List a }
-
         else  let split = List/splitLast a ls.tail
 
               in  { head = ls.head
@@ -152,13 +150,11 @@ let NonEmpty/mapLast
 
 let NonEmpty/mapLeading
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
-    =   λ(a : Type)
-      → λ(fn : a → a)
-      → λ(ls : NonEmpty a)
-      →       if List/null a ls.tail
-
+    = λ(a : Type) →
+      λ(fn : a → a) →
+      λ(ls : NonEmpty a) →
+        if    List/null a ls.tail
         then  ls
-
         else  let split = List/splitLast a ls.tail
 
               in  { head = fn ls.head
@@ -175,8 +171,8 @@ let Block
 
 let Block/toLines
     : Block → Lines
-    =   λ(block : Block)
-      → merge
+    = λ(block : Block) →
+        merge
           { Simple = NonEmpty/singleton Text
           , Complex = Function/identity Lines
           }
@@ -184,11 +180,11 @@ let Block/toLines
 
 let manyBlocks
     : ∀(a : Type) → Text → (NonEmpty a → Lines) → List a → Block
-    =   λ(a : Type)
-      → λ(ifEmpty : Text)
-      → λ(render : NonEmpty a → Lines)
-      → λ(inputs : List a)
-      → merge
+    = λ(a : Type) →
+      λ(ifEmpty : Text) →
+      λ(render : NonEmpty a → Lines) →
+      λ(inputs : List a) →
+        merge
           { Some = λ(inputs : NonEmpty a) → Block.Complex (render inputs)
           , None = Block.Simple ifEmpty
           }
@@ -196,8 +192,8 @@ let manyBlocks
 
 let blockToText
     : Block → Text
-    =   λ(block : Block)
-      → Text/concatMap
+    = λ(block : Block) →
+        Text/concatMap
           Text
           (λ(line : Text) → line ++ "\n")
           (NonEmpty/toList Text (Block/toLines block))
@@ -215,10 +211,10 @@ let Format =
 let ObjectField = { mapKey : Text, mapValue : Block }
 
 let renderJSONStruct =
-        λ(prefix : Text)
-      → λ(suffix : Text)
-      → λ(blocks : NonEmpty Lines)
-      → let indent = NonEmpty/map Text Text addIndent
+      λ(prefix : Text) →
+      λ(suffix : Text) →
+      λ(blocks : NonEmpty Lines) →
+        let indent = NonEmpty/map Text Text addIndent
 
         let appendComma
             : Lines → Lines
@@ -228,40 +224,38 @@ let renderJSONStruct =
 
         let block = NonEmpty/concat Text blocks
 
-        in        if List/null Text block.tail
-
+        in  if    List/null Text block.tail
             then  NonEmpty/singleton Text "${prefix} ${block.head} ${suffix}"
-
             else  NonEmpty/prepend
                     Text
                     prefix
                     (NonEmpty/append Text suffix (indent block))
 
 let renderObject =
-        λ(format : Format)
-      → λ(fields : NonEmpty ObjectField)
-      → let keystr = λ(field : ObjectField) → "${Text/show field.mapKey}:"
+      λ(format : Format) →
+      λ(fields : NonEmpty ObjectField) →
+        let keystr = λ(field : ObjectField) → "${Text/show field.mapKey}:"
 
         let prefixKeyOnFirst =
-                λ(field : ObjectField)
-              → NonEmpty/mapHead
+              λ(field : ObjectField) →
+                NonEmpty/mapHead
                   Text
                   (addPrefix "${keystr field} ")
                   (Block/toLines field.mapValue)
 
         let prependKeyLine =
-                λ(field : ObjectField)
-              → NonEmpty/prepend
+              λ(field : ObjectField) →
+                NonEmpty/prepend
                   Text
                   (keystr field)
                   (Block/toLines field.mapValue)
 
         let renderYAMLField =
-                λ(field : ObjectField)
-              → merge
+              λ(field : ObjectField) →
+                merge
                   { Simple =
-                        λ(line : Text)
-                      → NonEmpty/singleton Text "${keystr field} ${line}"
+                      λ(line : Text) →
+                        NonEmpty/singleton Text "${keystr field} ${line}"
                   , Complex = λ(_ : Lines) → indentTail (prependKeyLine field)
                   }
                   field.mapValue
@@ -280,16 +274,16 @@ let renderObject =
               format
 
 let renderYAMLArrayField =
-        λ(block : Block)
-      → NonEmpty/mapHead
+      λ(block : Block) →
+        NonEmpty/mapHead
           Text
           (addPrefix "- ")
           (indentTail (Block/toLines block))
 
 let renderArray =
-        λ(format : Format)
-      → λ(fields : NonEmpty Block)
-      → merge
+      λ(format : Format) →
+      λ(fields : NonEmpty Block) →
+        merge
           { JSON =
               renderJSONStruct
                 "["
@@ -304,9 +298,9 @@ let renderArray =
 
 let renderAs
     : Format → JSON.Type → Text
-    =   λ(format : Format)
-      → λ(json : JSON.Type)
-      → blockToText
+    = λ(format : Format) →
+      λ(json : JSON.Type) →
+        blockToText
           ( json
               Block
               { string = λ(x : Text) → Block.Simple (Text/show x)

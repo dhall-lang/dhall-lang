@@ -40,7 +40,7 @@
           '';
         };
 
-    systemPackages = [ pkgs.hydra ];
+    systemPackages = [ pkgs.hydra-migration ];
   };
 
   mailserver = {
@@ -85,7 +85,7 @@
   nixpkgs.overlays =
     let
       modifyHydra = packagesNew: packagesOld: {
-        hydra = packagesOld.hydra.overrideAttrs (old: {
+        hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
             patches = (old.patches or []) ++ [
               ./hydra.patch
               ./no-restrict-eval.patch
@@ -97,19 +97,23 @@
     in
       [ modifyHydra ];
 
-  programs.ssh.knownHosts = [
-    { hostNames = [ "github.com" ];
+  programs.ssh.knownHosts = {
+    "github.com".publicKey =
+      "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
 
-      publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
-    }
+    "dhall-lang.org".publicKey =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBp/WR0q2LUjpzHDwm03CijnpUyvHS9CDnJYvR0YNBpT";
+  };
 
-    { hostNames = [ "dhall-lang.org" ];
+  security = {
+    acme = {
+      acceptTerms = true;
 
-      publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBp/WR0q2LUjpzHDwm03CijnpUyvHS9CDnJYvR0YNBpT";
-    }
-  ];
+      email = "Gabriel439@gmail.com";
+    };
 
-  security.sudo.wheelNeedsPassword = false;
+    sudo.wheelNeedsPassword = false;
+  };
 
   services = {
     fail2ban.enable = true;
@@ -154,7 +158,7 @@
           compress
           sharedscripts
           postrotate
-            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx.pid 2>/dev/null)" > /dev/null || true
+            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx/nginx.pid 2>/dev/null)" > /dev/null || true
           endscript
         }
       '';
@@ -162,10 +166,6 @@
 
     nginx = {
       enable = true;
-
-      appendConfig = ''
-        pid /run/nginx.pid;
-      '';
 
       package = pkgs.nginxStable.override {
         modules = with pkgs.nginxModules; [ develkit echo set-misc ];
@@ -294,6 +294,41 @@
           };
 
           "prelude.dhall-lang.org" = prelude;
+
+          "store.dhall-lang.org" =
+            let
+              packages = [
+                pkgs.dhallPackages.Prelude."7.0.0"
+                pkgs.dhallPackages.Prelude."8.0.0"
+                pkgs.dhallPackages.Prelude."9.0.0"
+                pkgs.dhallPackages.Prelude."10.0.0"
+                pkgs.dhallPackages.Prelude."11.0.0"
+                pkgs.dhallPackages.Prelude."11.1.0"
+                pkgs.dhallPackages.Prelude."12.0.0"
+                pkgs.dhallPackages.Prelude."13.0.0"
+              ];
+
+              store = pkgs.runCommand "store" { inherit packages; } ''
+                mkdir "$out"
+
+                for package in $packages; do
+                  ${pkgs.xorg.lndir}/bin/lndir -silent "$package/.cache/dhall" "$out"
+                done
+              '';
+
+            in
+              { forceSSL = true;
+
+                enableACME = true;
+
+                locations."/" = {
+                  root = "${store}";
+
+                  extraConfig = ''
+                    default_type application/dhall+cbor;
+                  '';
+                };
+              };
 
           # Same as `prelude.dhall-lang.org` except requires a header named
           # `Test` to be present to authorize requests.  This is used to test

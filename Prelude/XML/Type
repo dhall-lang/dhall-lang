@@ -46,17 +46,17 @@
 
 let XML/Type
     : Type
-    =   ∀(XML : Type)
-      → ∀ ( xml
-          : { text : Text → XML
-            , element :
-                  { attributes : List { mapKey : Text, mapValue : Text }
-                  , content : List XML
-                  , name : Text
-                  }
-                → XML
-            }
-          )
-      → XML
+    = ∀(XML : Type) →
+      ∀ ( xml
+        : { text : Text → XML
+          , element :
+              { attributes : List { mapKey : Text, mapValue : Text }
+              , content : List XML
+              , name : Text
+              } →
+                XML
+          }
+        ) →
+        XML
 
 in  XML/Type
