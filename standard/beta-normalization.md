@@ -871,39 +871,6 @@ Normalize a `Some` expression by normalizing its argument:
     Some t₀ ⇥ Some t₁
 
 
-`Optional/build` is the canonical introduction function for `Optional` values:
-
-
-    f ⇥ Optional/build A₀
-    g (Optional A₀) (λ(a : A₀) → Some a) (None A₀) ⇥ b
-    ──────────────────────────────────────────────────
-    f g ⇥ b
-
-
-`Optional/fold` is the canonical elimination function for `Optional` values:
-
-
-    f ⇥ Optional/fold A₀ (Some a) B₀ g   g a ⇥ b₁
-    ─────────────────────────────────────────────
-    f b₀ ⇥ b₁
-
-
-    f ⇥ Optional/fold A₀ (None A₁) B₀ g   b₀ ⇥ b₁
-    ─────────────────────────────────────────────
-    f b₀ ⇥ b₁
-
-
-All of the built-in functions on `Optional` values are in normal form:
-
-
-    ─────────────────────────────
-    Optional/fold ⇥ Optional/fold
-
-
-    ───────────────────────────────
-    Optional/build ⇥ Optional/build
-
-
 ## Records
 
 Normalizing a record type sorts the fields and normalizes the type of each

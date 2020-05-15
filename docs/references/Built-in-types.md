@@ -1123,7 +1123,7 @@ List/head a (xs # ys) =
             λ(a : Type) →
             λ(l : Optional a) →
             λ(r : Optional a) →
-              Optional/fold a l (Optional a) (λ(x : a) → Some x) r
+              merge { None = r, Some = λ(x : a) → Some x } l
   in  combine a (List/head a xs) (List/head a ys)
 
 List/head a [ x ] = Some x
@@ -1157,7 +1157,7 @@ List/last a (xs # ys) =
             λ(a : Type) →
             λ(l : Optional a) →
             λ(r : Optional a) →
-              Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+              merge { None = l, Some = λ(x : a) → Some x } r
   in  combine a (List/last a xs) (List/last a ys)
 
 List/last a [ x ] = Some x
@@ -1299,58 +1299,6 @@ Some 1 : Optional Natural
 Γ ⊢ t : Type
 ───────────────────────
 Γ ⊢ None t : Optional t
-```
-
-### Function: `Optional/fold`
-
-#### Example
-
-```console
-$ dhall <<< 'Optional/fold Text (Some "ABC") Text (λ(t : Text) → t) ""'
-```
-```dhall
-"ABC"
-```
-
-#### Type
-
-```
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Γ ⊢ Optional/fold : ∀(a : Type) → Optional a → ∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional
-```
-
-#### Rules
-
-```dhall
-Optional/fold a (None a) o j n = n
-
-Optional/fold a (Some x) o j n = j x
-```
-
-### Function: `Optional/build`
-
-#### Example
-
-```console
-$ dhall <<< 'Optional/build Text (λ(optional : Type) → λ(just : Text → optional) → λ(nothing : optional) → just "abc")'
-```
-```dhall
-Some "abc"
-```
-
-#### Type
-
-```
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Γ ⊢ Optional/build : ∀(a : Type) → (∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional) → Optional a
-```
-
-#### Rules
-
-```dhall
-Optional/build t (Optional/fold t x) = x
-
-Optional/fold t (Optional/build t x) = x
 ```
 
 ## Records

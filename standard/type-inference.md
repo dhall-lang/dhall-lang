@@ -389,16 +389,6 @@ isolation:
 Note that the above rules forbid an `Optional` element that is a `Type`.  More
 generally, if the element type is not a `Type` then that is a type error.
 
-The built-in functions on `Optional` values have the following types:
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ Optional/fold : ∀(a : Type) → Optional a → ∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ Optional/build : ∀(a : Type) → (∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional) → Optional a
-
 
 ## Records
 

@@ -52,7 +52,7 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
 * Phase 3 - Remove the `Optional/fold` and `Optional/fold` builtins
 
   * Standard version: 17.0.0
-  * Haskell implementation version: To be determined - probably 1.33.0
+  * Haskell implementation version: 1.33.0
   * Ruby implementation version: To be determined
   * Rust implementation version: To be determined
 
