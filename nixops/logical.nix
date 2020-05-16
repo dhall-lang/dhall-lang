@@ -589,14 +589,26 @@
         };
   };
 
-  users.users.gabriel = {
-    isNormalUser = true;
+  users.users = {
+    gabriel = {
+      isNormalUser = true;
 
-    extraGroups = [ "wheel" ];
+      extraGroups = [ "wheel" ];
 
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
-    ];
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
+      ];
+    };
+
+    philandstuff = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCFb1mAXG9cehfjq3FkEgRKMZW48d+IDE9YLbXruy283sf8UZYicKIFkht1nVd8MBd4/iWM23GXtLtyB4F5WXqeDpJFghfxDjoLkU146pSuAmqSOJo0HYOqiMYZJl6MeNtzzMjk6319WSQ80zI9eVNJqLAsTl5OfKHrqZBP32PC3CPQkCW8sQD8fbT/BG0tghUeC/X+LIho0enF58vN180IDsTjcJTjKGu/WzPU6RkyfNoE9LM2cjDKQ4nhucYZs03rklBKUbNB3FW5BM2/AKMzRJ5IkcMiqg6YOkkpB2rw0kbPW0/tAws1lvK8/aoCDw+ou8d4G4jYWqUEl7Okcryd PIV AUTH pubkey"
+      ];
+    };
   };
 
   virtualisation.docker = {
