@@ -1,1 +1,1 @@
-[8, {"example0": [24, null, 0, 2, "foo", "bar", "baz qux"], "example1": [24, null, 0, 1, null, "example.com", "foo", "bar%3Fbaz", "qux"]}]
+[24, null, 0, 2, "foo", "bar", "baz qux"]

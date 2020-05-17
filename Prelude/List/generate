@@ -4,22 +4,22 @@ up to but not including the supplied `Natural` number
 -}
 let generate
     : Natural → ∀(a : Type) → (Natural → a) → List a
-    =   λ(n : Natural)
-      → λ(a : Type)
-      → λ(f : Natural → a)
-      → List/build
+    = λ(n : Natural) →
+      λ(a : Type) →
+      λ(f : Natural → a) →
+        List/build
           a
-          (   λ(list : Type)
-            → λ(cons : a → list → list)
-            → List/fold
+          ( λ(list : Type) →
+            λ(cons : a → list → list) →
+              List/fold
                 { index : Natural, value : {} }
                 ( List/indexed
                     {}
                     ( List/build
                         {}
-                        (   λ(list : Type)
-                          → λ(cons : {} → list → list)
-                          → Natural/fold n list (cons {=})
+                        ( λ(list : Type) →
+                          λ(cons : {} → list → list) →
+                            Natural/fold n list (cons {=})
                         )
                     )
                 )

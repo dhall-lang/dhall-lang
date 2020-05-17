@@ -15,16 +15,16 @@ let List/map =
 
 let map
     : ∀(k : Type) → ∀(a : Type) → ∀(b : Type) → (a → b) → Map k a → Map k b
-    =   λ(k : Type)
-      → λ(a : Type)
-      → λ(b : Type)
-      → λ(f : a → b)
-      → λ(m : Map k a)
-      → List/map
+    = λ(k : Type) →
+      λ(a : Type) →
+      λ(b : Type) →
+      λ(f : a → b) →
+      λ(m : Map k a) →
+        List/map
           (Entry k a)
           (Entry k b)
-          (   λ(before : Entry k a)
-            → { mapKey = before.mapKey, mapValue = f before.mapValue }
+          ( λ(before : Entry k a) →
+              { mapKey = before.mapKey, mapValue = f before.mapValue }
           )
           m
 

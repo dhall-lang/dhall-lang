@@ -8,11 +8,9 @@ let Integer/nonNegative =
 
 let renderInteger
     : Integer → Text
-    =   λ(integer : Integer)
-      →       if Integer/nonNegative integer
-
+    = λ(integer : Integer) →
+        if    Integer/nonNegative integer
         then  Natural/show (Integer/clamp integer)
-
         else  Integer/show integer
 
 let positive = assert : renderInteger +1 ≡ "1"

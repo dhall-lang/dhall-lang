@@ -5,12 +5,12 @@ If you treat the list `[ x, y, z ]` as `cons x (cons y (cons z nil))`, then a
 `fold` just replaces each `cons` and `nil` with something else
 -}
 let fold
-    :   ∀(a : Type)
-      → List a
-      → ∀(list : Type)
-      → ∀(cons : a → list → list)
-      → ∀(nil : list)
-      → list
+    : ∀(a : Type) →
+      List a →
+      ∀(list : Type) →
+      ∀(cons : a → list → list) →
+      ∀(nil : list) →
+        list
     = List/fold
 
 let example0 =
@@ -25,8 +25,8 @@ let example0 =
 
 let example1 =
         assert
-      :   (   λ(nil : Natural)
-            → fold
+      :   ( λ(nil : Natural) →
+              fold
                 Natural
                 [ 2, 3, 5 ]
                 Natural
@@ -37,15 +37,15 @@ let example1 =
 
 let example2 =
         assert
-      :   (   λ(list : Type)
-            → λ(cons : Natural → list → list)
-            → λ(nil : list)
-            → fold Natural [ 2, 3, 5 ] list cons nil
+      :   ( λ(list : Type) →
+            λ(cons : Natural → list → list) →
+            λ(nil : list) →
+              fold Natural [ 2, 3, 5 ] list cons nil
           )
-        ≡ (   λ(list : Type)
-            → λ(cons : Natural → list → list)
-            → λ(nil : list)
-            → cons 2 (cons 3 (cons 5 nil))
+        ≡ ( λ(list : Type) →
+            λ(cons : Natural → list → list) →
+            λ(nil : list) →
+              cons 2 (cons 3 (cons 5 nil))
           )
 
 in  fold

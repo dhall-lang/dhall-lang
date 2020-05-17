@@ -40,25 +40,22 @@ let renderAttr = λ(x : Attr) → " ${x.mapKey}=\"${x.mapValue}\""
 
 let render
     : XML → Text
-    =   λ(x : XML)
-      → x
+    = λ(x : XML) →
+        x
           Text
           { text = λ(d : Text) → d
           , element =
-                λ ( elem
-                  : { attributes : List { mapKey : Text, mapValue : Text }
-                    , content : List Text
-                    , name : Text
-                    }
-                  )
-              → let attribs = Text/concatMap Attr renderAttr elem.attributes
+              λ ( elem
+                : { attributes : List { mapKey : Text, mapValue : Text }
+                  , content : List Text
+                  , name : Text
+                  }
+                ) →
+                let attribs = Text/concatMap Attr renderAttr elem.attributes
 
                 in      "<${elem.name}${attribs}"
-                    ++  (       if Natural/isZero
-                                     (List/length Text elem.content)
-
+                    ++  ( if    Natural/isZero (List/length Text elem.content)
                           then  "/>"
-
                           else  ">${Text/concat elem.content}</${elem.name}>"
                         )
           }

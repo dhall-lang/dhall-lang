@@ -4,9 +4,9 @@ Unpack an `Optional` containing a `List`, defaulting to an empty list when the
 -}
 let default
     : ∀(a : Type) → Optional (List a) → List a
-    =   λ(a : Type)
-      → λ(o : Optional (List a))
-      → merge { Some = λ(l : List a) → l, None = [] : List a } o
+    = λ(a : Type) →
+      λ(o : Optional (List a)) →
+        merge { Some = λ(l : List a) → l, None = [] : List a } o
 
 let example0 = assert : default Bool (None (List Bool)) ≡ ([] : List Bool)
 

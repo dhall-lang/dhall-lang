@@ -21,6 +21,7 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/lib/codemirror.css $out/css
   ${coreutils}/bin/ln --symbolic ${dhall-try}/bin/dhall-try.jsexe/all.min.js $out/js
   ${coreutils}/bin/ln --symbolic ${logo.argocd} $out/img/argocd-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.ansible} $out/img/ansible-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.bash} $out/img/bash-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.clojure} $out/img/clojure-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.dhallLarge} $out/img/dhall-large-logo.svg
