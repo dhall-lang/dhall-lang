@@ -356,7 +356,6 @@ text-literal = (double-quote-literal / single-quote-literal)
 ;
 ; If you don't feel like reading hex, these are all the same as the rule name.
 ; Keywords that should never be parsed as identifiers
-
 if                    = %x69.66
 then                  = %x74.68.65.6e
 else                  = %x65.6c.73.65
