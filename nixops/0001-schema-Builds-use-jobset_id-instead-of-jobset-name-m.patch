@@ -1,0 +1,57 @@
+From 548fd8eadd88744522622164eb26acb1b3bd969f Mon Sep 17 00:00:00 2001
+From: Graham Christensen <graham@grahamc.com>
+Date: Sat, 9 May 2020 16:42:43 -0400
+Subject: [PATCH] schema/Builds: use jobset_id instead of jobset name matches
+
+This was clearly an error in the original part-2 of the diff, and
+specifically breaks when two projects have a jobset of the same name.
+---
+ src/lib/Hydra/Controller/Job.pm    | 2 +-
+ src/lib/Hydra/Controller/Jobset.pm | 2 +-
+ src/lib/Hydra/Schema/Builds.pm     | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/lib/Hydra/Controller/Job.pm b/src/lib/Hydra/Controller/Job.pm
+index bed362e6..4013e31b 100644
+--- a/src/lib/Hydra/Controller/Job.pm
++++ b/src/lib/Hydra/Controller/Job.pm
+@@ -172,7 +172,7 @@ sub get_builds : Chained('job') PathPart('') CaptureArgs(0) {
+     my ($self, $c) = @_;
+     $c->stash->{allBuilds} = $c->stash->{job}->builds;
+     $c->stash->{latestSucceeded} = $c->model('DB')->resultset('LatestSucceededForJob')
+-        ->search({}, {bind => [$c->stash->{jobset}->name, $c->stash->{job}->name]});
++        ->search({}, {bind => [$c->stash->{jobset}->id, $c->stash->{job}->name]});
+     $c->stash->{channelBaseName} =
+         $c->stash->{project}->name . "-" . $c->stash->{jobset}->name . "-" . $c->stash->{job}->name;
+ }
+diff --git a/src/lib/Hydra/Controller/Jobset.pm b/src/lib/Hydra/Controller/Jobset.pm
+index 476ccf00..8178c6b7 100644
+--- a/src/lib/Hydra/Controller/Jobset.pm
++++ b/src/lib/Hydra/Controller/Jobset.pm
+@@ -162,7 +162,7 @@ sub get_builds : Chained('jobsetChain') PathPart('') CaptureArgs(0) {
+     my ($self, $c) = @_;
+     $c->stash->{allBuilds} = $c->stash->{jobset}->builds;
+     $c->stash->{latestSucceeded} = $c->model('DB')->resultset('LatestSucceededForJobset')
+-        ->search({}, {bind => [$c->stash->{jobset}->name]});
++        ->search({}, {bind => [$c->stash->{jobset}->id]});
+     $c->stash->{channelBaseName} =
+         $c->stash->{project}->name . "-" . $c->stash->{jobset}->name;
+ }
+diff --git a/src/lib/Hydra/Schema/Builds.pm b/src/lib/Hydra/Schema/Builds.pm
+index 99996a96..0a21df44 100644
+--- a/src/lib/Hydra/Schema/Builds.pm
++++ b/src/lib/Hydra/Schema/Builds.pm
+@@ -622,8 +622,8 @@ QUERY
+ 
+ makeQueries('', "");
+ makeQueries('ForProject', "and project = ?");
+-makeQueries('ForJobset', "and jobset_id = (select id from jobsets j where j.name = ?)");
+-makeQueries('ForJob', "and jobset_id = (select id from jobsets j where j.name = ?) and job = ?");
++makeQueries('ForJobset', "and jobset_id = ?");
++makeQueries('ForJob', "and jobset_id = ? and job = ?");
+ 
+ 
+ my %hint = (
+-- 
+2.26.1
+

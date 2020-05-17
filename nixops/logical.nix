@@ -39,8 +39,6 @@
             hydra-queue-runner@dhall-lang.org x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local,big-parallel
           '';
         };
-
-    systemPackages = [ pkgs.hydra-migration ];
   };
 
   mailserver = {
@@ -87,6 +85,7 @@
       modifyHydra = packagesNew: packagesOld: {
         hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
             patches = (old.patches or []) ++ [
+              ./0001-schema-Builds-use-jobset_id-instead-of-jobset-name-m.patch
               ./hydra.patch
               ./no-restrict-eval.patch
             ];
@@ -139,6 +138,8 @@
       logo = ../img/dhall-logo.png;
 
       notificationSender = "noreply@dhall-lang.org";
+
+      package = pkgs.hydra-unstable;
     };
 
     journald.extraConfig = ''
