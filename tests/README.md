@@ -97,6 +97,13 @@ The tests should:
 
 ### Running `type-inference` tests
 
+Note: if your implementation does not implement typechecking
+correctly, some of the `type-inference/failure` tests may not
+terminate.  This is because typechecking is central to Dhall's
+guarantees of totality: only expressions which typecheck are
+guaranteed to terminate.  As a result, you may want to guard against
+nontermination, such as by adding a timeout to these tests.
+
 The tests should:
 - parse `A` and `B`
 - if not running `simple` or `unit` tests, resolve the imports in `A` without using the cache
