@@ -64,7 +64,7 @@
     };
 
     policydSPFExtraConfig = ''
-      skip_addresses = 172.17.0.2/32
+      skip_addresses = 172.17.0.2/32,127.0.0.0/8,::ffff:127.0.0.0/104,::1
     '';
   };
 
