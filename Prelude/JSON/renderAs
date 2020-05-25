@@ -12,10 +12,6 @@ let Text/concatMap =
         ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap
 
-let List/take =
-        ../List/take sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
-      ? ../List/take
-
 let List/drop =
         ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
       ? ../List/drop
@@ -104,21 +100,28 @@ let NonEmpty/append
       λ(ls : NonEmpty a) →
         { head = ls.head, tail = ls.tail # [ suffix ] }
 
+let NonYtpme
+    : Type → Type
+    = λ(a : Type) → { init : List a, last : a }
+
 let List/unsnoc
-    : ∀(a : Type) → List a → Optional { init : List a, last : a }
+    : ∀(a : Type) → List a → Optional (NonYtpme a)
     = λ(a : Type) →
       λ(ls : List a) →
-        merge
-          { None = None { init : List a, last : a }
-          , Some =
-              λ(x : a) →
-                Some
-                  { init =
-                      List/take (Natural/subtract 1 (List/length a ls)) a ls
-                  , last = x
-                  }
-          }
-          (List/last a ls)
+        List/fold
+          a
+          ls
+          (Optional (NonYtpme a))
+          ( λ(x : a) →
+            λ(acc : Optional (NonYtpme a)) →
+              merge
+                { None = Some { init = [] : List a, last = x }
+                , Some =
+                    λ(ny : NonYtpme a) → Some (ny ⫽ { init = [ x ] # ny.init })
+                }
+                acc
+          )
+          (None (NonYtpme a))
 
 let NonEmpty/mapLast
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
