@@ -90,37 +90,6 @@ let NonEmpty/mapTail
       λ(ls : NonEmpty a) →
         ls ⫽ { tail = List/map a a fn ls.tail }
 
-let List/splitAt
-    : Natural → ∀(a : Type) → List a → { head : List a, tail : List a }
-    = λ(index : Natural) →
-      λ(a : Type) →
-      λ(ls : List a) →
-        { head = List/take index a ls, tail = List/drop index a ls }
-
-let _testSplitAt0 =
-        assert
-      :   List/splitAt 0 Natural [ 1, 2, 3 ]
-        ≡ { head = [] : List Natural, tail = [ 1, 2, 3 ] }
-
-let _testSplitAt1 =
-        assert
-      : List/splitAt 1 Natural [ 1, 2, 3 ] ≡ { head = [ 1 ], tail = [ 2, 3 ] }
-
-let _testSplitAt3 =
-        assert
-      :   List/splitAt 3 Natural [ 1, 2, 3 ]
-        ≡ { head = [ 1, 2, 3 ], tail = [] : List Natural }
-
-let _testSplitAt =
-        assert
-      :   List/splitAt 1 Natural ([] : List Natural)
-        ≡ { head = [] : List Natural, tail = [] : List Natural }
-
-let List/splitLast =
-      λ(a : Type) →
-      λ(ls : List a) →
-        List/splitAt (Natural/subtract 1 (List/length a ls)) a ls
-
 let NonEmpty/prepend
     : ∀(a : Type) → a → NonEmpty a → NonEmpty a
     = λ(a : Type) →
@@ -135,31 +104,49 @@ let NonEmpty/append
       λ(ls : NonEmpty a) →
         { head = ls.head, tail = ls.tail # [ suffix ] }
 
+let List/unsnoc
+    : ∀(a : Type) → List a → Optional { init : List a, last : a }
+    = λ(a : Type) →
+      λ(ls : List a) →
+        merge
+          { None = None { init : List a, last : a }
+          , Some =
+              λ(x : a) →
+                Some
+                  { init =
+                      List/take (Natural/subtract 1 (List/length a ls)) a ls
+                  , last = x
+                  }
+          }
+          (List/last a ls)
+
 let NonEmpty/mapLast
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
     = λ(a : Type) →
       λ(fn : a → a) →
       λ(ls : NonEmpty a) →
-        if    List/null a ls.tail
-        then  { head = fn ls.head, tail = [] : List a }
-        else  let split = List/splitLast a ls.tail
-
-              in  { head = ls.head
-                  , tail = split.head # List/map a a fn split.tail
-                  }
+        merge
+          { Some =
+              λ(x : { init : List a, last : a }) →
+                ls ⫽ { tail = x.init # [ fn x.last ] }
+          , None = NonEmpty/singleton a (fn ls.head)
+          }
+          (List/unsnoc a ls.tail)
 
 let NonEmpty/mapLeading
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a
     = λ(a : Type) →
       λ(fn : a → a) →
       λ(ls : NonEmpty a) →
-        if    List/null a ls.tail
-        then  ls
-        else  let split = List/splitLast a ls.tail
-
-              in  { head = fn ls.head
-                  , tail = List/map a a fn split.head # split.tail
-                  }
+        merge
+          { Some =
+              λ(x : { init : List a, last : a }) →
+                { head = fn ls.head
+                , tail = List/map a a fn x.init # [ x.last ]
+                }
+          , None = ls
+          }
+          (List/unsnoc a ls.tail)
 
 let Lines
     : Type
