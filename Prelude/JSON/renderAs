@@ -212,7 +212,7 @@ let renderJSONStruct =
       λ(prefix : Text) →
       λ(suffix : Text) →
       λ(blocks : NonEmpty Lines) →
-        let indent = NonEmpty/map Text Text addIndent
+        let indent = List/map Text Text addIndent
 
         let appendComma
             : Lines → Lines
@@ -222,12 +222,18 @@ let renderJSONStruct =
 
         let block = NonEmpty/concat Text blocks
 
-        in  if    List/null Text block.tail
-            then  NonEmpty/singleton Text "${prefix} ${block.head} ${suffix}"
-            else  NonEmpty/prepend
-                    Text
-                    prefix
-                    (NonEmpty/append Text suffix (indent block))
+        in  merge
+              { None =
+                  NonEmpty/singleton Text "${prefix} ${block.head} ${suffix}"
+              , Some =
+                  λ(ny : NonYtpme Text) →
+                    { head = prefix
+                    , tail =
+                          indent ([ block.head ] # ny.init # [ ny.last ])
+                        # [ suffix ]
+                    }
+              }
+              (List/unsnoc Text block.tail)
 
 let renderObject =
       λ(format : Format) →
