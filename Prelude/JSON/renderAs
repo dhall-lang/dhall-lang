@@ -12,10 +12,6 @@ let Text/concatMap =
         ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap
 
-let List/drop =
-        ../List/drop sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
-      ? ../List/drop
-
 let List/null =
         ../List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
       ? ../List/null
@@ -28,27 +24,39 @@ let List/concatMap =
         ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
       ? ../List/concatMap
 
-let Optional/map =
-        ../Optional/map sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
-      ? ../Optional/map
-
 let NonEmpty
     : Type → Type
     = λ(a : Type) → { head : a, tail : List a }
 
-let List/uncons
-    : ∀(a : Type) → List a → Optional (NonEmpty a)
-    = λ(a : Type) →
-      λ(ls : List a) →
-        Optional/map
-          a
-          (NonEmpty a)
-          (λ(head : a) → { head, tail = List/drop 1 a ls })
-          (List/head a ls)
-
 let NonEmpty/singleton
     : ∀(a : Type) → a → NonEmpty a
     = λ(a : Type) → λ(x : a) → { head = x, tail = [] : List a }
+
+let List/uncons
+    : ∀(a : Type) → List a → Optional (NonEmpty a)
+    = {- This version uses the `ls` argument only once to prevent cache blowups at the price
+         of performing two passes over the list:
+         A first one to reverse it, a second one with `List/fold` to determine
+         the head element.
+         See https://github.com/dhall-lang/dhall-lang/pull/1015#issuecomment-633381024
+         for some context regarding the caching issue.
+      -}
+      λ(a : Type) →
+      λ(ls : List a) →
+        List/fold
+          a
+          (List/reverse a ls)
+          (Optional (NonEmpty a))
+          ( λ(x : a) →
+            λ(acc : Optional (NonEmpty a)) →
+              merge
+                { None = Some (NonEmpty/singleton a x)
+                , Some =
+                    λ(ne : NonEmpty a) → Some (ne ⫽ { tail = ne.tail # [ x ] })
+                }
+                acc
+          )
+          (None (NonEmpty a))
 
 let NonEmpty/toList
     : ∀(a : Type) → NonEmpty a → List a
