@@ -12,10 +12,6 @@ let Text/concatMap =
         ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap
 
-let List/null =
-        ../List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
-      ? ../List/null
-
 let List/map =
         ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map
@@ -100,13 +96,6 @@ let NonEmpty/prepend
       λ(prefix : a) →
       λ(ls : NonEmpty a) →
         { head = prefix, tail = NonEmpty/toList a ls }
-
-let NonEmpty/append
-    : ∀(a : Type) → a → NonEmpty a → NonEmpty a
-    = λ(a : Type) →
-      λ(suffix : a) →
-      λ(ls : NonEmpty a) →
-        { head = ls.head, tail = ls.tail # [ suffix ] }
 
 let NonYtpme
     : Type → Type
