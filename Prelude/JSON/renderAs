@@ -126,9 +126,7 @@ let NonEmpty/mapLast
       λ(fn : a → a) →
       λ(ls : NonEmpty a) →
         merge
-          { Some =
-              λ(x : NonYtpme a) →
-                ls ⫽ { tail = x.init # [ fn x.last ] }
+          { Some = λ(x : NonYtpme a) → ls ⫽ { tail = x.init # [ fn x.last ] }
           , None = NonEmpty/singleton a (fn ls.head)
           }
           (List/unsnoc a ls.tail)
