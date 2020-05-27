@@ -97,12 +97,11 @@
           }
         )
     → λ(y : Text)
-    →     Optional/fold
-          Text
-          x.user
-          Text
-          (λ(user : Text) → user ++ "@" ++ x.host ++ "")
-          x.host
+    →     merge
+            { None = x.host
+            , Some = λ(user : Text) → user ++ "@" ++ x.host ++ ""
+            }
+            x.user
       ++  " "
       ++  ( merge
             { Empty = "", NonEmpty = λ(result : Text) → result }

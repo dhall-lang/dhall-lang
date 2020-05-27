@@ -26,12 +26,11 @@ let renderRow =
           : Row
           )
       → let host =
-              Optional/fold
-              Text
-              row.user
-              Text
-              (λ(user : Text) → "${user}@${row.host}")
-              row.host
+              merge
+                { None = row.host
+                , Some = λ(user : Text) → "${user}@${row.host}"
+                }
+                row.user
         
         let platforms = Text/concatSep "," row.platforms
         

@@ -263,14 +263,6 @@ matching their identifier.
     encode(List/reverse) = "List/reverse"
 
 
-    ───────────────────────────────────────────
-    encode(Optional/fold) = "Optional/fold"
-
-
-    ─────────────────────────────────────────────
-    encode(Optional/build) = "Optional/build"
-
-
     ───────────────────────────────
     encode(Text/show) = "Text/show"
 
@@ -985,14 +977,6 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────
     decode("List/reverse") = List/reverse
-
-
-    ───────────────────────────────────────────
-    decode("Optional/fold") = Optional/fold
-
-
-    ─────────────────────────────────────────────
-    decode("Optional/build") = Optional/build
 
 
     ───────────────────────────────

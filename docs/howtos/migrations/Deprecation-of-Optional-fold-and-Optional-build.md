@@ -37,7 +37,7 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
   * Standard version: [13.0.0](https://github.com/dhall-lang/dhall-lang/releases/tag/v13.0.0)
   * Haskell implementation version: 1.29.0
   * Ruby implementation version: To be determined
-  * Rust implementation version: To be determined
+  * Rust implementation version: 0.3.0
 
   The first phase is backwards compatible, meaning that both `Optional/fold` and `merge`
   are supported.
@@ -52,9 +52,9 @@ Users of `Optional/build` should simply use `Some` and `None` directly.
 * Phase 3 - Remove the `Optional/fold` and `Optional/fold` builtins
 
   * Standard version: 17.0.0
-  * Haskell implementation version: To be determined - probably 1.33.0
+  * Haskell implementation version: 1.33.0
   * Ruby implementation version: To be determined
-  * Rust implementation version: To be determined
+  * Rust implementation version: 0.6.0
 
   This change is strongly backwards incompatible by removing support for the old `List`-like syntax for `Optional` literals, breaking all code that still uses the old syntax.
 

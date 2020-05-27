@@ -480,14 +480,6 @@ The remaining rules are:
     ↑(d, x, m, List/reverse) = List/reverse
 
 
-    ─────────────────────────────────────────
-    ↑(d, x, m, Optional/fold) = Optional/fold
-
-
-    ───────────────────────────────────────────
-    ↑(d, x, m, Optional/build) = Optional/build
-
-
     ─────────────────────────────────
     ↑(d, x, m, Text/show) = Text/show
 
