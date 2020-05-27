@@ -371,7 +371,7 @@ Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
 assert                = %x61.73.73.65.72.74
 forall-keyword        = %x66.6f.72.61.6c.6c ; "forall"
-forall-symbol         = %x2200 ; "∀"
+forall-symbol         = %x2200 ; Unicode FOR ALL
 forall                = forall-symbol / forall-keyword
 with                  = %x77.69.74.68
 
@@ -581,7 +581,6 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * path segments may be quoted instead of using percent-encoding
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
 ; * the characters "(" ")" and "," are not included in the `sub-delims` rule:
@@ -594,13 +593,9 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 ;
 ; Reserved characters in quoted path components should be percent-encoded
 ; according to https://tools.ietf.org/html/rfc3986#section-2
-http-raw = scheme "://" authority url-path [ "?" query ]
+http-raw = scheme "://" authority path-abempty [ "?" query ]
 
-; Temporary rule to allow old-style `path-component`s and RFC3986 `segment`s in
-; the same grammar. Eventually we can just use `path-abempty` from the same
-; RFC. See issue #581
-
-url-path = *(path-component / "/" segment)
+path-abempty = *( "/" segment )
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]

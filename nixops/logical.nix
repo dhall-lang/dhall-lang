@@ -39,8 +39,6 @@
             hydra-queue-runner@dhall-lang.org x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local,big-parallel
           '';
         };
-
-    systemPackages = [ pkgs.hydra-migration ];
   };
 
   mailserver = {
@@ -66,7 +64,7 @@
     };
 
     policydSPFExtraConfig = ''
-      skip_addresses = 172.17.0.2/32
+      skip_addresses = 172.17.0.2/32,127.0.0.0/8,::ffff:127.0.0.0/104,::1
     '';
   };
 
@@ -87,6 +85,7 @@
       modifyHydra = packagesNew: packagesOld: {
         hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
             patches = (old.patches or []) ++ [
+              ./0001-schema-Builds-use-jobset_id-instead-of-jobset-name-m.patch
               ./hydra.patch
               ./no-restrict-eval.patch
             ];
@@ -139,6 +138,8 @@
       logo = ../img/dhall-logo.png;
 
       notificationSender = "noreply@dhall-lang.org";
+
+      package = pkgs.hydra-unstable;
     };
 
     journald.extraConfig = ''
@@ -589,14 +590,26 @@
         };
   };
 
-  users.users.gabriel = {
-    isNormalUser = true;
+  users.users = {
+    gabriel = {
+      isNormalUser = true;
 
-    extraGroups = [ "wheel" ];
+      extraGroups = [ "wheel" ];
 
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
-    ];
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
+      ];
+    };
+
+    philandstuff = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCFb1mAXG9cehfjq3FkEgRKMZW48d+IDE9YLbXruy283sf8UZYicKIFkht1nVd8MBd4/iWM23GXtLtyB4F5WXqeDpJFghfxDjoLkU146pSuAmqSOJo0HYOqiMYZJl6MeNtzzMjk6319WSQ80zI9eVNJqLAsTl5OfKHrqZBP32PC3CPQkCW8sQD8fbT/BG0tghUeC/X+LIho0enF58vN180IDsTjcJTjKGu/WzPU6RkyfNoE9LM2cjDKQ4nhucYZs03rklBKUbNB3FW5BM2/AKMzRJ5IkcMiqg6YOkkpB2rw0kbPW0/tAws1lvK8/aoCDw+ou8d4G4jYWqUEl7Okcryd PIV AUTH pubkey"
+      ];
+    };
   };
 
   virtualisation.docker = {

@@ -68,7 +68,9 @@ All of these services are configured in
 [`./nixops/logical.nix`](./logical.nix), and you can update them by creating a
 pull request to amend that file.
 
-Verify that the machine configuration builds correctly by running:
+Verify that the machine configuration builds correctly by running this
+command from the project root (ie `dhall-lang/`, not
+`dhall-lang/nixops/`):
 
 ```bash
 $ nix build --file ./release.nix machine
