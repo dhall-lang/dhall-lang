@@ -461,14 +461,6 @@ The remaining rules are:
     List/reverse[x@n ≔ e] = List/reverse
 
 
-    ──────────────────────────────────────
-    Optional/fold[x@n ≔ e] = Optional/fold
-
-
-    ────────────────────────────────────────
-    Optional/build[x@n ≔ e] = Optional/build
-
-
     ──────────────────────────────
     Text/show[x@n ≔ e] = Text/show
 
