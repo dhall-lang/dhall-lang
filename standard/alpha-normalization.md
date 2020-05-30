@@ -413,14 +413,6 @@ sub-expressions for the remaining rules:
     List/reverse ↦ List/reverse
 
 
-    ─────────────────────────────
-    Optional/fold ↦ Optional/fold
-
-
-    ───────────────────────────────
-    Optional/build ↦ Optional/build
-
-
     ─────────────────────
     Text/show ↦ Text/show
 

@@ -147,10 +147,7 @@
     ```dhall
     None Natural, Some 1 : Optional Natural
 
-
-    Optional/fold Natural (Some 2) Text Natural/show "" = "2"
-
-    Optional/build Natural (λ(optional : Type) → λ(just : Natural → optional) → λ(nothing : optional) → just 1) = Some 1
+    merge { None = "", Some = Natural/show } (Some 2) = "2"
     ```
 
 *   Records

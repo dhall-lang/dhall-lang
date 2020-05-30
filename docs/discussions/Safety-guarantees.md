@@ -496,13 +496,12 @@ with any argument.  The type system rejects the function definition even in
 isolation.
 
 You have to explicitly modify the function to handle the `Optional` input by
-specifying what do to if the value is absent, typically by using
-`Optional/fold`:
+specifying what do to if the value is absent, typically by using `merge`:
 
 ```dhall
 \(o : Optional Natural) ->
   -- Default `x` to `0` if `x` is absent
-  let x = Optional/fold Natural o Natural (\(n : Natural) -> n) 0
+  let x = merge { None = 0, Some = \(n : Natural) -> n } o
 
   in x + 3
 ```

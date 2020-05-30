@@ -335,4 +335,3 @@ in  generate-test-matrix
 
 > **Note**: Using the `List/head` function the `generate-test-matrix` could
 > be improved to take a single list of argument.
-> A follow-up tutorial introduces that using `Optional/fold`
