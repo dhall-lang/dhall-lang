@@ -14,7 +14,7 @@ let JSON =
       ? ./core.dhall
 
 let renderAs =
-        ./renderAs sha256:f16238edec4c6dd846f19677c6675b27c579999dcff91db6193c10ade1d83174
+        ./renderAs sha256:5576473c02bc447d40d08bf103aaeca9637c1040367fdf07ff70032ba3e28043
       ? ./renderAs
 
 let Format =
