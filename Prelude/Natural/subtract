@@ -1,1 +1,2 @@
-./subtract.dhall
+  ./subtract.dhall sha256:b9277ac637d09142a3a3ac79137ef5955c42f8b33b6746d59db2c9d75ccdd745
+? ./subtract.dhall

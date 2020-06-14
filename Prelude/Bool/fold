@@ -1,1 +1,2 @@
-./fold.dhall
+  ./fold.dhall sha256:39f60baf3950268c2e849e91dc6279ee41cd6b81892d54020d4fcd2ce30a96ae
+? ./fold.dhall

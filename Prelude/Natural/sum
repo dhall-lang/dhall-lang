@@ -1,1 +1,2 @@
-./sum.dhall
+  ./sum.dhall sha256:33f7f4c3aff62e5ecf4848f964363133452d420dcde045784518fb59fa970037
+? ./sum.dhall

@@ -1,1 +1,2 @@
-./text.dhall
+  ./text.dhall sha256:c83cd721d32d7dc28c04ce429c0cb22812639e572637ec348578a58ffb68844f
+? ./text.dhall

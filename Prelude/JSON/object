@@ -1,1 +1,2 @@
-./object.dhall
+  ./object.dhall sha256:869aede785c34798be9f9fd457ece73e7f683f352ae4555f791516a365faf4ac
+? ./object.dhall

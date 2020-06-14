@@ -1,1 +1,2 @@
-./Monoid.dhall
+  ./Monoid.dhall sha256:26fafa098600ef7a54ef9dba5ada416bbbdd21df1af306c052420c61553ad4af
+? ./Monoid.dhall

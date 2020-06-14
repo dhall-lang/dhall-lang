@@ -1,1 +1,2 @@
-./partition.dhall
+  ./partition.dhall sha256:38147ac6d750a6492736dd90cc967bf09aa405c499de943c64fab7b86ae02f03
+? ./partition.dhall

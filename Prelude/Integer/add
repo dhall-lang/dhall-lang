@@ -1,1 +1,2 @@
-./add.dhall
+  ./add.dhall sha256:7da1306a0bf87c5668beead2a1db1b18861e53d7ce1f38057b2964b649f59c3b
+? ./add.dhall

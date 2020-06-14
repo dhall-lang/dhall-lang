@@ -1,1 +1,2 @@
-./natural.dhall
+  ./natural.dhall sha256:a839dc6789f19f820e9cbf70c60f41f3b057c59ece1d226d04db5aca447eb0e5
+? ./natural.dhall

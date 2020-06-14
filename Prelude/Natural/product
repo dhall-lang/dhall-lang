@@ -1,1 +1,2 @@
-./product.dhall
+  ./product.dhall sha256:e3e6fd76207875b81d39f79fdbc90b5e640444c04fb3d84c2c9326748f0b26e6
+? ./product.dhall

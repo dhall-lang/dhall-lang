@@ -1,1 +1,2 @@
-./max.dhall
+  ./max.dhall sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
+? ./max.dhall

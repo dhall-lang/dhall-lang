@@ -1,1 +1,2 @@
-./take.dhall
+  ./take.dhall sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
+? ./take.dhall

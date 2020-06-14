@@ -1,1 +1,2 @@
-./defaultMap.dhall
+  ./defaultMap.dhall sha256:3a3fa1264f6198800c27483cb144de2c5366484876d60b9c739a710ce0288588
+? ./defaultMap.dhall

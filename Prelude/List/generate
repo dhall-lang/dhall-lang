@@ -1,1 +1,2 @@
-./generate.dhall
+  ./generate.dhall sha256:78ff1ad96c08b88a8263eea7bc8381c078225cfcb759c496f792edb5a5e0b1a4
+? ./generate.dhall

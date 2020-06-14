@@ -1,1 +1,2 @@
-./clamp.dhall
+  ./clamp.dhall sha256:ea42096cf3e024fadfaf910e0b839005b0ea7514fff11e5a3950a77694d9c5d2
+? ./clamp.dhall

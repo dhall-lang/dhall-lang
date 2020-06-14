@@ -1,1 +1,2 @@
-./array.dhall
+  ./array.dhall sha256:fb6346a9c63638fe3c59f8108e19eebdbddc51389ec5570bab4c25f890ccccc8
+? ./array.dhall
