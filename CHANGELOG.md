@@ -5,6 +5,87 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v17.0.0`
+
+Breaking changes:
+
+* [Remove the ability to quote paths in URLs](https://github.com/dhall-lang/dhall-lang/pull/1005)
+
+  After a deprecation period, quoted path components are no longer supported in
+  URLs.  For example, this is no longer valid:
+
+  ```dhall
+  https://example.com/"foo bar"
+  ```
+
+  Instead, you will now need to percent-encode path components:
+
+  ```dhall
+  https://example.com/foo%20bar
+  ```
+
+  For more details, see: [Deprecation of quoted paths in URLs](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-quoted-paths-in-URLs.html)
+
+* [Remove `Optional/build` and `Optional/fold`](https://github.com/dhall-lang/dhall-lang/pull/1014)
+
+  After a deprecation period, `Optional/build` and `Optional/fold` are no longer
+  built-ins and can be implemented in terms of other language constructs.
+
+  Specifically, `Optional/build` can be replaced with `Prelude.Optional.build`,
+  which is defined as:
+
+  ```dhall
+  λ(a : Type) →
+  λ ( build
+    : ∀(optional : Type) → ∀(some : a → optional) → ∀(none : optional) → optional
+    ) →
+    build (Optional a) (λ(x : a) → Some x) (None a)
+  ```
+
+  ... and `Optional/fold` can be replaced with `Prelude.Optional.fold`, which is
+  defined as:
+
+  ```dhall
+  λ(a : Type) →
+  λ(o : Optional a) →
+  λ(optional : Type) →
+  λ(some : a → optional) →
+  λ(none : optional) →
+    merge { None = none, Some = some } o
+  ```
+
+  For more details, see: [Deprecation of `Optional/fold` and `Optional/build`](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-Optional-fold-and-Optional-build.html)
+
+New features:
+
+* [Allow quoted labels to be empty](https://github.com/dhall-lang/dhall-lang/pull/980)
+
+  You can now define records with blank labels, so long as you escape them with
+  backticks, like this:
+
+  ```dhall
+  { `` = 1 }
+  ```
+
+* Fixes and improvements to the Prelude:
+
+  * [Add `Prelude/List/unpackOptional`](https://github.com/dhall-lang/dhall-lang/pull/991)
+  * [Fix `List/zip`](https://github.com/dhall-lang/dhall-lang/pull/995)
+  * [Prelude: Reduce cache size of JSON rendering code](https://github.com/dhall-lang/dhall-lang/pull/1015)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Not all ABNF parsers like empty rules](https://github.com/dhall-lang/dhall-lang/pull/987)
+  * [Ensure `keyword` rule only matches keywords](https://github.com/dhall-lang/dhall-lang/pull/1001)
+  * [Remove Unicode character from `dhall.abnf`](https://github.com/dhall-lang/dhall-lang/pull/1004)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Test that we typecheck `let` annotations](https://github.com/dhall-lang/dhall-lang/pull/1010)
+  * [Add keyword record fields failure tests](https://github.com/dhall-lang/dhall-lang/pull/1013)
+
 ## `v16.0.0`
 
 Breaking changes:
