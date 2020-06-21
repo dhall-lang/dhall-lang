@@ -648,7 +648,7 @@ in  [ smallServer /\ { hostName = "eu-west.example.com" }
     ]
 ```
 
-> **Exercise:** Refactor the prevous "educational books" example to also use the
+> **Exercise:** Refactor the previous "educational books" example to also use the
 > record merge operator instead of functions
 
 ## Operators
