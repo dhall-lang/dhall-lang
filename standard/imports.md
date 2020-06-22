@@ -403,7 +403,7 @@ A leading `.`, `..` or `~` may not be quoted (this is a parse error).
 Path components after parsing and in the binary encoding are always unescaped
 (as if originally quoted).
 
-URL imports no longer support quoted path components; instead each path
+URL imports do not support quoted path components; instead each path
 component must be percent-encoded according to
 [RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
 
