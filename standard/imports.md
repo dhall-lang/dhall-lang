@@ -394,20 +394,17 @@ expressions stored at those paths:
 
 ## Quoted paths
 
-The grammar for imports permits quoted path components for both file paths:
+The grammar for imports permits quoted path components for file paths:
 
     /"foo"/bar/"baz qux"
-
-... and for URLs:
-
-    https://example.com/foo/"bar?baz"?qux
 
 A leading `.`, `..` or `~` may not be quoted (this is a parse error).
 
 Path components after parsing and in the binary encoding are always unescaped
 (as if originally quoted).
 
-To import a URL, percent-encode each path component according to
+URL imports no longer support quoted path components; instead each path
+component must be percent-encoded according to
 [RFC 3986 - Section 2](https://tools.ietf.org/html/rfc3986#section-2).
 
 ## Referential sanity check
