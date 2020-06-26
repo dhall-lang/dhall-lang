@@ -63,9 +63,9 @@ Uses `dhall-kubernetes`, `dhall-to-yaml` and `dhall-to-text` to configure, modul
 
 ### [meshcloud GmbH](https://www.meshcloud.io)
 
-Uses `dhall` as the primary configuration model for its multi-cloud management software [meshStack](https://docs.meshcloud.io/docs/meshstack.configuration.html). The product documentation is [open source](https://github.com/meshcloud/meshcloud-docs) and includes a tool to automatically synchronise code snippets between the dhall configuration model and product documentation.
+Uses Dhall as the primary configuration model for its multi-cloud management software [meshStack](https://docs.meshcloud.io/docs/meshstack.configuration.html). The product documentation is [open source](https://github.com/meshcloud/meshcloud-docs) and includes a tool to automatically synchronise code snippets between the Dhall configuration model and product documentation.
 
-meshcloud GmbH is also the first corporate sponsor for [dhall on opencollective](https://opencollective.com/dhall/).
+meshcloud GmbH is also the first corporate sponsor for [Dhall on opencollective](https://opencollective.com/dhall/).
 
 ### [Mira Networks](http://www.miranetworks.net)
 
