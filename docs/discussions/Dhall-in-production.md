@@ -61,6 +61,12 @@ Uses `dhall`, `dhall-json`, and `dhall-nix` to convert Dhall definitions for mic
 
 Uses `dhall-kubernetes`, `dhall-to-yaml` and `dhall-to-text` to configure, modularize and template Terraform and Kubernetes configurations
 
+### [meshcloud GmbH](https://www.meshcloud.io)
+
+Uses Dhall as the primary configuration model for its multi-cloud management software [meshStack](https://docs.meshcloud.io/docs/meshstack.configuration.html). The product documentation is [open source](https://github.com/meshcloud/meshcloud-docs) and includes a tool to automatically synchronise code snippets between the Dhall configuration model and product documentation.
+
+meshcloud GmbH is also the first corporate sponsor for [Dhall on opencollective](https://opencollective.com/dhall/).
+
 ### [Mira Networks](http://www.miranetworks.net)
 
 Uses `dhall-haskell` to define logs for parsing. The software generates a specific log parser in either Python, Haskell, Elm or Erlang.
