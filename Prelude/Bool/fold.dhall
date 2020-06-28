@@ -1,5 +1,5 @@
 {-
-`fold` is essentially the same as `if`/`then`/else` except as a function
+`fold` is essentially the same as `if`/`then`/`else` except as a function
 -}
 let fold
     : ∀(b : Bool) → ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool
