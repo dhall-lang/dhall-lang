@@ -1,12 +1,2 @@
-{-
-Returns `True` if a number if even and returns `False` otherwise
--}
-let even
-    : Natural → Bool
-    = Natural/even
-
-let example0 = assert : even 3 ≡ False
-
-let example1 = assert : even 0 ≡ True
-
-in  even
+  ./even.dhall sha256:b85b8b56892dfef881e1c0e79eade0b949528f792aac0ea42432b315ede4ee66
+? ./even.dhall
