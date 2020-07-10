@@ -1263,8 +1263,8 @@ function's input and `B` is the type of the function's output.  You can also
 use the Unicode right arrow `→` (U+2192) to represent a function type as
 `A → B`.
 
-For example, `Natural/even : Natural -> Text` means that the `Natural/even`
-function converts an input of type `Natural` to an output of type `Text`:
+For example, `Natural/even : Natural -> Bool` means that the `Natural/even`
+function converts an input of type `Natural` to an output of type `Bool`:
 
 ```dhall
 ⊢ :type Natural/even
@@ -2388,7 +2388,7 @@ record types:
   This operator recursively merges two records, but fails with a type error if
   any two non-record fields "collide".
 
-* `//` - Shallow right-based record type merge - Unicode: `⫽` (U+2AFD)
+* `//` - Shallow right-biased record type merge - Unicode: `⫽` (U+2AFD)
 
   ```dhall
   ⊢ { a = { b = 1 } } // { a = 1, d = True }
