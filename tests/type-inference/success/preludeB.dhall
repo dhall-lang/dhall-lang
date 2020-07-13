@@ -369,7 +369,8 @@
     }
 , Monoid : ∀(m : Type) → Type
 , Natural :
-    { build :
+    { add : ∀(m : Natural) → ∀(n : Natural) → Natural
+    , build :
         ( ∀(natural : Type) →
           ∀(succ : natural → natural) →
           ∀(zero : natural) →
