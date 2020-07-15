@@ -1,10 +1,10 @@
 {-
-`concat m n` compute `m ++ n`
+`textAppend m n` compute `m ++ n`
 -}
-let concat
+let textAppend
     : Text → Text → Text
     = λ(m : Text) → λ(n : Text) → m ++ n
 
-let example0 = assert : concat "Hello" "Dhall" ≡ "HelloDhall"
+let example0 = assert : textAppend "Hello" "Dhall" ≡ "HelloDhall"
 
-in  concat
+in  textAppend

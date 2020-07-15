@@ -1,10 +1,10 @@
 {-
-`mul m n` compute `m * n`
+`multiply m n` compute `m * n`
 -}
-let mul
+let multiply
     : Natural → Natural → Natural
     = λ(m : Natural) → λ(n : Natural) → m * n
 
-let example0 = assert : mul 21 2 ≡ 42
+let example0 = assert : multiply 21 2 ≡ 42
 
-in  mul
+in  multiply
