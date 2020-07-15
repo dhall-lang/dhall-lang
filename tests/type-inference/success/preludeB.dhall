@@ -406,12 +406,13 @@
 , Operator :
     { add : ∀(m : Natural) → ∀(n : Natural) → Natural
     , and : ∀(m : Bool) → ∀(n : Bool) → Bool
-    , append : ∀(type : Type) → ∀(m : List type) → ∀(n : List type) → List type
-    , concat : ∀(m : Text) → ∀(n : Text) → Text
     , equal : ∀(m : Bool) → ∀(n : Bool) → Bool
-    , mul : ∀(m : Natural) → ∀(n : Natural) → Natural
+    , listAppend :
+        ∀(type : Type) → ∀(m : List type) → ∀(n : List type) → List type
+    , multiply : ∀(m : Natural) → ∀(n : Natural) → Natural
     , notEqual : ∀(m : Bool) → ∀(n : Bool) → Bool
     , or : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , textAppend : ∀(m : Text) → ∀(n : Text) → Text
     }
 , Optional :
     { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
