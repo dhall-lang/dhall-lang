@@ -1,7 +1,4 @@
-{ add =
-      ./add sha256:0b801121b54b3c2f329a8de4f18ba362bf5e0719fd68a09cead644c69276694a
-    ? ./add
-, build =
+{ build =
       ./build sha256:e7e25e6c4f1d8e573606ed1bef725396ac2de5c68f7c5d329ffc5822085b984c
     ? ./build
 , enumerate =
