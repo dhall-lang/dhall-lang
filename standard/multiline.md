@@ -290,11 +290,11 @@ Then the `to-double-quotes` judgement combines `indent` with `flatten`:
 * `s₀` (the input) is a multi-line literal
 * `s₁` (the output) is a double-quoted literal
 
-
-    indent(s₀) = p   flatten(length(p), s₀) = s₁
-    ────────────────────────────────────────────
-    to-double-quotes(s₀) = s₁
-
+```
+indent(s₀) = p   flatten(length(p), s₀) = s₁
+────────────────────────────────────────────
+to-double-quotes(s₀) = s₁
+```
 
 The `to-double-quotes` judgment represents the logic for desugaring a
 multi-line literal to a double-quoted literal at parse time.
