@@ -1,10 +1,10 @@
 {-
-`listAppend Type m n` compute `m # n`
+``#` Type m n` compute `m # n`
 -}
-let listAppend
+let `#`
     : ∀(type : Type) → List type → List type → List type
     = λ(type : Type) → λ(m : List type) → λ(n : List type) → m # n
 
-let example0 = assert : listAppend Natural [ 1, 2 ] [ 3 ] ≡ [ 1, 2, 3 ]
+let example0 = assert : `#` Natural [ 1, 2 ] [ 3 ] ≡ [ 1, 2, 3 ]
 
-in  listAppend
+in  `#`
