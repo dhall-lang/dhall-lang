@@ -1,12 +1,2 @@
-{-
-Convert a `Natural` number to the corresponding `Double`
--}
-let toDouble
-    : Natural → Double
-    = λ(n : Natural) → Integer/toDouble (Natural/toInteger n)
-
-let example0 = assert : toDouble 3 ≡ 3.0
-
-let example1 = assert : toDouble 0 ≡ 0.0
-
-in  toDouble
+  ./toDouble.dhall sha256:d5eb52143dcd35b46a6f0cdb2d3cbf31a14b6daeba56e29066f8e344c9fb6e81
+? ./toDouble.dhall

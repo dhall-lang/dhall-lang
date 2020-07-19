@@ -1,14 +1,2 @@
-{-
-Convert an `Integer` to a `Natural` number, with negative numbers becoming zero.
--}
-let clamp
-    : Integer → Natural
-    = Integer/clamp
-
-let example0 = assert : clamp +7 ≡ 7
-
-let example2 = assert : clamp +0 ≡ 0
-
-let example3 = assert : clamp -3 ≡ 0
-
-in  clamp
+  ./clamp.dhall sha256:ea42096cf3e024fadfaf910e0b839005b0ea7514fff11e5a3950a77694d9c5d2
+? ./clamp.dhall

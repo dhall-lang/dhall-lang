@@ -1,12 +1,2 @@
-{-
-Returns the number of elements in a list
--}
-let length
-    : ∀(a : Type) → List a → Natural
-    = List/length
-
-let example0 = assert : length Natural [ 0, 1, 2 ] ≡ 3
-
-let example1 = assert : length Natural ([] : List Natural) ≡ 0
-
-in  length
+  ./length.dhall sha256:42c6812c7a9e3c6e6fad88f77c5b3849503964e071cb784e22c38c888a401461
+? ./length.dhall
