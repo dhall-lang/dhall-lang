@@ -26,8 +26,8 @@
       ./Natural/package.dhall sha256:ee9ed2b28a417ed4e9a0c284801b928bf91b3fbdc1a68616347678c1821f1ddf
     ? ./Natural/package.dhall
 , Operator =
-      ./Operator/package.dhall sha256:861f724704a7b4755c96f173e54d03f314492a2d046723404c31ff612b7bf2e6
-    ? ./Operator/package.dhall
+      ./Operator.dhall sha256:861f724704a7b4755c96f173e54d03f314492a2d046723404c31ff612b7bf2e6
+    ? ./Operator.dhall
 , Optional =
       ./Optional/package.dhall sha256:4324b2bf84ded40f67485f14355e4cb7b237a8f173e713c791ec44cebebc552c
     ? ./Optional/package.dhall
