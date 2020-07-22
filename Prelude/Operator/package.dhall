@@ -1,5 +1,11 @@
+{-
+This package does not use one file per functions as their names contain
+symbols that can be a source of unexpected behavior.
+-}
 let {-
-    ``+` m n` compute `m + n`
+        `+` m n
+
+    compute `m + n`
     -}
     `+`
     : Natural → Natural → Natural
@@ -8,7 +14,9 @@ let {-
 let example1 = assert : `+` 2 1 ≡ 3
 
 let {-
-    ``*` m n` compute `m * n`
+        `*` m n
+
+    compute `m * n`
     -}
     `*`
     : Natural → Natural → Natural
@@ -17,7 +25,9 @@ let {-
 let example2 = assert : `*` 21 2 ≡ 42
 
 let {-
-    ``++` m n` compute `m ++ n`
+        `++` m n
+
+    compute `m ++ n`
     -}
     `++`
     : Text → Text → Text
@@ -26,7 +36,9 @@ let {-
 let example3 = assert : `++` "Hello" "Dhall" ≡ "HelloDhall"
 
 let {-
-    ``#` Type m n` compute `m # n`
+        `#` Type m n
+
+    compute `m # n`
     -}
     `#`
     : ∀(type : Type) → List type → List type → List type
@@ -35,7 +47,9 @@ let {-
 let example4 = assert : `#` Natural [ 1, 2 ] [ 3 ] ≡ [ 1, 2, 3 ]
 
 let {-
-    ``==` m n` compute `m == n`
+        `==` m n
+
+    compute `m == n`
     -}
     `==`
     : Bool → Bool → Bool
@@ -44,7 +58,9 @@ let {-
 let example5 = assert : `==` True False ≡ False
 
 let {-
-    ``!=` m n` compute `m != n`
+        `!=` m n
+
+    compute `m != n`
     -}
     `!=`
     : Bool → Bool → Bool
@@ -53,7 +69,9 @@ let {-
 let example6 = assert : `!=` True False ≡ True
 
 let {-
-    ``&&` m n` compute `m && n`
+        `&&` m n
+
+    compute `m && n`
     -}
     `&&`
     : Bool → Bool → Bool
@@ -62,7 +80,9 @@ let {-
 let example7 = assert : `&&` False True ≡ False
 
 let {-
-    ``||` m n` compute `m || n`
+        `||` m n
+
+    compute `m || n`
     -}
     `||`
     : Bool → Bool → Bool
