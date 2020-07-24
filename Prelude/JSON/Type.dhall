@@ -1,4 +1,5 @@
-{- Dhall encoding of an arbitrary JSON value
+{-|
+Dhall encoding of an arbitrary JSON value
 
    For example, the following JSON value:
 

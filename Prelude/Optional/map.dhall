@@ -1,6 +1,4 @@
-{-
-Transform an `Optional` value with a function
--}
+--| Transform an `Optional` value with a function
 let map
     : ∀(a : Type) → ∀(b : Type) → (a → b) → Optional a → Optional b
     = λ(a : Type) →

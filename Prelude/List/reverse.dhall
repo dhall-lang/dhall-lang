@@ -1,6 +1,4 @@
-{-
-Reverse a list
--}
+--| Reverse a list
 let reverse
     : ∀(a : Type) → List a → List a
     = List/reverse

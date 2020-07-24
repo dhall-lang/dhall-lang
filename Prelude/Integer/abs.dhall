@@ -1,6 +1,4 @@
-{-
-Returns the absolute value of an `Integer`, i.e. its non-negative value.
--}
+--| Returns the absolute value of an `Integer`, i.e. its non-negative value.
 let abs
     : Integer → Natural
     = λ(n : Integer) →

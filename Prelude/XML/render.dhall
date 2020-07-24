@@ -1,11 +1,12 @@
-{- Render an `XML` value as `Text`
+{-|
+Render an `XML` value as `Text`
 
-   *WARNING:* rendering does not include any XML injection mitigations,
-   therefore it should not be used to process arbitrary strings into
-   element attributes or element data.
+*WARNING:* rendering does not include any XML injection mitigations,
+therefore it should not be used to process arbitrary strings into
+element attributes or element data.
 
-   For indentation and schema validation, see the `xmllint` utility
-   bundled with libxml2.
+For indentation and schema validation, see the `xmllint` utility
+bundled with libxml2.
 
 ```
 let XML = ./package.dhall

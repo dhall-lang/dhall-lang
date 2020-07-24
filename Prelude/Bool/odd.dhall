@@ -1,4 +1,4 @@
-{-
+{-|
 Returns `True` if there are an odd number of `True` elements in the list and
 returns `False` otherwise.
 

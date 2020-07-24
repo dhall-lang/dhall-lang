@@ -1,4 +1,4 @@
-{-
+{-|
 Builds a key-value record such that a List of them will be converted to a
 homogeneous record by dhall-to-json and dhall-to-yaml.
 -}

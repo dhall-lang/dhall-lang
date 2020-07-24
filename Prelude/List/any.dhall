@@ -1,4 +1,4 @@
-{-
+{-|
 Returns `True` if the supplied function returns `True` for any element in the
 `List`
 -}

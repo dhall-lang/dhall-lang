@@ -1,6 +1,4 @@
-{-
-Build a list by copying the given element the specified number of times
--}
+--| Build a list by copying the given element the specified number of times
 let replicate
     : Natural → ∀(a : Type) → a → List a
     = λ(n : Natural) →

@@ -1,4 +1,4 @@
-{-
+{-|
 Render a `Bool` as `Text` using the same representation as Dhall source code
 (i.e. beginning with a capital letter)
 -}

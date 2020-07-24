@@ -1,4 +1,4 @@
-{-
+{-|
 Unpack an `Optional` containing a `List`, defaulting to an empty list when the
 `Optional` is `None`
 -}

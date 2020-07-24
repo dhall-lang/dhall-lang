@@ -1,6 +1,4 @@
-{-
-Transform the value in an `Optional` into `Text`, defaulting `None` to `""`
--}
+--| Transform the value in an `Optional` into `Text`, defaulting `None` to `""`
 let defaultMap
     : ∀(a : Type) → (a → Text) → Optional a → Text
     = λ(a : Type) →

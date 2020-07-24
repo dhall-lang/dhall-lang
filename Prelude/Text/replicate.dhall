@@ -1,6 +1,4 @@
-{-
-Build a Text by copying the given Text the specified number of times
--}
+--| Build a Text by copying the given Text the specified number of times
 
 let concat =
         ./concat sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0

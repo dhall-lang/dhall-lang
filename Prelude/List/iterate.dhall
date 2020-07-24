@@ -1,4 +1,4 @@
-{-
+{-|
 Generate a list of the specified length given a seed value and transition
 function
 -}

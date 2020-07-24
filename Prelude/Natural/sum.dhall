@@ -1,6 +1,4 @@
-{-
-Add all the numbers in a `List`
--}
+--| Add all the numbers in a `List`
 let sum
     : List Natural → Natural
     = λ(xs : List Natural) →

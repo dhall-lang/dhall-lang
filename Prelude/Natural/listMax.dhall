@@ -1,4 +1,4 @@
-{-
+{-|
 `listMax` returns the largest element of a `List` or `None Natural` if the
 `List` is empty
 -}

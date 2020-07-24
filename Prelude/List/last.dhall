@@ -1,6 +1,4 @@
-{-
-Retrieve the last element of the list
--}
+--| Retrieve the last element of the list
 let last
     : ∀(a : Type) → List a → Optional a
     = List/last

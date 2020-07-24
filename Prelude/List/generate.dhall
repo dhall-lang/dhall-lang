@@ -1,4 +1,4 @@
-{-
+{-|
 Build a list by calling the supplied function on all `Natural` numbers from `0`
 up to but not including the supplied `Natural` number
 -}

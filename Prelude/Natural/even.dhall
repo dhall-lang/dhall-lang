@@ -1,6 +1,4 @@
-{-
-Returns `True` if a number if even and returns `False` otherwise
--}
+--| Returns `True` if a number if even and returns `False` otherwise
 let even
     : Natural → Bool
     = Natural/even

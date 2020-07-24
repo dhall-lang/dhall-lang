@@ -1,6 +1,4 @@
-{-
-Concatenate a `List` of `List`s into a single `List`
--}
+--| Concatenate a `List` of `List`s into a single `List`
 let concat
     : ∀(a : Type) → List (List a) → List a
     = λ(a : Type) →

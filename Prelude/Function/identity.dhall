@@ -1,6 +1,4 @@
-{-
-The identity function simply returns its input
--}
+--| The identity function simply returns its input
 let identity
     : ∀(a : Type) → ∀(x : a) → a
     = λ(a : Type) → λ(x : a) → x

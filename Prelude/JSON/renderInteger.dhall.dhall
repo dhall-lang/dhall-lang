@@ -1,5 +1,6 @@
-{- Render an `Integer` value as a `JSON number`, according to the JSON
-   standard, in which a number may not start with a plus sign (`+`).
+{-|
+Render an `Integer` value as a `JSON number`, according to the JSON
+standard, in which a number may not start with a plus sign (`+`).
 -}
 
 let Integer/nonNegative =

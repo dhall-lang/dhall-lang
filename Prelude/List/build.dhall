@@ -1,6 +1,4 @@
-{-
-`build` is the inverse of `fold`
--}
+--| `build` is the inverse of `fold`
 let build
     : ∀(a : Type) →
       (∀(list : Type) → ∀(cons : a → list → list) → ∀(nil : list) → list) →

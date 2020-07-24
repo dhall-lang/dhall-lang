@@ -1,4 +1,4 @@
-{-
+{-|
 `partition` divides a `List` of elements into those that satisfy a predicate
 and those that do not
 -}
