@@ -1,13 +1,13 @@
 {-|
 Dhall encoding of an arbitrary JSON value
 
-   For example, the following JSON value:
+For example, the following JSON value:
 
 ```
 [ { "foo": null, "bar": [ 1.0, true ] } ]
 ```
 
-   ... corresponds to the following Dhall expression:
+... corresponds to the following Dhall expression:
 
 ```
 λ(JSON : Type) →
