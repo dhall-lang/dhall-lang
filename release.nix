@@ -165,16 +165,16 @@ let
         '';
 
     logo = {
-      argocd =
-        pkgsNew.fetchurl {
-          url    = "https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/argo.png";
-          sha256 = "0gvfd7y7ihqyz93by730w0f6kdfs8dlvxv45ydccih94rxj3j7ac";
-        };
-
       ansible =
         pkgsNew.fetchurl {
           url    = "https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Mango.png";
           sha256 = "1zmd6gnx6gx9z6n5i02ipidc2ypakhhv07nznr3a5jjbyl4qqj3y";
+        };
+
+      argocd =
+        pkgsNew.fetchurl {
+          url    = "https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/argo.png";
+          sha256 = "0gvfd7y7ihqyz93by730w0f6kdfs8dlvxv45ydccih94rxj3j7ac";
         };
 
       bash =
@@ -189,24 +189,10 @@ let
           sha256 = "0mrjzv690g9mxljzxsvay8asyr8vlxhhs9smmax7mp3psd49b43g";
         };
 
-      golang =
-        pkgsNew.fetchzip {
-          # See also https://blog.golang.org/go-brand
-          url    = "https://storage.googleapis.com/golang-assets/go-logos-v1.0.zip";
-          sha256 = "06vlpk22nxl1a3mz9rpk9fyq483rc4ml8f7lkkfqmabbia9ah7np";
-          stripRoot = false;
-        };
-
-      ruby =
+      concourse =
         pkgsNew.fetchurl {
-          url    = "https://upload.wikimedia.org/wikipedia/commons/7/73/Ruby_logo.svg";
-          sha256 = "1yvvdqcmgpa75y7px3isi4x6690iksq52ilnbslhn7mcngikw6m9";
-        };
-
-      rust =
-        pkgsNew.fetchurl {
-          url    = "http://rust-lang.org/logos/rust-logo-128x128-blk.png";
-          sha256 = "19ycf7ra6pn6gvavpfg1gbi9j8dsmxfm0gnczabvpspv7yaf8i71";
+          url    = "https://raw.githubusercontent.com/concourse/brand/c26ab042b2d241ccdc748f9046539b363a5a13cd/concourse_logo/concourse_logo_b.png";
+          sha256 = "1y02cfz1jhjmmlqa26ifnnivcaa8f6m217n3qf57drgbhrwndnqv";
         };
 
       dhallLarge =
@@ -227,6 +213,14 @@ let
         pkgsNew.fetchzip {
           url    = "https://github-media-downloads.s3.amazonaws.com/GitHub-Mark.zip";
           sha256 = "0qy901f9rjzi0dyd1rb7zas50lcxy42sc7wnxpz2j2hr9ckg2zlz";
+          stripRoot = false;
+        };
+
+      golang =
+        pkgsNew.fetchzip {
+          # See also https://blog.golang.org/go-brand
+          url    = "https://storage.googleapis.com/golang-assets/go-logos-v1.0.zip";
+          sha256 = "06vlpk22nxl1a3mz9rpk9fyq483rc4ml8f7lkkfqmabbia9ah7np";
           stripRoot = false;
         };
 
@@ -270,6 +264,18 @@ let
         pkgsNew.fetchurl {
           url    = "https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg";
           sha256 = "19ff8l1kp3i3gxxbd5na9wbzxkpflcxw0lz2ysb1d6s4ybvr0fnb";
+        };
+
+      ruby =
+        pkgsNew.fetchurl {
+          url    = "https://upload.wikimedia.org/wikipedia/commons/7/73/Ruby_logo.svg";
+          sha256 = "1yvvdqcmgpa75y7px3isi4x6690iksq52ilnbslhn7mcngikw6m9";
+        };
+
+      rust =
+        pkgsNew.fetchurl {
+          url    = "http://rust-lang.org/logos/rust-logo-128x128-blk.png";
+          sha256 = "19ycf7ra6pn6gvavpfg1gbi9j8dsmxfm0gnczabvpspv7yaf8i71";
         };
 
       slack =
