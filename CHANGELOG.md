@@ -59,6 +59,7 @@ Other changes:
 * Fixes and improvements to the standard:
 
   * [Update import section in standard for 17.0.0](https://github.com/dhall-lang/dhall-lang/pull/1030)
+  * [Fix code block syntax for multi-line strings judgment](https://github.com/dhall-lang/dhall-lang/pull/1039)
 
 ## `v17.0.0`
 
