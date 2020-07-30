@@ -5,6 +5,62 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v17.1.0`
+
+New features:
+
+* [Allow trailing delimiters](https://github.com/dhall-lang/dhall-lang/pull/956)
+
+  The language now permits trailing delimiters, including:
+
+  * Trailing commas for record literals:
+
+    ```dhall
+    { x = 1, y = 2, }
+    ```
+
+  * Trailing commas for record types:
+
+    ```dhall
+    { x : Natural, y : Natural, }
+    ```
+
+  * Trailing commas for list literals:
+
+    ```dhall
+    [ 1, 2, ]
+    ```
+
+  * Trailing bars for union types:
+
+    ```dhall
+    < Left : Natural | Right : Bool | >
+    ```
+
+  These trailing delimiters will allow you to format your code in a style
+  more familiar to JavaScript / Python / Go / Rust programmers.
+
+* [Add `.dhall` extensions on Prelude files](https://github.com/dhall-lang/dhall-lang/pull/1026)
+
+  All Prelude files now include a version with a `.dhall` extension, both for
+  consistency with the rest of the ecosystem and to automatically trigger
+  correct syntax highlighting and editor support based on the `.dhall`
+  extension.
+
+  The old files without the extension are still present (so this change is
+  backwards-compatible), but now all they do is re-export the file with the
+  `.dhall` extension.
+
+  New additions to the Prelude will require the `.dhall` extension and won't
+  include the extension-free counterpart.
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Update import section in standard for 17.0.0](https://github.com/dhall-lang/dhall-lang/pull/1030)
+  * [Fix code block syntax for multi-line strings judgment](https://github.com/dhall-lang/dhall-lang/pull/1039)
+
 ## `v17.0.0`
 
 Breaking changes:
