@@ -1,6 +1,4 @@
-{-
-Unzip an `Optional` value into two separate `Optional` values
--}
+--| Unzip an `Optional` value into two separate `Optional` values
 let unzip
     : ∀(a : Type) →
       ∀(b : Type) →

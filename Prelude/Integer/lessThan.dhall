@@ -1,6 +1,4 @@
-{-
-`lessThan` checks if one Integer is less than another.
--}
+--| `lessThan` checks if one Integer is less than another.
 let greaterThan =
         ./greaterThan sha256:d23affd73029fc9aaf867c2c7b86510ca2802d3f0d1f3e1d1a93ffd87b7cb64b
       ? ./greaterThan

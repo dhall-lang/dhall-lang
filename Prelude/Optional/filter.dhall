@@ -1,6 +1,4 @@
-{-
-Only keep an `Optional` element if the supplied function returns `True`
--}
+--| Only keep an `Optional` element if the supplied function returns `True`
 let filter
     : ∀(a : Type) → (a → Bool) → Optional a → Optional a
     = λ(a : Type) →

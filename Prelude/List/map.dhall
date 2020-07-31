@@ -1,6 +1,4 @@
-{-
-Transform a list by applying a function to each element
--}
+--| Transform a list by applying a function to each element
 let map
     : ∀(a : Type) → ∀(b : Type) → (a → b) → List a → List b
     = λ(a : Type) →

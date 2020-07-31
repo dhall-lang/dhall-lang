@@ -1,4 +1,4 @@
-{-
+{-|
 Combine a `List` of `List`s, offsetting the `index` of each element by the
 number of elements in preceding lists
 -}

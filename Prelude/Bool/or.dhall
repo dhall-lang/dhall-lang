@@ -1,4 +1,4 @@
-{-
+{-|
 The `or` function returns `True` if there are any `True` elements in the `List`
 and returns `False` otherwise
 -}

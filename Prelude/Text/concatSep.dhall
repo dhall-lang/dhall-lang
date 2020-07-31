@@ -1,6 +1,4 @@
-{-
-Concatenate a `List` of `Text` values with a separator in between each value
--}
+--| Concatenate a `List` of `Text` values with a separator in between each value
 let Status = < Empty | NonEmpty : Text >
 
 let concatSep

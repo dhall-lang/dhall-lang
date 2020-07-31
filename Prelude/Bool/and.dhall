@@ -1,4 +1,4 @@
-{-
+{-|
 The `and` function returns `False` if there are any `False` elements in the
 `List` and returns `True` otherwise
 -}

@@ -1,12 +1,12 @@
-{- Render a `JSON` value as `Text` in YAML format.
+{-|
+Render a `JSON` value as `Text` in YAML format.
 
-   The generated YAML text will only contain escaped object keys and
-   string values and might therefore not be very human readable.
+The generated YAML text will only contain escaped object keys and
+string values and might therefore not be very human readable.
 
-   However, it is useful for debugging `JSON` values or for tests.
-   For anything more sophisticated you should use `dhall-to-json` or
-   `dhall-to-yaml`.
-
+However, it is useful for debugging `JSON` values or for tests.
+For anything more sophisticated you should use `dhall-to-json` or
+`dhall-to-yaml`.
 -}
 
 let JSON =

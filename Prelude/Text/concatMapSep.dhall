@@ -1,4 +1,4 @@
-{-
+{-|
 Transform each value in a `List` to `Text` and then concatenate them with a
 separator in between each value
 -}

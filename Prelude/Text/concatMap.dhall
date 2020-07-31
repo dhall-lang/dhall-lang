@@ -1,6 +1,4 @@
-{-
-Transform each value in a `List` into `Text` and concatenate the result
--}
+--| Transform each value in a `List` into `Text` and concatenate the result
 let concatMap
     : ∀(a : Type) → (a → Text) → List a → Text
     = λ(a : Type) →

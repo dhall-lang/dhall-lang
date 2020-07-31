@@ -1,6 +1,4 @@
-{-
-`greaterThan` checks if one Integer is greater than another.
--}
+--| `greaterThan` checks if one Integer is greater than another.
 let Bool/not =
         ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
       ? ../Bool/not

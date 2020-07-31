@@ -1,6 +1,4 @@
-{-
-Returns the number of elements in a list
--}
+--| Returns the number of elements in a list
 let length
     : ∀(a : Type) → List a → Natural
     = List/length

@@ -1,4 +1,5 @@
-{- Create a JSON string from Dhall `Text`
+{-|
+Create a JSON string from Dhall `Text`
 
 ```
 let JSON = ./package.dhall

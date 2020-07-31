@@ -1,4 +1,4 @@
-{-
+{-|
 Returns `True` if there are an even number of `False` elements in the list and
 returns `False` otherwise.
 

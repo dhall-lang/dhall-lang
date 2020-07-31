@@ -1,4 +1,5 @@
-{- Create an XML element value without child elements.
+{-|
+Create an XML element value without child elements.
 
 ```
 let XML = ./package.dhall
