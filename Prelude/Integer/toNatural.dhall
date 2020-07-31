@@ -1,4 +1,4 @@
-{-
+{-|
 Convert an `Integer` to an `Optional Natural`, with negative numbers becoming `None Natural`.
 -}
 let nonNegative =

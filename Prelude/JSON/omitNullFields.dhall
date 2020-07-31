@@ -1,4 +1,4 @@
-{-
+{-|
 This utility omits all `null` record fields, which is often the idiomatic way
 for a configuration to encode absent fields
 -}

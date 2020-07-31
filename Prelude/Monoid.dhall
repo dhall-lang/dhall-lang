@@ -1,4 +1,4 @@
-{-
+{-|
 Any function `f` that is a `Monoid` must satisfy the following law:
 
 ```

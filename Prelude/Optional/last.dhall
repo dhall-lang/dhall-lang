@@ -1,6 +1,4 @@
-{-
-Returns the last non-empty `Optional` value in a `List`
--}
+--| Returns the last non-empty `Optional` value in a `List`
 let last
     : ∀(a : Type) → List (Optional a) → Optional a
     = λ(a : Type) →

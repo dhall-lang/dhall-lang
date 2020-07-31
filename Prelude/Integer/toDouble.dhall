@@ -1,6 +1,4 @@
-{-
-Convert an `Integer` to the corresponding `Double`
--}
+--| Convert an `Integer` to the corresponding `Double`
 let toDouble
     : Integer → Double
     = Integer/toDouble

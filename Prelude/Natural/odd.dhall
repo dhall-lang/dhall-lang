@@ -1,6 +1,4 @@
-{-
-Returns `True` if a number is odd and returns `False` otherwise
--}
+--| Returns `True` if a number is odd and returns `False` otherwise
 let odd
     : Natural → Bool
     = Natural/odd

@@ -1,4 +1,4 @@
-{-
+{-|
 Transform a list by applying a function to each element and flattening the
 results
 -}

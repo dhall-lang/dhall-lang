@@ -1,4 +1,4 @@
-{- Builds a key-value record with a Text key and value. -}
+--| Builds a key-value record with a Text key and value.
 
 let attribute
     : Text → Text → { mapKey : Text, mapValue : Text }

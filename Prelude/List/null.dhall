@@ -1,6 +1,4 @@
-{-
-Returns `True` if the `List` is empty and `False` otherwise
--}
+--| Returns `True` if the `List` is empty and `False` otherwise
 let null
     : ∀(a : Type) → List a → Bool
     = λ(a : Type) → λ(xs : List a) → Natural/isZero (List/length a xs)

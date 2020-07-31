@@ -1,5 +1,4 @@
-{- Prepare a union value for JSON- or YAML-encoding with the inline layout
--}
+--| Prepare a union value for JSON- or YAML-encoding with the inline layout
 let Nesting =
         ./Nesting sha256:6284802edd41d5d725aa1ec7687e614e21ad1be7e14dd10996bfa9625105c335
       ? ./Nesting

@@ -1,6 +1,4 @@
-{-
-Invert the sign of an `Integer`, with zero remaining unchanged.
--}
+--| Invert the sign of an `Integer`, with zero remaining unchanged.
 let negate
     : Integer → Integer
     = Integer/negate

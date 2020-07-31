@@ -1,4 +1,4 @@
-{-
+{-|
 `fold` is the primitive function for consuming `List`s
 
 If you treat the list `[ x, y, z ]` as `cons x (cons y (cons z nil))`, then a

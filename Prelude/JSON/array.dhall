@@ -1,4 +1,5 @@
-{- Create a JSON array from a `List` of JSON values
+{-|
+Create a JSON array from a `List` of JSON values
 
 ```
 let JSON = ./package.dhall

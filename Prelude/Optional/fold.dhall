@@ -1,6 +1,4 @@
-{-
-`fold` is the primitive function for consuming `Optional` values
--}
+--| `fold` is the primitive function for consuming `Optional` values
 let fold
     : ∀(a : Type) →
       Optional a →

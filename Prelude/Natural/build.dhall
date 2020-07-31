@@ -1,6 +1,4 @@
-{-
-`build` is the inverse of `fold`
--}
+--| `build` is the inverse of `fold`
 let build
     : ( ∀(natural : Type) →
         ∀(succ : natural → natural) →

@@ -1,6 +1,4 @@
-{-
-Unpack an `Optional`, returning the default when it's `None`.
--}
+--| Unpack an `Optional`, returning the default when it's `None`.
 let default
     : ∀(a : Type) → a → Optional a → a
     = λ(a : Type) →
