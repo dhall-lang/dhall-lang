@@ -483,7 +483,7 @@ The `Bool` type is one of the simplest types that the language provides
 built-in support for.
 
 The only two valid `Bool` constants are `False` and `True` and the language
-provides the following logical operators which work on `Bool` valus:
+provides the following logical operators which work on `Bool` values:
 
 * `&&` - logical "and"
 
