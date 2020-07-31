@@ -216,6 +216,12 @@ let
           stripRoot = false;
         };
 
+      gitlab =
+        pkgsNew.fetchurl {
+          url    = "https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png";
+          sha256 = "1mxk6xxw8bzp3l4jx3jaka9n5a69jbnkw4kzpmy4hbhp7nc33z5w";
+        };
+
       golang =
         pkgsNew.fetchzip {
           # See also https://blog.golang.org/go-brand
