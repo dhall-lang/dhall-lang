@@ -35,14 +35,23 @@ Additionally, the language supports syntax for updating a field nested within a
 record using the `with` keyword, like this:
 
 ```dhall
-record with x.y.z = a
+record with x.y.z = 1
 ```
 
-... which desugars to:
+... which desugars to something equivalent to:
 
 ```dhall
 record // { x = record.x // { y = record.x.y // { z = a } } }
 ```
+
+The true desugared expression is actually:
+
+```dhall
+let _ = record in _ // { x = let _ = _.x in _ // { y = _.y // { z = 1 } } }
+```
+
+... which avoids an exponential blowup in the size of the syntax tree for
+certain types of `with` expressions.
 
 ## Record puns
 
@@ -254,13 +263,14 @@ A `with` expression with multiple dotted labels is equivalent to chained uses of
 the `//` operator:
 
 
-    desugar-with(e₀ // { k₀ = e₀.k₀ with k₁.ks… = v₁ }) = e₁
-    ─────────────────────────────────────────  ; Inductive case for more than one
-    desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁  ; label
+    ↑(1, _, 0, v₁) = v₂
+    desugar-with(let _ = e₀ in _ // { k₀ = _.k₀ with k₁.ks… = v₂ }) = e₁
+    ────────────────────────────────────────────────────────────────────  ; Inductive case for more than one label
+    desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁
 
 
-... and if there is only one update with one label then the `with` keyword is a
-synonym for the `//` operator:
+... and if there is only one label then the `with` keyword is a synonym for the
+`//` operator:
 
 
     desugar-with(e₀ // { k = v }) = e₁
