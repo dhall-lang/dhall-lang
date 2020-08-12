@@ -1521,6 +1521,16 @@ Normalize an equivalence by normalizing each side of the equivalence:
     ─────────────────────
     x₀ === y₀ ⇥ x₁ === y₁
 
+## Nested record update
+
+To normalize a nested record update, desugar the expression as described in
+the [records section](./record.md) and then normalize the result:
+
+
+    desugar-with(e with ks… = v) = r₀   r₀ ⇥ r₁
+    ───────────────────────────────────────────
+    e with ks… = v ⇥ r₁
+
 
 ## Imports
 
