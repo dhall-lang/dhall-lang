@@ -263,8 +263,8 @@ A `with` expression with multiple dotted labels is equivalent to chained uses of
 the `//` operator:
 
 
-    ↑(1, _, 0, v₁) = v₂
-    desugar-with(let _ = e₀ in _ // { k₀ = _.k₀ with k₁.ks… = v₂ }) = e₁
+    ↑(1, _, 0, v₀) = v₁
+    desugar-with(let _ = e₀ in _ // { k₀ = _.k₀ with k₁.ks… = v₁ }) = e₁
     ────────────────────────────────────────────────────────────────────  ; Inductive case for more than one label
     desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁
 
