@@ -9,12 +9,12 @@ let JSON =
       ? ./core.dhall
 
 let renderAs =
-        ./renderAs sha256:5576473c02bc447d40d08bf103aaeca9637c1040367fdf07ff70032ba3e28043
-      ? ./renderAs
+        ./renderAs.dhall sha256:5576473c02bc447d40d08bf103aaeca9637c1040367fdf07ff70032ba3e28043
+      ? ./renderAs.dhall
 
 let Format =
-        ./Format sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
-      ? ./Format
+        ./Format.dhall sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
+      ? ./Format.dhall
 
 let render
     : JSON.Type → Text

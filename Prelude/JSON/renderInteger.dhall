@@ -4,8 +4,8 @@ which a number may not start with a plus sign (`+`).
 -}
 
 let Integer/nonNegative =
-        ../Integer/nonNegative sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
-      ? ../Integer/nonNegative
+        ../Integer/nonNegative.dhall sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
+      ? ../Integer/nonNegative.dhall
 
 let renderInteger
     : Integer → Text

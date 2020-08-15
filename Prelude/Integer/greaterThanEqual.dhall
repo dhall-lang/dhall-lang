@@ -2,8 +2,8 @@
 `greaterThanEqual` checks if one Integer is greater than or equal to another.
 -}
 let lessThanEqual =
-        ./lessThanEqual sha256:e3cca9f3942f81fa78a2bea23c0c24519c67cfe438116c38e797e12dcd26f6bc
-      ? ./lessThanEqual
+        ./lessThanEqual.dhall sha256:e3cca9f3942f81fa78a2bea23c0c24519c67cfe438116c38e797e12dcd26f6bc
+      ? ./lessThanEqual.dhall
 
 let greaterThanEqual
     : Integer → Integer → Bool

@@ -1,11 +1,11 @@
 --| `lessThan` checks if one Natural is strictly less than another.
 let greaterThanEqual =
-        ./greaterThanEqual sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
-      ? ./greaterThanEqual
+        ./greaterThanEqual.dhall sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+      ? ./greaterThanEqual.dhall
 
 let Bool/not =
-        ../Bool/not sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
-      ? ../Bool/not
+        ../Bool/not.dhall sha256:723df402df24377d8a853afed08d9d69a0a6d86e2e5b2bac8960b0d4756c7dc4
+      ? ../Bool/not.dhall
 
 let lessThan
     : Natural → Natural → Bool

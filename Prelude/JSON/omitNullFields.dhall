@@ -7,12 +7,12 @@ let JSON =
       ? ./core.dhall
 
 let List/concatMap =
-        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
-      ? ../List/concatMap
+        ../List/concatMap.dhall sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap.dhall
 
 let List/map =
-        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
-      ? ../List/map
+        ../List/map.dhall sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map.dhall
 
 let omitNullFields
     : JSON.Type → JSON.Type
