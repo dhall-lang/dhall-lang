@@ -41,7 +41,7 @@ record with x.y.z = 1
 ... which desugars to something equivalent to:
 
 ```dhall
-record // { x = record.x // { y = record.x.y // { z = a } } }
+record // { x = record.x // { y = record.x.y // { z = 1 } } }
 ```
 
 The true desugared expression is actually:
