@@ -1,4 +1,4 @@
-{-
+{-|
 Convert an `Integer` to a `Natural` number, with negative numbers becoming zero.
 -}
 let clamp

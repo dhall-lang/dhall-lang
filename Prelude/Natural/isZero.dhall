@@ -1,6 +1,4 @@
-{-
-Returns `True` if a number is `0` and returns `False` otherwise
--}
+--| Returns `True` if a number is `0` and returns `False` otherwise
 let isZero
     : Natural → Bool
     = Natural/isZero

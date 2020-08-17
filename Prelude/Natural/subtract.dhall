@@ -1,6 +1,4 @@
-{-
-`subtract m n` computes `n - m`, truncating to `0` if `m > n`
--}
+--| `subtract m n` computes `n - m`, truncating to `0` if `m > n`
 let subtract
     : Natural → Natural → Natural
     = Natural/subtract

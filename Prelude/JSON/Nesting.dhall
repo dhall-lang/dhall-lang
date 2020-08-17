@@ -1,4 +1,4 @@
-{-
+{-|
 This type is used as part of `dhall-json`'s support for preserving alternative
 names
 
@@ -24,7 +24,7 @@ in  { field =
 {
   "foo": 2,
   "name": "Left"
- }
+}
 ```
 
 -}

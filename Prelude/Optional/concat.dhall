@@ -1,6 +1,4 @@
-{-
-Flatten two `Optional` layers into a single `Optional` layer
--}
+--| Flatten two `Optional` layers into a single `Optional` layer
 let concat
     : ∀(a : Type) → Optional (Optional a) → Optional a
     = λ(a : Type) →

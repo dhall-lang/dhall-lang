@@ -1,6 +1,4 @@
-{-
-Convert a `Natural` number to the corresponding `Double`
--}
+--| Convert a `Natural` number to the corresponding `Double`
 let toDouble
     : Natural → Double
     = λ(n : Natural) → Integer/toDouble (Natural/toInteger n)

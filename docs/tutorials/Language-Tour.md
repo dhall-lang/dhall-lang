@@ -69,9 +69,9 @@ file and then referencing the file path
 >
 > ```dhall
 > let x = 1
-> 
+>
 > let y = 2
-> 
+>
 > in  x + y
 > ```
 >
@@ -81,16 +81,26 @@ file and then referencing the file path
 > ⊢ ./test.dhall
 > ```
 >
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> 3
+> ```
+>
+> </details>
+> <br/>
+>
 > Carefully note that you need the leading `./` in the file name.  If you enter
 > only `test.dhall` then the command will fail with the following error message:
 >
 > ```
 > ⊢ test.dhall
-> 
+>
 > Error: Unbound variable: test
-> 
+>
 > 1│ test
-> 
+>
 > (input):1:1
 > ```
 >
@@ -168,6 +178,17 @@ expression:
 >
 > The only difference you should notice between the input and output is that the
 > output sorts the record fields.
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> [ { admin = True, age = 24, name = "Alice" }
+> , { admin = True, age = 49, name = "Bob" }
+> ]
+> ```
+>
+> </details>
 
 All integrations can go a step further and interpret the Dhall expression before
 converting the expression into the desired format or language.  For example,
@@ -216,6 +237,17 @@ them further to the desired host language or file format.
 > ```
 >
 > ... and verify that you get the same result as interpreting `plain.dhall`.
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> [ { admin = True, age = 24, name = "Alice" }
+> , { admin = True, age = 49, name = "Bob" }
+> ]
+> ```
+>
+> </details>
 
 A Dhall interpreter processes expressions in five phases:
 
@@ -227,6 +259,8 @@ A Dhall interpreter processes expressions in five phases:
 
   Example: `{ x.y = 1 }` desugars to `{ x = { y = 1 } }`
 
+  <br/>
+
 * **Import resolution**
 
   This phase replaces URLs, file paths, and environment variables with the
@@ -235,12 +269,16 @@ A Dhall interpreter processes expressions in five phases:
   Example: `https://prelude.dhall-lang.org/v15.0.0/Bool/not False` resolves to
   `(\(b : Bool) -> b == False) False`
 
+  <br/>
+
 * **Type checking**
 
   This phase ensures that the code is safe to evaluate by detecting and
   forbidding expressions that might lead to crashes, loops, or internal errors.
 
   Example: `1 + False` will fail to type-check
+
+  <br/>
 
 * **Normalization** (a.k.a. "Evaluation")
 
@@ -257,6 +295,8 @@ A Dhall interpreter processes expressions in five phases:
 
   Example: `if True && False then 1 else 0` evaluates to `0`
 
+  <br/>
+
 * **Marshalling**
 
   The Dhall expression is converted into a file in the desired format or an
@@ -269,6 +309,8 @@ A Dhall interpreter processes expressions in five phases:
   declare -r -A FOO=([x]=1 [y]=2)
   ```
 
+  <br/>
+
 Integrations will typically perform all of these steps in one go, but you can
 use the `dhall` command-line tool to separate out some of these steps.
 
@@ -280,21 +322,101 @@ use the `dhall` command-line tool to separate out some of these steps.
 > $ dhall resolve --file ./example.dhall | tee ./resolved.dhall
 > ```
 >
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> let List/filter =
+>       λ(a : Type) →
+>       λ(f : a → Bool) →
+>       λ(xs : List a) →
+>         List/fold
+>           a
+>           xs
+>           (List a)
+>           (λ(x : a) → λ(xs : List a) → if f x then [ x ] # xs else xs)
+>           ([] : List a)
+>
+> let Person = { name : Text, age : Natural, admin : Bool }
+>
+> let alice
+>     : Person
+>     = { name = "Alice", age = 24, admin = True }
+>
+> let bob
+>     : Person
+>     = { name = "Bob", age = 49, admin = True }
+>
+> let carlo
+>     : Person
+>     = { name = "Carlo", age = 20, admin = False }
+>
+> let isAdmin = λ(person : Person) → person.admin
+>
+> in  List/filter Person isAdmin [ alice, bob, carlo ]
+> ```
+>
+> </details>
+> <br/>
+>
 > ```bash
 > $ # `dhall type` type-checks the expression and displays the inferred type
 > $ dhall type --file ./resolved.dhall
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> List { admin : Bool, age : Natural, name : Text }
+> ```
+>
+> </details>
+> <br/>
 >
 > ```bash
 > $ # `dhall normalize` normalizes the resolved expression
 > $ dhall normalize --file ./resolved.dhall | tee ./normalized.dhall
 > ```
 >
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> [ { admin = True, age = 24, name = "Alice" }
+> , { admin = True, age = 49, name = "Bob" }
+> ]
+> ```
+>
+> </details>
+> <br/>
+>
 > ```bash
 > $ # `dhall-to-json` marshals the normalized expression into JSON
 > $ dhall-to-json --file ./normalized.dhall 
 > ```
-> 
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```json
+> [
+>   {
+>     "admin": true,
+>     "age": 24,
+>     "name": "Alice"
+>   },
+>   {
+>     "admin": true,
+>     "age": 49,
+>     "name": "Bob"
+>   }
+> ]
+> ```
+>
+> </details>
+> <br/>
+>
 > ... and study how the Dhall expression evolves between phases.
 
 Note that some of these commands can actually perform all of the preceding
@@ -314,6 +436,20 @@ interpreter processes the code.
 > Which imports are resolved by the interpreter?
 >
 > Does the expression type-check?
+>
+> <details>
+> <summary>Solution</summary>
+>
+> Both imports are always resolved, regardless of which branch of the `if`
+> expression is returned because import resolution strictly precedes
+> normalization.
+>
+> The expression does not type-check because the two branches of the `if`
+> expression do not return the same type of value.  This restriction applies
+> even if the predicate (`True` in this case) can only ever select one branch
+> because import resolution strictly precedes normalization.
+>
+> </details>
 
 ## Comments
 
@@ -347,7 +483,7 @@ The `Bool` type is one of the simplest types that the language provides
 built-in support for.
 
 The only two valid `Bool` constants are `False` and `True` and the language
-provides the following logical operators which work on `Bool` valus:
+provides the following logical operators which work on `Bool` values:
 
 * `&&` - logical "and"
 
@@ -393,6 +529,19 @@ inequality using these operators.
 > ```
 >
 > Which interpreter phase do you think rejected the expression?
+>
+> <details>
+> <summary>Solution</summary>
+>
+> The type-checking phase rejects the expression
+>
+> The expression is syntactically valid (so parsing succeeds) and the
+> expression has no imports (so import resolution trivially succeeds), so the
+> only remaining phase that can reject the expression is type-checking.  This
+> is because the language guarantees that normalization never fails once
+> type-checking succeeds.
+>
+> </details>
 
 Additionally the language provides built-in support for `if` expressions.
 
@@ -459,6 +608,22 @@ there is no maximum value for either type.
 > ```dhall
 > ⊢ 1e10000
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```
+> Error: Invalid input
+>
+> (input):1:1:
+>   |
+> 1 | 1e10000
+>   | ^
+> double out of bounds
+> ```
+>
+> </details>
+> <br/>
 >
 > Run the above command to find out!
 
@@ -533,6 +698,18 @@ The language also permits Unicode characters in `Text` literals, too.
 > ```dhall
 > ⊢ "🍋\t🍓\t🍍\t🍉\t🍌\n\u{1F60B} \"Yum!\"\n"
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> ''
+> 🍋	🍓	🍍	🍉	🍌
+> 😋 "Yum!"
+> ''
+> ```
+>
+> </details>
 
 ### Multi-line `Text` literals
 
@@ -660,6 +837,15 @@ ABC''
 >   DEF
 > ''
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> "    ABC\n  DEF\n"
+> ```
+>
+> </details>
 
 ### `Text` interpolation
 
@@ -691,7 +877,21 @@ let answer = 42
 in  "The answer to life, the universe, and everything: ${Natural/show answer}"
 ```
 
-> **Exercise:** How do you escape `Text` interpolation?
+You can escape interpolation within a plain `Text` literal by escaping the
+interpolation with a backslash, like this:
+
+```dhall
+"\${x}"
+```
+
+You can also escape interpolation within a multi-line `Text` literal by
+prefixing the interpolation with `''`, like this:
+
+```dhall
+''
+''${x}
+''
+```
 
 ### `Text` operations
 
@@ -739,6 +939,15 @@ the right-hand side.
 >
 > Then verify that the type is correct by giving a type annotation to the
 > same expression.
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> List Bool
+> ```
+>
+> </details>
 
 You can insert this operator anywhere within Dhall code (although you may
 need to wrap things in parentheses).  For example, this is a valid Dhall
@@ -802,6 +1011,20 @@ Dhall has standard terminology for referring to expressions at different
 > * `{ x = True, y = "ABC" }`
 >
 > * `Type -> Type`
+>
+> <details>
+> <summary>Solution</summary>
+>
+> * `2 + 2` is a term, because `2 + 2 : Natural : Type`
+>
+> * `List Natural` is a type, because `List Natural : Type : Kind`
+>
+> * `{ x = True, y = "ABC" }` is a term, because
+>   `{ x = True, y = "ABC" } : { x : Bool, y : Text } : Type`
+>
+> * `Type -> Type` is a kind, because `Type -> Type : Kind : Sort`
+>
+> </details>
 
 If you don't feel like classifying things, you can always call something an
 "expression".  All terms, types, and kinds are expressions, too.
@@ -899,6 +1122,15 @@ same type:
 > ```dhall
 > ⊢ :type [ Natural/even, Natural/odd ]
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> List (Natural → Bool)
+> ```
+>
+> </details>
 
 Empty lists require an explicit type annotation, like this:
 
@@ -915,6 +1147,21 @@ Also, you can concatenate lists using the `#` operator:
 ```
 
 > **Exercise:** Concatenate two empty lists
+>
+> <details>
+> <summary>Solution</summary>
+>
+> The type of the list can vary, but the solution should look like:
+>
+> ```dhall
+> ([] : List Natural) # ([] : List Natural)
+> ```
+>
+> The required type annotation needs to be parenthesized due to the type
+> annotation operator being lower precedence than the list concatenation
+> operator.
+>
+> </details>
 
 There are other things you can do with `List`s, but we will cover that later
 when we get to the Dhall Prelude.
@@ -1037,11 +1284,39 @@ flexible, because `None` is an ordinary function that is valid in isolation.
 > ⊢ :type None
 > ```
 >
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> ∀(A : Type) → Optional A
+> ```
+>
+> </details>
+> <br/>
+>
 > What happens if you try to enter `Some` by itself?
 >
 > ```dhall
 > ⊢ :type Some
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> You get a parse error:
+>
+> ```
+> Error: Invalid input
+>
+> (input):2:1:
+>   |
+> 2 | <empty line>
+>   | ^
+> unexpected end of input
+> expecting argument to ❰Some❱ or whitespace
+> ```
+>
+> </details>
 
 You can do more with `Optional` values, which we will cover later when we
 discuss the Dhall Prelude.
@@ -1085,12 +1360,21 @@ The way to denote an empty record literal with zero key-value pairs is:
 {}
 ```
 
-> **Exercise:** Ask the interpreter for the type of the `./example.dhall` file
-> from earlier in the tutorial:
+> **Exercise:** What type do you think the interpreter will infer for the
+> `./example.dhall` file from earlier in the tutorial:
 >
 > ```dhall
 > ⊢ :type ./example.dhall
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> List { admin : Bool, age : Natural, name : Text }
+> ````
+>
+> </details>
 
 You can access the fields of a record using `.` (the field access operator),
 like this:
@@ -1236,12 +1520,28 @@ The main restrictions are:
 
   General recursion is not permitted
 
-> **Exercise:** What happens if you try to define a recursive `let`
-> binding?
+> **Exercise:** What do you think will happen if you try to define a recursive
+> `let` binding?
 >
 > ```dhall
 > ⊢ :let x = x + 1
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```
+> Error: Unbound variable: x
+>
+> 1│  x
+>
+> (input):1:2
+> ```
+>
+> Variables cannot refer to themselves within their own definition.
+>
+> </details>
+> <br/>
 >
 > If the error message does not make sense, then enable more detailed error
 > messages with the following command:
@@ -1251,6 +1551,129 @@ The main restrictions are:
 > ```
 >
 > ... and repeat the experiment.
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```
+> Error: Unbound variable: x
+>
+> Explanation: Expressions can only reference previously introduced (i.e. “bound”)
+> variables that are still “in scope”
+>
+> For example, the following valid expressions introduce a “bound” variable named
+> ❰x❱:
+>
+>
+>     ┌─────────────────┐
+>     │ λ(x : Bool) → x │  Anonymous functions introduce “bound” variables
+>     └─────────────────┘
+>         ⇧
+>         This is the bound variable
+>
+>
+>     ┌─────────────────┐
+>     │ let x = 1 in x  │  ❰let❱ expressions introduce “bound” variables
+>     └─────────────────┘
+>           ⇧
+>           This is the bound variable
+>
+>
+> However, the following expressions are not valid because they all reference a
+> variable that has not been introduced yet (i.e. an “unbound” variable):
+>
+>
+>     ┌─────────────────┐
+>     │ λ(x : Bool) → y │  The variable ❰y❱ hasn't been introduced yet
+>     └─────────────────┘
+>                     ⇧
+>                     This is the unbound variable
+>
+>
+>     ┌──────────────────────────┐
+>     │ (let x = True in x) && x │  ❰x❱ is undefined outside the parentheses
+>     └──────────────────────────┘
+>                              ⇧
+>                              This is the unbound variable
+>
+>
+>     ┌────────────────┐
+>     │ let x = x in x │  The definition for ❰x❱ cannot reference itself
+>     └────────────────┘
+>               ⇧
+>               This is the unbound variable
+>
+>
+> Some common reasons why you might get this error:
+>
+> ● You misspell a variable name, like this:
+>
+>
+>     ┌────────────────────────────────────────────────────┐
+>     │ λ(empty : Bool) → if emty then "Empty" else "Full" │
+>     └────────────────────────────────────────────────────┘
+>                            ⇧
+>                            Typo
+>
+>
+> ● You misspell a reserved identifier, like this:
+>
+>
+>     ┌──────────────────────────┐
+>     │ foral (a : Type) → a → a │
+>     └──────────────────────────┘
+>       ⇧
+>       Typo
+>
+>
+> ● You tried to define a recursive value, like this:
+>
+>
+>     ┌────────────────────┐
+>     │ let x = x + 1 in x │
+>     └────────────────────┘
+>               ⇧
+>               Recursive definitions are not allowed
+>
+>
+> ● You accidentally forgot a ❰λ❱ or ❰∀❱/❰forall❱
+>
+>
+>         Unbound variable
+>         ⇩
+>     ┌─────────────────┐
+>     │  (x : Bool) → x │
+>     └─────────────────┘
+>       ⇧
+>       A ❰λ❱ here would transform this into a valid anonymous function
+>
+>
+>         Unbound variable
+>         ⇩
+>     ┌────────────────────┐
+>     │  (x : Bool) → Bool │
+>     └────────────────────┘
+>       ⇧
+>       A ❰∀❱ or ❰forall❱ here would transform this into a valid function type
+>
+>
+> ● You forgot to prefix a file path with ❰./❱:
+>
+>
+>     ┌────────────────────┐
+>     │ path/to/file.dhall │
+>     └────────────────────┘
+>       ⇧
+>       This should be ❰./path/to/file.dhall❱
+>
+> ────────────────────────────────────────────────────────────────────────────────
+>
+> 1│  x
+>
+> (input):1:2
+> ```
+>
+> </details>
 
 Dhall code idiomatically uses `let` expressions heavily, so don't be afraid to
 split large expressions into lots of smaller `let` bindings.  You can always
@@ -1355,6 +1778,20 @@ and returns the next `Natural` number (`x + 1`):
 
 > **Exercise:** Apply the above anonymous function directly to the argument `2`
 > (without using a `let` expression).
+>
+> <details>
+> <summary>Solution</summary>
+>
+> You need to parenthesize the anonymous function to apply the function to
+> an argument:
+>
+> ```dhall
+> ⊢ (\(x : Natural) -> x + 1) 2
+>
+> 3
+> ```
+>
+> </details>
 
 In practice, most anonymous Dhall functions are given a name using a `let`
 binding, like this:
@@ -1372,6 +1809,17 @@ in  increment 2
 >
 > in  not True
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> let not = \(b : Bool) -> if b then False else True
+>
+> in  not
+> ```
+>
+> </details>
 
 In some cases, the argument name matters if you reference the name within the
 rest of the type.  For example, the type of the `List/length` function is:
@@ -1409,8 +1857,29 @@ List/length : forall (a : Type) -> List a -> Natural
 > ⊢ :type List/length Natural
 > ```
 >
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> List Natural → Natural
+> ```
+>
+> </details>
+> <br/>
+>
 > ... and then apply the `List/length function` to one more argument (a `List`)
 > to compute the length of that `List`.
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> ⊢ List/length Natural [ 2, 3, 5 ]
+>
+> 3
+> ```
+>
+> </details>
 
 > **Challenge exercise:** Actually, you can omit the `forall` for the type of
 > `List/length`.  Devise an equivalent type for `List/length` that does not
@@ -1420,6 +1889,21 @@ List/length : forall (a : Type) -> List a -> Natural
 > ```dhall
 > ⊢ List/length : ???
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> ⊢ List/length : Type -> List _ -> Natural
+>
+> List/length
+> ```
+>
+> The type `Type -> List _ -> Natural` is the same as
+> `forall (_ : Type) -> List _ -> Natural`, which works because `_` is a legal
+> name for a variable.
+>
+> </details>
 
 "Polymorphic" functions like `List/length` require you to explicitly specify
 types as their arguments.  For example, the first argument of `List/length`
@@ -1451,6 +1935,14 @@ This function takes four arguments which are, in order:
 > ```dhall
 > List/filter : forall (a : Type) -> (a -> Bool) -> List a -> List a
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> `List/filter` is a function that returns elements in a list that match a
+> given predicate.
+>
+> </details>
 
 ## Unions
 
@@ -1518,9 +2010,35 @@ in  [ Example.Number 1, Example.Boolean True ]
 > ⊢ :type Example.Number
 > ⊢ :type Example.Boolean
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> ⊢ :type Example.Number
+>
+> ∀(Number : Natural) → < Boolean : Bool | Number : Natural >
+>
+> ⊢ :type Example.Boolean
+>
+> ∀(Boolean : Bool) → < Boolean : Bool | Number : Natural >
+> ```
+>
+> </details>
 
 > **Exercise:** Add another alternative to the `Example` type and then add
 > a value wrapped in that alternative to the above `List`.
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> let Example = < Number : Natural | Boolean : Bool | String : Text >
+>
+> in  [ Example.Number 1, Example.Boolean True, Example.String "ABC" ]
+> ```
+>
+> </details>
 
 You can extract a value from a union type using the `merge` keyword.  This
 keyword expects a record containing one function per alternative, like this:
@@ -1554,6 +2072,24 @@ handler, then that is a type error.
 
 > **Exercise:** Delete the `Boolean` handler from the above example and
 > interpret the expression to see what happens.
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```
+> Use "dhall --explain" for detailed errors
+>
+> Error: Missing handler: Boolean
+>
+> 6│         merge
+> 7│           { Number = \(n : Natural) -> Natural/show n
+> 8│           }
+> 9│           example
+>
+> (input):6:9
+> ```
+>
+> </details>
 
 Each handler is a function whose input is the value wrapped within that
 alternative and whose output is a result of any type, so long as each handler
@@ -1569,6 +2105,32 @@ handler has a different input type, but they all share the same output type:
 >   `True`
 >
 > Check your answer by writing tests for your function using `assert`.
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> let Example = < Number : Natural | Boolean : Bool >
+>
+> let toNatural
+>     : Example -> Natural
+>     = \(example : Example) ->
+>         merge
+>           { Number = \(n : Natural) -> n
+>           , Boolean = \(b : Bool) -> if b then 1 else 0
+>           }
+>           example
+>
+> let example0 = assert : toNatural (Example.Number 42) === 42
+>
+> let example1 = assert : toNatural (Example.Boolean False) === 0
+>
+> let example2 = assert : toNatural (Example.Boolean True) === 1
+>
+> in  toNatural
+> ```
+>
+> </details>
 
 Alternatives can be empty.  For example, you can define an "enum" as a union
 with all empty alternatives:
@@ -1606,6 +2168,20 @@ does not store a value).
 > , { name = "Carlo", favoriteColor = "Red"   }
 > ]
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> let Color = < Red | Green | Blue >
+>
+> in  [ { name = "Alice", favoriteColor = Color.Green }
+>     , { name = "Bob"  , favoriteColor = Color.Blue  }
+>     , { name = "Carlo", favoriteColor = Color.Red   }
+>     ]
+> ```
+>
+> </details>
 
 You can also mix empty and non-empty alternatives.  For example, you could
 define the `Optional` type like this:
@@ -1663,6 +2239,7 @@ can "simulate" a function of multiple arguments:
 
   This trick is known as "currying" and the advantage of currying is that you
   can "partially apply" a "curried" function to one argument at a time.
+  <br/>
 
 * **Records**
 
@@ -1815,13 +2392,13 @@ For example, some built-in functions on numbers are:
 > -- ./puzzle.dhall
 >
 > let showWithoutPlus = \(i : Integer) -> ???
-> 
+>
 > let test0 = assert : showWithoutPlus +2 === "2"
-> 
+>
 > let test1 = assert : showWithoutPlus -2 === "-2"
-> 
+>
 > let test2 = assert : showWithoutPlus +0 === "0"
-> 
+>
 > in  showWithoutPlus
 > ```
 >
@@ -1832,6 +2409,33 @@ For example, some built-in functions on numbers are:
 > ```
 >
 > ... which will run the acceptance tests at the bottom of the file.
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> -- ./puzzle.dhall
+>
+> let showWithoutPlus =
+>       \(i : Integer) ->
+>         let m = Integer/clamp i
+>
+>         let n = Integer/clamp (Integer/negate i)
+>
+>         in  if    Natural/isZero m
+>             then  if Natural/isZero n then "0" else "-${Natural/show n}"
+>             else  Natural/show m
+>
+> let test0 = assert : showWithoutPlus +2 === "2"
+>
+> let test1 = assert : showWithoutPlus -2 === "-2"
+>
+> let test2 = assert : showWithoutPlus +0 === "0"
+>
+> in  showWithoutPlus
+> ```
+>
+> </details>
 
 This tutorial does not cover all available built-in functions.  If you are
 interested in the full list, see:
@@ -1877,6 +2481,24 @@ example, the interpreter replaces the expression:
 > ```dhall
 > ⊢ ./two.dhall: Natural
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```
+> ↳ ./two.dhall:
+>
+> Error: Missing file ./two.dhall:
+>
+> 1│ ./two.dhall:
+>
+> (input):1:1
+> ```
+>
+> There needs to be a space in between `./two.dhall` and the `:`, otherwise the
+> interpreter treats the `:` as part of the file name.
+>
+> </details>
 
 Expressions imported in this way must be "closed", meaning that the imported
 file cannot refer to variables that are not defined within the same file.  For
@@ -1936,9 +2558,37 @@ Dhall files that you import in this way can themselves import other files
 > ```dhall
 > ⊢ (./infant.dhall).age
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> 4
+> ```
+>
+> </details>
 
 > **Exercise:** What happens if you interpret a Dhall expression that imports
 > itself?
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```bash
+> $ echo './x.dhall' > ./x.dhall
+>
+> $ dhall --file ./x.dhall
+> dhall: 
+> ↳ ./x.dhall
+>
+> Cyclic import: ./x.dhall
+>
+> 1│ ./x.dhall
+>
+> ./x.dhall:1:1
+> ```
+>
+> </details>
 
 ## URL imports
 
@@ -2093,29 +2743,40 @@ List/generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) �
 > ```dhall
 > ⊢ List/generate 10
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> λ(a : Type) →
+> λ(f : Natural → a) →
+>   [ f 0, f 1, f 2, f 3, f 4, f 5, f 6, f 7, f 8, f 9 ]
+> ```
+>
+> </details>
 
 > **Challenge exercise:** Save the following expression to `./Value.dhall`
-> 
+>
 > ```dhall
 > -- ./Value.dhall
-> 
+>
 > < N : Natural | I : Integer | B : Bool >
 > ```
-> 
+>
 > ... then save the following expression to `./input.dhall`:
-> 
+>
 > ```dhall
 > -- ./input.dhall
-> 
+>
 > let Value = ./Value.dhall
-> 
+>
 > in  [ Value.N 1, Value.I +2, Value.B True ]
 > ```
-> 
+>
 > ... and then create a Dhall expression in a `./solution.dhall` file that
 > renders each element of the list on a separate line such that the result looks
 > like this:
-> 
+>
 > ```bash
 > $ dhall --file ./solution.dhall 
 > ```
@@ -2128,6 +2789,29 @@ List/generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) �
 > ```
 >
 > The Prelude provides utilities that may come in handy for this exercise.
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> let Prelude = https://prelude.dhall-lang.org/v15.0.0/package.dhall
+>
+> let Value = ./Value.dhall
+>
+> let input = ./input.dhall
+>
+> let render =
+>       \(value : Value) ->
+>         merge
+>           { N = Natural/show, I = Integer/show, B = Prelude.Bool.show }
+>           value
+>
+> let toLine = \(value : Value) -> "${render value}\n"
+>
+> in  Prelude.Text.concatMap Value toLine input
+> ```
+>
+> </details>
 
 ## Installing packages
 
@@ -2182,7 +2866,7 @@ make behavior-preserving changes to that expression, such as:
 >
 > ```dhall
 > -- ./example0.dhall
-> 
+>
 > [ { name = "Alice"
 >   , age = 24
 >   , admin = True
@@ -2196,31 +2880,31 @@ make behavior-preserving changes to that expression, such as:
 >
 > ```dhall
 > -- ./example1.dhall
-> 
+>
 > let List/filter = https://prelude.dhall-lang.org/v15.0.0/List/filter
-> 
+>
 > let Person = { name : Text, age : Natural, admin : Bool }
-> 
+>
 > let alice : Person =
 >       { name = "Alice"
 >       , age = 24
 >       , admin = True
 >       }
-> 
+>
 > let bob : Person =
 >       { name = "Bob"
 >       , age = 49
 >       , admin = True
 >       }
-> 
+>
 > let carlo : Person =
 >       { name = "Carlo"
 >       , age = 20
 >       , admin = False
 >       }
-> 
+>
 > let isAdmin = \(person : Person) -> person.admin
-> 
+>
 > in  List/filter Person isAdmin [ alice, bob, carlo ]
 > ```
 >
@@ -2310,6 +2994,62 @@ More generally, you can turn any import into a raw `Text` import by adding
 > ```dhall
 > ⊢ https://example.com as Text
 > ```
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```dhall
+> ''
+> <!doctype html>
+> <html>
+> <head>
+>     <title>Example Domain</title>
+>
+>     <meta charset="utf-8" />
+>     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+>     <meta name="viewport" content="width=device-width, initial-scale=1" />
+>     <style type="text/css">
+>     body {
+>         background-color: #f0f0f2;
+>         margin: 0;
+>         padding: 0;
+>         font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+>         
+>     }
+>     div {
+>         width: 600px;
+>         margin: 5em auto;
+>         padding: 2em;
+>         background-color: #fdfdff;
+>         border-radius: 0.5em;
+>         box-shadow: 2px 3px 7px 2px rgba(0,0,0,0.02);
+>     }
+>     a:link, a:visited {
+>         color: #38488f;
+>         text-decoration: none;
+>     }
+>     @media (max-width: 700px) {
+>         div {
+>             margin: 0 auto;
+>             width: auto;
+>         }
+>     }
+>     </style>    
+> </head>
+>
+> <body>
+> <div>
+>     <h1>Example Domain</h1>
+>     <p>This domain is for use in illustrative examples in documents. You may use this
+>     domain in literature without prior coordination or asking for permission.</p>
+>     <p><a href="https://www.iana.org/domains/example">More information...</a></p>
+> </div>
+> </body>
+> </html>
+> ''
+> ```
+>
+> </details>
 
 ## Environment variable imports
 
@@ -2332,6 +3072,16 @@ like this:
 > **Exercise:** Store a Dhall function in an environment variable and then use
 > the function stored inside that environment variable within a larger Dhall
 > expression.
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```bash
+> $ INCREMENT='\(n : Natural) -> n + 1' dhall <<< 'env:INCREMENT 4'
+> 5
+> ```
+>
+> </details>
 
 ## Alternative imports
 
@@ -2457,10 +3207,39 @@ because you can then easily specify multiple nested fields by specifying the
 ```
 
 > **Exercise:** Does `{ a = 1, a = 1 }` type-check?  Test your guess!
+>
+> <details>
+> <summary>Output</summary>
+>
+> ```
+> Error: Invalid duplicate field: a
+>
+> 1│ { a = 1, a = 1 }
+>
+> (input):1:1
+> ```
+>
+> `{ a = 1, a = 1 }` is syntactic sugar for `{ a = 1 /\ 1 }`, and `1 /\ 1` is
+> not a valid expression because the `/\` operator only works on records.
+>
+> </details>
 
 > **Challenge exercise:** When is `{ a = foo, a.b = bar }` valid?  In other
 > words, what conditions must be true about `foo` and/or `bar` for that
 > expression to type-check?
+>
+> <details>
+> <summary>Solution</summary>
+>
+> `{ a = foo, a.b = bar }` desugars to `{ a = foo /\ { b = bar } }`
+>
+> The expression type-checks if and only if one of the following is true:
+>
+> * `foo` is a record without a field named `b`
+>
+> * `foo` is a record with a field named `b` and `b /\ bar` is valid
+>
+> </details>
 
 You can also easily override or add nested fields using `with` expressions, like
 this:
@@ -2473,6 +3252,19 @@ this:
 
 > **Exercise:** Can you use a `with` expression to change the type of a nested
 > field?  Test your guess
+>
+> <details>
+> <summary>Solution</summary>
+>
+> Yes:
+>
+> ```dhall
+> ⊢ { x = 1 } with x = True
+>
+> { x = True }
+> ```
+>
+> </details>
 
 ## Record completion
 
@@ -2540,6 +3332,27 @@ specify a default value for the `name` field.
 
 > **Exercise:** See what happens if you omit the `name` field required by the
 > `Person` schema by interpreting the expression `Person::{=}`
+>
+> <details>
+> <summary>Output</summary>
+>
+> The type-checker warns you about the missing required `name` field:
+>
+> ```
+> ⊢ Person::{=}
+>
+> Error: Expression doesn't match annotation
+>
+> { - name : …
+> , …
+> }
+>
+> 1│ Person::{=}
+>
+> (input):1:1
+> ```
+>
+> </details>
 
 > **Exercise:** Create a "schema" named `Image` for a Docker image with the
 > following fields:
@@ -2552,8 +3365,22 @@ specify a default value for the `name` field.
 > ... then use your schema to create a sample record:
 >
 > ```dhall
-> ⊢ Image::{ repository = "library", name = "postgres" }
+> Image::{ repository = "library", name = "postgres" }
 > ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> ```dhall
+> let Image =
+>       { Type = { registry : Text, repository : Text, name : Text, tag : Text }
+>       , default = { registry = "docker.io", tag = "latest" }
+>       }
+>
+> in  Image::{ repository = "library", name = "postgres" }
+> ```
+>
+> </details>
 
 ## Names
 

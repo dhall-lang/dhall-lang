@@ -1,6 +1,4 @@
-{-
-Unzip a `List` into two separate `List`s
--}
+--| Unzip a `List` into two separate `List`s
 let unzip
     : ∀(a : Type) →
       ∀(b : Type) →

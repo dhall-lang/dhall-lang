@@ -1,6 +1,4 @@
-{-
-Returns the first non-empty `Optional` value in a `List`
--}
+--| Returns the first non-empty `Optional` value in a `List`
 let head
     : ∀(a : Type) → List (Optional a) → Optional a
     = λ(a : Type) →

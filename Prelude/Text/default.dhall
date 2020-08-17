@@ -1,6 +1,4 @@
-{-
-Unwrap an `Optional` `Text` value, defaulting `None` to `""`
--}
+--| Unwrap an `Optional` `Text` value, defaulting `None` to `""`
 let default
     : Optional Text → Text
     = λ(o : Optional Text) → merge { Some = λ(t : Text) → t, None = "" } o

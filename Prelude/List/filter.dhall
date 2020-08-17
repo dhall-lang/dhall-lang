@@ -1,8 +1,4 @@
-{-
-Only keep elements of the list where the supplied function returns `True`
-
-Examples:
--}
+--| Only keep elements of the list where the supplied function returns `True`
 let filter
     : ∀(a : Type) → (a → Bool) → List a → List a
     = λ(a : Type) →

@@ -1,4 +1,4 @@
-{-
+{-|
 Returns `True` for any `Integer` greater than `+0`.
 
 `positive` is more efficient than `./greaterThan +0` or `./greaterThanEqual +1`.

@@ -400,7 +400,7 @@ examples, except defining convenient intermediate constructors along the way.
 For example, we can define a `MakePerson` smart constructor and then use that
 smart constructor to create the same `example` `Person`:
 
-```
+```dhall
 -- example0.dhall
 
 let List/map = https://prelude.dhall-lang.org/v16.0.0/List/map

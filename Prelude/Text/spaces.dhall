@@ -1,8 +1,8 @@
-{-
+{-|
 Return a Text with the number of spaces specified.
 
-This function is particularly helpful when trying to generate Text where whitespace
-is significant, i.e. with nested indentation.
+This function is particularly helpful when trying to generate Text where
+whitespace is significant, i.e. with nested indentation.
 -}
 
 let replicate =

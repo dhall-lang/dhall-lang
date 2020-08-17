@@ -1,4 +1,5 @@
-{- Create a JSON number from a Dhall `Natural`
+{-|
+Create a JSON number from a Dhall `Natural`
 
 ```
 let JSON = ./package.dhall

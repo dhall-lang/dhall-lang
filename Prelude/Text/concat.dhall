@@ -1,6 +1,4 @@
-{-
-Concatenate all the `Text` values in a `List`
--}
+--| Concatenate all the `Text` values in a `List`
 let concat
     : List Text → Text
     = λ(xs : List Text) →

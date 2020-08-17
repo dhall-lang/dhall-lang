@@ -1,4 +1,5 @@
-{- Create a JSON bool from a Dhall `Bool`
+{-|
+Create a JSON bool from a Dhall `Bool`
 
 ```
 let JSON = ./package.dhall

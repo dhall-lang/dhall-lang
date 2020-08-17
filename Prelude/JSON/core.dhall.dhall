@@ -1,12 +1,13 @@
-{- A record of functions useful for constructing `JSON` values.
+{-|
+A record of functions useful for constructing `JSON` values.
 
-   This is only a subset of what `package.dhall` exports. If you are
-   not writing a JSON prelude function, you should use the
-   `package.dhall` file instead.
+This is only a subset of what `package.dhall` exports. If you are
+not writing a JSON prelude function, you should use the
+`package.dhall` file instead.
 
-   It is used internally by `render`, `renderYAML` and
-   `omitNullFields` instead of `package.dhall` to avoid import
-   cycles.
+It is used internally by `render`, `renderYAML` and
+`omitNullFields` instead of `package.dhall` to avoid import
+cycles.
 -}
 { Type =
       ./Type sha256:40edbc9371979426df63e064333b02689b969c4cfbbccfa481216d2d1a6e9759

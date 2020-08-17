@@ -1,4 +1,4 @@
-{-
+{-|
 `greaterThanEqual` checks if one Integer is greater than or equal to another.
 -}
 let lessThanEqual =

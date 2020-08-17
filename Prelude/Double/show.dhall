@@ -1,4 +1,4 @@
-{-
+{-|
 Render a `Double` as `Text` using the same representation as Dhall source
 code (i.e. a decimal floating point number with a leading `-` sign if negative)
 -}

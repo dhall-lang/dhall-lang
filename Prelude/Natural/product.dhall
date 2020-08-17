@@ -1,6 +1,4 @@
-{-
-Multiply all the numbers in a `List`
--}
+--| Multiply all the numbers in a `List`
 let product
     : List Natural → Natural
     = λ(xs : List Natural) →
