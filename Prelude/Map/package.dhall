@@ -20,8 +20,8 @@
       ./map sha256:23e09b0b9f08649797dfe1ca39755d5e1c7cad2d0944bdd36c7a0bf804bde8d0
     ? ./map
 , unpackOptionals =
-      ./unpackOptionals sha256:66c3e6f6f81418cf99342e1dba739617c01af4b27c1ca5e2e1d7bce64a522e22
-    ? ./unpackOptionals
+      ./unpackOptionals.dhall sha256:66c3e6f6f81418cf99342e1dba739617c01af4b27c1ca5e2e1d7bce64a522e22
+    ? ./unpackOptionals.dhall
 , values =
       ./values sha256:ae02cfb06a9307cbecc06130e84fd0c7b96b7f1f11648961e1b030ec00940be8
     ? ./values

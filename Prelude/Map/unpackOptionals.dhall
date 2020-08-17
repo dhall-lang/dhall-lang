@@ -1,16 +1,16 @@
 -- | Unpack Optionals from a Map, omitting None values.
 
 let List/concatMap =
-        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
-      ? ../List/concatMap
+        ../List/concatMap.dhall sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap.dhall
 
 let Map/Entry =
-        ./Entry sha256:f334283bdd9cd88e6ea510ca914bc221fc2dab5fb424d24514b2e0df600d5346
-      ? ./Entry
+        ./Entry.dhall sha256:f334283bdd9cd88e6ea510ca914bc221fc2dab5fb424d24514b2e0df600d5346
+      ? ./Entry.dhall
 
 let Map/Type =
-        ./Type sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
-      ? ./Type
+        ./Type.dhall sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
+      ? ./Type.dhall
 
 let unpackOptionals
     : ∀(k : Type) → ∀(v : Type) → Map/Type k (Optional v) → Map/Type k v
