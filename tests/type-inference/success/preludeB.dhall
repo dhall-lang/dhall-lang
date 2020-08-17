@@ -361,6 +361,11 @@
         ∀(f : a → b) →
         ∀(m : List { mapKey : k, mapValue : a }) →
           List { mapKey : k, mapValue : b }
+    , unpackOptionals :
+        ∀(k : Type) →
+        ∀(v : Type) →
+        ∀(xs : List { mapKey : k, mapValue : Optional v }) →
+          List { mapKey : k, mapValue : v }
     , values :
         ∀(k : Type) →
         ∀(v : Type) →
