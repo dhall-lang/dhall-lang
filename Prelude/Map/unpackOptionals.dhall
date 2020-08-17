@@ -1,4 +1,5 @@
--- | Unpack Optionals from a `Map`, omitting `None` values.
+-- | Turn a `Map k (Optional v)` into a `Map k v` by dropping all
+-- entries with value `None`.
 
 let List/concatMap =
         ../List/concatMap.dhall sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
