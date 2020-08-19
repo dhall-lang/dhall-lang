@@ -1,6 +1,4 @@
-{-
-`lessThanEqual` checks if one Natural is less than or equal to another.
--}
+--| `lessThanEqual` checks if one Natural is less than or equal to another.
 let lessThanEqual
     : Natural → Natural → Bool
     = λ(x : Natural) → λ(y : Natural) → Natural/isZero (Natural/subtract y x)

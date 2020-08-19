@@ -1,6 +1,4 @@
-{-
-Compose two functions into one.
--}
+--| Compose two functions into one.
 let compose
     : ∀(a : Type) → ∀(b : Type) → ∀(c : Type) → (a → b) → (b → c) → a → c
     = λ(A : Type) →

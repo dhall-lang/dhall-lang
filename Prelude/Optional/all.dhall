@@ -1,4 +1,4 @@
-{-
+{-|
 Returns `False` if the supplied function returns `False` for a present element
 and `True` otherwise:
 -}

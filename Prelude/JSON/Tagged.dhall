@@ -1,4 +1,4 @@
-{-
+{-|
 This is a convenient type-level function when using `dhall-to-json`'s support
 for preserving alternative names
 

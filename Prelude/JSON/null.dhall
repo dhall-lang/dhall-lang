@@ -1,4 +1,5 @@
-{- Create a JSON null
+{-|
+Create a JSON null
 
 ```
 let JSON = ./package.dhall

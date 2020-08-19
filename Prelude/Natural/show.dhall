@@ -1,4 +1,4 @@
-{-
+{-|
 Render a `Natural` number as `Text` using the same representation as Dhall
 source code (i.e. a decimal number)
 -}

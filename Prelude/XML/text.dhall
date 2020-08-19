@@ -1,4 +1,5 @@
-{- Create a Text value to be inserted into an XML element as content.
+{-|
+Create a Text value to be inserted into an XML element as content.
 
 ```
 let XML = ./package.dhall

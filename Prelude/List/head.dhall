@@ -1,6 +1,4 @@
-{-
-Retrieve the first element of the list
--}
+--| Retrieve the first element of the list
 let head
     : ∀(a : Type) → List a → Optional a
     = List/head

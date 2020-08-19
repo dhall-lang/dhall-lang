@@ -1,6 +1,4 @@
-{-
-Flip the value of a `Bool`
--}
+--| Flip the value of a `Bool`
 let not
     : Bool → Bool
     = λ(b : Bool) → b == False

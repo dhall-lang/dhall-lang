@@ -1,5 +1,4 @@
-{- This is the union type returned when you import something `as Location`
--}
+--| This is the union type returned when you import something `as Location`
 let Location
     : Type
     = < Environment : Text | Local : Text | Missing | Remote : Text >

@@ -1,6 +1,4 @@
-{-
-`lessThanEqual` checks if one Integer is less than or equal to another.
--}
+--| `lessThanEqual` checks if one Integer is less than or equal to another.
 let Natural/greaterThanEqual =
         ../Natural/greaterThanEqual sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
       ? ../Natural/greaterThanEqual

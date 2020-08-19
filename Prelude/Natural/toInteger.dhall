@@ -1,6 +1,4 @@
-{-
-Convert a `Natural` number to the corresponding `Integer`
--}
+--| Convert a `Natural` number to the corresponding `Integer`
 let toInteger
     : Natural → Integer
     = Natural/toInteger

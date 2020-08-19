@@ -1,6 +1,4 @@
-{-
-Returns `True` if the `Optional` value is absent and `False` if present
--}
+--| Returns `True` if the `Optional` value is absent and `False` if present
 let null
     : ∀(a : Type) → Optional a → Bool
     = λ(a : Type) →

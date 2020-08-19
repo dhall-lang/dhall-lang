@@ -1,4 +1,4 @@
-{-
+{-|
 `fold` is the primitive function for consuming `Natural` numbers
 
 If you treat the number `3` as `succ (succ (succ zero))` then a `fold` just

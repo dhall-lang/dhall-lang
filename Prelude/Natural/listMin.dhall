@@ -1,4 +1,4 @@
-{-
+{-|
 `listMin` returns the smallest element of a `List` or `None Natural` if the
 `List` is empty
 -}

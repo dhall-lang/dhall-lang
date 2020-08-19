@@ -209,11 +209,23 @@ let
 
       discourse = ./nixops/discourse.svg;
 
+      docker =
+        pkgsNew.fetchurl {
+          url    = "https://www.docker.com/sites/default/files/d8/2019-07/Moby-logo.png";
+          sha256 = "0k8vaai7xdqq19b3c52i2m48v8i4bm8307i46d8vkwwz4fp6f7fi";
+        };
+
       github =
         pkgsNew.fetchzip {
           url    = "https://github-media-downloads.s3.amazonaws.com/GitHub-Mark.zip";
           sha256 = "0qy901f9rjzi0dyd1rb7zas50lcxy42sc7wnxpz2j2hr9ckg2zlz";
           stripRoot = false;
+        };
+
+      gitlab =
+        pkgsNew.fetchurl {
+          url    = "https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png";
+          sha256 = "1mxk6xxw8bzp3l4jx3jaka9n5a69jbnkw4kzpmy4hbhp7nc33z5w";
         };
 
       golang =

@@ -1,4 +1,5 @@
-{- Create an XML element value.
+{-|
+Create an XML element value.
 
 ```
 let XML = ./package.dhall

@@ -1,4 +1,4 @@
-{-
+{-|
 Returns `1` if the `Optional` value is present and `0` if the value is absent
 -}
 let length

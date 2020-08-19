@@ -1,12 +1,13 @@
-{- Dhall encoding of an arbitrary XML element
+{-|
+Dhall encoding of an arbitrary XML element
 
-   For example, the following XML element:
+For example, the following XML element:
 
 ```
 <foo n="1"><bar>baz</bar></foo>
 ```
 
-   ... corresponds to the following Dhall expression:
+... corresponds to the following Dhall expression:
 
 
 ```

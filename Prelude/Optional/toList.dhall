@@ -1,6 +1,4 @@
-{-
-Convert an `Optional` value into the equivalent `List`
--}
+--| Convert an `Optional` value into the equivalent `List`
 let toList
     : ∀(a : Type) → Optional a → List a
     = λ(a : Type) →

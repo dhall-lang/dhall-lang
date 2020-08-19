@@ -1,6 +1,4 @@
-{-
-`build` is the inverse of `fold`
--}
+--| `build` is the inverse of `fold`
 let build
     : (∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool) → Bool
     = λ(f : ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool) →

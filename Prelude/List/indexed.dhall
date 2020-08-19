@@ -1,6 +1,4 @@
-{-
-Tag each element of the list with its index
--}
+--| Tag each element of the list with its index
 let indexed
     : ∀(a : Type) → List a → List { index : Natural, value : a }
     = List/indexed

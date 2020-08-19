@@ -1,4 +1,4 @@
-{-
+{-|
 Generate a list of numbers from `0` up to but not including the specified
 number
 -}
