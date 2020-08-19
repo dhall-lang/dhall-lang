@@ -40,6 +40,7 @@ normalize.
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
 * [Assertions](#assertions)
+* [Nested record updates](#assertions)
 * [Imports](#imports)
 
 ## Normalization
@@ -964,6 +965,18 @@ To type-check an equivalence, verify that the two sides are terms:
 If either side of the equivalence is not a term, then that is a type error.
 
 If the inferred types do not match, then that is also a type error.
+
+## Nested record update
+
+A nested record update is equivalent to chained updates in terms of the
+`⫽` operator (See: [records](./record.md)).  To type-check such an update,
+desugar the expression and then type-check the result:
+
+
+    desugar-with(e with k.ks… = v) = r   Γ ⊢ r : T
+    ──────────────────────────────────────────────
+    Γ ⊢ e with k.ks… = v : T
+
 
 ## Imports
 

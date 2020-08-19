@@ -319,6 +319,11 @@ The remaining rules are:
     (assert : T₀)[x@n ≔ e] = assert : T₁
 
 
+    e₀[x@n ≔ e] = e₁   v₀[x@n ≔ e] = v₁
+    ──────────────────────────────────────────────────
+    (e₀ with k.ks… = v₀)[x@n ≔ e] = e₁ with k.ks… = v₁
+
+
     ──────────────────
     n.n[x@n ≔ e] = n.n
 
