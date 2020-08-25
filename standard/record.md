@@ -237,8 +237,7 @@ in  record with a.b.d = False with a.b.e = 2.0
 { a.b = { c = 1, d = False, e = 2.0 } }
 ```
 
-This desugaring uses the following judgment that translates the `with` keyword to
-the `//` operator:
+This following judgment that translates the `with` keyword to the `//` operator:
 
     desugar-with(e₀ with ks = v) = e₁
 
@@ -249,6 +248,11 @@ the `//` operator:
   record path to the value to insert
 * `v`  (an input) is the value to insert
 * `e₁` (the output) is the desugared expression
+
+However, this judgment is not used to desugar the expression at parsing time.
+Rather, the expression is desugared "just in time" as part of type-checking and
+β-normalization, so that implementations can have greater freedom to
+optimize the implementation of this expression.
 
 A `with` expression with multiple dotted labels is equivalent to chained uses of
 the `//` operator:
@@ -270,3 +274,12 @@ synonym for the `//` operator:
 
 For all other cases, `desugar-with` descends into sub-expressions and ignores
 anything that is not a `with` expression.
+
+An implementation may desugar `with` in a more efficient way.  For example,
+the following implementation of `desugar-with` may be more efficient for
+chained `with` expressions:
+
+    ↑(1, _, 0, v₁) = v₂
+    desugar-with(let _ = e₀ in _ // { k₀ = _.k₀ with k₁.ks… = v₂ }) = e₁
+    ────────────────────────────────────────────────────────────────────  ; Inductive case for more than one label
+    desugar-with(e₀ with k₀.k₁.ks… = v₀) = e₁

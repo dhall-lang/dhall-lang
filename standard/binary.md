@@ -869,8 +869,16 @@ A `let` binder is represented by a sequence of three elements: name, type annota
 
 
     encode(t₀) = t₁   encode(T₀) = T₁
-    ─────────────────────────────────────────
+    ─────────────────────────────────
     encode(t₀ : T₀) = [ 26, t₁, T₁ ]
+
+
+### Nested record update
+
+
+    encode(e₀) = e₁   encode(v₀) = v₁
+    ───────────────────────────────────────────────────────
+    encode(e₀ with k.ks… = v₀) = [ 29, e₁, [ k, ks… ], v₁ ]
 
 
 ## Decoding judgment
@@ -1505,8 +1513,16 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
     decode(t₁) = t₀   decode(T₁) = T₀
-    ─────────────────────────────────────────
+    ─────────────────────────────────
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
+
+
+### Nested record update
+
+
+    decode(e₁) = e₀   decode(v₁) = v₀
+    ─────────────────────────────────────────────────────
+    decode([29, e₁, [ k, ks… ]  v₁]) = e₀ with k.ks… = v₀
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
 [multihash]: https://github.com/multiformats/multihash
