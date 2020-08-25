@@ -24,16 +24,16 @@ in  XML.render
 -}
 
 let XML =
-        ./Type sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
-      ? ./Type
+        ./Type.dhall sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+      ? ./Type.dhall
 
 let Text/concatMap =
-        ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
-      ? ../Text/concatMap
+        ../Text/concatMap.dhall sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+      ? ../Text/concatMap.dhall
 
 let Text/concat =
-        ../Text/concat sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0
-      ? ../Text/concat
+        ../Text/concat.dhall sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0
+      ? ../Text/concat.dhall
 
 let Attr = { mapKey : Text, mapValue : Text }
 

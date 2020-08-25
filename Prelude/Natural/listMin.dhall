@@ -3,12 +3,12 @@
 `List` is empty
 -}
 let min =
-        ./min sha256:f25f9c462e4dbf0eb15f9ff6ac840c6e9c82255a7f4f2ab408bdab338e028710
-      ? ./min
+        ./min.dhall sha256:f25f9c462e4dbf0eb15f9ff6ac840c6e9c82255a7f4f2ab408bdab338e028710
+      ? ./min.dhall
 
 let Optional/map =
-        ../Optional/map sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
-      ? ../Optional/map
+        ../Optional/map.dhall sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
+      ? ../Optional/map.dhall
 
 let listMin
     : List Natural → Optional Natural

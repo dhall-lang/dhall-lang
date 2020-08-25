@@ -5,20 +5,20 @@ let JSON =
       ? ./core.dhall
 
 let Function/identity =
-        ../Function/identity sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
-      ? ../Function/identity
+        ../Function/identity.dhall sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
+      ? ../Function/identity.dhall
 
 let Text/concatMap =
-        ../Text/concatMap sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
-      ? ../Text/concatMap
+        ../Text/concatMap.dhall sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+      ? ../Text/concatMap.dhall
 
 let List/map =
-        ../List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
-      ? ../List/map
+        ../List/map.dhall sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map.dhall
 
 let List/concatMap =
-        ../List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
-      ? ../List/concatMap
+        ../List/concatMap.dhall sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap.dhall
 
 let NonEmpty
     : Type → Type
@@ -190,8 +190,8 @@ let addIndent = addPrefix "  "
 let indentTail = NonEmpty/mapTail Text addIndent
 
 let Format =
-        ./Format sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
-      ? ./Format
+        ./Format.dhall sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
+      ? ./Format.dhall
 
 let ObjectField = { mapKey : Text, mapValue : Block }
 
