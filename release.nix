@@ -209,6 +209,12 @@ let
 
       discourse = ./nixops/discourse.svg;
 
+      docker =
+        pkgsNew.fetchurl {
+          url    = "https://www.docker.com/sites/default/files/d8/2019-07/Moby-logo.png";
+          sha256 = "0k8vaai7xdqq19b3c52i2m48v8i4bm8307i46d8vkwwz4fp6f7fi";
+        };
+
       github =
         pkgsNew.fetchzip {
           url    = "https://github-media-downloads.s3.amazonaws.com/GitHub-Mark.zip";
