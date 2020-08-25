@@ -1,19 +1,19 @@
 --| `lessThanEqual` checks if one Integer is less than or equal to another.
 let Natural/greaterThanEqual =
-        ../Natural/greaterThanEqual sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
-      ? ../Natural/greaterThanEqual
+        ../Natural/greaterThanEqual.dhall sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+      ? ../Natural/greaterThanEqual.dhall
 
 let Natural/lessThanEqual =
-        ../Natural/lessThanEqual sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
-      ? ../Natural/lessThanEqual
+        ../Natural/lessThanEqual.dhall sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+      ? ../Natural/lessThanEqual.dhall
 
 let nonPositive =
-        ./nonPositive sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
-      ? ./nonPositive
+        ./nonPositive.dhall sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
+      ? ./nonPositive.dhall
 
 let nonNegative =
-        ./nonNegative sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
-      ? ./nonNegative
+        ./nonNegative.dhall sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
+      ? ./nonNegative.dhall
 
 let lessThanEqual
     : Integer → Integer → Bool

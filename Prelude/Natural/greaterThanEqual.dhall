@@ -2,8 +2,8 @@
 `greaterThanEqual` checks if one Natural is greater than or equal to another.
 -}
 let lessThanEqual =
-        ./lessThanEqual sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
-      ? ./lessThanEqual
+        ./lessThanEqual.dhall sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+      ? ./lessThanEqual.dhall
 
 let greaterThanEqual
     : Natural → Natural → Bool
