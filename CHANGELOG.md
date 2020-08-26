@@ -5,7 +5,7 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
-## `v17.2.0`
+## `v18.0.0`
 
 Breaking changes:
 
