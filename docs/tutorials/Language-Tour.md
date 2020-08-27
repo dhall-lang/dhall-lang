@@ -3266,8 +3266,8 @@ this:
 >
 > </details>
 
-> **Exercise:** Louis Reasoner claims that the `with` expression is unnecessary,
-> because he can use the `/\` operator to perform deep record updates. Is he right?
+> **Exercise:** Your colleague claims that the `with` expression is unnecessary,
+> because the `/\` operator can perform deep record updates. Is that right?
 >
 > <details>
 > <summary>Solution</summary>
