@@ -3266,6 +3266,32 @@ this:
 >
 > </details>
 
+> **Exercise:** Your colleague claims that the `with` expression is unnecessary,
+> because the `/\` operator can perform deep record updates. Is that right?
+>
+> <details>
+> <summary>Solution</summary>
+>
+> No, because `/\` will not replace fields:
+>
+> ```dhall
+> ⊢ { a.b = 1 } /\ { a.b = 2 }
+>
+> Error: Field collision on: a.b
+>
+> 1│             /\ { a.b = 2 }
+> ```
+>
+> `with`, on the other hand, will:
+>
+> ```dhall
+> ⊢ { a.b = 1 } with a.b = 2
+>
+> { a.b = 2 }
+> ```
+>
+> </details>
+   
 ## Record completion
 
 The language includes one last record operator useful for working with large
