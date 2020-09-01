@@ -5,6 +5,48 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v18.0.0`
+
+Breaking changes:
+
+* [Enable `with` optimizations](https://github.com/dhall-lang/dhall-lang/pull/1052)
+
+  The standard now gives implementations more freedom to optimize the
+  β-reduction of `with` expressions, mainly in order to avoid pathological
+  time and space complexity when interpreting chained `with` expressions, like:
+
+  ```dhall
+  r with x.y = a with z = b
+  ```
+
+  Along the way, this changes how `with` expressions are encoded in the
+  binary representation, which means that this is a technically breaking
+  change.
+
+  In practice, you are unlikely to to be affected by this change, except for the
+  rare case where you protect an import with a semantic integrity check and the
+  contents of the protected import contain a `with` expression where the
+  left-hand side of the `with` expression is abstract, such as this one:
+
+  ```dhall
+  λ(x: { a : Natural}) → x with a = 42 
+  ```
+
+  Other than that, semantic integrity checks are not affected because the
+  interpreter will β-normalize away the `with` expression, which will then
+  not affect the final hash.
+
+New features:
+
+* [Add `Prelude/Map/unpackOptionals`](https://github.com/dhall-lang/dhall-lang/pull/1056)
+
+Other changes:
+
+* Fixes and improvements to the Prelude:
+
+  * [Use `dhall-docs` comment format for Prelude](https://github.com/dhall-lang/dhall-lang/pull/1045)
+  * [Amend relative import expressions on Prelude to use `.dhall` extensions](https://github.com/dhall-lang/dhall-lang/pull/1053)
+
 ## `v17.1.0`
 
 New features:
