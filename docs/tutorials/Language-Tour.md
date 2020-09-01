@@ -566,6 +566,12 @@ notation if you prefer:
 0x0, 0x1, 0x2, …, 0xE, 0xF, 0x10, 0x11, …
 ```
 
+… or octal notation:
+
+```dhall
+0o0, 0o1, 0o2, …, 0o7, 0o10, 0o11, …
+```
+
 `Natural` numbers are the most commonly used numeric type for programming
 utilities, since many useful functions use `Natural` numbers to forbid negative
 inputs or output.
@@ -591,7 +597,7 @@ numbers.  All `Integer` literals require an explicit sign:
 …, -7, -6, -5, -4, -3, -2, -1, +0, +1, +2, +3, +4, +5, +6, +7, …
 ```
 
-`Integer`s also permit hexadecimal notation, like `Natural` numbers.
+`Integer`s also permit hexadecimal and octal notation, like `Natural` numbers.
 
 Both `Natural` numbers and `Integer`s are unlimited precision, which means that
 there is no maximum value for either type.
