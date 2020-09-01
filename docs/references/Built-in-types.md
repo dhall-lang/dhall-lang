@@ -241,7 +241,7 @@ Natural
 Natural
 ```
 
-… or using hexadecimal notation:
+… or hexadecimal notation:
 
 ```dhall
 ⊢ :type 0xFF
@@ -249,6 +249,14 @@ Natural
 Natural
 
 ⊢ :type 0xff
+
+Natural
+```
+
+… or octal notation:
+
+```dhall
+⊢ :type 0o755
 
 Natural
 ```
@@ -591,13 +599,21 @@ Integer
 … or hexadecimal notation:
 
 ```dhall
-⊢ +0xFF
+⊢ :type +0xFF
 
-+255
+Integer
 
-⊢ +0xff
+⊢ :type +0xff
 
-+255
+Integer
+```
+
+… or octal notation:
+
+```dhall
+⊢ :type +0o755
+
+Integer
 ```
 
 ### Function `Integer/negate`

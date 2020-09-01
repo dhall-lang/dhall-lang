@@ -190,6 +190,8 @@ ALPHANUM = ALPHA / DIGIT
 
 HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
+OCTDIG = %x30-37  ; 0-7
+
 ; A simple label cannot be one of the reserved keywords
 ; listed in the `keyword` rule.
 ; A PEG parser could use negative lookahead to
@@ -494,6 +496,8 @@ double-literal =
 natural-literal =
     ; Hexadecimal with "0x" prefix
       "0" %x78 1*HEXDIG
+    ; Octal with "0o" prefix
+    / "0" %6f 1*OCTDIG
     ; Decimal; leading 0 digits are not allowed
     / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9") *DIGIT
     ; ... except for 0 itself
