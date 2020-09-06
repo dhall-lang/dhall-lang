@@ -903,6 +903,24 @@ You can concatenate `Text` literals using the `++` operator:
 "123456"
 ```
 
+It is also possible to replace substrings inside a Text literal. Say you have
+a name where you need to replace dashes with underscores. That can be achieved
+with the following:
+
+```dhall
+⊢ Text/replace "-" "_" "foo-bar-baz"
+
+"foo_bar_baz"
+```
+
+You can also replace larger sections of text:
+
+```dhall
+⊢ Text/replace "Hey" "Hello" "Hey, world!"
+
+"Hello, world!"
+```
+
 Other than that, `Text` literals are essentially opaque.  You currently cannot
 parse `Text` literals nor can you compare them for equality.  This is because
 the language promotes using more precise types (like enums) instead of `Text`

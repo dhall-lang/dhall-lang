@@ -661,13 +661,28 @@ Or in other words:
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
 
-Otherwise, in isolation `Text/show` is in normal form:
+`Text/replace` modifies a subset of a given `Text` literal. It takes 3 arguments, the `Text` literal subset to match, the `Text` literal replacement, and the `Text` literal in which to replace all matches:
+
+
+    f ⇥ Text/replace "bar" "baz" a ⇥ "foobaz123"
+    ────────────────────────────
+    f a ⇥ "foobar123"
+
+    f ⇥ Text/replace "-" "_" a ⇥ "foo_bar"
+    ────────────────────────────
+    f a ⇥ "foo-bar"
+
+
+All of the built-in functions on `Text` are in normal form:
 
 
     ─────────────────────
     Text/show ⇥ Text/show
 
-
+    ─────────────────────
+    Text/replace ⇥ Text/replace
+    
+    
 ## `List`
 
 The `List` type-level function is in normal form:

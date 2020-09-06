@@ -267,6 +267,10 @@ matching their identifier.
     encode(Text/show) = "Text/show"
 
 
+    ───────────────────────────────
+    encode(Text/replace) = "Text/replace"
+
+
     ─────────────────────────
     encode(Bool) = "Bool"
 

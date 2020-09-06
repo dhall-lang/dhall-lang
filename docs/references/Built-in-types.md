@@ -815,6 +815,23 @@ string:
 "\"\\n🎉\""
 ```
 
+### Function `Text/replace`
+
+The `Text/replace` built-in function modifies a subset of a given `Text` literal. It takes 3 arguments, the `Text` literal subset to match, the `Text` literal replacement, and the `Text` literal in which to replace all matches:
+
+```dhall
+⊢ Text/replace "foo" "bar" "foobar"
+
+"barbar"
+```
+
+#### Type
+
+```
+──────────────────────────────────────
+Γ ⊢ Text/replace : Text → Text → Text → Text
+```
+
 #### Type
 
 ```
