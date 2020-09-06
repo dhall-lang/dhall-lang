@@ -1,13 +1,2 @@
-{-
-Concatenate all the `Text` values in a `List`
--}
-let concat
-    : List Text → Text
-    =   λ(xs : List Text)
-      → List/fold Text xs Text (λ(x : Text) → λ(y : Text) → x ++ y) ""
-
-let example0 = assert : concat [ "ABC", "DEF", "GHI" ] ≡ "ABCDEFGHI"
-
-let example1 = assert : concat ([] : List Text) ≡ ""
-
-in  concat
+  ./concat.dhall sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0
+? ./concat.dhall

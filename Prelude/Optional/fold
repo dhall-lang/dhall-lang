@@ -1,23 +1,2 @@
-{-
-`fold` is the primitive function for consuming `Optional` values
--}
-let fold
-    :   ∀(a : Type)
-      → Optional a
-      → ∀(optional : Type)
-      → ∀(some : a → optional)
-      → ∀(none : optional)
-      → optional
-    =   λ(a : Type)
-      → λ(o : Optional a)
-      → λ(optional : Type)
-      → λ(some : a → optional)
-      → λ(none : optional)
-      → merge { Some = some, None = none } o
-
-let example0 = assert : fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 ≡ 2
-
-let example1 =
-      assert : fold Natural (None Natural) Natural (λ(x : Natural) → x) 0 ≡ 0
-
-in  fold
+  ./fold.dhall sha256:c5b9d72f6f62bdaa0e196ac1c742cc175cd67a717b880fb8aec1333a5a4132cf
+? ./fold.dhall

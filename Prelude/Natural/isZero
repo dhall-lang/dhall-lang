@@ -1,12 +1,2 @@
-{-
-Returns `True` if a number is `0` and returns `False` otherwise
--}
-let isZero
-    : Natural → Bool
-    = Natural/isZero
-
-let example0 = assert : isZero 2 ≡ False
-
-let example1 = assert : isZero 0 ≡ True
-
-in  isZero
+  ./isZero.dhall sha256:1be98236800ed2d5cff44f16ca02b34b0c37dfa239d9e0d63d9d2c6eeae3d1d1
+? ./isZero.dhall

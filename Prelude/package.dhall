@@ -11,17 +11,17 @@
       ./Integer/package.dhall sha256:d1a572ca3a764781496847e4921d7d9a881c18ffcfac6ae28d0e5299066938a0
     ? ./Integer/package.dhall
 , List =
-      ./List/package.dhall sha256:67899380860ce07a2d5d9530dc502800f2c11c73c2d64e8c827f4920b5473887
+      ./List/package.dhall sha256:547cd881988c6c5e3673ae80491224158e93a4627690db0196cb5efbbf00d2ba
     ? ./List/package.dhall
 , Location =
       ./Location/package.dhall sha256:0eb4e4a60814018009c720f6820aaa13cf9491eb1b09afb7b832039c6ee4d470
     ? ./Location/package.dhall
 , Map =
-      ./Map/package.dhall sha256:598e9c76103b2686fbbda6cc30078f9e60dd846d9eaf155d0149cf0ae06c21c5
+      ./Map/package.dhall sha256:c6602939eb75ddaf43e75a37e1f27ace97e03685ceb9d77605b4372547f7cfa8
     ? ./Map/package.dhall
 , Monoid =
-      ./Monoid sha256:26fafa098600ef7a54ef9dba5ada416bbbdd21df1af306c052420c61553ad4af
-    ? ./Monoid
+      ./Monoid.dhall sha256:26fafa098600ef7a54ef9dba5ada416bbbdd21df1af306c052420c61553ad4af
+    ? ./Monoid.dhall
 , Natural =
       ./Natural/package.dhall sha256:ee9ed2b28a417ed4e9a0c284801b928bf91b3fbdc1a68616347678c1821f1ddf
     ? ./Natural/package.dhall
@@ -29,10 +29,10 @@
       ./Optional/package.dhall sha256:4324b2bf84ded40f67485f14355e4cb7b237a8f173e713c791ec44cebebc552c
     ? ./Optional/package.dhall
 , JSON =
-      ./JSON/package.dhall sha256:1b02c5ff4710f90ee3f8dc1a2565f1b52b45e5317e2df4775307e2ba0cadcf21
+      ./JSON/package.dhall sha256:79dfc281a05bc7b78f927e0da0c274ee5709b1c55c9e5f59499cb28e9d6f3ec0
     ? ./JSON/package.dhall
 , Text =
-      ./Text/package.dhall sha256:3a5e3acde76fe5f90bd296e6c9d2e43e6ae81c56f804029b39352d2f1664b769
+      ./Text/package.dhall sha256:819a967038fbf6f28cc289fa2651e42835f70b326210c86e51acf48f46f913d8
     ? ./Text/package.dhall
 , XML =
       ./XML/package.dhall sha256:137e7b106b2e9743970e5d37b21a165f2e40f56ab593a4dd10605c9acd686fc6

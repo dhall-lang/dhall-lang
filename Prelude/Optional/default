@@ -1,15 +1,2 @@
-{-
-Unpack an `Optional`, returning the default when it's `None`.
--}
-let default
-    : ∀(a : Type) → a → Optional a → a
-    =   λ(a : Type)
-      → λ(default : a)
-      → λ(o : Optional a)
-      → merge { Some = λ(x : a) → x, None = default } o
-
-let example0 = assert : default Bool False (None Bool) ≡ False
-
-let example1 = assert : default Bool False (Some True) ≡ True
-
-in  default
+  ./default.dhall sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+? ./default.dhall

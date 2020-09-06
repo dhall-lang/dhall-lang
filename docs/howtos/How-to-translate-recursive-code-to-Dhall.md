@@ -260,35 +260,36 @@ The equivalent Dhall code would be:
 
 let Person
     : Type
-    =   ∀(Person : Type)
-      → ∀(MakePerson : { children : List Person, name : Text } → Person)
-      → Person
+    = ∀(Person : Type) →
+      ∀(MakePerson : { children : List Person, name : Text } → Person) →
+        Person
 
 let example
     : Person
-    =   λ(Person : Type)
-      → λ(MakePerson : { children : List Person, name : Text } → Person)
-      → MakePerson
-        { children =
+    = λ(Person : Type) →
+      λ(MakePerson : { children : List Person, name : Text } → Person) →
+        MakePerson
+          { children =
             [ MakePerson { children = [] : List Person, name = "Mary" }
             , MakePerson { children = [] : List Person, name = "Jane" }
             ]
-        , name =
-            "John"
-        }
+          , name = "John"
+          }
 
 let everybody
     : Person → List Text
     = let concat = http://prelude.dhall-lang.org/List/concat
 
-      in    λ(x : Person)
-          → x
-            (List Text)
-            (   λ(p : { children : List (List Text), name : Text })
-              → [ p.name ] # concat Text p.children
-            )
+      in  λ(x : Person) →
+            x
+              (List Text)
+              ( λ(p : { children : List (List Text), name : Text }) →
+                  [ p.name ] # concat Text p.children
+              )
 
-let result : List Text = everybody example
+let result
+    : List Text
+    = everybody example
 
 in  result
 ```
@@ -309,35 +310,36 @@ underscore (i.e. `_Person`):
 ```dhall
 let Person
     : Type
-    =   ∀(_Person : Type)
-      → ∀(MakePerson : { children : List _Person, name : Text } → _Person)
-      → _Person
+    = ∀(_Person : Type) →
+      ∀(MakePerson : { children : List _Person, name : Text } → _Person) →
+        _Person
 
 let example
     : Person
-    =   λ(_Person : Type)
-      → λ(MakePerson : { children : List _Person, name : Text } → _Person)
-      → MakePerson
-        { children =
+    = λ(_Person : Type) →
+      λ(MakePerson : { children : List _Person, name : Text } → _Person) →
+        MakePerson
+          { children =
             [ MakePerson { children = [] : List _Person, name = "Mary" }
             , MakePerson { children = [] : List _Person, name = "Jane" }
             ]
-        , name =
-            "John"
-        }
+          , name = "John"
+          }
 
 let everybody
     : Person → List Text
     = let concat = http://prelude.dhall-lang.org/List/concat
 
-      in    λ(x : Person)
-          → x
-            (List Text)
-            (   λ(p : { children : List (List Text), name : Text })
-              → [ p.name ] # concat Text p.children
-            )
+      in  λ(x : Person) →
+            x
+              (List Text)
+              ( λ(p : { children : List (List Text), name : Text }) →
+                  [ p.name ] # concat Text p.children
+              )
 
-let result : List Text = everybody example
+let result
+    : List Text
+    = everybody example
 
 in  result
 ```
@@ -350,8 +352,8 @@ performing substitution.  In this specific case, `everybody` is:
     anonymous function:
 
     ```dhall
-       λ(p : { children : List (List Text), name : Text })
-    → [ p.name ] # concat Text p.children
+    λ(p : { children : List (List Text), name : Text }) →
+      [ p.name ] # concat Text p.children
     ```
 
 ... which means that our previous example could also have been written like
@@ -360,22 +362,23 @@ this:
 ```dhall
 let concat = http://prelude.dhall-lang.org/List/concat
 
-let Person : Type = List Text
+let Person
+    : Type
+    = List Text
 
 let MakePerson
     : { children : List Person, name : Text } → Person
-    =   λ(p : { children : List Person, name : Text })
-      → [ p.name ] # concat Text p.children
+    = λ(p : { children : List Person, name : Text }) →
+        [ p.name ] # concat Text p.children
 
 let result =
       MakePerson
-      { children =
+        { children =
           [ MakePerson { children = [] : List Person, name = "Mary" }
           , MakePerson { children = [] : List Person, name = "Jane" }
           ]
-      , name =
-          "John"
-      }
+        , name = "John"
+        }
 
 in  result
 ```
@@ -383,8 +386,8 @@ in  result
 ### Recursive sum type
 
 Sum types work in the same way, except that instead of one constructor (i.e.
-`MakePerson`) we now have two constructors: `Succ` and `Zero`.  For example, this
-Haskell code:
+`MakePerson`) we now have two constructors: `Succ` and `Zero`.  For example,
+this Haskell code:
 
 ```haskell
 -- Example1.hs
@@ -417,20 +420,24 @@ $ ghci Example1.hs
 ```dhall
 -- example1.dhall
 
-let Nat : Type = ∀(Nat : Type) → ∀(Zero : Nat) → ∀(Succ : Nat → Nat) → Nat
+let Nat
+    : Type
+    = ∀(Nat : Type) → ∀(Zero : Nat) → ∀(Succ : Nat → Nat) → Nat
 
 let example
     : Nat
-    =   λ(Nat : Type)
-      → λ(Zero : Nat)
-      → λ(Succ : Nat → Nat)
-      → Succ (Succ (Succ Zero))
+    = λ(Nat : Type) →
+      λ(Zero : Nat) →
+      λ(Succ : Nat → Nat) →
+        Succ (Succ (Succ Zero))
 
 let toNatural
     : Nat → Natural
     = λ(x : Nat) → x Natural 0 (λ(n : Natural) → 1 + n)
 
-let result : Natural = toNatural example
+let result
+    : Natural
+    = toNatural example
 
 in  result
 ```
@@ -455,11 +462,17 @@ Like before, our recursive `toNatural` function is performing substitution by:
 ```dhall
 let Nat = Natural
 
-let Zero : Nat = 0
+let Zero
+    : Nat
+    = 0
 
-let Succ : Nat → Nat = λ(n : Nat) → 1 + n
+let Succ
+    : Nat → Nat
+    = λ(n : Nat) → 1 + n
 
-let result : Nat = Succ (Succ (Succ Zero))
+let result
+    : Nat
+    = Succ (Succ (Succ Zero))
 
 in  result
 ```
@@ -505,26 +518,26 @@ $ ghci Example2.hs
 ```dhall
 let Odd
     : Type
-    =   ∀(Even : Type)
-      → ∀(Odd : Type)
-      → ∀(Zero : Even)
-      → ∀(SuccEven : Odd → Even)
-      → ∀(SuccOdd : Even → Odd)
-      → Odd
+    = ∀(Even : Type) →
+      ∀(Odd : Type) →
+      ∀(Zero : Even) →
+      ∀(SuccEven : Odd → Even) →
+      ∀(SuccOdd : Even → Odd) →
+        Odd
 
 let example
     : Odd
-    =   λ(Even : Type)
-      → λ(Odd : Type)
-      → λ(Zero : Even)
-      → λ(SuccEven : Odd → Even)
-      → λ(SuccOdd : Even → Odd)
-      → SuccOdd (SuccEven (SuccOdd Zero))
+    = λ(Even : Type) →
+      λ(Odd : Type) →
+      λ(Zero : Even) →
+      λ(SuccEven : Odd → Even) →
+      λ(SuccOdd : Even → Odd) →
+        SuccOdd (SuccEven (SuccOdd Zero))
 
 let oddToNatural
     : Odd → Natural
-    =   λ(o : Odd)
-      → o Natural Natural 0 (λ(n : Natural) → 1 + n) (λ(n : Natural) → 1 + n)
+    = λ(o : Odd) →
+        o Natural Natural 0 (λ(n : Natural) → 1 + n) (λ(n : Natural) → 1 + n)
 
 let result = oddToNatural example
 
@@ -558,19 +571,276 @@ by:
 ... which means that we could have equivalently written:
 
 ```dhall
-let Odd : Type = Natural
+let Odd
+    : Type
+    = Natural
 
-let Even : Type = Natural
+let Even
+    : Type
+    = Natural
 
-let Zero : Even = 0
+let Zero
+    : Even
+    = 0
 
-let SuccEven : Odd → Even = λ(n : Odd) → 1 + n
+let SuccEven
+    : Odd → Even
+    = λ(n : Odd) → 1 + n
 
-let SuccOdd : Even → Odd = λ(n : Even) → 1 + n
+let SuccOdd
+    : Even → Odd
+    = λ(n : Even) → 1 + n
 
 let result = SuccOdd (SuccEven (SuccOdd Zero))
 
 in  result
+```
+
+### Smart constructors
+
+You can create "smart constructors" for end users to use for assembling a
+recursive type.  The following examples implement the same logic as the prior
+examples, except defining convenient intermediate constructors along the way.
+
+For example, we can define a `MakePerson` smart constructor and then use that
+smart constructor to create the same `example` `Person`:
+
+```dhall
+-- example0.dhall
+
+let List/map = https://prelude.dhall-lang.org/v16.0.0/List/map
+
+let Person
+    : Type
+    = ∀(Person : Type) →
+      ∀(MakePerson : { children : List Person, name : Text } → Person) →
+        Person
+
+let MakePerson
+    : { children : List Person, name : Text } → Person
+    = λ(x : { children : List Person, name : Text }) →
+      λ(_Person : Type) →
+      λ(MakePerson : { children : List _Person, name : Text } → _Person) →
+        let adapt
+            : Person → _Person
+            = λ(y : Person) → y _Person MakePerson
+
+        in  MakePerson
+              (x with children = List/map Person _Person adapt x.children)
+
+let example
+    : Person
+    = MakePerson
+        { children =
+          [ MakePerson { children = [] : List Person, name = "Mary" }
+          , MakePerson { children = [] : List Person, name = "Jane" }
+          ]
+        , name = "John"
+        }
+
+let everybody
+    : Person → List Text
+    = let concat = http://prelude.dhall-lang.org/List/concat
+
+      in  λ(x : Person) →
+            x
+              (List Text)
+              ( λ(p : { children : List (List Text), name : Text }) →
+                  [ p.name ] # concat Text p.children
+              )
+
+let result
+    : List Text
+    = everybody example
+
+in  result
+```
+
+Carefully notice the difference in how we create an `example` `Person`, which
+changed from this:
+
+```dhall
+let example
+    : Person
+    = λ(Person : Type) →
+      λ(MakePerson : { children : List Person, name : Text } → Person) →
+        MakePerson
+          { children =
+            [ MakePerson { children = [] : List Person, name = "Mary" }
+            , MakePerson { children = [] : List Person, name = "Jane" }
+            ]
+          , name = "John"
+          }
+```
+
+... to this:
+
+```dhall
+let example
+    : Person
+    = MakePerson
+        { children =
+          [ MakePerson { children = [] : List Person, name = "Mary" }
+          , MakePerson { children = [] : List Person, name = "Jane" }
+          ]
+        , name = "John"
+        }
+```
+
+They are both the same type and they both have the same normal form, but the
+latter is more ergonomic to create from the end user's perspective due to
+using the `MakePerson` smart constructor we defined.
+
+We can also rework the `Nat` example in the same way:
+
+```dhall
+-- example1.dhall
+
+let Nat
+    : Type
+    = ∀(Nat : Type) → ∀(Zero : Nat) → ∀(Succ : Nat → Nat) → Nat
+
+let Zero
+    : Nat
+    = λ(Nat : Type) → λ(Zero : Nat) → λ(Succ : Nat → Nat) → Zero
+
+let Succ
+    : Nat → Nat
+    = λ(x : Nat) →
+      λ(Nat : Type) →
+      λ(Zero : Nat) →
+      λ(Succ : Nat → Nat) →
+        Succ (x Nat Zero Succ)
+
+let example
+    : Nat
+    = Succ (Succ (Succ Zero))
+
+let toNatural
+    : Nat → Natural
+    = λ(x : Nat) → x Natural 0 (λ(n : Natural) → 1 + n)
+
+let result
+    : Natural
+    = toNatural example
+
+in  result
+```
+
+... and the `Even`/`Odd` example:
+
+```dhall
+let Even
+    : Type
+    = ∀(Even : Type) →
+      ∀(Odd : Type) →
+      ∀(Zero : Even) →
+      ∀(SuccEven : Odd → Even) →
+      ∀(SuccOdd : Even → Odd) →
+        Even
+
+let Odd
+    : Type
+    = ∀(Even : Type) →
+      ∀(Odd : Type) →
+      ∀(Zero : Even) →
+      ∀(SuccEven : Odd → Even) →
+      ∀(SuccOdd : Even → Odd) →
+        Odd
+
+let Zero
+    : Even
+    = λ(Even : Type) →
+      λ(Odd : Type) →
+      λ(Zero : Even) →
+      λ(SuccEven : Odd → Even) →
+      λ(SuccOdd : Even → Odd) →
+        Zero
+
+let SuccEven
+    : Odd → Even
+    = λ(x : Odd) →
+      λ(Even : Type) →
+      λ(Odd : Type) →
+      λ(Zero : Even) →
+      λ(SuccEven : Odd → Even) →
+      λ(SuccOdd : Even → Odd) →
+        SuccEven (x Even Odd Zero SuccEven SuccOdd)
+
+let SuccOdd
+    : Even → Odd
+    = λ(x : Even) →
+      λ(Even : Type) →
+      λ(Odd : Type) →
+      λ(Zero : Even) →
+      λ(SuccEven : Odd → Even) →
+      λ(SuccOdd : Even → Odd) →
+        SuccOdd (x Even Odd Zero SuccEven SuccOdd)
+
+let example
+    : Odd
+    = SuccOdd (SuccEven (SuccOdd Zero))
+
+let oddToNatural
+    : Odd → Natural
+    = λ(o : Odd) →
+        o Natural Natural 0 (λ(n : Natural) → 1 + n) (λ(n : Natural) → 1 + n)
+
+let result = oddToNatural example
+
+in  result
+```
+
+In each case, the general pattern for building the "smart constructors" is the
+same: any time we reach a recursive occurrence of the type, we apply the
+recursive occurrence to all of the variables we brought into scope, in the
+same order.
+
+For example, when building the smart constructor for `MakePerson`, each
+recursive occurrence is bound to a variable named `y`, which is applied to
+the two bound variables we brought into scope (`Person` and `MakePerson`):
+
+```dhall
+let MakePerson
+    : { children : List Person, name : Text } → Person
+    = λ(x : { children : List Person, name : Text }) →
+      λ(_Person : Type) →
+      λ(MakePerson : { children : List _Person, name : Text } → _Person) →
+        let adapt
+            : Person → _Person
+            = λ(y : Person) → y _Person MakePerson
+                 -- See here: ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
+        in  MakePerson
+              (x with children = List/map Person _Person adapt x.children)
+```
+
+... and you see the same pattern here in the `Nat` example:
+
+```dhall
+let Succ
+    : Nat → Nat
+    = λ(x : Nat) →
+      λ(Nat : Type) →
+      λ(Zero : Nat) →
+      λ(Succ : Nat → Nat) →
+        Succ (x Nat Zero Succ)
+     -- Here: ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+```
+
+... and in the `Even`/`Odd` example:
+
+```dhall
+let SuccEven
+    : Odd → Even
+    = λ(x : Odd) →
+      λ(Even : Type) →
+      λ(Odd : Type) →
+      λ(Zero : Even) →
+      λ(SuccEven : Odd → Even) →
+      λ(SuccOdd : Even → Odd) →
+        SuccEven (x Even Odd Zero SuccEven SuccOdd)
+         -- Here: ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 ```
 
 ### JSON

@@ -531,28 +531,28 @@ $ dhall-to-json <<< 'let twice = \(x : Natural) -> [x, x] in twice 2'
 >
 > ```dhall
 > let smallServer =
->           \(hostName : Text)
->       ->  { cpus = 1
->           , gigabytesOfRAM = 1
->           , hostName = hostName
->           , terabytesOfDisk = 1
->           }
+>       \(hostName : Text) ->
+>         { cpus = 1
+>         , gigabytesOfRAM = 1
+>         , hostName = hostName
+>         , terabytesOfDisk = 1
+>         }
 > 
 > let mediumServer =
->           \(hostName : Text)
->       ->  { cpus = 8
->           , gigabytesOfRAM = 16
->           , hostName = hostName
->           , terabytesOfDisk = 4
->           }
+>       \(hostName : Text) ->
+>         { cpus = 8
+>         , gigabytesOfRAM = 16
+>         , hostName = hostName
+>         , terabytesOfDisk = 4
+>         }
 > 
 > let largeServer =
->           \(hostName : Text)
->       ->  { cpus = 64
->           , gigabytesOfRAM = 256
->           , hostName = hostName
->           , terabytesOfDisk = 16
->           }
+>       \(hostName : Text) ->
+>         { cpus = 64
+>         , gigabytesOfRAM = 256
+>         , hostName = hostName
+>         , terabytesOfDisk = 16
+>         }
 > 
 > in  [ smallServer "eu-west.example.com"
 >     , largeServer "us-east.example.com"
@@ -582,13 +582,13 @@ $ dhall-to-json <<< 'let both = \(x : Natural) -> \(y : Natural) -> [x, y] in bo
 >
 > ```dhall
 > let educationalBook =
->           \(publisher : Text)
->       ->  \(title : Text)
->       ->  { category = "Nonfiction"
->           , department = "Books"
->           , publisher = publisher
->           , title = title
->           }
+>       \(publisher : Text) ->
+>       \(title : Text) ->
+>         { category = "Nonfiction"
+>         , department = "Books"
+>         , publisher = publisher
+>         , title = title
+>         }
 > 
 > let makeOreilly = educationalBook "O'Reilly Media"
 > 
@@ -648,7 +648,7 @@ in  [ smallServer /\ { hostName = "eu-west.example.com" }
     ]
 ```
 
-> **Exercise:** Refactor the prevous "educational books" example to also use the
+> **Exercise:** Refactor the previous "educational books" example to also use the
 > record merge operator instead of functions
 
 ## Operators
@@ -1026,4 +1026,4 @@ $ dhall-to-yaml <<< 'let x = 1 in let y = [x, x] in [y, y]'
 This concludes the tutorial on how to use the Dhall configuration language to
 simplify repetitive JSON and YAML configurations.  By this point you should
 understand how to some basic features of Dhall and you can learn more by reading
-the main language tutorial.
+the [main language tutorial](./Language-Tour.md).

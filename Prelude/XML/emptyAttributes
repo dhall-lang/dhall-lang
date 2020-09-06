@@ -1,3 +1,2 @@
-{- Create an empty XML attribute List. -}
-
-[] : List { mapKey : Text, mapValue : Text }
+  ./emptyAttributes.dhall sha256:11b86e2d3f3c75d47a1d580213d2a03fd2c36d64f3e9b6381de0ba23472f64d5
+? ./emptyAttributes.dhall

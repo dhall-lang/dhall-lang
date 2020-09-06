@@ -59,12 +59,13 @@ The following configuration file is a valid Dhall expression that:
 * imports a type from a relative file located at `./schema.dhall`
 
 ```dhall
-let concatSep = http://prelude.dhall-lang.org/Text/concatSep
+let concatSep = https://prelude.dhall-lang.org/Text/concatSep
 
-in  { name = env:USER as Text
-    , age  = 23
-    , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
-    } : ./schema.dhall
+in    { name = env:USER as Text
+      , age = 23
+      , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
+      }
+    : ./schema.dhall
 ```
 
 Normally importing values from external sources is potentially unsafe,
@@ -84,33 +85,31 @@ command-line interpreter named `dhall` to retrieve, type-check, and remove all
 indirection in the expression, like this:
 
 ```console
-$ dhall --annotate <<< 'http://prelude.dhall-lang.org/Text/concatSep'
+$ dhall --annotate <<< 'https://prelude.dhall-lang.org/Text/concatSep'
 ```
 
 ```dhall
-  (   λ(separator : Text)
-    → λ(elements : List Text)
-    → merge
-      { Empty = λ(_ : {}) → "", NonEmpty = λ(result : Text) → result }
-      ( List/fold
-        Text
-        elements
-        < Empty : {} | NonEmpty : Text >
-        (   λ(element : Text)
-          → λ(status : < Empty : {} | NonEmpty : Text >)
-          → merge
-            { Empty =
-                λ(_ : {}) → < NonEmpty = element | Empty : {} >
-            , NonEmpty =
-                  λ(result : Text)
-                → < NonEmpty = element ++ separator ++ result | Empty : {} >
-            }
-            status
-            : < Empty : {} | NonEmpty : Text >
+  ( λ(separator : Text) →
+    λ(elements : List Text) →
+      merge
+        { Empty = "", NonEmpty = λ(result : Text) → result }
+        ( List/fold
+            Text
+            elements
+            < Empty | NonEmpty : Text >
+            ( λ(element : Text) →
+              λ(status : < Empty | NonEmpty : Text >) →
+                merge
+                  { Empty = < Empty | NonEmpty : Text >.NonEmpty element
+                  , NonEmpty =
+                      λ(result : Text) →
+                        < Empty | NonEmpty : Text >.NonEmpty
+                          "${element}${separator}${result}"
+                  }
+                  status
+            )
+            < Empty | NonEmpty : Text >.Empty
         )
-        < Empty = {=} | NonEmpty : Text >
-      )
-      : Text
   )
 : ∀(separator : Text) → ∀(elements : List Text) → Text
 ```
@@ -132,7 +131,7 @@ If you understand and trust what you see then you can freeze the import using
 an integrity check.  If you replace the `dhall` command with `dhall hash`:
 
 ```dhall
-$ dhall hash <<< 'http://prelude.dhall-lang.org/Text/concatSep'
+$ dhall hash <<< 'https://prelude.dhall-lang.org/Text/concatSep'
 ```
 
 ```
@@ -143,12 +142,14 @@ sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
 imported expression, like this:
 
 ```dhall
-let concatSep = http://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
+let concatSep =
+      https://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
 
-in  { name = env:USER as Text
-    , age  = 23
-    , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
-    } : ./schema.dhall
+in    { name = env:USER as Text
+      , age = 23
+      , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
+      }
+    : ./schema.dhall
 ```
 
 You can also automatically freeze all imports within a file using
@@ -213,17 +214,19 @@ information about your environment or exfiltrate data to an untrusted source.
 Revisiting our previous example:
 
 ```dhall
-let concatSep = http://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
+let concatSep =
+      https://prelude.dhall-lang.org/Prelude/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
 
-in  { name = env:USER as Text
-    , age  = 23
-    , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
-    } : ./schema.dhall
+in    { name = env:USER as Text
+      , age = 23
+      , hobbies = concatSep ", " [ "piano", "reading", "skiing" ]
+      }
+    : ./schema.dhall
 ```
 
-... the host at `http://prelude.dhall-lang.org` would be able to detect the first
+... the host at `https://prelude.dhall-lang.org` would be able to detect the first
 time we interpret our Dhall program by detecting an HTTP request for
-`http://prelude.dhall-lang.org/Prelude/Text/concatSep`.  Leaking the
+`https://prelude.dhall-lang.org/Prelude/Text/concatSep`.  Leaking the
 presence of an HTTP request at least once is unavoidable if you do not control the
 web service hosting the URL.  However, when you protect an import with a semantic
 integrity check the import is permanently locally cached after the first request,
@@ -303,7 +306,7 @@ https://raw.githubusercontent.com/yourCompany/somePrivateRepository/master/someE
     using [ { header = "Authorization", value = "token ${env:GITHUB_TOKEN as Text}" } ]
 ```
 
-... and `http://.../someExpression.dhall` contains a relative import of
+... and `https://.../someExpression.dhall` contains a relative import of
 `./anotherExpression.dhall` then:
 
 * the interpreter will canonicalize the relative import
@@ -485,7 +488,7 @@ You will get a type error if you try to do so, such as in the following
 anonymous function:
 
 ```dhall
-\(x : Optional Natural) → x + 3  -- Type error
+\(x : Optional Natural) -> x + 3  -- Type error
 ```
 
 This is automatically an error even if you have not yet called the function
@@ -493,15 +496,14 @@ with any argument.  The type system rejects the function definition even in
 isolation.
 
 You have to explicitly modify the function to handle the `Optional` input by
-specifying what do to if the value is absent, typically by using
-`Optional/fold`:
+specifying what do to if the value is absent, typically by using `merge`:
 
 ```dhall
-    \(o : Optional Natural)
-    -- Default `x` to `0` if `x` is absent
-->  let x = Optional/fold Natural o Natural (\(n : Natural) -> n) 0
+\(o : Optional Natural) ->
+  -- Default `x` to `0` if `x` is absent
+  let x = merge { None = 0, Some = \(n : Natural) -> n } o
 
-    in  x + 3
+  in x + 3
 ```
 
 This benefit also applies to your configuration file's schema.  If your
@@ -542,11 +544,11 @@ expansion to this document.
 [danluu]: https://danluu.com/postmortem-lessons/
 [django]: https://docs.djangoproject.com/en/2.0/topics/settings/
 [hcl]: https://www.terraform.io/docs/configuration/syntax.html
-[jsonnet]: http://jsonnet.org/
-[json-schema]: http://json-schema.org/
+[jsonnet]: https://jsonnet.org/
+[json-schema]: https://json-schema.org/
 [json-tutorial]: https://github.com/dhall-lang/dhall-lang/wiki/Getting-started:-Generate-JSON-or-YAML
 [programmable]: https://github.com/dhall-lang/dhall-lang/wiki/Programmable-configuration-files
-[sass]: http://sass-lang.com/
+[sass]: https://sass-lang.com/
 [sbt]: https://www.scala-sbt.org/
 [webpack]: https://webpack.js.org/configuration/configuration-languages/
 [total]: https://en.wikipedia.org/wiki/Total_functional_programming

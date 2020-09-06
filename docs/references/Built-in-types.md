@@ -2,19 +2,8 @@
 
 > A list of all available built-in functionality
 
-This section describes all of the types, functions, and operators built into the
-Dhall language.
-
-Note that this page does not yet include certain keywords, such as:
-
-* `let`/`in` - Used to define intermediate expressions
-* `merge` - Used to consume unions
-* `toMap` - Used to convert records to dictionaries
-* `using`/`as` - Used to modify imports
-* `assert` - Used to write tests
-
-However, in the meantime you can still consult the [Cheatsheet][cheatsheet]
-to get an intuition for how these keywords work.
+This section briefly summarizes all of the types, functions, operators, and
+keywords built into the Dhall language.
 
 ```eval_rst
 .. contents:: Table of Contents
@@ -25,14 +14,7 @@ to get an intuition for how these keywords work.
 
 ## Bool
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'Bool'
-```
-```dhall
-Bool : Type
-```
+A `Bool` value can be either `True` or `False`.
 
 #### Type
 
@@ -41,41 +23,30 @@ Bool : Type
 Γ ⊢ Bool : Type
 ```
 
-### Literals: `Bool`
-
-#### Example
-
-```console
-$ dhall --annotate <<< 'True'
-```
-```dhall
-True : Bool
-```
-
-#### Type
+… and the `True` and `False` literals both have type `Bool`:
 
 ```
 ───────────────
 Γ ⊢ True : Bool
-```
 
-```
 ────────────────
 Γ ⊢ False : Bool
 ```
 
-### Construct: `if`/`then`/`else`
+### Keyword: `if`/`then`/`else`
 
-#### Example
+The most general way to consume a `Bool` value is with an `if` expression.
 
-```console
-$ dhall <<< 'if True then 3 else 5'
-```
 ```dhall
+⊢ if True then 3 else 5
+
 3
 ```
 
 #### Type
+
+The type of an `if` expression is the same as the type of the `then` and `else`
+branches, which must both match:
 
 ```
                Γ ⊢ t : Type
@@ -88,25 +59,27 @@ $ dhall <<< 'if True then 3 else 5'
 #### Rules
 
 ```dhall
-if b then True else False = b
+if b then True else False ≡ b
 
-if True  then l else r = l
+if True  then l else r ≡ l
 
-if False then l else r = r
+if False then l else r ≡ r
 ```
 
 ### Operator: `||` <a op=or />
 
-#### Example
+The `||` operator corresponds to the boolean logical "or".
 
-```console
-$ dhall <<< 'True || False'
-```
 ```dhall
+⊢ True || False
+
 True
 ```
 
 #### Type
+
+Both arguments to the `||` operator must have type `Bool` and the result will
+have type `Bool`:
 
 ```
 Γ ⊢ x : Bool   Γ ⊢ y : Bool
@@ -117,15 +90,15 @@ True
 #### Rules
 
 ```dhall
-x || False = x
+x || False ≡ x
 
-False || x = x
+False || x ≡ x
 
 (x || y) || z = x || (y || z)
 
-x || True = True
+x || True ≡ True
 
-True || x = True
+True || x ≡ True
 
 x || (y && z) = (x || y) && (x || z)
 
@@ -134,16 +107,18 @@ x || (y && z) = (x || y) && (x || z)
 
 ### Operator: `&&` <a op=and />
 
-#### Example
+The `&&` operator corresponds to the boolean logical "and":
 
-```console
-$ dhall <<< 'True && False'
-```
 ```dhall
+⊢ True && False
+
 False
 ```
 
 #### Type
+
+Both arguments to the `&&` operator must have type `Bool` and the result will
+have type `Bool`:
 
 ```
 Γ ⊢ x : Bool   Γ ⊢ y : Bool
@@ -154,15 +129,15 @@ False
 #### Rules
 
 ```dhall
-x && True = x
+x && True ≡ x
 
-True && x = x
+True && x ≡ x
 
 (x && y) && z = x && (y && z)
 
-x && False = False
+x && False ≡ False
 
-False && x = False
+False && x ≡ False
 
 x && (y || z) = (x && y) || (x && z)
 
@@ -171,16 +146,19 @@ x && (y || z) = (x && y) || (x && z)
 
 ### Operator: `==` <a op=equal />
 
-#### Example
+The `==` operator corresponds to boolean logical equality.  Carefully note that
+this operator only works on `Bool` values.
 
-```console
-$ dhall <<< 'True == False'
-```
 ```dhall
+⊢ True == False
+
 False
 ```
 
 #### Type
+
+Both arguments to the `==` operator must have type `Bool` and the result will
+have type `Bool`:
 
 ```
 Γ ⊢ x : Bool   Γ ⊢ y : Bool
@@ -191,27 +169,30 @@ False
 #### Rules
 
 ```dhall
-x == x = True
+x == True ≡ x
 
-x == True = x
-
-True == x = x
+True == x ≡ x
 
 (x == y) == z = x == (y == z)
+
+x == x ≡ True
 ```
 
 ### Operator: `!=` <a op=diff />
 
-#### Example
+The `!=` operator corresponds to boolean logical equality.  Carefully note that
+this operator only works on `Bool` values.
 
-```console
-$ dhall <<< 'True != False'
-```
 ```dhall
+⊢ True != False
+
 True
 ```
 
 #### Type
+
+Both arguments to the `!=` operator must have type `Bool` and the result will
+have type `Bool`:
 
 ```
 Γ ⊢ x : Bool   Γ ⊢ y : Bool
@@ -222,25 +203,18 @@ True
 #### Rules
 
 ```dhall
-x != x = False
+False != x ≡ x
 
-False != x = x
-
-x != False = x
+x != False ≡ x
 
 (x != y) != z = x != (y != z)
+
+x != x ≡ False
 ```
 
 ## Natural
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'Natural'
-```
-```dhall
-Natural : Type
-```
+A `Natural` number is an unsigned number without a fractional component.
 
 #### Type
 
@@ -249,58 +223,60 @@ Natural : Type
 Γ ⊢ Natural : Type
 ```
 
+… and unsigned literals without a decimal have type `Natural`:
+
+```dhall
+⊢ :type 0
+
+Natural
+```
+
 ### Literals: `Natural`
 
-A `Natural` number literal is an unsigned non-negative integer
+`Natural` numbers can be represented using decimal notation:
 
-#### Example
-
-```console
-$ dhall --annotate <<< '2'
-```
 ```dhall
-2 : Natural
+⊢ :type 2
+
+Natural
 ```
 
-```console
-$ dhall --annotate <<< '0xFF'
-```
+… or using hexadecimal notation:
+
 ```dhall
-255 : Natural
-```
+⊢ :type 0xFF
 
-```console
-$ dhall --annotate <<< '0xff'
-```
-```dhall
-255 : Natural
-```
+Natural
 
-#### Type
+⊢ :type 0xff
 
-```
-────────────────
-Γ ⊢ n : Natural
+Natural
 ```
 
 #### Rules
 
+A `Natural` number `n` is equivalent to adding `1` `n` times
+
 ```dhall
-n = 1 + 1 + … + 1 + 1  -- n times
+n = 0 + 1 + 1 + … + 1 + 1
+      └─────────────────┘
+            n times
 ```
 
 ### Operator: `+`
 
-#### Example
+You can add two `Natural` numbers using the `+` operator.
 
-```console
-$ dhall <<< '2 + 3'
-```
 ```dhall
+⊢ 2 + 3
+
 5
 ```
 
 #### Type
+
+Both arguments to the `+` operator must have type `Natural` and the result will
+have type `Natural`:
 
 ```
 Γ ⊢ x : Natural   Γ ⊢ y : Natural
@@ -311,25 +287,27 @@ $ dhall <<< '2 + 3'
 #### Rules
 
 ```dhall
-x + 0 = x
+x + 0 ≡ x
 
-0 + x = x
+0 + x ≡ x
 
 (x + y) + z = x + (y + z)
 ```
 
 ### Operator: `*`
 
-#### Example
+You can multiply two `Natural` numbers using the `*` operator.
 
-```console
-$ dhall <<< '2 * 3'
-```
 ```dhall
+⊢ 2 * 3
+
 6
 ```
 
 #### Type
+
+Both arguments to the `*` operator must have type `Natural` and the result will
+have type `Natural`:
 
 ```
 Γ ⊢ x : Natural   Γ ⊢ y : Natural
@@ -340,15 +318,15 @@ $ dhall <<< '2 * 3'
 #### Rules
 
 ```dhall
-x * 1 = x
+x * 1 ≡ x
 
-1 * x = x
+1 * x ≡ x
 
 (x * y) * z = x * (y * z)
 
-x * 0 = 0
+x * 0 ≡ 0
 
-0 * x = 0
+0 * x ≡ 0
 
 (x + y) * z = (x * z) + (y * z)
 
@@ -357,16 +335,19 @@ x * (y + z) = (x * y) + (x * z)
 
 ### Function: `Natural/even`
 
-#### Example
+The `Natural/even` built-in function returns `True` if a number is even,
+`False` otherwise.
 
-```console
-$ dhall <<< 'Natural/even 6'
-```
 ```dhall
+⊢ Natural/even 6
+
 True
 ```
 
 #### Type
+
+The input to the `Natural/even` function must be a `Natural` number and the
+output is a `Bool`:
 
 ```
 ─────────────────────────────────
@@ -376,23 +357,23 @@ True
 #### Rules
 
 ```dhall
-Natural/even 0 = True
+Natural/even 0 ≡ True
 
 Natural/even (x + y) = Natural/even x == Natural/even y
 
-Natural/even 1 = False
+Natural/even 1 ≡ False
 
 Natural/even (x * y) = Natural/even x || Natural/even y
 ```
 
 ### Function: `Natural/odd`
 
-#### Example
+The `Natural/odd` built-in function returns `True` if a number is odd, `False`
+otherwise.
 
-```console
-$ dhall <<< 'Natural/odd 6'
-```
 ```dhall
+⊢ Natural/odd 6
+
 False
 ```
 
@@ -406,23 +387,23 @@ False
 #### Rules
 
 ```dhall
-Natural/odd 0 = False
+Natural/odd 0 ≡ False
 
 Natural/odd (x + y) = Natural/odd x != Natural/odd y
 
-Natural/odd 1 = True
+Natural/odd 1 ≡ True
 
 Natural/odd (x * y) = Natural/odd x && Natural/odd y
 ```
 
 ### Function: `Natural/isZero`
 
-#### Example
+The `Natural/isZero` built-in function returns `True` if a number is `0`,
+`False` otherwise.
 
-```console
-$ dhall <<< 'Natural/isZero 6'
-```
 ```dhall
+⊢ Natural/isZero 6
+
 False
 ```
 
@@ -436,29 +417,27 @@ False
 #### Rules
 
 ```dhall
-Natural/isZero 0 = True
+Natural/isZero 0 ≡ True
 
 Natural/isZero (x + y) = Natural/isZero x && Natural/isZero y
 
-Natural/isZero 1 = False
+Natural/isZero 1 ≡ False
 
 Natural/isZero (x * y) = Natural/isZero x || Natural/isZero y
 ```
 
 ### Function: `Natural/subtract`
 
-#### Examples
+The `Natural/subtract` built-in function subtracts the first argument from the
+second argument, clamping to `0` if the result is negative:
 
-```console
-$ dhall <<< 'Natural/subtract 1 3'
-```
 ```dhall
+⊢ Natural/subtract 1 3
+
 2
-```
-```console
-$ dhall <<< 'Natural/subtract 3 1'
-```
-```dhall
+
+⊢ Natural/subtract 3 1
+
 0
 ```
 
@@ -472,23 +451,26 @@ $ dhall <<< 'Natural/subtract 3 1'
 #### Rules
 
 ```dhall
-Natural/subtract 0 x = x
+Natural/subtract 0 x ≡ x
 
-Natural/subtract x 0 = 0
+Natural/subtract x 0 ≡ 0
 
-Natural/subtract x x = 0
+Natural/subtract x x ≡ 0
 
 Natural/subtract y (x + y) = x
+
+Natural/subtract (x + y) y = 0
 ```
 
 ### Function: `Natural/fold`
 
-#### Example
+The `Natural/fold` built-in function is the most general way to consume a
+`Natural` number by applying a function to an argument the specified number of
+times.
 
-```console
-$ dhall <<< 'Natural/fold 40 Text (λ(t : Text) → t ++ "!") "Hello"'
-```
 ```dhall
+⊢ Natural/fold 40 Text (λ(t : Text) → t ++ "!") "Hello"
+
 "Hello!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 ```
 
@@ -513,12 +495,12 @@ Natural/fold (x * y) n s = Natural/fold x n (Natural/fold y n s)
 
 ### Function: `Natural/build`
 
-#### Example
+The `Natural/build` built-in function is the most general way to create a
+`Natural` number by specifying how many times to increment zero:
 
-```console
-$ dhall <<< 'Natural/build (λ(natural : Type) → λ(succ : natural → natural) → λ(zero : natural) → succ (succ zero))'
-```
 ```dhall
+⊢ Natural/build (λ(natural : Type) → λ(succ : natural → natural) → λ(zero : natural) → succ (succ zero))
+
 2
 ```
 
@@ -539,12 +521,12 @@ Natural/build (Natural/fold x) = x
 
 ### Function `Natural/show`
 
-#### Example
+The `Natural/show` built-in function renders a `Natural` number as `Text`, using
+decimal notation:
 
-```console
-$ dhall <<< 'Natural/show 42'
-```
 ```dhall
+⊢ Natural/show 42
+
 "42"
 ```
 
@@ -557,12 +539,12 @@ $ dhall <<< 'Natural/show 42'
 
 ### Function `Natural/toInteger`
 
-#### Example
+The `Natural/toInteger` built-in function converts a `Natural` number to the
+corresponding `Integer`:
 
-```console
-$ dhall <<< 'Natural/toInteger 2'
-```
 ```dhall
+⊢ Natural/toInteger 2
+
 +2
 ```
 
@@ -575,14 +557,7 @@ $ dhall <<< 'Natural/toInteger 2'
 
 ## Integer
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'Integer'
-```
-```dhall
-Integer : Type
-```
+An `Integer` is a positive or negative number without a fractional component.
 
 #### Type
 
@@ -591,63 +566,51 @@ Integer : Type
 Γ ⊢ Integer : Type
 ```
 
+… and signed literals without a decimal component have type `Integer`:
+
+```dhall
+⊢ :type +2
+
+Integer
+
+⊢ :type -3
+
+Integer
+```
+
 ### Literals: `Integer`
 
-An `Integer` literal is a either a non-negative integer prefixed with a `+` or
-a negative integer prefixed with a `-`.
+`Integer`s can be represented using decimal notation:
 
-#### Examples
-
-```console
-$ dhall --annotate <<< '+3'
-```
 ```dhall
-+3 : Integer
+⊢ :type +2
+
+Integer
 ```
 
-```console
-$ dhall --annotate <<< '-2'
-```
+… or hexadecimal notation:
+
 ```dhall
--2 : Integer
-```
+⊢ +0xFF
 
-```console
-$ dhall --annotate <<< '+0xFF'
-```
-```dhall
-+255 : Integer
-```
++255
 
-```console
-$ dhall --annotate <<< '+0xff'
-```
-```dhall
-+255 : Integer
-```
+⊢ +0xff
 
-#### Type
-
-```
-────────────────
-Γ ⊢ ±n : Integer
++255
 ```
 
 ### Function `Integer/negate`
 
-#### Example
+The `Integer/negate` built-in function negates its argument:
 
-```console
-$ dhall <<< 'Integer/negate +2'
-```
 ```dhall
+⊢ Integer/negate +2
+
 -2
-```
 
-```console
-$ dhall <<< 'Integer/negate -3'
-```
-```dhall
+⊢ Integer/negate -3
+
 +3
 ```
 
@@ -666,19 +629,16 @@ Integer/negate (Integer/negate x) = x
 
 ### Function `Integer/clamp`
 
-#### Example
+The `Integer/clamp` built-in function converts an `Integer` to a `Natural`
+number, clamping negative values to `0`:
 
-```console
-$ dhall <<< 'Integer/clamp +2'
-```
 ```dhall
+⊢ Integer/clamp +2
+
 2
-```
 
-```console
-$ dhall <<< 'Integer/clamp -3'
-```
-```dhall
+⊢ Integer/clamp -3
+
 0
 ```
 
@@ -701,19 +661,11 @@ Natural/isZero (Integer/clamp x) || Natural/isZero (Integer/clamp (Integer/negat
 
 ### Function `Integer/toDouble`
 
-#### Example
+The `Integer/toDouble` built-in function converts an `Integer` to a `Double`:
 
-```console
-$ dhall <<< 'Integer/toDouble +2'
-```
 ```dhall
-2.0
-```
+⊢ Integer/toDouble -3
 
-```console
-$ dhall <<< 'Integer/toDouble -3'
-```
-```dhall
 -3.0
 ```
 
@@ -726,19 +678,16 @@ $ dhall <<< 'Integer/toDouble -3'
 
 ### Function `Integer/show`
 
-#### Example
+The `Integer/show` built-in function renders an `Integer` as `Text`, using
+decimal notation:
 
-```console
-$ dhall <<< 'Integer/show +2'
-```
 ```dhall
+⊢ Integer/show +2
+
 "+2"
-```
 
-```console
-$ dhall <<< 'Integer/show -3'
-```
-```dhall
+⊢ Integer/show -3
+
 "-3"
 ```
 
@@ -751,14 +700,7 @@ $ dhall <<< 'Integer/show -3'
 
 ## Double
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'Double'
-```
-```dhall
-Double : Type
-```
+A `Double` is an IEEE 754 double-precision floating-point number.
 
 #### Type
 
@@ -767,50 +709,53 @@ Double : Type
 Γ ⊢ Double : Type
 ```
 
+… and numeric literals with a decimal have type `Double`:
+
+```dhall
+⊢ :type 3.14159
+
+Double
+```
+
 ### Literals: `Double`
 
-A `Double` literal must have either at least one decimal place or an exponent
-(or both):
+A `Double` literal must have either at least one decimal place:
 
-#### Examples
-
-```console
-$ dhall --annotate <<< '3.14159'
-```
 ```dhall
-3.14159 : Double
+⊢ :type 1.0
+
+Double
 ```
 
-```console
-$ dhall --annotate <<< '-2e10'
-```
+…or an exponent:
+
 ```dhall
--2.0e10 : Double
+⊢ :type -2e10
+
+Double
 ```
 
-#### Type
+… or both:
 
-```
-────────────────
-Γ ⊢ n.n : Double
+```dhall
+⊢ :type 6.0221409e+23
+
+Double
 ```
 
 ### Function `Double/show`
 
-#### Example
+The `Double/show` built-in function renders a `Double` as `Text` using decimal
+notation:
 
-```console
-$ dhall <<< 'Double/show 2.0'
-```
 ```dhall
+⊢ Double/show 2.0
+
 "2.0"
-```
 
-```console
-$ dhall <<< 'Double/show -1e2'
-```
-```dhall
-"-100"
+⊢ Double/show -1e2
+
+"-100.0"
 ```
 
 #### Type
@@ -822,14 +767,7 @@ $ dhall <<< 'Double/show -1e2'
 
 ## Text
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'Text'
-```
-```dhall
-Text : Type
-```
+`Text` represents human-readable text.
 
 #### Type
 
@@ -843,55 +781,37 @@ Text : Type
 A `Text` literal is either a double-quoted string literal with JSON-style
 escaping rules or a Nix-style multi-line string literal:
 
-#### Examples
-
-```console
-$ dhall --annotate <<< '"ABC"'
-```
 ```dhall
-"ABC" : Text
-```
+⊢ :type "ABC"
 
-```console
-$ dhall <<EOF
-> ''
->     Line 1
->     Line 2
-> ''
-> EOF
+Text
 ```
-```dhall
-"Line 1\nLine 2\n"
-```
-
-#### Type
-
-```
-────────────────
-Γ ⊢ "…" : Text
-```
-
-#### Rules
 
 ```dhall
-"abc…xyz" = "a" ++ "b" ++ "c" ++ … ++ "x" ++ "y" ++ "z"
+⊢ :paste
+-- Entering multi-line mode. Press <Ctrl-D> to finish.
+| :type
+| ''
+|     Line 1
+|     Line 2
+| ''
+| 
+
+Text
 ```
 
 ### Function `Text/show`
 
-#### Example
+The `Text/show` built-in function renders a `Text` literal as a valid JSON
+string:
 
-```console
-$ dhall <<< 'Text/show "ABC"'
-```
 ```dhall
+⊢ Text/show "ABC"
+
 "\"ABC\""
-```
 
-```console
-$ dhall <<< 'Text/show "\n🎉"'
-```
-```dhall
+⊢ Text/show "\n🎉"
+
 "\"\\n🎉\""
 ```
 
@@ -904,16 +824,19 @@ $ dhall <<< 'Text/show "\n🎉"'
 
 ### Operator: `++`
 
-#### Example
+You can concatenate `Text` using the `++` operator:
 
-```console
-$ dhall <<< '"Hello, " ++ "world!"'
-```
 ```dhall
+⊢ "Hello, " ++ "world!"
+
 "Hello, world!"
 ```
 
 #### Type
+
+Both arguments to the `++` operator must have type `Text` and the result will
+have type `Text`:
+
 
 ```
 Γ ⊢ x : Text   Γ ⊢ y : Text
@@ -924,23 +847,16 @@ $ dhall <<< '"Hello, " ++ "world!"'
 #### Rules
 
 ```dhall
+x ++ "" ≡ x
+
+"" ++ x ≡ x
+
 (x ++ y) ++ z = x ++ (y ++ z)
-
-x ++ "" = x
-
-"" ++ x = x
 ```
 
 ## List
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'List'
-```
-```dhall
-List : Type → Type
-```
+A `List` is an ordered sequence of elements, all of which have the same type.
 
 #### Type
 
@@ -956,28 +872,25 @@ square brackets.
 
 An empty `List` literal must end with a type annotation.
 
-#### Examples
-
-```console
-$ dhall --annotate <<< '[ 1, 2, 3 ]'
-```
 ```dhall
-[ 1, 2, 3 ] : List Natural
-```
+⊢ :type [ 1, 2, 3 ]
 
-```console
-dhall <<< '[] : List Natural'
-```
-```dhall
-[] : List Natural
+List Natural
+
+⊢ :type [] : List Natural
+
+List Natural
 ```
 
 #### Type
 
+If each element of a `List` has type `T`, then the type of the `List` is
+`List T`
+
 ```
-Γ ⊢ t : Type   Γ ⊢ x : t   Γ ⊢ y : t   …
+Γ ⊢ T : Type   Γ ⊢ x : T   Γ ⊢ y : T   …
 ────────────────────────────────────────
-Γ ⊢ [x, y, … ] : List t
+Γ ⊢ [ x, y, … ] : List T
 ```
 
 #### Rules
@@ -988,16 +901,18 @@ dhall <<< '[] : List Natural'
 
 ### Operator: `#`
 
-#### Example
+You can concatenate `List`s using the `#` operator:
 
-```console
-$ dhall <<< '[ 1, 2, 3] # [ 4, 5, 6 ]'
-```
 ```dhall
-[ 1, 2, 3, 4, 5, 6, ]
+⊢ [ 1, 2, 3 ] # [ 4, 5, 6 ]
+
+[ 1, 2, 3, 4, 5, 6 ]
 ```
 
 #### Type
+
+Both arguments to the `#` operator must be `List`s that share the same type and
+the result will also be a `List` that shares the same type:
 
 ```
 Γ ⊢ x : List a    Γ ⊢ y : List a
@@ -1008,21 +923,20 @@ $ dhall <<< '[ 1, 2, 3] # [ 4, 5, 6 ]'
 #### Rules
 
 ```dhall
-([] : List a) # xs = xs
+([] : List a) # xs ≡ xs
 
-xs # ([] : List a) = xs
+xs # ([] : List a) ≡ xs
 
 (xs # ys) # zs = xs # (ys # zs)
 ```
 
 ### Function: `List/fold`
 
-#### Example
+The `List/fold` built-in function is the most general way to consume a `List`:
 
-```console
-$ dhall <<< 'List/fold Bool [True, False, True] Bool (λ(x : Bool) → λ(y : Bool) → x && y) True'
-```
 ```dhall
+⊢ List/fold Bool [True, False, True] Bool (λ(x : Bool) → λ(y : Bool) → x && y) True
+
 False
 ```
 
@@ -1045,13 +959,12 @@ List/fold a ([x] : List a) b c = c x
 
 ### Function: `List/build`
 
-#### Example
+The `List/build` built-in function is the most general way to create a `List`:
 
-```console
-$ dhall <<< 'List/build Natural (λ(list : Type) → λ(cons : Natural → list → list) → λ(nil : list) → cons 1 (cons 2 (cons 3 nil)))'
-```
 ```dhall
-[1, 2, 3]
+⊢ List/build Natural (λ(list : Type) → λ(cons : Natural → list → list) → λ(nil : list) → cons 1 (cons 2 (cons 3 nil)))
+
+[ 1, 2, 3 ]
 ```
 
 #### Type
@@ -1071,12 +984,11 @@ List/fold t (List/build t x) = x
 
 ### Function: `List/length`
 
-#### Example
+The `List/length` built-in function returns the length of a `List`:
 
-```console
-$ dhall <<< 'List/length Natural [ 1, 2, 3 ]'
-```
 ```dhall
+⊢ List/length Natural [ 1, 2, 3 ]
+
 3
 ```
 
@@ -1099,10 +1011,12 @@ List/length t [ x ] = 1
 
 ### Function: `List/head`
 
-```console
-$ dhall <<< 'List/head Natural [ 1, 2, 3 ]'
-```
+The `List/head` built-in function returns the first element of a `List` wrapped
+in a `Some`, and `None` otherwise.
+
 ```dhall
+⊢ List/head Natural [ 1, 2, 3 ]
+
 Some 1
 ```
 
@@ -1119,11 +1033,12 @@ Some 1
 List/head a ([] : List a) = None a
 
 List/head a (xs # ys) =
-      let combine =
-              λ(a : Type)
-            → λ(l : Optional a)
-            → λ(r : Optional a)
-            → Optional/fold a l (Optional a) (λ(x : a) → Some x) r
+  let combine =
+        λ(a : Type) →
+        λ(l : Optional a) →
+        λ(r : Optional a) →
+          merge { None = r, Some = λ(x : a) → Some x } l
+
   in  combine a (List/head a xs) (List/head a ys)
 
 List/head a [ x ] = Some x
@@ -1131,12 +1046,12 @@ List/head a [ x ] = Some x
 
 ### Function: `List/last`
 
-#### Example
+The `List/last` built-in function returns the last element of a `List` wrapped
+in a `Some`, and `None` otherwise:
 
-```console
-$ dhall <<< 'List/last Natural [ 1, 2, 3 ]'
-```
 ```dhall
+⊢ List/last Natural [ 1, 2, 3 ]
+
 Some 3
 ```
 
@@ -1153,11 +1068,12 @@ Some 3
 List/last a ([] : List a) = None a
 
 List/last a (xs # ys) =
-      let combine =
-              λ(a : Type)
-            → λ(l : Optional a)
-            → λ(r : Optional a)
-            → Optional/fold a r (Optional a) (λ(x : a) → Some x) l
+  let combine =
+        λ(a : Type) →
+        λ(l : Optional a) →
+        λ(r : Optional a) →
+          merge { None = l, Some = λ(x : a) → Some x } r
+
   in  combine a (List/last a xs) (List/last a ys)
 
 List/last a [ x ] = Some x
@@ -1165,13 +1081,16 @@ List/last a [ x ] = Some x
 
 ### Function: `List/indexed`
 
-#### Example
+The `List/indexed` built-in function tags each element of a `List` with its
+index.
 
-```console
-$ dhall <<< 'List/indexed Text [ "ABC", "DEF", "GHI" ]'
-```
 ```dhall
-[{ index = 0, value = "ABC" }, { index = 1, value = "DEF" }, { index = 2, value = "GHI" }] : List { index : Natural, value : Text }
+⊢ List/indexed Text [ "ABC", "DEF", "GHI" ]
+
+[ { index = 0, value = "ABC" }
+, { index = 1, value = "DEF" }
+, { index = 2, value = "GHI" }
+]
 ```
 
 #### Type
@@ -1187,26 +1106,29 @@ $ dhall <<< 'List/indexed Text [ "ABC", "DEF", "GHI" ]'
 List/indexed a ([] : List a) = [] : List { index : Natural, value : a }
 
 List/indexed a (xs # ys) =
-      let combine =
-          λ(a : Type)
-        → λ(xs : List { index : Natural, value : a })
-        → λ(ys : List { index : Natural, value : a })
-        →   xs
+  let combine =
+        λ(a : Type) →
+        λ(xs : List { index : Natural, value : a }) →
+        λ(ys : List { index : Natural, value : a }) →
+            xs
           # List/build
-            { index : Natural, value : a }
-            (   λ(list : Type)
-              → λ(cons : { index : Natural, value : a } → list → list)
-              → List/fold
-                { index : Natural, value : a }
-                ys
-                list
-                (   λ(x : { index : Natural, value : a })
-                  → cons
-                    { index = x.index + List/length { index : Natural, value : a } xs
-                    , value = x.value
-                    }
-                )
-            )
+              { index : Natural, value : a }
+              ( λ(list : Type) →
+                λ(cons : { index : Natural, value : a } → list → list) →
+                  List/fold
+                    { index : Natural, value : a }
+                    ys
+                    list
+                    ( λ(x : { index : Natural, value : a }) →
+                        cons
+                          { index =
+                                x.index
+                              + List/length { index : Natural, value : a } xs
+                          , value = x.value
+                          }
+                    )
+              )
+
   in  combine a (List/indexed a xs) (List/indexed a ys)
 
 List/indexed a [ x ] = [ { index = 0, value = x } ]
@@ -1214,12 +1136,11 @@ List/indexed a [ x ] = [ { index = 0, value = x } ]
 
 ### Function: `List/reverse`
 
-#### Example
+The `List/reverse` built-in function reverses a `List`:
 
-```console
-$ dhall <<< 'List/reverse Natural [ 1, 2, 3 ]'
-```
 ```dhall
+⊢ List/reverse Natural [ 1, 2, 3 ]
+
 [ 3, 2, 1 ]
 ```
 
@@ -1250,14 +1171,7 @@ List/length a (List/reverse a xs) = List/length a xs
 
 ## Optional
 
-#### Example
-
-```console
-$ dhall --annotate <<< 'Optional'
-```
-```dhall
-Optional : Type → Type
-```
+An `Optional` value represents a value that might be present or absent.
 
 #### Type
 
@@ -1269,88 +1183,32 @@ Optional : Type → Type
 ### Literals: `Optional`
 
 An `Optional` literal is either a present value wrapped in a `Some` or an
-absent value using `None` followed by a type
+absent value using `None` followed by a type.
 
-#### Example
 
-```console
-$ dhall --annotate <<< 'None Natural'
-```
 ```dhall
-None Natural : Optional Natural
-```
+⊢ :type Some 1
 
-```console
-$ dhall --annotate <<< 'Some 1'
-```
-```dhall
-Some 1 : Optional Natural
+Optional Natural
+
+⊢ :type None Natural
+
+Optional Natural
 ```
 
 #### Type
 
+If you wrap a value of type `T` in a `Some`, the final type is `Optional T`:
+
 ```
-Γ ⊢ t : Type   Γ ⊢ x : t
+Γ ⊢ T : Type   Γ ⊢ x : T
 ────────────────────────
-Γ ⊢ Some x : Optional t
+Γ ⊢ Some x : Optional T
 ```
 
 ```
-Γ ⊢ t : Type
 ───────────────────────
-Γ ⊢ None t : Optional t
-```
-
-### Function: `Optional/fold`
-
-#### Example
-
-```console
-$ dhall <<< 'Optional/fold Text (Some "ABC") Text (λ(t : Text) → t) ""'
-```
-```dhall
-"ABC"
-```
-
-#### Type
-
-```
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Γ ⊢ Optional/fold : ∀(a : Type) → Optional a → ∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional
-```
-
-#### Rules
-
-```dhall
-Optional/fold a (None a) o j n = n
-
-Optional/fold a (Some x) o j n = j x
-```
-
-### Function: `Optional/build`
-
-#### Example
-
-```console
-$ dhall <<< 'Optional/build Text (λ(optional : Type) → λ(just : Text → optional) → λ(nothing : optional) → just "abc")'
-```
-```dhall
-Some "abc"
-```
-
-#### Type
-
-```
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Γ ⊢ Optional/build : ∀(a : Type) → (∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional) → Optional a
-```
-
-#### Rules
-
-```dhall
-Optional/build t (Optional/fold t x) = x
-
-Optional/fold t (Optional/build t x) = x
+Γ ⊢ None : ∀(T : Type) → Optional T
 ```
 
 ## Records
@@ -1359,20 +1217,14 @@ Optional/fold t (Optional/build t x) = x
 
 A record type is a sequence of 0 or more key-type pairs inside curly braces.
 
-#### Examples
-
-```console
-$ dhall --annotate <<< '{ foo : Natural, bar : Bool }'
-```
 ```dhall
-{ foo : Natural, bar : Bool } : Type
-```
+⊢ :type { foo : Natural, bar : Bool }
 
-```console
-$ dhall --annotate <<< '{}'
-```
-```dhall
-{} : Type
+Type
+
+⊢ :type {}
+
+Type
 ```
 
 #### Rules
@@ -1388,20 +1240,14 @@ A record value is a sequence of 0 or more key-value pairs inside curly braces.
 An empty record literal must have a single `=` sign between the curly braces to
 distinguish the empty record literal from the empty record type.
 
-#### Examples
-
-```console
-$ dhall --annotate <<< '{ foo = 1, bar = True }'
-```
 ```dhall
-{ foo = 1, bar = True } : { foo : Natural, bar : Bool }
-```
+⊢ :type { foo = 1, bar = True }
 
-```console
-$ dhall --annotate <<< '{=}'
-```
-```dhall
-{=} : {}
+{ bar : Bool, foo : Natural }
+
+⊢ :type {=}
+
+{}
 ```
 
 #### Rules
@@ -1415,14 +1261,11 @@ $ dhall --annotate <<< '{=}'
 * ASCII: `//\\`
 * Unicode: U+2A53
 
-The `⩓` operator recursively merges record types
+The `⩓` operator recursively merges record types.
 
-#### Example
-
-```console
-$ dhall <<< '{ foo : { bar : Bool } } ⩓ { foo : { baz : Text }, qux : List Natural }'
-```
 ```dhall
+⊢ { foo : { bar : Bool } } ⩓ { foo : { baz : Text }, qux : List Natural }
+
 { foo : { bar : Bool, baz : Text }, qux : List Natural }
 ```
 
@@ -1443,21 +1286,18 @@ x ⩓ {} = x
 
 The `∧` operator recursively merges record values
 
-#### Example
-
-```console
-$ dhall <<< '{ foo = { bar = True } } ∧ { foo = { baz = "ABC" }, qux = [1, 2, 3] }'
-```
 ```dhall
+⊢ { foo = { bar = True } } ∧ { foo = { baz = "ABC" }, qux = [1, 2, 3] }
+
 { foo = { bar = True, baz = "ABC" }, qux = [ 1, 2, 3 ] }
 ```
 
 #### Rules
 
 ```dhall
-x ∧ {=} = x
+x ∧ {=} ≡ x
 
-{=} ∧ x = x
+{=} ∧ x ≡ x
 
 (x ∧ y) ∧ z = x ∧ (y ∧ z)
 ```
@@ -1467,43 +1307,37 @@ x ∧ {=} = x
 * ASCII: `//`
 * Unicode: U+2AFD
 
-The `⫽` operator non-recursively merges record values, preferring fields from the right
-record when they conflict
+The `⫽` operator non-recursively merges record values, preferring fields from
+the right record when they conflict
 
-#### Example
-
-```console
-$ dhall <<< '{ foo = 1, bar = True } ⫽ { foo = 2 }'
-```
 ```dhall
-{ foo = 2, bar = True }
+⊢ { foo = 1, bar = True } ⫽ { foo = 2 }
+
+{ bar = True, foo = 2 }
 ```
 
 #### Rules
 
 ```dhall
-x ⫽ {=} = x
+x ⫽ {=} ≡ x
 
-{=} ⫽ x = x
+{=} ⫽ x ≡ x
 
 (x ⫽ y) ⫽ z = x ⫽ (y ⫽ z)
 ```
 
 ### Operator: `::`
 
+The `::` operator auto-completes a record given a provided "schema" (a record
+containing the expected `Type` and `default` values):
 
-The `::` operator auto-completes a record given a provided "schema" (a record containing
-the expected `Type` and `default` values):
-
-#### Example
-
-```console
-$ dhall <<EOF
-```
 ```dhall
-let Example = { Type = { foo : Natural, bar : Bool }, default = { bar = False } }
-in  Example::{ foo = 1 }
-EOF
+⊢ :paste
+-- Entering multi-line mode. Press <Ctrl-D> to finish.
+| let Example = { Type = { foo : Natural, bar : Bool }, default = { bar = False } }
+| in  Example::{ foo = 1 }
+| 
+
 { bar = False, foo = 1 }
 ```
 
@@ -1513,4 +1347,211 @@ EOF
 T::r = (T.default ⫽ r) : T.Type
 ```
 
-[cheatsheet]: <../howtos/Cheatsheet>
+### Keyword: `merge`
+
+The `merge` keyword consumes a union value by providing one handler for
+each possible alternative.
+
+```dhall
+⊢ :paste
+-- Entering multi-line mode. Press <Ctrl-D> to finish.
+| let Example = < Left : Natural | Right : Bool >
+| 
+| let handlers =
+|       { Left = Natural/even
+|       , Right = λ(b : Bool) → b
+|       }
+| 
+| in  [ merge handlers (Example.Left 1)
+|     , merge handlers (Example.Right True)
+|     ]
+| 
+
+[ False, True ]
+```
+
+### Keyword: `toMap`
+
+The `toMap` keyword converts a record literal to a `List` of key-value pairs:
+
+```dhall
+⊢ toMap { foo = 2, bar = 3 }
+
+[ { mapKey = "bar", mapValue = 3 }, { mapKey = "foo", mapValue = 2 } ]
+```
+
+#### Rules
+
+```dhall
+toMap (x ∧ y) = toMap x # toMap y
+
+toMap {=} : T = [] : T
+```
+
+## Imports
+
+An import is either:
+
+* … a remote import (e.g. HTTP / HTTPS request),
+* … a file import (absolute, relative, or home-anchored),
+* … an environment variable import, or:
+* … the `missing` keyword (an import guaranteed to fail)
+
+```dhall
+⊢ https://prelude.dhall-lang.org/v17.1.0/Bool/not.dhall
+
+λ(b : Bool) → b == False
+
+⊢ ~/.ssh/config as Text
+
+''
+Host *
+    AddKeysToAgent yes
+''
+
+⊢ env:SHLVL
+
+1
+```
+
+### Keyword: `missing`
+
+```dhall
+⊢ missing
+
+Error: No valid imports
+
+1│ missing
+
+(input):1:1
+```
+
+### Operator: `?`
+
+The `?` operator attempts to resolve imports for the left expression, falling
+back to the right expression if the left expression fails to resolve.
+
+```dhall
+⊢ missing ? https://prelude.dhall-lang.org/v17.1.0/Bool/not.dhall
+
+λ(b : Bool) → b == False
+```
+
+#### Rules
+
+```dhall
+missing ? x = x
+
+x ? missing = x
+
+(x ? y) ? z = x ? (y ? z)
+```
+
+### Keyword: `as Text`
+
+Adding `as Text` to an import causes the import to return the raw `Text` for
+that import instead of a Dhall expression:
+
+```dhall
+⊢ https://example.com as Text
+
+''
+<!doctype html>
+<html>
+<head>
+    <title>Example Domain</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+    body {
+        background-color: #f0f0f2;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        
+    }
+    div {
+        width: 600px;
+        margin: 5em auto;
+        padding: 2em;
+        background-color: #fdfdff;
+        border-radius: 0.5em;
+        box-shadow: 2px 3px 7px 2px rgba(0,0,0,0.02);
+    }
+    a:link, a:visited {
+        color: #38488f;
+        text-decoration: none;
+    }
+    @media (max-width: 700px) {
+        div {
+            margin: 0 auto;
+            width: auto;
+        }
+    }
+    </style>    
+</head>
+
+<body>
+<div>
+    <h1>Example Domain</h1>
+    <p>This domain is for use in illustrative examples in documents. You may use this
+    domain in literature without prior coordination or asking for permission.</p>
+    <p><a href="https://www.iana.org/domains/example">More information...</a></p>
+</div>
+</body>
+</html>
+''
+```
+
+### Keyword: `using`
+
+The `using` keyword lets you add headers to an HTTP(S) request:
+
+```dhall
+⊢ https://httpbin.org/headers using (toMap { User-Agent = "dhall" }) as Text
+
+''
+{
+  "headers": {
+    "Accept-Encoding": "gzip", 
+    "Host": "httpbin.org", 
+    "User-Agent": "dhall", 
+    "X-Amzn-Trace-Id": "Root=1-5f49b61e-263a9e784179107a83d8714a"
+  }
+}
+''
+```
+
+## Other
+
+The following keywords are not associated with any particular type.
+
+### Keyword: `let`
+
+You can name expressions using the `let` keyword:
+
+```dhall
+⊢ :paste
+-- Entering multi-line mode. Press <Ctrl-D> to finish.
+| let x = 1
+| 
+| let y : Natural = 2
+| 
+| in  x + y
+| 
+
+3
+```
+
+### Keyword: `assert`
+
+You can write a test to verify that two expressions are equal using the
+`assert` keyword combined with the `≡` operator:
+
+```dhall
+⊢ assert : 2 + 2 ≡ 4
+
+assert : 4 ≡ 4
+```

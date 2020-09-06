@@ -27,7 +27,10 @@ let
       in
         import "${dhall-haskell}/default.nix";
 
-    inherit (pkgsNew.dhall-haskell-derivations) dhall dhall-try;
+    inherit (pkgsNew.dhall-haskell-derivations) dhall-try;
+
+    dhall =
+      pkgsNew.haskell.lib.dontCheck pkgsNew.dhall-haskell-derivations.dhall;
 
     instaparse-check = pkgsNew.writeText "build.boot" ''
       (require '[instaparse.core :refer [parser]])
@@ -162,6 +165,12 @@ let
         '';
 
     logo = {
+      ansible =
+        pkgsNew.fetchurl {
+          url    = "https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Mango.png";
+          sha256 = "1zmd6gnx6gx9z6n5i02ipidc2ypakhhv07nznr3a5jjbyl4qqj3y";
+        };
+
       argocd =
         pkgsNew.fetchurl {
           url    = "https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/assets/argo.png";
@@ -180,24 +189,10 @@ let
           sha256 = "0mrjzv690g9mxljzxsvay8asyr8vlxhhs9smmax7mp3psd49b43g";
         };
 
-      golang =
-        pkgsNew.fetchzip {
-          # See also https://blog.golang.org/go-brand
-          url    = "https://storage.googleapis.com/golang-assets/go-logos-v1.0.zip";
-          sha256 = "06vlpk22nxl1a3mz9rpk9fyq483rc4ml8f7lkkfqmabbia9ah7np";
-          stripRoot = false;
-        };
-
-      ruby =
+      concourse =
         pkgsNew.fetchurl {
-          url    = "https://upload.wikimedia.org/wikipedia/commons/7/73/Ruby_logo.svg";
-          sha256 = "1yvvdqcmgpa75y7px3isi4x6690iksq52ilnbslhn7mcngikw6m9";
-        };
-
-      rust =
-        pkgsNew.fetchurl {
-          url    = "http://rust-lang.org/logos/rust-logo-128x128-blk.png";
-          sha256 = "19ycf7ra6pn6gvavpfg1gbi9j8dsmxfm0gnczabvpspv7yaf8i71";
+          url    = "https://raw.githubusercontent.com/concourse/brand/c26ab042b2d241ccdc748f9046539b363a5a13cd/concourse_logo/concourse_logo_b.png";
+          sha256 = "1y02cfz1jhjmmlqa26ifnnivcaa8f6m217n3qf57drgbhrwndnqv";
         };
 
       dhallLarge =
@@ -214,10 +209,30 @@ let
 
       discourse = ./nixops/discourse.svg;
 
+      docker =
+        pkgsNew.fetchurl {
+          url    = "https://www.docker.com/sites/default/files/d8/2019-07/Moby-logo.png";
+          sha256 = "0k8vaai7xdqq19b3c52i2m48v8i4bm8307i46d8vkwwz4fp6f7fi";
+        };
+
       github =
         pkgsNew.fetchzip {
           url    = "https://github-media-downloads.s3.amazonaws.com/GitHub-Mark.zip";
           sha256 = "0qy901f9rjzi0dyd1rb7zas50lcxy42sc7wnxpz2j2hr9ckg2zlz";
+          stripRoot = false;
+        };
+
+      gitlab =
+        pkgsNew.fetchurl {
+          url    = "https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png";
+          sha256 = "1mxk6xxw8bzp3l4jx3jaka9n5a69jbnkw4kzpmy4hbhp7nc33z5w";
+        };
+
+      golang =
+        pkgsNew.fetchzip {
+          # See also https://blog.golang.org/go-brand
+          url    = "https://storage.googleapis.com/golang-assets/go-logos-v1.0.zip";
+          sha256 = "06vlpk22nxl1a3mz9rpk9fyq483rc4ml8f7lkkfqmabbia9ah7np";
           stripRoot = false;
         };
 
@@ -263,6 +278,31 @@ let
           sha256 = "19ff8l1kp3i3gxxbd5na9wbzxkpflcxw0lz2ysb1d6s4ybvr0fnb";
         };
 
+      ruby =
+        pkgsNew.fetchurl {
+          url    = "https://upload.wikimedia.org/wikipedia/commons/7/73/Ruby_logo.svg";
+          sha256 = "1yvvdqcmgpa75y7px3isi4x6690iksq52ilnbslhn7mcngikw6m9";
+        };
+
+      rust =
+        pkgsNew.fetchurl {
+          url    = "http://rust-lang.org/logos/rust-logo-128x128-blk.png";
+          sha256 = "19ycf7ra6pn6gvavpfg1gbi9j8dsmxfm0gnczabvpspv7yaf8i71";
+        };
+
+      slack =
+        pkgsNew.fetchurl {
+          name = "slack-logo.png";
+
+          url =
+            "https://brandfolder.com/slack/attachments/pl546j-7le8zk-afym5u?dl=true&resource_key=pl53se-o7edc-2zw45a&resource_type=Collection";
+
+          sha256 = "0i4yjjgkcky6zfbim17rryy23pbrsc4255jzy14lgy7ja3a5jabk";
+
+          postFetch =
+            "${pkgs.imagemagickBig}/bin/mogrify -format png -crop 300x300+100+100 $downloadedFile";
+        };
+
       stackOverflow =
         pkgsNew.fetchurl {
           url    = "https://cdn.sstatic.net/Sites/stackoverflow/company/img/logos/so/so-icon.svg";
@@ -281,6 +321,12 @@ let
         pkgsNew.fetchurl {
           url    = "https://raw.githubusercontent.com/yaml/yaml-spec/a6f764e13de58d5f753877f588a01b35dc9a5168/logo.png";
           sha256 = "12grgaxpqi755p2rnvw3x02zc69brpnzx208id1f0z42w387j4hi";
+        };
+
+      zulip =
+        pkgsNew.fetchurl {
+          url    = "https://raw.githubusercontent.com/zulip/zulip/28d58c848d60b2b93e82b2aa61c560268806ebb6/static/images/logo/zulip-icon-128x128.png";
+          sha256 = "0j7khvym2p4f8dqdl7k7k4rypj1hai2rj0pjzb6h41fvjyjmbrrr";
         };
     };
 
@@ -331,6 +377,33 @@ let
       system = "x86_64-linux";
     }).system;
 
+  vm =
+    (import "${dhallLangNixpkgs}/nixos" {
+      configuration = {
+        imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
+
+        networking.hostName = "dhall-lang";
+
+        nixpkgs.overlays = [ overlay ];
+
+        systemd.services.self-deploy.enable = false;
+
+        users = {
+          mutableUsers = false;
+
+          users.root.password = "";
+        };
+
+        virtualisation = {
+          cores = 2;
+
+          memorySize = "4096";
+        };
+      };
+
+      system = "x86_64-linux";
+    }).vm;
+
 in
   { dhall-lang = pkgs.releaseTools.aggregate {
       name = "dhall-lang";
@@ -341,11 +414,12 @@ in
         pkgs.prelude-lint
         pkgs.test-files-lint
         machine
+        vm
         rev
       ];
     };
 
     inherit (pkgs) expected-prelude expected-test-files docs website;
 
-    inherit machine;
+    inherit machine vm;
   }

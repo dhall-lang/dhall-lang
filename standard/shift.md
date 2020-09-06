@@ -338,6 +338,11 @@ The remaining rules are:
     ↑(d, x, m, assert : T₀) = assert : T₁
 
 
+    ↑(d, x, m, e₀) = e₁   ↑(d, x, m, v₀) = v₁
+    ───────────────────────────────────────────────────
+    ↑(d, x, m, e₀ with k.ks… = v₀) = e₁ with k.ks… = v₁
+
+
     ─────────────────────
     ↑(d, x, m, n.n) = n.n
 
@@ -478,14 +483,6 @@ The remaining rules are:
 
     ───────────────────────────────────────
     ↑(d, x, m, List/reverse) = List/reverse
-
-
-    ─────────────────────────────────────────
-    ↑(d, x, m, Optional/fold) = Optional/fold
-
-
-    ───────────────────────────────────────────
-    ↑(d, x, m, Optional/build) = Optional/build
 
 
     ─────────────────────────────────

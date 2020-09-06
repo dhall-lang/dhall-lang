@@ -1,7 +1,2 @@
-{- An internal type used by `./renderAs` to select the output format.
-
-   You should not need to use this type directly, simply use `./render`
-   or `./renderYAML` as appropriate.
--}
-
-< YAML | JSON >
+  ./Format.dhall sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
+? ./Format.dhall

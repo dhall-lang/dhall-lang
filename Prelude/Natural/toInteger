@@ -1,12 +1,2 @@
-{-
-Convert a `Natural` number to the corresponding `Integer`
--}
-let toInteger
-    : Natural → Integer
-    = Natural/toInteger
-
-let example0 = assert : toInteger 3 ≡ +3
-
-let example1 = assert : toInteger 0 ≡ +0
-
-in  toInteger
+  ./toInteger.dhall sha256:160d2d278619f3da34a1f4f02e739a447e4f2aa5a2978c45b710515b41491e1f
+? ./toInteger.dhall

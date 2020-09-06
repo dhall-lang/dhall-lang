@@ -206,7 +206,7 @@ quoted-label-char =
         ; %x60 = '`'
     / %x61-7E
 
-quoted-label = 1*quoted-label-char
+quoted-label = *quoted-label-char
 
 ; NOTE: Dhall does not support Unicode labels, mainly to minimize the potential
 ; for code obfuscation
@@ -370,7 +370,9 @@ NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
 assert                = %x61.73.73.65.72.74
-forall                = %x2200 / %x66.6f.72.61.6c.6c ; "∀" / "forall"
+forall-keyword        = %x66.6f.72.61.6c.6c ; "forall"
+forall-symbol         = %x2200 ; Unicode FOR ALL
+forall                = forall-symbol / forall-keyword
 with                  = %x77.69.74.68
 
 ; Unused rule that could be used as negative lookahead in the
@@ -382,9 +384,12 @@ keyword =
     / assert / as
     / Infinity / NaN
     / merge / Some / toMap
-    / forall
+    / forall-keyword
     / with
 
+; Note that there is a corresponding parser test in
+; `tests/parser/success/builtinsA.dhall`. Please update it when
+; you modify this `builtin` rule.
 builtin =
       Natural-fold
     / Natural-build
@@ -406,8 +411,6 @@ builtin =
     / List-last
     / List-indexed
     / List-reverse
-    / Optional-fold
-    / Optional-build
     / Text-show
     / Bool
     / True
@@ -460,8 +463,6 @@ List-head         = %x4c.69.73.74.2f.68.65.61.64
 List-last         = %x4c.69.73.74.2f.6c.61.73.74
 List-indexed      = %x4c.69.73.74.2f.69.6e.64.65.78.65.64
 List-reverse      = %x4c.69.73.74.2f.72.65.76.65.72.73.65
-Optional-fold     = %x4f.70.74.69.6f.6e.61.6c.2f.66.6f.6c.64
-Optional-build    = %x4f.70.74.69.6f.6e.61.6c.2f.62.75.69.6c.64
 Text-show         = %x54.65.78.74.2f.73.68.6f.77
 
 ; Operators
@@ -580,7 +581,6 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 
 ; NOTE: This does not match the official grammar for a URI.  Specifically:
 ;
-; * path segments may be quoted instead of using percent-encoding
 ; * this does not support fragment identifiers, which have no meaning within
 ;   Dhall expressions and do not affect import resolution
 ; * the characters "(" ")" and "," are not included in the `sub-delims` rule:
@@ -593,13 +593,9 @@ scheme = %x68.74.74.70 [ %x73 ]  ; "http" [ "s" ]
 ;
 ; Reserved characters in quoted path components should be percent-encoded
 ; according to https://tools.ietf.org/html/rfc3986#section-2
-http-raw = scheme "://" authority url-path [ "?" query ]
+http-raw = scheme "://" authority path-abempty [ "?" query ]
 
-; Temporary rule to allow old-style `path-component`s and RFC3986 `segment`s in
-; the same grammar. Eventually we can just use `path-abempty` from the same
-; RFC. See issue #581
-
-url-path = *(path-component / "/" segment)
+path-abempty = *( "/" segment )
 
 ; NOTE: Backtrack if parsing the optional user info prefix fails
 authority = [ userinfo "@" ] host [ ":" port ]
@@ -857,7 +853,8 @@ selector-expression = primitive-expression *(whsp "." whsp selector)
 
 selector = any-label / labels / type-selector
 
-labels = "{" whsp [ any-label-or-some whsp *("," whsp any-label-or-some whsp) ] "}"
+labels =
+    "{" whsp [ "," whsp ] [ any-label-or-some whsp *("," whsp any-label-or-some whsp) [ "," whsp ] ] "}"
 
 type-selector = "(" whsp expression whsp ")"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
@@ -896,39 +893,33 @@ primitive-expression =
 
 record-type-or-literal =
       empty-record-literal
-    / non-empty-record-type-or-literal
-    / empty-record-type
+    / [non-empty-record-type-or-literal]
 
-empty-record-literal = "="
-empty-record-type = ""
+empty-record-literal = "=" [ whsp "," ]
 
 non-empty-record-type-or-literal =
     (non-empty-record-type / non-empty-record-literal)
 
 non-empty-record-type =
-    record-type-entry *(whsp "," whsp record-type-entry)
+    record-type-entry *(whsp "," whsp record-type-entry) [ whsp "," ]
 
 record-type-entry = any-label-or-some whsp ":" whsp1 expression
 
 non-empty-record-literal =
-    record-literal-entry *(whsp "," whsp record-literal-entry)
+    record-literal-entry *(whsp "," whsp record-literal-entry) [ whsp "," ]
 
+; If the `record-literal-normal-entry` is absent, that represents a punned
+; record entry, such as in `{ x }`, which is a short-hand for `{ x = x }`
 record-literal-entry =
-    any-label-or-some (record-literal-normal-entry / record-literal-punned-entry)
+    any-label-or-some [record-literal-normal-entry]
 
 record-literal-normal-entry =
     *(whsp "." whsp any-label-or-some) whsp "=" whsp expression
-record-literal-punned-entry = ""
 
-
+; If the `union-type-entry` is absent, that represents an empty union
+; alternative, such as in `< Heads | Tails >`
 union-type =
-      non-empty-union-type
-    / empty-union-type
-
-empty-union-type = ""
-
-non-empty-union-type =
-    union-type-entry *(whsp "|" whsp union-type-entry)
+    [union-type-entry *(whsp "|" whsp union-type-entry) [ whsp "|" ]]
 
 ; x : Natural
 ; x
@@ -936,7 +927,7 @@ union-type-entry = any-label-or-some [ whsp ":" whsp1 expression ]
 
 
 non-empty-list-literal =
-    "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) "]"
+    "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) [ "," whsp ] "]"
 
 ; This just adds surrounding whitespace for the top-level of the program
 complete-expression = whsp expression whsp

@@ -1,13 +1,2 @@
-{-
-Reverse a list
--}
-let reverse
-    : ∀(a : Type) → List a → List a
-    = List/reverse
-
-let example0 = assert : reverse Natural [ 0, 1, 2 ] ≡ [ 2, 1, 0 ]
-
-let example1 =
-      assert : reverse Natural ([] : List Natural) ≡ ([] : List Natural)
-
-in  reverse
+  ./reverse.dhall sha256:ad99d224d61852de6696da5a7d04c98dbe676fe67d5e4ef4f19e9aaa27006e9d
+? ./reverse.dhall

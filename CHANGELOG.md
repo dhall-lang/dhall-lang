@@ -5,6 +5,318 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v18.0.0`
+
+Breaking changes:
+
+* [Enable `with` optimizations](https://github.com/dhall-lang/dhall-lang/pull/1052)
+
+  The standard now gives implementations more freedom to optimize the
+  β-reduction of `with` expressions, mainly in order to avoid pathological
+  time and space complexity when interpreting chained `with` expressions, like:
+
+  ```dhall
+  r with x.y = a with z = b
+  ```
+
+  Along the way, this changes how `with` expressions are encoded in the
+  binary representation, which means that this is a technically breaking
+  change.
+
+  In practice, you are unlikely to to be affected by this change, except for the
+  rare case where you protect an import with a semantic integrity check and the
+  contents of the protected import contain a `with` expression where the
+  left-hand side of the `with` expression is abstract, such as this one:
+
+  ```dhall
+  λ(x: { a : Natural}) → x with a = 42 
+  ```
+
+  Other than that, semantic integrity checks are not affected because the
+  interpreter will β-normalize away the `with` expression, which will then
+  not affect the final hash.
+
+New features:
+
+* [Add `Prelude/Map/unpackOptionals`](https://github.com/dhall-lang/dhall-lang/pull/1056)
+
+Other changes:
+
+* Fixes and improvements to the Prelude:
+
+  * [Use `dhall-docs` comment format for Prelude](https://github.com/dhall-lang/dhall-lang/pull/1045)
+  * [Amend relative import expressions on Prelude to use `.dhall` extensions](https://github.com/dhall-lang/dhall-lang/pull/1053)
+
+## `v17.1.0`
+
+New features:
+
+* [Allow trailing delimiters](https://github.com/dhall-lang/dhall-lang/pull/956)
+
+  The language now permits trailing delimiters, including:
+
+  * Trailing commas for record literals:
+
+    ```dhall
+    { x = 1, y = 2, }
+    ```
+
+  * Trailing commas for record types:
+
+    ```dhall
+    { x : Natural, y : Natural, }
+    ```
+
+  * Trailing commas for list literals:
+
+    ```dhall
+    [ 1, 2, ]
+    ```
+
+  * Trailing bars for union types:
+
+    ```dhall
+    < Left : Natural | Right : Bool | >
+    ```
+
+  These trailing delimiters will allow you to format your code in a style
+  more familiar to JavaScript / Python / Go / Rust programmers.
+
+* [Add `.dhall` extensions on Prelude files](https://github.com/dhall-lang/dhall-lang/pull/1026)
+
+  All Prelude files now include a version with a `.dhall` extension, both for
+  consistency with the rest of the ecosystem and to automatically trigger
+  correct syntax highlighting and editor support based on the `.dhall`
+  extension.
+
+  The old files without the extension are still present (so this change is
+  backwards-compatible), but now all they do is re-export the file with the
+  `.dhall` extension.
+
+  New additions to the Prelude will require the `.dhall` extension and won't
+  include the extension-free counterpart.
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Update import section in standard for 17.0.0](https://github.com/dhall-lang/dhall-lang/pull/1030)
+  * [Fix code block syntax for multi-line strings judgment](https://github.com/dhall-lang/dhall-lang/pull/1039)
+
+## `v17.0.0`
+
+Breaking changes:
+
+* [Remove the ability to quote paths in URLs](https://github.com/dhall-lang/dhall-lang/pull/1005)
+
+  After a deprecation period, quoted path components are no longer supported in
+  URLs.  For example, this is no longer valid:
+
+  ```dhall
+  https://example.com/"foo bar"
+  ```
+
+  Instead, you will now need to percent-encode path components:
+
+  ```dhall
+  https://example.com/foo%20bar
+  ```
+
+  For more details, see: [Deprecation of quoted paths in URLs](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-quoted-paths-in-URLs.html)
+
+* [Remove `Optional/build` and `Optional/fold`](https://github.com/dhall-lang/dhall-lang/pull/1014)
+
+  After a deprecation period, `Optional/build` and `Optional/fold` are no longer
+  built-ins and can be implemented in terms of other language constructs.
+
+  Specifically, `Optional/build` can be replaced with `Prelude.Optional.build`,
+  which is defined as:
+
+  ```dhall
+  λ(a : Type) →
+  λ ( build
+    : ∀(optional : Type) → ∀(some : a → optional) → ∀(none : optional) → optional
+    ) →
+    build (Optional a) (λ(x : a) → Some x) (None a)
+  ```
+
+  ... and `Optional/fold` can be replaced with `Prelude.Optional.fold`, which is
+  defined as:
+
+  ```dhall
+  λ(a : Type) →
+  λ(o : Optional a) →
+  λ(optional : Type) →
+  λ(some : a → optional) →
+  λ(none : optional) →
+    merge { None = none, Some = some } o
+  ```
+
+  For more details, see: [Deprecation of `Optional/fold` and `Optional/build`](https://docs.dhall-lang.org/howtos/migrations/Deprecation-of-Optional-fold-and-Optional-build.html)
+
+New features:
+
+* [Allow quoted labels to be empty](https://github.com/dhall-lang/dhall-lang/pull/980)
+
+  You can now define records with blank labels, so long as you escape them with
+  backticks, like this:
+
+  ```dhall
+  { `` = 1 }
+  ```
+
+* Fixes and improvements to the Prelude:
+
+  * [Add `Prelude/List/unpackOptional`](https://github.com/dhall-lang/dhall-lang/pull/991)
+  * [Fix `List/zip`](https://github.com/dhall-lang/dhall-lang/pull/995)
+  * [Prelude: Reduce cache size of JSON rendering code](https://github.com/dhall-lang/dhall-lang/pull/1015)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Not all ABNF parsers like empty rules](https://github.com/dhall-lang/dhall-lang/pull/987)
+  * [Ensure `keyword` rule only matches keywords](https://github.com/dhall-lang/dhall-lang/pull/1001)
+  * [Remove Unicode character from `dhall.abnf`](https://github.com/dhall-lang/dhall-lang/pull/1004)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Test that we typecheck `let` annotations](https://github.com/dhall-lang/dhall-lang/pull/1010)
+  * [Add keyword record fields failure tests](https://github.com/dhall-lang/dhall-lang/pull/1013)
+
+## `v16.0.0`
+
+Breaking changes:
+
+* [Adjust precedence of `===` and `with`](https://github.com/dhall-lang/dhall-lang/pull/954)
+
+  This includes two precedence changes:
+
+  * `with` expressions now forbid operators for their left-hand agument
+
+    For example, now these parentheses are required:
+
+    ```dhall
+    ({ x = 0 } ∧ { y = 1 }) with x = 1
+    ```
+
+    Previously, if you omitted the parentheses, like this:
+
+    ```dhall
+    { x = 0 } ∧ { y = 1 } with x = 1
+    ```
+
+    ... that would have parsed as:
+
+    ```dhall
+    { x = 0 } ∧ ({ y = 1 } with x = 1)
+    ```
+
+    ... but now you would get a failed parse if you were to omit the
+    parentheses.
+
+    This restriction forbids expressions that might have been ambiguous to
+    readers.  This is definitely a breaking change, since such expressions were
+    previously valid now require explicit parentheses, otherwise they will fail
+    to parse.
+
+    Along the same lines, an expression like this:
+
+    ```dhall
+    record with x.y = {} // { x = 1 }
+    ```
+
+    ... used to parse as:
+
+    ```dhall
+    (record with x.y = {}) // { x = 1 }
+    ```
+
+    ... but now parses as:
+
+    ```dhall
+    record with x.y = ({} // { x = 1 })
+    ```
+
+    ... which is a different expression.
+
+    The motivation for the latter change in precedence is to permit right-hand
+    sides that contain operators without explicit parentheses, like this:
+
+    ```dhall
+    record with x.y = 2 + 2
+    ```
+
+  * The precedence of `===` is now lower than all of the operators
+
+    The motivation for this change is to that you no longer need to parenthesize
+    tests just because they use operators.  For example, previously the
+    following parentheses were mandatory:
+
+    ```dhall
+    let example = assert : (2 + 2) === 4
+    ```
+
+    ... and now you can safely omit the parentheses:
+
+    ```dhall
+    let example = assert : 2 + 2 === 4
+    ```
+
+    This part is not a breaking change because any expression affected by this
+    change in precedence would not have type-checked anyway.
+
+* [Update encoding of floating point values to RFC7049bis](https://github.com/dhall-lang/dhall-lang/pull/958)
+
+  This changes how `Double` literals are encoded to match a new standard
+  recommendation how to canonically encode floating point values.  Specifically,
+  these values are now encoded using the smallest available CBOR representation,
+  (which could be half precision floating point values).  Previously, the Dhall
+  standard would always use at least 32 bits for encoding floating point values
+  (except for special values like `Infinity` or `NaN`).
+
+  This is a technically breaking change because this affects the computed
+  integrity checks for frozen imports, but you are less likely to hit this in
+  practice because: (A) usually only Dhall packages containing reusable
+  utilities are frozen using integrity checks and (B) there are essentially
+  no useful utilities one could write in Dhall using specific `Double` literals
+  since they are opaque.
+
+New features:
+
+* [Allow unions with mixed kinds](https://github.com/dhall-lang/dhall-lang/pull/957)
+
+  Now, a union type like this one is valid:
+
+  ```dhall
+  < x : Bool | y | z : Type > 
+  ```
+
+  ... or more generally you can mix terms, types, and kinds within the same
+  union (similar to how you can mix them within records).
+
+  Besides permitting more expressions this change also simplifies the standard.
+
+* New additions to the Prelude
+
+  * [Add `Prelude.List.index`](https://github.com/dhall-lang/dhall-lang/pull/966)
+  * [Add `Text/{replicate,spaces}`](https://github.com/dhall-lang/dhall-lang/pull/967)
+  * [Add `List/zip`](https://github.com/dhall-lang/dhall-lang/pull/971)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Improve whitespace consistency](https://github.com/dhall-lang/dhall-lang/pull/947)
+  * [Add missed type-inference context sets](https://github.com/dhall-lang/dhall-lang/pull/948)
+  * [Clarify `as Location` semantics](https://github.com/dhall-lang/dhall-lang/pull/972)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Add regression test for partially saturated `{List,Natural}/fold`](https://github.com/dhall-lang/dhall-lang/pull/950)
+  * [Remove dependency on `csrng.net`](https://github.com/dhall-lang/dhall-lang/pull/969)
+  * [Add test that we ignore poisoned cache entries](https://github.com/dhall-lang/dhall-lang/pull/983)
+
 ## `v15.0.0`
 
 Deprecation notice:
@@ -318,7 +630,7 @@ New features:
 
 * New additions to the Prelude
 
-  * [Add `Prelude.Integer.{negative,nonNegative,nonPositive,positive}](https://github.com/dhall-lang/dhall-lang/pull/857)
+  * [Add `Prelude.Integer.{negative,nonNegative,nonPositive,positive}`](https://github.com/dhall-lang/dhall-lang/pull/857)
   * [Add `Prelude.Function.identity`](https://github.com/dhall-lang/dhall-lang/pull/865)
 
 Other changes:

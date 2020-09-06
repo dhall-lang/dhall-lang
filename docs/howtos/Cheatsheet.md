@@ -147,10 +147,7 @@
     ```dhall
     None Natural, Some 1 : Optional Natural
 
-
-    Optional/fold Natural (Some 2) Text Natural/show "" = "2"
-
-    Optional/build Natural (λ(optional : Type) → λ(just : Natural → optional) → λ(nothing : optional) → just 1) = Some 1
+    merge { None = "", Some = Natural/show } (Some 2) = "2"
     ```
 
 *   Records
@@ -233,11 +230,11 @@
     λ(inputArgument : inputType) → outputResult : ∀(inputArgument : inputType) → outputType  -- Unicode syntax
 
     let describe =
-        λ(name : Text)
-      → λ(age : Natural)
-      → "Name: ${name}, Age: ${Natural/show age}"
+      λ(name : Text) →
+      λ(age : Natural) →
+        "Name: ${name}, Age: ${Natural/show age}"
 
-    in  describe "John Doe" 21 = "Name: John Doe, Age: 21"
+    in  describe "John Doe" 21 -- "Name: John Doe, Age: 21"
     ```
 
 *   Polymorphism

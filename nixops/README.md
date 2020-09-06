@@ -68,12 +68,16 @@ All of these services are configured in
 [`./nixops/logical.nix`](./logical.nix), and you can update them by creating a
 pull request to amend that file.
 
-There currently is not a good way to locally test your changes, but you can at
-least locally verify that the machine configuration builds correctly by running:
+Verify that the machine configuration builds correctly by running this
+command from the project root (ie `dhall-lang/`, not
+`dhall-lang/nixops/`):
 
 ```bash
 $ nix build --file ./release.nix machine
 ```
+
+See the section [Testing](#testing) on how to run the built configuration locally
+in a virtual machine.
 
 If you have SSH access to the machine then you can also do a test deploy by
 running:
@@ -110,6 +114,33 @@ $ ssh dhall-lang.org
 
 ... and you should have `sudo` privileges if you included yourself in the
 `wheel` group.
+
+## Testing
+
+If you have a Linux machine with Nix installed, you can test the same
+configuration inside of a VM using this script:
+
+```bash
+./scripts/test-vm.sh
+```
+
+You can then log into the VM using the `root` user with an empty password.
+
+You can also forward a port from the guest machine to the host machine using the
+following command:
+
+```bash
+QEMU_NET_OPTS="hostfwd=tcp::${HOST_PORT}-:${GUEST_PORT}" ./scripts/test-vm.sh 
+```
+
+For example, you can browse the website hosted by the VM by running the
+following command:
+
+```bash
+QEMU_NET_OPTS='hostfwd=tcp::8443-:443' ./scripts/test-vm.sh 
+```
+
+... and then opening https://localhost:8443 in your browser.
 
 ## Bootstrapping
 

@@ -36,8 +36,8 @@ let List/map =
       https://prelude.dhall-lang.org/v11.1.0/List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
 
 let generate-test-name =
-          \(prefix : Text)
-      ->  List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
+      \(prefix : Text) ->
+        List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
 
 in  generate-test-name "variantA" [ "suffixA", "suffixB" ]
 ```
@@ -105,17 +105,17 @@ let List/map =
       https://prelude.dhall-lang.org/v11.1.0/List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
 
 let generate-test-name =
-          \(prefix : Text)
-      ->  List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
+      \(prefix : Text) ->
+        List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
 
 let generate-test-suite =
-          \(prefixes : List Text)
-      ->  \(suffixes : List Text)
-      ->  List/map
-            Text
-            (List Text)
-            (\(prefix : Text) -> generate-test-name prefix suffixes)
-            prefixes
+      \(prefixes : List Text) ->
+      \(suffixes : List Text) ->
+        List/map
+          Text
+          (List Text)
+          (\(prefix : Text) -> generate-test-name prefix suffixes)
+          prefixes
 
 in  generate-test-suite [ "variantA", "variantB" ] [ "suffixA", "suffixB" ]
 ```
@@ -168,21 +168,21 @@ Therefore, we can implement a `flatten-list-text` function like so:
 -- ./concat-example.dhall
 let {- Convert [[a, b], [c, d]] to [a, b, c, d] -}
     flatten-list-text =
-          \(to-fold : List (List Text))
-      ->    List/fold
-              (List Text)
-              to-fold
-              (List Text)
-              (\(a : List Text) -> \(b : List Text) -> a # b)
-              ([] : List Text)
-          : List Text
+      \(to-fold : List (List Text)) ->
+          List/fold
+            (List Text)
+            to-fold
+            (List Text)
+            (\(a : List Text) -> \(b : List Text) -> a # b)
+            ([] : List Text)
+        : List Text
 
 let example =
-          \(a : Text)
-      ->  \(b : Text)
-      ->  \(c : Text)
-      ->  \(d : Text)
-      ->  assert : flatten-list-text [ [ a, b ], [ c, d ] ] === [ a, b, c, d ]
+      \(a : Text) ->
+      \(b : Text) ->
+      \(c : Text) ->
+      \(d : Text) ->
+        assert : flatten-list-text [ [ a, b ], [ c, d ] ] === [ a, b, c, d ]
 
 in  flatten-list-text [ [ "A", "B" ], [ "C", "D" ] ]
 ```
@@ -227,21 +227,21 @@ let List/map =
       https://prelude.dhall-lang.org/v11.1.0/List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
 
 let generate-test-name =
-          \(prefix : Text)
-      ->  List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
+      \(prefix : Text) ->
+        List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
 
 let generate-test-suite =
-          \(prefixes : List Text)
-      ->  \(suffixes : List Text)
-      ->  let flatten-list-text = https://prelude.dhall-lang.org/List/concat Text
+      \(prefixes : List Text) ->
+      \(suffixes : List Text) ->
+        let flatten-list-text = https://prelude.dhall-lang.org/List/concat Text
 
-          in  flatten-list-text
-                ( List/map
-                    Text
-                    (List Text)
-                    (\(prefix : Text) -> generate-test-name prefix suffixes)
-                    prefixes
-                )
+        in  flatten-list-text
+              ( List/map
+                  Text
+                  (List Text)
+                  (\(prefix : Text) -> generate-test-name prefix suffixes)
+                  prefixes
+              )
 
 in  generate-test-suite [ "variantA", "variantB" ] [ "suffixA", "suffixB" ]
 ```
@@ -297,26 +297,26 @@ let List/map =
       https://prelude.dhall-lang.org/v11.1.0/List/map sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
 
 let generate-test-name =
-          \(prefix : Text)
-      ->  List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
+      \(prefix : Text) ->
+        List/map Text Text (\(suffix : Text) -> "${prefix}-${suffix}")
 
 let generate-test-suite =
-          \(prefixes : List Text)
-      ->  \(suffixes : List Text)
-      ->  let flatten-list-text = https://prelude.dhall-lang.org/List/concat Text
+      \(prefixes : List Text) ->
+      \(suffixes : List Text) ->
+        let flatten-list-text = https://prelude.dhall-lang.org/List/concat Text
 
-          in  flatten-list-text
-                ( List/map
-                    Text
-                    (List Text)
-                    (\(prefix : Text) -> generate-test-name prefix suffixes)
-                    prefixes
-                )
+        in  flatten-list-text
+              ( List/map
+                  Text
+                  (List Text)
+                  (\(prefix : Text) -> generate-test-name prefix suffixes)
+                  prefixes
+              )
 
 let generate-test-matrix =
-          \(variations : List (List Text))
-      ->  \(last : List Text)
-      ->  List/fold (List Text) variations (List Text) generate-test-suite last
+      \(variations : List (List Text)) ->
+      \(last : List Text) ->
+        List/fold (List Text) variations (List Text) generate-test-suite last
 
 in  generate-test-matrix
       [ [ "tox" ], [ "py27", "py38" ], [ "postgresql", "sqlite" ] ]
@@ -335,4 +335,3 @@ in  generate-test-matrix
 
 > **Note**: Using the `List/head` function the `generate-test-matrix` could
 > be improved to take a single list of argument.
-> A follow-up tutorial introduces that using `Optional/fold`

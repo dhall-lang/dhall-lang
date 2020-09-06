@@ -1,16 +1,2 @@
-{-
-Flatten two `Optional` layers into a single `Optional` layer
--}
-let concat
-    : ∀(a : Type) → Optional (Optional a) → Optional a
-    =   λ(a : Type)
-      → λ(x : Optional (Optional a))
-      → merge { Some = λ(y : Optional a) → y, None = None a } x
-
-let example0 = assert : concat Natural (Some (Some 1)) ≡ Some 1
-
-let example1 = assert : concat Natural (Some (None Natural)) ≡ None Natural
-
-let example2 = assert : concat Natural (None (Optional Natural)) ≡ None Natural
-
-in  concat
+  ./concat.dhall sha256:b7736bd3ebeab14c3912dfb534d0c970a025b001d06c2d5461d4b0e289e3cb7a
+? ./concat.dhall

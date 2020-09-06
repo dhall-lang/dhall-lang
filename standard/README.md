@@ -119,6 +119,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / t.(s)                             ; Field projection by type
   / T::r                              ; Record completion
   / assert : T                        ; Assert judgemental equality
+  / e with k.ks… = v                  ; Nested record update
   / n.n                               ; Double-precision floating point literal
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
@@ -167,8 +168,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/last                         ; Last element of list
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
-  / Optional/build                    ; Optional introduction
-  / Optional/fold                     ; Optional elimination
   / Text/show                         ; Convert Text to its own representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type

@@ -1,14 +1,2 @@
-{-
-The `or` function returns `True` if there are any `True` elements in the `List`
-and returns `False` otherwise
--}
-let or
-    : List Bool → Bool
-    =   λ(xs : List Bool)
-      → List/fold Bool xs Bool (λ(l : Bool) → λ(r : Bool) → l || r) False
-
-let example0 = assert : or [ True, False, True ] ≡ True
-
-let example1 = assert : or ([] : List Bool) ≡ False
-
-in  or
+  ./or.dhall sha256:5c50738e84e1c4fed8343ebd57608500e1b61ac1f502aa52d6d6edb5c20b99e4
+? ./or.dhall

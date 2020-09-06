@@ -39,8 +39,6 @@
             hydra-queue-runner@dhall-lang.org x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local,big-parallel
           '';
         };
-
-    systemPackages = [ pkgs.hydra ];
   };
 
   mailserver = {
@@ -66,7 +64,7 @@
     };
 
     policydSPFExtraConfig = ''
-      skip_addresses = 172.17.0.2/32
+      skip_addresses = 172.17.0.2/32,127.0.0.0/8,::ffff:127.0.0.0/104,::1
     '';
   };
 
@@ -85,8 +83,9 @@
   nixpkgs.overlays =
     let
       modifyHydra = packagesNew: packagesOld: {
-        hydra = packagesOld.hydra.overrideAttrs (old: {
+        hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
             patches = (old.patches or []) ++ [
+              ./0001-schema-Builds-use-jobset_id-instead-of-jobset-name-m.patch
               ./hydra.patch
               ./no-restrict-eval.patch
             ];
@@ -97,19 +96,23 @@
     in
       [ modifyHydra ];
 
-  programs.ssh.knownHosts = [
-    { hostNames = [ "github.com" ];
+  programs.ssh.knownHosts = {
+    "github.com".publicKey =
+      "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
 
-      publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
-    }
+    "dhall-lang.org".publicKey =
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBp/WR0q2LUjpzHDwm03CijnpUyvHS9CDnJYvR0YNBpT";
+  };
 
-    { hostNames = [ "dhall-lang.org" ];
+  security = {
+    acme = {
+      acceptTerms = true;
 
-      publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBp/WR0q2LUjpzHDwm03CijnpUyvHS9CDnJYvR0YNBpT";
-    }
-  ];
+      email = "Gabriel439@gmail.com";
+    };
 
-  security.sudo.wheelNeedsPassword = false;
+    sudo.wheelNeedsPassword = false;
+  };
 
   services = {
     fail2ban.enable = true;
@@ -135,6 +138,8 @@
       logo = ../img/dhall-logo.png;
 
       notificationSender = "noreply@dhall-lang.org";
+
+      package = pkgs.hydra-unstable;
     };
 
     journald.extraConfig = ''
@@ -154,7 +159,7 @@
           compress
           sharedscripts
           postrotate
-            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx.pid 2>/dev/null)" > /dev/null || true
+            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx/nginx.pid 2>/dev/null)" > /dev/null || true
           endscript
         }
       '';
@@ -163,9 +168,9 @@
     nginx = {
       enable = true;
 
-      appendConfig = ''
-        pid /run/nginx.pid;
-      '';
+      package = pkgs.nginxStable.override {
+        modules = with pkgs.nginxModules; [ develkit echo set-misc ];
+      };
 
       recommendedGzipSettings = true;
 
@@ -175,7 +180,7 @@
 
       virtualHosts =
         let
-          latestRelease = "v15.0.0";
+          latestRelease = "v18.0.0";
 
           prelude = {
             forceSSL = true;
@@ -291,6 +296,41 @@
 
           "prelude.dhall-lang.org" = prelude;
 
+          "store.dhall-lang.org" =
+            let
+              packages = [
+                pkgs.dhallPackages.Prelude."7.0.0"
+                pkgs.dhallPackages.Prelude."8.0.0"
+                pkgs.dhallPackages.Prelude."9.0.0"
+                pkgs.dhallPackages.Prelude."10.0.0"
+                pkgs.dhallPackages.Prelude."11.0.0"
+                pkgs.dhallPackages.Prelude."11.1.0"
+                pkgs.dhallPackages.Prelude."12.0.0"
+                pkgs.dhallPackages.Prelude."13.0.0"
+              ];
+
+              store = pkgs.runCommand "store" { inherit packages; } ''
+                mkdir "$out"
+
+                for package in $packages; do
+                  ${pkgs.xorg.lndir}/bin/lndir -silent "$package/.cache/dhall" "$out"
+                done
+              '';
+
+            in
+              { forceSSL = true;
+
+                enableACME = true;
+
+                locations."/" = {
+                  root = "${store}";
+
+                  extraConfig = ''
+                    default_type application/dhall+cbor;
+                  '';
+                };
+              };
+
           # Same as `prelude.dhall-lang.org` except requires a header named
           # `Test` to be present to authorize requests.  This is used to test
           # support for header forwarding for the test suite.
@@ -301,6 +341,10 @@
                     if ($http_test = "") {
                       return 403;
                     }
+                  '';
+                  locations."/random-string".extraConfig = ''
+                    set_secure_random_alphanum $res 32;
+                    echo $res;
                   '';
                 }
               ];
@@ -546,14 +590,26 @@
         };
   };
 
-  users.users.gabriel = {
-    isNormalUser = true;
+  users.users = {
+    gabriel = {
+      isNormalUser = true;
 
-    extraGroups = [ "wheel" ];
+      extraGroups = [ "wheel" ];
 
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
-    ];
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGquu14+nGeuczn/u9wr2TD8L123DMOGLutPpXMDgMz5 gabriel@chickle"
+      ];
+    };
+
+    philandstuff = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCFb1mAXG9cehfjq3FkEgRKMZW48d+IDE9YLbXruy283sf8UZYicKIFkht1nVd8MBd4/iWM23GXtLtyB4F5WXqeDpJFghfxDjoLkU146pSuAmqSOJo0HYOqiMYZJl6MeNtzzMjk6319WSQ80zI9eVNJqLAsTl5OfKHrqZBP32PC3CPQkCW8sQD8fbT/BG0tghUeC/X+LIho0enF58vN180IDsTjcJTjKGu/WzPU6RkyfNoE9LM2cjDKQ4nhucYZs03rklBKUbNB3FW5BM2/AKMzRJ5IkcMiqg6YOkkpB2rw0kbPW0/tAws1lvK8/aoCDw+ou8d4G4jYWqUEl7Okcryd PIV AUTH pubkey"
+      ];
+    };
   };
 
   virtualisation.docker = {

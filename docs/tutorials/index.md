@@ -8,6 +8,7 @@ These guides help you get your hands dirty with working examples:
    :maxdepth: 1
 
    Getting-started_Generate-JSON-or-YAML
+   Language-Tour
    string-matrix
 ```
 

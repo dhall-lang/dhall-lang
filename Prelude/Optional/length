@@ -1,14 +1,2 @@
-{-
-Returns `1` if the `Optional` value is present and `0` if the value is absent
--}
-let length
-    : ∀(a : Type) → Optional a → Natural
-    =   λ(a : Type)
-      → λ(xs : Optional a)
-      → merge { Some = λ(_ : a) → 1, None = 0 } xs
-
-let example0 = assert : length Natural (Some 2) ≡ 1
-
-let example1 = assert : length Natural (None Natural) ≡ 0
-
-in  length
+  ./length.dhall sha256:f168337c5244ded68c05ecf32ce068b6b87158881d07e87b8cb6853fc6982a85
+? ./length.dhall

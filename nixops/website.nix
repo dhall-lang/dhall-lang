@@ -21,12 +21,16 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/lib/codemirror.css $out/css
   ${coreutils}/bin/ln --symbolic ${dhall-try}/bin/dhall-try.jsexe/all.min.js $out/js
   ${coreutils}/bin/ln --symbolic ${logo.argocd} $out/img/argocd-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.ansible} $out/img/ansible-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.bash} $out/img/bash-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.clojure} $out/img/clojure-logo.svg
+  ${coreutils}/bin/ln --symbolic ${logo.concourse} $out/img/concourse-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.dhallLarge} $out/img/dhall-large-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.dhallSmall} $out/img/dhall-small-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.discourse} $out/img/discourse-logo.svg
+  ${coreutils}/bin/ln --symbolic ${logo.docker} $out/img/docker-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.github}/GitHub-Mark/PNG/GitHub-Mark-32px.png $out/img/github-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.gitlab} $out/img/gitlab-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.golang}/Go-Logo/SVG/Go-Logo_Blue.svg $out/img/go-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.haskell} $out/img/haskell-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.json} $out/img/json-logo.svg
@@ -37,9 +41,11 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${logo.prometheus} $out/img/prometheus-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.ruby} $out/img/ruby-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.rust} $out/img/rust-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.slack} $out/img/slack-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.stackOverflow} $out/img/stack-overflow-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.xml} $out/img/xml-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.yaml} $out/img/yaml-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.zulip} $out/img/zulip-logo.png
   ${coreutils}/bin/ln --symbolic '${logo.twitter}/Twitter Logos/Twitter Logos/Twitter_Logo_Blue/Twitter_Logo_Blue.svg' $out/img/twitter-logo.svg
   ${coreutils}/bin/mkdir $out/nix-support
   ${coreutils}/bin/echo "doc none $out/index.html" > $out/nix-support/hydra-build-products

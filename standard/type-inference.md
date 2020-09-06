@@ -40,6 +40,7 @@ normalize.
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
 * [Assertions](#assertions)
+* [Nested record updates](#assertions)
 * [Imports](#imports)
 
 ## Normalization
@@ -388,16 +389,6 @@ isolation:
 
 Note that the above rules forbid an `Optional` element that is a `Type`.  More
 generally, if the element type is not a `Type` then that is a type error.
-
-The built-in functions on `Optional` values have the following types:
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ Optional/fold : ∀(a : Type) → Optional a → ∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional
-
-
-    ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ Optional/build : ∀(a : Type) → (∀(optional : Type) → ∀(just : a → optional) → ∀(nothing : optional) → optional) → Optional a
 
 
 ## Records
@@ -974,6 +965,18 @@ To type-check an equivalence, verify that the two sides are terms:
 If either side of the equivalence is not a term, then that is a type error.
 
 If the inferred types do not match, then that is also a type error.
+
+## Nested record update
+
+A nested record update is equivalent to chained updates in terms of the
+`⫽` operator (See: [records](./record.md)).  To type-check such an update,
+desugar the expression and then type-check the result:
+
+
+    desugar-with(e with k.ks… = v) = r   Γ ⊢ r : T
+    ──────────────────────────────────────────────
+    Γ ⊢ e with k.ks… = v : T
+
 
 ## Imports
 

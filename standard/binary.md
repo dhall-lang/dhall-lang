@@ -263,14 +263,6 @@ matching their identifier.
     encode(List/reverse) = "List/reverse"
 
 
-    ───────────────────────────────────────────
-    encode(Optional/fold) = "Optional/fold"
-
-
-    ─────────────────────────────────────────────
-    encode(Optional/build) = "Optional/build"
-
-
     ───────────────────────────────
     encode(Text/show) = "Text/show"
 
@@ -646,54 +638,52 @@ Encode `Integer` literals using the smallest available numeric representation:
 
 ### `Double`
 
-CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations.
-The 16-bit representation is used here to encode only the following special values:
+CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations. As
+recommended by the [working draft of the CBOR Working Group][rfc7049bis],
+encode a `Double` literal using the shortest floating point encoding that
+preserves its value.
+
+[rfc7049bis]: https://tools.ietf.org/html/draft-ietf-cbor-7049bis-04#section-4.6
 
 
-    ─────────────────────────────  ; isNaN(n.n)
-    encode(n.n) = n.n_h(0x7e00)
+    ─────────────────────────────  ; toDouble(toHalf(n.n)) = n.n
+    encode(n.n) = n.n_h
 
 
-    ─────────────────────────────  ; n.n = +Infinity
-    encode(n.n) = n.n_h(0x7c00)
+    ─────────────────────────────  ; toDouble(toHalf(n.n)) ≠ n.n AND toDouble(toSingle(n.n)) = n.n
+    encode(n.n) = n.n_s
 
 
-    ─────────────────────────────  ; n.n = -Infinity
-    encode(n.n) = n.n_h(0xfc00)
+    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n
+    encode(n.n) = n.n
 
 
-    ─────────────────────────────  ; n.n = +0.0
-    encode(n.n) = n.n_h(0x0000)
+Note in particular the encoding of these special values:
 
 
-    ─────────────────────────────  ; n.n = -0.0
-    encode(n.n) = n.n_h(0x8000)
+    ───────────────────────────
+    encode(NaN) = n.n_h(0x7e00)
 
 
-For the other values, encode `Double` literals using the smallest available
-numeric representation, picking between 32-bit and 64-bit:
+    ────────────────────────────────
+    encode(Infinity) = n.n_h(0x7c00)
 
 
-    ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n              ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
+    ─────────────────────────────────
+    encode(-Infinity) = n.n_h(0xfc00)
 
 
-    ─────────────────────────────  ; toDouble(toSingle(n.n)) = n.n AND NOT isNaN(n.n)
-    encode(n.n) = n.n_s            ; AND n.n ≠ 0.0 AND n.n ≠ +Infinity AND n.n ≠ -Infinity
+    ────────────────────────────
+    encode(+0.0) = n.n_h(0x0000)
 
 
-In other words:
-- if n.n is a NaN, encode as a half (16-bit) float with the value 0x7e00
-- if n.n is +0.0, encode as a half (16-bit) float with the value 0x0000
-- if n.n is -0.0, encode as a half (16-bit) float with the value 0x8000
-- if n.n is +Infinity, encode as a half (16-bit) float with the value 0x7c00
-- if n.n is -Infinity, encode as a half (16-bit) float with the value 0xfc00
+    ────────────────────────────
+    encode(-0.0) = n.n_h(0x8000)
+
+
 
 These values ensure identical semantic hashes on different platforms.
 
-For all other values, convert to `Single` and back to `Double` and check for equality with
-the original. If they are the same, then there is no loss of precision using the smaller
-representation, so that should be used.
 
 ### `Text`
 
@@ -879,8 +869,16 @@ A `let` binder is represented by a sequence of three elements: name, type annota
 
 
     encode(t₀) = t₁   encode(T₀) = T₁
-    ─────────────────────────────────────────
+    ─────────────────────────────────
     encode(t₀ : T₀) = [ 26, t₁, T₁ ]
+
+
+### Nested record update
+
+
+    encode(e₀) = e₁   encode(v₀) = v₁
+    ───────────────────────────────────────────────────────
+    encode(e₀ with k.ks… = v₀) = [ 29, e₁, [ k, ks… ], v₁ ]
 
 
 ## Decoding judgment
@@ -987,14 +985,6 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────
     decode("List/reverse") = List/reverse
-
-
-    ───────────────────────────────────────────
-    decode("Optional/fold") = Optional/fold
-
-
-    ─────────────────────────────────────────────
-    decode("Optional/build") = Optional/build
 
 
     ───────────────────────────────
@@ -1523,8 +1513,16 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
     decode(t₁) = t₀   decode(T₁) = T₀
-    ─────────────────────────────────────────
+    ─────────────────────────────────
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
+
+
+### Nested record update
+
+
+    decode(e₁) = e₀   decode(v₁) = v₀
+    ─────────────────────────────────────────────────────
+    decode([29, e₁, [ k, ks… ]  v₁]) = e₀ with k.ks… = v₀
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
 [multihash]: https://github.com/multiformats/multihash

@@ -266,6 +266,11 @@ sub-expressions for the remaining rules:
     assert : T₀ ↦ assert : T₁
 
 
+    e₀ ↦ e₁   v₀ ↦ v₁
+    ───────────────────────────────────
+    e₀ with ks… = v₀ ↦ e₁ with ks… = v₁
+
+
     ─────────
     n.n ↦ n.n
 
@@ -411,14 +416,6 @@ sub-expressions for the remaining rules:
 
     ───────────────────────────
     List/reverse ↦ List/reverse
-
-
-    ─────────────────────────────
-    Optional/fold ↦ Optional/fold
-
-
-    ───────────────────────────────
-    Optional/build ↦ Optional/build
 
 
     ─────────────────────
