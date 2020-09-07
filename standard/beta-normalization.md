@@ -679,7 +679,7 @@ All of the built-in functions on `Text` are in normal form:
     ─────────────────────
     Text/show ⇥ Text/show
 
-    ─────────────────────
+    ───────────────────────────
     Text/replace ⇥ Text/replace
     
     
