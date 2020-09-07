@@ -278,7 +278,7 @@ The `Text` show function has the following type:
 The `Text/replace` function has the following type:
 
 
-    ───────────────────────────
+    ────────────────────────────────────────────
     Γ ⊢ Text/replace : Text → Text → Text → Text
 
 

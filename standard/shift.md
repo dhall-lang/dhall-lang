@@ -489,7 +489,7 @@ The remaining rules are:
     ↑(d, x, m, Text/show) = Text/show
 
 
-    ─────────────────────────────────
+    ───────────────────────────────────────
     ↑(d, x, m, Text/replace) = Text/replace
 
 

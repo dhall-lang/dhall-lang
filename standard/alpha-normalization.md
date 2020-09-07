@@ -422,7 +422,7 @@ sub-expressions for the remaining rules:
     Text/show ↦ Text/show
 
 
-    ─────────────────────
+    ───────────────────────────
     Text/replace ↦ Text/replace
  
  
