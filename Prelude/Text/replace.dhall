@@ -9,4 +9,6 @@ let example0 = assert : replace "-" "_" "foo-bar" ≡ "foo_bar"
 
 let example1 = assert : replace "💣" "💥" "💣💣💣" ≡ "💥💥💥"
 
+let example2 = assert : replace "👨" "👩" "👨‍👩‍👧‍👦" ≡ "👩‍👩‍👧‍👦"
+
 in  replace
