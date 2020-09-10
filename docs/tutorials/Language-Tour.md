@@ -447,7 +447,7 @@ interpreter processes the code.
 > The expression does not type-check because the two branches of the `if`
 > expression do not return the same type of value.  This restriction applies
 > even if the predicate (`True` in this case) can only ever select one branch
-> because import resolution strictly precedes normalization.
+> because type checking strictly precedes normalization.
 >
 > </details>
 
