@@ -717,7 +717,14 @@ Dhall supports multi-line `Text` literals surrounded by two single quotes
 on each side, like this:
 
 ```dhall
-⊢ "Line 1\nLine 2\nLine 3\n"
+⊢ :paste
+-- Entering multi-line mode. Press <Ctrl-D> to finish.
+| ''
+| Line 1
+| Line 2
+| Line 3
+| ''
+|
 
 ''
 Line 1
