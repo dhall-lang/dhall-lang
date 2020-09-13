@@ -3145,7 +3145,7 @@ record types:
   This operator recursively merges two records, but fails with a type error if
   any two non-record fields "collide".
 
-* `//` - Shallow right-biased record type merge - Unicode: `⫽` (U+2AFD)
+* `//` - Shallow right-biased record value merge - Unicode: `⫽` (U+2AFD)
 
   ```dhall
   ⊢ { a = { b = 1 } } // { a = 1, d = True }
