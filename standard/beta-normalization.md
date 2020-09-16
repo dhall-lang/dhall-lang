@@ -682,6 +682,13 @@ Or in other words:
     ─────────────────────────────────────────────────  ; Prefix does not match
     f a ⇥ e
 
+If the substring to replace is empty (`""`), then no replacement is performed:
+
+
+    f ⇥ Text/replace "" replacement   a ⇥ "foo"
+    ────────────────────────────────────────────
+    f a ⇥ "foo"
+
 
 All of the built-in functions on `Text` are in normal form:
 
