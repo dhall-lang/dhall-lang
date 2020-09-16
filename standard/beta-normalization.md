@@ -664,13 +664,23 @@ Or in other words:
 `Text/replace` modifies a subset of a given `Text` literal. It takes 3 arguments, the `Text` literal subset to match, the `Text` literal replacement, and the `Text` literal in which to replace all matches:
 
 
-    f ⇥ Text/replace "bar" "baz" a ⇥ "foobaz123"
-    ────────────────────────────
-    f a ⇥ "foobar123"
+    f ⇥ Text/replace needle replacement   a ⇥ ""
+    ────────────────────────────────────────────
+    f a ⇥ ""
 
-    f ⇥ Text/replace "-" "_" a ⇥ "foo_bar"
-    ────────────────────────────
-    f a ⇥ "foo-bar"
+    f ⇥ Text/replace "needle" replacement
+    a ⇥ "needleHaystack…"
+    Text/replace "needle" "Haystack…" → replacements…
+    replacement ++ replacements… → e
+    ─────────────────────────────────────────────────  ; Prefix matches
+    f a ⇥ e
+
+    f ⇥ Text/replace "needle" replacement
+    a ⇥ "xHaystack…"
+    Text/replace "needle" "Haystack…" → replacements…
+    "x" ++ replacements… → e
+    ─────────────────────────────────────────────────  ; Prefix does not match
+    f a ⇥ e
 
 
 All of the built-in functions on `Text` are in normal form:
