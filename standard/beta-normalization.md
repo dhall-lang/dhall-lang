@@ -661,8 +661,12 @@ Or in other words:
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
 
-`Text/replace` modifies a subset of a given `Text` literal. It takes 3 arguments, the `Text` literal subset to match, the `Text` literal replacement, and the `Text` literal in which to replace all matches:
+`Text/replace` modifies a subset of a given `Text` literal. It takes 3 arguments, the `Text` literal subset to match, the `Text` literal replacement, and the `Text` literal in which to replace all matches. In the case that the substring to replace is empty (`""`), then no replacement is performed:
 
+
+    f ⇥ Text/replace "" replacement   a ⇥ "foo"
+    ──────────────────────────────────────────── ; No replacement performed
+    f a ⇥ "foo"
 
     f ⇥ Text/replace needle replacement   a ⇥ ""
     ────────────────────────────────────────────
@@ -681,14 +685,6 @@ Or in other words:
     "x" ++ replacements… → e
     ─────────────────────────────────────────────────  ; Prefix does not match
     f a ⇥ e
-
-
-If the substring to replace is empty (`""`), then no replacement is performed:
-
-
-    f ⇥ Text/replace "" replacement   a ⇥ "foo"
-    ────────────────────────────────────────────
-    f a ⇥ "foo"
 
 
 All of the built-in functions on `Text` are in normal form:
