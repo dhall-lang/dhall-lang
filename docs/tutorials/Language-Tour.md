@@ -928,6 +928,16 @@ You can also replace larger sections of text:
 "Hello, world!"
 ```
 
+Here's how you would strip newlines from a multiline string:
+
+```dhall
+Text/replace "\n" " " ''
+  This now behaves like a YAML
+  "folded" multi-line string literal where
+  newlines are replaced with spaces
+''
+```
+
 Other than that, `Text` literals are essentially opaque.  You currently cannot
 parse `Text` literals nor can you compare them for equality.  This is because
 the language promotes using more precise types (like enums) instead of `Text`
