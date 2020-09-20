@@ -1118,13 +1118,17 @@ A record update replaces the given field:
 
     e₀ ⇥ { k₀ = e₁, es… }
     e₁ with k₁.ks… = v₀ ⇥ e₂
-    ────────────────────────────────────────  ; the type system guarantees k₀ is present
+    ────────────────────────────────────────
     e₀ with k₀.k₁.k… = v₀ ⇥ { k₀ = e₂, es… }
 
 
+Note: in the above rule for nested record updates, the type system
+ensures the outer key `k₀` must be present.
+
+
     e₀ ⇥ e₁   v₀ ⇥ v₁
-    ───────────────────────────────────  ; If no other rule matches
-    e₀ with k.ks… = v₀ ⇥ e₁ with k = v₁
+    ───────────────────────────────────────  ; If no other rule matches
+    e₀ with k.ks… = v₀ ⇥ e₁ with k.ks… = v₁
 
 
 Recursive record type merge combines two record types, recursively merging any
