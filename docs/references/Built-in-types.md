@@ -829,7 +829,7 @@ The `Text/replace` built-in function modifies a subset of a given `Text` literal
 
 ```
 ──────────────────────────────────────
-Γ ⊢ Text/replace : Text → Text → Text → Text
+Γ ⊢ Text/replace : ∀(needle : Text) → ∀(replacement : Text) → ∀(haystack : Text) → Text
 ```
 
 #### Type
