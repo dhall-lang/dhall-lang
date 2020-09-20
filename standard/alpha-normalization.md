@@ -216,6 +216,11 @@ sub-expressions for the remaining rules:
     l₀ ⫽ r₀ ↦ l₁ ⫽ r₁
 
 
+    e₀ ↦ e₁   v₀ ↦ v₁
+    ───────────────────────────────────────
+    e₀ with k.ks… = v₀ ↦ e₁ with k.ks… = v₁
+
+
     l₀ ↦ l₁   r₀ ↦ r₁
     ─────────────────
     l₀ ⩓ r₀ ↦ l₁ ⩓ r₁
