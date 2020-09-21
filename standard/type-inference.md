@@ -517,10 +517,10 @@ A record update using the `with` keyword replaces a field:
 and record updates can be nested:
 
 
-    Γ ⊢ e : { k : T₁, ts… }
+    Γ ⊢ e : { k₀ : T₁, ts… }
     Γ ⊢ e.k₀ with k₁.ks… = v : T₂
-    ──────────────────────────────────────────
-    Γ ⊢ e with k₀.k₁.ks… = v : { k : T₂, ts… }
+    ───────────────────────────────────────────
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₂, ts… }
 
 
 If the operator arguments are not records then that is a type error.
