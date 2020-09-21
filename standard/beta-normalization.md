@@ -1104,7 +1104,7 @@ from the left record:
 A record update using the `with` keyword replaces the given (possibly-nested) field:
 
 
-    e₀ ⇥ { k = l₁, es… }
+    e₀ ⇥ { k = e₁, es… }
     v₀ ⇥ v₁
     ────────────────────────────────
     e₀ with k = v₀ ⇥ { k = v₁, es… }
