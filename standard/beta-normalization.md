@@ -1101,7 +1101,7 @@ from the left record:
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
 
-A record update replaces the given field:
+A record update using the `with` keyword replaces the given (possibly-nested) field:
 
 
     e₀ ⇥ { k = l₁, es… }
