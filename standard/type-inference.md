@@ -499,7 +499,7 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
-A record update replaces a field:
+A record update using the `with` keyword replaces a field:
 
 
     Γ ⊢ e : { k : T₁, ts… }
