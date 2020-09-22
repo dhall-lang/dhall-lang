@@ -1117,18 +1117,20 @@ A record update using the `with` keyword replaces the given (possibly-nested) fi
 
 
     e₀ ⇥ { k₀ = e₁, es… }
-    e₁ with k₁.ks… = v₀ ⇥ e₂
-    ────────────────────────────────────────
-    e₀ with k₀.k₁.k… = v₀ ⇥ { k₀ = e₂, es… }
+    e₁ with k₁.ks… = v ⇥ e₂
+    ───────────────────────────────────────
+    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₂, es… }
 
 
-Note: in the above rule for nested record updates, the type system
-ensures the outer key `k₀` must be present.
+    e₀ ⇥ { es… }
+    {=} with k₁.ks… = v ⇥ e₁
+    ───────────────────────────────────────  ; k₀ ∉ es
+    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₁, es… }
 
 
     e₀ ⇥ e₁   v₀ ⇥ v₁
-    ───────────────────────────────────────  ; If no other rule matches
-    e₀ with k.ks… = v₀ ⇥ e₁ with k.ks… = v₁
+    ───────────────────────────────────  ; If no other rule matches
+    e₀ with ks… = v₀ ⇥ e₁ with ks… = v₁
 
 
 Recursive record type merge combines two record types, recursively merging any

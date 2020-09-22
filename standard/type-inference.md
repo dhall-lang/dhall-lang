@@ -499,6 +499,8 @@ Non-recursive right-biased merge also requires that both arguments are records:
     Γ ⊢ l ⫽ r : { a : A₁, ts… }
 
 
+If the operator arguments are not records then that is a type error.
+
 A record update using the `with` keyword replaces a field:
 
 
@@ -514,16 +516,24 @@ A record update using the `with` keyword replaces a field:
     Γ ⊢ e with k = v : { k : T, ts… }
 
 
-and record updates can be nested:
+and record updates can be nested, creating intermediate records if
+necessary:
 
 
-    Γ ⊢ e : { k₀ : T₁, ts… }
-    Γ ⊢ e.k₀ with k₁.ks… = v : T₂
+    Γ ⊢ e : { k₀ : T₀, ts… }
+    Γ ⊢ e.k₀ with k₁.ks… = v : T₁
     ───────────────────────────────────────────
-    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₂, ts… }
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
 
 
-If the operator arguments are not records then that is a type error.
+    Γ ⊢ e : { ts… }
+    Γ ⊢ {=} with k₁.ks… = v : T₁
+    ───────────────────────────────────────────  ; k₀ ∉ ts
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
+
+
+If the expression being updated (ie `e` in `e with ks… = v`) is not a
+record then that is a type error.
 
 Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
