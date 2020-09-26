@@ -661,7 +661,10 @@ Or in other words:
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
 
-`Text/replace` modifies a subset of a given `Text` literal. It takes 3 arguments, the `Text` literal subset to match, the `Text` literal replacement, and the `Text` literal in which to replace all matches. In the case that the substring to replace is empty (`""`), then no replacement is performed:
+`Text/replace` modifies a subset of a given `Text` literal. It takes 3
+arguments, the `Text` literal subset to match, the `Text` literal replacement,
+and the `Text` literal in which to replace all matches. In the case that the
+substring to replace is empty (`""`), then no replacement is performed:
 
 
     f ⇥ Text/replace "" replacement   a ⇥ "foo"
@@ -686,6 +689,10 @@ Or in other words:
     ─────────────────────────────────────────────────  ; Prefix does not match
     f a ⇥ e
 
+
+A given "needle" string matches a given subset of the "haystack" string if they
+are canonically equivalent, meaning that they have the same normalization form,
+specifically [Normalization Form C](https://unicode.org/reports/tr15/#Norm_Forms).
 
 All of the built-in functions on `Text` are in normal form:
 
