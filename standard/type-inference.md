@@ -532,7 +532,7 @@ necessary:
     Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
 
 
-If the expression being updated (ie `e` in `e with ks… = v`) is not a
+If the expression being updated (i.e. the `e` in `e with ks… = v`) is not a
 record then that is a type error.
 
 Recursive record type merge requires that both arguments are record type
