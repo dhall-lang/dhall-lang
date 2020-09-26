@@ -516,7 +516,7 @@ A record update using the `with` keyword replaces a field:
     Γ ⊢ e with k = v : { k : T, ts… }
 
 
-and record updates can be nested, creating intermediate records if
+... and record updates can be nested, creating intermediate records if
 necessary:
 
 
