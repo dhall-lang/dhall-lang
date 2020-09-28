@@ -1,11 +1,11 @@
---| Transform the value with a function and flatten the resulting `Optional` 
+--| Transform the value with a function and flatten the resulting `Optional`
 let concatMap
     : ∀(a : Type) → ∀(b : Type) → (a → Optional b) → Optional a → Optional b
     = λ(a : Type) →
       λ(b : Type) →
       λ(f : a → Optional b) →
       λ(o : Optional a) →
-        Optional/fold a o (Optional b) f (None b)
+        merge { Some = f, None = None b } o
 
 let exampleFun
     : Natural → Optional Natural
