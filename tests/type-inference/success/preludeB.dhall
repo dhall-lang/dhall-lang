@@ -421,6 +421,12 @@
           ) →
           Optional a
     , concat : ∀(a : Type) → ∀(x : Optional (Optional a)) → Optional a
+    , concatMap :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → Optional b) →
+        ∀(o : Optional a) →
+          Optional b
     , default : ∀(a : Type) → ∀(default : a) → ∀(o : Optional a) → a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Optional a
     , fold :
