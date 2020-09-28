@@ -501,6 +501,40 @@ Non-recursive right-biased merge also requires that both arguments are records:
 
 If the operator arguments are not records then that is a type error.
 
+A record update using the `with` keyword replaces a field:
+
+
+    Γ ⊢ e : { k : T₁, ts… }
+    Γ ⊢ v : T₂
+    ──────────────────────────────────
+    Γ ⊢ e with k = v : { k : T₂, ts… }
+
+
+    Γ ⊢ e : { ts… }
+    Γ ⊢ v : T
+    ─────────────────────────────────  ; k ∉ ts
+    Γ ⊢ e with k = v : { k : T, ts… }
+
+
+... and record updates can be nested, creating intermediate records if
+necessary:
+
+
+    Γ ⊢ e : { k₀ : T₀, ts… }
+    Γ ⊢ e.k₀ with k₁.ks… = v : T₁
+    ───────────────────────────────────────────
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
+
+
+    Γ ⊢ e : { ts… }
+    Γ ⊢ {=} with k₁.ks… = v : T₁
+    ───────────────────────────────────────────  ; k₀ ∉ ts
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
+
+
+If the expression being updated (i.e. the `e` in `e with ks… = v`) is not a
+record then that is a type error.
+
 Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
 
@@ -965,18 +999,6 @@ To type-check an equivalence, verify that the two sides are terms:
 If either side of the equivalence is not a term, then that is a type error.
 
 If the inferred types do not match, then that is also a type error.
-
-## Nested record update
-
-A nested record update is equivalent to chained updates in terms of the
-`⫽` operator (See: [records](./record.md)).  To type-check such an update,
-desugar the expression and then type-check the result:
-
-
-    desugar-with(e with k.ks… = v) = r   Γ ⊢ r : T
-    ──────────────────────────────────────────────
-    Γ ⊢ e with k.ks… = v : T
-
 
 ## Imports
 
