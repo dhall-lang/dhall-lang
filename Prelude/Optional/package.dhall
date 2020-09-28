@@ -10,6 +10,9 @@
 , concat =
       ./concat.dhall sha256:b7736bd3ebeab14c3912dfb534d0c970a025b001d06c2d5461d4b0e289e3cb7a
     ? ./concat.dhall
+, concatMap =
+      ./concatMap.dhall sha256:7e4a158c9902039cc85b5458af1f98b0179df8ce08789fc5c2e1a03d811bcecd
+    ? ./concatMap.dhall
 , default =
       ./default.dhall sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
     ? ./default.dhall
