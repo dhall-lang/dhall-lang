@@ -1137,6 +1137,38 @@ from the left record:
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
 
+A record update using the `with` keyword replaces the given (possibly-nested) field:
+
+
+    e₀ ⇥ { k = e₁, es… }
+    v₀ ⇥ v₁
+    ────────────────────────────────
+    e₀ with k = v₀ ⇥ { k = v₁, es… }
+
+
+    e₀ ⇥ { es… }
+    v₀ ⇥ v₁
+    ────────────────────────────────  ; k ∉ es
+    e₀ with k = v₀ ⇥ { k = v₁, es… }
+
+
+    e₀ ⇥ { k₀ = e₁, es… }
+    e₁ with k₁.ks… = v ⇥ e₂
+    ───────────────────────────────────────
+    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₂, es… }
+
+
+    e₀ ⇥ { es… }
+    {=} with k₁.ks… = v ⇥ e₁
+    ───────────────────────────────────────  ; k₀ ∉ es
+    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₁, es… }
+
+
+    e₀ ⇥ e₁   v₀ ⇥ v₁
+    ───────────────────────────────────  ; If no other rule matches
+    e₀ with ks… = v₀ ⇥ e₁ with ks… = v₁
+
+
 Recursive record type merge combines two record types, recursively merging any
 fields that collide.  The type system ensures that colliding fields must be
 record types:
@@ -1556,17 +1588,6 @@ Normalize an equivalence by normalizing each side of the equivalence:
     x₀ ⇥ x₁   y₀ ⇥ y₁
     ─────────────────────
     x₀ === y₀ ⇥ x₁ === y₁
-
-## Nested record update
-
-To normalize a nested record update, desugar the expression as described in
-the [records section](./record.md) and then normalize the result:
-
-
-    desugar-with(e with ks… = v) = r₀   r₀ ⇥ r₁
-    ───────────────────────────────────────────
-    e with ks… = v ⇥ r₁
-
 
 ## Imports
 
