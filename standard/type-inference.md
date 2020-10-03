@@ -278,8 +278,8 @@ The `Text` show function has the following type:
 The `Text/replace` function has the following type:
 
 
-    ────────────────────────────────────────────
-    Γ ⊢ Text/replace : Text → Text → Text → Text
+    ───────────────────────────────────────────────────────────────────────────────────────
+    Γ ⊢ Text/replace : ∀(needle : Text) → ∀(replacement : Text) → ∀(haystack : Text) → Text
 
 
 The `Text` concatenation operator takes arguments of type `Text` and returns a
