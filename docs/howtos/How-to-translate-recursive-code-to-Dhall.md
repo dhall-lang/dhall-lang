@@ -641,7 +641,7 @@ let SuccEven
 ## JSON
 
 You can see a real example of this pattern in the Prelude's support for
-[`JSON`](https://github.com/dhall-lang/dhall-lang/blob/master/Prelude/JSON/Type)
+[`JSON`](https://github.com/dhall-lang/dhall-lang/blob/master/Prelude/JSON/Type.dhall)
 
 ## Conclusion
 
