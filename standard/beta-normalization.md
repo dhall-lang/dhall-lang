@@ -699,10 +699,6 @@ substring to replace is empty (`""`), then no replacement is performed:
     f a ⇥ e
 
 
-A given "needle" string matches a given subset of the "haystack" string if they
-are canonically equivalent, meaning that they have the same normalization form,
-specifically [Normalization Form C](https://unicode.org/reports/tr15/#Norm_Forms).
-
 All of the built-in functions on `Text` are in normal form:
 
 
