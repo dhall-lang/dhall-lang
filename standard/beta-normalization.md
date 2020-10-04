@@ -661,8 +661,8 @@ Or in other words:
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
 
-`Text/replace` modifies a subset of a given `Text` literal. It takes 3
-arguments, the `Text` literal subset to match, the `Text` literal replacement,
+`Text/replace` modifies a substring of a given `Text` literal. It takes 3
+arguments, the `Text` literal substring to match, the `Text` literal replacement,
 and the `Text` literal in which to replace all matches. In the case that the
 substring to replace is empty (`""`), then no replacement is performed:
 
