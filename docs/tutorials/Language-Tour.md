@@ -447,7 +447,7 @@ interpreter processes the code.
 > The expression does not type-check because the two branches of the `if`
 > expression do not return the same type of value.  This restriction applies
 > even if the predicate (`True` in this case) can only ever select one branch
-> because import resolution strictly precedes normalization.
+> because type checking strictly precedes normalization.
 >
 > </details>
 
@@ -717,7 +717,14 @@ Dhall supports multi-line `Text` literals surrounded by two single quotes
 on each side, like this:
 
 ```dhall
-⊢ "Line 1\nLine 2\nLine 3\n"
+⊢ :paste
+-- Entering multi-line mode. Press <Ctrl-D> to finish.
+| ''
+| Line 1
+| Line 2
+| Line 3
+| ''
+|
 
 ''
 Line 1
@@ -3138,7 +3145,7 @@ record types:
   This operator recursively merges two records, but fails with a type error if
   any two non-record fields "collide".
 
-* `//` - Shallow right-biased record type merge - Unicode: `⫽` (U+2AFD)
+* `//` - Shallow right-biased record value merge - Unicode: `⫽` (U+2AFD)
 
   ```dhall
   ⊢ { a = { b = 1 } } // { a = 1, d = True }
@@ -3266,6 +3273,32 @@ this:
 >
 > </details>
 
+> **Exercise:** Your colleague claims that the `with` expression is unnecessary,
+> because the `/\` operator can perform deep record updates. Is that right?
+>
+> <details>
+> <summary>Solution</summary>
+>
+> No, because `/\` will not replace fields:
+>
+> ```dhall
+> ⊢ { a.b = 1 } /\ { a.b = 2 }
+>
+> Error: Field collision on: a.b
+>
+> 1│             /\ { a.b = 2 }
+> ```
+>
+> `with`, on the other hand, will:
+>
+> ```dhall
+> ⊢ { a.b = 1 } with a.b = 2
+>
+> { a.b = 2 }
+> ```
+>
+> </details>
+   
 ## Record completion
 
 The language includes one last record operator useful for working with large
