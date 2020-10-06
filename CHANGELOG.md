@@ -5,6 +5,65 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v19.0.0`
+
+Breaking changes:
+
+* [Implement `with` directly rather than via desugaring](https://github.com/dhall-lang/dhall-lang/pull/1073)
+
+  The standard now defines `with` directly, rather than via a
+  desugaring step.  This changes the normalization behaviour of `with`
+  expressions in three ways: first, `with` expressions on abstract
+  variables such as
+
+  ```dhall
+  λ(r : { foo : Text }) → r with bar = "baz"
+  ```
+
+  will now remain unchanged after normalization, whereas previously
+  this expression would have normalised to:
+
+  ```dhall
+  λ(r : { foo : Text }) → r ⫽ { bar = "baz" }
+  ```
+
+  The second way normalization has changed is a consequence of the
+  above: certain `with` expressions used to take advantage of
+  simplification of `⫽` expressions.  For example:
+
+  ```dhall
+  (e with k = v).k
+  ```
+
+  used to normalize to `v`, but now normalizes to itself.
+
+  The third change to normalization is that it is no longer a type
+  error to add multiple layers of nesting into a record at once:
+
+  ```dhall
+  {} with x.y.z = 3
+  ```
+
+  This expression normalizes to:
+
+  ```dhall
+  { x = { y = { z = 3 }}}
+  ```
+
+  which can also be written:
+
+  `{ x.y.z = 3 }`
+
+  This is technically a breaking change due to the changes to
+  normalization; this also means that the semantic hash of files which
+  contain `with` expressions may change.
+
+New features:
+
+* [Add Prelude/Optional/concatMap](https://github.com/dhall-lang/dhall-lang/pull/1076)
+
+* [Add function versions of built-in operators](https://github.com/dhall-lang/dhall-lang/pull/1037)
+
 ## `v18.0.0`
 
 Breaking changes:
