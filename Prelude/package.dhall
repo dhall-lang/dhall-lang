@@ -29,7 +29,7 @@
       ./Operator/package.dhall sha256:861f724704a7b4755c96f173e54d03f314492a2d046723404c31ff612b7bf2e6
     ? ./Operator/package.dhall
 , Optional =
-      ./Optional/package.dhall sha256:4324b2bf84ded40f67485f14355e4cb7b237a8f173e713c791ec44cebebc552c
+      ./Optional/package.dhall sha256:37b84d6fe94c591d603d7b06527a2d3439ba83361e9326bc7b72517c7dc54d4e
     ? ./Optional/package.dhall
 , JSON =
       ./JSON/package.dhall sha256:79dfc281a05bc7b78f927e0da0c274ee5709b1c55c9e5f59499cb28e9d6f3ec0
