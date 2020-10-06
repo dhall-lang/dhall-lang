@@ -408,6 +408,16 @@
     , toDouble : ∀(n : Natural) → Double
     , toInteger : Natural → Integer
     }
+, Operator :
+    { `!=` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , `#` : ∀(type : Type) → ∀(m : List type) → ∀(n : List type) → List type
+    , `&&` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , `*` : ∀(m : Natural) → ∀(n : Natural) → Natural
+    , `+` : ∀(m : Natural) → ∀(n : Natural) → Natural
+    , `++` : ∀(m : Text) → ∀(n : Text) → Text
+    , `==` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , `||` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    }
 , Optional :
     { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
     , any : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
