@@ -408,6 +408,16 @@
     , toDouble : ∀(n : Natural) → Double
     , toInteger : Natural → Integer
     }
+, Operator :
+    { `!=` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , `#` : ∀(type : Type) → ∀(m : List type) → ∀(n : List type) → List type
+    , `&&` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , `*` : ∀(m : Natural) → ∀(n : Natural) → Natural
+    , `+` : ∀(m : Natural) → ∀(n : Natural) → Natural
+    , `++` : ∀(m : Text) → ∀(n : Text) → Text
+    , `==` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    , `||` : ∀(m : Bool) → ∀(n : Bool) → Bool
+    }
 , Optional :
     { all : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
     , any : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Bool
@@ -421,6 +431,12 @@
           ) →
           Optional a
     , concat : ∀(a : Type) → ∀(x : Optional (Optional a)) → Optional a
+    , concatMap :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → Optional b) →
+        ∀(o : Optional a) →
+          Optional b
     , default : ∀(a : Type) → ∀(default : a) → ∀(o : Optional a) → a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Optional a
     , fold :
