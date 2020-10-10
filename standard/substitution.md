@@ -470,6 +470,10 @@ The remaining rules are:
     Text/show[x@n ≔ e] = Text/show
 
 
+    ────────────────────────────────────
+    Text/replace[x@n ≔ e] = Text/replace
+
+
     ────────────────────
     Bool[x@n ≔ e] = Bool
 

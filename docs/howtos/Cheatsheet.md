@@ -112,6 +112,8 @@
     "ABC" ++ "DEF" = "ABCDEF"
 
     Text/show "Hello, world!" = "\"Hello, world!\""
+    
+    Text/replace "-" "_" "foo-bar" = "foo_bar"
     ```
 
 ## Complex types

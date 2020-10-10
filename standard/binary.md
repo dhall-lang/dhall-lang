@@ -267,6 +267,10 @@ matching their identifier.
     encode(Text/show) = "Text/show"
 
 
+    ─────────────────────────────────────
+    encode(Text/replace) = "Text/replace"
+
+
     ─────────────────────────
     encode(Bool) = "Bool"
 
@@ -985,6 +989,10 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────
     decode("List/reverse") = List/reverse
+
+
+    ─────────────────────────────────────
+    decode("Text/replace") = Text/replace
 
 
     ───────────────────────────────

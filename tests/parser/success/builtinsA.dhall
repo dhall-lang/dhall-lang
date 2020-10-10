@@ -19,6 +19,7 @@
 , List/indexed
 , List/reverse
 , Text/show
+, Text/replace
 , Bool
 , True
 , False

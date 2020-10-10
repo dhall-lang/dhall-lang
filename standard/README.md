@@ -169,6 +169,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
   / Text/show                         ; Convert Text to its own representation
+  / Text/replace                      ; Replace a section of a Text literal
   / Bool                              ; Bool type
   / Optional                          ; Optional type
   / Natural                           ; Natural type

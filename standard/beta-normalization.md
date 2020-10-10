@@ -661,13 +661,54 @@ Or in other words:
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
 
-Otherwise, in isolation `Text/show` is in normal form:
+`Text/replace` modifies a substring of a given `Text` literal. It takes 3
+arguments, the `Text` literal substring to match, the `Text` literal replacement,
+and the `Text` literal in which to replace all matches. In the case that the
+substring to replace is empty (`""`), then no replacement is performed:
+
+
+    f ⇥ Text/replace "" replacement   a ⇥ "foo"   ; No replacement performed if
+    ────────────────────────────────────────────  ; the search string is empty,
+    f a ⇥ "foo"                                   ; to avoid an infinite loop.
+
+
+    f ⇥ Text/replace "NEEDLE" replacement  ; If the "NEEDLE" is not found within
+    a ⇥ "other"                            ; the string, then perform no
+    ─────────────────────────────────────  ; replacement.
+    f a ⇥ "other"
+
+
+    f ⇥ Text/replace "NEEDLE" replacement  ; If the "NEEDLE" is found within
+    a ⇥ "beforeNEEDLEafter"                ; the string, then replace.
+    "before${replacement}" ++ Text/replace "NEEDLE" replacement "after" → e
+    ───────────────────────────────────────────────────────────────────────
+    f a ⇥ e
+
+
+    f ⇥ Text/replace "NEEDLE" replacement  ; The string has interpolation, but
+    a ⇥ "other${x}remainder…"              ; the prefix does not match.
+    "other${x}" ++ Text/replace "NEEDLE" "remainder…" → e
+    ─────────────────────────────────────────────────────
+    f a ⇥ e
+
+
+    f ⇥ Text/replace "NEEDLE" replacement  ; The string has interpolation, and
+    a ⇥ "beforeNEEDLEafter${x}remainder…"  ; the prefix matches.
+    "before${replacement}" ++ Text/replace "NEEDLE" "after${x}remainder…" → e
+    ─────────────────────────────────────────────────────────────────────────
+    f a ⇥ e
+
+
+All of the built-in functions on `Text` are in normal form:
 
 
     ─────────────────────
     Text/show ⇥ Text/show
 
-
+    ───────────────────────────
+    Text/replace ⇥ Text/replace
+    
+    
 ## `List`
 
 The `List` type-level function is in normal form:
