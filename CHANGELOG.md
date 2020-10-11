@@ -60,9 +60,24 @@ Breaking changes:
 
 New features:
 
+* [New `Text/replace` builtin](https://github.com/dhall-lang/dhall-lang/pull/1065)
+
+  This change adds a builtin `Text/replace` which makes it possible to
+  replace substrings inside a Text literal.  It has type `Text → Text
+  → Text`.  For example, the following expression normalizes to
+  "Hello, world!":
+
+  ```dhall
+  Text/replace "Hey" "Hello" "Hey, world!"
+  ```
+
+  For more information, see the [Text/replace documentation][].
+
 * [Add Prelude/Optional/concatMap](https://github.com/dhall-lang/dhall-lang/pull/1076)
 
 * [Add function versions of built-in operators](https://github.com/dhall-lang/dhall-lang/pull/1037)
+
+[Text/replace documentation]: https://docs.dhall-lang.org/references/Built-in-types.html#function-text-replace
 
 ## `v18.0.0`
 
