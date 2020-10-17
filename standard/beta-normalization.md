@@ -687,14 +687,14 @@ substring to replace is empty (`""`), then no replacement is performed:
 
     f ⇥ Text/replace "NEEDLE" replacement  ; The string has interpolation, but
     a ⇥ "other${x}remainder…"              ; the prefix does not match.
-    "other${x}" ++ Text/replace "NEEDLE" "remainder…" → e
+    "other${Text/replace "NEEDLE" replacement x}" ++ Text/replace "NEEDLE" replacement "remainder…" → e
     ─────────────────────────────────────────────────────
     f a ⇥ e
 
 
     f ⇥ Text/replace "NEEDLE" replacement  ; The string has interpolation, and
     a ⇥ "beforeNEEDLEafter${x}remainder…"  ; the prefix matches.
-    "before${replacement}" ++ Text/replace "NEEDLE" "after${x}remainder…" → e
+    "before${replacement}" ++ Text/replace "NEEDLE" replacement "after${x}remainder…" → e
     ─────────────────────────────────────────────────────────────────────────
     f a ⇥ e
 
@@ -707,8 +707,8 @@ All of the built-in functions on `Text` are in normal form:
 
     ───────────────────────────
     Text/replace ⇥ Text/replace
-    
-    
+
+
 ## `List`
 
 The `List` type-level function is in normal form:
