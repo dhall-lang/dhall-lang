@@ -1,1 +1,1 @@
-λ(x : Text) → λ(y : Text) → Text/replace "a" "-${x}-" "_a_${y}_a_"
+λ(x : Text) → "_-${x}-__-${x}-_"
