@@ -44,7 +44,6 @@ For example, the following XML element:
    }
 ```
 -}
-
 let XML/Type
     : Type
     = ∀(XML : Type) →
