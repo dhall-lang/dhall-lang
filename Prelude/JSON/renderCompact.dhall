@@ -7,15 +7,9 @@ let Text/concatMapSep =
         ../Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
       ? ../Text/concatMapSep
 
-let showWithoutPlus =
-      λ(i : Integer) →
-        let m = Integer/clamp i
-
-        let n = Integer/clamp (Integer/negate i)
-
-        in  if    Natural/isZero m
-            then  if Natural/isZero n then "0" else "-${Natural/show n}"
-            else  Natural/show m
+let renderInteger =
+        ./renderInteger.dhall sha256:15b8d2ae46d5002832741927af787761df49798c911e2bf85db7a7b9cb5c078c
+      ? ./renderInteger.dhall
 
 let renderCompact
     : JSON.Type → Text
@@ -24,7 +18,7 @@ let renderCompact
           Text
           { string = Text/show
           , double = Double/show
-          , integer = showWithoutPlus
+          , integer = renderInteger
           , object =
               λ(x : List { mapKey : Text, mapValue : Text }) →
                 let body =
