@@ -299,14 +299,6 @@
           "store.dhall-lang.org" =
             let
               packages = [
-                pkgs.dhallPackages.Prelude."7.0.0"
-                pkgs.dhallPackages.Prelude."8.0.0"
-                pkgs.dhallPackages.Prelude."9.0.0"
-                pkgs.dhallPackages.Prelude."10.0.0"
-                pkgs.dhallPackages.Prelude."11.0.0"
-                pkgs.dhallPackages.Prelude."11.1.0"
-                pkgs.dhallPackages.Prelude."12.0.0"
-                pkgs.dhallPackages.Prelude."13.0.0"
               ];
 
               store = pkgs.runCommand "store" { inherit packages; } ''
