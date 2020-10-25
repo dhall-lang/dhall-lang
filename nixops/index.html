@@ -439,10 +439,7 @@ let makeUser = \\(user : Text) ->
       let home       = "/home/\${user}"
       let privateKey = "\${home}/.ssh/id_ed25519"
       let publicKey  = "\${privateKey}.pub"
-      in  { home = home
-          , privateKey = privateKey
-          , publicKey = publicKey
-          }
+      in  { home, privateKey, publicKey }
     {- Add another user to this list -}
 in  [ makeUser "bill"
     , makeUser "jane"
@@ -464,11 +461,7 @@ let makeUser : Text -> Config = \\(user : Text) ->
       let home       : Text   = "/home/\${user}"
       let privateKey : Text   = "\${home}/.ssh/id_ed25519"
       let publicKey  : Text   = "\${privateKey}.pub"
-      let config     : Config =
-            { home       = home
-            , privateKey = privateKey
-            , publicKey  = publicKey
-            }
+      let config     : Config = { home, privateKey, publicKey }
       in  config
 
 let configs : List Config =
@@ -499,10 +492,7 @@ let makeUser = \\(user : Text) ->
       let home       = "/home/\${user}"
       let privateKey = "\${home}/.ssh/id_ed25519"
       let publicKey  = "\${privateKey}.pub"
-      in  { home = home
-          , privateKey = privateKey
-          , publicKey = publicKey
-          }
+      in  { home, privateKey, publicKey }
 
 let buildUser = \\(index : Natural) ->
       {- \`Natural/show\` is a "built-in", meaning that
