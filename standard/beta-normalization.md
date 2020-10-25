@@ -662,9 +662,12 @@ Or in other words:
 
 
 `Text/replace` modifies a substring of a given `Text` literal. It takes 3
-arguments, the `Text` literal substring to match, the `Text` literal replacement,
-and the `Text` literal in which to replace all matches. In the case that the
-substring to replace is empty (`""`), then no replacement is performed:
+arguments, the `Text` literal substring to match (the _needle_), the `Text`
+value replacement (the _replacement_), and the `Text` literal in which to
+replace all matches (the _haystack_). The _needle_ and the _haystack_ must
+have reached normal form before any further beta normalization can be applied.
+In the case that the substring to replace is empty (`""`), then no replacement
+is performed:
 
 
     f ⇥ Text/replace "" replacement   a ⇥ "foo"   ; No replacement performed if
@@ -685,20 +688,6 @@ substring to replace is empty (`""`), then no replacement is performed:
     f a ⇥ e
 
 
-    f ⇥ Text/replace "NEEDLE" replacement  ; The string has interpolation, but
-    a ⇥ "other${x}remainder…"              ; the prefix does not match.
-    "other${x}" ++ Text/replace "NEEDLE" "remainder…" → e
-    ─────────────────────────────────────────────────────
-    f a ⇥ e
-
-
-    f ⇥ Text/replace "NEEDLE" replacement  ; The string has interpolation, and
-    a ⇥ "beforeNEEDLEafter${x}remainder…"  ; the prefix matches.
-    "before${replacement}" ++ Text/replace "NEEDLE" "after${x}remainder…" → e
-    ─────────────────────────────────────────────────────────────────────────
-    f a ⇥ e
-
-
 All of the built-in functions on `Text` are in normal form:
 
 
@@ -707,8 +696,8 @@ All of the built-in functions on `Text` are in normal form:
 
     ───────────────────────────
     Text/replace ⇥ Text/replace
-    
-    
+
+
 ## `List`
 
 The `List` type-level function is in normal form:
