@@ -137,16 +137,12 @@ An `if` expression takes a predicate of type `Bool` and returns either the
     Γ ⊢ t : Bool
     Γ ⊢ l : L
     Γ ⊢ r : R
-    Γ ⊢ L : Type
-    Γ ⊢ R : Type
     L ≡ R
     ──────────────────────────
     Γ ⊢ if t then l else r : L
 
 
-Note that an `if` expression can only return a term.  More generally, if the
-`if` expression returns a value whose type is not a `Type` then that is a type
-error.
+If the `if` expression returns a value whose type is not `Type`, `Kind`, or `Sort` then that is a type error.
 
 If the predicate is not a `Bool` then that is a type error.
 
