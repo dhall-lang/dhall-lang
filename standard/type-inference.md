@@ -279,7 +279,7 @@ The `Text/replace` function has the following type:
 
 
     ───────────────────────────────────────────────────────────────────────────────────────
-    Γ ⊢ Text/replace : ∀(needle : Text) → ∀(replacement : Text) → ∀(haystack : Text) → Text
+    Γ ⊢ Text/replace : Text → Text → Text → Text
 
 
 The `Text` concatenation operator takes arguments of type `Text` and returns a

@@ -1,1 +1,1 @@
-∀(needle : Text) → ∀(replacement : Text) → ∀(haystack : Text) → Text
+Text → Text → Text → Text
