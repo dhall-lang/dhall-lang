@@ -1,6 +1,9 @@
   { render =
         ./render.dhall sha256:b5e5aee66b8fc018b50e1019a76340deafe5f8176854ea3611476d79990785da
       ? ./render.dhall
+  , renderCompact =
+        ./renderCompact.dhall sha256:e6c8809fbe193fddd430f94350d69cefd45e7aaf8bd379e51b750fde75008562
+      ? ./renderCompact.dhall
   , renderYAML =
         ./renderYAML.dhall sha256:dad92a120956ae852be7496d1e1955bbf3f60834ab2ad32641269098f2846477
       ? ./renderYAML.dhall
