@@ -16,6 +16,9 @@
 , defaultMap =
       ./defaultMap.dhall sha256:3a3fa1264f6198800c27483cb144de2c5366484876d60b9c739a710ce0288588
     ? ./defaultMap.dhall
+, replace =
+      ./replace.dhall sha256:7d132df0e091a43817bba8afa06d1bb487ee51c091430404ad6f8c78bc0328a6
+    ? ./replace.dhall
 , replicate =
       ./replicate.dhall sha256:1b398b1d464b3a6c7264a690ac3cacb443b5683b43348c859d68e7c2cb925c4f
     ? ./replicate.dhall

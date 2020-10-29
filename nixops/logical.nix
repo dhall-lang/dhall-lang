@@ -5,7 +5,7 @@
         builtins.fetchTarball {
           url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.2.1/nixos-mailserver-v2.2.0.tar.gz";
 
-          sha256 = "03d49v8qnid9g9rha0wg2z6vic06mhp0b049s3whccn1axvs2zzx";
+          sha256 = "1wzdxvjbn9jdzssib3yhj3ik1fi1jz80859n1cysr5lm8l6bz0vp";
         };
 
     in
@@ -180,7 +180,7 @@
 
       virtualHosts =
         let
-          latestRelease = "v18.0.0";
+          latestRelease = "v19.0.0";
 
           prelude = {
             forceSSL = true;
@@ -299,14 +299,6 @@
           "store.dhall-lang.org" =
             let
               packages = [
-                pkgs.dhallPackages.Prelude."7.0.0"
-                pkgs.dhallPackages.Prelude."8.0.0"
-                pkgs.dhallPackages.Prelude."9.0.0"
-                pkgs.dhallPackages.Prelude."10.0.0"
-                pkgs.dhallPackages.Prelude."11.0.0"
-                pkgs.dhallPackages.Prelude."11.1.0"
-                pkgs.dhallPackages.Prelude."12.0.0"
-                pkgs.dhallPackages.Prelude."13.0.0"
               ];
 
               store = pkgs.runCommand "store" { inherit packages; } ''
