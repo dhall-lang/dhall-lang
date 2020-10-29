@@ -18,8 +18,6 @@ in  XML.render
 = "<foo><bar n=\"1\"/><baz n=\"2\"/></foo>"
 ```
 -}
-
-
 let XML =
         ./Type.dhall sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
       ? ./Type.dhall
