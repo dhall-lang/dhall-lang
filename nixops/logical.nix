@@ -1,5 +1,17 @@
-{ config, pkgs, ... }: {
-  imports =
+{ config, pkgs, ... }:
+
+let
+  nixServe = rec {
+    keyDirectory = "/etc/nix-serve";
+
+    privateKey = "${keyDirectory}/nix-serve.sec";
+
+    publicKey = "${keyDirectory}/nix-serve.pub";
+  };
+
+in
+
+{ imports =
     let
       nixos-mailserver =
         builtins.fetchTarball {
@@ -88,6 +100,12 @@
               ./0001-schema-Builds-use-jobset_id-instead-of-jobset-name-m.patch
               ./hydra.patch
               ./no-restrict-eval.patch
+              (packagesNew.fetchpatch {
+                  url = "https://github.com/NixOS/hydra/commit/df3262e96cb55bdfaac7726896728bfef675698b.patch";
+
+                  sha256 = "1344cqlmx0ncgsh3dqn5igbxx6rgmlm14rgb5vi6rxkvwnfqy3zj";
+                }
+              )
             ];
           }
         );
@@ -129,6 +147,7 @@
           authorization = dhall-lang
           context = hydra
         </githubstatus>
+        binary_cache_secret_key_file = ${nixServe.privateKey}
       '';
 
       hydraURL = "https://hydra.dhall-lang.org";
@@ -348,7 +367,7 @@
 
       enable = true;
 
-      secretKeyFile = "/etc/nix-serve/nix-serve.sec";
+      secretKeyFile = nixServe.privateKey;
     };
 
     openssh.enable = true;
@@ -506,26 +525,19 @@
     };
 
     nix-serve-keys = {
-      script =
-        let
-          keyDirectory = "/etc/nix-serve";
+      script = ''
+        if [ ! -e ${nixServe.keyDirectory} ]; then
+          mkdir -p ${nixServe.keyDirectory}
+        fi
 
-          privateKey = "${keyDirectory}/nix-serve.sec";
+        if ! [ -e ${nixServe.privateKey} ] || ! [ -e ${nixServe.publicKey} ]; then
+          ${pkgs.nix}/bin/nix-store --generate-binary-cache-key cache.dhall-lang.org ${nixServe.privateKey} ${nixServe.publicKey}
+        fi
 
-          publicKey = "${keyDirectory}/nix-serve.pub";
+        chown -R nix-serve:hydra ${nixServe.keyDirectory}
 
-        in
-          ''
-            if [ ! -e ${keyDirectory} ]; then
-              mkdir -p ${keyDirectory}
-            fi
-
-            if ! [ -e ${privateKey} ] || ! [ -e ${publicKey} ]; then
-              ${pkgs.nix}/bin/nix-store --generate-binary-cache-key cache.dhall-lang.org ${privateKey} ${publicKey}
-            fi
-
-            chown -R nix-serve:hydra /etc/nix-serve
-          '';
+        chmod 640 ${nixServe.privateKey}
+      '';
 
       serviceConfig.Type = "oneshot";
 
