@@ -534,7 +534,9 @@ in
           ${pkgs.nix}/bin/nix-store --generate-binary-cache-key cache.dhall-lang.org ${nixServe.privateKey} ${nixServe.publicKey}
         fi
 
-        chown -R nix-serve:hydra /etc/nix-serve
+        chown -R nix-serve:hydra ${nixServe.keyDirectory}
+
+        chmod 640 ${nixServe.privateKey}
       '';
 
       serviceConfig.Type = "oneshot";
