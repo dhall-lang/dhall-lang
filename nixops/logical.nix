@@ -103,7 +103,7 @@ in
               (packagesNew.fetchpatch {
                   url = "https://github.com/NixOS/hydra/commit/df3262e96cb55bdfaac7726896728bfef675698b.patch";
 
-                  sha256 = "1rrz2zqyw2zkpnq0jzsb9ikarr7nqlfy4f88jxm1bmyfcxwrl9a1";
+                  sha256 = "1344cqlmx0ncgsh3dqn5igbxx6rgmlm14rgb5vi6rxkvwnfqy3zj";
                 }
               )
             ];
