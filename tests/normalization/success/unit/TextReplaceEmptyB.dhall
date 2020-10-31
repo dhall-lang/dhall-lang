@@ -1,1 +1,1 @@
-λ(replacement : Text) → λ(haystack : text) → haystack
+λ(replacement : Text) → λ(haystack : Text) → haystack
