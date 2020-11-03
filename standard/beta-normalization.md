@@ -670,9 +670,9 @@ In the case that the substring to replace is empty (`""`), then no replacement
 is performed:
 
 
-    f ⇥ Text/replace "" replacement   a ⇥ "foo"   ; No replacement performed if
-    ────────────────────────────────────────────  ; the search string is empty,
-    f a ⇥ "foo"                                   ; to avoid an infinite loop.
+    f ⇥ Text/replace "" replacement   a₀ ⇥ a₁  ; No replacement performed if
+    ─────────────────────────────────────────  ; the search string is empty,
+    f a₀ ⇥ a₁                                  ; to avoid an infinite loop.
 
 
     f ⇥ Text/replace "NEEDLE" replacement  ; If the "NEEDLE" is not found within
