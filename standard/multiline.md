@@ -52,7 +52,7 @@ that need to be escaped for double-quoted literals:
 
     re-escape("ss₀…") = "ss₁…"
     ──────────────────────────────  ; c₀ ∈ { ", $, \ }
-    re-escape("c₀ss₀…") = "c₀ss₁…"
+    re-escape("c₀ss₀…") = "\c₀ss₁…"
 
 
 For all other characters, re-escape leaves them unmodified:
