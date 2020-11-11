@@ -3494,7 +3494,7 @@ a list of key-value pairs:
 
    ... to a JSON value like this:
 
-   { "foo": 1, "bar", 2 }
+   { "foo": 1, "bar": 2 }
 -}
 let Map
     : Type → Type → Type
