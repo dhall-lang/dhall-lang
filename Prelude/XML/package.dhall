@@ -5,7 +5,7 @@
       ./attribute.dhall sha256:f7b6c802ca5764d03d5e9a6e48d9cb167c01392f775d9c2c87b83cdaa60ea0cc
     ? ./attribute.dhall
 , render =
-      ./render.dhall sha256:8d034f7f97cded14a96147565d489be840e5678480d175b962b2600d85a3230e
+      ./render.dhall sha256:aff7efe61ce299381edca023e24bb5aaa0656c41bfa45dd705dab63519b7c5db
     ? ./render.dhall
 , element =
       ./element.dhall sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
