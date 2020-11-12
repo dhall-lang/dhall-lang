@@ -23,6 +23,7 @@ The following languages can read in Dhall configuration files by building on top
 * [Eta](https://github.com/eta-lang/dhall-eta) - Via the Haskell implementation
 * [Java](https://github.com/eta-lang/dhall-eta) - The above Eta implementation also provides Java bindings
 * [Nix](https://github.com/dhall-lang/dhall-haskell/tree/master/dhall-nix) - Via the Haskell implementation
+* [Python](https://github.com/s-zeng/dhall-python) - Via the Rust implementation
 
 The following language bindings are currently in progress:
 
