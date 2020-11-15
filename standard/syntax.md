@@ -152,7 +152,7 @@ module Syntax
     ( -- * Types
       Expression(..)
     , Operator(..)
-    , Chunks(..)
+    , TextLiteral(..)
     , Builtin(..)
     , Constant(..)
     , ImportMode(..)
@@ -216,7 +216,7 @@ data Expression
       -- ^ > n
     | IntegerLiteral Integer
       -- ^ > ±n
-    | TextLiteral Chunks
+    | TextLiteral TextLiteral
       -- ^ > "s"
       --   > "s${t}ss…"  
     | RecordType [(Text, Expression)]
@@ -256,14 +256,14 @@ data Operator
     A @Text@ literal without any interpolations has an empty list.  For example,
     the @Text@ literal @\"foo\"@ is represented as:
 
-    > Chunks [] "foo"
+    > TextLiteral [] "foo"
 
     A @Text@ literal with interpolations has one list element per interpolation.
     For example, the @Text@ literal @\"foo${x}bar${y}baz\"@ is represented as:
 
-    > Chunks [("foo", Variable "x" 0), ("bar", Variable "y" 0)] "baz"
+    > TextLiteral [("foo", Variable "x" 0), ("bar", Variable "y" 0)] "baz"
 -}
-data Chunks = Chunks [(Text, Expression)] Text
+data TextLiteral = Chunks [(Text, Expression)] Text
 
 -- | Builtin values
 data Builtin
