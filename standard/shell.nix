@@ -1,0 +1,1 @@
+(import ../release.nix {}).standard

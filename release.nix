@@ -3,9 +3,9 @@
 let
   nixpkgs =
     builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/fc7efd51d616858af206d5c3e33ebf4b77487e38.tar.gz";
+      url = "https://github.com/NixOS/nixpkgs/archive/98e46cec92fb877abaee7ed8f78cee722fd58a7e.tar.gz";
 
-      sha256 = "1n75xcad22bmp4x7vzrfwqblvq0z0x7xkmn0id9rj14qy2vlkq6d";
+      sha256 = "19khdgb8dp28rx4wyb2m2dxdcq83dhidj6046rynb91dfdm6893n";
     };
 
   dhallLangNixpkgs = import ./nixops/dhallLangNixpkgs.nix;
@@ -65,6 +65,33 @@ let
 
           touch $out
         '';
+
+    standard =
+      let
+        agdaWithLibraries =
+          pkgsNew.agda.withPackages (pkgs: [ pkgs.standard-library ]);
+
+        agda = agdaWithLibraries.overrideAttrs (old: {
+            nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
+              pkgsNew.makeWrapper
+            ];
+
+            buildCommand = (old.buildCommand or "") + ''
+              wrapProgram $out/bin/agda --add-flags '-l standard-library -i .'
+            '';
+          }
+        );
+
+      in
+        pkgsNew.runCommand "standard"
+          { nativeBuildInputs = [ agda ]; }
+          ''
+          ${pkgsNew.rsync}/bin/rsync --archive ${./standard}/*.lagda.md ./
+
+          agda Syntax.lagda.md
+
+          touch $out
+          '';
 
     pythonPackages = pkgsOld.pythonPackages.override (old: {
         overrides =
@@ -413,13 +440,14 @@ in
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
         pkgs.test-files-lint
+        pkgs.standard
         machine
         vm
         rev
       ];
     };
 
-    inherit (pkgs) expected-prelude expected-test-files docs website;
+    inherit (pkgs) expected-prelude expected-test-files docs standard website;
 
     inherit machine vm;
   }
