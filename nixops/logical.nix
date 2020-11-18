@@ -619,6 +619,12 @@ in
   virtualisation.docker = {
     enable = true;
 
+    autoPrune = {
+      enable = true;
+
+      flags = [ "--all" ];
+    };
+
     storageDriver = "overlay2";
   };
 }
