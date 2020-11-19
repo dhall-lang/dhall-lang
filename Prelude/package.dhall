@@ -38,6 +38,6 @@
       ./Text/package.dhall sha256:46c53957c10bd4c332a5716d6e06068cd24ae1392ca171e6da31e30b9b33c07c
     ? ./Text/package.dhall
 , XML =
-      ./XML/package.dhall sha256:137e7b106b2e9743970e5d37b21a165f2e40f56ab593a4dd10605c9acd686fc6
+      ./XML/package.dhall sha256:8f57bda3087cbb34568d58e5dd5ee6860a50576caf48ebe49a5fc60b9af9a1fa
     ? ./XML/package.dhall
 }
