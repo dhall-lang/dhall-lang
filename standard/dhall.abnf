@@ -796,7 +796,7 @@ empty-list-literal =
     "[" whsp [ "," whsp ] "]" whsp ":" whsp1 application-expression
 
 with-expression =
-    import-expression 1*(whsp1 with whsp1 with-clause)
+    import-expression 1*(whsp1 with whsp1 with-clause) [ whsp ":" whsp1 expression ]
 
 with-clause =
     any-label-or-some *(whsp "." whsp any-label-or-some) whsp "=" whsp operator-expression
