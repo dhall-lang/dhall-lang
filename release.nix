@@ -377,6 +377,8 @@ let
       system = "x86_64-linux";
     }).system;
 
+  standard = pkgs.haskellPackages.callCabal2nix "standard" ./standard { };
+
   vm =
     (import "${dhallLangNixpkgs}/nixos" {
       configuration = {
@@ -413,6 +415,7 @@ in
         pkgs.ensure-trailing-newlines
         pkgs.prelude-lint
         pkgs.test-files-lint
+        standard
         machine
         vm
         rev
@@ -421,5 +424,5 @@ in
 
     inherit (pkgs) expected-prelude expected-test-files docs website;
 
-    inherit machine vm;
+    inherit machine vm standard;
   }
