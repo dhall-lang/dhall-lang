@@ -519,7 +519,7 @@ in  {- Try generating 20 users instead of 10 -}
     h0.setValue(`-- ./company.dhall
 
 let Prelude =
-      https://prelude.dhall-lang.org/v11.1.0/package.dhall sha256:99462c205117931c0919f155a6046aec140c70fb8876d208c7c77027ab19c2fa
+      https://prelude.dhall-lang.org/v19.0.0/package.dhall sha256:eb693342eb769f782174157eba9b5924cf8ac6793897fc36a31ccbd6f56dafe2
 
 let companyName = "Example Dot Com"
 
@@ -577,24 +577,19 @@ $ dhall text <<< '(./company.dhall).greetingPage'
 `);
 
     d0.setValue(`$ dhall diff \\
-    'https://prelude.dhall-lang.org/v9.0.0/package.dhall' \\
-    'https://prelude.dhall-lang.org/v10.0.0/package.dhall'
-{ Natural = { + equal = …
-            , + greaterThan = …
-            , + greaterThanEqual = …
-            , + lessThan = …
-            , + lessThanEqual = …
-            , …
-            }
-, Text = { + default = …
-         , + defaultMap = …
-         , …
-         }
+    'https://prelude.dhall-lang.org/v18.0.0/package.dhall' \\
+    'https://prelude.dhall-lang.org/v19.0.0/package.dhall'
+          
+{ + Operator = …
+,   \`Optional\` = { + concatMap = …
+                 , …
+                 }
 , …
 }`);
 
     h2.setValue(`-- Import packages
-let JSON = https://prelude.dhall-lang.org/v11.1.0/JSON/package.dhall
+let JSON =
+      https://prelude.dhall-lang.org/v19.0.0/JSON/package.dhall sha256:79dfc281a05bc7b78f927e0da0c274ee5709b1c55c9e5f59499cb28e9d6f3ec0
 
 -- Use precise types like enums instead of strings
 let Zone = < us-east-1 | us-west-1 >
@@ -631,12 +626,16 @@ let Instance/toJSON =
 
 -- Use language support for tests to safely verify code ahead of time
 let test =
-        let example =
-              { type = InstanceType.\`m5.xlarge\`, zone = Zone.us-east-1 }
+      let example = { type = InstanceType.\`m5.xlarge\`, zone = Zone.us-east-1 }
 
-        in    assert
-            :      JSON.render (Instance/toJSON example)
-              ===  "{ \\"type\\": \\"m5.xlarge\\", \\"zone\\": \\"us-east-1\\" }"
+      in    assert
+          :     JSON.render (Instance/toJSON example)
+            ===  ''
+                 {
+                   "type": "m5.xlarge",
+                   "zone": "us-east-1"
+                 }
+                 ''
 
 in  Instance/toJSON
 `);
