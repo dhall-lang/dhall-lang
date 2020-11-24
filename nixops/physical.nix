@@ -1,9 +1,9 @@
 let
-  dhallLangNixpkgs = import ./dhallLangNixpkgs.nix;
+  nixpkgs = import ./nixpkgs.nix;
 
 in
   { ... }: {
-    imports = [ "${dhallLangNixpkgs}/nixos/modules/profiles/qemu-guest.nix" ];
+    imports = [ "${nixpkgs}/nixos/modules/profiles/qemu-guest.nix" ];
 
     nixpkgs.system = "x86_64-linux";
 

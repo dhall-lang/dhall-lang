@@ -101,7 +101,6 @@ in
       modifyHydra = packagesNew: packagesOld: {
         hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
             patches = (old.patches or []) ++ [
-              ./0001-schema-Builds-use-jobset_id-instead-of-jobset-name-m.patch
               ./hydra.patch
               ./no-restrict-eval.patch
               (packagesNew.fetchpatch {
@@ -172,7 +171,7 @@ in
     logrotate = {
       enable = true;
 
-      config = ''
+      extraConfig = ''
         /var/spool/nginx/logs/*.log {
           create 0644 nginx nginx
           daily
@@ -322,6 +321,41 @@ in
           "store.dhall-lang.org" =
             let
               packages = [
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-14.0.0";
+                  rev = "v14.0.0";
+                  sha256 = "1b4h6zk8b6yylgl3g4dvfqdkvabnaxxa9flaw1py20p77nxnfyfq";
+                })
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-15.0.0";
+                  rev = "v15.0.0";
+                  sha256 = "0kkl7qzpc99gpskcr4f471xdvig2bynay8f6i90ws3224rvxvf3r";
+                })
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-16.0.0";
+                  rev = "v16.0.0";
+                  sha256 = "1lnpvrhxa5fh2721biw2nd69qwiqvclw6z6ywiv9xvpmw2alwdsb";
+                })
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-17.0.0";
+                  rev = "v17.0.0";
+                  sha256 = "0jnqw50q26ksxkzs85a2svyhwd2cy858xhncq945bmirpqrhklwf";
+                })
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-17.1.0";
+                  rev = "v17.1.0";
+                  sha256 = "0i5c6ahafafrhjxbalz3g19cd14nf6pa4q7f14hb9pa7hnyhakgn";
+                })
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-18.0.0";
+                  rev = "v18.0.0";
+                  sha256 = "1vx3cdzpdrbjjc214v6mnl9y2k4yrpy3fgj37fg2dlirbqppdk9r";
+                })
+                (pkgs.dhallPackages.Prelude.overridePackage {
+                  name = "Prelude-19.0.0";
+                  rev = "v19.0.0";
+                  sha256 = "04m29f5xlks6rarv1gy909j68bsflwl18l9bg7kyy1vpwap0avkp";
+                })
               ];
 
               store = pkgs.runCommand "store" { inherit packages; } ''
