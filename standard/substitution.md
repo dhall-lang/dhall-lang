@@ -1,5 +1,12 @@
 # Substitution
 
+```haskell
+module Substitution where
+
+import Shift (shift)
+import Syntax (Expression(..), Natural, Text, TextLiteral(..))
+```
+
 β-reduction requires support for substitution, which has the following form:
 
     e₀[x@n ≔ a] = e₁
@@ -13,6 +20,15 @@
   with
 * `e₁` (the output expression) is transformed expression where all occurrences
   of `x@n` have been replaced with `a`
+
+```haskell
+substitute
+    :: Expression  -- ^ @e₀@
+    -> Text        -- ^ @x@
+    -> Natural     -- ^ @n@
+    -> Expression  -- ^ @a@
+    -> Expression  -- ^ @e₁@
+```
 
 For example:
 
@@ -49,6 +65,12 @@ expression:
     ──────────────────  ; x@n ≠ y@m
     y@m[x@n ≔ e] = y@m
 
+
+```haskell
+substitute (Variable x' n') x n e | x == x' && n == n' = e
+
+substitute (Variable y m) _x _n _e = Variable y m
+```
 
 In other words, substitute the expression if the variable name and index exactly
 match, but otherwise do not substitute and leave the variable as-is.
@@ -108,6 +130,25 @@ All of the following rules cover expressions that can bind variables:
     (λ(y : A₀) → b₀)[x@n ≔ e₀] = λ(y : A₁) → b₁
 
 
+```haskell
+substitute (Lambda x _A₀ b₀) x' n e₀ | x == x' = Lambda x _A₁ b₁
+  where
+    _A₁ = substitute _A₀ x n e₀
+
+    e₁ = shift 1 x 0 e₀
+
+    b₁ = substitute b₀ x (1 + n) e₁
+
+substitute (Lambda y _A₀ b₀) x n e₀ = Lambda y _A₁ b₁
+  where
+    _A₁ = substitute _A₀ x n e₀
+
+    e₁ = shift 1 y 0 e₀
+
+    b₁ = substitute b₀ x n e₁
+```
+
+
     A₀[x@n ≔ e₀] = A₁   ↑(1, x, 0, e₀) = e₁   B₀[x@(1 + n) ≔ e₁] = B₁
     ─────────────────────────────────────────────────────────────────
     (∀(x : A₀) → B₀)[x@n ≔ e₀] = ∀(x : A₁) → B₁
@@ -116,6 +157,25 @@ All of the following rules cover expressions that can bind variables:
     A₀[x@n ≔ e₀] = A₁   ↑(1, y, 0, e₀) = e₁   B₀[x@n ≔ e₁] = B₁
     ───────────────────────────────────────────────────────────  ; x ≠ y
     (∀(y : A₀) → B₀)[x@n ≔ e₀] = ∀(y : A₁) → B₁
+
+
+```haskell
+substitute (Forall x _A₀ _B₀) x' n e₀ | x == x' = Forall x _A₁ _B₁
+  where
+    _A₁ = substitute _A₀ x n e₀
+
+    e₁ = shift 1 x 0 e₀
+
+    _B₁ = substitute _B₀ x (1 + n) e₁
+
+substitute (Forall y _A₀ _B₀) x n e₀ = Forall y _A₁ _B₁
+  where
+    _A₁ = substitute _A₀ x n e₀
+
+    e₁ = shift 1 x 0 e₀
+
+    _B₁ = substitute _B₀ x n e₁
+```
 
 
     A₀[x@n ≔ e₀] = A₁
@@ -148,6 +208,44 @@ All of the following rules cover expressions that can bind variables:
     (let y = a₀ in b₀)[x@n ≔ e₀] = let y = a₁ in b₁
 
 
+```haskell
+substitute (Let x (Just _A₀) a₀ b₀) x' n e₀ | x == x' = Let x (Just _A₁) a₁ b₁
+  where
+    _A₁ = substitute _A₀ x n e₀
+
+    a₁ = substitute a₀ x n e₀
+
+    e₁ = shift 1 x 0 e₀
+
+    b₁ = substitute b₀ x (1 + n) e₁
+
+substitute (Let y (Just _A₀) a₀ b₀) x n e₀ = Let y (Just _A₁) a₁ b₁
+  where
+    _A₁ = substitute _A₀ x n e₀
+
+    a₁ = substitute a₀ x n e₀
+
+    e₁ = shift 1 y 0 e₀
+
+    b₁ = substitute b₀ x n e₁
+
+substitute (Let x Nothing a₀ b₀) x' n e₀ | x == x' = Let x Nothing a₁ b₁
+  where
+    a₁ = substitute a₀ x n e₀
+
+    e₁ = shift 1 x 0 e₀
+
+    b₁ = substitute b₀ x (1 + n) e₁
+
+substitute (Let y Nothing a₀ b₀) x n e₀ = Let y Nothing a₁ b₁
+  where
+    a₁ = substitute a₀ x n e₀
+
+    e₁ = shift 1 y 0 e₀
+
+    b₁ = substitute b₀ x n e₁
+```
+
 ## Imports
 
 You can substitute expressions with unresolved imports because the language
@@ -179,6 +277,11 @@ substitution of a closed expression has no effect:
     (env:x)[x@n ≔ e] = env:x
 
 
+```haskell
+substitute (Import importType importMode maybeDigest) _x _n _e =
+    Import importType importMode maybeDigest
+```
+
 ## Other
 
 No other Dhall expressions bind variables, so the substitution function descends
@@ -194,6 +297,17 @@ The remaining rules are:
     (if t₀ then l₀ else r₀)[x@n ≔ e] = if t₁ then l₁ else r₁
 
 
+```haskell
+substitute (If t₀ l₀ r₀) x n e = If t₁ l₁ r₁
+  where
+    t₁ = substitute t₀ x n e
+
+    l₁ = substitute l₀ x n e
+
+    r₁ = substitute r₀ x n e
+```
+
+
     t₀[x@n ≔ e] = t₁   u₀[x@n ≔ e] = u₁   T₀[x@n ≔ e] = T₁
     ──────────────────────────────────────────────────────
     (merge t₀ u₀ : T₀)[x@n ≔ e] = merge t₁ u₁ : T₁
@@ -202,6 +316,23 @@ The remaining rules are:
     t₀[x@n ≔ e] = t₁   u₀[x@n ≔ e] = u₁
     ────────────────────────────────────
     (merge t₀ u₀)[x@n ≔ e] = merge t₁ u₁
+
+
+```haskell
+substitute (Merge t₀ u₀ (Just _T₀)) x n e = Merge t₁ u₁ (Just _T₁)
+  where
+    t₁ = substitute t₀ x n e
+
+    u₁ = substitute u₀ x n e
+
+    _T₁ = substitute _T₀ x n e
+
+substitute (Merge t₀ u₀ Nothing) x n e = Merge t₁ u₁ Nothing
+  where
+    t₁ = substitute t₀ x n e
+
+    u₁ = substitute u₀ x n e
+```
 
 
     t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
@@ -214,6 +345,19 @@ The remaining rules are:
     (toMap t₀)[x@n ≔ e] = toMap t₁
 
 
+```haskell
+substitute (ToMap t₀ (Just _T₀)) x n e = ToMap t₁ (Just _T₁)
+  where
+    t₁ = substitute t₀ x n e
+
+    _T₁ = substitute _T₀ x n e
+
+substitute (ToMap t₀ Nothing) x n e = ToMap t₁ Nothing
+  where
+    t₁ = substitute t₀ x n e
+```
+
+
     T₀[x@n ≔ e] = T₁
     ────────────────────────────
     ([] : T₀)[x@n ≔ e] = [] : T₁
@@ -224,9 +368,33 @@ The remaining rules are:
     ([ t₀, ts₀… ])[x@n ≔ e] = [ t₁, ts₁… ]
 
 
+```haskell
+substitute (EmptyList _T₀) x n e = EmptyList _T₁
+  where
+    _T₁ = substitute _T₀ x n e
+
+substitute (NonEmptyList ts₀) x n e = NonEmptyList ts₁
+  where
+    ts₁ = fmap adapt ts₀
+
+    adapt t₀ = t₁
+      where
+        t₁ = substitute t₀ x n e
+```
+
+
     t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
     ───────────────────────────────────
     (t₀ : T₀)[x@n ≔ e] = t₁ : T₁
+
+
+```haskell
+substitute (Annotation t₀ _T₀)  x n e = Annotation t₁ _T₁
+  where
+    t₁ = substitute t₀ x n e
+
+    _T₁ = substitute _T₀ x n e
+```
 
 
     l₀[x@n ≔ e] = l₁   r₀[x@n ≔ e] = r₁
@@ -294,14 +462,39 @@ The remaining rules are:
     (l₀ === r₀)[x@n ≔ e] = l₁ === r₁
 
 
+```haskell
+substitute (Operator l₀ op r₀) x n e = Operator l₁ op r₁
+  where
+    l₁ = substitute l₀ x n e
+
+    r₁ = substitute r₀ x n e
+```
+
+
     f₀[x@n ≔ e] = f₁   a₀[x@n ≔ e] = a₁
     ───────────────────────────────────
     (f₀ a₀)[x@n ≔ e] = f₁ a₁
 
 
+```haskell
+substitute (Application f₀ a₀) x n e = Application f₁ a₁
+  where
+    f₁ = substitute f₀ x n e
+
+    a₁ = substitute a₀ x n e
+```
+
+
     t₀[x@n ≔ e] = t₁
     ────────────────────────
-    (t₀.x₀)[x@n ≔ e] = t₁.x₀
+    (t₀.y)[x@n ≔ e] = t₁.y
+
+
+```haskell
+substitute (Field t₀ y) x n e = Field t₁ y
+  where
+    t₁ = substitute t₀ x n e
+```
 
 
     t₀[x@n ≔ e] = t₁
@@ -309,9 +502,39 @@ The remaining rules are:
     (t₀.{ xs… })[x@n ≔ e] = t₁.{ xs… }
 
 
+```haskell
+substitute (ProjectByLabels t₀ xs) x n e = ProjectByLabels t₁ xs
+  where
+    t₁ = substitute t₀ x n e
+```
+
+
+    t₀[x@n ≔ e] = t₁   T₀[x@n ≔ e] = T₁
+    ───────────────────────────────────
+    (t₀.(T₀))[x@n ≔ e] = t₁.(T₁)
+
+
+```haskell
+substitute (ProjectByType t₀ _T₀) x n e = ProjectByType t₁ _T₁
+  where
+    t₁ = substitute t₀ x n e
+
+    _T₁ = substitute _T₀ x n e
+```
+
+
     T₀[x@n ≔ e] = T₁   r₀[x@n ≔ e] = r₁
     ───────────────────────────────────
-    (T₀::r₀)[x@n ≔ e] = T₁::r₀
+    (T₀::r₀)[x@n ≔ e] = T₁::r₁
+
+
+```haskell
+substitute (Completion _T₀ r₀) x n e = Completion _T₁ r₁
+  where
+    _T₁ = substitute _T₀ x n e
+
+    r₁ = substitute r₀ x n e
+```
 
 
     T₀[x@n ≔ e] = T₁
@@ -319,21 +542,52 @@ The remaining rules are:
     (assert : T₀)[x@n ≔ e] = assert : T₁
 
 
+```haskell
+substitute (Assert _T₀) x n e = Assert _T₁
+  where
+    _T₁ = substitute _T₀ x n e
+```
+
+
     e₀[x@n ≔ e] = e₁   v₀[x@n ≔ e] = v₁
     ──────────────────────────────────────────────────
     (e₀ with k.ks… = v₀)[x@n ≔ e] = e₁ with k.ks… = v₁
+
+
+```haskell
+substitute (With e₀ ks v₀) x n e = With e₁ ks v₁
+  where
+    e₁ = substitute e₀ x n e
+
+    v₁ = substitute v₀ x n e
+```
 
 
     ──────────────────
     n.n[x@n ≔ e] = n.n
 
 
+```haskell
+substitute (DoubleLiteral n) _x _n _e = DoubleLiteral n
+```
+
+
     ──────────────
     n[x@n ≔ e] = n
 
 
+```haskell
+substitute (NaturalLiteral n) _x _n _e = NaturalLiteral n
+```
+
+
     ────────────────
     ±n[x@n ≔ e] = ±n
+
+
+```haskell
+substitute (IntegerLiteral n) _x _n _e = IntegerLiteral n
+```
 
 
     ──────────────────
@@ -345,41 +599,93 @@ The remaining rules are:
     "s₀${t₀}ss₀…"[x@n ≔ e] = "s₀${t₁}ss₁…"
 
 
+```haskell
+substitute (TextLiteral (Chunks xys₀ z)) x n e = TextLiteral (Chunks xys₁ z)
+  where
+    xys₁ = fmap adapt xys₀
+
+    adapt (s, t₀) = (s, t₁)
+      where
+        t₁ = substitute t₀ x n e
+```
+
+
     ────────────────
     {}[x@n ≔ e] = {}
 
 
-    T₀[x@n ≔ e] = T₁   { xs₀… }[x@n ≔ e] = { xs₁… }
+    T₀[x@n ≔ e] = T₁   { ks₀… }[x@n ≔ e] = { ks₁… }
     ───────────────────────────────────────────────
-    { x₀ : T₀, xs₀… }[x@n ≔ e] = { x₀ : T₁, xs₁… }
+    { k : T₀, ks₀… }[x@n ≔ e] = { k : T₁, ks₁… }
+
+
+```haskell
+substitute (RecordType ks₀) x n e = RecordType ks₁
+  where
+    ks₁ = fmap adapt ks₀
+
+    adapt (k, _T₀) = (k, _T₁)
+      where
+        _T₁ = substitute _T₀ x n e
+```
 
 
     ──────────────────
     {=}[x@n ≔ e] = {=}
 
 
-    t₀[x@n ≔ e] = t₁   { xs₀… }[x@n ≔ e] = { xs₁… }
+    t₀[x@n ≔ e] = t₁   { ks₀… }[x@n ≔ e] = { ks₁… }
     ───────────────────────────────────────────────
-    { x₀ = t₀, xs₀… }[x@n ≔ e] = { x₀ = t₁, xs₁… }
+    { k = t₀, ks₀… }[x@n ≔ e] = { k = t₁, ks₁… }
+
+
+```haskell
+substitute (RecordLiteral ks₀) x n e = RecordLiteral ks₁
+  where
+    ks₁ = fmap adapt ks₀
+
+    adapt (k, t₀) = (k, t₁)
+      where
+        t₁ = substitute t₀ x n e
+```
 
 
     ────────────────
     <>[x@n ≔ e] = <>
 
 
-    T₀[x@n ≔ e] = T₁   < xs₀… >[x@n ≔ e] = < xs₁… >
+    T₀[x@n ≔ e] = T₁   < ks₀… >[x@n ≔ e] = < ks₁… >
     ────────────────────────────────────────────────
-    < x₀ : T₀ | xs₀… >[x@n ≔ e] = < x₀ : T₁ | xs₁… >
+    < k : T₀ | ks₀… >[x@n ≔ e] = < k : T₁ | ks₁… >
 
 
-    < xs₀… >[x@n ≔ e] = < xs₁… >
+    < ks₀… >[x@n ≔ e] = < ks₁… >
     ──────────────────────────────────────
-    < x₀ | xs₀… >[x@n ≔ e] = < x₀ | xs₁… >
+    < k | ks₀… >[x@n ≔ e] = < k | ks₁… >
+
+
+```haskell
+substitute (UnionType ks₀) x n e = UnionType ks₁
+  where
+    ks₁ = fmap adapt ks₀
+
+    adapt (k, Just _T₀) = (k, Just _T₁)
+      where
+        _T₁ = substitute _T₀ x n e
+    adapt (k, Nothing) = (k, Nothing)
+```
 
 
     a₀[x@n ≔ e] = a₁
     ────────────────────────────
     (Some a₀)[x@n ≔ e] = Some a₁
+
+
+```haskell
+substitute (Some a₀) x n e = Some a₁
+  where
+    a₁ = substitute a₀ x n e
+```
 
 
     ────────────────────
@@ -510,6 +816,11 @@ The remaining rules are:
     False[x@n ≔ e] = False
 
 
+```haskell
+substitute (Builtin b) _x _n _e = Builtin b
+```
+
+
     ────────────────────
     Type[x@n ≔ e] = Type
 
@@ -520,3 +831,8 @@ The remaining rules are:
 
     ────────────────────
     Sort[x@n ≔ e] = Sort
+
+
+```haskell
+substitute (Constant c) _x _n _e = Constant c
+```
