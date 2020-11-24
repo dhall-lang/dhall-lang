@@ -5,6 +5,107 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v20.0.0`
+
+Breaking changes:
+
+* [`Text/replace` waits to replace interpolated `Text`](https://github.com/dhall-lang/dhall-lang/pull/1084)
+
+  `Text/replace` will now not reduce if the `Text` literal to replace has any
+  interpolated subexpressions.
+
+  For example, before this change, the following expression:
+
+  ```dhall
+  λ(x : Text) → Text/replace "a" "b" "a${x}"
+  ```
+
+  … would normalize to:
+
+  ```dhall
+  λ(x : Text) → Text/replace "a" "b" "b${x}"
+  ```
+
+  After this change, the former expression is in normal form and won't reduce
+  further so long as the interpolated expression remains abstract.
+
+  This change was made to fix the fact that the old behavior for `Text/replace`
+  was not confluent, meaning that the behavior would change depending on which
+  order normalization rules were applied.  For example, the following
+  expression would give different results:
+
+  ```dhall
+  let x = "a" in Text/replace "a" "b" "b${x}"
+  ```
+
+  … depending on whether or not `x` was substituted into the interpolated
+  `Text` literal before or after `Text/replace` performed the replacement.
+
+  This is a technically breaking change because it would change the integrity
+  check for any expression replacing a `Text` literal with abstract
+  interpolated subexpressions.  In practice, you are unlikely to be affected by
+  this change.
+
+* [Normalize `Text/replace` when "needle" is empty and other arguments are abstract](https://github.com/dhall-lang/dhall-lang/pull/1096)
+
+  `Text/replace` will now always normalize if the first argument is the empty
+  string, regardless of whether or not the other two arguments are abstract.
+
+  Or in other words:
+
+  ```dhall
+  Text/replace "" replacement haystack
+  ```
+
+  … will always reduce to:
+
+  ```dhall
+  haystack
+  ```
+
+  This is a technically breaking change along the same lines as the previous
+  change and is also unlikely to affect you in practice.
+
+* [`Prelude.XML.render` now correctly escapes unsanitized input](https://github.com/dhall-lang/dhall-lang/pull/1101)
+
+  The new version of the utility uses `Text/replace` to escape unsanitized
+  input, in order to guarantee that the rendered XML is always well-formed.
+
+  This is a breaking change because the rendered output will be different if the
+  input contained special characters (like `<`).  However, it's more likely that
+  this change will fix your code rather than break it (unless you were depending
+  on the old behavior as an escape hatch for XML injection).
+
+New features:
+
+* [`if` expressions can now return types and kinds](https://github.com/dhall-lang/dhall-lang/pull/1090)
+
+  For example, the following expressions are now valid:
+
+  ```dhall
+  if b then Natural else Integer
+  ```
+
+  ```dhall
+  if b then Type → Type else Type
+  ```
+
+  This makes the behavior of `if` expressions consistent with the behavior of
+  the equivalent `merge` expression for a union of type `< True | False >`.
+
+* [Add `Prelude.JSON.renderCompact`](https://github.com/dhall-lang/dhall-lang/pull/1087)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+  * [Fix typo in re-escaping rule of multiline strings](https://github.com/dhall-lang/dhall-lang/pull/1097)
+  * [Literate Haskell Semantics - Syntax](https://github.com/dhall-lang/dhall-lang/pull/1102)
+
+* Fixes and improvements to the standard test suite:
+
+  * [Fix two type inference tests](https://github.com/dhall-lang/dhall-lang/pull/1110)
+
 ## `v19.0.0`
 
 Breaking changes:
