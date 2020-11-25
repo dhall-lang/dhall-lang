@@ -1,7 +1,11 @@
 # Substitution
 
 ```haskell
-module Substitution where
+-- | Haskell implementation of substitution
+module Substitution
+    ( -- * Substitute
+      substitute
+    ) where
 
 import Shift (shift)
 import Syntax (Expression(..), Natural, Text, TextLiteral(..))
@@ -13,20 +17,20 @@ import Syntax (Expression(..), Natural, Text, TextLiteral(..))
 
 ... where:
 
-* `e₀` (an input expression) is the expression that you want to transform
-* `x@n` (an input variable) is the variable that you want to substitute with
-  another expression
-* `a` (an input expression) is the expression that you want to substitute `x@n`
-  with
+* `e₀` (an input expression) is the expression to transform
+* `x@n` (an input variable) is the variable to substitute with another
+  expression
+* `a` (an input expression) is the expression to substitute `x@n` with
 * `e₁` (the output expression) is transformed expression where all occurrences
   of `x@n` have been replaced with `a`
 
 ```haskell
+-- | Haskell implementation of the substitute function
 substitute
-    :: Expression  -- ^ @e₀@
-    -> Text        -- ^ @x@
-    -> Natural     -- ^ @n@
-    -> Expression  -- ^ @a@
+    :: Expression  -- ^ @e₀@, the expression to transform
+    -> Text        -- ^ @x@, the variable name to substitute
+    -> Natural     -- ^ @n@, the index of the variable to substitute
+    -> Expression  -- ^ @a@, the expression to substitute @x\@n@ with
     -> Expression  -- ^ @e₁@
 ```
 

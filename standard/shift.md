@@ -1,7 +1,11 @@
 # Shift
 
 ```haskell
-module Shift where
+-- | Haskell implementation of shifting
+module Shift
+    ( -- * Shift
+      shift
+    ) where
 
 import Syntax (Expression(..), Natural, Text, TextLiteral(..))
 ```
@@ -29,12 +33,13 @@ This shift function has the form:
 * `e₁` (the output expression) is the shifted expression
 
 ```haskell
+-- | Haskell implementation of the shift function
 shift
-    :: Integer    -- ^ @d@
-    -> Text       -- ^ @x@
-    -> Natural    -- ^ @m@
-    -> Expression -- ^ @e₀@
-    -> Expression -- ^ @e₁@
+    :: Integer    -- ^ @d@, the amount to add to the variable indices
+    -> Text       -- ^ @x@, the name of the free variable to shift
+    -> Natural    -- ^ @m@, the minimum index to shift
+    -> Expression -- ^ @e₀@, the expression to shift
+    -> Expression -- ^ @e₁@, the shifted expression
 ```
 
 ## Table of contents
@@ -79,8 +84,7 @@ Don't shift the index if the index falls short of the lower bound:
 
 
 ```haskell
-shift _d x _m (Variable x' n) | x == x' =
-    Variable x' n
+shift _d x _m (Variable x' n) | x == x' = Variable x' n
 ```
 
 Also, don't shift the index if the variable name does not match:
@@ -125,8 +129,7 @@ variable of the same name in order to avoid shifting the bound variable:
 
 
 ```haskell
-shift d x m (Lambda x' _A₀ b₀) | x == x' =
-    Lambda x' _A₁ b₁
+shift d x m (Lambda x' _A₀ b₀) | x == x' = Lambda x' _A₁ b₁
   where
     _A₁ = shift d x m _A₀
 
