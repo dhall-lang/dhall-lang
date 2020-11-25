@@ -194,6 +194,22 @@ let Format =
 
 let ObjectField = { mapKey : Text, mapValue : Block }
 
+let -- Essentially the same thing as `Text/show`, except that this does not
+    -- escape `$`
+    escape =
+      List/fold
+        (Text → Text)
+        [ Text/replace "\"" "\\\""
+        , Text/replace "\b" "\\b"
+        , Text/replace "\f" "\\f"
+        , Text/replace "\n" "\\n"
+        , Text/replace "\r" "\\r"
+        , Text/replace "\t" "\\t"
+        , Text/replace "\\" "\\\\"
+        ]
+        Text
+        (λ(replace : Text → Text) → λ(text : Text) → replace text)
+
 let renderJSONStruct =
       λ(prefix : Text) →
       λ(suffix : Text) →
@@ -224,7 +240,7 @@ let renderJSONStruct =
 let renderObject =
       λ(format : Format) →
       λ(fields : NonEmpty ObjectField) →
-        let keystr = λ(field : ObjectField) → "${Text/show field.mapKey}:"
+        let keystr = λ(field : ObjectField) → "\"${escape field.mapKey}\":"
 
         let prefixKeyOnFirst =
               λ(field : ObjectField) →
@@ -293,7 +309,7 @@ let renderAs
         blockToText
           ( json
               Block
-              { string = λ(x : Text) → Block.Simple (Text/show x)
+              { string = λ(x : Text) → Block.Simple "\"${escape x}\""
               , double = λ(x : Double) → Block.Simple (Double/show x)
               , integer = λ(x : Integer) → Block.Simple (JSON.renderInteger x)
               , object = manyBlocks ObjectField "{}" (renderObject format)
@@ -423,5 +439,24 @@ let example2 =
                 ''
 
       in  True
+
+let example3 =
+      let specialCharacters =
+            ''
+            "\${"\b\f"}
+            ${"\r"}	$''
+
+      let data =
+            JSON.object
+              [ { mapKey = specialCharacters
+                , mapValue = JSON.string specialCharacters
+                }
+              ]
+
+      in    assert
+          :   renderAs Format.JSON data
+            ≡ ''
+              { "\"\\\b\f\n\r\t$": "\"\\\b\f\n\r\t$" }
+              ''
 
 in  renderAs

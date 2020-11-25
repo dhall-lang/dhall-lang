@@ -32,7 +32,7 @@
       ./Optional/package.dhall sha256:37b84d6fe94c591d603d7b06527a2d3439ba83361e9326bc7b72517c7dc54d4e
     ? ./Optional/package.dhall
 , JSON =
-      ./JSON/package.dhall sha256:b7dfd33b1a313c0518c637c3b59da8526aa8020dbe125f347edbf895331dbeca
+      ./JSON/package.dhall sha256:5f98b7722fd13509ef448b075e02b9ff98312ae7a406cf53ed25012dbc9990ac
     ? ./JSON/package.dhall
 , Text =
       ./Text/package.dhall sha256:46c53957c10bd4c332a5716d6e06068cd24ae1392ca171e6da31e30b9b33c07c
