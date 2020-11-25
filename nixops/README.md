@@ -219,13 +219,6 @@ somehow need to recreate everything from scratch:
     $ echo "${TOKEN}" > /etc/hydra/authorization/dhall-lang
     ```
 
-*   Update NixOS configuration to match the SSH public key for `dhall-lang.org`
-
-    Note that this configuration change needs to be merged into `master` by
-    creating a pull request to modify the following option:
-
-    * [`programs.ssh.knownHosts`](https://github.com/dhall-lang/dhall-lang/blob/b20476014e508be2218adbafa656996d0fd217bc/nixops/logical.nix#L106-L109)
-
 *   Create an administrative user for `hydra`:
 
     ```bash
