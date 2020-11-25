@@ -48,7 +48,7 @@ in
           "hydra/jobsets.nix".text = builtins.readFile ./jobsets.nix;
 
           "hydra/machines".text = ''
-            hydra-queue-runner@dhall-lang.org x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local,big-parallel
+            localhost x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local,big-parallel
           '';
         };
   };
