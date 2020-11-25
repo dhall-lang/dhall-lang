@@ -331,6 +331,11 @@ shift d x m (If t₀ l₀ r₀) = If t₁ l₁ r₁
     ↑(d, x, m, merge t₀ u₀ : T₀) = merge t₁ u₁ : T₁
 
 
+    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, u₀) = u₁
+    ─────────────────────────────────────────
+    ↑(d, x, m, merge t₀ u₀) = merge t₁ u₁
+
+
 ```haskell
 shift d x m (Merge t₀ u₀ (Just _T₀)) = Merge t₁ u₁ (Just _T₁)
   where
@@ -339,15 +344,7 @@ shift d x m (Merge t₀ u₀ (Just _T₀)) = Merge t₁ u₁ (Just _T₁)
     u₁ = shift d x m u₀
 
     _T₁ = shift d x m _T₀
-```
 
-
-    ↑(d, x, m, t₀) = t₁   ↑(d, x, m, u₀) = u₁
-    ─────────────────────────────────────────
-    ↑(d, x, m, merge t₀ u₀) = merge t₁ u₁
-
-
-```haskell
 shift d x m (Merge t₀ u₀ Nothing) = Merge t₁ u₁ Nothing
   where
     t₁ = shift d x m t₀
@@ -361,21 +358,18 @@ shift d x m (Merge t₀ u₀ Nothing) = Merge t₁ u₁ Nothing
     ↑(d, x, m, toMap t₀ : T₀) = toMap t₁ : T₁
 
 
-```haskell
-shift d x m (ToMap t₀ (Just _T₀)) = ToMap t₁ (Just _T₁)
-  where
-    t₁ = shift d x m t₀
-
-    _T₁ = shift d x m _T₀
-```
-
-
     ↑(d, x, m, t₀) = t₁
     ───────────────────────────────
     ↑(d, x, m, toMap t₀) = toMap t₁
 
 
 ```haskell
+shift d x m (ToMap t₀ (Just _T₀)) = ToMap t₁ (Just _T₁)
+  where
+    t₁ = shift d x m t₀
+
+    _T₁ = shift d x m _T₀
+
 shift d x m (ToMap t₀ Nothing) = ToMap t₁ Nothing
   where
     t₁ = shift d x m t₀
@@ -387,19 +381,16 @@ shift d x m (ToMap t₀ Nothing) = ToMap t₁ Nothing
     ↑(d, x, m, [] : T₀) = [] : T₁
 
 
-```haskell
-shift d x m (EmptyList _T₀) = EmptyList _T₁
-  where
-    _T₁ = shift d x m _T₀
-```
-
-
     ↑(d, x, m, t₀) = t₁   ↑(d, x, m, [ ts₀… ]) = [ ts₁… ]
     ─────────────────────────────────────────────────────
     ↑(d, x, m, [ t₀, ts₀… ]) = [ t₁, ts₁… ]
 
 
 ```haskell
+shift d x m (EmptyList _T₀) = EmptyList _T₁
+  where
+    _T₁ = shift d x m _T₀
+
 shift d x m (NonEmptyList ts₀) = NonEmptyList ts₁
   where
     ts₁ = fmap (shift d x m) ts₀
