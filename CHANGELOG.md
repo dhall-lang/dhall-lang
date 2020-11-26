@@ -23,7 +23,7 @@ Breaking changes:
   … would normalize to:
 
   ```dhall
-  λ(x : Text) → Text/replace "a" "b" "b${x}"
+  λ(x : Text) → "b${x}"
   ```
 
   After this change, the former expression is in normal form and won't reduce
