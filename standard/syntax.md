@@ -55,6 +55,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / if t then l else r                ; if-then-else expression
   / merge t u : T                     ; Union elimination with type annotation
   / merge t u                         ; Union elimination
+  / toMap t : T                       ; Conversion to a map with type annotation
+  / toMap t                           ; Conversion to a map
   / [] : T                            ; Empty list literals with type annotation
   / [ t, ts… ]                        ; Non-empty list literals
   / t : T                             ; Type annotation
@@ -84,13 +86,13 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / "s"                               ; Uninterpolated text literal
   / "s${t}ss…"                        ; Interpolated text literal
   / {}                                ; Empty record type
-  / { x : T, xs… }                    ; Non-empty record type
+  / { k : T, ks… }                    ; Non-empty record type
   / {=}                               ; Empty record literal
-  / { x = t, xs… }                    ; Non-empty record literal
+  / { k = t, ks… }                    ; Non-empty record literal
   / <>                                ; Empty union type
-  / < x : T | xs… >                   ; Union type with at least one non-empty
+  / < k : T | ks… >                   ; Union type with at least one non-empty
                                       ; alternative
-  / < x | xs… >                       ; Union type with at least one empty
+  / < k | ks… >                       ; Union type with at least one empty
                                       ; alternative
   / missing                           ; Identity for import alternatives,
                                       ; will always fail to resolve
@@ -188,6 +190,9 @@ data Expression
     | Merge Expression Expression (Maybe Expression)
       -- ^ > merge t u : T
       -- ^ > merge t u
+    | ToMap Expression (Maybe Expression)
+      -- ^ > toMap t : T
+      -- ^ > toMap t
     | EmptyList Expression
       -- ^ > [] : T
     | NonEmptyList (NonEmpty Expression)
@@ -221,14 +226,14 @@ data Expression
       --   > "s${t}ss…"  
     | RecordType [(Text, Expression)]
       -- ^ > {}
-      --   > { x : T, xs… }
+      --   > { k : T, ks… }
     | RecordLiteral [(Text, Expression)]
       -- ^ > {=}
-      --   > { x = t, xs… }
+      --   > { k = t, ks… }
     | UnionType [(Text, Maybe Expression)]
       -- ^ > <>
-      --   > < x : T | xs… >
-      --   > < x | xs… >
+      --   > < k : T | ks… >
+      --   > < k | ks… >
     | Import ImportType ImportMode (Maybe (Digest SHA256))
     | Some Expression
       -- ^ > Some s
