@@ -1,14 +1,7 @@
 { src ? { rev = ""; }, ... }:
 
 let
-  nixpkgs =
-    builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/fc7efd51d616858af206d5c3e33ebf4b77487e38.tar.gz";
-
-      sha256 = "1n75xcad22bmp4x7vzrfwqblvq0z0x7xkmn0id9rj14qy2vlkq6d";
-    };
-
-  dhallLangNixpkgs = import ./nixops/dhallLangNixpkgs.nix;
+  nixpkgs = import ./nixops/nixpkgs.nix;
 
   overlay = pkgsNew: pkgsOld: {
     dhall-haskell-derivations =
@@ -16,7 +9,7 @@ let
         json = builtins.fromJSON (builtins.readFile ./nixops/dhall-haskell.json);
 
         dhall-haskell =
-          pkgs.fetchFromGitHub {
+          pkgsNew.fetchFromGitHub {
             owner = "dhall-lang";
 
             repo = "dhall-haskell";
@@ -300,7 +293,7 @@ let
           sha256 = "0i4yjjgkcky6zfbim17rryy23pbrsc4255jzy14lgy7ja3a5jabk";
 
           postFetch =
-            "${pkgs.imagemagickBig}/bin/mogrify -format png -crop 300x300+100+100 $downloadedFile";
+            "${pkgsNew.imagemagickBig}/bin/mogrify -format png -crop 300x300+100+100 $downloadedFile";
         };
 
       stackOverflow =
@@ -365,7 +358,7 @@ let
   rev = pkgs.runCommand "rev" {} ''echo "${src.rev}" > $out'';
 
   machine =
-    (import "${dhallLangNixpkgs}/nixos" {
+    (import "${nixpkgs}/nixos" {
       configuration = {
         imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
 
@@ -380,7 +373,7 @@ let
   standard = pkgs.haskellPackages.callCabal2nix "standard" ./standard { };
 
   vm =
-    (import "${dhallLangNixpkgs}/nixos" {
+    (import "${nixpkgs}/nixos" {
       configuration = {
         imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
 
