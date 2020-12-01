@@ -13,7 +13,9 @@ library
                      , cryptonite
                      , markdown-unlit
                      , text
-  exposed-modules:     Syntax
+  exposed-modules:     AlphaNormalization
+                     , FunctionCheck
+                     , Syntax
                      , Shift
                      , Substitution
   hs-source-dirs:      ./.

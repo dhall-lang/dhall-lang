@@ -310,6 +310,7 @@ data Constant
     = Type
     | Kind
     | Sort
+    deriving (Eq, Ord)
 
 -- | How to interpret the path to the import
 data ImportMode
