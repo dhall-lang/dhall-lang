@@ -48,7 +48,7 @@ in
           "hydra/jobsets.nix".text = builtins.readFile ./jobsets.nix;
 
           "hydra/machines".text = ''
-            hydra-queue-runner@dhall-lang.org x86_64-linux,builtin /etc/keys/hydra-queue-runner/hydra-queue-runner_rsa 4 1 local,big-parallel
+            localhost x86_64-linux,builtin - 4 1 local,big-parallel
           '';
         };
   };
@@ -117,13 +117,8 @@ in
     in
       [ modifyHydra ];
 
-  programs.ssh.knownHosts = {
-    "github.com".publicKey =
+  programs.ssh.knownHosts."github.com".publicKey =
       "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
-
-    "dhall-lang.org".publicKey =
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBp/WR0q2LUjpzHDwm03CijnpUyvHS9CDnJYvR0YNBpT";
-  };
 
   security = {
     acme = {
@@ -513,44 +508,6 @@ in
 
           wants = [ "docker.service" ];
         };
-
-    generate-hydra-queue-runner-key-pair = {
-      script =
-        let
-          keyDirectory = "/etc/keys/hydra-queue-runner";
-
-          user = "hydra-queue-runner";
-
-          group = "hydra";
-
-          privateKey = "${keyDirectory}/${user}_rsa";
-
-          publicKey = "${privateKey}.pub";
-
-          authorizedKeysDirectory = "/etc/ssh/authorized_keys.d";
-
-          authorizedKeysFile = "${authorizedKeysDirectory}/${user}";
-        in
-          ''
-            if ! [ -e ${privateKey} ] || ! [ -e ${publicKey} ]; then
-              mkdir -p ${keyDirectory}
-
-              ${pkgs.openssh}/bin/ssh-keygen -t rsa -N "" -f ${privateKey} -C "${user}@hydra" >/dev/null
-
-              chown -R ${user}:${group} ${keyDirectory}
-            fi
-
-            if ! [ -e ${authorizedKeysFile} ]; then
-              mkdir -p "${authorizedKeysDirectory}"
-
-              cp ${publicKey} ${authorizedKeysFile}
-            fi
-          '';
-
-      serviceConfig.Type = "oneshot";
-
-      wantedBy = [ "multi-user.target" ];
-    };
 
     kick-hydra-evaluator = {
       script = ''
