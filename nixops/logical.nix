@@ -509,16 +509,6 @@ in
           wants = [ "docker.service" ];
         };
 
-    kick-hydra-evaluator = {
-      script = ''
-        ${pkgs.systemd}/bin/systemctl restart hydra-evaluator
-      '';
-
-      startAt = "*:0/5";
-
-      wantedBy = [ "multi-user.target" ];
-    };
-
     nix-serve-keys = {
       script = ''
         if [ ! -e ${nixServe.keyDirectory} ]; then
