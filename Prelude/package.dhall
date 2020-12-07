@@ -1,6 +1,7 @@
 { Bool =
       ./Bool/package.dhall sha256:7ee950e7c2142be5923f76d00263e536b71d96cb9c190d7743c1679501ddeb0a
     ? ./Bool/package.dhall
+, CBOR = ./CBOR/package.dhall
 , Double =
       ./Double/package.dhall sha256:b8d20ab3216083622ae371fb42a6732bc67bb2d66e84989c8ddba7556a336cf7
     ? ./Double/package.dhall
