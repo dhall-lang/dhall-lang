@@ -1,10 +1,10 @@
 {-|
 Create a CBOR null item
 -}
-let CBOR/Type = ./Type.dhall
+let CBOR = ./Type.dhall
 
 let null
-    : CBOR/Type
+    : CBOR
     = λ(CBOR : Type) →
       λ ( cbor
         : { array : List CBOR → CBOR

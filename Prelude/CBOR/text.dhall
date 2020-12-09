@@ -1,10 +1,10 @@
 {-|
 Create a CBOR byte string from a `Text` value
 -}
-let CBOR/Type = ./Type.dhall
+let CBOR = ./Type.dhall
 
 let text
-    : Text → CBOR/Type
+    : Text → CBOR
     = λ(x : Text) →
       λ(CBOR : Type) →
       λ ( cbor

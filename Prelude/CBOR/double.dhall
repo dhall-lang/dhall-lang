@@ -1,10 +1,10 @@
 {-|
 Create a CBOR floating-point number item from a `Double` value
 -}
-let CBOR/Type = ./Type.dhall
+let CBOR = ./Type.dhall
 
 let double
-    : Double → CBOR/Type
+    : Double → CBOR
     = λ(x : Double) →
       λ(CBOR : Type) →
       λ ( cbor

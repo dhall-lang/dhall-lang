@@ -14,8 +14,9 @@ let CBOR/Entry = Map/Entry CBOR CBOR
 
 let CBOR/Map = List CBOR/Entry
 
-let map =
-      λ(x : CBOR/Map) →
+let map
+    : CBOR/Map → CBOR
+    = λ(x : CBOR/Map) →
       λ(CBOR : Type) →
         let CBOR/Entry = Map/Entry CBOR CBOR
 

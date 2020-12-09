@@ -5,8 +5,9 @@ See ./base64.dhall as an example, see RFC7049 section 2.4 for more information.
 -}
 let CBOR = ./Type.dhall
 
-let tag =
-      λ(tag : Natural) →
+let tag
+    : Natural → CBOR → CBOR
+    = λ(tag : Natural) →
       λ(value : CBOR) →
       λ(CBOR : Type) →
       λ ( cbor

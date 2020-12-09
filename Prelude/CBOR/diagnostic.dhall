@@ -3,7 +3,7 @@ Render a `CBOR` value to a diagnostic `Text` value
 
 The diagnostic format is not formally defined and should not be parsed.
 -}
-let CBOR/Type = ./Type.dhall
+let CBOR = ./Type.dhall
 
 let Map/Type = ../Map/Type.dhall
 
@@ -12,8 +12,8 @@ let Text/concatSep = ../Text/concatSep.dhall
 let Text/concatMapSep = ../Text/concatMapSep.dhall
 
 let renderDiag
-    : CBOR/Type → Text
-    = λ(cbor : CBOR/Type) →
+    : CBOR → Text
+    = λ(cbor : CBOR) →
         cbor
           Text
           { array = λ(xs : List Text) → "[ " ++ Text/concatSep ", " xs ++ " ]"
@@ -44,7 +44,7 @@ let CBOR/data = ./data.dhall
 
 let CBOR/integer = ./integer.dhall
 
-let CBOR/toArray = ./toArray.dhall
+let CBOR/arrayOf = ./arrayOf.dhall
 
 let CBOR/textMap = ./textMap.dhall
 
@@ -57,7 +57,7 @@ let example0 =
               ( CBOR/textMap
                   ( toMap
                       { a = CBOR/integer +1
-                      , b = CBOR/toArray Integer CBOR/integer [ +2, +3 ]
+                      , b = CBOR/arrayOf Integer CBOR/integer [ +2, +3 ]
                       , c = CBOR/base64 "EjRWeA"
                       , d = CBOR/data CBOR/null
                       }

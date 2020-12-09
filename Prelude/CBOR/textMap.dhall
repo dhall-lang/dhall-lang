@@ -14,7 +14,7 @@ let CBOR/text = ./text.dhall
 
 let TextEntry = { mapKey : Text, mapValue : CBOR }
 
-let mapText
+let textMap
     : List TextEntry → CBOR
     = λ(xs : List TextEntry) →
         CBOR/map
@@ -25,4 +25,4 @@ let mapText
               xs
           )
 
-in  mapText
+in  textMap

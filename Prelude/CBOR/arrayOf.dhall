@@ -10,11 +10,11 @@ let CBOR = ./Type.dhall
 
 let CBOR/array = ./array.dhall
 
-let toArray
+let arrayOf
     : ∀(a : Type) → (a → CBOR) → List a → CBOR
     = λ(a : Type) →
       λ(f : a → CBOR) →
       λ(xs : List a) →
         CBOR/array (List/map a CBOR f xs)
 
-in  toArray
+in  arrayOf

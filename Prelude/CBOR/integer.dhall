@@ -5,10 +5,10 @@ Note that Dhall integers can be arbitrary size. For integers
 that exceed the capacity of a CBOR integer item a Dhall to CBOR
 converter may produce a CBOR bignum byte string instead.
 -}
-let CBOR/Type = ./Type.dhall
+let CBOR = ./Type.dhall
 
 let integer
-    : Integer → CBOR/Type
+    : Integer → CBOR
     = λ(x : Integer) →
       λ(CBOR : Type) →
       λ ( cbor

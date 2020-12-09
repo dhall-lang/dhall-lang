@@ -1,4 +1,4 @@
-{-
+{-|
 Dhall encoding of an arbitrary CBOR value
 -}
 let CBOR/Type

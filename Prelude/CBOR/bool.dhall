@@ -1,10 +1,10 @@
 {-|
 Create a CBOR boolean item from a `Bool` value
 -}
-let CBOR/Type = ./Type.dhall
+let CBOR = ./Type.dhall
 
 let bool
-    : Bool → CBOR/Type
+    : Bool → CBOR
     = λ(x : Bool) →
       λ(CBOR : Type) →
       λ ( cbor
