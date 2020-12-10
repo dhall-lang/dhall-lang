@@ -388,7 +388,7 @@ $ dhall <<< './config2.dhall' | dhall-to-json --pretty
 You can think of the `dhall-to-json` executable as a pipeline built by chaining
 the following two steps end-to-end:
 
-* **Step 1:** `dhall-to-json` evaluates the Dhall configuration file to a normal
+* **Step 1:** `dhall` evaluates the Dhall configuration file to a normal
   form
 * **Step 2:** `dhall-to-json` converts the normal form to JSON
 
@@ -397,7 +397,7 @@ configuration files in other formats.
 
 For example, this is what the `dhall-to-yaml` executable does:
 
-* **Step 1:** `dhall-to-yaml` evaluates the Dhall configuration file to a normal
+* **Step 1:** `dhall` evaluates the Dhall configuration file to a normal
   form
 * **Step 2:** `dhall-to-yaml` converts the normal form to YAML
 
