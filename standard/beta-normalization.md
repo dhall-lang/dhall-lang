@@ -1,5 +1,13 @@
 # β-normalization
 
+```haskell
+module BetaNormalization where
+
+import Prelude hiding (Bool(..))
+import Shift (shift)
+import Syntax
+```
+
 β-normalization is a function of the following form:
 
     t₀ ⇥ t₁
@@ -8,6 +16,12 @@
 
 * `t₀` (the input) is the expression to normalize
 * `t₁` (the output) is the normalized expression
+
+```haskell
+betaNormalize
+    :: Expression  -- ^ @t₀@, the expression to normalize
+    -> Expression  -- ^ @t₁@, the normalized expression
+```
 
 β-normalization evaluates all β-reducible expressions:
 
@@ -73,6 +87,10 @@ Type-checking constants are in normal form:
     Sort ⇥ Sort
 
 
+```haskell
+betaNormalize (Constant c) = Constant c
+```
+
 ## Variables
 
 Variables are in normal form:
@@ -81,6 +99,10 @@ Variables are in normal form:
     ─────────
     x@n ⇥ x@n
 
+
+```haskell
+betaNormalize (Variable x n) = Variable x n
+```
 
 ## `Bool`
 
@@ -92,6 +114,10 @@ The `Bool` type is in normal form:
     Bool ⇥ Bool
 
 
+```haskell
+betaNormalize (Builtin Bool) = Builtin Bool
+```
+
 The `Bool` constructors are in normal form:
 
 
@@ -102,6 +128,12 @@ The `Bool` constructors are in normal form:
     ─────────────
     False ⇥ False
 
+
+```haskell
+betaNormalize (Builtin True) = Builtin True
+
+betaNormalize (Builtin False) = Builtin False
+```
 
 Simplify an `if` expression if the predicate normalizes to a `Bool` literal:
 
@@ -140,6 +172,20 @@ Otherwise, normalize the predicate and both branches of the `if` expression:
     ─────────────────────────────────────────────  ; If no other rule matches
     if t₀ then l₀ else r₀ ⇥ if t₁ then l₁ else r₁
 
+
+```haskell
+betaNormalize (If t₀ l₀ r₀)
+    | Builtin True  <- t₁    = l₁
+    | Builtin False <- t₁    = r₁
+    | judgmentallyEqual l₀ r = l₁
+    | otherwise              = If t₁ l₁ r₁
+  where
+    t₁ = betaNormalize t₀
+
+    l₁ = betaNormalize l₀
+
+    r₁ = betaNormalize r₀
+```
 
 Even though `True`, `False`, and `if` expressions suffice for all `Bool` logic,
 Dhall also supports logical operators for convenience.

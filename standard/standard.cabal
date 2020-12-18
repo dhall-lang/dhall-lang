@@ -10,10 +10,15 @@ build-type:          Simple
 
 library
   build-depends:       base
+                     , cborg
                      , cryptonite
+                     , half
                      , markdown-unlit
+                     , memory
                      , text
   exposed-modules:     AlphaNormalization
+                     , BetaNormalization
+                     , Binary
                      , FunctionCheck
                      , Syntax
                      , Shift
