@@ -1,0 +1,7 @@
+```haskell
+module Equivalence where
+
+import Syntax (Expression)
+
+equivalent :: Expression -> Expression -> Bool
+```

@@ -19,6 +19,7 @@ library
   exposed-modules:     AlphaNormalization
                      , BetaNormalization
                      , Binary
+                     , Equivalence
                      , FunctionCheck
                      , Syntax
                      , Shift

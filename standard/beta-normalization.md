@@ -1,11 +1,15 @@
 # β-normalization
 
 ```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
 module BetaNormalization where
 
+import {-# SOURCE #-} Equivalence (equivalent)
 import Prelude hiding (Bool(..))
-import Shift (shift)
 import Syntax
+
+import qualified Data.Text as Text
 ```
 
 β-normalization is a function of the following form:
@@ -175,10 +179,10 @@ Otherwise, normalize the predicate and both branches of the `if` expression:
 
 ```haskell
 betaNormalize (If t₀ l₀ r₀)
-    | Builtin True  <- t₁    = l₁
-    | Builtin False <- t₁    = r₁
-    | judgmentallyEqual l₀ r = l₁
-    | otherwise              = If t₁ l₁ r₁
+    | Builtin True  <- t₁ = l₁
+    | Builtin False <- t₁ = r₁
+    | equivalent l₀ r₀    = l₁
+    | otherwise           = If t₁ l₁ r₁
   where
     t₁ = betaNormalize t₀
 
@@ -230,6 +234,19 @@ Otherwise, normalize each argument:
     l₀ || r₀ ⇥ l₁ || r₁
 
 
+```haskell
+betaNormalize (Operator l₀ Or r₀)
+    | Builtin False <- l₁ = r₁
+    | Builtin False <- r₁ = l₁
+    | Builtin True  <- l₁ = Builtin True
+    | Builtin True  <- r₁ = Builtin True
+    | equivalent l₀ r₀    = l₁
+    | otherwise           = Operator l₁ Or r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 Simplify the logical "and" operator so long as at least one argument normalizes
 to a `Bool` literal:
 
@@ -270,6 +287,19 @@ Otherwise, normalize each argument:
     l₀ && r₀ ⇥ l₁ && r₁
 
 
+```haskell
+betaNormalize (Operator l₀ And r₀)
+    | Builtin True  <- l₁ = r₁
+    | Builtin True  <- r₁ = l₁
+    | Builtin False <- l₁ = Builtin False
+    | Builtin False <- r₁ = Builtin False
+    | equivalent l₀ r₀    = l₁
+    | otherwise           = Operator l₁ And r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 Simplify the logical "equal" operator if one argument normalizes to a `True`
 literal:
 
@@ -299,6 +329,17 @@ Otherwise, normalize each argument:
     ───────────────────  ; If no other rule matches
     l₀ == r₀ ⇥ l₁ == r₁
 
+
+```haskell
+betaNormalize (Operator l₀ Equal r₀)
+    | Builtin True <- l₁ = r₁
+    | Builtin True <- r₁ = l₁
+    | equivalent l₀ r₀   = Builtin True
+    | otherwise          = Operator l₁ Equal r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
 
 Simplify the logical "not equal" operator if one argument normalizes to a
 `False` literal:
@@ -330,6 +371,17 @@ Otherwise, normalize each argument:
     l₀ != r₀ ⇥ l₁ != r₁
 
 
+```haskell
+betaNormalize (Operator l₀ NotEqual r₀)
+    | Builtin False <- l₁ = r₁
+    | Builtin False <- r₁ = l₁
+    | equivalent l₀ r₀    = Builtin False
+    | otherwise           = Operator l₁ NotEqual r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 ## `Natural`
 
 The `Natural` number type is in normal form:
@@ -339,12 +391,20 @@ The `Natural` number type is in normal form:
     Natural ⇥ Natural
 
 
+```haskell
+betaNormalize (Builtin Natural) = Builtin Natural
+```
+
 `Natural` number literals are in normal form:
 
 
     ─────
     n ⇥ n
 
+
+```haskell
+betaNormalize (NaturalLiteral n) = NaturalLiteral n
+```
 
 `Natural/build` is the canonical introduction function for `Natural` numbers:
 
@@ -353,6 +413,21 @@ The `Natural` number type is in normal form:
     ────────────────────────────────────────────────────────────
     f g ⇥ b
 
+
+```haskell
+betaNormalize (Application f g)
+    | Builtin NaturalBuild <- betaNormalize f = b
+  where
+    b = betaNormalize
+            (Application
+                (Application g
+                    (Lambda "x" (Builtin Natural)
+                        (Operator (Variable "x" 0) Plus (NaturalLiteral 1))
+                    )
+                )
+                (NaturalLiteral 0)
+            )
+```
 
 `Natural/fold` function is the canonical elimination function for `Natural`
 numbers:
@@ -368,6 +443,38 @@ numbers:
     ─────────────────────────────  ; "1 + n" means "a `Natural` literal greater
     f b ⇥ t₁                       ; than `0`"
 
+
+```haskell
+betaNormalize (Application f b)
+    | Application
+        (Application
+            (Application
+                (Builtin NaturalFold)
+                (NaturalLiteral m)
+            )
+            _B
+        )
+        g <- betaNormalize f =
+        let t₁  | m == 0 =
+                    betaNormalize b
+                | otherwise =
+                    betaNormalize
+                        (Application g
+                            (Application
+                                (Application
+                                    (Application
+                                        (Application (Builtin NaturalFold)
+                                            (NaturalLiteral (m - 1))
+                                        )
+                                        _B
+                                    )
+                                    g
+                                )
+                                b
+                            )
+                        )
+        in  t₁
+```
 
 Even though `Natural/fold` and `Natural/build` suffice for all `Natural` number
 programming, Dhall also supports `Natural` number literals and built-in
@@ -404,6 +511,18 @@ Otherwise, normalize each argument:
     ─────────────────  ; If no other rule matches
     l₀ + r₀ ⇥ l₁ + r₁
 
+
+```haskell
+betaNormalize (Operator l₀ Plus r₀)
+    | NaturalLiteral m <- l₁
+    , NaturalLiteral n <- r₁ = NaturalLiteral (m + n)
+    | NaturalLiteral 0 <- l₁ = r₁
+    | NaturalLiteral 0 <- r₁ = l₁
+    | otherwise              = Operator l₁ Plus r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
 
 Use machine multiplication to simplify the "times" operator if both arguments
 normalize to a `Natural` literal:
@@ -450,6 +569,20 @@ Otherwise, normalize each argument:
     l₀ * r₀ ⇥ l₁ * r₁
 
 
+```haskell
+betaNormalize (Operator l₀ Times r₀)
+    | NaturalLiteral m <- l₁
+    , NaturalLiteral n <- r₁ = NaturalLiteral (m * n)
+    | NaturalLiteral 0 <- l₁ = NaturalLiteral 0
+    | NaturalLiteral 0 <- r₁ = NaturalLiteral 0
+    | NaturalLiteral 1 <- l₁ = r₁
+    | NaturalLiteral 1 <- r₁ = l₁
+    | otherwise              = Operator l₁ Times r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 `Natural/isZero` detects whether or not a `Natural` number is `0`:
 
 
@@ -462,6 +595,14 @@ Otherwise, normalize each argument:
     ──────────────────────────────  ; "1 + n" means "a `Natural` literal greater
     f a ⇥ False                     ; than `0`"
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalIsZero <- betaNormalize f
+    , NaturalLiteral 0      <- betaNormalize a = Builtin True
+    | Builtin NaturalIsZero <- betaNormalize f
+    , NaturalLiteral _      <- betaNormalize a = Builtin False
+```
 
 `Natural/even` detects whether or not a `Natural` number is even:
 
@@ -483,6 +624,13 @@ Otherwise, normalize each argument:
     f a ⇥ b
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalEven <- betaNormalize f
+    , NaturalLiteral m    <- betaNormalize a =
+        Builtin (if even m then True else False)
+```
+
 `Natural/odd` detects whether or not a `Natural` number is odd:
 
 
@@ -503,6 +651,13 @@ Otherwise, normalize each argument:
     f a ⇥ b
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalOdd <- betaNormalize f
+    , NaturalLiteral m   <- betaNormalize a =
+        Builtin (if odd m then True else False)
+```
+
 `Natural/toInteger` transforms a `Natural` number into the corresponding
 `Integer`:
 
@@ -511,6 +666,13 @@ Otherwise, normalize each argument:
     ─────────────────────────────
     f a ⇥ +n
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalToInteger <- betaNormalize f
+    , NaturalLiteral n         <- betaNormalize a =
+        IntegerLiteral (fromIntegral n)
+```
 
 `Natural/show` transforms a `Natural` number into a `Text` literal representing
 valid Dhall code for representing that `Natural` number:
@@ -521,52 +683,86 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalShow <- betaNormalize f
+    , NaturalLiteral n    <- betaNormalize a =
+        TextLiteral (Chunks [] (Text.pack (show n)))
+```
+
 `Natural/subtract` performs truncating subtraction, as in
 [saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
 
 
-    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ;  if n >= m, where "n >= m" is
-    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
-                                          ;  comparison, and "n - m" is machine
-                                          ;  subtraction
+    f ⇥ Natural/subtract a   a ⇥ m   b ⇥ n
+    ──────────────────────────────────────  ; if m <= n, where "m <= n" is
+    f b ⇥ n - m                             ; machine greater-than-or-equal-to
+                                            ; comparison, and "n - m" is machine
+                                            ; subtraction
 
 
-    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ; if n < m
-    f a b ⇥ 0
+    f ⇥ Natural/subtract a   a ⇥ m   b ⇥ n
+    ──────────────────────────────────────  ; if n < m
+    f b ⇥ 0
 
 
 Also, simplify the `Natural/subtract` function if either argument normalizes to
 a `0` literal:
 
 
-    f ⇥ Natural/subtract   x ⇥ 0   y₀ ⇥ y₁
-    ──────────────────────────────────────
-    f x y₀ ⇥ y₁
+    f ⇥ Natural/subtract a   a ⇥ 0   b₀ ⇥ b₁
+    ────────────────────────────────────────
+    f b₀ ⇥ b₁
 
 
-    f ⇥ Natural/subtract   y ⇥ 0
-    ────────────────────────────
-    f x y ⇥ 0
+    f ⇥ Natural/subtract a   b ⇥ 0
+    ──────────────────────────────
+    f b ⇥ 0
 
 
 If the arguments are equivalent:
 
 
-    f ⇥ Natural/subtract   x ≡ y
-    ────────────────────────────
-    f x y ⇥ 0
+    f ⇥ Natural/subtract a   a ≡ b
+    ──────────────────────────────
+    f b ⇥ 0
 
 
 Otherwise, normalize each argument:
 
 
-    f ⇥ Natural/subtract   x₀ ⇥ x₁   y₀ ⇥ y₁
-    ────────────────────────────────────────  ; If no other rule matches
-    f x₀ y₀ ⇥ Natural/subtract x₁ y₁
+    f ⇥ Natural/subtract a₀   a₀ ⇥ a₁   b₀ ⇥ b₁
+    ────────────────────────────────────────────  ; If no other rule matches
+    f b₀ ⇥ Natural/subtract a₁ b₁
 
 
+```haskell
+betaNormalize (Application f b)
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , NaturalLiteral m                        <- betaNormalize a
+    , NaturalLiteral n                        <- betaNormalize b
+    , m <= n =
+        NaturalLiteral (n - m)
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , NaturalLiteral m                        <- betaNormalize a
+    , NaturalLiteral n                        <- betaNormalize b
+    , n < m =
+        NaturalLiteral 0
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , NaturalLiteral 0                        <- betaNormalize a =
+        betaNormalize b
+    | Application (Builtin NaturalSubtract) _a <- betaNormalize f
+    , NaturalLiteral 0                         <- betaNormalize b =
+        NaturalLiteral 0
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , equivalent a b =
+        NaturalLiteral 0
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f =
+        let a₁ = betaNormalize a
+            b₁ = betaNormalize b
+
+        in  Application (Application (Builtin NaturalSubtract) a₁) b₁
+```
 
 All of the built-in functions on `Natural` numbers are in normal form:
 
@@ -603,6 +799,17 @@ All of the built-in functions on `Natural` numbers are in normal form:
     Natural/subtract ⇥ Natural/subtract
 
 
+```haskell
+betaNormalize (Builtin NaturalBuild    ) = Builtin NaturalBuild
+betaNormalize (Builtin NaturalFold     ) = Builtin NaturalFold
+betaNormalize (Builtin NaturalIsZero   ) = Builtin NaturalIsZero
+betaNormalize (Builtin NaturalEven     ) = Builtin NaturalEven
+betaNormalize (Builtin NaturalOdd      ) = Builtin NaturalOdd
+betaNormalize (Builtin NaturalToInteger) = Builtin NaturalToInteger
+betaNormalize (Builtin NaturalShow     ) = Builtin NaturalShow
+betaNormalize (Builtin NaturalSubtract ) = Builtin NaturalSubtract
+```
+
 ## `Text`
 
 The `Text` type is in normal form:
@@ -611,6 +818,10 @@ The `Text` type is in normal form:
     ───────────
     Text ⇥ Text
 
+
+```haskell
+betaNormalize (Builtin Text) = Builtin Text
+```
 
 A `Text` literal with no interpolations is already in normal form:
 
@@ -654,6 +865,26 @@ expression and inlines any interpolated expression that normalize to
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
+```haskell
+-- See the `Semigroup` instance for `Chunks` in the `Syntax.lhs` module, which
+-- provides the `(<>)` operator that does the heavy lifting in this function.
+betaNormalize (TextLiteral chunks₀) =
+    case loop chunks₀ of
+        Chunks [("", t)] "" -> t
+        chunks₁             -> TextLiteral chunks₁
+  where
+    loop :: TextLiteral -> TextLiteral
+    loop (Chunks ((s₀, t₀) : ss₀) z₀)
+        | TextLiteral chunks <- t₁ =
+            Chunks [] s₀ <> chunks <> loop (Chunks ss₀ z₀)
+        | otherwise =
+            Chunks [(s₀, t₁)] "" <> loop (Chunks ss₀ z₀)
+      where
+        t₁ = betaNormalize t₀
+    loop chunks =
+        chunks
+```
+
 The "text concatenation" operator is interpreted as two interpolations together:
 
 
@@ -661,6 +892,12 @@ The "text concatenation" operator is interpreted as two interpolations together:
     ───────────────
     l ++ r ⇥ s₀
 
+
+```haskell
+betaNormalize (Operator l TextAppend r) = s₀
+  where
+    s₀ = betaNormalize (TextLiteral (Chunks [("", l), ("", r)] ""))
+```
 
 The `Text/show` function replaces an uninterpolated `Text` literal
 with another `Text` literal representing valid Dhall source code for
@@ -682,12 +919,12 @@ these rules:
 
 * `"`  → `\"`
 * `$`  → `\u0024`
-* `\`  → `\\`
 * `\b` → `\\b`
 * `\f` → `\\f`
 * `\n` → `\\n`
 * `\r` → `\\r`
 * `\t` → `\\t`
+* `\`  → `\\`
 
 Carefully note that `$` is not escaped as `\$` since that is not a valid JSON
 escape sequence.
@@ -706,6 +943,24 @@ Or in other words:
     ─────────────────────────────────────────── ; "…\n…\$…\\…\"…\u0000…" contains no interpolations
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin TextShow           <- betaNormalize f
+    , TextLiteral (Chunks [] s₀) <- betaNormalize a =
+        let s₁ =
+                ( Text.replace "\"" "\\\""
+                . Text.replace "$"  "\\u0024"
+                . Text.replace "\b" "\\b"
+                . Text.replace "\f" "\\f"
+                . Text.replace "\n" "\\n"
+                . Text.replace "\r" "\\r"
+                . Text.replace "\t" "\\t"
+                . Text.replace "\\" "\\\\"
+                ) s₀
+
+        in  TextLiteral (Chunks [] s₁)
+```
 
 `Text/replace` modifies a substring of a given `Text` literal. It takes 3
 arguments, the `Text` literal substring to match (the _needle_), the `Text`
