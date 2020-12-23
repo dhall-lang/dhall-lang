@@ -5,11 +5,14 @@
 
 module BetaNormalization where
 
+import Data.List.NonEmpty (NonEmpty(..))
 import {-# SOURCE #-} Equivalence (equivalent)
 import Prelude hiding (Bool(..))
+import Shift (shift)
 import Syntax
 
-import qualified Data.Text as Text
+import qualified Data.Text          as Text
+import qualified Data.List.NonEmpty as NonEmpty
 ```
 
 β-normalization is a function of the following form:
@@ -455,6 +458,7 @@ betaNormalize (Application f b)
             _B
         )
         g <- betaNormalize f =
+
         let t₁  | m == 0 =
                     betaNormalize b
                 | otherwise =
@@ -758,6 +762,7 @@ betaNormalize (Application f b)
     , equivalent a b =
         NaturalLiteral 0
     | Application (Builtin NaturalSubtract) a <- betaNormalize f =
+
         let a₁ = betaNormalize a
             b₁ = betaNormalize b
 
@@ -948,6 +953,7 @@ Or in other words:
 betaNormalize (Application f a)
     | Builtin TextShow           <- betaNormalize f
     , TextLiteral (Chunks [] s₀) <- betaNormalize a =
+
         let s₁ =
                 ( Text.replace "\"" "\\\""
                 . Text.replace "$"  "\\u0024"
@@ -989,6 +995,32 @@ is performed:
     f a ⇥ e
 
 
+```haskell
+betaNormalize (Application f a₀)
+    | Application
+        (Application (Builtin TextReplace) (TextLiteral (Chunks [] "")))
+        _replacement <- betaNormalize f =
+
+        let a₁ = betaNormalize a₀
+
+        in  a₁
+    | Application
+        (Application
+            (Builtin TextReplace)
+            (TextLiteral (Chunks [] needle))
+        )
+        replacement <- betaNormalize f
+    , TextLiteral (Chunks [] haystack) <- betaNormalize a₀ =
+
+        let loop [ ] = Chunks [] ""
+            loop [s] = Chunks [] s
+            loop (s : ss) = Chunks ((s, replacement) : xys) z
+              where
+                Chunks xys z = loop ss
+
+        in  TextLiteral (loop (Text.splitOn needle haystack))
+```
+
 All of the built-in functions on `Text` are in normal form:
 
 
@@ -999,6 +1031,11 @@ All of the built-in functions on `Text` are in normal form:
     Text/replace ⇥ Text/replace
 
 
+```haskell
+betaNormalize (Builtin TextShow   ) = Builtin TextShow
+betaNormalize (Builtin TextReplace) = Builtin TextReplace
+```
+
 ## `List`
 
 The `List` type-level function is in normal form:
@@ -1007,6 +1044,10 @@ The `List` type-level function is in normal form:
     ───────────
     List ⇥ List
 
+
+```haskell
+betaNormalize (Builtin List) = Builtin List
+```
 
 Normalizing a `List` normalizes each field and the type annotation:
 
@@ -1020,6 +1061,15 @@ Normalizing a `List` normalizes each field and the type annotation:
     ─────────────────────────────
     [ t₀, ts₀… ] ⇥ [ t₁, ts₁… ]
 
+
+```haskell
+betaNormalize (EmptyList _T₀) = EmptyList _T₁
+  where
+    _T₁ = betaNormalize _T₀
+betaNormalize (NonEmptyList ts₀) = NonEmptyList ts₁
+  where
+    ts₁ = fmap betaNormalize ts₀
+```
 
 Lists are defined here via induction as if they were linked lists, but a real
 implementation might represent them using another data structure under the hood.
@@ -1035,6 +1085,32 @@ Dhall does not impose time complexity requirements on list operations.
     f g ⇥ b
 
 
+```haskell
+betaNormalize (Application f g)
+    | Application (Builtin ListBuild) _A₀ <- betaNormalize f =
+
+        let _A₁ = shift 1 "a" 0 _A₀
+
+            b = betaNormalize
+                    (Application
+                        (Application
+                            (Application g (Application (Builtin List) _A₀))
+                            (Lambda "a" _A₀
+                                (Lambda "as" (Application (Builtin List) _A₁)
+                                    (Operator
+                                        (NonEmptyList (Variable "a" 0 :| []))
+                                        ListAppend
+                                        (Variable "as" 0)
+                                    )
+                                )
+                            )
+                        )
+                        (EmptyList _A₀)
+                    )
+
+        in  b
+```
+
 `List/fold` is the canonical elimination function for `List`s:
 
 
@@ -1047,6 +1123,57 @@ Dhall does not impose time complexity requirements on list operations.
     ────────────────────────────────────────────────────────────────────────
     f b₀ ⇥ b₁
 
+
+```haskell
+betaNormalize (Application f b₀)
+    | Application
+        (Application
+            (Application
+                (Application (Builtin ListFold) _A₀)
+                (EmptyList _A₁)
+            )
+            _B
+        )
+        _g <- betaNormalize f =
+
+        let b₁ = betaNormalize b₀
+
+        in  b₁
+
+betaNormalize (Application f b₀)
+    | Application
+        (Application
+            (Application
+                (Application (Builtin ListFold) _A₀)
+                (NonEmptyList (a :| as))
+            )
+            _B
+        )
+        g <- betaNormalize f =
+
+        let rest =
+                case as of
+                    []    -> EmptyList _A₀
+                    h : t -> NonEmptyList (h :| t)
+
+            b₁ =
+                betaNormalize
+                    (Application
+                        (Application g a)
+                        (Application
+                            (Application
+                                (Application
+                                    (Application (Builtin ListFold) _A₀)
+                                    rest
+                                )
+                                g
+                            )
+                            b₀
+                        )
+                    )
+
+        in  b₁
+```
 
 Even though `List/build` and `List/fold` suffice for all `List` operations,
 Dhall also supports built-in functions and operators on `List`s, both for
@@ -1085,6 +1212,18 @@ Otherwise, normalize each argument:
     ls₀ # rs₀ ⇥ ls₁ # rs₁
 
 
+```haskell
+betaNormalize (Operator ls₀ ListAppend rs₀)
+    | EmptyList _T   <- ls₁ = rs₁
+    | EmptyList _T   <- rs₁ = ls₁
+    | NonEmptyList l <- ls₁
+    , NonEmptyList r <- rs₁ = NonEmptyList (l <> r)
+    | otherwise             = Operator ls₁ ListAppend rs₁
+  where
+    ls₁ = betaNormalize ls₀
+    rs₁ = betaNormalize rs₀
+```
+
 `List/length` returns the length of a list:
 
 
@@ -1097,6 +1236,16 @@ Otherwise, normalize each argument:
     ────────────────────────────────────────────────────────────────────────
     f as₀ ⇥ n
 
+
+```haskell
+betaNormalize (Application f a)
+    | Application (Builtin ListLength) _A₀ <- betaNormalize f
+    , EmptyList _A₁                        <- betaNormalize a =
+        NaturalLiteral 0
+    | Application (Builtin ListLength) _A₀ <- betaNormalize f
+    , NonEmptyList as₀                     <- betaNormalize a =
+        NaturalLiteral (fromIntegral (length as₀))
+```
 
 `List/head` returns the first element of a list:
 
@@ -1111,6 +1260,16 @@ Otherwise, normalize each argument:
     f as ⇥ Some a
 
 
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListHead) _A₀ <- betaNormalize f
+    , EmptyList _A₁                      <- betaNormalize as =
+        Application (Builtin None) _A₀
+    | Application (Builtin ListHead) _A₀ <- betaNormalize f
+    , NonEmptyList (a :| _)              <- betaNormalize as =
+        Some a
+```
+
 `List/last` returns the last element of a list:
 
 
@@ -1123,6 +1282,16 @@ Otherwise, normalize each argument:
     ────────────────────────────────
     f as ⇥ Some a
 
+
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListLast) _A₀ <- betaNormalize f
+    , EmptyList _A₁                      <- betaNormalize as =
+        Application (Builtin None) _A₀
+    | Application (Builtin ListLast) _A₀ <- betaNormalize f
+    , NonEmptyList as₁                   <- betaNormalize as =
+        Some (NonEmpty.last as₁)
+```
 
 `List/indexed` tags each element of the list with the element's index:
 
