@@ -5,6 +5,7 @@
 
 module BetaNormalization where
 
+import Data.List ((\\))
 import Data.List.NonEmpty (NonEmpty(..))
 import {-# SOURCE #-} Equivalence (equivalent)
 import Prelude hiding (Bool(..))
@@ -12,6 +13,8 @@ import Shift (shift)
 import Syntax
 
 import qualified Data.Text          as Text
+import qualified Data.List          as List
+import qualified Data.Ord           as Ord
 import qualified Data.List.NonEmpty as NonEmpty
 ```
 
@@ -1306,6 +1309,24 @@ betaNormalize (Application f as)
     f as ⇥ [ { index = 0, value = a₀ }, { index = 1, value = a₁ }, … ]
 
 
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
+    , EmptyList _A₁                         <- betaNormalize as =
+        EmptyList
+            (Application
+                (Builtin List)
+                (RecordType [("index", Builtin Natural), ("value", _A₀)])
+            )
+    | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
+    , NonEmptyList as₁                      <- betaNormalize as =
+        let combine index value =
+                RecordLiteral
+                    [("index", NaturalLiteral index), ("value", value)]
+
+        in  NonEmptyList (NonEmpty.zipWith combine (0 :| [1..]) as₁)
+```
+
 `List/reverse` reverses the elements of the list:
 
 
@@ -1318,6 +1339,16 @@ betaNormalize (Application f as)
     ────────────────────────────────────────
     f as ⇥ [ …, a₁, a₀ ]
 
+
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListReverse) _A₀ <- betaNormalize f
+    , EmptyList _A₁                         <- betaNormalize as =
+        EmptyList _A₁
+    | Application (Builtin ListReverse) _A₀ <- betaNormalize f
+    , NonEmptyList as₁                      <- betaNormalize as =
+        NonEmptyList (NonEmpty.reverse as₁)
+```
 
 All of the built-in functions on `List`s are in normal form:
 
@@ -1350,6 +1381,16 @@ All of the built-in functions on `List`s are in normal form:
     List/reverse ⇥ List/reverse
 
 
+```haskell
+betaNormalize (Builtin ListBuild  ) = Builtin ListBuild
+betaNormalize (Builtin ListFold   ) = Builtin ListFold
+betaNormalize (Builtin ListLength ) = Builtin ListLength
+betaNormalize (Builtin ListHead   ) = Builtin ListHead
+betaNormalize (Builtin ListLast   ) = Builtin ListLast
+betaNormalize (Builtin ListIndexed) = Builtin ListIndexed
+betaNormalize (Builtin ListReverse) = Builtin ListReverse
+```
+
 ## `Optional`
 
 The `Optional` and `None` functions are in normal form:
@@ -1363,6 +1404,11 @@ The `Optional` and `None` functions are in normal form:
     None ⇥ None
 
 
+```haskell
+betaNormalize (Builtin Optional) = Builtin Optional
+betaNormalize (Builtin None    ) = Builtin None
+```
+
 Normalize a `Some` expression by normalizing its argument:
 
 
@@ -1370,6 +1416,12 @@ Normalize a `Some` expression by normalizing its argument:
     ─────────────────
     Some t₀ ⇥ Some t₁
 
+
+```haskell
+betaNormalize (Some t₀) = Some t₁
+  where
+    t₁ = betaNormalize t₀
+```
 
 ## Records
 
@@ -1386,6 +1438,16 @@ field:
     { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
 
 
+```haskell
+betaNormalize (RecordType xTs₀) = RecordType xTs₁
+  where
+    xTs₁ = List.sortBy (Ord.comparing fst) (map adapt xTs₀)
+
+    adapt (x, _T₀) = (x, _T₁)
+      where
+        _T₁ = betaNormalize _T₀
+```
+
 Normalizing a record value sorts the fields and normalizes each field:
 
 
@@ -1398,6 +1460,16 @@ Normalizing a record value sorts the fields and normalizes each field:
     { x = t₀, xs₀… } ⇥ { x = t₁, xs₁… }
 
 
+```haskell
+betaNormalize (RecordLiteral xts₀) = RecordLiteral xts₁
+  where
+    xts₁ = List.sortBy (Ord.comparing fst) (map adapt xts₀)
+
+    adapt (x, t₀) = (x, t₁)
+      where
+        t₁ = betaNormalize t₀
+```
+
 Simplify a record selection if the argument is a record literal:
 
 
@@ -1406,6 +1478,13 @@ Simplify a record selection if the argument is a record literal:
     t.x ⇥ v
 
 
+```haskell
+betaNormalize (Field t x)
+    | RecordLiteral xvs <- betaNormalize t
+    , Just v            <- lookup x xvs =
+        v
+```
+
 If the argument is a record projection, select from the contained record.
 
 
@@ -1413,6 +1492,13 @@ If the argument is a record projection, select from the contained record.
     ──────────────────────────
     t₀.x ⇥ v
 
+
+```haskell
+betaNormalize (Field t₀ x)
+    | ProjectByLabels t₁ _xs <- betaNormalize t₀
+    , v                      <- betaNormalize (Field t₁ x) =
+        v
+```
 
 If the argument is a right-biased record merge and one of the operands is a
 record literal, we can simplify further:
@@ -1438,6 +1524,31 @@ record literal, we can simplify further:
     t₀.x ⇥ v
 
 
+```haskell
+betaNormalize (Field t₀ x)
+    | Operator (RecordLiteral xvs) Prefer t₁ <- betaNormalize t₀
+    , Just v                                 <- lookup x xvs =
+        Field (Operator (RecordLiteral [(x, v)]) Prefer t₁) x
+
+    | Operator (RecordLiteral xvs) Prefer t₁ <- betaNormalize t₀
+    , Nothing                                <- lookup x xvs =
+
+        let v = betaNormalize (Field t₁ x)
+
+        in  v
+
+    | Operator _t₁ Prefer (RecordLiteral xvs) <- betaNormalize t₀
+    , Just v                                  <- lookup x xvs =
+        v
+
+    | Operator t₁ Prefer (RecordLiteral xvs) <- betaNormalize t₀
+    , Nothing                                <- lookup x xvs =
+
+        let v = betaNormalize (Field t₁ x)
+
+        in  v
+```
+
 If the argument is a recursive record merge and one of the operands is a record
 literal, we can simplify it similarly:
 
@@ -1462,6 +1573,29 @@ literal, we can simplify it similarly:
     t₀.x ⇥ v
 
 
+```haskell
+betaNormalize (Field t₀ x)
+    | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
+    , Just v                                             <- lookup x xvs =
+        Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁
+
+    | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
+    , Nothing                                            <- lookup x xvs =
+
+        let v = betaNormalize (Field t₁ x)
+
+        in  v
+    | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
+    , Just v                                             <- lookup x xvs =
+        Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])
+    | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
+    , Nothing                                            <- lookup x xvs =
+
+        let v = betaNormalize (Field t₁ x)
+
+        in  v
+```
+
 Otherwise, normalize the argument:
 
 
@@ -1470,11 +1604,17 @@ Otherwise, normalize the argument:
     t₀.x ⇥ t₁.x
 
 
+```haskell
+betaNormalize (Field t₀ x) = Field t₁ x
+  where
+    t₁ = betaNormalize t₀
+```
+
 You can also project out more than one field into a new record:
 
 
-    ─────────
-    t.{} ⇥ {}
+    ──────────
+    t.{} ⇥ {=}
 
 
 Simplify a record projection if the argument is a record literal:
@@ -1512,6 +1652,41 @@ Otherwise, normalize the argument and sort the fields:
     t₀.{ xs₀… } ⇥ t₁.{ xs₁… }
 
 
+```haskell
+betaNormalize (ProjectByLabels _ []) = RecordLiteral []
+betaNormalize (ProjectByLabels t₀ xs₀)
+    | RecordLiteral xvs <- betaNormalize t₀ =
+
+        let predicate (x, _v) = x `elem` xs₀
+
+        in  RecordLiteral (filter predicate xvs)
+
+    | ProjectByLabels t₁ _ys  <- betaNormalize t₀ =
+
+        let t₂ = betaNormalize (ProjectByLabels t₁ xs₀)
+
+        in  t₂
+
+    | Operator l Prefer (RecordLiteral rs) <- betaNormalize t₀ =
+        let ks = map fst rs
+
+            predicate x = x `elem` ks
+
+            t₁ =
+                Operator
+                    (ProjectByLabels l (xs₀ \\ ks))
+                    Prefer
+                    (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀))
+
+        in  t₁
+    | otherwise =
+        let t₁ = betaNormalize t₀
+
+            xs₁ = List.sort xs₀
+
+        in  ProjectByLabels t₁ xs₁
+```
+
 You can also project by type:
 
 
@@ -1522,6 +1697,16 @@ You can also project by type:
     t.(s) ⇥ ts₁
 
 
+```haskell
+betaNormalize (ProjectByType t s)
+    | RecordType ss <- betaNormalize s =
+        let s₁ = map fst ss
+
+            ts₁ = betaNormalize (ProjectByLabels t s₁)
+
+        in  ts₁
+```
+
 The type system ensures that the selected field(s) must be present.  The type
 system also ensures that in the expression `t.(s)`, `s` will normalize to a
 record type, so the last rule above will always match.
@@ -1530,14 +1715,14 @@ Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
 
 
-    l ⇥ {=}   r₀ ⇥ r₁
-    ─────────────────
-    l ∧ r₀ ⇥ r₁
+    ls ⇥ {=}   rs₀ ⇥ rs₁
+    ────────────────────
+    ls ∧ rs₀ ⇥ rs₁
 
 
-    r ⇥ {=}   l₀ ⇥ l₁
-    ─────────────────
-    l₀ ∧ r ⇥ l₁
+    rs ⇥ {=}   ls₀ ⇥ ls₁
+    ────────────────────
+    ls₀ ∧ rs ⇥ ls₁
 
 
     ls₀ ⇥ { x = l₁, ls₁… }
@@ -1556,9 +1741,9 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ∧ rs ⇥ e
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────  ; If no other rule matches
-    l₀ ∧ r₀ ⇥ l₁ ∧ r₁
+    ls₀ ⇥ ls₁   rs₀ ⇥ rs₁
+    ─────────────────────  ; If no other rule matches
+    ls₀ ∧ rs₀ ⇥ ls₁ ∧ rs₁
 
 
 Right-biased record merge is non-recursive.  Field collisions are resolved by
