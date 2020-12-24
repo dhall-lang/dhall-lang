@@ -14,6 +14,7 @@ import Syntax
 
 import qualified Data.Text          as Text
 import qualified Data.List          as List
+import qualified Data.Map           as Map
 import qualified Data.Ord           as Ord
 import qualified Data.List.NonEmpty as NonEmpty
 ```
@@ -764,12 +765,10 @@ betaNormalize (Application f b)
     | Application (Builtin NaturalSubtract) a <- betaNormalize f
     , equivalent a b =
         NaturalLiteral 0
-    | Application (Builtin NaturalSubtract) a <- betaNormalize f =
-
-        let a₁ = betaNormalize a
-            b₁ = betaNormalize b
-
-        in  Application (Application (Builtin NaturalSubtract) a₁) b₁
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , let a₁ = betaNormalize a
+    , let b₁ = betaNormalize b =
+        Application (Application (Builtin NaturalSubtract) a₁) b₁
 ```
 
 All of the built-in functions on `Natural` numbers are in normal form:
@@ -955,20 +954,18 @@ Or in other words:
 ```haskell
 betaNormalize (Application f a)
     | Builtin TextShow           <- betaNormalize f
-    , TextLiteral (Chunks [] s₀) <- betaNormalize a =
-
-        let s₁ =
-                ( Text.replace "\"" "\\\""
-                . Text.replace "$"  "\\u0024"
-                . Text.replace "\b" "\\b"
-                . Text.replace "\f" "\\f"
-                . Text.replace "\n" "\\n"
-                . Text.replace "\r" "\\r"
-                . Text.replace "\t" "\\t"
-                . Text.replace "\\" "\\\\"
-                ) s₀
-
-        in  TextLiteral (Chunks [] s₁)
+    , TextLiteral (Chunks [] s₀) <- betaNormalize a
+    , let s₁ =
+              ( Text.replace "\"" "\\\""
+              . Text.replace "$"  "\\u0024"
+              . Text.replace "\b" "\\b"
+              . Text.replace "\f" "\\f"
+              . Text.replace "\n" "\\n"
+              . Text.replace "\r" "\\r"
+              . Text.replace "\t" "\\t"
+              . Text.replace "\\" "\\\\"
+              ) s₀ =
+        TextLiteral (Chunks [] s₁)
 ```
 
 `Text/replace` modifies a substring of a given `Text` literal. It takes 3
@@ -1002,11 +999,9 @@ is performed:
 betaNormalize (Application f a₀)
     | Application
         (Application (Builtin TextReplace) (TextLiteral (Chunks [] "")))
-        _replacement <- betaNormalize f =
-
-        let a₁ = betaNormalize a₀
-
-        in  a₁
+        _replacement <- betaNormalize f
+    , let a₁ = betaNormalize a₀ =
+        a₁
     | Application
         (Application
             (Builtin TextReplace)
@@ -1090,28 +1085,25 @@ Dhall does not impose time complexity requirements on list operations.
 
 ```haskell
 betaNormalize (Application f g)
-    | Application (Builtin ListBuild) _A₀ <- betaNormalize f =
-
-        let _A₁ = shift 1 "a" 0 _A₀
-
-            b = betaNormalize
-                    (Application
-                        (Application
-                            (Application g (Application (Builtin List) _A₀))
-                            (Lambda "a" _A₀
-                                (Lambda "as" (Application (Builtin List) _A₁)
-                                    (Operator
-                                        (NonEmptyList (Variable "a" 0 :| []))
-                                        ListAppend
-                                        (Variable "as" 0)
-                                    )
-                                )
-                            )
-                        )
-                        (EmptyList _A₀)
-                    )
-
-        in  b
+    | Application (Builtin ListBuild) _A₀ <- betaNormalize f
+    , let _A₁ = shift 1 "a" 0 _A₀
+    , let b = betaNormalize
+                  (Application
+                      (Application
+                          (Application g (Application (Builtin List) _A₀))
+                          (Lambda "a" _A₀
+                              (Lambda "as" (Application (Builtin List) _A₁)
+                                  (Operator
+                                      (NonEmptyList (Variable "a" 0 :| []))
+                                      ListAppend
+                                      (Variable "as" 0)
+                                  )
+                              )
+                          )
+                      )
+                      (EmptyList _A₀)
+                  ) =
+        b
 ```
 
 `List/fold` is the canonical elimination function for `List`s:
@@ -1137,11 +1129,9 @@ betaNormalize (Application f b₀)
             )
             _B
         )
-        _g <- betaNormalize f =
-
-        let b₁ = betaNormalize b₀
-
-        in  b₁
+        _g <- betaNormalize f
+    , let b₁ = betaNormalize b₀ =
+        b₁
 
 betaNormalize (Application f b₀)
     | Application
@@ -1152,30 +1142,27 @@ betaNormalize (Application f b₀)
             )
             _B
         )
-        g <- betaNormalize f =
-
-        let rest =
-                case as of
-                    []    -> EmptyList _A₀
-                    h : t -> NonEmptyList (h :| t)
-
-            b₁ =
-                betaNormalize
-                    (Application
-                        (Application g a)
-                        (Application
-                            (Application
-                                (Application
-                                    (Application (Builtin ListFold) _A₀)
-                                    rest
-                                )
-                                g
-                            )
-                            b₀
-                        )
-                    )
-
-        in  b₁
+        g <- betaNormalize f
+    , let rest =
+              case as of
+                  []    -> EmptyList _A₀
+                  h : t -> NonEmptyList (h :| t)
+    , let b₁ =
+              betaNormalize
+                  (Application
+                      (Application g a)
+                      (Application
+                          (Application
+                              (Application
+                                  (Application (Builtin ListFold) _A₀)
+                                  rest
+                              )
+                              g
+                          )
+                          b₀
+                      )
+                  ) =
+        b₁
 ```
 
 Even though `List/build` and `List/fold` suffice for all `List` operations,
@@ -1319,12 +1306,12 @@ betaNormalize (Application f as)
                 (RecordType [("index", Builtin Natural), ("value", _A₀)])
             )
     | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
-    , NonEmptyList as₁                      <- betaNormalize as =
-        let combine index value =
-                RecordLiteral
-                    [("index", NaturalLiteral index), ("value", value)]
+    , NonEmptyList as₁                      <- betaNormalize as
+    , let combine index value =
+              RecordLiteral
+                  [("index", NaturalLiteral index), ("value", value)]  =
 
-        in  NonEmptyList (NonEmpty.zipWith combine (0 :| [1..]) as₁)
+        NonEmptyList (NonEmpty.zipWith combine (0 :| [1..]) as₁)
 ```
 
 `List/reverse` reverses the elements of the list:
@@ -1531,22 +1518,18 @@ betaNormalize (Field t₀ x)
         Field (Operator (RecordLiteral [(x, v)]) Prefer t₁) x
 
     | Operator (RecordLiteral xvs) Prefer t₁ <- betaNormalize t₀
-    , Nothing                                <- lookup x xvs =
-
-        let v = betaNormalize (Field t₁ x)
-
-        in  v
+    , Nothing                                <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
 
     | Operator _t₁ Prefer (RecordLiteral xvs) <- betaNormalize t₀
     , Just v                                  <- lookup x xvs =
         v
 
     | Operator t₁ Prefer (RecordLiteral xvs) <- betaNormalize t₀
-    , Nothing                                <- lookup x xvs =
-
-        let v = betaNormalize (Field t₁ x)
-
-        in  v
+    , Nothing                                <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
 ```
 
 If the argument is a recursive record merge and one of the operands is a record
@@ -1580,20 +1563,16 @@ betaNormalize (Field t₀ x)
         Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁
 
     | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
-    , Nothing                                            <- lookup x xvs =
-
-        let v = betaNormalize (Field t₁ x)
-
-        in  v
+    , Nothing                                            <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
     | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
     , Just v                                             <- lookup x xvs =
         Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])
     | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
-    , Nothing                                            <- lookup x xvs =
-
-        let v = betaNormalize (Field t₁ x)
-
-        in  v
+    , Nothing                                            <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
 ```
 
 Otherwise, normalize the argument:
@@ -1655,36 +1634,27 @@ Otherwise, normalize the argument and sort the fields:
 ```haskell
 betaNormalize (ProjectByLabels _ []) = RecordLiteral []
 betaNormalize (ProjectByLabels t₀ xs₀)
-    | RecordLiteral xvs <- betaNormalize t₀ =
+    | RecordLiteral xvs <- betaNormalize t₀
+    , let predicate (x, _v) = x `elem` xs₀ =
+        RecordLiteral (filter predicate xvs)
 
-        let predicate (x, _v) = x `elem` xs₀
+    | ProjectByLabels t₁ _ys  <- betaNormalize t₀
+    , let t₂ = betaNormalize (ProjectByLabels t₁ xs₀) =
+        t₂
 
-        in  RecordLiteral (filter predicate xvs)
-
-    | ProjectByLabels t₁ _ys  <- betaNormalize t₀ =
-
-        let t₂ = betaNormalize (ProjectByLabels t₁ xs₀)
-
-        in  t₂
-
-    | Operator l Prefer (RecordLiteral rs) <- betaNormalize t₀ =
-        let ks = map fst rs
-
-            predicate x = x `elem` ks
-
-            t₁ =
-                Operator
-                    (ProjectByLabels l (xs₀ \\ ks))
-                    Prefer
-                    (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀))
-
-        in  t₁
-    | otherwise =
-        let t₁ = betaNormalize t₀
-
-            xs₁ = List.sort xs₀
-
-        in  ProjectByLabels t₁ xs₁
+    | Operator l Prefer (RecordLiteral rs) <- betaNormalize t₀
+    , let ks = map fst rs
+    , let predicate x = x `elem` ks
+    , let t₁ =
+              Operator
+                  (ProjectByLabels l (xs₀ \\ ks))
+                  Prefer
+                  (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀)) =
+        t₁
+    | otherwise
+    , let t₁ = betaNormalize t₀
+    , let xs₁ = List.sort xs₀ =
+        ProjectByLabels t₁ xs₁
 ```
 
 You can also project by type:
@@ -1699,12 +1669,10 @@ You can also project by type:
 
 ```haskell
 betaNormalize (ProjectByType t s)
-    | RecordType ss <- betaNormalize s =
-        let s₁ = map fst ss
-
-            ts₁ = betaNormalize (ProjectByLabels t s₁)
-
-        in  ts₁
+    | RecordType ss <- betaNormalize s
+    , let s₁ = map fst ss
+    , let ts₁ = betaNormalize (ProjectByLabels t s₁) =
+        ts₁
 ```
 
 The type system ensures that the selected field(s) must be present.  The type
@@ -1746,6 +1714,30 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ∧ rs₀ ⇥ ls₁ ∧ rs₁
 
 
+```haskell
+betaNormalize (Operator ls₀ CombineRecordTerms rs₀)
+    | RecordLiteral [] <- ls₁ =
+        rs₁
+
+    | RecordLiteral [] <- rs₁ =
+        ls₁
+
+    | RecordLiteral xls <- ls₁
+    , RecordLiteral xrs <- rs₁
+    , let ml = Map.fromList xls
+    , let mr = Map.fromList xrs
+    , let combine l r = Operator l CombineRecordTerms r
+    , let m = Map.unionWith combine ml mr =
+        RecordLiteral (Map.toAscList m)
+
+    | otherwise =
+        Operator ls₁ CombineRecordTerms rs₁
+  where
+    ls₁= betaNormalize ls₀
+
+    rs₁= betaNormalize rs₀
+```
+
 Right-biased record merge is non-recursive.  Field collisions are resolved by
 preferring the field from the right record and discarding the colliding field
 from the left record:
@@ -1785,6 +1777,29 @@ from the left record:
     ─────────────────  ; If no other rule matches
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
+
+```haskell
+betaNormalize (Operator ls₀ Prefer rs₀)
+    | RecordLiteral [] <- ls₁ =
+        rs₁
+
+    | RecordLiteral [] <- rs₁ =
+        ls₁
+
+    | RecordLiteral xls <- ls₁
+    , RecordLiteral xrs <- rs₁
+    , let ml = Map.fromList xls
+    , let mr = Map.fromList xrs
+    , let m = Map.union mr ml =
+        RecordLiteral (Map.toAscList m)
+
+    | otherwise =
+        Operator ls₁ Prefer rs₁
+  where
+    ls₁= betaNormalize ls₀
+
+    rs₁= betaNormalize rs₀
+```
 
 A record update using the `with` keyword replaces the given (possibly-nested) field:
 

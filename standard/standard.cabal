@@ -11,6 +11,7 @@ build-type:          Simple
 library
   build-depends:       base
                      , cborg
+                     , containers
                      , cryptonite
                      , half
                      , markdown-unlit
