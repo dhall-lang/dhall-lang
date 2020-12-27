@@ -6,6 +6,7 @@ module Equivalence where
 import AlphaNormalization (alphaNormalize)
 import BetaNormalization (betaNormalize)
 import Binary (encode)
+import Syntax (Expression)
 ```
 
 Equivalence is a relationship between two expression of the form:
@@ -33,7 +34,7 @@ Two expressions are equivalent if they are identical after β-normalization,
 
 
 ```haskell
-equivalent l r = encode x == encode y
+equivalent l₀ r₀ = encode x == encode y
   where
     l₁ = betaNormalize l₀
     r₁ = betaNormalize r₀

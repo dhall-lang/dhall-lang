@@ -10,6 +10,7 @@ import Data.List.NonEmpty (NonEmpty(..))
 import {-# SOURCE #-} Equivalence (equivalent)
 import Prelude hiding (Bool(..))
 import Shift (shift)
+import Substitution (substitute)
 import Syntax
 
 import qualified Data.Text          as Text
@@ -126,6 +127,12 @@ The `Bool` type is in normal form:
 
 
 ```haskell
+-- It's simpler to just specify:
+--
+--     betaNormalize (Builtin b) = Builtin b
+--
+-- … but for completeness the Haskell code will explicitly specify all of the
+-- `Builtin` constructors to match the standard.
 betaNormalize (Builtin Bool) = Builtin Bool
 ```
 
@@ -695,7 +702,9 @@ valid Dhall code for representing that `Natural` number:
 betaNormalize (Application f a)
     | Builtin NaturalShow <- betaNormalize f
     , NaturalLiteral n    <- betaNormalize a =
-        TextLiteral (Chunks [] (Text.pack (show n)))
+        TextLiteral (Chunks [] (renderNatural n))
+  where
+    renderNatural n = Text.pack (show n)
 ```
 
 `Natural/subtract` performs truncating subtraction, as in
@@ -1660,19 +1669,32 @@ betaNormalize (ProjectByLabels t₀ xs₀)
 You can also project by type:
 
 
-    s ⇥ { ss… }
-    keys(s) = s₁
-    t.{s₁} ⇥ ts₁
-    ────────────
-    t.(s) ⇥ ts₁
+    s₀ ⇥ { ss… }
+    keys(s₀) = ks
+    t₀.{ks} ⇥ ts₁
+    ─────────────
+    t₀.(s₀) ⇥ ts₁
+
+
+    t₀ ⇥ t₁
+    s₀ ⇥ s₁
+    ─────────────────  ; If no other rule matches
+    t₀.(s₀) ⇥ t₁.(s₁)
 
 
 ```haskell
-betaNormalize (ProjectByType t s)
-    | RecordType ss <- betaNormalize s
-    , let s₁ = map fst ss
-    , let ts₁ = betaNormalize (ProjectByLabels t s₁) =
+betaNormalize (ProjectByType t₀ s₀)
+    | RecordType ss <- s₁
+    , let ks = map fst ss
+    , let ts₁ = betaNormalize (ProjectByLabels t₀ ks) =
         ts₁
+
+    | otherwise =
+        ProjectByType t₁ s₁
+  where
+    t₁ = betaNormalize t₀
+
+    s₁ = betaNormalize s₀
 ```
 
 The type system ensures that the selected field(s) must be present.  The type
@@ -1817,21 +1839,45 @@ A record update using the `with` keyword replaces the given (possibly-nested) fi
 
 
     e₀ ⇥ { k₀ = e₁, es… }
-    e₁ with k₁.ks… = v ⇥ e₂
-    ───────────────────────────────────────
-    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₂, es… }
+    e₁ with k₁.ks₁… = v₀ ⇥ e₂
+    ──────────────────────────────────────────
+    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₂, es… }
 
 
     e₀ ⇥ { es… }
-    {=} with k₁.ks… = v ⇥ e₁
-    ───────────────────────────────────────  ; k₀ ∉ es
-    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₁, es… }
+    {=} with k₁.ks₁… = v₀ ⇥ e₁
+    ──────────────────────────────────────────  ; k₀ ∉ es
+    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₁, es… }
 
 
     e₀ ⇥ e₁   v₀ ⇥ v₁
-    ───────────────────────────────────  ; If no other rule matches
-    e₀ with ks… = v₀ ⇥ e₁ with ks… = v₁
+    ─────────────────────────────────────  ; If no other rule matches
+    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
 
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | k :| [] <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        RecordLiteral (Map.toList (Map.insert k v₁ (Map.fromList kvs)))
+
+    | k₀ :| (k₁ : ks₁) <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , Just e₁ <- lookup k₀ kvs
+    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
+        RecordLiteral (Map.toList (Map.insert k₀ e₂ (Map.fromList kvs)))
+
+    | k₀ :| (k₁ : ks₁) <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , Nothing <- lookup k₀ kvs
+    , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
+        RecordLiteral (Map.toList (Map.insert k₀ e₁ (Map.fromList kvs)))
+
+    | let e₁ = betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        With e₁ ks₀ v₁
+```
 
 Recursive record type merge combines two record types, recursively merging any
 fields that collide.  The type system ensures that colliding fields must be
@@ -1869,21 +1915,45 @@ record types:
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
+```haskell
+betaNormalize (Operator ls₀ CombineRecordTypes rs₀)
+    | RecordType [] <- ls₁ =
+        rs₁
+
+    | RecordType [] <- rs₁ =
+        ls₁
+
+    | RecordType xls <- ls₁
+    , RecordType xrs <- rs₁
+    , let ml = Map.fromList xls
+    , let mr = Map.fromList xrs
+    , let combine l r = Operator l CombineRecordTypes r
+    , let m = Map.unionWith combine ml mr =
+        RecordType (Map.toAscList m)
+
+    | otherwise =
+        Operator ls₁ CombineRecordTypes rs₁
+  where
+    ls₁= betaNormalize ls₀
+
+    rs₁= betaNormalize rs₀
+```
+
 A record whose fields all have the same type (*i.e.*, a *homogeneous* record) can be converted to a list where each list
 item represents a field. The value "x" below represents the text value of the field name `x`.
 
 
-    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
-    ──────────────────────────────────────────────
-    toMap t ⇥ [ {mapKey = "x", mapValue = v} ] # m
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ [ kvs… ]
+    ────────────────────────────────────────────────
+    toMap t ⇥ [ {mapKey = "x", mapValue = v}, kvs… ]
 
 
 The `toMap` application can be annotated with a type, and it must be if the record is empty.
 
 
-    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
-    ───────────────────────────────────────────────────
-    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ [ kvs… ]
+    ─────────────────────────────────────────────────────
+    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v}, kvs… ]
 
 
     t ⇥ {=}   T₀ ⇥ T₁
@@ -1904,6 +1974,42 @@ If the record or the type is abstract, then normalize each subexpression:
     toMap t₀ ⇥ toMap t₁
 
 
+```haskell
+betaNormalize (ToMap t₀ Nothing)
+    | RecordLiteral ((x₀, v₀) : xvs) <- t₁ =
+        let adapt (x, v) =
+                RecordLiteral
+                    [ ("mapKey", TextLiteral (Chunks [] x))
+                    , ("mapValue", v)
+                    ]
+
+        in  NonEmptyList (fmap adapt ((x₀, v₀) :| xvs))
+
+    | otherwise =
+        ToMap t₁ Nothing
+  where
+    t₁ = betaNormalize t₀
+betaNormalize (ToMap t₀ (Just _T₀))
+    | RecordLiteral ((x₀, v₀) : xvs) <- t₁ =
+        let adapt (x, v) =
+                RecordLiteral
+                    [ ("mapKey", TextLiteral (Chunks [] x))
+                    , ("mapValue", v)
+                    ]
+
+        in  NonEmptyList (fmap adapt ((x₀, v₀) :| xvs))
+
+    | RecordLiteral [] <- t₁ =
+        EmptyList _T₀
+
+    | otherwise =
+        ToMap t₁ (Just _T₁)
+  where
+    t₁ = betaNormalize t₀
+
+    _T₁ = betaNormalize _T₀
+```
+
 `T::r` is syntactic sugar for `(T.default ⫽ r) : T.Type` so substitute
 accordingly and continue to normalize:
 
@@ -1912,6 +2018,17 @@ accordingly and continue to normalize:
     ──────────────────────────────
     T::r ⇥ e
 
+
+```haskell
+betaNormalize (Completion _T r) =
+    let e = betaNormalize
+                (Annotation
+                    (Operator (Field _T "default") Prefer r)
+                    (Field _T "Type")
+                )
+
+    in  e
+```
 
 ## Unions
 
@@ -1933,6 +2050,17 @@ alternative:
     < x | xs₀… > ⇥ < x | xs₁… >
 
 
+```haskell
+betaNormalize (UnionType xTs₀) = UnionType xTs₁
+  where
+    xTs₁ = map adapt xTs₀
+
+    adapt (x, Nothing ) = (x, Nothing )
+    adapt (x, Just _T₀) = (x, Just _T₁)
+      where
+          _T₁ = betaNormalize _T₀
+```
+
 Normalizing a union constructor only normalizes the union type but is otherwise
 inert.  The expression does not reduce further until supplied to a `merge`.
 
@@ -1947,6 +2075,11 @@ inert.  The expression does not reduce further until supplied to a `merge`.
     u.x₀ ⇥ < x₀ | xs… >.x₀
 
 
+```haskell
+-- No additional code required here.  This is already covered by the
+-- fall-through case for β-normalizing the `Field` constructor
+```
+
 `merge` expressions are the canonical way to eliminate a union value.  The
 first argument to `merge` is a record of handlers and the second argument is a
 union value, which can be in one of two forms:
@@ -1958,52 +2091,52 @@ For union constructors specifying non-empty alternatives, apply the handler of
 the same label to the wrapped value of the union constructor:
 
 
-    t ⇥ { x = f, … }   u ⇥ < x : T₀ | … >.x a   f a ⇥ b
+    t₀ ⇥ { x = f, … }   u₀ ⇥ < x : T₀ | … >.x a   f a ⇥ b
     ───────────────────────────────────────────────────
-    merge t u : T ⇥ b
+    merge t₀ u₀ : T ⇥ b
 
 
-    t ⇥ { x = f, … }   u ⇥ < x : T | … >.x a   f a ⇥ b
+    t₀ ⇥ { x = f, … }   u₀ ⇥ < x : T | … >.x a   f a ⇥ b
     ──────────────────────────────────────────────────
-    merge t u ⇥ b
+    merge t₀ u₀ ⇥ b
 
 
 For union constructors specifying empty alternatives, return the handler of the
 matching label:
 
 
-    t ⇥ { x = v, … }   u ⇥ < x | … >.x
+    t₀ ⇥ { x = v, … }   u₀ ⇥ < x | … >.x
     ──────────────────────────────────
-    merge t u : T ⇥ v
+    merge t₀ u₀ : T ⇥ v
 
 
-    t ⇥ { x = v, … }   u ⇥ < x | … >.x
+    t₀ ⇥ { x = v, … }   u₀ ⇥ < x | … >.x
     ──────────────────────────────────
-    merge t u ⇥ v
+    merge t₀ u₀ ⇥ v
 
 
 `Optional`s are handled as if they were union values of type
 `< None | Some : A >`:
 
 
-    t ⇥ { Some = f, … }   o ⇥ Some a   f a ⇥ b
+    t₀ ⇥ { Some = f, … }   u₀ ⇥ Some a   f a ⇥ b
     ──────────────────────────────────────────
-    merge t o : T ⇥ b
+    merge t₀ u₀ : T ⇥ b
 
 
-    t ⇥ { Some = f, … }   o ⇥ Some a   f a ⇥ b
+    t₀ ⇥ { Some = f, … }   u₀ ⇥ Some a   f a ⇥ b
     ──────────────────────────────────────────
-    merge t o ⇥ b
+    merge t₀ u₀ ⇥ b
 
 
-    t ⇥ { None = v, … }   o ⇥ None A
+    t₀ ⇥ { None = v, … }   u₀ ⇥ None A
     ────────────────────────────────
-    merge t o : T ⇥ v
+    merge t₀ u₀ : T ⇥ v
 
 
-    t ⇥ { None = v, … }   o ⇥ None A
+    t₀ ⇥ { None = v, … }   u₀ ⇥ None A
     ────────────────────────────────
-    merge t o ⇥ v
+    merge t₀ u₀ ⇥ v
 
 
 If the handler or union are abstract, then normalize each subexpression:
@@ -2019,6 +2152,38 @@ If the handler or union are abstract, then normalize each subexpression:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
+```haskell
+betaNormalize (Merge t₀ u₀ _T)
+    | RecordLiteral xvs <- t₁
+    , Application (Field (UnionType _xTs₀) x) a <- u₁
+    , Just f <- lookup x xvs
+    , let b = betaNormalize (Application f a) =
+        b
+
+    | RecordLiteral xvs <- t₁
+    , Field (UnionType _xTs₀) x <- u₁
+    , Just v <- lookup x xvs =
+        v
+
+    | RecordLiteral xvs <- t₁
+    , Some a <- u₁
+    , Just f <- lookup "Some" xvs
+    , let b = betaNormalize (Application f a) =
+        b
+
+    | RecordLiteral xvs <- t₁
+    , Application (Builtin None) _A <- u₁
+    , Just v <- lookup "None" xvs =
+        v
+
+    | otherwise =
+       Merge t₁ u₁ _T
+  where
+    t₁ = betaNormalize t₀
+
+    u₁ = betaNormalize u₀
+```
+
 ## `Integer`
 
 The `Integer` type is in normal form:
@@ -2028,6 +2193,10 @@ The `Integer` type is in normal form:
     Integer ⇥ Integer
 
 
+```haskell
+betaNormalize (Builtin Integer) = Builtin Integer
+```
+
 An `Integer` literal is in normal form:
 
 
@@ -2035,12 +2204,23 @@ An `Integer` literal is in normal form:
     ±n ⇥ ±n
 
 
+```haskell
+betaNormalize (IntegerLiteral n) = IntegerLiteral n
+```
+
 `Integer/toDouble` transforms an `Integer` into the corresponding `Double`:
 
 
     f ⇥ Integer/toDouble   a ⇥ ±n
     ─────────────────────────────
     f a ⇥ ±n.0
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerToDouble <- betaNormalize f
+    , IntegerLiteral n <- betaNormalize a =
+        DoubleLiteral (fromInteger n)
+```
 
 Note that if the magnitude of `a` is greater than 2^53, `Integer/toDouble a`
 may result in loss of precision. A `Double` will be selected by rounding `a` to
@@ -2056,6 +2236,17 @@ Dhall code for representing that `Integer` number:
     ─────────────────────────
     f a ⇥ "±n"
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerShow <- betaNormalize f
+    , IntegerLiteral n <- betaNormalize a =
+        TextLiteral (Chunks [] (renderInteger n))
+  where
+    renderInteger n
+        | 0 <= n    = "+" <> Text.pack (show n)
+        | otherwise = "-" <> Text.pack (show n)
+```
 
 Note that the `Text` representation of the rendered `Integer` should include
 a leading `+` sign if the number is non-negative and a leading `-` sign if
@@ -2080,6 +2271,13 @@ the number is negative.
     f a ⇥ +n
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerNegate <- betaNormalize f
+    , IntegerLiteral n      <- betaNormalize a =
+        IntegerLiteral (negate n)
+```
+
 `Integer/clamp` converts an `Integer` to a `Natural` number, with negative
 numbers becoming `0`:
 
@@ -2093,6 +2291,13 @@ numbers becoming `0`:
     ───────────────────────────  ; Negative integers become `0`.
     f a ⇥ 0
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerClamp <- betaNormalize f
+    , IntegerLiteral n <- betaNormalize a =
+        NaturalLiteral (fromInteger (max 0 n))
+```
 
 All of the built-in functions on `Integer`s are in normal form:
 
@@ -2113,6 +2318,13 @@ All of the built-in functions on `Integer`s are in normal form:
     Integer/clamp ⇥ Integer/clamp
 
 
+```haskell
+betaNormalize (Builtin IntegerShow    ) = Builtin IntegerShow
+betaNormalize (Builtin IntegerToDouble) = Builtin IntegerToDouble
+betaNormalize (Builtin IntegerNegate  ) = Builtin IntegerNegate
+betaNormalize (Builtin IntegerClamp   ) = Builtin IntegerClamp
+```
+
 ## `Double`
 
 The `Double` type is in normal form:
@@ -2122,12 +2334,20 @@ The `Double` type is in normal form:
     Double ⇥ Double
 
 
+```haskell
+betaNormalize (Builtin Double) = Builtin Double
+```
+
 A `Double` literal is in normal form:
 
 
     ─────────
     n.n ⇥ n.n
 
+
+```haskell
+betaNormalize (DoubleLiteral n) = DoubleLiteral n
+```
 
 `Double/show` transforms a `Double` into a `Text` literal representing valid
 Dhall code for representing that `Double` number:
@@ -2138,12 +2358,25 @@ Dhall code for representing that `Double` number:
     f a ⇥ "n.n"
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin DoubleShow <- betaNormalize f
+    , DoubleLiteral n    <- betaNormalize a =
+        TextLiteral (Chunks [] (renderDouble n))
+  where
+    renderDouble n = Text.pack (show n)
+```
+
 The `Double/show` function is in normal form:
 
 
     ─────────────────────────
     Double/show ⇥ Double/show
 
+
+```haskell
+betaNormalize (Builtin DoubleShow) = Builtin DoubleShow
+```
 
 The following 2 properties must hold for `Double/show`:
 
@@ -2168,6 +2401,14 @@ Normalizing a function type normalizes the types of the input and output:
     ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
 
 
+```haskell
+betaNormalize (Forall x _A₀ _B₀) = Forall x _A₁ _B₁
+  where
+    _A₁ = betaNormalize _A₀
+
+    _B₁ = betaNormalize _B₁
+```
+
 You can introduce an anonymous function using a λ:
 
 
@@ -2175,6 +2416,14 @@ You can introduce an anonymous function using a λ:
     ───────────────────────────────
     λ(x : A₀) → b₀ ⇥ λ(x : A₁) → b₁
 
+
+```haskell
+betaNormalize (Lambda x _A₀ b₀) = Lambda x _A₁ b₁
+  where
+    _A₁ = betaNormalize _A₀
+
+    b₁ = betaNormalize b₀
+```
 
 You can eliminate an anonymous function through β-reduction:
 
@@ -2188,6 +2437,16 @@ You can eliminate an anonymous function through β-reduction:
     f a₀ ⇥ b₃
 
 
+```haskell
+betaNormalize (Application f a₀)
+    | Lambda x _A b₀ <- betaNormalize f
+    , let a₁ = shift 1 x 0 a₀
+    , let b₁ = substitute b₀ x 0 a₁
+    , let b₂ = shift (-1) x 0 b₁
+    , let b₃ = betaNormalize b₂ =
+        b₃
+```
+
 Function application falls back on normalizing both sub-expressions if none of
 the preceding function application rules apply:
 
@@ -2196,6 +2455,14 @@ the preceding function application rules apply:
     ─────────────────  ; If no other rule matches
     f₀ a₀ ⇥ f₁ a₁
 
+
+```haskell
+betaNormalize (Application f₀ a₀) = Application f₁ a₁
+  where
+    f₁ = betaNormalize f₀
+
+    a₁ = betaNormalize a₀
+```
 
 ## `let` expressions
 
@@ -2227,6 +2494,19 @@ equivalence:
     let x = a₀ in b₀ ⇥ b₃
 
 
+```haskell
+betaNormalize (Let x _ a₀ b₀) = b₃
+  where
+    a₁ = shift 1 x 0 a₀
+
+    b₁ = substitute b₀ x 0 a₁
+
+    b₂ = shift (-1) x 0 b₁
+
+    b₃ = betaNormalize b₂
+
+```
+
 ## Type annotations
 
 Simplify a type annotation by removing the annotation:
@@ -2235,6 +2515,12 @@ Simplify a type annotation by removing the annotation:
     t₀ ⇥ t₁
     ───────────
     t₀ : T ⇥ t₁
+
+```haskell
+betaNormalize (Annotation t₀ _T) = t₁
+  where
+    t₁ = betaNormalize t₀
+```
 
 ## Assertions
 
@@ -2246,6 +2532,12 @@ Normalize an assertion by normalizing its type annotation:
     assert : T₀ ⇥ assert : T₁
 
 
+```haskell
+betaNormalize (Assert _T₀) = Assert _T₁
+  where
+    _T₁ = betaNormalize _T₀
+```
+
 Normalize an equivalence by normalizing each side of the equivalence:
 
 
@@ -2253,6 +2545,21 @@ Normalize an equivalence by normalizing each side of the equivalence:
     ─────────────────────
     x₀ === y₀ ⇥ x₁ === y₁
 
+```haskell
+betaNormalize (Operator x₀ Equivalent y₀) = Operator x₁ Equivalent y₁
+  where
+    x₁ = betaNormalize x₀
+
+    y₁ = betaNormalize y₀
+```
+
 ## Imports
 
 An expression with unresolved imports cannot be β-normalized.
+
+```haskell
+betaNormalize (Operator _l Alternative _r) =
+    error "Cannot β-normalize an expression with unresolved imports"
+betaNormalize (Import _importType _importMode _hash) =
+    error "Cannot β-normalize an expression with unresolved imports"
+```
