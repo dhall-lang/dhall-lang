@@ -17,6 +17,37 @@ $ nix-shell  # Optional, if you want to use the exact same environment as CI
 $ cabal build
 ```
 
+Note that the literate Haskell code is written in such a way as to match the
+natural deduction notation as closely as possible, even if this makes the code
+more verbose.  For example, the following standard judgment:
+
+
+    t₀ ↦ t₁   T₀ ↦ T₁
+    ─────────────────
+    t₀ : T₀ ↦ t₁ : T₁
+
+
+… is translated to the following Haskell code:
+
+```haskell
+alphaNormalize (Annotation t₀ _T₀) = Annotation t₁ _T₁
+  where
+    t₁ = alphaNormalize t₀
+
+    _T₁ = alphaNormalize _T₀
+```
+
+… even if that Haskell code could have been written more directly as:
+
+```haskell
+alphaNormalize (Annotation t₀ _T₀) =
+    Annotation (alphaNormalize t₀) (alphaNormalize _T₀)
+```
+
+This is because the literate Haskell code optimizes for corresponding as closely
+as possible to the natural deduction notation as possible.  However, you can
+freely simplify things when actually implementing Dhall.
+
 ## Table of contents
 
 * [Summary](#summary)
@@ -318,20 +349,9 @@ Equivalence is a relationship between two expression of the form:
     l ≡ r
 
 
-Two expressions are equivalent if they are identical after β-normalization,
-α-normalization, and binary encoding:
+You can find the details of this judgment in the following separate document:
 
-
-    l₀ ⇥ l₁   l₁ ↦ x   encode(x) = b   r₀ ⇥ r₁   r₁ ↦ y   encode(y) = b
-    ───────────────────────────────────────────────────────────────────
-    l₀ ≡ r₀
-
-
-Note that this definition of equivalence does not include η-equivalence, so
-`λ(f : Bool → Bool) → λ(x : Bool) → f x` and `λ(f : Bool → Bool) → f` are not
-equivalent.
-
-Note also that this means that `Double`s should not be compared using standard float equality.
+* [Equivalence](./equivalence.md)
 
 ## Function check
 

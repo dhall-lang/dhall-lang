@@ -1,5 +1,15 @@
 # α-normalization
 
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
+module AlphaNormalization where
+
+import Shift (shift)
+import Substitution (substitute)
+import Syntax (Expression(..), TextLiteral(..))
+```
+
 α-normalization is a function of the following form:
 
     t₀ ↦ t₁
@@ -8,6 +18,12 @@
 
 * `t₀` (the input) is the expression to α-normalize
 * `t₁` (the output) is the α-normalized expression
+
+```haskell
+alphaNormalize
+    :: Expression  -- ^ @t₀@, the expression to α-normalize
+    -> Expression  -- ^ @t₁@, the α-normalized expression
+```
 
 α-normalization renames all bound variables within an expression to use De
 Bruijn indices.  For example, the following expression:
@@ -69,6 +85,27 @@ capture:
     λ(x : A₀) → b₀ ↦ λ(_ : A₁) → b₄
 
 
+```haskell
+alphaNormalize (Lambda "_" _A₀ b₀) = Lambda "_" _A₁ b₁
+  where
+    _A₁ = alphaNormalize _A₀
+
+    b₁ = alphaNormalize b₀
+
+alphaNormalize (Lambda x _A₀ b₀) = Lambda "_" _A₁ b₄
+  where
+    _A₁ = alphaNormalize _A₀
+
+    b₁ = shift 1 "_" 0 b₀
+
+    b₂ = substitute b₁ x 0 (Variable "_" 0)
+
+    b₃ = shift (-1) x 0 b₂
+
+    b₄ = alphaNormalize b₃
+```
+
+
     A₀ ↦ A₁
     B₀ ↦ B₁
     ───────────────────────────────
@@ -82,6 +119,27 @@ capture:
     B₃ ↦ B₄
     ───────────────────────────────  ; x ≠ _
     ∀(x : A₀) → B₀ ↦ ∀(_ : A₁) → B₄
+
+
+```haskell
+alphaNormalize (Forall "_" _A₀ _B₀) = Forall "_" _A₁ _B₁
+  where
+    _A₁ = alphaNormalize _A₀
+
+    _B₁ = alphaNormalize _B₀
+
+alphaNormalize (Forall x _A₀ _B₀) = Forall "_" _A₁ _B₄
+  where
+    _A₁ = alphaNormalize _A₀
+
+    _B₁ = shift 1 "_" 0 _B₀
+
+    _B₂ = substitute _B₁ x 0 (Variable "_" 0)
+
+    _B₃ = shift (-1) x 0 _B₂
+
+    _B₄ = alphaNormalize _B₂
+```
 
 
     a₀ ↦ a₁
@@ -116,6 +174,48 @@ capture:
     let x = a₀ in b₀ ↦ let _ = a₁ in b₄
 
 
+```haskell
+alphaNormalize (Let "_" (Just _A₀) a₀ b₀) = Let "_" (Just _A₁) a₁ b₁
+  where
+    a₁ = alphaNormalize a₀
+
+    _A₁ = alphaNormalize _A₀
+
+    b₁ = alphaNormalize b₀
+
+alphaNormalize (Let x (Just _A₀) a₀ b₀) = Let "_" (Just _A₁) a₁ b₄
+  where
+    a₁ = alphaNormalize a₀
+
+    _A₁ = alphaNormalize _A₀
+
+    b₁ = shift 1 "_" 0 b₀
+
+    b₂ = substitute b₁ x 0 (Variable "_" 0)
+
+    b₃ = shift (-1) x 0 b₂
+
+    b₄ = alphaNormalize b₃
+
+alphaNormalize (Let "_" Nothing a₀ b₀) = Let "_"  Nothing a₁ b₁
+  where
+    a₁ = alphaNormalize a₀
+
+    b₁ = alphaNormalize b₀
+
+alphaNormalize (Let x Nothing a₀ b₀) = Let "_" Nothing a₁ b₄
+  where
+    a₁ = alphaNormalize a₀
+
+    b₁ = shift 1 "_" 0 b₀
+
+    b₂ = substitute b₁ x 0 (Variable "_" 0)
+
+    b₃ = shift (-1) x 0 b₂
+
+    b₄ = alphaNormalize b₃
+```
+
 ## Variables
 
 Variables are already in α-normal form:
@@ -125,6 +225,10 @@ Variables are already in α-normal form:
     x@n ↦ x@n
 
 
+```haskell
+alphaNormalize (Variable x n) = Variable x n
+```
+
 If they are free variables then there is nothing to do because α-normalization
 does not affect free variables.  If they were originally bound variables there
 is still nothing to do because would have been renamed to `_` along the way by
@@ -133,6 +237,10 @@ one of the preceding rules.
 ## Imports
 
 An expression with unresolved imports cannot be α-normalized.
+
+```haskell
+alphaNormalize Import{} = error "Imports cannot be α-normalized"
+```
 
 ## Other
 
@@ -146,6 +254,17 @@ sub-expressions for the remaining rules:
 
 
 
+```haskell
+alphaNormalize (If t₀ l₀ r₀) = If t₁ l₁ r₁
+  where
+    t₁ = alphaNormalize t₀
+
+    l₁ = alphaNormalize l₀
+
+    r₁ = alphaNormalize r₀
+```
+
+
     t₀ ↦ t₁   u₀ ↦ u₁   T₀ ↦ T₁
     ───────────────────────────────────
     merge t₀ u₀ : T₀ ↦ merge t₁ u₁ : T₁
@@ -154,6 +273,23 @@ sub-expressions for the remaining rules:
     t₀ ↦ t₁   u₀ ↦ u₁
     ─────────────────────────
     merge t₀ u₀ ↦ merge t₁ u₁
+
+
+```haskell
+alphaNormalize (Merge t₀ u₀ (Just _T₀)) = Merge t₁ u₁ (Just _T₁)
+  where
+    t₁ = alphaNormalize t₀
+
+    u₁ = alphaNormalize u₀
+
+    _T₁ = alphaNormalize _T₀
+
+alphaNormalize (Merge t₀ u₀ Nothing) = Merge t₁ u₁ Nothing
+  where
+    t₁ = alphaNormalize t₀
+
+    u₁ = alphaNormalize u₀
+```
 
 
     t₀ ↦ t₁   T₀ ↦ T₁
@@ -166,6 +302,19 @@ sub-expressions for the remaining rules:
     toMap t₀ ↦ toMap t₁
 
 
+```haskell
+alphaNormalize (ToMap t₀ (Just _T₀)) = ToMap t₁ (Just _T₁)
+  where
+    t₁ = alphaNormalize t₀
+
+    _T₁ = alphaNormalize _T₀
+
+alphaNormalize (ToMap t₀ Nothing) = ToMap t₁ Nothing
+  where
+    t₁ = alphaNormalize t₀
+```
+
+
     T₀ ↦ T₁
     ─────────────────
     [] : T₀ ↦ [] : T₁
@@ -176,9 +325,32 @@ sub-expressions for the remaining rules:
     [ t₀, ts₀… ] ↦ [ t₁, ts₁… ]
 
 
+```haskell
+alphaNormalize (EmptyList _T₀) = EmptyList _T₁
+  where
+    _T₁ = alphaNormalize _T₀
+
+alphaNormalize (NonEmptyList ts₀) = NonEmptyList ts₁
+  where
+    ts₁ = fmap adapt ts₀
+
+    adapt t₀ = t₁
+      where
+        t₁ = alphaNormalize t₀
+```
+
     t₀ ↦ t₁   T₀ ↦ T₁
     ─────────────────
     t₀ : T₀ ↦ t₁ : T₁
+
+
+```haskell
+alphaNormalize (Annotation t₀ _T₀) = Annotation t₁ _T₁
+  where
+    t₁ = alphaNormalize t₀
+
+    _T₁ = alphaNormalize _T₀
+```
 
 
     l₀ ↦ l₁   r₀ ↦ r₁
@@ -241,9 +413,27 @@ sub-expressions for the remaining rules:
     l₀ === r₀ ↦ l₁ === r₁
 
 
+```haskell
+alphaNormalize (Operator l₀ op r₀) = Operator l₁ op r₁
+  where
+    l₁ = alphaNormalize l₀
+
+    r₁ = alphaNormalize r₀
+```
+
+
     f₀ ↦ f₁   a₀ ↦ a₁
     ─────────────────
     f₀ a₀ ↦ f₁ a₁
+
+
+```haskell
+alphaNormalize (Application f₀ a₀) = Application f₁ a₁
+  where
+    f₁ = alphaNormalize f₀
+
+    a₁ = alphaNormalize a₀
+```
 
 
     t₀ ↦ t₁
@@ -251,9 +441,37 @@ sub-expressions for the remaining rules:
     t₀.x ↦ t₁.x
 
 
+```haskell
+alphaNormalize (Field t₀ x) = Field t₁ x
+  where
+    t₁ = alphaNormalize t₀
+```
+
+
     t₀ ↦ t₁
     ───────────────────────
     t₀.{ xs… } ↦ t₁.{ xs… }
+
+
+```haskell
+alphaNormalize (ProjectByLabels t₀ xs) = ProjectByLabels t₁ xs
+  where
+    t₁ = alphaNormalize t₀
+```
+
+
+    t₀ ↦ t₁   T₀ ↦ T₁
+    ─────────────────
+    t₀.(T₀) ↦ t₁.(T₁)
+
+
+```haskell
+alphaNormalize (ProjectByType t₀ _T₀) = ProjectByType t₁ _T₁
+  where
+    t₁ = alphaNormalize t₀
+
+    _T₁ = alphaNormalize _T₀
+```
 
 
     T₀ ↦ T₁   r₀ ↦ r₁
@@ -261,9 +479,25 @@ sub-expressions for the remaining rules:
     T₀::r₀ ↦ T₁::r₁
 
 
+```haskell
+alphaNormalize (Completion _T₀ r₀) = Completion _T₁ r₁
+  where
+    _T₁ = alphaNormalize _T₀
+
+    r₁ = alphaNormalize r₀
+```
+
+
     T₀ ↦ T₁
     ─────────────────────────
     assert : T₀ ↦ assert : T₁
+
+
+```haskell
+alphaNormalize (Assert _T₀) = Assert _T₁
+  where
+    _T₁ = alphaNormalize _T₀
+```
 
 
     e₀ ↦ e₁   v₀ ↦ v₁
@@ -271,16 +505,40 @@ sub-expressions for the remaining rules:
     e₀ with ks… = v₀ ↦ e₁ with ks… = v₁
 
 
+```haskell
+alphaNormalize (With e₀ ks v₀) = With e₁ ks v₁
+  where
+    e₁ = alphaNormalize e₀
+
+    v₁ = alphaNormalize v₀
+```
+
+
     ─────────
     n.n ↦ n.n
+
+
+```haskell
+alphaNormalize (DoubleLiteral n) = DoubleLiteral n
+```
 
 
     ─────
     n ↦ n
 
 
+```haskell
+alphaNormalize (NaturalLiteral n) = NaturalLiteral n
+```
+
+
     ───────
     ±n ↦ ±n
+
+
+```haskell
+alphaNormalize (IntegerLiteral n) = IntegerLiteral n
+```
 
 
     ─────────
@@ -292,6 +550,17 @@ sub-expressions for the remaining rules:
     "s₀${t₀}ss₀…" ↦ "s₀${t₁}ss₁…"
 
 
+```haskell
+alphaNormalize (TextLiteral (Chunks xys₀ z)) = TextLiteral (Chunks xys₁ z)
+  where
+    xys₁ = fmap adapt xys₀
+
+    adapt (s, t₀) = (s, t₁)
+      where
+        t₁ = alphaNormalize t₀
+```
+
+
     ───────
     {} ↦ {}
 
@@ -299,6 +568,17 @@ sub-expressions for the remaining rules:
     T₀ ↦ T₁   { xs₀… } ↦ { xs₁… }
     ───────────────────────────────────
     { x : T₀, xs₀… } ↦ { x : T₁, xs₁… }
+
+
+```haskell
+alphaNormalize (RecordType ks₀) = RecordType ks₁
+  where
+    ks₁ = fmap adapt ks₀
+
+    adapt (k, _T₀) = (k, _T₁)
+      where
+        _T₁ = alphaNormalize _T₀
+```
 
 
     ─────────
@@ -310,9 +590,15 @@ sub-expressions for the remaining rules:
     { x = t₀, xs₀… } ↦ { x = t₁, xs₁… }
 
 
-    s₀ ↦ s₁   t₀ ↦ t₁
-    ────────────────
-    s₀.(t₀) ↦ s₁.(t₁)
+```haskell
+alphaNormalize (RecordLiteral ks₀) = RecordLiteral ks₁
+  where
+    ks₁ = fmap adapt ks₀
+
+    adapt (k, t₀) = (k, t₁)
+      where
+        t₁ = alphaNormalize t₀
+```
 
 
     ───────
@@ -329,9 +615,28 @@ sub-expressions for the remaining rules:
     < x | xs₀… > ↦ < x | xs₁… >
 
 
+```haskell
+alphaNormalize (UnionType ks₀) = UnionType ks₁
+  where
+    ks₁ = fmap adapt ks₀
+
+    adapt (k, Just _T₀) = (k, Just _T₁)
+      where
+        _T₁ = alphaNormalize _T₀
+    adapt (k, Nothing) = (k, Nothing)
+```
+
+
     a₀ ↦ a₁
     ─────────────────
     Some a₀ ↦ Some a₁
+
+
+```haskell
+alphaNormalize (Some a₀) = Some a₁
+  where
+    a₁ = alphaNormalize a₀
+```
 
 
     ───────────
@@ -462,6 +767,11 @@ sub-expressions for the remaining rules:
     False ↦ False
 
 
+```haskell
+alphaNormalize (Builtin b) = Builtin b
+```
+
+
     ───────────
     Type ↦ Type
 
@@ -472,3 +782,8 @@ sub-expressions for the remaining rules:
 
     ───────────
     Sort ↦ Sort
+
+
+```haskell
+alphaNormalize (Constant c) = Constant c
+```

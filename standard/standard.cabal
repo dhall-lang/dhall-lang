@@ -10,10 +10,19 @@ build-type:          Simple
 
 library
   build-depends:       base
+                     , cborg
+                     , containers
                      , cryptonite
+                     , half
                      , markdown-unlit
+                     , memory
                      , text
-  exposed-modules:     Syntax
+  exposed-modules:     AlphaNormalization
+                     , BetaNormalization
+                     , Binary
+                     , Equivalence
+                     , FunctionCheck
+                     , Syntax
                      , Shift
                      , Substitution
   hs-source-dirs:      ./.
