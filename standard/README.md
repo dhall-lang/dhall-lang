@@ -44,9 +44,7 @@ alphaNormalize (Annotation t₀ _T₀) =
     Annotation (alphaNormalize t₀) (alphaNormalize _T₀)
 ```
 
-This is because the literate Haskell code optimizes for corresponding as closely
-as possible to the natural deduction notation as possible.  However, you can
-freely simplify things when actually implementing Dhall.
+However, you can freely simplify things when actually implementing Dhall.
 
 ## Table of contents
 
