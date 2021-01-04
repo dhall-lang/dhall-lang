@@ -222,7 +222,7 @@ index (using the smallest numeric representation available):
 ```haskell
 encode (Variable x n)
     | n < 0xFFFFFFFFFFFFFFFF = TList [ TString x, TInt (fromIntegral n) ]
-    | otherwise              = TList [ TString x, TInt (fromIntegral n) ]
+    | otherwise              = TList [ TString x, TInteger (fromIntegral n) ]
 ```
 
 ### Built-in constants
