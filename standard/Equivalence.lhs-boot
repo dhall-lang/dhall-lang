@@ -1,0 +1,10 @@
+```haskell
+-- This `.lhs-boot` file is necessary to break an import cycle.  See:
+--
+-- https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/separate_compilation.html#how-to-compile-mutually-recursive-modules
+module Equivalence where
+
+import Syntax (Expression)
+
+equivalent :: Expression -> Expression -> Bool
+```

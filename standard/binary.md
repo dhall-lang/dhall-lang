@@ -1,5 +1,37 @@
 # Binary semantics
 
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
+module Binary where
+
+import Codec.CBOR.Term (Term(..))
+import Data.List.NonEmpty (NonEmpty(..))
+import Prelude hiding (Bool(..))
+
+import Syntax
+    ( Builtin(..)
+    , Constant(..)
+    , Expression(..)
+    , File(..)
+    , FilePrefix(..)
+    , ImportMode(..)
+    , ImportType(..)
+    , Operator(..)
+    , Scheme(..)
+    , TextLiteral(..)
+    , URL(..)
+    )
+
+import qualified Data.ByteArray     as ByteArray
+import qualified Data.List          as List
+import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.Ord           as Ord
+import qualified GHC.Float          as Float
+import qualified Numeric.Half       as Half
+import qualified Prelude
+```
+
 This document formalizes the semantics for encoding and decoding Dhall
 expressions to and from a binary representation
 
@@ -128,6 +160,10 @@ You can encode a Dhall expression using the following judgment:
 * `dhall` (the input) is a Dhall expression
 * `cbor` (the output) is a CBOR expression
 
+```haskell
+encode :: Expression -> Term
+```
+
 The encoding logic includes several optimizations for more compactly encoding
 expressions that are fully resolved and αβ-normalized because expressions are
 fully interpreted before they are hashed or cached.  For example, the encoding
@@ -148,13 +184,19 @@ Encode a variable named `"_"` as its index, using the smallest numeric
 representation available:
 
 
-    ───────────────────  ; n < 2^64
+    ───────────────  ; n < 2^64
     encode(_@n) = n
 
 
-    ────────────────────  ; 2^64 <= n
+    ────────────────  ; 2^64 <= n
     encode(_@n) = nn
 
+
+```haskell
+encode (Variable "_" n)
+    | n < 0xFFFFFFFFFFFFFFFF = TInt     (fromIntegral n)
+    | otherwise              = TInteger (fromIntegral n)
+```
 
 This optimization takes advantage of the fact that α-normalized expressions
 only use variables named `_`.  Encoding an α-normalized expression is equivalent
@@ -169,13 +211,19 @@ the first element is the identifier and the second element is the encoded
 index (using the smallest numeric representation available):
 
 
-    ────────────────────────────  ; n < 2^64
+    ────────────────────────  ; n < 2^64
     encode(x@n) = [ "x", n ]
 
 
-    ─────────────────────────────  ; 2^64 <= nn
+    ─────────────────────────  ; 2^64 <= nn
     encode(x@n) = [ "x", nn ]
 
+
+```haskell
+encode (Variable x n)
+    | n < 0xFFFFFFFFFFFFFFFF = TList [ TString x, TInt (fromIntegral n) ]
+    | otherwise              = TList [ TString x, TInteger (fromIntegral n) ]
+```
 
 ### Built-in constants
 
@@ -183,31 +231,31 @@ Encode all built-in constants (except boolean values) as naked strings
 matching their identifier.
 
 
-    ───────────────────────────────────────────
+    ───────────────────────────────────────
     encode(Natural/build) = "Natural/build"
 
 
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     encode(Natural/fold) = "Natural/fold"
 
 
-    ─────────────────────────────────────────────
+    ─────────────────────────────────────────
     encode(Natural/isZero) = "Natural/isZero"
 
 
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     encode(Natural/even) = "Natural/even"
 
 
-    ───────────────────────────────────────
+    ───────────────────────────────────
     encode(Natural/odd) = "Natural/odd"
 
 
-    ───────────────────────────────────────────────────
+    ───────────────────────────────────────────────
     encode(Natural/toInteger) = "Natural/toInteger"
 
 
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     encode(Natural/show) = "Natural/show"
 
 
@@ -215,51 +263,51 @@ matching their identifier.
     encode(Natural/subtract) = "Natural/subtract"
 
 
-    ─────────────────────────────────────────────────
+    ─────────────────────────────────────────────
     encode(Integer/toDouble) = "Integer/toDouble"
 
 
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     encode(Integer/show) = "Integer/show"
 
 
-    ─────────────────────────────────────────────
+    ─────────────────────────────────────────
     encode(Integer/negate) = "Integer/negate"
 
 
-    ───────────────────────────────────────────
+    ───────────────────────────────────────
     encode(Integer/clamp) = "Integer/clamp"
 
 
-    ───────────────────────────────────────
+    ───────────────────────────────────
     encode(Double/show) = "Double/show"
 
 
-    ─────────────────────────────────────
+    ─────────────────────────────────
     encode(List/build) = "List/build"
 
 
-    ───────────────────────────────────
+    ───────────────────────────────
     encode(List/fold) = "List/fold"
 
 
-    ───────────────────────────────────────
+    ───────────────────────────────────
     encode(List/length) = "List/length"
 
 
-    ───────────────────────────────────
+    ───────────────────────────────
     encode(List/head) = "List/head"
 
 
-    ───────────────────────────────────
+    ───────────────────────────────
     encode(List/last) = "List/last"
 
 
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     encode(List/indexed) = "List/indexed"
 
 
-    ─────────────────────────────────────────
+    ─────────────────────────────────────
     encode(List/reverse) = "List/reverse"
 
 
@@ -271,49 +319,85 @@ matching their identifier.
     encode(Text/replace) = "Text/replace"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(Bool) = "Bool"
 
 
-    ─────────────────────────────────
+    ─────────────────────────────
     encode(Optional) = "Optional"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(None) = "None"
 
 
-    ───────────────────────────────
+    ───────────────────────────
     encode(Natural) = "Natural"
 
 
-    ───────────────────────────────
+    ───────────────────────────
     encode(Integer) = "Integer"
 
 
-    ─────────────────────────────
+    ─────────────────────────
     encode(Double) = "Double"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(Text) = "Text"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(List) = "List"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(Type) = "Type"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(Kind) = "Kind"
 
 
-    ─────────────────────────
+    ─────────────────────
     encode(Sort) = "Sort"
 
+
+```haskell
+encode (Builtin NaturalBuild    ) = TString "Natural/build"
+encode (Builtin NaturalFold     ) = TString "Natural/fold"
+encode (Builtin NaturalIsZero   ) = TString "Natural/isZero"
+encode (Builtin NaturalEven     ) = TString "Natural/even"
+encode (Builtin NaturalOdd      ) = TString "Natural/odd"
+encode (Builtin NaturalToInteger) = TString "Natural/toInteger"
+encode (Builtin NaturalShow     ) = TString "Natural/show"
+encode (Builtin NaturalSubtract ) = TString "Natural/subtract"
+encode (Builtin IntegerToDouble ) = TString "Integer/toDouble"
+encode (Builtin IntegerShow     ) = TString "Integer/show"
+encode (Builtin IntegerNegate   ) = TString "Integer/negate"
+encode (Builtin IntegerClamp    ) = TString "Integer/clamp"
+encode (Builtin DoubleShow      ) = TString "Double/show"
+encode (Builtin ListBuild       ) = TString "List/build"
+encode (Builtin ListFold        ) = TString "List/fold"
+encode (Builtin ListLength      ) = TString "List/length"
+encode (Builtin ListHead        ) = TString "List/head"
+encode (Builtin ListLast        ) = TString "List/last"
+encode (Builtin ListIndexed     ) = TString "List/indexed"
+encode (Builtin ListReverse     ) = TString "List/reverse"
+encode (Builtin TextShow        ) = TString "Text/show"
+encode (Builtin TextReplace     ) = TString "Text/replace"
+encode (Builtin Bool            ) = TString "Bool"
+encode (Builtin Optional        ) = TString "Optional"
+encode (Builtin None            ) = TString "None"
+encode (Builtin Natural         ) = TString "Natural"
+encode (Builtin Integer         ) = TString "Integer"
+encode (Builtin Double          ) = TString "Double"
+encode (Builtin Text            ) = TString "Text"
+encode (Builtin List            ) = TString "List"
+encode (Constant Type           ) = TString "Type"
+encode (Constant Kind           ) = TString "Kind"
+encode (Constant Sort           ) = TString "Sort"
+```
 
 ### Function application
 
@@ -322,9 +406,20 @@ applied to multiple arguments is stored within a single array:
 
 
     encode(f₀) = f₁   encode(a₀) = a₁   encode(b₀) = b₁   …
-    ───────────────────────────────────────────────────────────────────
+    ───────────────────────────────────────────────────────
     encode(f₀ a₀ b₀ …) = [ 0, f₁, a₁, b₁, … ]
 
+
+```haskell
+encode expression@(Application _ _) = loop [] expression
+  where
+    loop arguments (Application function a₀) = loop (a₁ : arguments) function
+      where
+        a₁ = encode a₀
+    loop arguments f₀ = TList ([ TInt 0, f₁ ] ++ arguments)
+      where
+        f₁ = encode f₀
+```
 
 ### Functions
 
@@ -332,34 +427,66 @@ Functions that bind variables named `_` have a more compact representation:
 
 
     encode(A₀) = A₁   encode(b₀) = b₁
-    ──────────────────────────────────────────
+    ──────────────────────────────────────
     encode(λ(_ : A₀) → b₀) = [ 1, A₁, b₁ ]
 
+
+```haskell
+encode (Lambda "_" _A₀ b₀) = TList [ TInt 1, _A₁, b₁ ]
+  where
+    _A₁ = encode _A₀
+
+    b₁ = encode b₀
+```
 
 ... than functions that bind variables of other names:
 
 
     encode(A₀) = A₁   encode(b₀) = b₁
-    ───────────────────────────────────────────────  ; x ≠ "_"
+    ───────────────────────────────────────────  ; x ≠ "_"
     encode(λ(x : A₀) → b₀) = [ 1, "x", A₁, b₁ ]
 
+
+```haskell
+encode (Lambda x _A₀ b₀) = TList [ TInt 1, TString x, _A₁, b₁ ]
+  where
+    _A₁ = encode _A₀
+
+    b₁ = encode b₀
+```
 
 Function types that bind variables named `_` also have a more compact
 representation:
 
 
     encode(A₀) = A₁   encode(B₀) = B₁
-    ──────────────────────────────────────────
+    ──────────────────────────────────────
     encode(∀(_ : A₀) → B₀) = [ 2, A₁, B₁ ]
 
+
+```haskell
+encode (Forall "_" _A₀ _B₀) = TList [ TInt 2, _A₁, _B₁ ]
+  where
+    _A₁ = encode _A₀
+
+    _B₁ = encode _B₀
+```
 
 ... than function types that bind variables of other names:
 
 
     encode(A₀) = A₁   encode(B₀) = B₁
-    ───────────────────────────────────────────────  ; x ≠ "_"
+    ───────────────────────────────────────────  ; x ≠ "_"
     encode(∀(x : A₀) → B₀) = [ 2, "x", A₁, B₁ ]
 
+
+```haskell
+encode (Forall x _A₀ _B₀) = TList [ TInt 2, TString x, _A₁, _B₁ ]
+  where
+    _A₁ = encode _A₀
+
+    _B₁ = encode _B₀
+```
 
 ### Operators
 
@@ -436,15 +563,50 @@ Operators are encoded as integer labels alongside their two arguments:
     encode(l₀ :: r₀) = [ 3, 13, l₁, r₁ ]
 
 
+```haskell
+encode (Operator l₀ op r₀) = TList [ TInt 3, TInt opcode, l₁, r₁ ]
+  where
+    l₁ = encode l₀
+
+    r₁ = encode r₀
+
+    opcode = case op of
+        Or                 ->  0
+        And                ->  1
+        Equal              ->  2
+        NotEqual           ->  3
+        Plus               ->  4
+        Times              ->  5
+        TextAppend         ->  6
+        ListAppend         ->  7
+        CombineRecordTerms ->  8
+        Prefer             ->  9
+        CombineRecordTypes -> 10
+        Alternative        -> 11
+        Equivalent         -> 12
+
+encode (Completion l₀ r₀) = TList [TInt 3, TInt 13, l₁, r₁ ]
+  where
+    l₁ = encode l₀
+
+    r₁ = encode r₀
+```
+
 ### `List`
 
 Empty `List`s only store their type:
 
 
     encode(T₀) = T₁
-    ────────────────────────────────────
+    ────────────────────────────────
     encode([] : List T₀) = [ 4, T₁ ]
 
+
+```haskell
+encode (EmptyList (Application (Builtin List) _T₀)) = TList [ TInt 4, _T₁ ]
+  where
+    _T₁ = encode _T₀
+```
 
 If the type annotation is not of the form `List T`:
 
@@ -454,13 +616,25 @@ If the type annotation is not of the form `List T`:
     encode([] : T₀) = [ 28, T₁ ]
 
 
+```haskell
+encode (EmptyList _T₀) = TList [ TInt 28, _T₁ ]
+  where
+    _T₁ = encode _T₀
+```
+
 Non-empty `List`s don't store their type, but do store their elements inline:
 
 
     encode(a₀) = a₁   encode(b₀) = b₁
-    ──────────────────────────────────────────────────
+    ──────────────────────────────────────────────
     encode([ a₀, b₀, … ]) = [ 4, null, a₁, b₁, … ]
 
+
+```haskell
+encode (NonEmptyList as₀) = TList ([ TInt 4, TNull ] ++ as₁)
+  where
+    as₁ = map encode (NonEmpty.toList as₀)
+```
 
 ### `Some`
 
@@ -468,9 +642,15 @@ Non-empty `List`s don't store their type, but do store their elements inline:
 
 
     encode(t₀) = t₁
-    ─────────────────────────────────────
+    ─────────────────────────────────
     encode(Some t₀) = [ 5, null, t₁ ]
 
+
+```haskell
+encode (Some t₀) = TList [ TInt 5, TNull, t₁ ]
+  where
+    t₁ = encode t₀
+```
 
 ### `merge` expressions
 
@@ -479,14 +659,30 @@ have a type annotation:
 
 
     encode(t₀) = t₁   encode(u₀) = u₁
-    ─────────────────────────────────────────
+    ───────────────────────────────────
     encode(merge t₀ u₀) = [ 6, t₁, u₁ ]
 
 
     encode(t₀) = t₁   encode(u₀) = u₁   encode(T₀) = T₁
-    ───────────────────────────────────────────────────────────────
+    ───────────────────────────────────────────────────
     encode(merge t₀ u₀ : T₀) = [ 6, t₁, u₁, T₁ ]
 
+
+```haskell
+encode (Merge t₀ u₀ Nothing) = TList [ TInt 6, t₁, u₁ ]
+  where
+    t₁ = encode t₀
+
+    u₁ = encode u₀
+
+encode (Merge t₀ u₀ (Just _T₀)) = TList [ TInt 6, t₁, u₁, _T₁ ]
+  where
+    t₁ = encode t₀
+
+    u₁ = encode u₀
+
+    _T₁ = encode _T₀
+```
 
 ### `toMap` expressions
 
@@ -504,23 +700,55 @@ have a type annotation:
     encode(toMap t₀ : T₀) = [ 27, t₁, T₁ ]
 
 
+```haskell
+encode (ToMap t₀ Nothing) = TList [ TInt 27, t₁ ]
+  where
+    t₁ = encode t₀
+
+encode (ToMap t₀ (Just _T₀)) = TList [ TInt 27, t₁, _T₁ ]
+  where
+    t₁ = encode t₀
+
+    _T₁ = encode _T₀
+```
+
 ### Records
 
 Dhall record types translate to CBOR maps:
 
 
     encode(T₀) = T₁   …
-    ──────────────────────────────────────────────────
+    ──────────────────────────────────────────────
     encode({ x : T₀, … }) = [ 7, { "x" = T₁, … } ]
 
+
+```haskell
+encode (RecordType xTs₀) = TList [ TInt 7, TMap xTs₁ ]
+  where
+    xTs₁ = map adapt (List.sortBy (Ord.comparing fst) xTs₀)
+
+    adapt (x, _T₀) = (TString x, _T₁)
+      where
+        _T₁ = encode _T₀
+```
 
 Dhall record literals translate to CBOR maps:
 
 
     encode(t₀) = t₁   …
-    ──────────────────────────────────────────────────
+    ──────────────────────────────────────────────
     encode({ x = t₀, … }) = [ 8, { "x" = t₁, … } ]
 
+
+```haskell
+encode (RecordLiteral xts₀) = TList [ TInt 8, TMap xts₁ ]
+  where
+    xts₁ = map adapt (List.sortBy (Ord.comparing fst) xts₀)
+
+    adapt (x, _T₀) = (TString x, _T₁)
+      where
+        _T₁ = encode _T₀
+```
 
 Note: the record fields should be sorted before translating them to CBOR maps.
 
@@ -528,10 +756,16 @@ Note: the record fields should be sorted before translating them to CBOR maps.
 Field access:
 
 
-    encode(t₀) = t₁   …
-    ─────────────────────────────────
+    encode(t₀) = t₁
+    ─────────────────────────────
     encode(t₀.x) = [ 9, t₁, "x" ]
 
+
+```haskell
+encode (Field t₀ x) = TList [ TInt 9, t₁, TString x ]
+  where
+    t₁ = encode t₀
+```
 
 ... is encoded differently than record projection:
 
@@ -541,13 +775,27 @@ Field access:
     encode(t₀.{ x, y, … }) = [ 10, t₁, "x", "y", … ]
 
 
+```haskell
+encode (ProjectByLabels t₀ xs) = TList ([ TInt 10, t₁ ] ++ map TString xs)
+  where
+    t₁ = encode t₀
+```
+
 Record projection by type is encoded as follows:
 
 
     encode(t₀) = t₁   encode(T₀) = T₁
-    ─────────────────────────────────
+    ────────────────────────────────────
     encode(t₀.(T₀)) = [ 10, t₁, [ T₁ ] ]
 
+
+```haskell
+encode (ProjectByType t₀ _T₀) = TList [ TInt 10, t₁, TList [ _T₁ ] ]
+  where
+    t₁ = encode t₀
+
+    _T₁ = encode _T₀
+```
 
 ### Unions
 
@@ -558,6 +806,17 @@ Dhall union types translate to CBOR maps:
     ────────────────────────────────────────────────────────────────
     encode(< x : T₀ | y | … >) = [ 11, { "x" = T₁, "y" = null, … } ]
 
+
+```haskell
+encode (UnionType xTs₀) = TList [ TInt 11, TMap xTs₁ ]
+  where
+    xTs₁ = map adapt xTs₀
+
+    adapt (x, Just _T₀) = (TString x, _T₁)
+      where
+        _T₁ = encode _T₀
+    adapt (x, Nothing) = (TString x, TNull)
+```
 
 Union constructors (`U.x`) are encoded according to the rule for record field
 accesses above.
@@ -598,6 +857,12 @@ Encode Boolean literals using CBOR's built-in support for Boolean values:
     encode(False) = False
 
 
+```haskell
+encode (Builtin True) = TBool Prelude.True
+
+encode (Builtin False) = TBool Prelude.False
+```
+
 `if` expressions are encoded with a label:
 
 
@@ -605,6 +870,16 @@ Encode Boolean literals using CBOR's built-in support for Boolean values:
     ───────────────────────────────────────────────────────────────
     encode(if t₀ then l₀ else r₀) = [ 14, t₁, l₁, r₁ ]
 
+
+```haskell
+encode (If t₀ l₀ r₀) = TList [ TInt 14, t₁, l₁, r₁ ]
+  where
+    t₁ = encode t₀
+
+    l₁ = encode l₀
+
+    r₁ = encode r₀
+```
 
 ### `Natural`
 
@@ -618,6 +893,12 @@ Encode `Natural` literals using the smallest available numeric representation:
     ──────────────────────────  ; 2^64 <= nn
     encode(n) = [ 15, nn ]
 
+
+```haskell
+encode (NaturalLiteral n)
+    | n < 0xFFFFFFFFFFFFFFFF = TList [ TInt 15, TInt (fromIntegral n) ]
+    | otherwise              = TList [ TInt 15, TInteger (fromIntegral n) ]
+```
 
 ### `Integer`
 
@@ -640,6 +921,14 @@ Encode `Integer` literals using the smallest available numeric representation:
     encode(±n) = [ 16, nn ]
 
 
+```haskell
+encode (IntegerLiteral n)
+    | n < -0xFFFFFFFFFFFFFFFF = TList [ TInt 16, TInteger n ]
+    | n <  0                  = TList [ TInt 16, TInt (fromInteger n) ]
+    | n <  0xFFFFFFFFFFFFFFFF = TList [ TInt 16, TInt (fromInteger n) ]
+    | otherwise               = TList [ TInt 16, TInteger n ]
+```
+
 ### `Double`
 
 CBOR has 16-bit, 32-bit, and 64-bit IEEE 754 floating point representations. As
@@ -661,6 +950,17 @@ preserves its value.
     ─────────────────────────────  ; toDouble(toSingle(n.n)) ≠ n.n
     encode(n.n) = n.n
 
+
+```haskell
+encode (DoubleLiteral n)
+    | Float.float2Double (Half.fromHalf n_h) == n = THalf n_s
+    | Float.float2Double n_s == n                 = TFloat n_s
+    | otherwise                                   = TDouble n
+  where
+    n_s = Float.double2Float n
+
+    n_h = Half.toHalf n_s
+```
 
 Note in particular the encoding of these special values:
 
@@ -699,6 +999,18 @@ interpolated expressions:
     ───────────────────────────────────────────────────────────────────────────────────
     encode("a${b₀}c${d}e…x${y₀}z") = [ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]
 
+
+```haskell
+encode (TextLiteral (Chunks xys₀ z)) = TList (TInt 18 : xys₁ ++ [ TString z ])
+  where
+    xys₁ = do
+        (x, y₀) <- xys₀
+
+        let y₁ = encode y₀
+
+        [ TString x, y₁ ]
+```
+
 In other words: the amount of encoded elements is always an odd number, with the
 odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
@@ -714,6 +1026,12 @@ an equivalence or not):
     ────────────────────────────────
     encode(assert : T₀) = [ 19, T₁ ]
 
+
+```haskell
+encode (Assert _T₀) = TList [ TInt 19, _T₁ ]
+  where
+    _T₁ = encode _T₀
+```
 
 ### Imports
 
@@ -860,14 +1178,91 @@ instead of `0`:
     encode(import as Location) = [ 24, x, 2, xs… ]
 
 
+```haskell
+encode (Import importType₀ importMode₀ hash₀) =
+    TList ([ TInt 24, hash₁, importMode₁ ] <> importType₁)
+  where
+    hash₁ = case hash₀ of
+        Just digest -> TBytes ("\x12\x20" <> ByteArray.convert digest)
+        Nothing     -> TNull
+
+    importMode₁ = case importMode₀ of
+        Code     -> TInt 0
+        RawText  -> TInt 1
+        Location -> TInt 2
+
+    importType₁ = case importType₀ of
+        Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀ headers₀) ->
+                [ scheme₁, headers₁, authority₁ ]
+            <>  directory₁
+            <>  [ file₁, query₁ ]
+          where
+            scheme₁ = case scheme₀ of
+                HTTP  -> TInt 0
+                HTTPS -> TInt 1
+
+            authority₁ = TString authority₀
+
+            headers₁ = case headers₀ of
+                Just h  -> encode h
+                Nothing -> TNull
+
+            directory₁ = map TString (reverse directory₀)
+
+            query₁ = case query₀ of
+                Just q  -> TString q
+                Nothing -> TNull
+
+            file₁ = TString file₀
+
+        Path filePrefix₀ (File directory₀ file₀) ->
+            filePrefix₁ : directory₁ <> [ file₁ ]
+          where
+            directory₁ = map TString (reverse directory₀)
+
+            filePrefix₁ = case filePrefix₀ of
+                Absolute -> TInt 2
+                Here     -> TInt 3
+                Parent   -> TInt 4
+                Home     -> TInt 5
+
+            file₁ = TString file₀
+
+        Env x ->
+            [ TInt 6, TString x ]
+
+        Missing ->
+            [ TInt 7 ]
+```
+
 ### `let` expressions
 
 A `let` binder is represented by a sequence of three elements: name, type annotation (`null` if absent) and bound expression. Adjacent `let` expressions are "flattened" and encoded in a single array, concatenating the immediately nested binders:
 
     encode(A₀) = A₁   encode(a₀) = a₁   encode(b₀) = b₁   ...   encode(z₀) = z₁
-    ──────────────────────────────────────────────────────────────────────────────────────────
+    ─────────────────────────────────────────────────────────────────────────────────────────────
     encode(let x : A₀ = a₀ in let y = b₀ ... in z₀) = [ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]
 
+
+```haskell
+encode expression@(Let _ _ _ _) = loop id expression
+  where
+    loop difference (Let x (Just _A₀) a₀ c) =
+        loop (([ TString x, _A₁, a₁ ] <>) . difference) c
+      where
+        _A₁ = encode _A₀
+
+        a₁ = encode a₀
+
+    loop difference (Let y Nothing b₀ c) =
+        loop (([ TString y, TNull, b₁ ] <>) . difference) c
+      where
+        b₁ = encode b₀
+
+    loop difference z₀ = TList (TInt 25 : difference [ z₁ ])
+      where
+        z₁ = encode z₀
+```
 
 ### Type annotations
 
@@ -877,6 +1272,14 @@ A `let` binder is represented by a sequence of three elements: name, type annota
     encode(t₀ : T₀) = [ 26, t₁, T₁ ]
 
 
+```haskell
+encode (Annotation t₀ _T₀) = TList [ TInt 26, t₁, _T₁ ]
+  where
+    t₁ = encode t₀
+
+    _T₁ = encode _T₀
+```
+
 ### Nested record update
 
 
@@ -884,6 +1287,18 @@ A `let` binder is represented by a sequence of three elements: name, type annota
     ───────────────────────────────────────────────────────
     encode(e₀ with k.ks… = v₀) = [ 29, e₁, [ k, ks… ], v₁ ]
 
+
+```haskell
+encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : ks₁), v₁ ]
+  where
+    e₁ = encode e₀
+
+    k₁ = TString k₀
+
+    ks₁ = map TString ks₀
+
+    v₁ = encode v₀
+```
 
 ## Decoding judgment
 

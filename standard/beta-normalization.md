@@ -1,5 +1,25 @@
 # β-normalization
 
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
+module BetaNormalization where
+
+import Data.List ((\\))
+import Data.List.NonEmpty (NonEmpty(..))
+import {-# SOURCE #-} Equivalence (equivalent)
+import Prelude hiding (Bool(..))
+import Shift (shift)
+import Substitution (substitute)
+import Syntax
+
+import qualified Data.Text          as Text
+import qualified Data.List          as List
+import qualified Data.Map           as Map
+import qualified Data.Ord           as Ord
+import qualified Data.List.NonEmpty as NonEmpty
+```
+
 β-normalization is a function of the following form:
 
     t₀ ⇥ t₁
@@ -8,6 +28,12 @@
 
 * `t₀` (the input) is the expression to normalize
 * `t₁` (the output) is the normalized expression
+
+```haskell
+betaNormalize
+    :: Expression  -- ^ @t₀@, the expression to normalize
+    -> Expression  -- ^ @t₁@, the normalized expression
+```
 
 β-normalization evaluates all β-reducible expressions:
 
@@ -73,6 +99,10 @@ Type-checking constants are in normal form:
     Sort ⇥ Sort
 
 
+```haskell
+betaNormalize (Constant c) = Constant c
+```
+
 ## Variables
 
 Variables are in normal form:
@@ -81,6 +111,10 @@ Variables are in normal form:
     ─────────
     x@n ⇥ x@n
 
+
+```haskell
+betaNormalize (Variable x n) = Variable x n
+```
 
 ## `Bool`
 
@@ -92,6 +126,16 @@ The `Bool` type is in normal form:
     Bool ⇥ Bool
 
 
+```haskell
+-- It's simpler to just specify:
+--
+--     betaNormalize (Builtin b) = Builtin b
+--
+-- … but for completeness the Haskell code will explicitly specify all of the
+-- `Builtin` constructors to match the standard.
+betaNormalize (Builtin Bool) = Builtin Bool
+```
+
 The `Bool` constructors are in normal form:
 
 
@@ -102,6 +146,12 @@ The `Bool` constructors are in normal form:
     ─────────────
     False ⇥ False
 
+
+```haskell
+betaNormalize (Builtin True) = Builtin True
+
+betaNormalize (Builtin False) = Builtin False
+```
 
 Simplify an `if` expression if the predicate normalizes to a `Bool` literal:
 
@@ -140,6 +190,20 @@ Otherwise, normalize the predicate and both branches of the `if` expression:
     ─────────────────────────────────────────────  ; If no other rule matches
     if t₀ then l₀ else r₀ ⇥ if t₁ then l₁ else r₁
 
+
+```haskell
+betaNormalize (If t₀ l₀ r₀)
+    | Builtin True  <- t₁ = l₁
+    | Builtin False <- t₁ = r₁
+    | equivalent l₀ r₀    = l₁
+    | otherwise           = If t₁ l₁ r₁
+  where
+    t₁ = betaNormalize t₀
+
+    l₁ = betaNormalize l₀
+
+    r₁ = betaNormalize r₀
+```
 
 Even though `True`, `False`, and `if` expressions suffice for all `Bool` logic,
 Dhall also supports logical operators for convenience.
@@ -184,6 +248,19 @@ Otherwise, normalize each argument:
     l₀ || r₀ ⇥ l₁ || r₁
 
 
+```haskell
+betaNormalize (Operator l₀ Or r₀)
+    | Builtin False <- l₁ = r₁
+    | Builtin False <- r₁ = l₁
+    | Builtin True  <- l₁ = Builtin True
+    | Builtin True  <- r₁ = Builtin True
+    | equivalent l₀ r₀    = l₁
+    | otherwise           = Operator l₁ Or r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 Simplify the logical "and" operator so long as at least one argument normalizes
 to a `Bool` literal:
 
@@ -224,6 +301,19 @@ Otherwise, normalize each argument:
     l₀ && r₀ ⇥ l₁ && r₁
 
 
+```haskell
+betaNormalize (Operator l₀ And r₀)
+    | Builtin True  <- l₁ = r₁
+    | Builtin True  <- r₁ = l₁
+    | Builtin False <- l₁ = Builtin False
+    | Builtin False <- r₁ = Builtin False
+    | equivalent l₀ r₀    = l₁
+    | otherwise           = Operator l₁ And r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 Simplify the logical "equal" operator if one argument normalizes to a `True`
 literal:
 
@@ -253,6 +343,17 @@ Otherwise, normalize each argument:
     ───────────────────  ; If no other rule matches
     l₀ == r₀ ⇥ l₁ == r₁
 
+
+```haskell
+betaNormalize (Operator l₀ Equal r₀)
+    | Builtin True <- l₁ = r₁
+    | Builtin True <- r₁ = l₁
+    | equivalent l₀ r₀   = Builtin True
+    | otherwise          = Operator l₁ Equal r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
 
 Simplify the logical "not equal" operator if one argument normalizes to a
 `False` literal:
@@ -284,6 +385,17 @@ Otherwise, normalize each argument:
     l₀ != r₀ ⇥ l₁ != r₁
 
 
+```haskell
+betaNormalize (Operator l₀ NotEqual r₀)
+    | Builtin False <- l₁ = r₁
+    | Builtin False <- r₁ = l₁
+    | equivalent l₀ r₀    = Builtin False
+    | otherwise           = Operator l₁ NotEqual r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 ## `Natural`
 
 The `Natural` number type is in normal form:
@@ -293,12 +405,20 @@ The `Natural` number type is in normal form:
     Natural ⇥ Natural
 
 
+```haskell
+betaNormalize (Builtin Natural) = Builtin Natural
+```
+
 `Natural` number literals are in normal form:
 
 
     ─────
     n ⇥ n
 
+
+```haskell
+betaNormalize (NaturalLiteral n) = NaturalLiteral n
+```
 
 `Natural/build` is the canonical introduction function for `Natural` numbers:
 
@@ -307,6 +427,21 @@ The `Natural` number type is in normal form:
     ────────────────────────────────────────────────────────────
     f g ⇥ b
 
+
+```haskell
+betaNormalize (Application f g)
+    | Builtin NaturalBuild <- betaNormalize f = b
+  where
+    b = betaNormalize
+            (Application
+                (Application g
+                    (Lambda "x" (Builtin Natural)
+                        (Operator (Variable "x" 0) Plus (NaturalLiteral 1))
+                    )
+                )
+                (NaturalLiteral 0)
+            )
+```
 
 `Natural/fold` function is the canonical elimination function for `Natural`
 numbers:
@@ -322,6 +457,39 @@ numbers:
     ─────────────────────────────  ; "1 + n" means "a `Natural` literal greater
     f b ⇥ t₁                       ; than `0`"
 
+
+```haskell
+betaNormalize (Application f b)
+    | Application
+        (Application
+            (Application
+                (Builtin NaturalFold)
+                (NaturalLiteral m)
+            )
+            _B
+        )
+        g <- betaNormalize f =
+
+        let t₁  | m == 0 =
+                    betaNormalize b
+                | otherwise =
+                    betaNormalize
+                        (Application g
+                            (Application
+                                (Application
+                                    (Application
+                                        (Application (Builtin NaturalFold)
+                                            (NaturalLiteral (m - 1))
+                                        )
+                                        _B
+                                    )
+                                    g
+                                )
+                                b
+                            )
+                        )
+        in  t₁
+```
 
 Even though `Natural/fold` and `Natural/build` suffice for all `Natural` number
 programming, Dhall also supports `Natural` number literals and built-in
@@ -358,6 +526,21 @@ Otherwise, normalize each argument:
     ─────────────────  ; If no other rule matches
     l₀ + r₀ ⇥ l₁ + r₁
 
+
+```haskell
+betaNormalize (Operator l₀ Plus r₀)
+    | NaturalLiteral m <- l₁
+    , NaturalLiteral n <- r₁ = NaturalLiteral (m + n)
+
+    | NaturalLiteral 0 <- l₁ = r₁
+
+    | NaturalLiteral 0 <- r₁ = l₁
+
+    | otherwise = Operator l₁ Plus r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
 
 Use machine multiplication to simplify the "times" operator if both arguments
 normalize to a `Natural` literal:
@@ -404,6 +587,25 @@ Otherwise, normalize each argument:
     l₀ * r₀ ⇥ l₁ * r₁
 
 
+```haskell
+betaNormalize (Operator l₀ Times r₀)
+    | NaturalLiteral m <- l₁
+    , NaturalLiteral n <- r₁ = NaturalLiteral (m * n)
+
+    | NaturalLiteral 0 <- l₁ = NaturalLiteral 0
+
+    | NaturalLiteral 0 <- r₁ = NaturalLiteral 0
+
+    | NaturalLiteral 1 <- l₁ = r₁
+
+    | NaturalLiteral 1 <- r₁ = l₁
+
+    | otherwise = Operator l₁ Times r₁
+  where
+    l₁ = betaNormalize l₀
+    r₁ = betaNormalize r₀
+```
+
 `Natural/isZero` detects whether or not a `Natural` number is `0`:
 
 
@@ -416,6 +618,15 @@ Otherwise, normalize each argument:
     ──────────────────────────────  ; "1 + n" means "a `Natural` literal greater
     f a ⇥ False                     ; than `0`"
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalIsZero <- betaNormalize f
+    , NaturalLiteral 0      <- betaNormalize a = Builtin True
+
+    | Builtin NaturalIsZero <- betaNormalize f
+    , NaturalLiteral _      <- betaNormalize a = Builtin False
+```
 
 `Natural/even` detects whether or not a `Natural` number is even:
 
@@ -437,6 +648,13 @@ Otherwise, normalize each argument:
     f a ⇥ b
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalEven <- betaNormalize f
+    , NaturalLiteral m    <- betaNormalize a =
+        Builtin (if even m then True else False)
+```
+
 `Natural/odd` detects whether or not a `Natural` number is odd:
 
 
@@ -457,6 +675,13 @@ Otherwise, normalize each argument:
     f a ⇥ b
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalOdd <- betaNormalize f
+    , NaturalLiteral m   <- betaNormalize a =
+        Builtin (if odd m then True else False)
+```
+
 `Natural/toInteger` transforms a `Natural` number into the corresponding
 `Integer`:
 
@@ -465,6 +690,13 @@ Otherwise, normalize each argument:
     ─────────────────────────────
     f a ⇥ +n
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalToInteger <- betaNormalize f
+    , NaturalLiteral n         <- betaNormalize a =
+        IntegerLiteral (fromIntegral n)
+```
 
 `Natural/show` transforms a `Natural` number into a `Text` literal representing
 valid Dhall code for representing that `Natural` number:
@@ -475,52 +707,92 @@ valid Dhall code for representing that `Natural` number:
     f a ⇥ "n"
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalShow <- betaNormalize f
+    , NaturalLiteral n    <- betaNormalize a =
+        TextLiteral (Chunks [] (renderNatural n))
+  where
+    renderNatural n = Text.pack (show n)
+```
+
 `Natural/subtract` performs truncating subtraction, as in
 [saturation arithmetic](https://en.wikipedia.org/wiki/Saturation_arithmetic):
 
 
-    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ;  if n >= m, where "n >= m" is
-    f a b ⇥ n - m                         ;  machine greater-than-or-equal-to
-                                          ;  comparison, and "n - m" is machine
-                                          ;  subtraction
+    f ⇥ Natural/subtract a   a ⇥ m   b ⇥ n
+    ──────────────────────────────────────  ; if m <= n, where "m <= n" is
+    f b ⇥ n - m                             ; machine greater-than-or-equal-to
+                                            ; comparison, and "n - m" is machine
+                                            ; subtraction
 
 
-    f ⇥ Natural/subtract   a ⇥ m   b ⇥ n
-    ────────────────────────────────────  ; if n < m
-    f a b ⇥ 0
+    f ⇥ Natural/subtract a   a ⇥ m   b ⇥ n
+    ──────────────────────────────────────  ; if n < m
+    f b ⇥ 0
 
 
 Also, simplify the `Natural/subtract` function if either argument normalizes to
 a `0` literal:
 
 
-    f ⇥ Natural/subtract   x ⇥ 0   y₀ ⇥ y₁
-    ──────────────────────────────────────
-    f x y₀ ⇥ y₁
+    f ⇥ Natural/subtract a   a ⇥ 0   b₀ ⇥ b₁
+    ────────────────────────────────────────
+    f b₀ ⇥ b₁
 
 
-    f ⇥ Natural/subtract   y ⇥ 0
-    ────────────────────────────
-    f x y ⇥ 0
+    f ⇥ Natural/subtract a   b ⇥ 0
+    ──────────────────────────────
+    f b ⇥ 0
 
 
 If the arguments are equivalent:
 
 
-    f ⇥ Natural/subtract   x ≡ y
-    ────────────────────────────
-    f x y ⇥ 0
+    f ⇥ Natural/subtract a   a ≡ b
+    ──────────────────────────────
+    f b ⇥ 0
 
 
 Otherwise, normalize each argument:
 
 
-    f ⇥ Natural/subtract   x₀ ⇥ x₁   y₀ ⇥ y₁
-    ────────────────────────────────────────  ; If no other rule matches
-    f x₀ y₀ ⇥ Natural/subtract x₁ y₁
+    f ⇥ Natural/subtract a₀   a₀ ⇥ a₁   b₀ ⇥ b₁
+    ────────────────────────────────────────────  ; If no other rule matches
+    f b₀ ⇥ Natural/subtract a₁ b₁
 
 
+```haskell
+betaNormalize (Application f b)
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , NaturalLiteral m                        <- betaNormalize a
+    , NaturalLiteral n                        <- betaNormalize b
+    , m <= n =
+        NaturalLiteral (n - m)
+
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , NaturalLiteral m                        <- betaNormalize a
+    , NaturalLiteral n                        <- betaNormalize b
+    , n < m =
+        NaturalLiteral 0
+
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , NaturalLiteral 0                        <- betaNormalize a =
+        betaNormalize b
+
+    | Application (Builtin NaturalSubtract) _a <- betaNormalize f
+    , NaturalLiteral 0                         <- betaNormalize b =
+        NaturalLiteral 0
+
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , equivalent a b =
+        NaturalLiteral 0
+
+    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    , let a₁ = betaNormalize a
+    , let b₁ = betaNormalize b =
+        Application (Application (Builtin NaturalSubtract) a₁) b₁
+```
 
 All of the built-in functions on `Natural` numbers are in normal form:
 
@@ -557,6 +829,17 @@ All of the built-in functions on `Natural` numbers are in normal form:
     Natural/subtract ⇥ Natural/subtract
 
 
+```haskell
+betaNormalize (Builtin NaturalBuild    ) = Builtin NaturalBuild
+betaNormalize (Builtin NaturalFold     ) = Builtin NaturalFold
+betaNormalize (Builtin NaturalIsZero   ) = Builtin NaturalIsZero
+betaNormalize (Builtin NaturalEven     ) = Builtin NaturalEven
+betaNormalize (Builtin NaturalOdd      ) = Builtin NaturalOdd
+betaNormalize (Builtin NaturalToInteger) = Builtin NaturalToInteger
+betaNormalize (Builtin NaturalShow     ) = Builtin NaturalShow
+betaNormalize (Builtin NaturalSubtract ) = Builtin NaturalSubtract
+```
+
 ## `Text`
 
 The `Text` type is in normal form:
@@ -565,6 +848,10 @@ The `Text` type is in normal form:
     ───────────
     Text ⇥ Text
 
+
+```haskell
+betaNormalize (Builtin Text) = Builtin Text
+```
 
 A `Text` literal with no interpolations is already in normal form:
 
@@ -608,6 +895,26 @@ expression and inlines any interpolated expression that normalize to
     "s₀${t₀}ss₀…" ⇥ "s₀${t₁}ss₁…"
 
 
+```haskell
+-- See the `Semigroup` instance for `Chunks` in the `Syntax.lhs` module, which
+-- provides the `(<>)` operator that does the heavy lifting in this function.
+betaNormalize (TextLiteral chunks₀) =
+    case loop chunks₀ of
+        Chunks [("", t)] "" -> t
+        chunks₁             -> TextLiteral chunks₁
+  where
+    loop :: TextLiteral -> TextLiteral
+    loop (Chunks ((s₀, t₀) : ss₀) z₀)
+        | TextLiteral chunks <- t₁ =
+            Chunks [] s₀ <> chunks <> loop (Chunks ss₀ z₀)
+        | otherwise =
+            Chunks [(s₀, t₁)] "" <> loop (Chunks ss₀ z₀)
+      where
+        t₁ = betaNormalize t₀
+    loop chunks =
+        chunks
+```
+
 The "text concatenation" operator is interpreted as two interpolations together:
 
 
@@ -615,6 +922,12 @@ The "text concatenation" operator is interpreted as two interpolations together:
     ───────────────
     l ++ r ⇥ s₀
 
+
+```haskell
+betaNormalize (Operator l TextAppend r) = s₀
+  where
+    s₀ = betaNormalize (TextLiteral (Chunks [("", l), ("", r)] ""))
+```
 
 The `Text/show` function replaces an uninterpolated `Text` literal
 with another `Text` literal representing valid Dhall source code for
@@ -636,12 +949,12 @@ these rules:
 
 * `"`  → `\"`
 * `$`  → `\u0024`
-* `\`  → `\\`
 * `\b` → `\\b`
 * `\f` → `\\f`
 * `\n` → `\\n`
 * `\r` → `\\r`
 * `\t` → `\\t`
+* `\`  → `\\`
 
 Carefully note that `$` is not escaped as `\$` since that is not a valid JSON
 escape sequence.
@@ -660,6 +973,23 @@ Or in other words:
     ─────────────────────────────────────────── ; "…\n…\$…\\…\"…\u0000…" contains no interpolations
     f a ⇥ "\"…\\n…\\u0024…\\\\…\\\"…\\u0000…\""
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin TextShow           <- betaNormalize f
+    , TextLiteral (Chunks [] s₀) <- betaNormalize a
+    , let s₁ =
+              ( Text.replace "\"" "\\\""
+              . Text.replace "$"  "\\u0024"
+              . Text.replace "\b" "\\b"
+              . Text.replace "\f" "\\f"
+              . Text.replace "\n" "\\n"
+              . Text.replace "\r" "\\r"
+              . Text.replace "\t" "\\t"
+              . Text.replace "\\" "\\\\"
+              ) s₀ =
+        TextLiteral (Chunks [] s₁)
+```
 
 `Text/replace` modifies a substring of a given `Text` literal. It takes 3
 arguments, the `Text` literal substring to match (the _needle_), the `Text`
@@ -688,6 +1018,30 @@ is performed:
     f a ⇥ e
 
 
+```haskell
+betaNormalize (Application f a₀)
+    | Application
+        (Application (Builtin TextReplace) (TextLiteral (Chunks [] "")))
+        _replacement <- betaNormalize f
+    , let a₁ = betaNormalize a₀ =
+        a₁
+    | Application
+        (Application
+            (Builtin TextReplace)
+            (TextLiteral (Chunks [] needle))
+        )
+        replacement <- betaNormalize f
+    , TextLiteral (Chunks [] haystack) <- betaNormalize a₀ =
+
+        let loop [ ] = Chunks [] ""
+            loop [s] = Chunks [] s
+            loop (s : ss) = Chunks ((s, replacement) : xys) z
+              where
+                Chunks xys z = loop ss
+
+        in  TextLiteral (loop (Text.splitOn needle haystack))
+```
+
 All of the built-in functions on `Text` are in normal form:
 
 
@@ -698,6 +1052,11 @@ All of the built-in functions on `Text` are in normal form:
     Text/replace ⇥ Text/replace
 
 
+```haskell
+betaNormalize (Builtin TextShow   ) = Builtin TextShow
+betaNormalize (Builtin TextReplace) = Builtin TextReplace
+```
+
 ## `List`
 
 The `List` type-level function is in normal form:
@@ -706,6 +1065,10 @@ The `List` type-level function is in normal form:
     ───────────
     List ⇥ List
 
+
+```haskell
+betaNormalize (Builtin List) = Builtin List
+```
 
 Normalizing a `List` normalizes each field and the type annotation:
 
@@ -719,6 +1082,15 @@ Normalizing a `List` normalizes each field and the type annotation:
     ─────────────────────────────
     [ t₀, ts₀… ] ⇥ [ t₁, ts₁… ]
 
+
+```haskell
+betaNormalize (EmptyList _T₀) = EmptyList _T₁
+  where
+    _T₁ = betaNormalize _T₀
+betaNormalize (NonEmptyList ts₀) = NonEmptyList ts₁
+  where
+    ts₁ = fmap betaNormalize ts₀
+```
 
 Lists are defined here via induction as if they were linked lists, but a real
 implementation might represent them using another data structure under the hood.
@@ -734,6 +1106,29 @@ Dhall does not impose time complexity requirements on list operations.
     f g ⇥ b
 
 
+```haskell
+betaNormalize (Application f g)
+    | Application (Builtin ListBuild) _A₀ <- betaNormalize f
+    , let _A₁ = shift 1 "a" 0 _A₀
+    , let b = betaNormalize
+                  (Application
+                      (Application
+                          (Application g (Application (Builtin List) _A₀))
+                          (Lambda "a" _A₀
+                              (Lambda "as" (Application (Builtin List) _A₁)
+                                  (Operator
+                                      (NonEmptyList (Variable "a" 0 :| []))
+                                      ListAppend
+                                      (Variable "as" 0)
+                                  )
+                              )
+                          )
+                      )
+                      (EmptyList _A₀)
+                  ) =
+        b
+```
+
 `List/fold` is the canonical elimination function for `List`s:
 
 
@@ -746,6 +1141,52 @@ Dhall does not impose time complexity requirements on list operations.
     ────────────────────────────────────────────────────────────────────────
     f b₀ ⇥ b₁
 
+
+```haskell
+betaNormalize (Application f b₀)
+    | Application
+        (Application
+            (Application
+                (Application (Builtin ListFold) _A₀)
+                (EmptyList _A₁)
+            )
+            _B
+        )
+        _g <- betaNormalize f
+    , let b₁ = betaNormalize b₀ =
+        b₁
+
+betaNormalize (Application f b₀)
+    | Application
+        (Application
+            (Application
+                (Application (Builtin ListFold) _A₀)
+                (NonEmptyList (a :| as))
+            )
+            _B
+        )
+        g <- betaNormalize f
+    , let rest =
+              case as of
+                  []    -> EmptyList _A₀
+                  h : t -> NonEmptyList (h :| t)
+    , let b₁ =
+              betaNormalize
+                  (Application
+                      (Application g a)
+                      (Application
+                          (Application
+                              (Application
+                                  (Application (Builtin ListFold) _A₀)
+                                  rest
+                              )
+                              g
+                          )
+                          b₀
+                      )
+                  ) =
+        b₁
+```
 
 Even though `List/build` and `List/fold` suffice for all `List` operations,
 Dhall also supports built-in functions and operators on `List`s, both for
@@ -784,6 +1225,21 @@ Otherwise, normalize each argument:
     ls₀ # rs₀ ⇥ ls₁ # rs₁
 
 
+```haskell
+betaNormalize (Operator ls₀ ListAppend rs₀)
+    | EmptyList _T   <- ls₁ = rs₁
+
+    | EmptyList _T   <- rs₁ = ls₁
+
+    | NonEmptyList l <- ls₁
+    , NonEmptyList r <- rs₁ = NonEmptyList (l <> r)
+
+    | otherwise             = Operator ls₁ ListAppend rs₁
+  where
+    ls₁ = betaNormalize ls₀
+    rs₁ = betaNormalize rs₀
+```
+
 `List/length` returns the length of a list:
 
 
@@ -796,6 +1252,17 @@ Otherwise, normalize each argument:
     ────────────────────────────────────────────────────────────────────────
     f as₀ ⇥ n
 
+
+```haskell
+betaNormalize (Application f a)
+    | Application (Builtin ListLength) _A₀ <- betaNormalize f
+    , EmptyList _A₁                        <- betaNormalize a =
+        NaturalLiteral 0
+
+    | Application (Builtin ListLength) _A₀ <- betaNormalize f
+    , NonEmptyList as₀                     <- betaNormalize a =
+        NaturalLiteral (fromIntegral (length as₀))
+```
 
 `List/head` returns the first element of a list:
 
@@ -810,6 +1277,17 @@ Otherwise, normalize each argument:
     f as ⇥ Some a
 
 
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListHead) _A₀ <- betaNormalize f
+    , EmptyList _A₁                      <- betaNormalize as =
+        Application (Builtin None) _A₀
+
+    | Application (Builtin ListHead) _A₀ <- betaNormalize f
+    , NonEmptyList (a :| _)              <- betaNormalize as =
+        Some a
+```
+
 `List/last` returns the last element of a list:
 
 
@@ -822,6 +1300,17 @@ Otherwise, normalize each argument:
     ────────────────────────────────
     f as ⇥ Some a
 
+
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListLast) _A₀ <- betaNormalize f
+    , EmptyList _A₁                      <- betaNormalize as =
+        Application (Builtin None) _A₀
+
+    | Application (Builtin ListLast) _A₀ <- betaNormalize f
+    , NonEmptyList as₁                   <- betaNormalize as =
+        Some (NonEmpty.last as₁)
+```
 
 `List/indexed` tags each element of the list with the element's index:
 
@@ -836,6 +1325,25 @@ Otherwise, normalize each argument:
     f as ⇥ [ { index = 0, value = a₀ }, { index = 1, value = a₁ }, … ]
 
 
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
+    , EmptyList _A₁                         <- betaNormalize as =
+        EmptyList
+            (Application
+                (Builtin List)
+                (RecordType [("index", Builtin Natural), ("value", _A₀)])
+            )
+
+    | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
+    , NonEmptyList as₁                      <- betaNormalize as
+    , let combine index value =
+              RecordLiteral
+                  [("index", NaturalLiteral index), ("value", value)]  =
+
+        NonEmptyList (NonEmpty.zipWith combine (0 :| [1..]) as₁)
+```
+
 `List/reverse` reverses the elements of the list:
 
 
@@ -848,6 +1356,17 @@ Otherwise, normalize each argument:
     ────────────────────────────────────────
     f as ⇥ [ …, a₁, a₀ ]
 
+
+```haskell
+betaNormalize (Application f as)
+    | Application (Builtin ListReverse) _A₀ <- betaNormalize f
+    , EmptyList _A₁                         <- betaNormalize as =
+        EmptyList _A₁
+
+    | Application (Builtin ListReverse) _A₀ <- betaNormalize f
+    , NonEmptyList as₁                      <- betaNormalize as =
+        NonEmptyList (NonEmpty.reverse as₁)
+```
 
 All of the built-in functions on `List`s are in normal form:
 
@@ -880,6 +1399,16 @@ All of the built-in functions on `List`s are in normal form:
     List/reverse ⇥ List/reverse
 
 
+```haskell
+betaNormalize (Builtin ListBuild  ) = Builtin ListBuild
+betaNormalize (Builtin ListFold   ) = Builtin ListFold
+betaNormalize (Builtin ListLength ) = Builtin ListLength
+betaNormalize (Builtin ListHead   ) = Builtin ListHead
+betaNormalize (Builtin ListLast   ) = Builtin ListLast
+betaNormalize (Builtin ListIndexed) = Builtin ListIndexed
+betaNormalize (Builtin ListReverse) = Builtin ListReverse
+```
+
 ## `Optional`
 
 The `Optional` and `None` functions are in normal form:
@@ -893,6 +1422,11 @@ The `Optional` and `None` functions are in normal form:
     None ⇥ None
 
 
+```haskell
+betaNormalize (Builtin Optional) = Builtin Optional
+betaNormalize (Builtin None    ) = Builtin None
+```
+
 Normalize a `Some` expression by normalizing its argument:
 
 
@@ -900,6 +1434,12 @@ Normalize a `Some` expression by normalizing its argument:
     ─────────────────
     Some t₀ ⇥ Some t₁
 
+
+```haskell
+betaNormalize (Some t₀) = Some t₁
+  where
+    t₁ = betaNormalize t₀
+```
 
 ## Records
 
@@ -916,6 +1456,16 @@ field:
     { x : T₀, xs₀… } ⇥ { x : T₁, xs₁… }
 
 
+```haskell
+betaNormalize (RecordType xTs₀) = RecordType xTs₁
+  where
+    xTs₁ = List.sortBy (Ord.comparing fst) (map adapt xTs₀)
+
+    adapt (x, _T₀) = (x, _T₁)
+      where
+        _T₁ = betaNormalize _T₀
+```
+
 Normalizing a record value sorts the fields and normalizes each field:
 
 
@@ -928,6 +1478,16 @@ Normalizing a record value sorts the fields and normalizes each field:
     { x = t₀, xs₀… } ⇥ { x = t₁, xs₁… }
 
 
+```haskell
+betaNormalize (RecordLiteral xts₀) = RecordLiteral xts₁
+  where
+    xts₁ = List.sortBy (Ord.comparing fst) (map adapt xts₀)
+
+    adapt (x, t₀) = (x, t₁)
+      where
+        t₁ = betaNormalize t₀
+```
+
 Simplify a record selection if the argument is a record literal:
 
 
@@ -936,6 +1496,13 @@ Simplify a record selection if the argument is a record literal:
     t.x ⇥ v
 
 
+```haskell
+betaNormalize (Field t x)
+    | RecordLiteral xvs <- betaNormalize t
+    , Just v            <- lookup x xvs =
+        v
+```
+
 If the argument is a record projection, select from the contained record.
 
 
@@ -943,6 +1510,13 @@ If the argument is a record projection, select from the contained record.
     ──────────────────────────
     t₀.x ⇥ v
 
+
+```haskell
+betaNormalize (Field t₀ x)
+    | ProjectByLabels t₁ _xs <- betaNormalize t₀
+    , v                      <- betaNormalize (Field t₁ x) =
+        v
+```
 
 If the argument is a right-biased record merge and one of the operands is a
 record literal, we can simplify further:
@@ -968,6 +1542,27 @@ record literal, we can simplify further:
     t₀.x ⇥ v
 
 
+```haskell
+betaNormalize (Field t₀ x)
+    | Operator (RecordLiteral xvs) Prefer t₁ <- betaNormalize t₀
+    , Just v                                 <- lookup x xvs =
+        Field (Operator (RecordLiteral [(x, v)]) Prefer t₁) x
+
+    | Operator (RecordLiteral xvs) Prefer t₁ <- betaNormalize t₀
+    , Nothing                                <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
+
+    | Operator _t₁ Prefer (RecordLiteral xvs) <- betaNormalize t₀
+    , Just v                                  <- lookup x xvs =
+        v
+
+    | Operator t₁ Prefer (RecordLiteral xvs) <- betaNormalize t₀
+    , Nothing                                <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
+```
+
 If the argument is a recursive record merge and one of the operands is a record
 literal, we can simplify it similarly:
 
@@ -992,6 +1587,27 @@ literal, we can simplify it similarly:
     t₀.x ⇥ v
 
 
+```haskell
+betaNormalize (Field t₀ x)
+    | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
+    , Just v                                             <- lookup x xvs =
+        Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁
+
+    | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
+    , Nothing                                            <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
+
+    | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
+    , Just v                                             <- lookup x xvs =
+        Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])
+
+    | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
+    , Nothing                                            <- lookup x xvs
+    , let v = betaNormalize (Field t₁ x) =
+        v
+```
+
 Otherwise, normalize the argument:
 
 
@@ -1000,11 +1616,17 @@ Otherwise, normalize the argument:
     t₀.x ⇥ t₁.x
 
 
+```haskell
+betaNormalize (Field t₀ x) = Field t₁ x
+  where
+    t₁ = betaNormalize t₀
+```
+
 You can also project out more than one field into a new record:
 
 
-    ─────────
-    t.{} ⇥ {}
+    ──────────
+    t.{} ⇥ {=}
 
 
 Simplify a record projection if the argument is a record literal:
@@ -1042,15 +1664,63 @@ Otherwise, normalize the argument and sort the fields:
     t₀.{ xs₀… } ⇥ t₁.{ xs₁… }
 
 
+```haskell
+betaNormalize (ProjectByLabels _ []) = RecordLiteral []
+betaNormalize (ProjectByLabels t₀ xs₀)
+    | RecordLiteral xvs <- betaNormalize t₀
+    , let predicate (x, _v) = x `elem` xs₀ =
+        RecordLiteral (filter predicate xvs)
+
+    | ProjectByLabels t₁ _ys  <- betaNormalize t₀
+    , let t₂ = betaNormalize (ProjectByLabels t₁ xs₀) =
+        t₂
+
+    | Operator l Prefer (RecordLiteral rs) <- betaNormalize t₀
+    , let ks = map fst rs
+    , let predicate x = x `elem` ks
+    , let t₁ =
+              Operator
+                  (ProjectByLabels l (xs₀ \\ ks))
+                  Prefer
+                  (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀)) =
+        t₁
+
+    | otherwise
+    , let t₁ = betaNormalize t₀
+    , let xs₁ = List.sort xs₀ =
+        ProjectByLabels t₁ xs₁
+```
+
 You can also project by type:
 
 
-    s ⇥ { ss… }
-    keys(s) = s₁
-    t.{s₁} ⇥ ts₁
-    ────────────
-    t.(s) ⇥ ts₁
+    s₀ ⇥ { ss… }
+    keys(s₀) = ks
+    t₀.{ks} ⇥ ts₁
+    ─────────────
+    t₀.(s₀) ⇥ ts₁
 
+
+    t₀ ⇥ t₁
+    s₀ ⇥ s₁
+    ─────────────────  ; If no other rule matches
+    t₀.(s₀) ⇥ t₁.(s₁)
+
+
+```haskell
+betaNormalize (ProjectByType t₀ s₀)
+    | RecordType ss <- s₁
+    , let ks = map fst ss
+    , let ts₁ = betaNormalize (ProjectByLabels t₀ ks) =
+        ts₁
+
+    | otherwise =
+        ProjectByType t₁ s₁
+  where
+    t₁ = betaNormalize t₀
+
+    s₁ = betaNormalize s₀
+```
 
 The type system ensures that the selected field(s) must be present.  The type
 system also ensures that in the expression `t.(s)`, `s` will normalize to a
@@ -1060,14 +1730,14 @@ Recursive record merge combines two records, recursively merging any fields that
 collide.  The type system ensures that colliding fields must be records:
 
 
-    l ⇥ {=}   r₀ ⇥ r₁
-    ─────────────────
-    l ∧ r₀ ⇥ r₁
+    ls ⇥ {=}   rs₀ ⇥ rs₁
+    ────────────────────
+    ls ∧ rs₀ ⇥ rs₁
 
 
-    r ⇥ {=}   l₀ ⇥ l₁
-    ─────────────────
-    l₀ ∧ r ⇥ l₁
+    rs ⇥ {=}   ls₀ ⇥ ls₁
+    ────────────────────
+    ls₀ ∧ rs ⇥ ls₁
 
 
     ls₀ ⇥ { x = l₁, ls₁… }
@@ -1086,10 +1756,34 @@ collide.  The type system ensures that colliding fields must be records:
     ls₀ ∧ rs ⇥ e
 
 
-    l₀ ⇥ l₁   r₀ ⇥ r₁
-    ─────────────────  ; If no other rule matches
-    l₀ ∧ r₀ ⇥ l₁ ∧ r₁
+    ls₀ ⇥ ls₁   rs₀ ⇥ rs₁
+    ─────────────────────  ; If no other rule matches
+    ls₀ ∧ rs₀ ⇥ ls₁ ∧ rs₁
 
+
+```haskell
+betaNormalize (Operator ls₀ CombineRecordTerms rs₀)
+    | RecordLiteral [] <- ls₁ =
+        rs₁
+
+    | RecordLiteral [] <- rs₁ =
+        ls₁
+
+    | RecordLiteral xls <- ls₁
+    , RecordLiteral xrs <- rs₁
+    , let ml = Map.fromList xls
+    , let mr = Map.fromList xrs
+    , let combine l r = Operator l CombineRecordTerms r
+    , let m = Map.unionWith combine ml mr =
+        RecordLiteral (Map.toAscList m)
+
+    | otherwise =
+        Operator ls₁ CombineRecordTerms rs₁
+  where
+    ls₁= betaNormalize ls₀
+
+    rs₁= betaNormalize rs₀
+```
 
 Right-biased record merge is non-recursive.  Field collisions are resolved by
 preferring the field from the right record and discarding the colliding field
@@ -1131,6 +1825,29 @@ from the left record:
     l₀ ⫽ r₀ ⇥ l₁ ⫽ r₁
 
 
+```haskell
+betaNormalize (Operator ls₀ Prefer rs₀)
+    | RecordLiteral [] <- ls₁ =
+        rs₁
+
+    | RecordLiteral [] <- rs₁ =
+        ls₁
+
+    | RecordLiteral xls <- ls₁
+    , RecordLiteral xrs <- rs₁
+    , let ml = Map.fromList xls
+    , let mr = Map.fromList xrs
+    , let m = Map.union mr ml =
+        RecordLiteral (Map.toAscList m)
+
+    | otherwise =
+        Operator ls₁ Prefer rs₁
+  where
+    ls₁= betaNormalize ls₀
+
+    rs₁= betaNormalize rs₀
+```
+
 A record update using the `with` keyword replaces the given (possibly-nested) field:
 
 
@@ -1147,21 +1864,45 @@ A record update using the `with` keyword replaces the given (possibly-nested) fi
 
 
     e₀ ⇥ { k₀ = e₁, es… }
-    e₁ with k₁.ks… = v ⇥ e₂
-    ───────────────────────────────────────
-    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₂, es… }
+    e₁ with k₁.ks₁… = v₀ ⇥ e₂
+    ──────────────────────────────────────────
+    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₂, es… }
 
 
     e₀ ⇥ { es… }
-    {=} with k₁.ks… = v ⇥ e₁
-    ───────────────────────────────────────  ; k₀ ∉ es
-    e₀ with k₀.k₁.k… = v ⇥ { k₀ = e₁, es… }
+    {=} with k₁.ks₁… = v₀ ⇥ e₁
+    ──────────────────────────────────────────  ; k₀ ∉ es
+    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₁, es… }
 
 
     e₀ ⇥ e₁   v₀ ⇥ v₁
-    ───────────────────────────────────  ; If no other rule matches
-    e₀ with ks… = v₀ ⇥ e₁ with ks… = v₁
+    ─────────────────────────────────────  ; If no other rule matches
+    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
 
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | k :| [] <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        RecordLiteral (Map.toList (Map.insert k v₁ (Map.fromList kvs)))
+
+    | k₀ :| (k₁ : ks₁) <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , Just e₁ <- lookup k₀ kvs
+    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
+        RecordLiteral (Map.toList (Map.insert k₀ e₂ (Map.fromList kvs)))
+
+    | k₀ :| (k₁ : ks₁) <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , Nothing <- lookup k₀ kvs
+    , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
+        RecordLiteral (Map.toList (Map.insert k₀ e₁ (Map.fromList kvs)))
+
+    | let e₁ = betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        With e₁ ks₀ v₁
+```
 
 Recursive record type merge combines two record types, recursively merging any
 fields that collide.  The type system ensures that colliding fields must be
@@ -1199,21 +1940,45 @@ record types:
     l₀ ⩓ r₀ ⇥ l₁ ⩓ r₁
 
 
+```haskell
+betaNormalize (Operator ls₀ CombineRecordTypes rs₀)
+    | RecordType [] <- ls₁ =
+        rs₁
+
+    | RecordType [] <- rs₁ =
+        ls₁
+
+    | RecordType xls <- ls₁
+    , RecordType xrs <- rs₁
+    , let ml = Map.fromList xls
+    , let mr = Map.fromList xrs
+    , let combine l r = Operator l CombineRecordTypes r
+    , let m = Map.unionWith combine ml mr =
+        RecordType (Map.toAscList m)
+
+    | otherwise =
+        Operator ls₁ CombineRecordTypes rs₁
+  where
+    ls₁= betaNormalize ls₀
+
+    rs₁= betaNormalize rs₀
+```
+
 A record whose fields all have the same type (*i.e.*, a *homogeneous* record) can be converted to a list where each list
 item represents a field. The value "x" below represents the text value of the field name `x`.
 
 
-    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
-    ──────────────────────────────────────────────
-    toMap t ⇥ [ {mapKey = "x", mapValue = v} ] # m
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ [ kvs… ]
+    ────────────────────────────────────────────────
+    toMap t ⇥ [ {mapKey = "x", mapValue = v}, kvs… ]
 
 
 The `toMap` application can be annotated with a type, and it must be if the record is empty.
 
 
-    t ⇥ { x = v, ts… }   toMap { ts } ⇥ m
-    ───────────────────────────────────────────────────
-    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v} ] # m
+    t ⇥ { x = v, ts… }   toMap { ts } ⇥ [ kvs… ]
+    ─────────────────────────────────────────────────────
+    toMap t : T₀ ⇥ [ {mapKey = "x", mapValue = v}, kvs… ]
 
 
     t ⇥ {=}   T₀ ⇥ T₁
@@ -1234,6 +1999,42 @@ If the record or the type is abstract, then normalize each subexpression:
     toMap t₀ ⇥ toMap t₁
 
 
+```haskell
+betaNormalize (ToMap t₀ Nothing)
+    | RecordLiteral ((x₀, v₀) : xvs) <- t₁ =
+        let adapt (x, v) =
+                RecordLiteral
+                    [ ("mapKey", TextLiteral (Chunks [] x))
+                    , ("mapValue", v)
+                    ]
+
+        in  NonEmptyList (fmap adapt ((x₀, v₀) :| xvs))
+
+    | otherwise =
+        ToMap t₁ Nothing
+  where
+    t₁ = betaNormalize t₀
+betaNormalize (ToMap t₀ (Just _T₀))
+    | RecordLiteral ((x₀, v₀) : xvs) <- t₁ =
+        let adapt (x, v) =
+                RecordLiteral
+                    [ ("mapKey", TextLiteral (Chunks [] x))
+                    , ("mapValue", v)
+                    ]
+
+        in  NonEmptyList (fmap adapt ((x₀, v₀) :| xvs))
+
+    | RecordLiteral [] <- t₁ =
+        EmptyList _T₀
+
+    | otherwise =
+        ToMap t₁ (Just _T₁)
+  where
+    t₁ = betaNormalize t₀
+
+    _T₁ = betaNormalize _T₀
+```
+
 `T::r` is syntactic sugar for `(T.default ⫽ r) : T.Type` so substitute
 accordingly and continue to normalize:
 
@@ -1242,6 +2043,17 @@ accordingly and continue to normalize:
     ──────────────────────────────
     T::r ⇥ e
 
+
+```haskell
+betaNormalize (Completion _T r) =
+    let e = betaNormalize
+                (Annotation
+                    (Operator (Field _T "default") Prefer r)
+                    (Field _T "Type")
+                )
+
+    in  e
+```
 
 ## Unions
 
@@ -1263,6 +2075,17 @@ alternative:
     < x | xs₀… > ⇥ < x | xs₁… >
 
 
+```haskell
+betaNormalize (UnionType xTs₀) = UnionType xTs₁
+  where
+    xTs₁ = map adapt xTs₀
+
+    adapt (x, Nothing ) = (x, Nothing )
+    adapt (x, Just _T₀) = (x, Just _T₁)
+      where
+          _T₁ = betaNormalize _T₀
+```
+
 Normalizing a union constructor only normalizes the union type but is otherwise
 inert.  The expression does not reduce further until supplied to a `merge`.
 
@@ -1277,6 +2100,11 @@ inert.  The expression does not reduce further until supplied to a `merge`.
     u.x₀ ⇥ < x₀ | xs… >.x₀
 
 
+```haskell
+-- No additional code required here.  This is already covered by the
+-- fall-through case for β-normalizing the `Field` constructor
+```
+
 `merge` expressions are the canonical way to eliminate a union value.  The
 first argument to `merge` is a record of handlers and the second argument is a
 union value, which can be in one of two forms:
@@ -1288,52 +2116,52 @@ For union constructors specifying non-empty alternatives, apply the handler of
 the same label to the wrapped value of the union constructor:
 
 
-    t ⇥ { x = f, … }   u ⇥ < x : T₀ | … >.x a   f a ⇥ b
+    t₀ ⇥ { x = f, … }   u₀ ⇥ < x : T₀ | … >.x a   f a ⇥ b
     ───────────────────────────────────────────────────
-    merge t u : T ⇥ b
+    merge t₀ u₀ : T ⇥ b
 
 
-    t ⇥ { x = f, … }   u ⇥ < x : T | … >.x a   f a ⇥ b
+    t₀ ⇥ { x = f, … }   u₀ ⇥ < x : T | … >.x a   f a ⇥ b
     ──────────────────────────────────────────────────
-    merge t u ⇥ b
+    merge t₀ u₀ ⇥ b
 
 
 For union constructors specifying empty alternatives, return the handler of the
 matching label:
 
 
-    t ⇥ { x = v, … }   u ⇥ < x | … >.x
+    t₀ ⇥ { x = v, … }   u₀ ⇥ < x | … >.x
     ──────────────────────────────────
-    merge t u : T ⇥ v
+    merge t₀ u₀ : T ⇥ v
 
 
-    t ⇥ { x = v, … }   u ⇥ < x | … >.x
+    t₀ ⇥ { x = v, … }   u₀ ⇥ < x | … >.x
     ──────────────────────────────────
-    merge t u ⇥ v
+    merge t₀ u₀ ⇥ v
 
 
 `Optional`s are handled as if they were union values of type
 `< None | Some : A >`:
 
 
-    t ⇥ { Some = f, … }   o ⇥ Some a   f a ⇥ b
+    t₀ ⇥ { Some = f, … }   u₀ ⇥ Some a   f a ⇥ b
     ──────────────────────────────────────────
-    merge t o : T ⇥ b
+    merge t₀ u₀ : T ⇥ b
 
 
-    t ⇥ { Some = f, … }   o ⇥ Some a   f a ⇥ b
+    t₀ ⇥ { Some = f, … }   u₀ ⇥ Some a   f a ⇥ b
     ──────────────────────────────────────────
-    merge t o ⇥ b
+    merge t₀ u₀ ⇥ b
 
 
-    t ⇥ { None = v, … }   o ⇥ None A
+    t₀ ⇥ { None = v, … }   u₀ ⇥ None A
     ────────────────────────────────
-    merge t o : T ⇥ v
+    merge t₀ u₀ : T ⇥ v
 
 
-    t ⇥ { None = v, … }   o ⇥ None A
+    t₀ ⇥ { None = v, … }   u₀ ⇥ None A
     ────────────────────────────────
-    merge t o ⇥ v
+    merge t₀ u₀ ⇥ v
 
 
 If the handler or union are abstract, then normalize each subexpression:
@@ -1349,6 +2177,38 @@ If the handler or union are abstract, then normalize each subexpression:
     merge t₀ u₀ ⇥ merge t₁ u₁
 
 
+```haskell
+betaNormalize (Merge t₀ u₀ _T)
+    | RecordLiteral xvs <- t₁
+    , Application (Field (UnionType _xTs₀) x) a <- u₁
+    , Just f <- lookup x xvs
+    , let b = betaNormalize (Application f a) =
+        b
+
+    | RecordLiteral xvs <- t₁
+    , Field (UnionType _xTs₀) x <- u₁
+    , Just v <- lookup x xvs =
+        v
+
+    | RecordLiteral xvs <- t₁
+    , Some a <- u₁
+    , Just f <- lookup "Some" xvs
+    , let b = betaNormalize (Application f a) =
+        b
+
+    | RecordLiteral xvs <- t₁
+    , Application (Builtin None) _A <- u₁
+    , Just v <- lookup "None" xvs =
+        v
+
+    | otherwise =
+       Merge t₁ u₁ _T
+  where
+    t₁ = betaNormalize t₀
+
+    u₁ = betaNormalize u₀
+```
+
 ## `Integer`
 
 The `Integer` type is in normal form:
@@ -1358,6 +2218,10 @@ The `Integer` type is in normal form:
     Integer ⇥ Integer
 
 
+```haskell
+betaNormalize (Builtin Integer) = Builtin Integer
+```
+
 An `Integer` literal is in normal form:
 
 
@@ -1365,12 +2229,23 @@ An `Integer` literal is in normal form:
     ±n ⇥ ±n
 
 
+```haskell
+betaNormalize (IntegerLiteral n) = IntegerLiteral n
+```
+
 `Integer/toDouble` transforms an `Integer` into the corresponding `Double`:
 
 
     f ⇥ Integer/toDouble   a ⇥ ±n
     ─────────────────────────────
     f a ⇥ ±n.0
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerToDouble <- betaNormalize f
+    , IntegerLiteral n <- betaNormalize a =
+        DoubleLiteral (fromInteger n)
+```
 
 Note that if the magnitude of `a` is greater than 2^53, `Integer/toDouble a`
 may result in loss of precision. A `Double` will be selected by rounding `a` to
@@ -1386,6 +2261,17 @@ Dhall code for representing that `Integer` number:
     ─────────────────────────
     f a ⇥ "±n"
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerShow <- betaNormalize f
+    , IntegerLiteral n <- betaNormalize a =
+        TextLiteral (Chunks [] (renderInteger n))
+  where
+    renderInteger n
+        | 0 <= n    = "+" <> Text.pack (show n)
+        | otherwise = "-" <> Text.pack (show n)
+```
 
 Note that the `Text` representation of the rendered `Integer` should include
 a leading `+` sign if the number is non-negative and a leading `-` sign if
@@ -1410,6 +2296,13 @@ the number is negative.
     f a ⇥ +n
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerNegate <- betaNormalize f
+    , IntegerLiteral n      <- betaNormalize a =
+        IntegerLiteral (negate n)
+```
+
 `Integer/clamp` converts an `Integer` to a `Natural` number, with negative
 numbers becoming `0`:
 
@@ -1423,6 +2316,13 @@ numbers becoming `0`:
     ───────────────────────────  ; Negative integers become `0`.
     f a ⇥ 0
 
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin IntegerClamp <- betaNormalize f
+    , IntegerLiteral n <- betaNormalize a =
+        NaturalLiteral (fromInteger (max 0 n))
+```
 
 All of the built-in functions on `Integer`s are in normal form:
 
@@ -1443,6 +2343,13 @@ All of the built-in functions on `Integer`s are in normal form:
     Integer/clamp ⇥ Integer/clamp
 
 
+```haskell
+betaNormalize (Builtin IntegerShow    ) = Builtin IntegerShow
+betaNormalize (Builtin IntegerToDouble) = Builtin IntegerToDouble
+betaNormalize (Builtin IntegerNegate  ) = Builtin IntegerNegate
+betaNormalize (Builtin IntegerClamp   ) = Builtin IntegerClamp
+```
+
 ## `Double`
 
 The `Double` type is in normal form:
@@ -1452,12 +2359,20 @@ The `Double` type is in normal form:
     Double ⇥ Double
 
 
+```haskell
+betaNormalize (Builtin Double) = Builtin Double
+```
+
 A `Double` literal is in normal form:
 
 
     ─────────
     n.n ⇥ n.n
 
+
+```haskell
+betaNormalize (DoubleLiteral n) = DoubleLiteral n
+```
 
 `Double/show` transforms a `Double` into a `Text` literal representing valid
 Dhall code for representing that `Double` number:
@@ -1468,12 +2383,25 @@ Dhall code for representing that `Double` number:
     f a ⇥ "n.n"
 
 
+```haskell
+betaNormalize (Application f a)
+    | Builtin DoubleShow <- betaNormalize f
+    , DoubleLiteral n    <- betaNormalize a =
+        TextLiteral (Chunks [] (renderDouble n))
+  where
+    renderDouble n = Text.pack (show n)
+```
+
 The `Double/show` function is in normal form:
 
 
     ─────────────────────────
     Double/show ⇥ Double/show
 
+
+```haskell
+betaNormalize (Builtin DoubleShow) = Builtin DoubleShow
+```
 
 The following 2 properties must hold for `Double/show`:
 
@@ -1498,6 +2426,14 @@ Normalizing a function type normalizes the types of the input and output:
     ∀(x : A₀) → B₀ ⇥ ∀(x : A₁) → B₁
 
 
+```haskell
+betaNormalize (Forall x _A₀ _B₀) = Forall x _A₁ _B₁
+  where
+    _A₁ = betaNormalize _A₀
+
+    _B₁ = betaNormalize _B₁
+```
+
 You can introduce an anonymous function using a λ:
 
 
@@ -1505,6 +2441,14 @@ You can introduce an anonymous function using a λ:
     ───────────────────────────────
     λ(x : A₀) → b₀ ⇥ λ(x : A₁) → b₁
 
+
+```haskell
+betaNormalize (Lambda x _A₀ b₀) = Lambda x _A₁ b₁
+  where
+    _A₁ = betaNormalize _A₀
+
+    b₁ = betaNormalize b₀
+```
 
 You can eliminate an anonymous function through β-reduction:
 
@@ -1518,6 +2462,16 @@ You can eliminate an anonymous function through β-reduction:
     f a₀ ⇥ b₃
 
 
+```haskell
+betaNormalize (Application f a₀)
+    | Lambda x _A b₀ <- betaNormalize f
+    , let a₁ = shift 1 x 0 a₀
+    , let b₁ = substitute b₀ x 0 a₁
+    , let b₂ = shift (-1) x 0 b₁
+    , let b₃ = betaNormalize b₂ =
+        b₃
+```
+
 Function application falls back on normalizing both sub-expressions if none of
 the preceding function application rules apply:
 
@@ -1526,6 +2480,14 @@ the preceding function application rules apply:
     ─────────────────  ; If no other rule matches
     f₀ a₀ ⇥ f₁ a₁
 
+
+```haskell
+betaNormalize (Application f₀ a₀) = Application f₁ a₁
+  where
+    f₁ = betaNormalize f₀
+
+    a₁ = betaNormalize a₀
+```
 
 ## `let` expressions
 
@@ -1557,6 +2519,19 @@ equivalence:
     let x = a₀ in b₀ ⇥ b₃
 
 
+```haskell
+betaNormalize (Let x _ a₀ b₀) = b₃
+  where
+    a₁ = shift 1 x 0 a₀
+
+    b₁ = substitute b₀ x 0 a₁
+
+    b₂ = shift (-1) x 0 b₁
+
+    b₃ = betaNormalize b₂
+
+```
+
 ## Type annotations
 
 Simplify a type annotation by removing the annotation:
@@ -1565,6 +2540,12 @@ Simplify a type annotation by removing the annotation:
     t₀ ⇥ t₁
     ───────────
     t₀ : T ⇥ t₁
+
+```haskell
+betaNormalize (Annotation t₀ _T) = t₁
+  where
+    t₁ = betaNormalize t₀
+```
 
 ## Assertions
 
@@ -1576,6 +2557,12 @@ Normalize an assertion by normalizing its type annotation:
     assert : T₀ ⇥ assert : T₁
 
 
+```haskell
+betaNormalize (Assert _T₀) = Assert _T₁
+  where
+    _T₁ = betaNormalize _T₀
+```
+
 Normalize an equivalence by normalizing each side of the equivalence:
 
 
@@ -1583,6 +2570,22 @@ Normalize an equivalence by normalizing each side of the equivalence:
     ─────────────────────
     x₀ === y₀ ⇥ x₁ === y₁
 
+```haskell
+betaNormalize (Operator x₀ Equivalent y₀) = Operator x₁ Equivalent y₁
+  where
+    x₁ = betaNormalize x₀
+
+    y₁ = betaNormalize y₀
+```
+
 ## Imports
 
 An expression with unresolved imports cannot be β-normalized.
+
+```haskell
+betaNormalize (Operator _l Alternative _r) =
+    error "Cannot β-normalize an expression with unresolved imports"
+
+betaNormalize (Import _importType _importMode _hash) =
+    error "Cannot β-normalize an expression with unresolved imports"
+```

@@ -1,5 +1,11 @@
 # Function check
 
+```haskell
+module FunctionCheck where
+
+import Syntax (Constant(..))
+```
+
 The function check governs the types of functions that our pure type system
 permits.  This is based on [CCω][ccw] with only three universes:
 
@@ -8,8 +14,8 @@ permits.  This is based on [CCω][ccw] with only three universes:
 * `Kind` is the first predicate universe (equivalent to `□₀`)
 * `Sort ` is the second predicate universe (equivalent to `□₁`)
 
-These universes form a hierarchy, which can be witnessed by the least-upper bound
-judgement ⋁:
+These universes form a hierarchy, which can be witnessed by the least-upper
+bound judgement ⋁:
 
 
     ─────────────────────  ; Type < Kind < Sort
@@ -33,12 +39,20 @@ The function check is a judgment of the form:
 * `c₂` (an output constant, either `Type`, `Kind`, or `Sort`) is the type of
   the function's type
 
+```haskell
+functionCheck :: Constant -> Constant -> Constant
+```
+
 Functions that return terms are impredicative:
 
 
     ───────────────
     c ↝ Type : Type
 
+
+```haskell
+functionCheck _c Type = Type
+```
 
 When `c = Type` you get functions from terms to terms (i.e.  "term-level"
 functions):
@@ -86,6 +100,12 @@ All the remaining function types are predicative:
     ────────────
     c₀ ↝ c₁ : c₂
 
+
+```haskell
+functionCheck c₀ c₁ = c₂
+  where
+    c₂ = max c₀ c₁
+```
 
 When `c₀ = Kind` and `c₁ = Kind` you get functions from types to types (i.e.
 "type-level" functions):
