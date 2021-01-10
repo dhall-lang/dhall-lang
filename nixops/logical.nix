@@ -122,8 +122,6 @@ in
                   let
                     files = builtins.readDir ./packages;
 
-                    callPackage = pkgs.newScope pkgs.dhallPackages;
-
                     toPackage = file: _ :
                       { name =
                           builtins.replaceStrings [ ".nix" ] [ "" ] file;
@@ -346,75 +344,41 @@ in
 
           "store.dhall-lang.org" =
             let
-              packages = [
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-14.0.0";
-                  rev = "v14.0.0";
-                  sha256 = "1b4h6zk8b6yylgl3g4dvfqdkvabnaxxa9flaw1py20p77nxnfyfq";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-15.0.0";
-                  rev = "v15.0.0";
-                  sha256 = "0kkl7qzpc99gpskcr4f471xdvig2bynay8f6i90ws3224rvxvf3r";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-16.0.0";
-                  rev = "v16.0.0";
-                  sha256 = "1lnpvrhxa5fh2721biw2nd69qwiqvclw6z6ywiv9xvpmw2alwdsb";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-17.0.0";
-                  rev = "v17.0.0";
-                  sha256 = "0jnqw50q26ksxkzs85a2svyhwd2cy858xhncq945bmirpqrhklwf";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-17.1.0";
-                  rev = "v17.1.0";
-                  sha256 = "0i5c6ahafafrhjxbalz3g19cd14nf6pa4q7f14hb9pa7hnyhakgn";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-18.0.0";
-                  rev = "v18.0.0";
-                  sha256 = "1vx3cdzpdrbjjc214v6mnl9y2k4yrpy3fgj37fg2dlirbqppdk9r";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-19.0.0";
-                  rev = "v19.0.0";
-                  sha256 = "04m29f5xlks6rarv1gy909j68bsflwl18l9bg7kyy1vpwap0avkp";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-20.0.0";
-                  rev = "v20.0.0";
-                  sha256 = "1smk57xki1cj24xpp0s3gv85radl6ry76ybsjkqak8h13s79lwla";
-                })
+              packages = with pkgs.dhallPackages; [
+                dhall-ansible_0_1_0
 
-                (pkgs.dhallPackages.dhall-kops.overridePackage {
-                  name = "dhall-kops-0.5.1";
-                  rev = "v0.5.1";
-                  sha256 = "1qsk2pvylcn94cdq3zcqz74mvs3ijnawj411bz4xdikyfp0n5iw4";
-                })
+                dhall-concourse_0_4_1
+                dhall-concourse_0_5_0
+                dhall-concourse_0_5_1
+                dhall-concourse_0_5_2
+                dhall-concourse_0_6_0
+                dhall-concourse_0_6_1
+                dhall-concourse_0_7_0
+                dhall-concourse_0_7_1
+                dhall-concourse_0_8_0
+                dhall-concourse_0_9_0
+                dhall-concourse_0_9_1
 
-                (pkgs.dhallPackages.dhall-kubernetes.overridePackage {
-                  name = "dhall-kubernetes-3.0.0";
-                  rev = "v3.0.0";
-                  sha256 = "1r4awh770ghsrwabh5ddy3jpmrbigakk0h32542n1kh71w3cdq1h";
-                })
-                (pkgs.dhallPackages.dhall-kubernetes.overridePackage {
-                  name = "dhall-kubernetes-4.0.0";
-                  rev = "v4.0.0";
-                  sha256 = "0j5d9rdiwa0zajmqak1ddlmbq2lrkcsc89aa70bhlkq33d1adwyh";
-                })
-                (pkgs.dhallPackages.dhall-kubernetes.overridePackage {
-                  name = "dhall-kubernetes-5.0.0";
-                  rev = "v5.0.0";
-                  sha256 = "0irqv44nh6fp3nyal48rzp5ir0y82r897aaw2nnc4yrfh9rd8w0y";
-                })
+                dhall-dot_1_0_0
 
-                (pkgs.dhallPackages.dhall-semver.overridePackage {
-                  name = "dhall-semver-1.0.0";
-                  rev = "v1.0.0";
-                  sha256 = "0y8shvp8srzbjjpmnsvz9c12ciihnx1szs0yzyi9ashmrjvd0jcz";
-                })
+                dhall-kops_0_4_0
+                dhall-kops_0_4_1
+                dhall-kops_0_5_0
+                dhall-kops_0_5_1
+
+                dhall-kubernetes_3_0_0
+                dhall-kubernetes_4_0_0
+                dhall-kubernetes_5_0_0
+
+                dhall-semver_1_0_0
+
+                Prelude_14_0_0
+                Prelude_15_0_0
+                Prelude_16_0_0
+                Prelude_17_0_0
+                Prelude_18_0_0
+                Prelude_19_0_0
+                Prelude_20_0_0
               ];
 
               store = pkgs.runCommand "store" { inherit packages; } ''
