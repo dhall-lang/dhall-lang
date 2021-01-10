@@ -348,7 +348,13 @@ let
     };
   };
 
-  pkgs = import nixpkgs { config = {}; overlays = [ overlay ]; };
+  config = {
+    permittedInsecurePackages = [
+      "python2.7-cryptography-2.9.2"
+    ];
+  };
+
+  pkgs = import nixpkgs { inherit config; overlays = [ overlay ]; };
 
   # Derivation that trivially depends on the input source code revision.
   # As this is included in the "dhall-lang" aggregate, it forces every
