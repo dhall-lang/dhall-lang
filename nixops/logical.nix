@@ -96,26 +96,7 @@ in
     trustedUsers = [ "gabriel" ];
   };
 
-  nixpkgs.overlays =
-    let
-      modifyHydra = packagesNew: packagesOld: {
-        hydra-unstable = packagesOld.hydra-unstable.overrideAttrs (old: {
-            patches = (old.patches or []) ++ [
-              ./hydra.patch
-              ./no-restrict-eval.patch
-              (packagesNew.fetchpatch {
-                  url = "https://github.com/NixOS/hydra/commit/df3262e96cb55bdfaac7726896728bfef675698b.patch";
-
-                  sha256 = "1344cqlmx0ncgsh3dqn5igbxx6rgmlm14rgb5vi6rxkvwnfqy3zj";
-                }
-              )
-            ];
-          }
-        );
-      };
-
-    in
-      [ modifyHydra ];
+  nixpkgs.overlays = [ (import ./overlay.nix) ];
 
   programs.ssh.knownHosts."github.com".publicKey =
       "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
@@ -314,87 +295,18 @@ in
           "prelude.dhall-lang.org" = prelude;
 
           "store.dhall-lang.org" =
-            let
-              packages = [
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-14.0.0";
-                  rev = "v14.0.0";
-                  sha256 = "1b4h6zk8b6yylgl3g4dvfqdkvabnaxxa9flaw1py20p77nxnfyfq";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-15.0.0";
-                  rev = "v15.0.0";
-                  sha256 = "0kkl7qzpc99gpskcr4f471xdvig2bynay8f6i90ws3224rvxvf3r";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-16.0.0";
-                  rev = "v16.0.0";
-                  sha256 = "1lnpvrhxa5fh2721biw2nd69qwiqvclw6z6ywiv9xvpmw2alwdsb";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-17.0.0";
-                  rev = "v17.0.0";
-                  sha256 = "0jnqw50q26ksxkzs85a2svyhwd2cy858xhncq945bmirpqrhklwf";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-17.1.0";
-                  rev = "v17.1.0";
-                  sha256 = "0i5c6ahafafrhjxbalz3g19cd14nf6pa4q7f14hb9pa7hnyhakgn";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-18.0.0";
-                  rev = "v18.0.0";
-                  sha256 = "1vx3cdzpdrbjjc214v6mnl9y2k4yrpy3fgj37fg2dlirbqppdk9r";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-19.0.0";
-                  rev = "v19.0.0";
-                  sha256 = "04m29f5xlks6rarv1gy909j68bsflwl18l9bg7kyy1vpwap0avkp";
-                })
-                (pkgs.dhallPackages.Prelude.overridePackage {
-                  name = "Prelude-20.0.0";
-                  rev = "v20.0.0";
-                  sha256 = "1smk57xki1cj24xpp0s3gv85radl6ry76ybsjkqak8h13s79lwla";
-                })
+            { forceSSL = true;
 
-                (pkgs.dhallPackages.dhall-kubernetes.overridePackage {
-                  name = "dhall-kubernetes-3.0.0";
-                  rev = "v3.0.0";
-                  sha256 = "1r4awh770ghsrwabh5ddy3jpmrbigakk0h32542n1kh71w3cdq1h";
-                })
-                (pkgs.dhallPackages.dhall-kubernetes.overridePackage {
-                  name = "dhall-kubernetes-4.0.0";
-                  rev = "v4.0.0";
-                  sha256 = "0j5d9rdiwa0zajmqak1ddlmbq2lrkcsc89aa70bhlkq33d1adwyh";
-                })
-                (pkgs.dhallPackages.dhall-kubernetes.overridePackage {
-                  name = "dhall-kubernetes-5.0.0";
-                  rev = "v5.0.0";
-                  sha256 = "0irqv44nh6fp3nyal48rzp5ir0y82r897aaw2nnc4yrfh9rd8w0y";
-                })
-              ];
+              enableACME = true;
 
-              store = pkgs.runCommand "store" { inherit packages; } ''
-                mkdir "$out"
+              locations."/" = {
+                root = "${pkgs.store}";
 
-                for package in $packages; do
-                  ${pkgs.xorg.lndir}/bin/lndir -silent "$package/.cache/dhall" "$out"
-                done
-              '';
-
-            in
-              { forceSSL = true;
-
-                enableACME = true;
-
-                locations."/" = {
-                  root = "${store}";
-
-                  extraConfig = ''
-                    default_type application/dhall+cbor;
-                  '';
-                };
+                extraConfig = ''
+                  default_type application/dhall+cbor;
+                '';
               };
+            };
 
           # Same as `prelude.dhall-lang.org` except requires a header named
           # `Test` to be present to authorize requests.  This is used to test
