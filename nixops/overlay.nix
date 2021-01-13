@@ -363,6 +363,8 @@ pkgsNew: pkgsOld: {
     }
   );
 
+  store = pkgsNew.callPackage ./store.nix { };
+
   tarball-website = pkgsNew.releaseTools.binaryTarball rec {
     src = pkgsNew.website;
 
