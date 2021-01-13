@@ -96,55 +96,7 @@ in
     trustedUsers = [ "gabriel" ];
   };
 
-  nixpkgs.overlays =
-    let
-      modifyHydra = pkgsNew: pkgsOld: {
-        hydra-unstable = pkgsOld.hydra-unstable.overrideAttrs (old: {
-            patches = (old.patches or []) ++ [
-              ./hydra.patch
-              ./no-restrict-eval.patch
-              (pkgsNew.fetchpatch {
-                  url = "https://github.com/NixOS/hydra/commit/df3262e96cb55bdfaac7726896728bfef675698b.patch";
-
-                  sha256 = "1344cqlmx0ncgsh3dqn5igbxx6rgmlm14rgb5vi6rxkvwnfqy3zj";
-                }
-              )
-            ];
-          }
-        );
-      };
-
-      addDhallPackages = pkgsNew: pkgsOld: {
-        dhallPackages = pkgsOld.dhallPackages.override (old: {
-            overrides =
-              let
-                directoryOverrides = dhallPackagesNew: dhallPackagesOld:
-                  let
-                    files = builtins.readDir ./packages;
-
-                    toPackage = file: _ :
-                      { name =
-                          builtins.replaceStrings [ ".nix" ] [ "" ] file;
-
-                        value =
-                          dhallPackagesNew.callPackage
-                            (./packages + "/${file}")
-                            { };
-                      };
-
-                  in
-                    pkgs.lib.mapAttrs' toPackage files;
-
-              in
-                pkgsNew.lib.composeExtensions
-                  (old.overrides or (_: _: {}))
-                  directoryOverrides;
-          }
-        );
-      };
-
-    in
-      [ modifyHydra addDhallPackages ];
+  nixpkgs.overlays = [ (import ./overlay.nix) ];
 
   programs.ssh.knownHosts."github.com".publicKey =
       "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
@@ -361,16 +313,13 @@ in
 
                 dhall-dot_1_0_0
 
-                dhall-kops_0_4_0
-                dhall-kops_0_4_1
-                dhall-kops_0_5_0
-                dhall-kops_0_5_1
-
                 dhall-kubernetes_3_0_0
                 dhall-kubernetes_4_0_0
                 dhall-kubernetes_5_0_0
 
-                dhall-semver_1_0_0
+                (dhall-semver_1_0_0.override {
+                  Prelude = Prelude_17_0_0;
+                })
 
                 Prelude_14_0_0
                 Prelude_15_0_0
