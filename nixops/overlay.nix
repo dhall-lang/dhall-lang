@@ -76,10 +76,21 @@ pkgsNew: pkgsOld: {
             in
               pkgsNew.lib.mapAttrs' toPackage files;
 
+          manualOverrides = dhallPackagesNew: dhallPackagesOld: {
+            buildDhallGitHubPackage =
+              args: dhallPackagesOld.buildDhallGitHubPackage (args // {
+                  document = true;
+                }
+              );
+          };
+
         in
-          pkgsNew.lib.composeExtensions
+          pkgsNew.lib.fold
+            pkgsNew.lib.composeExtensions
             (old.overrides or (_: _: {}))
-            directoryOverrides;
+            [ directoryOverrides
+              manualOverrides
+            ];
     }
   );
 
@@ -120,6 +131,22 @@ pkgsNew: pkgsOld: {
 
       ${pkgsNew.dhall}/bin/dhall type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
     '';
+
+  haskellPackages = pkgsOld.haskellPackages.override (old: {
+      overrides =
+        let
+          extension =
+            haskellPackagesNew: haskellPackagesOld: {
+              dhall-docs =
+                pkgsNew.haskell.lib.overrideCabal
+                  haskellPackagesOld.dhall-docs
+                  (old: { broken = false; doCheck = false; });
+            };
+
+        in
+          pkgsNew.lib.composeExtensions (old.overrides or (_: _: {})) extension;
+    }
+  );
 
   hydra-unstable = pkgsOld.hydra-unstable.overrideAttrs (old: {
       patches = (old.patches or []) ++ [
