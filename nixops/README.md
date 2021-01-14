@@ -17,6 +17,9 @@ This directory contains code for Dhall's shared infrastructure, including:
 * [cache.dhall-lang.org](https://cache.dhall-lang.org) - Binary cache serving
   anything built by CI
 
+* [store.dhall-lang.org](https://store.dhall-lang.org) - Binary cache for Dhall
+  packages
+
 The only exception is:
 
 * [docs.dhall-lang.org](https://docs.dhall-lang.org) - Documentation for the
@@ -96,6 +99,38 @@ $ git checkout "${THE_BRANCH_YOU_WANT_TO_TEST}"
 $ nix build --file ./release.nix machine
 
 $ sudo result/bin/switch-to-configuration test
+```
+
+## Adding a package to `store.dhall-lang.org`
+
+You will need to first install `dhall-to-nixpkgs` and `nix-prefetch-git` by
+running:
+
+```bash
+$ nix-env --install --attr haskellPackages.dhall-nixpkgs
+$ nix-env --install --attr nix-prefetch-git
+```
+
+… and then you can add a new Dhall package by running:
+
+```bash
+$ dhall-to-nixpkgs github "https://github.com/${owner}/${repo}" --rev "${revision}" > "./nixops/package/${packageName}_${version}.nix"
+```
+
+… where the `version` uses underscores instead of dots to separate the version
+components.  For example:
+
+```bash
+$ dhall-to-nixpkgs github "https://github.com/dhall-lang/dhall-kubernetes" --rev v5.0.0 > "./nixops/package/dhall-kubernetes_5_0_0.nix"
+```
+
+… and then update [`./store.nix`](./store.nix) to reference the newly added
+package.
+
+You can verify that the newly-added package builds successfully by running:
+
+```bash
+$ nix build --file ./release.nix machine
 ```
 
 ## Obtaining SSH access to `dhall-lang.org`
