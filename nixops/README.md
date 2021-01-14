@@ -114,14 +114,14 @@ $ nix-env --install --attr nix-prefetch-git
 … and then you can add a new Dhall package by running:
 
 ```bash
-$ dhall-to-nixpkgs github "https://github.com/${owner}/${repo}" --rev "${revision}" > "./nixops/package/${packageName}_${version}"
+$ dhall-to-nixpkgs github "https://github.com/${owner}/${repo}" --rev "${revision}" > "./nixops/package/${packageName}_${version}.nix"
 ```
 
 … where the `version` uses underscores instead of dots to separate the version
 components.  For example:
 
 ```bash
-$ dhall-to-nixpkgs github "https://github.com/dhall-lang/dhall-kubernetes" --rev v5.0.0 > "./nixops/package/dhall-kubernetes_5_0_0"
+$ dhall-to-nixpkgs github "https://github.com/dhall-lang/dhall-kubernetes" --rev v5.0.0 > "./nixops/package/dhall-kubernetes_5_0_0.nix"
 ```
 
 … and then update [`./store.nix`](./store.nix) to reference the newly added
