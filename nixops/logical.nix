@@ -300,10 +300,14 @@ in
               enableACME = true;
 
               locations."/" = {
+                index = "index.html";
+
                 root = "${pkgs.store}";
 
                 extraConfig = ''
-                  default_type application/dhall+cbor;
+                  location ~ "^/1220[[:xdigit:]]{64}$" {
+                    default_type application/dhall+cbor;
+                  }
                 '';
               };
             };

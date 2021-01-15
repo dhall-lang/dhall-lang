@@ -74,7 +74,7 @@ in
       ];
     };
 
-    inherit (pkgs) expected-prelude expected-test-files docs website;
+    inherit (pkgs) expected-prelude expected-test-files docs website store;
 
     inherit machine vm standard;
   }
