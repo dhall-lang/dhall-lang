@@ -1,4 +1,4 @@
-{ dhallPackages, runCommand, xorg }:
+{ coreutils, dhallPackages, lib, runCommand, writeText, xorg }:
 
 let
   packages = with dhallPackages; [
@@ -35,11 +35,50 @@ let
     Prelude_20_0_0
   ];
 
+  toListItem =
+    package:
+      ''
+      <li><a href="./${package.name}">${package.name}</a></li>
+      '';
+
+  index = writeText "index.html"
+    ''
+    <!DOCTYPE HTML>
+    <html>
+      <head>
+        <title>Dhall packages</title>
+        <link href="index.css" type="text/css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&amp;family=Lato:ital,wght@0,400;0,700;1,400&amp;display=swap" type="text/css" rel="stylesheet">
+        <script src="index.js" type="text/javascript"></script>
+        <meta charset="UTF-8">
+      </head>
+      <body>
+        <div class="nav-bar">
+          <img src="dhall-icon.svg" class="dhall-icon">
+          <p class="package-title">Dhall packages</p>
+          <div class="nav-bar-content-divider"></div>
+          <a id="switch-light-dark-mode" class="nav-option">Switch Light/Dark Mode</a>
+        </div>
+        <div class="main-container">
+          <h2>Package index</h2>
+          <ul>
+          ${lib.concatMapStrings toListItem packages}
+          </ul>
+        </div>
+      </body>
+    </html>
+    '';
 in
   runCommand "store" { inherit packages; } ''
-    mkdir "$out"
+    ${coreutils}/bin/mkdir "$out"
+
+    ${coreutils}/bin/cp '${index}' "$out/index.html"
+    ${coreutils}/bin/ln --symbolic '${./index.css}' "$out/index.css"
+    ${coreutils}/bin/ln --symbolic '${./index.js}' "$out/index.js"
+    ${coreutils}/bin/ln --symbolic '${./dhall-icon.svg}' "$out/dhall-icon.svg"
 
     for package in $packages; do
       ${xorg.lndir}/bin/lndir -silent "$package/.cache/dhall" "$out"
+      ${coreutils}/bin/ln --symbolic "$package/docs" "$out/''${package:44}"
     done
   ''
