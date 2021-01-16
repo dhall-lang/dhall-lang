@@ -130,8 +130,10 @@ package.
 You can verify that the newly-added package builds successfully by running:
 
 ```bash
-$ nix build --file ./release.nix machine
+$ nix build --file ./release.nix store
 ```
+
+… which will output the directory served by `store.dhall-lang.org`.
 
 ## Obtaining SSH access to `dhall-lang.org`
 

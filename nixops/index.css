@@ -1,0 +1,221 @@
+/******** Common rules ********/
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #EBEBEB;
+    transition: 0.5s;
+}
+
+body * {
+    font-family: 'Lato', sans-serif;
+}
+
+a {
+    transition: 0.5s;
+    color: #008489;
+}
+
+a:visited {
+    color: #914669;
+}
+
+a:active {
+    color: #FFA632;
+}
+
+/******** Markdown specific code ********/
+
+code {
+    font-family: 'Fira Code', monospace;
+}
+
+blockquote {
+    border-left: 9px solid #aaa;
+    background-color: #bdbdbd;
+    padding: 0.2rem;
+    color: #616161;
+}
+
+/******** Nav bar **********/
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 0.3rem;
+    background-color: #484848;
+    color: #EBEBEB;
+    transition: 0.5s;
+}
+
+.nav-bar .dhall-icon {
+    max-width: 2.5rem;
+    margin: 0.5rem;
+}
+
+.nav-bar .package-title {
+    font-size: 1.3rem;
+    margin: 0;
+    margin-left: 1rem;
+}
+
+.nav-bar a.nav-option {
+    font-size: 1rem;
+    height: 100%;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    transition: 0.5s;
+    text-decoration: none;
+}
+
+.nav-bar a.nav-option:hover {
+    text-decoration: underline;
+    text-decoration-color: #EBEBEB;
+}
+
+.nav-bar a.nav-option:active, .nav-bar a.nav-option, .nav-bar a.nav-option:visited {
+    color: #EBEBEB;
+}
+
+.nav-bar .nav-bar-content-divider {
+    flex: 1;
+}
+
+/******** Main content **********/
+
+.main-container {
+    padding: 2rem;
+    padding-top: 0;
+    transition: 0.5s;
+}
+
+h2.doc-title span, h2.doc-title a {
+    font-family: 'Fira Code', monospace;
+}
+
+span.crumb-divider:first-child {
+    margin-left: 0;
+}
+
+span.crumb-divider {
+    margin: 0 0.5rem;
+}
+
+a.title-crumb {
+    text-decoration: none;
+}
+
+a.title-crumb:hover {
+    text-decoration: underline;
+}
+
+a.copy-to-clipboard {
+    margin-top: 0;
+    color: #888 !important;
+    user-select: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+a.copy-to-clipboard:hover {
+    text-decoration: underline;
+}
+
+h2.doc-title {
+    margin-bottom: 0;
+}
+
+/******** Source code **********/
+
+
+.code-examples > pre {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.source-code {
+    padding: 0rem;
+}
+
+.source-code pre {
+    padding: 1rem;
+    font-family: 'Fira Code', monospace;
+    color: #333333;
+}
+
+.source-code span {
+    font-family: 'Fira Code', monospace;
+    color: #333333;
+}
+
+.source-code span.name-decl {
+    border-bottom: 1px solid #bdbdbd;
+}
+
+.source-code a {
+    transition: 0s;
+    font-family: 'Fira Code', monospace;
+}
+
+.source-code a.name-use {
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #bdbdbd;
+}
+
+.source-code .highlighted {
+    background-color: #bdbdbd !important;
+}
+
+.dhall-type {
+    font-family: 'Fira Code', monospace;
+}
+
+.dhall-type pre {
+    display: inline;
+    padding: 0;
+}
+
+span.of-type-token {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+/******** Dark mode styling ********/
+
+.dark-mode .main-container {
+    color: #EBEBEB;
+}
+
+body.dark-mode {
+    background-color: #484848;
+}
+
+.dark-mode .nav-bar {
+    background-color: #5d5d5d;
+}
+
+.dark-mode a {
+    color: #FFA632;
+}
+
+.dark-mode a:visited {
+    color: #008489;
+}
+
+.dark-mode a:active {
+    color: #914669;
+}
+
+.dark-mode .source-code pre {
+    color: #D4D4D4;
+}
+
+.dark-mode .source-code span {
+    color: #D4D4D4;
+}
+
+
+.dark-mode a.copy-to-clipboard {
+    color: #bdbdbd !important;
+}

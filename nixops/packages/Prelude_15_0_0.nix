@@ -1,6 +1,6 @@
 { buildDhallGitHubPackage }:
   buildDhallGitHubPackage {
-    name = "dhall-lang";
+    name = "Prelude";
     githubBase = "github.com";
     owner = "dhall-lang";
     repo = "dhall-lang";
