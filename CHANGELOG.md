@@ -5,6 +5,18 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v20.1.0`
+
+New features:
+
+* [Improve `Prelude.JSON.render` output](https://github.com/dhall-lang/dhall-lang/pull/1118)
+
+  `Prelude.JSON.render` now renders `$` as itself instead of `\u0024`
+
+Other changes:
+
+* [Expand literate Haskell semantics](https://github.com/dhall-lang/dhall-lang/pull/1127)
+
 ## `v20.0.0`
 
 Breaking changes:
