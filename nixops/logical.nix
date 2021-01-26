@@ -138,6 +138,8 @@ in
       notificationSender = "noreply@dhall-lang.org";
 
       package = pkgs.hydra-unstable;
+
+      useSubstitutes = true;
     };
 
     journald.extraConfig = ''
