@@ -272,14 +272,14 @@ data Operator
 -}
 data TextLiteral = Chunks [(Text, Expression)] Text
 
--- | These instances comes in handy for implementing @Text@-related operations
+-- | This instance comes in handy for implementing @Text@-related operations
 instance Semigroup TextLiteral where
     Chunks xys₀ z₀ <> Chunks [] z₁ =
         Chunks xys₀ (z₀ <> z₁)
     Chunks xys₀ z₀ <> Chunks ((x₁, y₁) : xys₁) z₁ =
         Chunks (xys₀ <> ((z₀ <> x₁, y₁) : xys₁)) z₁
 
--- | These instances comes in handy for implementing @Text@-related operations
+-- | This instance comes in handy for implementing @Text@-related operations
 instance Monoid TextLiteral where
     mempty = Chunks [] ""
 
