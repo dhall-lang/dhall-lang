@@ -3,6 +3,7 @@
 let
   packages = with dhallPackages; [
     dhall-ansible_0_1_0
+    dhall-ansible_0_2_1
 
     dhall-concourse_0_4_1
     dhall-concourse_0_5_0
