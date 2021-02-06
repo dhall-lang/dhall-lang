@@ -53,6 +53,10 @@
         border-bottom: 1px solid black;
       }
 
+      .scalable {
+        max-width: 100%;
+      }
+
       header {
         margin-bottom: 2rem;
       }
@@ -192,7 +196,7 @@
             <a class="nav-link" href="https://github.com/dhall-lang/dhall-lang/blob/master/README.md"><img src = "./img/github-logo.png" height="25px" alt="GitHub logo"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://twitter.com/dhall_lang"><img src = "./img/twitter-logo.svg" height="32px" alt="Twitter logo"></a>
+            <a class="nav-link" href="https://twitter.com/dhall_lang"><img src = "./img/twitter-logo.svg" height="25px" alt="Twitter logo"></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://discourse.dhall-lang.org"><img src = "./img/discourse-logo.svg" height="25px" alt="Discourse logo"></a>
@@ -224,7 +228,7 @@
     </p>
     </div>
     <div id="editor">
-      <div id="input-pane">
+      <div id="input-pane" class="scalable">
         <ul class="nav nav-tabs example-tab">
           <li class="nav-item">
             <a id="example0" class="nav-link example-tab active" href="#" onClick="set(example0, 'example0')">Hello, world!</a>
@@ -244,7 +248,7 @@
         </ul>
         <textarea id="dhall-input"></textarea>
       </div>
-      <div id="output-pane">
+      <div id="output-pane" class="scalable">
         <ul class="nav nav-tabs">
           <li class="nav-item">
             <a id="type-tab" class="nav-link mode-tab" href="#">Type</a>
@@ -287,7 +291,14 @@
       <p>Refactoring something mission-critical?  Use Dhall's support for
       semantic hashes to guarantee that many types of refactors are
       behavior-preserving</p>
-      <img src="./img/hash.gif">
+      <div class="scalable" style="font-size: 0; line-height: 0;">
+        <div class="scalable" style="display: inline-block; overflow: hidden; width: 528px;">
+          <img src="./img/hash.gif" style="width: calc(100% * 1072 / 528);">
+        </div>
+        <div class="scalable" style="display: inline-block; overflow: hidden; width: 528px;">
+          <img src="./img/hash.gif" style="width: calc(100% * 1072 / 528); margin-left: calc(100% * -544 / 528);">
+        </div>
+      </div>
       <hr class="my-4">
       <p>What if you intend to make a change?  Use a semantic diff to verify that
       you changed what you expected to:</p>
@@ -295,7 +306,7 @@
       <hr class="my-4">
       <p>Did you inherit a messy configuration?  Use the type system and
       integrated editor support to navigate more effectively.</p>
-      <img src="./img/completion.gif">
+      <img src="./img/completion.gif" class="scalable">
       <p></p>
       <a href="https://marketplace.visualstudio.com/items?itemName=dhall.vscode-dhall-lsp-server" class="btn btn-lg btn-outline-dark bg-light">VSCode plugin <i class="fas fa-code" ></i></a>
     </div>
