@@ -244,7 +244,7 @@ pkgsNew: pkgsOld: {
     gitlab =
       pkgsNew.fetchurl {
         url    = "https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png";
-        sha256 = "1mxk6xxw8bzp3l4jx3jaka9n5a69jbnkw4kzpmy4hbhp7nc33z5w";
+        sha256 = "0zhh4sqxx1phgnpmbgr20hn3yl6y7yh4gcsf6639vjzsjg1xjacd";
       };
 
     golang =
@@ -288,7 +288,7 @@ pkgsNew: pkgsOld: {
     openCollective =
       pkgsNew.fetchurl {
         url    = "https://opencollective.com/static/images/opencollective-icon.svg";
-        sha256 = "0i4hngjycmrj6gk2knsxqy35sx1ksmc268lr56s1fwfdp6afsh4z";
+        sha256 = "0pfr6pb4qp1z6gimcy46mpi6gw4vvcllj1fqrn4svb068iz56vb7";
       };
 
     prometheus =
@@ -306,7 +306,7 @@ pkgsNew: pkgsOld: {
     rust =
       pkgsNew.fetchurl {
         url    = "http://rust-lang.org/logos/rust-logo-128x128-blk.png";
-        sha256 = "19ycf7ra6pn6gvavpfg1gbi9j8dsmxfm0gnczabvpspv7yaf8i71";
+        sha256 = "0x1c4x3akpd6dlblz9jk23m3wmg9qp4my3hx73kx1cs01qg1cda1";
       };
 
     slack =
@@ -316,7 +316,7 @@ pkgsNew: pkgsOld: {
         url =
           "https://brandfolder.com/slack/attachments/pl546j-7le8zk-afym5u?dl=true&resource_key=pl53se-o7edc-2zw45a&resource_type=Collection";
 
-        sha256 = "0i4yjjgkcky6zfbim17rryy23pbrsc4255jzy14lgy7ja3a5jabk";
+        sha256 = "04pg70ccd1xyryqjq11k7firxhl998wmz0lk867hbii4d3c9xpva";
 
         postFetch =
           "${pkgsNew.imagemagickBig}/bin/mogrify -format png -crop 300x300+100+100 $downloadedFile";
