@@ -15,6 +15,7 @@ library
                      , cryptonite
                      , half
                      , markdown-unlit
+                     , megaparsec
                      , memory
                      , text
   exposed-modules:     AlphaNormalization
@@ -22,6 +23,7 @@ library
                      , Binary
                      , Equivalence
                      , FunctionCheck
+                     , Parser
                      , Syntax
                      , Shift
                      , Substitution
