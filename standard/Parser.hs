@@ -20,9 +20,16 @@ import Data.String (IsString(..))
 import Data.Text (Text)
 import Data.Void (Void)
 import Prelude hiding (takeWhile)
-import Syntax (Expression, TextLiteral(..))
 import Text.Megaparsec (MonadParsec, Parsec, satisfy, takeWhileP, try)
 import Text.Megaparsec.Char (char)
+
+import Syntax
+    ( Builtin(..)
+    , Constant(..)
+    , Expression
+    , Operator(..)
+    , TextLiteral(..)
+    )
 
 import qualified Data.Char as Char
 import qualified Data.Text as Text
@@ -105,8 +112,8 @@ validNonAscii c =
     || between  '\xF0000'  '\xFFFFD' c
     || between '\x100000' '\x10FFFD' c
 
-tab :: Char -> Bool
-tab = ('\t' ==)
+tab :: Char
+tab = '\t'
 
 blockComment :: Parser ()
 blockComment = do "{-"; blockCommentContinue
@@ -115,7 +122,7 @@ blockCommentChar :: Parser ()
 blockCommentChar =
         void (satisfy (between '\x20' '\x7F'))
     <|> void (satisfy validNonAscii)
-    <|> void (satisfy tab)
+    <|> void (char tab)
     <|> void endOfLine
     
 blockCommentContinue :: Parser ()
@@ -130,7 +137,7 @@ notEndOfLine = void (satisfy predicate)
     predicate c =
             between '\x20' '\x7F' c
         ||  validNonAscii c
-        ||  tab c
+        ||  tab == c
 
 lineComment :: Parser ()
 lineComment = do "--"; _ <- many notEndOfLine; _ <- endOfLine; return ()
@@ -138,7 +145,7 @@ lineComment = do "--"; _ <- many notEndOfLine; _ <- endOfLine; return ()
 whitespaceChunk :: Parser ()
 whitespaceChunk =
         void " "
-    <|> void (satisfy tab)
+    <|> void (char tab)
     <|> void endOfLine
     <|> lineComment
     <|> blockComment
@@ -362,7 +369,7 @@ singleQuoteChar =
     predicate c =
             between '\x20' '\x7F' c
         ||  validNonAscii c
-        ||  tab c
+        ||  tab == c
 
 singleQuoteLiteral :: Parser TextLiteral
 singleQuoteLiteral = do
@@ -381,6 +388,249 @@ interpolation = do
     _ <- "}"
 
     return (Chunks [("", e)] "")
+
+textLiteral :: Parser TextLiteral
+textLiteral = doubleQuoteLiteral <|> singleQuoteLiteral
+
+keyword :: Parser ()
+keyword =
+        if_
+    <|> then_
+    <|> else_
+    <|> let_
+    <|> in_
+    <|> using
+    <|> missing
+    <|> assert
+    <|> as
+    <|> _Infinity
+    <|> _NaN
+    <|> merge
+    <|> _Some
+    <|> toMap
+    <|> forallKeyword
+    <|> with
+
+if_ :: Parser ()
+if_ = void "if"
+
+then_ :: Parser ()
+then_ = void "then"
+
+else_ :: Parser ()
+else_ = void "else"
+
+let_ :: Parser ()
+let_ = void "let"
+
+in_ :: Parser ()
+in_ = void "in"
+
+as :: Parser ()
+as = void "as"
+
+using :: Parser ()
+using = void "using"
+
+merge :: Parser ()
+merge = void "merge"
+
+missing :: Parser ()
+missing = void "missing"
+
+_Infinity :: Parser ()
+_Infinity = void "Infinity"
+
+_NaN :: Parser ()
+_NaN = void "NaN"
+
+_Some :: Parser ()
+_Some = void "Some"
+
+toMap :: Parser ()
+toMap = void "toMap"
+
+assert :: Parser ()
+assert = void "assert"
+
+forallKeyword :: Parser ()
+forallKeyword = void "forall"
+
+forallSymbol :: Parser ()
+forallSymbol = void "∀"
+
+forall :: Parser ()
+forall = forallSymbol <|> forallKeyword
+
+with :: Parser ()
+with = void "with"
+
+builtin :: Parser Builtin
+builtin =
+        _NaturalFold
+    <|> _NaturalBuild
+    <|> _NaturalIsZero
+    <|> _NaturalEven
+    <|> _NaturalOdd
+    <|> _NaturalToInteger
+    <|> _NaturalShow
+    <|> _IntegerToDouble
+    <|> _IntegerShow
+    <|> _IntegerNegate
+    <|> _IntegerClamp
+    <|> _NaturalSubtract
+    <|> _DoubleShow
+    <|> _ListBuild
+    <|> _ListFold
+    <|> _ListLength
+    <|> _ListHead
+    <|> _ListLast
+    <|> _ListIndexed
+    <|> _ListReverse
+    <|> _TextShow
+    <|> _TextReplace
+    <|> _Bool
+    <|> _True
+    <|> _False
+    <|> _Optional
+    <|> _None
+    <|> _Natural
+    <|> _Integer
+    <|> _Double
+    <|> _Text
+    <|> _List
+
+_NaturalFold :: Parser Builtin
+_NaturalFold = do _ <- "Natural/fold"; return NaturalFold
+
+_NaturalBuild :: Parser Builtin
+_NaturalBuild = do _ <- "Natural/build"; return NaturalBuild
+
+_NaturalIsZero :: Parser Builtin
+_NaturalIsZero = do _ <- "Natural/isZero"; return NaturalIsZero
+
+_NaturalEven :: Parser Builtin
+_NaturalEven = do _ <- "Natural/even"; return NaturalEven
+
+_NaturalOdd :: Parser Builtin
+_NaturalOdd = do _ <- "Natural/odd"; return NaturalOdd
+
+_NaturalToInteger :: Parser Builtin
+_NaturalToInteger = do _ <- "Natural/toInteger"; return NaturalToInteger
+
+_NaturalShow :: Parser Builtin
+_NaturalShow = do _ <- "Natural/show"; return NaturalShow
+
+_IntegerToDouble :: Parser Builtin
+_IntegerToDouble = do _ <- "Integer/toDouble"; return IntegerToDouble
+
+_IntegerShow :: Parser Builtin
+_IntegerShow = do _ <- "Integer/show"; return IntegerShow
+
+_IntegerNegate :: Parser Builtin
+_IntegerNegate = do _ <- "Integer/negate"; return IntegerNegate
+
+_IntegerClamp :: Parser Builtin
+_IntegerClamp = do _ <- "Integer/clamp"; return IntegerClamp
+
+_NaturalSubtract :: Parser Builtin
+_NaturalSubtract = do _ <- "Natural/subtract"; return NaturalSubtract
+
+_DoubleShow :: Parser Builtin
+_DoubleShow = do _ <- "Double/show"; return DoubleShow
+
+_ListBuild :: Parser Builtin
+_ListBuild = do _ <- "List/build"; return ListBuild
+
+_ListFold :: Parser Builtin
+_ListFold = do _ <- "List/fold"; return ListFold
+
+_ListLength :: Parser Builtin
+_ListLength = do _ <- "List/length"; return ListLength
+
+_ListHead :: Parser Builtin
+_ListHead = do _ <- "List/head"; return ListHead
+
+_ListLast :: Parser Builtin
+_ListLast = do _ <- "List/last"; return ListLast
+
+_ListIndexed :: Parser Builtin
+_ListIndexed = do _ <- "List/indexed"; return ListIndexed
+
+_ListReverse :: Parser Builtin
+_ListReverse = do _ <- "List/reverse"; return ListReverse
+
+_TextShow :: Parser Builtin
+_TextShow = do _ <- "Text/show"; return TextShow
+
+_TextReplace :: Parser Builtin
+_TextReplace = do _ <- "Text/replace"; return TextReplace
+
+_Bool :: Parser Builtin
+_Bool = do _ <- "Bool"; return Bool
+
+_True :: Parser Builtin
+_True = do _ <- "True"; return Syntax.True
+
+_False :: Parser Builtin
+_False = do _ <- "False"; return Syntax.False
+
+_Optional :: Parser Builtin
+_Optional = do _ <- "Optional"; return Optional
+
+_None :: Parser Builtin
+_None = do _ <- "None"; return None
+
+_Natural :: Parser Builtin
+_Natural = do _ <- "Natural"; return Natural
+
+_Integer :: Parser Builtin
+_Integer = do _ <- "Integer"; return Integer
+
+_Double :: Parser Builtin
+_Double = do _ <- "Double"; return Double
+
+_Text :: Parser Builtin
+_Text = do _ <- "Text"; return Text
+
+_List :: Parser Builtin
+_List = do _ <- "List"; return List
+
+constant :: Parser Constant
+constant =
+        _Type
+    <|> _Kind
+    <|> _Sort
+
+_Type :: Parser Constant
+_Type = do _ <- "Type"; return Type
+
+_Kind :: Parser Constant
+_Kind = do _ <- "Kind"; return Kind
+
+_Sort :: Parser Constant
+_Sort = do _ <- "Sort"; return Sort
+
+combine :: Parser Operator
+combine = do _ <- "∧" <|> "/\\"; return CombineRecordTerms
+
+combineTypes :: Parser Operator
+combineTypes = do _ <- "⩓" <|> "//\\\\"; return CombineRecordTypes
+
+equivalent :: Parser Operator
+equivalent = do _ <- "≡" <|> "==="; return Equivalent
+
+prefer :: Parser Operator
+prefer = do _ <- "⫽" <|> "//"; return Prefer
+
+lambda :: Parser ()
+lambda = do _ <- "λ" <|> "\\"; return ()
+
+arrow :: Parser ()
+arrow = do _ <- "→" <|> "->"; return ()
+
+complete :: Parser ()
+complete = do _ <- "::"; return ()
 
 completeExpression :: Parser Expression
 completeExpression = undefined
