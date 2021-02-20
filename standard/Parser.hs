@@ -19,7 +19,8 @@ import Data.Functor (void)
 import Data.String (IsString(..))
 import Data.Text (Text)
 import Data.Void (Void)
-import Prelude hiding (takeWhile)
+import Numeric.Natural (Natural)
+import Prelude hiding (exponent, takeWhile)
 import Text.Megaparsec (MonadParsec, Parsec, satisfy, takeWhileP, try)
 import Text.Megaparsec.Char (char)
 
@@ -65,26 +66,34 @@ digitToNumber c
 caseInsensitive :: Char -> Char -> Bool
 caseInsensitive expected actual = Char.toUpper actual == expected
 
-base :: [Char] -> Int -> Int
-digits `base` b = foldl snoc 0 (map digitToNumber digits)
+base :: Num n => [Char] -> n -> n
+digits `base` b = foldl snoc 0 (map (fromIntegral . digitToNumber) digits)
   where
     snoc result number = result * b + number
 
-upTo :: Int -> Parser a -> Parser [a]
-upTo 0 _ = do
+atMost :: Int -> Parser a -> Parser [a]
+atMost 0 _ = do
     return []
-upTo n parser = (do
+atMost n parser = (do
     x <- parser
 
-    xs <- upTo (n - 1) parser
+    xs <- atMost (n - 1) parser
 
     return (x : xs) ) <|> return []
+
+atLeast :: Int -> Parser a -> Parser [a]
+atLeast lowerBound parser = do
+    prefix <- replicateM lowerBound parser
+
+    suffix <- many parser
+
+    return (prefix <> suffix)
 
 range :: Int -> Int -> Parser a -> Parser [a]
 range lowerBound upperBound parser = do
     prefix <- replicateM lowerBound parser
 
-    suffix <- upTo (upperBound - lowerBound) parser
+    suffix <- atMost (upperBound - lowerBound) parser
 
     return (prefix <> suffix)
 
@@ -631,6 +640,92 @@ arrow = do _ <- "→" <|> "->"; return ()
 
 complete :: Parser ()
 complete = do _ <- "::"; return ()
+
+sign :: Num n => Parser (n -> n)
+sign = (do _ <- "+"; return id) <|> (do _ <- "-"; return negate)
+
+exponent :: Parser Int
+exponent = do
+    _ <- "e"
+
+    s <- sign 
+
+    digits <- atLeast 1 (satisfy digit)
+
+    return (s (digits `base` 10))
+
+numericDoubleLiteral :: Parser Double
+numericDoubleLiteral = do
+    s <- sign
+
+    digits0 <- atLeast 1 (satisfy digit)
+
+    let withRadix = do
+            _ <- "."
+
+            digits1 <- atLeast 1 (satisfy digit)
+
+            e <- exponent <|> pure 0
+
+            return (s (fromInteger ((digits0 <> digits1) `base` 10) * 10^(e - length digits1)))
+
+    let withoutRadix = do
+            e <- exponent
+
+            return (s (fromInteger (digits0 `base` 10) * 10^e))
+
+    withRadix <|> withoutRadix
+
+minusInfinityLiteral :: Parser Double
+minusInfinityLiteral = do
+    _ <- "-"
+
+    _ <- _Infinity
+
+    return (-1/0)
+
+plusInfinityLiteral :: Parser Double
+plusInfinityLiteral = do
+    _ <- _Infinity
+
+    return (1/0)
+
+doubleLiteral :: Parser Double
+doubleLiteral =
+        numericDoubleLiteral
+    <|> minusInfinityLiteral
+    <|> plusInfinityLiteral
+    <|> (do _ <- _NaN; return (0/0))
+
+naturalLiteral :: Parser Natural
+naturalLiteral = hexadecimal <|> decimal <|> zero
+  where
+    hexadecimal = do
+        _ <- "0x"
+
+        digits <- atLeast 1 (satisfy hexDig)
+
+        return (digits `base` 16)
+
+    decimal = do
+        digit0 <- satisfy (between '1' '9')
+
+        digits1 <- many (satisfy digit)
+
+        return ((digit0 : digits1) `base` 10)
+
+    zero = do
+        _ <- "0"
+
+        return 0
+
+integerLiteral :: Parser Double
+integerLiteral = do
+    s <- sign
+
+    n <- naturalLiteral
+
+    return (s (fromIntegral n))
 
 completeExpression :: Parser Expression
 completeExpression = undefined
