@@ -27,7 +27,7 @@ import Text.Megaparsec.Char (char)
 import Syntax
     ( Builtin(..)
     , Constant(..)
-    , Expression
+    , Expression(..)
     , Operator(..)
     , TextLiteral(..)
     )
@@ -726,6 +726,26 @@ integerLiteral = do
     n <- naturalLiteral
 
     return (s (fromIntegral n))
+
+identifier :: Parser Expression
+identifier = variable <|> fmap Builtin builtin
+
+variable :: Parser Expression
+variable = do
+    x <- nonreservedLabels
+
+    n <- index <|> pure 0
+
+    return (Variable x n)
+  where
+    index = do
+        whsp
+
+        _ <- "@"
+
+        whsp
+
+        naturalLiteral
 
 completeExpression :: Parser Expression
 completeExpression = undefined
