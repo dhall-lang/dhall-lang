@@ -104,8 +104,8 @@
           ) →
           JSON
     , field :
-        ∀(mapKey : Text) →
-        ∀ ( mapValue
+        ∀(key : Text) →
+        ∀ ( value
           : ∀(JSON : Type) →
             ∀ ( json
               : { array : List JSON → JSON

@@ -22,6 +22,6 @@ let Map/keyValue =
 
 let field
     : Text → JSON → { mapKey : Text, mapValue : JSON }
-    = λ(mapKey : Text) → λ(mapValue : JSON) → Map/keyValue JSON mapKey mapValue
+    = Map/keyValue JSON
 
 in  field
