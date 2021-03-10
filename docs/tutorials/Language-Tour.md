@@ -3357,7 +3357,7 @@ records with many default-valued fields:
 
 This operator expects two arguments:
 
-* The left argument is a "schema" record containing two fields:
+* The left argument is a "schema" record containing at least the following two fields:
 
   * A field named `Type` containing the desired record type
 
