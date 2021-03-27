@@ -824,9 +824,7 @@ variable = do
     return (Variable x n)
   where
     index = do
-        whsp
-
-        "@"
+        try (do whsp; "@")
 
         whsp
 
@@ -1206,9 +1204,7 @@ http = do
     url <- httpRaw
 
     headers <- optional do
-        whsp
-
-        using
+        try (do whsp; using)
 
         whsp
 
@@ -1297,12 +1293,10 @@ import_ :: Parser Expression
 import_ = do
     i <- importType
 
-    h <- optional (do whsp1; hash)
+    h <- optional (try (do whsp1; hash))
 
     let location = do
-            whsp
-
-            as
+            try (do whsp; as)
 
             whsp1
 
@@ -1483,9 +1477,7 @@ annotatedExpression = do
     a <- operatorExpression
 
     let annotation = do
-            whsp
-
-            ":"
+            try (do whsp; ":")
 
             whsp1
 
@@ -1551,9 +1543,7 @@ withExpression = do
     a <- importExpression
 
     clauses <- Combinators.NonEmpty.some do
-        whsp1
-
-        with
+        try (do whsp1; with)
 
         whsp1
 
@@ -1565,7 +1555,7 @@ withClause :: Parser (NonEmpty Text, Expression)
 withClause = do
     k <- anyLabelOrSome
 
-    ks <- many (do whsp; "."; whsp; anyLabelOrSome)
+    ks <- many (do try (do whsp; "."); whsp; anyLabelOrSome)
 
     whsp
 
@@ -1585,9 +1575,7 @@ makeOperator parseOperator parseNext = do
     l0 <- parseNext
 
     fs <- many do
-        whsp
-
-        operator <- parseOperator
+        operator <- try (do whsp; parseOperator)
 
         whsp
 
@@ -1602,9 +1590,7 @@ makeOperator1 parseOperator parseNext = do
     l0 <- parseNext
 
     fs <- many do
-        whsp
-
-        operator <- parseOperator
+        operator <- try (do whsp; parseOperator)
 
         whsp1
 
@@ -1665,7 +1651,7 @@ applicationExpression :: Parser Expression
 applicationExpression = do
     a <- firstApplicationExpression
 
-    bs <- many (do whsp1; importExpression)
+    bs <- many (try (do whsp1; importExpression))
 
     return (foldl Application a bs)
 
@@ -1709,9 +1695,7 @@ completionExpression = do
     a <- selectorExpression
 
     let selection = do
-            whsp
-
-            complete
+            try (do whsp; complete)
 
             whsp
 
@@ -1725,7 +1709,7 @@ selectorExpression :: Parser Expression
 selectorExpression = do
     e0 <- primitiveExpression
 
-    fs <- many (do whsp; "."; whsp; selector)
+    fs <- many (do try (do whsp; "."); whsp; selector)
 
     return (foldl (\e f -> f e) e0 fs)
 
@@ -1829,7 +1813,8 @@ recordTypeOrLiteral =
     <|> return (RecordType [])
 
 emptyRecordLiteral :: Parser Expression
-emptyRecordLiteral = do "="; optional (do whsp; ","); return (RecordLiteral [])
+emptyRecordLiteral =
+    do "="; optional (do try (do whsp; ",")); return (RecordLiteral [])
 
 nonEmptyRecordTypeOrLiteral :: Parser Expression
 nonEmptyRecordTypeOrLiteral = nonEmptyRecordType <|> nonEmptyRecordLiteral
@@ -1838,9 +1823,9 @@ nonEmptyRecordType :: Parser Expression
 nonEmptyRecordType = do
     kt <- recordTypeEntry
 
-    kts <- many (do whsp; ","; whsp; recordTypeEntry)
+    kts <- many (do try (do whsp; ","); whsp; recordTypeEntry)
 
-    optional (do whsp; ",")
+    optional (try (do whsp; ","))
 
     return (RecordType (kt : kts))
 
@@ -1862,9 +1847,9 @@ nonEmptyRecordLiteral :: Parser Expression
 nonEmptyRecordLiteral = do
     kv <- recordLiteralEntry
 
-    kvs <- many (do whsp; ","; whsp; recordLiteralEntry)
+    kvs <- many (do try (do whsp; ","); whsp; recordLiteralEntry)
 
-    optional (do whsp; ",")
+    optional (try (do whsp; ","))
 
     return (RecordLiteral (kv : kvs))
 
@@ -1884,7 +1869,7 @@ recordLiteralEntry = do
 
 recordLiteralNormalEntry :: Parser ([Text], Expression)
 recordLiteralNormalEntry = do
-    ks <- many (do whsp; "."; anyLabelOrSome)
+    ks <- many (do try (do whsp; "."); anyLabelOrSome)
 
     whsp
 
@@ -1900,9 +1885,9 @@ unionType :: Parser Expression
 unionType =
         (do kt <- unionTypeEntry
 
-            kts <- many (do whsp; "|"; unionTypeEntry)
+            kts <- many (do try(do whsp; "|"); unionTypeEntry)
 
-            optional (do whsp; "|")
+            optional (try (do whsp; "|"))
 
             return (UnionType (kt : kts))
         )
@@ -1912,7 +1897,7 @@ unionTypeEntry :: Parser (Text, Maybe Expression)
 unionTypeEntry = do
     k <- anyLabelOrSome
 
-    t <- optional (do whsp; ":"; whsp1; expression)
+    t <- optional (do try (do whsp; ":"); whsp1; expression)
 
     return (k, t)
 

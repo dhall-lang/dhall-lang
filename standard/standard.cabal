@@ -25,6 +25,7 @@ library
                      , Binary
                      , Equivalence
                      , FunctionCheck
+                     , Interpret
                      , Parser
                      , Syntax
                      , Shift
@@ -32,3 +33,27 @@ library
   hs-source-dirs:      ./.
   default-language:    Haskell2010
   ghc-options:         -pgmL markdown-unlit -Wall -Werror
+
+executable dhall
+  build-depends:       base, standard
+  main-is:             Main.hs
+  hs-source-dirs:      dhall
+  default-language:    Haskell2010
+  ghc-options:         -Wall -Werror
+
+test-suite tasty
+  type:                exitcode-stdio-1.0
+  main-is:             Main.hs
+  build-depends:       base
+                     , serialise
+                     , directory
+                     , filepath
+                     , megaparsec
+                     , standard
+                     , tasty
+                     , tasty-hunit
+                     , text
+  hs-source-dirs:      tasty
+  default-extensions:  OverloadedStrings
+  default-language:    Haskell2010
+  ghc-options:         -Wall
