@@ -175,7 +175,7 @@ notEndOfLine = void (satisfy predicate)
         ||  tab == c
 
 lineComment :: Parser ()
-lineComment = do "--"; _ <- many notEndOfLine; _ <- endOfLine; return ()
+lineComment = do "--"; many notEndOfLine; endOfLine; return ()
 
 whitespaceChunk :: Parser ()
 whitespaceChunk =
@@ -234,8 +234,8 @@ label :: Parser Text
 label = (do "`"; l <- quotedLabel; "`"; return l)
     <|> simpleLabel
 
-nonreservedLabels :: Parser Text
-nonreservedLabels =
+nonreservedLabel :: Parser Text
+nonreservedLabel =
         (do "`"; l <- quotedLabel; "`"; guard (l `notElem` builtins); return l)
     <|> simpleLabel
 
@@ -248,7 +248,7 @@ anyLabelOrSome = anyLabel <|> "Some"
 doubleQuoteChunk :: Parser TextLiteral
 doubleQuoteChunk =
         interpolation
-    <|> (do _ <- char '\x5C';
+    <|> (do char '\x5C';
 
             c <- doubleQuoteEscaped;
 
@@ -349,7 +349,7 @@ bracedCodepoint = planes1Through16 <|> unbracedEscape <|> threeDigits
 
 bracedEscape :: Parser Int
 bracedEscape = do
-    _ <- takeWhile (== '0')
+    takeWhile (== '0')
 
     bracedCodepoint
 
@@ -362,11 +362,11 @@ doubleQuoteChar c = do
 
 doubleQuoteLiteral :: Parser TextLiteral
 doubleQuoteLiteral = do
-    _ <- char '"'
+    char '"'
 
     chunks <- many doubleQuoteChunk
 
-    _ <- char '"'
+    char '"'
 
     return (mconcat chunks)
 
@@ -375,18 +375,15 @@ singleQuoteContinue =
         (interpolation <> singleQuoteContinue)
     <|> (escapedQuotePair <> singleQuoteContinue)
     <|> (escapedInterpolation <> singleQuoteContinue)
-    <|> (do _ <- "''"; return mempty)
+    <|> (do "''"; return mempty)
     <|> (singleQuoteChar <> singleQuoteContinue)
 
 escapedQuotePair :: Parser TextLiteral
-escapedQuotePair = do
-    _ <- "'''"
-
-    return (Chunks [] "''")
+escapedQuotePair = do "'''"; return (Chunks [] "''")
 
 escapedInterpolation :: Parser TextLiteral
 escapedInterpolation = do
-    _ <- "''${"
+    "''${"
 
     return (Chunks [] "${")
 
@@ -408,19 +405,19 @@ singleQuoteChar =
 
 singleQuoteLiteral :: Parser TextLiteral
 singleQuoteLiteral = do
-    _ <- "''"
+    "''"
 
-    _ <- endOfLine
+    endOfLine
 
     singleQuoteContinue
 
 interpolation :: Parser TextLiteral
 interpolation = do
-    _ <- "${"
+    "${"
 
     e <- completeExpression
 
-    _ <- "}"
+    "}"
 
     return (Chunks [("", e)] "")
 
@@ -491,7 +488,7 @@ merge :: Parser ()
 merge = void "merge"
 
 missing :: Parser ImportType
-missing = do _ <- "missing"; return Missing
+missing = do "missing"; return Missing
 
 _Infinity :: Parser ()
 _Infinity = void "Infinity"
@@ -595,100 +592,100 @@ builtin =
     <|> _List
 
 _NaturalFold :: Parser Builtin
-_NaturalFold = do _ <- "Natural/fold"; return NaturalFold
+_NaturalFold = do "Natural/fold"; return NaturalFold
 
 _NaturalBuild :: Parser Builtin
-_NaturalBuild = do _ <- "Natural/build"; return NaturalBuild
+_NaturalBuild = do "Natural/build"; return NaturalBuild
 
 _NaturalIsZero :: Parser Builtin
-_NaturalIsZero = do _ <- "Natural/isZero"; return NaturalIsZero
+_NaturalIsZero = do "Natural/isZero"; return NaturalIsZero
 
 _NaturalEven :: Parser Builtin
-_NaturalEven = do _ <- "Natural/even"; return NaturalEven
+_NaturalEven = do "Natural/even"; return NaturalEven
 
 _NaturalOdd :: Parser Builtin
-_NaturalOdd = do _ <- "Natural/odd"; return NaturalOdd
+_NaturalOdd = do "Natural/odd"; return NaturalOdd
 
 _NaturalToInteger :: Parser Builtin
-_NaturalToInteger = do _ <- "Natural/toInteger"; return NaturalToInteger
+_NaturalToInteger = do "Natural/toInteger"; return NaturalToInteger
 
 _NaturalShow :: Parser Builtin
-_NaturalShow = do _ <- "Natural/show"; return NaturalShow
+_NaturalShow = do "Natural/show"; return NaturalShow
 
 _IntegerToDouble :: Parser Builtin
-_IntegerToDouble = do _ <- "Integer/toDouble"; return IntegerToDouble
+_IntegerToDouble = do "Integer/toDouble"; return IntegerToDouble
 
 _IntegerShow :: Parser Builtin
-_IntegerShow = do _ <- "Integer/show"; return IntegerShow
+_IntegerShow = do "Integer/show"; return IntegerShow
 
 _IntegerNegate :: Parser Builtin
-_IntegerNegate = do _ <- "Integer/negate"; return IntegerNegate
+_IntegerNegate = do "Integer/negate"; return IntegerNegate
 
 _IntegerClamp :: Parser Builtin
-_IntegerClamp = do _ <- "Integer/clamp"; return IntegerClamp
+_IntegerClamp = do "Integer/clamp"; return IntegerClamp
 
 _NaturalSubtract :: Parser Builtin
-_NaturalSubtract = do _ <- "Natural/subtract"; return NaturalSubtract
+_NaturalSubtract = do "Natural/subtract"; return NaturalSubtract
 
 _DoubleShow :: Parser Builtin
-_DoubleShow = do _ <- "Double/show"; return DoubleShow
+_DoubleShow = do "Double/show"; return DoubleShow
 
 _ListBuild :: Parser Builtin
-_ListBuild = do _ <- "List/build"; return ListBuild
+_ListBuild = do "List/build"; return ListBuild
 
 _ListFold :: Parser Builtin
-_ListFold = do _ <- "List/fold"; return ListFold
+_ListFold = do "List/fold"; return ListFold
 
 _ListLength :: Parser Builtin
-_ListLength = do _ <- "List/length"; return ListLength
+_ListLength = do "List/length"; return ListLength
 
 _ListHead :: Parser Builtin
-_ListHead = do _ <- "List/head"; return ListHead
+_ListHead = do "List/head"; return ListHead
 
 _ListLast :: Parser Builtin
-_ListLast = do _ <- "List/last"; return ListLast
+_ListLast = do "List/last"; return ListLast
 
 _ListIndexed :: Parser Builtin
-_ListIndexed = do _ <- "List/indexed"; return ListIndexed
+_ListIndexed = do "List/indexed"; return ListIndexed
 
 _ListReverse :: Parser Builtin
-_ListReverse = do _ <- "List/reverse"; return ListReverse
+_ListReverse = do "List/reverse"; return ListReverse
 
 _TextShow :: Parser Builtin
-_TextShow = do _ <- "Text/show"; return TextShow
+_TextShow = do "Text/show"; return TextShow
 
 _TextReplace :: Parser Builtin
-_TextReplace = do _ <- "Text/replace"; return TextReplace
+_TextReplace = do "Text/replace"; return TextReplace
 
 _Bool :: Parser Builtin
-_Bool = do _ <- "Bool"; return Bool
+_Bool = do "Bool"; return Bool
 
 _True :: Parser Builtin
-_True = do _ <- "True"; return Syntax.True
+_True = do "True"; return Syntax.True
 
 _False :: Parser Builtin
-_False = do _ <- "False"; return Syntax.False
+_False = do "False"; return Syntax.False
 
 _Optional :: Parser Builtin
-_Optional = do _ <- "Optional"; return Optional
+_Optional = do "Optional"; return Optional
 
 _None :: Parser Builtin
-_None = do _ <- "None"; return None
+_None = do "None"; return None
 
 _Natural :: Parser Builtin
-_Natural = do _ <- "Natural"; return Natural
+_Natural = do "Natural"; return Natural
 
 _Integer :: Parser Builtin
-_Integer = do _ <- "Integer"; return Integer
+_Integer = do "Integer"; return Integer
 
 _Double :: Parser Builtin
-_Double = do _ <- "Double"; return Double
+_Double = do "Double"; return Double
 
 _Text :: Parser Builtin
-_Text = do _ <- "Text"; return Text
+_Text = do "Text"; return Text
 
 _List :: Parser Builtin
-_List = do _ <- "List"; return List
+_List = do "List"; return List
 
 _Location :: Parser ()
 _Location = void "Location"
@@ -700,41 +697,41 @@ constant =
     <|> _Sort
 
 _Type :: Parser Constant
-_Type = do _ <- "Type"; return Type
+_Type = do "Type"; return Type
 
 _Kind :: Parser Constant
-_Kind = do _ <- "Kind"; return Kind
+_Kind = do "Kind"; return Kind
 
 _Sort :: Parser Constant
-_Sort = do _ <- "Sort"; return Sort
+_Sort = do "Sort"; return Sort
 
 combine :: Parser Operator
-combine = do _ <- "∧" <|> "/\\"; return CombineRecordTerms
+combine = do "∧" <|> "/\\"; return CombineRecordTerms
 
 combineTypes :: Parser Operator
-combineTypes = do _ <- "⩓" <|> "//\\\\"; return CombineRecordTypes
+combineTypes = do "⩓" <|> "//\\\\"; return CombineRecordTypes
 
 equivalent :: Parser Operator
-equivalent = do _ <- "≡" <|> "==="; return Equivalent
+equivalent = do "≡" <|> "==="; return Equivalent
 
 prefer :: Parser Operator
-prefer = do _ <- "⫽" <|> "//"; return Prefer
+prefer = do "⫽" <|> "//"; return Prefer
 
 lambda :: Parser ()
-lambda = do _ <- "λ" <|> "\\"; return ()
+lambda = do "λ" <|> "\\"; return ()
 
 arrow :: Parser ()
-arrow = do _ <- "→" <|> "->"; return ()
+arrow = do "→" <|> "->"; return ()
 
 complete :: Parser ()
-complete = do _ <- "::"; return ()
+complete = do "::"; return ()
 
 sign :: Num n => Parser (n -> n)
-sign = (do _ <- "+"; return id) <|> (do _ <- "-"; return negate)
+sign = (do "+"; return id) <|> (do "-"; return negate)
 
 exponent :: Parser Int
 exponent = do
-    _ <- "e"
+    "e"
 
     s <- sign
 
@@ -749,7 +746,7 @@ numericDoubleLiteral = do
     digits0 <- atLeast 1 (satisfy digit)
 
     let withRadix = do
-            _ <- "."
+            "."
 
             digits1 <- atLeast 1 (satisfy digit)
 
@@ -766,15 +763,15 @@ numericDoubleLiteral = do
 
 minusInfinityLiteral :: Parser Double
 minusInfinityLiteral = do
-    _ <- "-"
+    "-"
 
-    _ <- _Infinity
+    _Infinity
 
     return (-1/0)
 
 plusInfinityLiteral :: Parser Double
 plusInfinityLiteral = do
-    _ <- _Infinity
+    _Infinity
 
     return (1/0)
 
@@ -783,13 +780,13 @@ doubleLiteral =
         numericDoubleLiteral
     <|> minusInfinityLiteral
     <|> plusInfinityLiteral
-    <|> (do _ <- _NaN; return (0/0))
+    <|> (do _NaN; return (0/0))
 
 naturalLiteral :: Parser Natural
 naturalLiteral = hexadecimal <|> decimal <|> zero
   where
     hexadecimal = do
-        _ <- "0x"
+        "0x"
 
         digits <- atLeast 1 (satisfy hexDig)
 
@@ -803,11 +800,11 @@ naturalLiteral = hexadecimal <|> decimal <|> zero
         return ((digit0 : digits1) `base` 10)
 
     zero = do
-        _ <- "0"
+        "0"
 
         return 0
 
-integerLiteral :: Parser Double
+integerLiteral :: Parser Integer
 integerLiteral = do
     s <- sign
 
@@ -820,7 +817,7 @@ identifier = variable <|> fmap Builtin builtin
 
 variable :: Parser Expression
 variable = do
-    x <- nonreservedLabels
+    x <- nonreservedLabel
 
     n <- index <|> pure 0
 
@@ -829,7 +826,7 @@ variable = do
     index = do
         whsp
 
-        _ <- "@"
+        "@"
 
         whsp
 
@@ -863,14 +860,14 @@ quotedPathComponent = takeWhile1 quotedPathCharacter
 
 pathComponent :: Parser Text
 pathComponent = do
-    _ <- "/"
+    "/"
 
     let quoted = do
-            _ <- "\""
+            "\""
 
             component <- quotedPathComponent
 
-            _ <- "\""
+            "\""
 
             return component
 
@@ -887,7 +884,7 @@ local = parentPath <|> herePath <|> homePath <|> absolutePath
 
 parentPath :: Parser ImportType
 parentPath = do
-    _ <- ".."
+    ".."
 
     p <- path_
 
@@ -895,7 +892,7 @@ parentPath = do
 
 herePath :: Parser ImportType
 herePath = do
-    _ <- "."
+    "."
 
     p <- path_
 
@@ -903,7 +900,7 @@ herePath = do
 
 homePath :: Parser ImportType
 homePath = do
-    _ <- "~"
+    "~"
 
     p <- path_
 
@@ -917,10 +914,10 @@ absolutePath = do
 
 scheme_ :: Parser Scheme
 scheme_ = do
-    _ <- "http"
+    "http"
 
     let secure = do
-            _ <- "s"
+            "s"
 
             return HTTPS
 
@@ -930,19 +927,19 @@ httpRaw :: Parser URL
 httpRaw = do
     s <- scheme_
 
-    _ <- "://"
+    "://"
 
     a <- authority_
 
     p <- pathAbempty
 
-    q <- optional (do _ <- "?"; query_)
+    q <- optional (do "?"; query_)
 
     return (URL s a p q)
 
 pathAbempty :: Parser File
 pathAbempty = do
-    segments <- many (do _ <- "/"; segment)
+    segments <- many (do "/"; segment)
 
     case segments of
         [] -> do
@@ -1221,7 +1218,7 @@ http = do
 
 env :: Parser ImportType
 env = do
-    _ <- "env:"
+    "env:"
 
     let posix = do
             "\""
@@ -1256,15 +1253,15 @@ posixEnvironmentVariableCharacter = do
             "\\"
 
             let remainder =
-                         (do _ <- "\""; return '"' )
-                    <|>  (do _ <- "\\"; return '\\')
-                    <|>  (do _ <- "a" ; return '\a')
-                    <|>  (do _ <- "b" ; return '\b')
-                    <|>  (do _ <- "f" ; return '\f')
-                    <|>  (do _ <- "n" ; return '\n')
-                    <|>  (do _ <- "r" ; return '\r')
-                    <|>  (do _ <- "t" ; return '\t')
-                    <|>  (do _ <- "v" ; return '\v')
+                         (do "\""; return '"' )
+                    <|>  (do "\\"; return '\\')
+                    <|>  (do "a" ; return '\a')
+                    <|>  (do "b" ; return '\b')
+                    <|>  (do "f" ; return '\f')
+                    <|>  (do "n" ; return '\n')
+                    <|>  (do "r" ; return '\r')
+                    <|>  (do "t" ; return '\t')
+                    <|>  (do "v" ; return '\v')
 
             remainder
 
@@ -1300,10 +1297,7 @@ import_ :: Parser Expression
 import_ = do
     i <- importType
 
-    h <- optional do
-        whsp1
-
-        hash
+    h <- optional (do whsp1; hash)
 
     let location = do
             whsp
@@ -1312,14 +1306,635 @@ import_ = do
 
             whsp1
 
-            (do _ <- _Text; return RawText) <|> (do _ <- _Location; return Location)
+            (do _Text; return RawText) <|> (do _Location; return Location)
 
     l <- location <|> return Code
 
     return (Import i l h)
 
-completeExpression :: Parser Expression
-completeExpression = undefined
+expression :: Parser Expression
+expression =
+        (do lambda
+
+            whsp
+
+            "("
+
+            whsp
+
+            x <- nonreservedLabel
+
+            whsp
+
+            ":"
+
+            whsp1
+
+            _A <- expression
+
+            whsp
+
+            ")"
+
+            whsp
+
+            arrow
+
+            whsp
+
+            _B <- expression
+
+            return (Lambda x _A _B)
+        )
+    <|> (do if_
+
+            whsp1
+
+            a <- expression
+
+            whsp
+
+            then_
+
+            whsp1
+
+            b <- expression
+
+            whsp
+
+            else_
+
+            whsp1
+
+            c <- expression
+
+            return (If a b c)
+        )
+    <|> (do bindings <- many letBinding
+
+            in_
+
+            whsp1
+
+            b <- expression
+
+            return (foldr (\(x, mA, a) -> Let x mA a) b bindings)
+        )
+    <|> (do forall
+
+            whsp
+
+            "("
+
+            whsp
+
+            x <- nonreservedLabel
+
+            whsp
+
+            ":"
+
+            whsp1
+
+            _A <- expression
+
+            whsp
+
+            ")"
+
+            whsp
+
+            arrow
+
+            whsp
+
+            _B <- expression
+
+            return (Forall x _A _B)
+        )
+    <|> try (do
+            _A <- operatorExpression
+
+            whsp
+
+            arrow
+
+            whsp
+
+            _B <- expression
+
+            return (Forall "_" _A _B)
+        )
+    <|> try withExpression
+    <|> try (do
+            merge
+
+            whsp1
+
+            a <- importExpression
+
+            whsp1
+
+            b <- importExpression
+
+            whsp
+
+            ":"
+
+            whsp1
+
+            c <- applicationExpression
+
+            return (Merge a b (Just c))
+        )
+    <|> try emptyListLiteral
+    <|> (do toMap
+
+            whsp1
+
+            a <- importExpression
+
+            whsp
+
+            ":"
+
+            whsp1
+
+            b <- applicationExpression
+
+            return (ToMap a (Just b))
+        )
+    <|> (do assert
+
+            whsp
+
+            ":"
+
+            whsp1
+
+            a <- expression
+
+            return (Assert a)
+        )
+    <|> annotatedExpression
+
+annotatedExpression :: Parser Expression
+annotatedExpression = do
+    a <- operatorExpression
+
+    let annotation = do
+            whsp
+
+            ":"
+
+            whsp1
+
+            _A <- expression
+
+            return (Annotation a _A)
+
+    annotation <|> return a
+
+letBinding :: Parser (Text, Maybe Expression, Expression)
+letBinding = do
+    let_
+
+    whsp1
+
+    x <- nonreservedLabel
+
+    whsp
+
+    mA <- optional do
+        ":"
+
+        whsp1
+
+        _A <- expression
+
+        whsp
+
+        return _A
+
+    "="
+
+    whsp
+
+    a <- expression
+
+    whsp
+
+    return (x, mA, a)
+
+emptyListLiteral :: Parser Expression
+emptyListLiteral = do
+    "["
+
+    whsp
+
+    optional (do ","; whsp)
+
+    "]"
+
+    whsp
+
+    ":"
+
+    whsp1
+
+    _A <- applicationExpression
+
+    return (EmptyList _A)
+
+withExpression :: Parser Expression
+withExpression = do
+    a <- importExpression
+
+    clauses <- Combinators.NonEmpty.some do
+        whsp1
+
+        with
+
+        whsp1
+
+        withClause
+
+    return (foldl (\e (ks, v) -> With e ks v) a clauses)
+
+withClause :: Parser (NonEmpty Text, Expression)
+withClause = do
+    k <- anyLabelOrSome
+
+    ks <- many (do whsp; "."; whsp; anyLabelOrSome)
+
+    whsp
+
+    "="
+
+    whsp
+
+    v <- operatorExpression
+
+    return (k :| ks, v)
+
+operatorExpression :: Parser Expression
+operatorExpression = equivalentExpression
+
+makeOperator :: Parser Operator -> Parser Expression -> Parser Expression
+makeOperator parseOperator parseNext = do
+    l0 <- parseNext
+
+    fs <- many do
+        whsp
+
+        operator <- parseOperator
+
+        whsp
+
+        r <- parseNext
+
+        return (\l -> Operator l operator r)
+
+    return (foldl (\l f -> f l) l0 fs)
+
+makeOperator1 :: Parser Operator -> Parser Expression -> Parser Expression
+makeOperator1 parseOperator parseNext = do
+    l0 <- parseNext
+
+    fs <- many do
+        whsp
+
+        operator <- parseOperator
+
+        whsp1
+
+        r <- parseNext
+
+        return (\l -> Operator l operator r)
+
+    return (foldl (\l f -> f l) l0 fs)
+
+equivalentExpression :: Parser Expression
+equivalentExpression =
+    makeOperator (do equivalent; return Equivalent) importAltExpression
+
+importAltExpression :: Parser Expression
+importAltExpression =
+    makeOperator1 (do "?"; return Alternative) orExpression
+
+orExpression :: Parser Expression
+orExpression = makeOperator (do "||"; return Or) plusExpression
+
+plusExpression :: Parser Expression
+plusExpression = makeOperator1 (do "+"; return Plus) textAppendExpression
+
+textAppendExpression :: Parser Expression
+textAppendExpression =
+    makeOperator (do "++"; return TextAppend) listAppendExpression
+
+listAppendExpression :: Parser Expression
+listAppendExpression =
+    makeOperator (do "#"; return ListAppend) andExpression
+
+andExpression :: Parser Expression
+andExpression = makeOperator (do "&&"; return And) combineExpression
+
+combineExpression :: Parser Expression
+combineExpression =
+    makeOperator (do combine; return CombineRecordTerms) preferExpression
+
+preferExpression :: Parser Expression
+preferExpression =
+    makeOperator (do prefer; return Prefer) combineTypesExpression
+
+combineTypesExpression :: Parser Expression
+combineTypesExpression =
+    makeOperator (do combineTypes; return CombineRecordTypes) timesExpression
+
+timesExpression :: Parser Expression
+timesExpression = makeOperator (do "*"; return Times) equalExpression
+
+equalExpression :: Parser Expression
+equalExpression = makeOperator (do "=="; return Equal) notEqualExpression
+
+notEqualExpression :: Parser Expression
+notEqualExpression =
+    makeOperator (do "!="; return NotEqual) applicationExpression
+
+applicationExpression :: Parser Expression
+applicationExpression = do
+    a <- firstApplicationExpression
+
+    bs <- many (do whsp1; importExpression)
+
+    return (foldl Application a bs)
+
+firstApplicationExpression :: Parser Expression
+firstApplicationExpression =
+        (do merge
+
+            whsp1
+
+            a <- importExpression
+
+            whsp1
+
+            b <- importExpression
+
+            return (Merge a b Nothing)
+        )
+    <|> (do _Some
+
+            whsp1
+
+            a <- importExpression
+
+            return (Some a)
+        )
+    <|> (do toMap
+
+            whsp1
+
+            a <- importExpression
+
+            return (ToMap a Nothing)
+        )
+    <|> importExpression
 
 importExpression :: Parser Expression
-importExpression = undefined
+importExpression = import_ <|> completionExpression
+
+completionExpression :: Parser Expression
+completionExpression = do
+    a <- selectorExpression
+
+    let selection = do
+            whsp
+
+            complete
+
+            whsp
+
+            b <- selectorExpression
+
+            return (Completion a b)
+
+    selection <|> return a
+
+selectorExpression :: Parser Expression
+selectorExpression = do
+    e0 <- primitiveExpression
+
+    fs <- many (do whsp; "."; whsp; selector)
+
+    return (foldl (\e f -> f e) e0 fs)
+
+selector :: Parser (Expression -> Expression)
+selector =
+        (do x  <- anyLabel    ; return (\e -> Field           e x ))
+    <|> (do ks <- labels      ; return (\e -> ProjectByLabels e ks))
+    <|> (do t  <- typeSelector; return (\e -> ProjectByType   e t ))
+
+labels :: Parser [Text]
+labels = do
+    "{"
+
+    whsp
+
+    optional (do ","; whsp)
+
+    let nonEmpty = do
+            k0 <- anyLabelOrSome
+
+            whsp
+
+            ks <- many do
+
+                ","
+
+                whsp
+
+                k <- anyLabelOrSome
+
+                whsp
+
+                return k
+
+            optional (do ","; whsp)
+
+            return (k0 : ks)
+
+    ks <- nonEmpty <|> pure []
+
+    "}"
+
+    return ks
+
+typeSelector :: Parser Expression
+typeSelector = do
+    "("
+
+    whsp
+
+    e <- expression
+
+    whsp
+
+    ")"
+
+    return e
+
+primitiveExpression :: Parser Expression
+primitiveExpression =
+        (do n <- doubleLiteral; return (DoubleLiteral n))
+    <|> (do n <- naturalLiteral; return (NaturalLiteral n))
+    <|> (do n <- integerLiteral; return (IntegerLiteral n))
+    <|> (do t <- textLiteral; return (TextLiteral t))
+    <|> (do "{"
+
+            whsp
+
+            optional (do ","; whsp)
+
+            e <- recordTypeOrLiteral
+
+            whsp
+
+            "}"
+
+            return e
+        )
+    <|> (do "<"
+
+            whsp
+
+            optional (do "|"; whsp)
+
+            e <- unionType
+
+            whsp
+
+            ">"
+
+            return e
+        )
+    <|> nonEmptyListLiteral
+    <|> identifier
+    <|> (do "("; e <- completeExpression; ")"; return e)
+
+recordTypeOrLiteral :: Parser Expression
+recordTypeOrLiteral =
+        emptyRecordLiteral
+    <|> nonEmptyRecordTypeOrLiteral
+    <|> return (RecordType [])
+
+emptyRecordLiteral :: Parser Expression
+emptyRecordLiteral = do "="; optional (do whsp; ","); return (RecordLiteral [])
+
+nonEmptyRecordTypeOrLiteral :: Parser Expression
+nonEmptyRecordTypeOrLiteral = nonEmptyRecordType <|> nonEmptyRecordLiteral
+
+nonEmptyRecordType :: Parser Expression
+nonEmptyRecordType = do
+    kt <- recordTypeEntry
+
+    kts <- many (do whsp; ","; whsp; recordTypeEntry)
+
+    optional (do whsp; ",")
+
+    return (RecordType (kt : kts))
+
+recordTypeEntry :: Parser (Text, Expression)
+recordTypeEntry = do
+    k <- anyLabelOrSome
+
+    whsp
+
+    ":"
+
+    whsp1
+
+    t <- expression
+
+    return (k, t)
+
+nonEmptyRecordLiteral :: Parser Expression
+nonEmptyRecordLiteral = do
+    kv <- recordLiteralEntry
+
+    kvs <- many (do whsp; ","; whsp; recordLiteralEntry)
+
+    optional (do whsp; ",")
+
+    return (RecordLiteral (kv : kvs))
+
+recordLiteralEntry :: Parser (Text, Expression)
+recordLiteralEntry = do
+    k0 <- anyLabelOrSome
+
+    let normalEntry = do
+            (ks, v) <- recordLiteralNormalEntry
+
+            return (k0, foldr (\k e -> RecordLiteral [(k, e)]) v (k0 : ks))
+
+    let punnedEntry = do
+            return (k0, Variable k0 0)
+
+    normalEntry <|> punnedEntry
+
+recordLiteralNormalEntry :: Parser ([Text], Expression)
+recordLiteralNormalEntry = do
+    ks <- many (do whsp; "."; anyLabelOrSome)
+
+    whsp
+
+    "="
+
+    whsp
+
+    v <- expression
+
+    return (ks, v)
+
+unionType :: Parser Expression
+unionType =
+        (do kt <- unionTypeEntry
+
+            kts <- many (do whsp; "|"; unionTypeEntry)
+
+            optional (do whsp; "|")
+
+            return (UnionType (kt : kts))
+        )
+    <|> return (UnionType [])
+
+unionTypeEntry :: Parser (Text, Maybe Expression)
+unionTypeEntry = do
+    k <- anyLabelOrSome
+
+    t <- optional (do whsp; ":"; whsp1; expression)
+
+    return (k, t)
+
+nonEmptyListLiteral :: Parser Expression
+nonEmptyListLiteral = do
+    "["
+
+    whsp
+
+    optional (do ","; whsp)
+
+    e0 <- expression
+
+    whsp
+
+    es <- many (do ","; whsp; e <- expression; whsp; return e)
+
+    optional (do ","; whsp)
+
+    "]"
+
+    return (NonEmptyList (e0 :| es))
+
+completeExpression :: Parser Expression
+completeExpression = do whsp; e <- expression; whsp; return e
