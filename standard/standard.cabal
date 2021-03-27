@@ -17,6 +17,7 @@ library
                      , markdown-unlit
                      , megaparsec
                      , memory
+                     , parser-combinators
                      , text
   exposed-modules:     AlphaNormalization
                      , BetaNormalization

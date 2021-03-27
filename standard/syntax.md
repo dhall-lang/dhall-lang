@@ -334,13 +334,17 @@ data ImportMode
 
 -- | Where to locate the import
 data ImportType
-    = Missing               -- ^ > missing
-    | Remote URL            -- ^ > https://authority directory file
-    | Path FilePrefix File  -- ^ > /directory/file
-                            --   > ./directory/file
-                            --   > ../directory/file
-                            --   > ~/directory/file
-    | Env Text              -- ^ > env:x
+    = Missing
+        -- ^ > missing
+    | Remote URL (Maybe Expression)
+        -- ^ > https://authority directory file using headers
+    | Path FilePrefix File
+        -- ^ > /directory/file
+        --   > ./directory/file
+        --   > ../directory/file
+        --   > ~/directory/file
+    | Env Text
+        -- ^ > env:x
 
 -- | Structured representation of an HTTP(S) URL
 data URL = URL
@@ -348,7 +352,6 @@ data URL = URL
     , authority :: Text
     , path      :: File
     , query     :: Maybe Text
-    , headers   :: Maybe Expression
     }
 
 -- | The URL scheme

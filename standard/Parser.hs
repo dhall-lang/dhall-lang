@@ -13,27 +13,42 @@
 -}
 module Parser where
 
-import Control.Applicative (Alternative(..))
+import Control.Applicative (Alternative(..), optional)
 import Control.Monad (MonadPlus(..), guard, replicateM)
 import Data.Functor (void)
+import Data.List.NonEmpty (NonEmpty(..))
 import Data.String (IsString(..))
 import Data.Text (Text)
 import Data.Void (Void)
 import Numeric.Natural (Natural)
 import Prelude hiding (exponent, takeWhile)
-import Text.Megaparsec (MonadParsec, Parsec, satisfy, takeWhileP, try)
 import Text.Megaparsec.Char (char)
 
 import Syntax
     ( Builtin(..)
     , Constant(..)
     , Expression(..)
+    , File(..)
+    , FilePrefix(..)
+    , ImportType(..)
     , Operator(..)
+    , Scheme(..)
     , TextLiteral(..)
+    , URL(..)
+    )
+import Text.Megaparsec
+    ( MonadParsec
+    , Parsec
+    , satisfy
+    , takeWhileP
+    , takeWhile1P
+    , try
     )
 
-import qualified Data.Char as Char
-import qualified Data.Text as Text
+import qualified Control.Monad.Combinators.NonEmpty as Combinators.NonEmpty
+import qualified Data.Char                          as Char
+import qualified Data.List.NonEmpty                 as NonEmpty
+import qualified Data.Text                          as Text
 
 newtype Parser a = Parser { unParser :: Parsec Void Text a }
     deriving
@@ -55,6 +70,9 @@ between lo hi c = lo <= c && c <= hi
 
 takeWhile :: (Char -> Bool) -> Parser Text
 takeWhile = takeWhileP Nothing
+
+takeWhile1 :: (Char -> Bool) -> Parser Text
+takeWhile1 = takeWhile1P Nothing
 
 digitToNumber :: Char -> Int
 digitToNumber c
@@ -133,7 +151,7 @@ blockCommentChar =
     <|> void (satisfy validNonAscii)
     <|> void (char tab)
     <|> void endOfLine
-    
+
 blockCommentContinue :: Parser ()
 blockCommentContinue =
         void "-}"
@@ -401,6 +419,26 @@ interpolation = do
 textLiteral :: Parser TextLiteral
 textLiteral = doubleQuoteLiteral <|> singleQuoteLiteral
 
+reservedKeywords :: [Text]
+reservedKeywords =
+    [ "if"
+    , "then"
+    , "else"
+    , "let"
+    , "in"
+    , "using"
+    , "missing"
+    , "assert"
+    , "as"
+    , "Infinity"
+    , "NaN"
+    , "merge"
+    , "Some"
+    , "toMap"
+    , "forall"
+    , "with"
+    ]
+
 keyword :: Parser ()
 keyword =
         if_
@@ -473,6 +511,45 @@ forall = forallSymbol <|> forallKeyword
 
 with :: Parser ()
 with = void "with"
+
+builtins :: [Text]
+builtins =
+    [ "Natural/fold"
+    , "Natural/build"
+    , "Natural/isZero"
+    , "Natural/even"
+    , "Natural/odd"
+    , "Natural/toInteger"
+    , "Natural/show"
+    , "Integer/toDouble"
+    , "Integer/show"
+    , "Integer/negate"
+    , "Integer/clamp"
+    , "Natural/subtract"
+    , "Double/show"
+    , "List/build"
+    , "List/fold"
+    , "List/length"
+    , "List/head"
+    , "List/last"
+    , "List/indexed"
+    , "List/reverse"
+    , "Text/show"
+    , "Text/replace"
+    , "Bool"
+    , "True"
+    , "False"
+    , "Optional"
+    , "None"
+    , "Natural"
+    , "Integer"
+    , "Double"
+    , "Text"
+    , "List"
+    , "Type"
+    , "Kind"
+    , "Sort"
+    ]
 
 builtin :: Parser Builtin
 builtin =
@@ -648,7 +725,7 @@ exponent :: Parser Int
 exponent = do
     _ <- "e"
 
-    s <- sign 
+    s <- sign
 
     digits <- atLeast 1 (satisfy digit)
 
@@ -747,64 +824,374 @@ variable = do
 
         naturalLiteral
 
+pathCharacter :: Char -> Bool
+pathCharacter c =
+        c == '\x21'
+    ||  between '\x24' '\x27' c
+    ||  between '\x2A' '\x2B' c
+    ||  between '\x2D' '\x2E' c
+    ||  between '\x30' '\x3B' c
+    ||  c == '\x3D'
+    ||  between '\x40' '\x5A' c
+    ||  between '\x5E' '\x7A' c
+    ||  c == '\x7C'
+    ||  c == '\x7E'
+
+quotedPathCharacter :: Char -> Bool
+quotedPathCharacter c =
+        between '\x20' '\x21' c
+    ||  between '\x23' '\x2E' c
+    ||  between '\x30' '\x7F' c
+    ||  validNonAscii c
+
+unquotedPathComponent :: Parser Text
+unquotedPathComponent = takeWhile1 pathCharacter
+
+quotedPathComponent :: Parser Text
+quotedPathComponent = takeWhile1 quotedPathCharacter
+
+pathComponent :: Parser Text
+pathComponent = do
+    _ <- "/"
+
+    let quoted = do
+            _ <- "\""
+
+            component <- quotedPathComponent
+
+            _ <- "\""
+
+            return component
+
+    unquotedPathComponent <|> quoted
+
+path_ :: Parser File
+path_ = do
+    components <- Combinators.NonEmpty.some pathComponent
+
+    return (File (NonEmpty.init components) (NonEmpty.last components))
+
+local :: Parser ImportType
+local = parentPath <|> herePath <|> homePath <|> absolutePath
+
+parentPath :: Parser ImportType
+parentPath = do
+    _ <- ".."
+
+    p <- path_
+
+    return (Path Parent p)
+
+herePath :: Parser ImportType
+herePath = do
+    _ <- "."
+
+    p <- path_
+
+    return (Path Here p)
+
+homePath :: Parser ImportType
+homePath = do
+    _ <- "~"
+
+    p <- path_
+
+    return (Path Home p)
+
+absolutePath :: Parser ImportType
+absolutePath = do
+    p <- path_
+
+    return (Path Absolute p)
+
+scheme_ :: Parser Scheme
+scheme_ = do
+    _ <- "http"
+
+    let secure = do
+            _ <- "s"
+
+            return HTTPS
+
+    secure <|> return HTTP
+
+httpRaw :: Parser URL
+httpRaw = do
+    s <- scheme_
+
+    _ <- "://"
+
+    a <- authority_
+
+    p <- pathAbempty
+
+    q <- optional (do _ <- "?"; query_)
+
+    return (URL s a p q)
+
+pathAbempty :: Parser File
+pathAbempty = do
+    segments <- many (do _ <- "/"; segment)
+
+    case segments of
+        [] -> do
+            return (File [] "")
+        s : ss -> do
+            let n = s :| ss
+
+            return (File (NonEmpty.init n) (NonEmpty.last n))
+
+authority_ :: Parser Text
+authority_ = do
+    ((userinfo <> "@") <|> "") <> host <> ((":" <> port) <|> ":")
+
+userinfo :: Parser Text
+userinfo = do
+    let character = do
+            c <- satisfy (\c -> unreserved c || subDelims c || c == ':')
+
+            return (Text.singleton c)
+
+    texts <- many (character <|> pctEncoded)
+
+    return (Text.concat texts)
+
+host :: Parser Text
+host = ipLiteral <|> ipv4Address <|> domain
+
+port :: Parser Text
+port = takeWhile digit
+
+ipLiteral :: Parser Text
+ipLiteral = "[" <> (ipv6Address <|> ipvFuture) <> "]"
+
+ipvFuture :: Parser Text
+ipvFuture = do
+        "v"
+    <>  takeWhile1 hexDig
+    <>  "."
+    <>  takeWhile1 (\c -> unreserved c || subDelims c || c == ':')
+
+ipv6Address :: Parser Text
+ipv6Address =
+        try option0
+    <|> try option1
+    <|> try option2
+    <|> try option3
+    <|> try option4
+    <|> try option5
+    <|> try option6
+    <|> option7
+  where
+    option0 = do
+        a <- replicateM 6 (h16 <> ":")
+
+        b <- ls32
+
+        return (Text.concat (a <> [ b ]))
+
+    option1 = do
+        a <- (h16 <|> "")
+
+        b <- "::"
+
+        c <- replicateM 4 (h16 <> ":")
+
+        d <- ls32
+
+        return (Text.concat ([ a, b ] <> c <> [ d ]))
+
+    option2 = do
+        let prefix = do
+                a <- h16
+
+                b <- atLeast 1 (":" <> h16)
+
+                return (Text.concat (a : b))
+
+        a <- prefix <|> ""
+
+        b <- "::"
+
+        c <- replicateM 3 (h16 <> ":")
+
+        d <- ls32
+
+        return (Text.concat ([ a, b ] <> c <> [ d ]))
+
+    option3 = do
+        let prefix = do
+                a <- h16
+
+                b <- atLeast 2 (":" <> h16)
+
+                return (Text.concat (a : b))
+
+        a <- prefix <|> ""
+
+        b <- "::"
+
+        c <- replicateM 2 (h16 <> ":")
+
+        d <- ls32
+
+        return (Text.concat ([ a, b ] <> c <> [ d ]))
+
+    option4 = do
+        let prefix = do
+                a <- h16
+
+                b <- atLeast 3 (":" <> h16)
+
+                return (Text.concat (a : b))
+
+        (prefix <|> "") <> "::" <> h16 <> ":" <> ls32
+
+    option5 = do
+        let prefix = do
+                a <- h16
+
+                b <- atLeast 4 (":" <> h16)
+
+                return (Text.concat (a : b))
+
+        (prefix <|> "") <> "::" <> ls32
+
+    option6 = do
+        let prefix = do
+                a <- h16
+
+                b <- atLeast 5 (":" <> h16)
+
+                return (Text.concat (a : b))
+
+        (prefix <|> "") <> "::" <> h16
+
+    option7 = do
+        let prefix = do
+                a <- h16
+
+                b <- atLeast 6 (":" <> h16)
+
+                return (Text.concat (a : b))
+
+        (prefix <|> "") <> "::"
+
+h16 :: Parser Text
+h16 = do
+    a <- satisfy hexDig 
+
+    b <- replicateM 3 (satisfy hexDig)
+
+    return (Text.pack (a : b))
+
+ls32 :: Parser Text
+ls32 = (h16 <> ":" <> h16) <|> ipv4Address
+
+ipv4Address :: Parser Text
+ipv4Address = decOctet <> "." <> decOctet <> "." <> decOctet <> "." <> decOctet
+
+decOctet :: Parser Text
+decOctet = do
+        try beginsWith25
+    <|> try beginsWith2
+    <|> try beginsWith1
+    <|> try twoDigits
+    <|> oneDigit
+  where
+    beginsWith25 = do
+        a <- "25"
+
+        b <- satisfy (between '\x30' '\x35')
+
+        return (a <> Text.singleton b)
+
+    beginsWith2 = do
+        a <- "2"
+
+        b <- satisfy (between '\x30' '\x34')
+
+        c <- satisfy digit
+
+        return (a <> Text.singleton b <> Text.singleton c)
+
+    beginsWith1 = do
+        a <- "1"
+
+        b <- replicateM 2 (satisfy digit)
+
+        return (a <> Text.pack b)
+
+    twoDigits = do
+        a <- satisfy (between '\x31' '\x39')
+
+        b <- satisfy digit
+
+        return (Text.pack [a, b])
+
+    oneDigit = do
+        b <- satisfy digit
+
+        return (Text.singleton b)
+
+domain :: Parser Text
+domain = do
+    a <- domainlabel
+
+    b <- many ("." <> domainlabel)
+
+    c <- "."
+
+    return (a <> Text.concat b <> c)
+
+domainlabel :: Parser Text
+domainlabel = do
+    a <- takeWhile1 alphaNum
+
+    b <- many (takeWhile1 ('-' ==) <> takeWhile1 alphaNum)
+
+    return (a <> Text.concat b)
+
+segment :: Parser Text
+segment = do
+    a <- many pchar
+
+    return (Text.concat a)
+
+pchar :: Parser Text
+pchar = character <|> pctEncoded
+  where
+    character = do
+        c <- satisfy (\c -> unreserved c || subDelims c || c `elem` [ ':', '@' ])
+
+        return (Text.singleton c)
+
+query_ :: Parser Text
+query_ = do
+    let character = do
+            c <- satisfy (\c -> c `elem` [ '/', '?' ])
+
+            return (Text.singleton c)
+
+    a <- many (pchar <|> character)
+
+    return (Text.concat a)
+
+pctEncoded :: Parser Text
+pctEncoded = do
+    a <- "%"
+
+    b <- satisfy hexDig
+
+    c <- satisfy hexDig
+
+    return (a <> Text.pack [ b, c ])
+
+subDelims :: Char -> Bool
+subDelims c = c `elem` [ '!', '$', '&', '\'', '*', '+', ';', '=' ]
+
+unreserved :: Char -> Bool
+unreserved c = alphaNum c || c `elem` [ '-', '.', '_', '~' ]
+
 completeExpression :: Parser Expression
 completeExpression = undefined
-
-reservedKeywords :: [Text]
-reservedKeywords =
-    [ "if"
-    , "then"
-    , "else"
-    , "let"
-    , "in"
-    , "using"
-    , "missing"
-    , "assert"
-    , "as"
-    , "Infinity"
-    , "NaN"
-    , "merge"
-    , "Some"
-    , "toMap"
-    , "forall"
-    , "with"
-    ]
-
-builtins :: [Text]
-builtins =
-    [ "Natural/fold"
-    , "Natural/build"
-    , "Natural/isZero"
-    , "Natural/even"
-    , "Natural/odd"
-    , "Natural/toInteger"
-    , "Natural/show"
-    , "Integer/toDouble"
-    , "Integer/show"
-    , "Integer/negate"
-    , "Integer/clamp"
-    , "Natural/subtract"
-    , "Double/show"
-    , "List/build"
-    , "List/fold"
-    , "List/length"
-    , "List/head"
-    , "List/last"
-    , "List/indexed"
-    , "List/reverse"
-    , "Text/show"
-    , "Text/replace"
-    , "Bool"
-    , "True"
-    , "False"
-    , "Optional"
-    , "None"
-    , "Natural"
-    , "Integer"
-    , "Double"
-    , "Text"
-    , "List"
-    , "Type"
-    , "Kind"
-    , "Sort"
-    ]

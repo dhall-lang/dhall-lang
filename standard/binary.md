@@ -1192,7 +1192,7 @@ encode (Import importType₀ importMode₀ hash₀) =
         Location -> TInt 2
 
     importType₁ = case importType₀ of
-        Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀ headers₀) ->
+        Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀) headers₀ ->
                 [ scheme₁, headers₁, authority₁ ]
             <>  directory₁
             <>  [ file₁, query₁ ]
