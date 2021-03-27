@@ -813,7 +813,7 @@ integerLiteral = do
     return (s (fromIntegral n))
 
 identifier :: Parser Expression
-identifier = variable <|> fmap Builtin builtin
+identifier = fmap Constant constant <|> fmap Builtin builtin <|> variable
 
 variable :: Parser Expression
 variable = do
@@ -949,7 +949,7 @@ pathAbempty = do
 
 authority_ :: Parser Text
 authority_ = do
-    ((userinfo <> "@") <|> "") <> host <> ((":" <> port) <|> ":")
+    (try (userinfo <> "@") <|> "") <> host <> ((":" <> port) <|> "")
 
 userinfo :: Parser Text
 userinfo = do
@@ -1146,7 +1146,7 @@ domain = do
 
     b <- many ("." <> domainlabel)
 
-    c <- "."
+    c <- "." <|> ""
 
     return (a <> Text.concat b <> c)
 
@@ -1770,7 +1770,7 @@ typeSelector = do
 
 primitiveExpression :: Parser Expression
 primitiveExpression =
-        (do n <- doubleLiteral; return (DoubleLiteral n))
+        (do n <- try doubleLiteral; return (DoubleLiteral n))
     <|> (do n <- naturalLiteral; return (NaturalLiteral n))
     <|> (do n <- integerLiteral; return (IntegerLiteral n))
     <|> (do t <- textLiteral; return (TextLiteral t))
@@ -1817,7 +1817,7 @@ emptyRecordLiteral =
     do "="; optional (do try (do whsp; ",")); return (RecordLiteral [])
 
 nonEmptyRecordTypeOrLiteral :: Parser Expression
-nonEmptyRecordTypeOrLiteral = nonEmptyRecordType <|> nonEmptyRecordLiteral
+nonEmptyRecordTypeOrLiteral = try nonEmptyRecordType <|> nonEmptyRecordLiteral
 
 nonEmptyRecordType :: Parser Expression
 nonEmptyRecordType = do
@@ -1860,7 +1860,7 @@ recordLiteralEntry = do
     let normalEntry = do
             (ks, v) <- recordLiteralNormalEntry
 
-            return (k0, foldr (\k e -> RecordLiteral [(k, e)]) v (k0 : ks))
+            return (k0, foldr (\k e -> RecordLiteral [(k, e)]) v ks)
 
     let punnedEntry = do
             return (k0, Variable k0 0)
@@ -1885,7 +1885,7 @@ unionType :: Parser Expression
 unionType =
         (do kt <- unionTypeEntry
 
-            kts <- many (do try(do whsp; "|"); unionTypeEntry)
+            kts <- many (do try (do whsp; "|"); whsp; unionTypeEntry)
 
             optional (try (do whsp; "|"))
 
