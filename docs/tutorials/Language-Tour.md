@@ -1367,6 +1367,17 @@ A record literal is comma-separated key-value pairs surrounded by curly braces:
 The above record literal has two fields: a field called `name` whose value is
 `"John Doe"` and a field called `age` whose value is `24`.
 
+Dhall also provides a short-hand syntax for storing a variable in a record as a
+field of the same name, like this:
+
+```dhall
+let x = 2
+
+let y = 3
+
+in  { x, y }  -- This short for: { x = x, y = y }
+```
+
 A record type is comma-separated key-type pairs surrounded by curly braces:
 
 ```dhall
@@ -1525,6 +1536,87 @@ replaced all occurrences of `y` with `2`.
 The first part of the `let` expression (before the `in` keyword) is known as
 a "`let` binding" and a `let` expression can have more than one `let` binding.
 
+More generally, all `let` expressions have the following form:
+
+```dhall
+let variableName₀ [ : VariableType₀ ] = expression₀
+
+let variableName₁ [ : VariableType₁ ] = expression₁
+
+…
+
+let variableNameₙ [ : VariableTypeₙ ] = expressionₙ
+
+in  result
+```
+
+In other words, they have one or more `let` bindings followed by an `in`
+keyword, followed by the final result that the `let` expression returns.
+
+A variable introduced within a `let` binding (like `variableName₀` in the above
+example) can only be used within a subsequent `let` binding (such as
+`expression₁` through `expressionₙ`) or within the "body" of the `let`
+expression after the `in` keyword (such as `result` in the above example).
+A variable is "in scope" wherever the variable can be used.  So, for example,
+`variableName₁` is "in scope" for `expressionₙ` and `result` but
+`variableName₁` is "not in scope" for `expression₀` and `expression₁`.
+
+Variables introduced within a `let` expression are not in scope outside of the
+`let` expression.  For example, the following Dhall expression will not
+type-check:
+
+```dhall
+--            x is in scope here
+--            ↓
+(let x = 2 in x) + x
+--                 ↑
+--                 … but x is not in scope here
+```
+
+You cannot have a `let` binding without a matching `in` keyword.  All
+variables introduced with a `let` binding must have a scope delimited by an
+`in` keyword.  If you wish to make a variable available outside of a `let`
+expression then you will probably want to store the variable in a record
+(typically within a field of the same name), like this:
+
+```dhall
+let example =
+      let x = 2
+
+      let y = 3
+
+      in -- x and y are only in scope here …
+         { x, y }
+
+in  -- … but we can access their values here since they were stored within a
+    -- record as fields of the same name
+    example.x + example.y
+```
+
+You can think of this idiom of storing variables in a record as being analogous
+to "exporting" definitions from a module or package.  You will often see this
+idiom when people create Dhall packages that export multiple definitions:
+
+```dhall
+let definition₀ = …
+
+let definition₁ = …
+
+… 
+
+let definitionₙ = …
+
+in  { definition₀
+    , definition₁
+    , …
+    , definitionₙ
+    }
+```
+
+… where the "exported" definitions could be useful functions, values, types, or
+sub-packages.  The subsequent [Prelude](#prelude) section will tour a commonly
+used package that follows this idiom.
+
 There are very few restrictions on what you can create a synonym for with a
 `let` expression.  For example, you can use a `let` expression to create a
 synonym for a type and we saw one case of that in `example.dhall`:
@@ -1551,9 +1643,11 @@ The main restrictions are:
 
   You can only create synonyms for expressions
 
-* You cannot create a `let` expression that refers to itself
+* You cannot create a `let` binding that refers to itself
 
-  General recursion is not permitted
+  General recursion is not permitted.  However, if you are interested you can
+  embed well-founded recursion in Dhall by following
+  [this separate guide on translating recursive code to Dhall][recursion].
 
 > **Exercise:** What do you think will happen if you try to define a recursive
 > `let` binding?
@@ -1573,7 +1667,8 @@ The main restrictions are:
 > (input):1:2
 > ```
 >
-> Variables cannot refer to themselves within their own definition.
+> Variables cannot refer to themselves within their own definition.  In other
+> words, a variable is not "in scope" within its own definition.
 >
 > </details>
 > <br/>
@@ -1713,6 +1808,48 @@ The main restrictions are:
 Dhall code idiomatically uses `let` expressions heavily, so don't be afraid to
 split large expressions into lots of smaller `let` bindings.  You can always
 interpret the code to remove indirection if necessary.
+
+> **Exercise:** Does the following Dhall expression type-check?  Test your
+> guess!
+>
+> ```dhall
+> let x = 1
+>
+> let x = x + 2
+>
+> in  x
+> ```
+>
+> <details>
+> <summary>Solution</summary>
+>
+> Yes, the above expression type-checks and evaluates to `3`.  This is because
+> the above code is equivalent to:
+>
+> ```dhall
+> let x = 1
+>
+> let y = x + 2
+>
+> in  y
+> ```
+>
+> In other words, the the interpreter knows that the two `x`s in the line
+> `let x = x` are different `x`s.  In fact, the interpreter can keep track of
+> all `x`s in scope and we can access all of them unambiguously by their
+> [De Bruijn index][debruijn].  For example, this expression retrieves both `x`s
+> in scope and stores them in a list:
+>
+> ```dhall
+> let x = 1
+>
+> let x = x + 2
+>
+> in  [ x@1, x ]
+> --    ↑ 1  ↑ 3
+> ```
+>
+> </details>
 
 ## Functions
 
@@ -3357,7 +3494,7 @@ records with many default-valued fields:
 
 This operator expects two arguments:
 
-* The left argument is a "schema" record containing two fields:
+* The left argument is a "schema" record containing at least the following two fields:
 
   * A field named `Type` containing the desired record type
 
@@ -3575,3 +3712,6 @@ an issue here:
 
 We do our best to keep the tutorial up-to-date as the language evolves, but we
 sometimes miss things.
+
+[recursion]: https://github.com/dhall-lang/dhall-lang/wiki/How-to-translate-recursive-code-to-Dhall
+[debruijn]: https://en.wikipedia.org/wiki/De_Bruijn_index
