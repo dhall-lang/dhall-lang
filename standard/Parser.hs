@@ -15,6 +15,9 @@ module Parser where
 
 import Control.Applicative (Alternative(..), optional)
 import Control.Monad (MonadPlus(..), guard, replicateM)
+import Crypto.Hash (Digest, SHA256)
+import Data.ByteArray.Encoding (Base(..))
+import Data.ByteString (ByteString)
 import Data.Functor (void)
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.String (IsString(..))
@@ -30,6 +33,7 @@ import Syntax
     , Expression(..)
     , File(..)
     , FilePrefix(..)
+    , ImportMode(..)
     , ImportType(..)
     , Operator(..)
     , Scheme(..)
@@ -46,9 +50,12 @@ import Text.Megaparsec
     )
 
 import qualified Control.Monad.Combinators.NonEmpty as Combinators.NonEmpty
+import qualified Crypto.Hash                        as Hash
+import qualified Data.ByteArray.Encoding            as ByteArray.Encoding
 import qualified Data.Char                          as Char
 import qualified Data.List.NonEmpty                 as NonEmpty
 import qualified Data.Text                          as Text
+import qualified Data.Text.Encoding                 as Text.Encoding
 
 newtype Parser a = Parser { unParser :: Parsec Void Text a }
     deriving
@@ -56,6 +63,7 @@ newtype Parser a = Parser { unParser :: Parsec Void Text a }
     , Applicative
     , Functor
     , Monad
+    , MonadFail
     , MonadParsec Void Text
     , MonadPlus
     , Monoid
@@ -447,7 +455,7 @@ keyword =
     <|> let_
     <|> in_
     <|> using
-    <|> missing
+    <|> void missing
     <|> assert
     <|> as
     <|> _Infinity
@@ -482,8 +490,8 @@ using = void "using"
 merge :: Parser ()
 merge = void "merge"
 
-missing :: Parser ()
-missing = void "missing"
+missing :: Parser ImportType
+missing = do _ <- "missing"; return Missing
 
 _Infinity :: Parser ()
 _Infinity = void "Infinity"
@@ -681,6 +689,9 @@ _Text = do _ <- "Text"; return Text
 
 _List :: Parser Builtin
 _List = do _ <- "List"; return List
+
+_Location :: Parser ()
+_Location = void "Location"
 
 constant :: Parser Constant
 constant =
@@ -1187,11 +1198,128 @@ pctEncoded = do
 
     return (a <> Text.pack [ b, c ])
 
-subDelims :: Char -> Bool
-subDelims c = c `elem` [ '!', '$', '&', '\'', '*', '+', ';', '=' ]
-
 unreserved :: Char -> Bool
 unreserved c = alphaNum c || c `elem` [ '-', '.', '_', '~' ]
 
+subDelims :: Char -> Bool
+subDelims c = c `elem` [ '!', '$', '&', '\'', '*', '+', ';', '=' ]
+
+http :: Parser ImportType
+http = do
+    url <- httpRaw
+
+    headers <- optional do
+        whsp
+
+        using
+
+        whsp
+
+        importExpression
+
+    return (Remote url headers)
+
+env :: Parser ImportType
+env = do
+    _ <- "env:"
+
+    let posix = do
+            "\""
+
+            v <- posixEnvironmentVariable
+
+            "\""
+
+            return v
+
+    v <- bashEnvironmentVariable <|> posix
+
+    return (Env v)
+
+bashEnvironmentVariable :: Parser Text
+bashEnvironmentVariable = do
+    a <- satisfy (\c -> alpha c || c == '_')
+
+    b <- takeWhile1 (\c -> alphaNum c || c == '_')
+
+    return (Text.cons a b)
+
+posixEnvironmentVariable :: Parser Text
+posixEnvironmentVariable = do
+    a <- some posixEnvironmentVariableCharacter
+
+    return (Text.pack a)
+
+posixEnvironmentVariableCharacter :: Parser Char
+posixEnvironmentVariableCharacter = do
+    let escaped = do
+            "\\"
+
+            let remainder =
+                         (do _ <- "\""; return '"' )
+                    <|>  (do _ <- "\\"; return '\\')
+                    <|>  (do _ <- "a" ; return '\a')
+                    <|>  (do _ <- "b" ; return '\b')
+                    <|>  (do _ <- "f" ; return '\f')
+                    <|>  (do _ <- "n" ; return '\n')
+                    <|>  (do _ <- "r" ; return '\r')
+                    <|>  (do _ <- "t" ; return '\t')
+                    <|>  (do _ <- "v" ; return '\v')
+
+            remainder
+
+    let unescaped c =
+                between '\x20' '\x21' c
+            ||  between '\x23' '\x3C' c
+            ||  between '\x3E' '\x5B' c
+            ||  between '\x5D' '\x7E' c
+
+    escaped <|> satisfy unescaped
+
+importType :: Parser ImportType
+importType =
+    missing <|> local <|> http <|> env
+
+hash :: Parser (Digest SHA256)
+hash = do
+    "sha256:"
+
+    hexDigits <- replicateM 64 (satisfy hexDig)
+
+    let base16 = Text.Encoding.encodeUtf8 (Text.pack hexDigits)
+
+    bytes <-  case ByteArray.Encoding.convertFromBase Base16 base16 of
+        Left string -> fail string
+        Right bytes -> return (bytes :: ByteString)
+
+    case Hash.digestFromByteString bytes of
+        Nothing -> fail "Invalid sha256 hash"
+        Just h  -> return h
+
+import_ :: Parser Expression
+import_ = do
+    i <- importType
+
+    h <- optional do
+        whsp1
+
+        hash
+
+    let location = do
+            whsp
+
+            as
+
+            whsp1
+
+            (do _ <- _Text; return RawText) <|> (do _ <- _Location; return Location)
+
+    l <- location <|> return Code
+
+    return (Import i l h)
+
 completeExpression :: Parser Expression
 completeExpression = undefined
+
+importExpression :: Parser Expression
+importExpression = undefined

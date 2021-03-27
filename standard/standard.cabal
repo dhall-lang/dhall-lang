@@ -10,6 +10,7 @@ build-type:          Simple
 
 library
   build-depends:       base
+                     , bytestring
                      , cborg
                      , containers
                      , cryptonite
