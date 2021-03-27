@@ -236,7 +236,7 @@ label = (do "`"; l <- quotedLabel; "`"; return l)
 
 nonreservedLabel :: Parser Text
 nonreservedLabel =
-        (do "`"; l <- quotedLabel; "`"; guard (l `notElem` builtins); return l)
+        (do "`"; l <- quotedLabel; "`"; return l)
     <|> simpleLabel
 
 anyLabel :: Parser Text
@@ -741,7 +741,7 @@ exponent = do
 
 numericDoubleLiteral :: Parser Double
 numericDoubleLiteral = do
-    s <- sign
+    s <- sign <|> pure id
 
     digits0 <- atLeast 1 (satisfy digit)
 
@@ -1442,7 +1442,8 @@ expression =
             return (Merge a b (Just c))
         )
     <|> try emptyListLiteral
-    <|> (do toMap
+    <|> try (do
+            toMap
 
             whsp1
 
@@ -1709,7 +1710,7 @@ selectorExpression :: Parser Expression
 selectorExpression = do
     e0 <- primitiveExpression
 
-    fs <- many (do try (do whsp; "."); whsp; selector)
+    fs <- many (try (do whsp; "."; whsp; selector))
 
     return (foldl (\e f -> f e) e0 fs)
 
