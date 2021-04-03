@@ -5,6 +5,8 @@ let
     dhall-ansible_0_1_0
     dhall-ansible_0_2_1
 
+    dhall-aws-cloudformation_0_4_21
+
     dhall-concourse_0_4_1
     dhall-concourse_0_5_0
     dhall-concourse_0_5_1
@@ -22,6 +24,8 @@ let
     dhall-kubernetes_3_0_0
     dhall-kubernetes_4_0_0
     dhall-kubernetes_5_0_0
+
+    dhall-nomad_1_0_0
 
     (dhall-semver_1_0_0.override {
       Prelude = Prelude_17_0_0;
