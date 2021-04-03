@@ -24,6 +24,7 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${logo.ansible} $out/img/ansible-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.bash} $out/img/bash-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.clojure} $out/img/clojure-logo.svg
+  ${coreutils}/bin/ln --symbolic ${logo.cloudformation} $out/img/cloudformation-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.concourse} $out/img/concourse-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.dhallLarge} $out/img/dhall-large-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.dhallSmall} $out/img/dhall-small-logo.svg
@@ -37,6 +38,7 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${logo.kops} $out/img/kops-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.kubernetes} $out/img/kubernetes-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.nix} $out/img/nix-logo.png
+  ${coreutils}/bin/ln --symbolic ${logo.nomad} $out/img/nomad-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.openCollective} $out/img/opencollective-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.prometheus} $out/img/prometheus-logo.svg
   ${coreutils}/bin/ln --symbolic ${logo.ruby} $out/img/ruby-logo.svg

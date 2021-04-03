@@ -208,6 +208,28 @@ pkgsNew: pkgsOld: {
         sha256 = "0mrjzv690g9mxljzxsvay8asyr8vlxhhs9smmax7mp3psd49b43g";
       };
 
+    cloudformation =
+      (pkgsNew.fetchurl rec {
+        name = "Arch_AWS-CloudFormation_64.png";
+
+        url = "https://d1.awsstatic.com/webteam/architecture-icons/q1-2021/AWS-Architecture_Asset-Package_20210131.a41ffeeec67743738315c2585f5fdb6f3c31238d.zip";
+
+        sha256 = "1sy4lfs14rzyn9f6mp72bllbw8kgm3nal8rhif83nzmgklva6nwa";
+
+        postFetch = ''
+          BASENAME="${baseNameOf url}"
+          mv "$downloadedFile" "$BASENAME"
+          unpackFile "$BASENAME"
+          unpackFile Asset-Package_*/Architecture-Service-Icons_*.zip
+          ${pkgsNew.coreutils}/bin/mv "Arch_Management-Governance/64/${name}" "$out"
+        '';
+
+      }).overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
+          pkgsNew.unzip
+        ];
+      });
+
     concourse =
       pkgsNew.fetchurl {
         url    = "https://raw.githubusercontent.com/concourse/brand/c26ab042b2d241ccdc748f9046539b363a5a13cd/concourse_logo/concourse_logo_b.png";
@@ -284,6 +306,27 @@ pkgsNew: pkgsOld: {
         url    = "https://nixos.org/logo/nix-wiki.png";
         sha256 = "1hrz7wr7i0b2bips60ygacbkmdzv466lsbxi22hycg42kv4m0173";
       };
+
+    nomad =
+      (pkgsNew.fetchurl {
+        name = "hashicorp-logo.png";
+
+        url = "https://drive.google.com/uc?export=download&id=1cC7MFfkq3sCj_NK4sBCC8hgUPWbLxval";
+
+        sha256 = "1hxm7w7zs462s002sv02mqpzfggx35ix95k1p9884x278cpq76sx";
+
+        postFetch = ''
+          BASENAME="HashiCorp-Nomad.zip"
+          mv "$downloadedFile" "$BASENAME"
+          unpackFile "$BASENAME"
+          ${pkgsNew.tree}/bin/tree .
+          ${pkgsNew.coreutils}/bin/mv "7 - Nomad/2 - Secondary - Vertical/RGB/PNG/Nomad_VerticalLogo_FullColor_RGB.png" "$out"
+        '';
+      }).overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
+          pkgsNew.unzip
+        ];
+      });
 
     openCollective =
       pkgsNew.fetchurl {
