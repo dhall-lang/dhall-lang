@@ -204,7 +204,7 @@ in
                   add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
                 }
 
-                rewrite ^/?$ https://github.com/dhall-lang/dhall-lang/tree/${latestRelease}/Prelude redirect;
+                rewrite ^/?$ https://store.dhall-lang.org/Prelude-${latestRelease} redirect;
                 rewrite ^/(v[^/]+)$ https://github.com/dhall-lang/dhall-lang/tree/$1/Prelude redirect;
                 rewrite ^/(v[^/]+)/(.*)$ /dhall-lang/dhall-lang/$1/Prelude/$2 break;
                 rewrite ^/(.*)$ /dhall-lang/dhall-lang/${latestRelease}/Prelude/$1 break;
