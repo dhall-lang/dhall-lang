@@ -146,8 +146,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
 ```
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 {-| This module contains the data types used to represent the syntax tree for
     a Dhall expression
 -}
@@ -241,6 +239,7 @@ data Expression
       -- ^ > Some s
     | Builtin Builtin
     | Constant Constant
+    deriving (Show)
 
 -- | Associative binary operators
 data Operator
@@ -257,6 +256,7 @@ data Operator
     | NotEqual            -- ^ > !=
     | Equivalent          -- ^ > ===
     | Alternative         -- ^ > ?
+    deriving (Show)
 
 {-| Data structure used to represent an interpolated @Text@ literal
 
@@ -271,6 +271,7 @@ data Operator
     > TextLiteral [("foo", Variable "x" 0), ("bar", Variable "y" 0)] "baz"
 -}
 data TextLiteral = Chunks [(Text, Expression)] Text
+    deriving (Show)
 
 -- | This instance comes in handy for implementing @Text@-related operations
 instance Semigroup TextLiteral where
@@ -317,13 +318,14 @@ data Builtin
     | True
     | False
     | None
+    deriving (Show)
 
 -- | Type-checking constants
 data Constant
     = Type
     | Kind
     | Sort
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Show)
 
 -- | How to interpret the path to the import
 data ImportMode
@@ -331,16 +333,22 @@ data ImportMode
     | RawText   -- ^ @as Text@: import the path as raw text
     | Location  -- ^ @as Location@: don't import and instead represent the path
                 --   as a Dhall expression
+    deriving (Show)
 
 -- | Where to locate the import
 data ImportType
-    = Missing               -- ^ > missing
-    | Remote URL            -- ^ > https://authority directory file
-    | Path FilePrefix File  -- ^ > /directory/file
-                            --   > ./directory/file
-                            --   > ../directory/file
-                            --   > ~/directory/file
-    | Env Text              -- ^ > env:x
+    = Missing
+        -- ^ > missing
+    | Remote URL (Maybe Expression)
+        -- ^ > https://authority directory file using headers
+    | Path FilePrefix File
+        -- ^ > /directory/file
+        --   > ./directory/file
+        --   > ../directory/file
+        --   > ~/directory/file
+    | Env Text
+        -- ^ > env:x
+    deriving (Show)
 
 -- | Structured representation of an HTTP(S) URL
 data URL = URL
@@ -348,13 +356,14 @@ data URL = URL
     , authority :: Text
     , path      :: File
     , query     :: Maybe Text
-    , headers   :: Maybe Expression
     }
+    deriving (Show)
 
 -- | The URL scheme
 data Scheme
     = HTTP  -- ^ > http:\/\/
     | HTTPS -- ^ > https:\/\/
+    deriving (Show)
 
 -- | The anchor for a local filepath
 data FilePrefix
@@ -362,6 +371,7 @@ data FilePrefix
     | Here      -- ^ @.@, a path relative to the current working directory
     | Parent    -- ^ @..@, a path relative to the parent working directory
     | Home      -- ^ @~@, a path relative to the user's home directory
+    deriving (Show)
 
 {-| Structured representation of a file path
 
@@ -374,4 +384,5 @@ data File = File
     { directory :: [Text]  -- ^ Directory path components (in reverse order)
     , file :: Text         -- ^ File name
     }
+    deriving (Show)
 ```

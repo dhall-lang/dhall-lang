@@ -1,8 +1,6 @@
 # β-normalization
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 module BetaNormalization where
 
 import Data.List ((\\))

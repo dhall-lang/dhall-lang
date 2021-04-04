@@ -10,21 +10,57 @@ build-type:          Simple
 
 library
   build-depends:       base
+                     , bytestring
                      , cborg
                      , containers
                      , cryptonite
                      , half
                      , markdown-unlit
+                     , megaparsec
                      , memory
+                     , parser-combinators
+                     , scientific
                      , text
   exposed-modules:     AlphaNormalization
                      , BetaNormalization
                      , Binary
                      , Equivalence
                      , FunctionCheck
+                     , Interpret
+                     , Multiline
+                     , Parser
                      , Syntax
                      , Shift
                      , Substitution
   hs-source-dirs:      ./.
   default-language:    Haskell2010
+  default-extensions:  BlockArguments
+                     , GeneralizedNewtypeDeriving
+                     , OverloadedStrings
+                     , TypeFamilies
   ghc-options:         -pgmL markdown-unlit -Wall -Werror
+
+executable dhall
+  build-depends:       base, standard
+  main-is:             Main.hs
+  hs-source-dirs:      dhall
+  default-language:    Haskell2010
+  ghc-options:         -Wall -Werror
+
+test-suite tasty
+  type:                exitcode-stdio-1.0
+  main-is:             Main.hs
+  build-depends:       base
+                     , cborg
+                     , directory
+                     , filepath
+                     , megaparsec
+                     , serialise
+                     , standard
+                     , tasty
+                     , tasty-hunit
+                     , text
+  hs-source-dirs:      tasty
+  default-extensions:  OverloadedStrings
+  default-language:    Haskell2010
+  ghc-options:         -Wall
