@@ -1,8 +1,3 @@
-{-# LANGUAGE BlockArguments             #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE TypeFamilies               #-}
-
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
 
 {-| This module translates @./dhall.abnf@ into a parser implemented using an

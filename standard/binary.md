@@ -1,8 +1,6 @@
 # Binary semantics
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 module Binary where
 
 import Codec.CBOR.Term (Term(..))

@@ -1,8 +1,6 @@
 # Multi-line literal semantics
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 module Multiline where
 
 import Data.List.NonEmpty (NonEmpty(..))

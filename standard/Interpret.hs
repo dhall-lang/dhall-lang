@@ -1,5 +1,3 @@
-{-# LANGUAGE BlockArguments #-}
-
 module Interpret where
 
 import qualified Binary

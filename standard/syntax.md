@@ -146,8 +146,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
 ```
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 {-| This module contains the data types used to represent the syntax tree for
     a Dhall expression
 -}
