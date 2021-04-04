@@ -6,16 +6,15 @@ import System.FilePath ((</>))
 import Test.Tasty (TestTree)
 
 import qualified Binary
-import qualified Codec.Serialise           as Serialise
-import qualified Data.Text                 as Text
-import qualified Data.Text.IO              as Text.IO
+import qualified Codec.Serialise    as Serialise
+import qualified Data.Text          as Text
 import qualified Parser
-import qualified System.Directory          as Directory
-import qualified System.Environment        as Environment
-import qualified System.FilePath           as FilePath
-import qualified Text.Megaparsec           as Megaparsec
-import qualified Test.Tasty.HUnit          as HUnit
-import qualified Test.Tasty                as Tasty
+import qualified System.Directory   as Directory
+import qualified System.Environment as Environment
+import qualified System.FilePath    as FilePath
+import qualified Text.Earley        as Earley
+import qualified Test.Tasty.HUnit   as HUnit
+import qualified Test.Tasty         as Tasty
 
 fileToTestTree :: FilePath -> TestTree
 fileToTestTree prefix = do
@@ -26,11 +25,14 @@ fileToTestTree prefix = do
 
     HUnit.testCase name do
 
-        input <- Text.IO.readFile inputFile
+        input <- readFile inputFile
 
-        expression <- case Megaparsec.runParser (Parser.unParser Parser.completeExpression) inputFile input of
-           Left  errors     -> fail (Megaparsec.errorBundlePretty errors)
-           Right expression -> return expression
+        let (expressions, report) =
+                Earley.fullParses (Earley.parser Parser.grammar) input
+
+        expression <- case expressions of
+           expression : _ -> return expression
+           _              -> fail (show report)
 
         expectedTerm <- Serialise.readFileDeserialise outputFile
 

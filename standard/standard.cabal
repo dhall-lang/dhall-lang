@@ -14,9 +14,9 @@ library
                      , cborg
                      , containers
                      , cryptonite
+                     , Earley
                      , half
                      , markdown-unlit
-                     , megaparsec
                      , memory
                      , parser-combinators
                      , text
@@ -48,8 +48,8 @@ test-suite tasty
   build-depends:       base
                      , serialise
                      , directory
+                     , Earley
                      , filepath
-                     , megaparsec
                      , standard
                      , tasty
                      , tasty-hunit
