@@ -3,10 +3,17 @@
 {-| This module translates @./dhall.abnf@ into a parser implemented using an
     LL parser combinator package
 
-    This parser optimizes for exactly corresponding to the ABNF grammar, at the
-    expense of efficiency
+    This parser tries to hew as closely as possible to the ABNF grammar,
+    sometimes at the expense of efficiency.  However, the efficiency is still
+    decent.
 -}
-module Parser where
+module Parser
+    ( -- * Type
+      Parser(..)
+
+      -- * Parser
+    , completeExpression
+    ) where
 
 import Control.Applicative (Alternative(..), optional)
 import Control.Monad (MonadPlus(..), guard, replicateM)
@@ -56,6 +63,9 @@ import qualified Data.Text                          as Text
 import qualified Data.Text.Encoding                 as Text.Encoding
 import qualified Multiline
 
+{-| @newtype@ wrapper around the `Parsec` type to improve inferred types and
+    error messages
+-}
 newtype Parser a = Parser { unParser :: Parsec Void Text a }
     deriving
     ( Alternative
@@ -525,45 +535,6 @@ forall = forallSymbol <|> forallKeyword
 
 with :: Parser ()
 with = void "with"
-
-builtins :: [Text]
-builtins =
-    [ "Natural/fold"
-    , "Natural/build"
-    , "Natural/isZero"
-    , "Natural/even"
-    , "Natural/odd"
-    , "Natural/toInteger"
-    , "Natural/show"
-    , "Integer/toDouble"
-    , "Integer/show"
-    , "Integer/negate"
-    , "Integer/clamp"
-    , "Natural/subtract"
-    , "Double/show"
-    , "List/build"
-    , "List/fold"
-    , "List/length"
-    , "List/head"
-    , "List/last"
-    , "List/indexed"
-    , "List/reverse"
-    , "Text/show"
-    , "Text/replace"
-    , "Bool"
-    , "True"
-    , "False"
-    , "Optional"
-    , "None"
-    , "Natural"
-    , "Integer"
-    , "Double"
-    , "Text"
-    , "List"
-    , "Type"
-    , "Kind"
-    , "Sort"
-    ]
 
 builtin :: Parser Builtin
 builtin =
@@ -1946,5 +1917,8 @@ nonEmptyListLiteral = do
 
     return (NonEmptyList (e0 :| es))
 
+{-| Parse a complete Dhall expression, including leading and trailing
+    whitespace
+-}
 completeExpression :: Parser Expression
 completeExpression = do whsp; e <- expression; whsp; return e
