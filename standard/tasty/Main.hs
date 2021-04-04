@@ -2,6 +2,7 @@
 
 module Main where
 
+import Codec.CBOR.Term (Term(..))
 import System.FilePath ((</>))
 import Test.Tasty (TestTree)
 
@@ -28,7 +29,14 @@ fileToTestTree prefix = do
 
         input <- Text.IO.readFile inputFile
 
-        expression <- case Megaparsec.runParser (Parser.unParser Parser.completeExpression) inputFile input of
+        let parser = Parser.unParser do
+                e <- Parser.completeExpression
+
+                Megaparsec.eof
+
+                return e
+
+        expression <- case Megaparsec.runParser parser inputFile input of
            Left  errors     -> fail (Megaparsec.errorBundlePretty errors)
            Right expression -> return expression
 
@@ -36,7 +44,15 @@ fileToTestTree prefix = do
 
         let actualTerm = Binary.encode expression
 
-        HUnit.assertEqual "Parsing test failure" expectedTerm actualTerm
+        assertEqualIncludingNaN "Parsing test failure" expectedTerm actualTerm
+
+-- | We need this because `NaN /= NaN`.  Grr…
+assertEqualIncludingNaN :: String -> Term -> Term -> IO ()
+assertEqualIncludingNaN _ (THalf l) (THalf r)
+    | isNaN l && isNaN r =
+        return ()
+assertEqualIncludingNaN message expected actual =
+    HUnit.assertEqual message expected actual
 
 inputFileToPrefix :: FilePath -> Maybe FilePath
 inputFileToPrefix inputFile =

@@ -56,6 +56,7 @@ import qualified Data.ByteArray.Encoding            as ByteArray.Encoding
 import qualified Data.Char                          as Char
 import qualified Data.List.NonEmpty                 as NonEmpty
 import qualified Data.Map                           as Map
+import qualified Data.Scientific                    as Scientific
 import qualified Data.Text                          as Text
 import qualified Data.Text.Encoding                 as Text.Encoding
 import qualified Multiline
@@ -238,9 +239,12 @@ label = (do "`"; l <- quotedLabel; "`"; return l)
     <|> simpleLabel
 
 nonreservedLabel :: Parser Text
-nonreservedLabel =
-        (do "`"; l <- quotedLabel; "`"; return l)
-    <|> simpleLabel
+nonreservedLabel = do
+    notFollowedBy do
+        void builtin <|> void constant <|> keyword
+        notFollowedBy (satisfy simpleLabelNextChar)
+
+    label
 
 anyLabel :: Parser Text
 anyLabel = label
@@ -493,7 +497,12 @@ merge :: Parser ()
 merge = void "merge"
 
 missing :: Parser ImportType
-missing = do "missing"; return Missing
+missing = try do
+    "missing"
+
+    notFollowedBy (satisfy simpleLabelNextChar)
+
+    return Missing
 
 _Infinity :: Parser ()
 _Infinity = void "Infinity"
@@ -757,12 +766,16 @@ numericDoubleLiteral = do
 
             e <- exponent <|> pure 0
 
-            return (s (fromInteger ((digits0 <> digits1) `base` 10) * 10^^(e - length digits1)))
+            let c = s ((digits0 <> digits1) `base` 10)
+
+            return (Scientific.toRealFloat (Scientific.scientific c (e - length digits1)))
 
     let withoutRadix = do
             e <- exponent
 
-            return (s (fromInteger (digits0 `base` 10) * 10^^e))
+            let c = s (fromInteger (digits0 `base` 10))
+
+            return (Scientific.toRealFloat (Scientific.scientific c e))
 
     withRadix <|> withoutRadix
 
@@ -818,7 +831,7 @@ integerLiteral = do
     return (s (fromIntegral n))
 
 identifier :: Parser Expression
-identifier = fmap Constant constant <|> fmap Builtin builtin <|> variable
+identifier = variable <|> fmap Constant constant <|> fmap Builtin builtin
 
 variable :: Parser Expression
 variable = do
@@ -968,7 +981,7 @@ userinfo = do
     return (Text.concat texts)
 
 host :: Parser Text
-host = ipLiteral <|> ipv4Address <|> domain
+host = ipLiteral <|> try ipv4Address <|> domain
 
 port :: Parser Text
 port = takeWhile digit
@@ -1026,7 +1039,7 @@ ipv6Address =
         let prefix = do
                 a <- h16
 
-                b <- atLeast 1 (try (":" <> h16))
+                b <- atMost 1 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1044,7 +1057,7 @@ ipv6Address =
         let prefix = do
                 a <- h16
 
-                b <- atLeast 2 (try (":" <> h16))
+                b <- atMost 2 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1062,7 +1075,7 @@ ipv6Address =
         let prefix = do
                 a <- h16
 
-                b <- atLeast 3 (try (":" <> h16))
+                b <- atMost 3 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1072,7 +1085,7 @@ ipv6Address =
         let prefix = do
                 a <- h16
 
-                b <- atLeast 4 (try (":" <> h16))
+                b <- atMost 4 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1082,7 +1095,7 @@ ipv6Address =
         let prefix = do
                 a <- h16
 
-                b <- atLeast 5 (try (":" <> h16))
+                b <- atMost 5 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1092,7 +1105,7 @@ ipv6Address =
         let prefix = do
                 a <- h16
 
-                b <- atLeast 6 (try (":" <> h16))
+                b <- atMost 6 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 

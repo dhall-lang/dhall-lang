@@ -19,6 +19,7 @@ library
                      , megaparsec
                      , memory
                      , parser-combinators
+                     , scientific
                      , text
   exposed-modules:     AlphaNormalization
                      , BetaNormalization
@@ -46,10 +47,11 @@ test-suite tasty
   type:                exitcode-stdio-1.0
   main-is:             Main.hs
   build-depends:       base
-                     , serialise
+                     , cborg
                      , directory
                      , filepath
                      , megaparsec
+                     , serialise
                      , standard
                      , tasty
                      , tasty-hunit

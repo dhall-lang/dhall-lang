@@ -953,6 +953,7 @@ preserves its value.
 
 ```haskell
 encode (DoubleLiteral n)
+    | isNaN n                                     = THalf n_s
     | Float.float2Double (Half.fromHalf n_h) == n = THalf n_s
     | Float.float2Double n_s == n                 = TFloat n_s
     | otherwise                                   = TDouble n
@@ -965,8 +966,8 @@ encode (DoubleLiteral n)
 Note in particular the encoding of these special values:
 
 
-    ───────────────────────────
-    encode(NaN) = n.n_h(0x7e00)
+    ───────────────────────────  ; Even though NaN does not equal itself, we
+    encode(NaN) = n.n_h(0x7e00)  ; still encode it using half-precision
 
 
     ────────────────────────────────

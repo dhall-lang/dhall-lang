@@ -508,7 +508,7 @@ integer-literal = ( "+" / "-" ) natural-literal
 ; "Reserved identifiers for builtins" specified in the `standard/README.md` document.
 ; It is a syntax error to specify a de Bruijn index in this case.
 ; Otherwise, this is a variable with name and index matching the label and index.
-identifier = builtin / variable
+identifier = variable / builtin
 
 variable = nonreserved-label [ whsp "@" whsp natural-literal ]
 
