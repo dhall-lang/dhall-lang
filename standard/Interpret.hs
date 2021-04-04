@@ -1,3 +1,5 @@
+{-# LANGUAGE BlockArguments #-}
+
 module Interpret where
 
 import qualified Binary
@@ -9,7 +11,14 @@ main :: IO ()
 main = do
     input <- Text.IO.getContents
 
-    expression <- case Megaparsec.runParser (Parser.unParser Parser.completeExpression) "(input)" input of
+    let parser = Parser.unParser do
+            e <- Parser.completeExpression
+
+            Megaparsec.eof
+
+            return e
+
+    expression <- case Megaparsec.runParser parser "(input)" input of
        Left  errors     -> fail (Megaparsec.errorBundlePretty errors)
        Right expression -> return expression
 

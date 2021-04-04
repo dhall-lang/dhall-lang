@@ -26,6 +26,7 @@ library
                      , Equivalence
                      , FunctionCheck
                      , Interpret
+                     , Multiline
                      , Parser
                      , Syntax
                      , Shift

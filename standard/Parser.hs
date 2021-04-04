@@ -54,8 +54,10 @@ import qualified Crypto.Hash                        as Hash
 import qualified Data.ByteArray.Encoding            as ByteArray.Encoding
 import qualified Data.Char                          as Char
 import qualified Data.List.NonEmpty                 as NonEmpty
+import qualified Data.Map                           as Map
 import qualified Data.Text                          as Text
 import qualified Data.Text.Encoding                 as Text.Encoding
+import qualified Multiline
 
 newtype Parser a = Parser { unParser :: Parsec Void Text a }
     deriving
@@ -260,17 +262,17 @@ doubleQuoteChunk =
         )
 
 doubleQuoteEscaped :: Parser Char
-doubleQuoteEscaped =
-        char '\x22'
-    <|> char '\x24'
-    <|> char '\x5C'
-    <|> char '\x2F'
-    <|> char '\x62'
-    <|> char '\x66'
-    <|> char '\x6E'
-    <|> char '\x72'
-    <|> char '\x74'
-    <|> (do char '\x75'; unicodeEscape)
+doubleQuoteEscaped = do
+        (do "\""; return '"' )
+    <|> (do "$" ; return '$' )
+    <|> (do "\\"; return '\\')
+    <|> (do "/" ; return '/' )
+    <|> (do "b" ; return '\b')
+    <|> (do "f" ; return '\f')
+    <|> (do "n" ; return '\n')
+    <|> (do "r" ; return '\r')
+    <|> (do "t" ; return '\t')
+    <|> (do "u"; unicodeEscape)
 
 unicodeEscape :: Parser Char
 unicodeEscape = do
@@ -409,7 +411,9 @@ singleQuoteLiteral = do
 
     endOfLine
 
-    singleQuoteContinue
+    contents <- singleQuoteContinue
+
+    return (Multiline.toDoubleQuotes contents)
 
 interpolation :: Parser TextLiteral
 interpolation = do
@@ -777,9 +781,9 @@ plusInfinityLiteral = do
 
 doubleLiteral :: Parser Double
 doubleLiteral =
-        numericDoubleLiteral
-    <|> minusInfinityLiteral
+        try minusInfinityLiteral
     <|> plusInfinityLiteral
+    <|> numericDoubleLiteral
     <|> (do _NaN; return (0/0))
 
 naturalLiteral :: Parser Natural
@@ -1735,11 +1739,7 @@ labels = do
 
             ks <- many do
 
-                ","
-
-                whsp
-
-                k <- anyLabelOrSome
+                k <- try (do ","; whsp; anyLabelOrSome)
 
                 whsp
 
@@ -1852,7 +1852,11 @@ nonEmptyRecordLiteral = do
 
     optional (try (do whsp; ","))
 
-    return (RecordLiteral (kv : kvs))
+    let kvs' = Map.toList (Map.fromListWith combineRecordTerms (kv : kvs))
+          where
+            combineRecordTerms l r = Operator l CombineRecordTerms r
+
+    return (RecordLiteral kvs')
 
 recordLiteralEntry :: Parser (Text, Expression)
 recordLiteralEntry = do
@@ -1870,11 +1874,14 @@ recordLiteralEntry = do
 
 recordLiteralNormalEntry :: Parser ([Text], Expression)
 recordLiteralNormalEntry = do
-    ks <- many (do try (do whsp; "."); anyLabelOrSome)
+    ks <- try do
+        ks <- many (do try (do whsp; "."); anyLabelOrSome)
 
-    whsp
+        whsp
 
-    "="
+        "="
+
+        return ks
 
     whsp
 
@@ -1886,7 +1893,7 @@ unionType :: Parser Expression
 unionType =
         (do kt <- unionTypeEntry
 
-            kts <- many (do try (do whsp; "|"); whsp; unionTypeEntry)
+            kts <- many (try (do whsp; "|"; whsp; unionTypeEntry))
 
             optional (try (do whsp; "|"))
 
@@ -1914,7 +1921,7 @@ nonEmptyListLiteral = do
 
     whsp
 
-    es <- many (do ","; whsp; e <- expression; whsp; return e)
+    es <- many (do e <- try (do ","; whsp; expression); whsp; return e)
 
     optional (do ","; whsp)
 
