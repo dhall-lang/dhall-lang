@@ -11,6 +11,7 @@ import qualified Data.Text                 as Text
 import qualified Data.Text.IO              as Text.IO
 import qualified Parser
 import qualified System.Directory          as Directory
+import qualified System.Environment        as Environment
 import qualified System.FilePath           as FilePath
 import qualified Text.Megaparsec           as Megaparsec
 import qualified Test.Tasty.HUnit          as HUnit
@@ -72,6 +73,8 @@ directoryToTestTree directory = do
 
 main :: IO ()
 main = do
+    Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
+
     testTree <- directoryToTestTree "../tests/parser/success"
 
     Tasty.defaultMain testTree

@@ -810,7 +810,7 @@ Dhall union types translate to CBOR maps:
 ```haskell
 encode (UnionType xTs₀) = TList [ TInt 11, TMap xTs₁ ]
   where
-    xTs₁ = map adapt xTs₀
+    xTs₁ = map adapt (List.sortBy (Ord.comparing fst) xTs₀)
 
     adapt (x, Just _T₀) = (TString x, _T₁)
       where
@@ -1248,14 +1248,14 @@ A `let` binder is represented by a sequence of three elements: name, type annota
 encode expression@(Let _ _ _ _) = loop id expression
   where
     loop difference (Let x (Just _A₀) a₀ c) =
-        loop (([ TString x, _A₁, a₁ ] <>) . difference) c
+        loop (difference . ([ TString x, _A₁, a₁ ] <>)) c
       where
         _A₁ = encode _A₀
 
         a₁ = encode a₀
 
     loop difference (Let y Nothing b₀ c) =
-        loop (([ TString y, TNull, b₁ ] <>) . difference) c
+        loop (difference . ([ TString y, TNull, b₁ ] <>)) c
       where
         b₁ = encode b₀
 

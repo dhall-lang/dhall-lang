@@ -43,6 +43,7 @@ import Syntax
 import Text.Megaparsec
     ( MonadParsec
     , Parsec
+    , notFollowedBy
     , satisfy
     , takeWhileP
     , takeWhile1P
@@ -737,7 +738,7 @@ exponent :: Parser Int
 exponent = do
     "e"
 
-    s <- sign
+    s <- sign <|> pure id
 
     digits <- atLeast 1 (satisfy digit)
 
@@ -756,12 +757,12 @@ numericDoubleLiteral = do
 
             e <- exponent <|> pure 0
 
-            return (s (fromInteger ((digits0 <> digits1) `base` 10) * 10^(e - length digits1)))
+            return (s (fromInteger ((digits0 <> digits1) `base` 10) * 10^^(e - length digits1)))
 
     let withoutRadix = do
             e <- exponent
 
-            return (s (fromInteger (digits0 `base` 10) * 10^e))
+            return (s (fromInteger (digits0 `base` 10) * 10^^e))
 
     withRadix <|> withoutRadix
 
@@ -783,8 +784,8 @@ doubleLiteral :: Parser Double
 doubleLiteral =
         try minusInfinityLiteral
     <|> plusInfinityLiteral
-    <|> numericDoubleLiteral
     <|> (do _NaN; return (0/0))
+    <|> numericDoubleLiteral
 
 naturalLiteral :: Parser Natural
 naturalLiteral = hexadecimal <|> decimal <|> zero
@@ -879,7 +880,7 @@ path_ :: Parser File
 path_ = do
     components <- Combinators.NonEmpty.some pathComponent
 
-    return (File (NonEmpty.init components) (NonEmpty.last components))
+    return (File (reverse (NonEmpty.init components)) (NonEmpty.last components))
 
 local :: Parser ImportType
 local = parentPath <|> herePath <|> homePath <|> absolutePath
@@ -949,7 +950,7 @@ pathAbempty = do
         s : ss -> do
             let n = s :| ss
 
-            return (File (NonEmpty.init n) (NonEmpty.last n))
+            return (File (reverse (NonEmpty.init n)) (NonEmpty.last n))
 
 authority_ :: Parser Text
 authority_ = do
@@ -991,7 +992,8 @@ ipv6Address =
     <|> try option4
     <|> try option5
     <|> try option6
-    <|> option7
+    <|> try option7
+    <|> option8
   where
     option0 = do
         a <- replicateM 6 (h16 <> ":")
@@ -1001,6 +1003,15 @@ ipv6Address =
         return (Text.concat (a <> [ b ]))
 
     option1 = do
+        a <- "::"
+
+        b <- replicateM 5 (h16 <> ":")
+
+        c <- ls32
+
+        return (Text.concat ([ a ] <> b <> [ c ]))
+
+    option2 = do
         a <- (h16 <|> "")
 
         b <- "::"
@@ -1011,11 +1022,11 @@ ipv6Address =
 
         return (Text.concat ([ a, b ] <> c <> [ d ]))
 
-    option2 = do
+    option3 = do
         let prefix = do
                 a <- h16
 
-                b <- atLeast 1 (":" <> h16)
+                b <- atLeast 1 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1029,11 +1040,11 @@ ipv6Address =
 
         return (Text.concat ([ a, b ] <> c <> [ d ]))
 
-    option3 = do
+    option4 = do
         let prefix = do
                 a <- h16
 
-                b <- atLeast 2 (":" <> h16)
+                b <- atLeast 2 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1047,41 +1058,41 @@ ipv6Address =
 
         return (Text.concat ([ a, b ] <> c <> [ d ]))
 
-    option4 = do
+    option5 = do
         let prefix = do
                 a <- h16
 
-                b <- atLeast 3 (":" <> h16)
+                b <- atLeast 3 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
         (prefix <|> "") <> "::" <> h16 <> ":" <> ls32
 
-    option5 = do
+    option6 = do
         let prefix = do
                 a <- h16
 
-                b <- atLeast 4 (":" <> h16)
+                b <- atLeast 4 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
         (prefix <|> "") <> "::" <> ls32
 
-    option6 = do
+    option7 = do
         let prefix = do
                 a <- h16
 
-                b <- atLeast 5 (":" <> h16)
+                b <- atLeast 5 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
         (prefix <|> "") <> "::" <> h16
 
-    option7 = do
+    option8 = do
         let prefix = do
                 a <- h16
 
-                b <- atLeast 6 (":" <> h16)
+                b <- atLeast 6 (try (":" <> h16))
 
                 return (Text.concat (a : b))
 
@@ -1089,14 +1100,14 @@ ipv6Address =
 
 h16 :: Parser Text
 h16 = do
-    a <- satisfy hexDig 
+    a <- satisfy hexDig
 
-    b <- replicateM 3 (satisfy hexDig)
+    b <- atMost 3 (satisfy hexDig)
 
     return (Text.pack (a : b))
 
 ls32 :: Parser Text
-ls32 = (h16 <> ":" <> h16) <|> ipv4Address
+ls32 = try (h16 <> ":" <> h16) <|> ipv4Address
 
 ipv4Address :: Parser Text
 ipv4Address = decOctet <> "." <> decOctet <> "." <> decOctet <> "." <> decOctet
@@ -1274,8 +1285,7 @@ posixEnvironmentVariableCharacter = do
     escaped <|> satisfy unescaped
 
 importType :: Parser ImportType
-importType =
-    missing <|> local <|> http <|> env
+importType = missing <|> local <|> http <|> env
 
 hash :: Parser (Digest SHA256)
 hash = do
@@ -1300,9 +1310,7 @@ import_ = do
     h <- optional (try (do whsp1; hash))
 
     let location = do
-            try (do whsp; as)
-
-            whsp1
+            try (do whsp; as; whsp1)
 
             (do _Text; return RawText) <|> (do _Location; return Location)
 
@@ -1646,7 +1654,8 @@ timesExpression :: Parser Expression
 timesExpression = makeOperator (do "*"; return Times) equalExpression
 
 equalExpression :: Parser Expression
-equalExpression = makeOperator (do "=="; return Equal) notEqualExpression
+equalExpression =
+    makeOperator (do "=="; notFollowedBy "="; return Equal) notEqualExpression
 
 notEqualExpression :: Parser Expression
 notEqualExpression =
@@ -1824,7 +1833,7 @@ nonEmptyRecordType :: Parser Expression
 nonEmptyRecordType = do
     kt <- recordTypeEntry
 
-    kts <- many (do try (do whsp; ","); whsp; recordTypeEntry)
+    kts <- many (try (do whsp; ","; whsp; recordTypeEntry))
 
     optional (try (do whsp; ","))
 
@@ -1848,13 +1857,13 @@ nonEmptyRecordLiteral :: Parser Expression
 nonEmptyRecordLiteral = do
     kv <- recordLiteralEntry
 
-    kvs <- many (do try (do whsp; ","); whsp; recordLiteralEntry)
+    kvs <- many (try (do whsp; ","; whsp; recordLiteralEntry))
 
     optional (try (do whsp; ","))
 
     let kvs' = Map.toList (Map.fromListWith combineRecordTerms (kv : kvs))
           where
-            combineRecordTerms l r = Operator l CombineRecordTerms r
+            combineRecordTerms r l = Operator l CombineRecordTerms r
 
     return (RecordLiteral kvs')
 

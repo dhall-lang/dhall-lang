@@ -484,14 +484,14 @@ minus-infinity-literal = "-" Infinity
 plus-infinity-literal = Infinity
 
 double-literal =
-    ; "2.0"
-      numeric-double-literal
     ; "-Infinity"
-    / minus-infinity-literal
+      minus-infinity-literal
     ; "Infinity"
     / plus-infinity-literal
     ; "NaN"
     / NaN
+    ; "2.0"
+    / numeric-double-literal
 
 natural-literal =
     ; Hexadecimal with "0x" prefix
