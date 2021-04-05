@@ -31,7 +31,7 @@ let
       system = "x86_64-linux";
     }).system;
 
-  standard = pkgs.haskellPackages.callCabal2nix "standard" ./standard { };
+  inherit (pkgs.haskellPackages) standard;
 
   vm =
     (import "${nixpkgs}/nixos" {
