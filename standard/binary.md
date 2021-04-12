@@ -1,8 +1,6 @@
 # Binary semantics
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 module Binary where
 
 import Codec.CBOR.Term (Term(..))
@@ -810,7 +808,7 @@ Dhall union types translate to CBOR maps:
 ```haskell
 encode (UnionType xTs₀) = TList [ TInt 11, TMap xTs₁ ]
   where
-    xTs₁ = map adapt xTs₀
+    xTs₁ = map adapt (List.sortBy (Ord.comparing fst) xTs₀)
 
     adapt (x, Just _T₀) = (TString x, _T₁)
       where
@@ -953,6 +951,7 @@ preserves its value.
 
 ```haskell
 encode (DoubleLiteral n)
+    | isNaN n                                     = THalf n_s
     | Float.float2Double (Half.fromHalf n_h) == n = THalf n_s
     | Float.float2Double n_s == n                 = TFloat n_s
     | otherwise                                   = TDouble n
@@ -965,8 +964,8 @@ encode (DoubleLiteral n)
 Note in particular the encoding of these special values:
 
 
-    ───────────────────────────
-    encode(NaN) = n.n_h(0x7e00)
+    ───────────────────────────  ; Even though NaN does not equal itself, we
+    encode(NaN) = n.n_h(0x7e00)  ; still encode it using half-precision
 
 
     ────────────────────────────────
@@ -1192,7 +1191,7 @@ encode (Import importType₀ importMode₀ hash₀) =
         Location -> TInt 2
 
     importType₁ = case importType₀ of
-        Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀ headers₀) ->
+        Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀) headers₀ ->
                 [ scheme₁, headers₁, authority₁ ]
             <>  directory₁
             <>  [ file₁, query₁ ]
@@ -1248,14 +1247,14 @@ A `let` binder is represented by a sequence of three elements: name, type annota
 encode expression@(Let _ _ _ _) = loop id expression
   where
     loop difference (Let x (Just _A₀) a₀ c) =
-        loop (([ TString x, _A₁, a₁ ] <>) . difference) c
+        loop (difference . ([ TString x, _A₁, a₁ ] <>)) c
       where
         _A₁ = encode _A₀
 
         a₁ = encode a₀
 
     loop difference (Let y Nothing b₀ c) =
-        loop (([ TString y, TNull, b₁ ] <>) . difference) c
+        loop (difference . ([ TString y, TNull, b₁ ] <>)) c
       where
         b₁ = encode b₀
 

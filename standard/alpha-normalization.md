@@ -1,8 +1,6 @@
 # α-normalization
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
-
 module AlphaNormalization where
 
 import Shift (shift)

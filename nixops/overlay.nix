@@ -141,6 +141,16 @@ pkgsNew: pkgsOld: {
                 pkgsNew.haskell.lib.overrideCabal
                   haskellPackagesOld.dhall-docs
                   (old: { broken = false; doCheck = false; });
+
+              standard =
+                pkgsNew.haskell.lib.overrideCabal
+                  (haskellPackagesNew.callCabal2nix "standard" ../standard { })
+                  (old: {
+                    postPatch = (old.postPatch or "") +
+                    ''
+                    ${pkgsNew.gnused}/bin/sed -i 's_../tests_${../tests}_' tasty/Main.hs
+                    '';
+                  });
             };
 
         in
