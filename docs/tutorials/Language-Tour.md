@@ -963,7 +963,7 @@ arguments:
 * The left-hand side is the expression to type-check
 * The right-hand side is the expected type of the left-hand side
 
-... and the operator returns the left-hand side after checking it's type against
+... and the operator returns the left-hand side after checking its type against
 the right-hand side.
 
 > **Exercise:** Ask the REPL for the type of the following expression:
