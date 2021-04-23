@@ -113,10 +113,9 @@ pkgsNew: pkgsOld: {
 
     ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
 
-    for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f ! -name README.md); do
-      ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
-      XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
-    done
+    FILES=$(${pkgsNew.findutils}/bin/find "$out" -type f ! -name README.md)
+    ${pkgsNew.dhall}/bin/dhall lint $FILES
+    XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache $FILES
   '';
 
   expected-test-files =

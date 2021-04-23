@@ -3028,7 +3028,7 @@ There are two main ways you can obtain the hash:
 * Recommended: Use `dhall freeze`
 
   ```bash
-  $ dhall freeze --inplace ./example.dhall
+  $ dhall freeze ./example.dhall
   ```
 
 * Use `dhall hash` from the command line or the `:hash` command in the REPL
