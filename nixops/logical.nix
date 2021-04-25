@@ -314,22 +314,60 @@ in
               };
             };
 
-          # Same as `prelude.dhall-lang.org` except requires a header named
-          # `Test` to be present to authorize requests.  This is used to test
-          # support for header forwarding for the test suite.
+          # Used for various tests in the test suite that depend on things like headers.
           "test.dhall-lang.org" =
             pkgs.lib.mkMerge
               [ prelude
+
+                # Same as `prelude.dhall-lang.org` except requires a header named
+                # `Test` to be present to authorize requests.  This is used to test
+                # support for header forwarding for the test suite.
                 { locations."/".extraConfig = ''
                     if ($http_test = "") {
                       return 403;
                     }
                   '';
+                }
+
+                # A random string to test caching behavior
+                {
                   locations."/random-string".extraConfig = ''
                     set_secure_random_alphanum $res 32;
                     echo $res;
                   '';
                 }
+
+                # Tests for CORS support
+                (let
+                  cors-endpoint = cors: ''
+                    if ($request_method = 'OPTIONS') {
+                      ${lib.optionalString (cors != null) ''
+                        add_header 'Access-Control-Allow-Origin' "${cors}";
+                      ''}
+                      add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                      add_header 'Access-Control-Max-Age' 600;
+                      add_header 'Content-Type' 'text/plain; charset=utf-8';
+                      add_header 'Content-Length' 0;
+                      return 204;
+                    }
+                    if ($request_method = 'GET') {
+                      add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                      add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+                    }
+                    echo "42";
+                  '';
+
+                in {
+                  locations."/cors/AllowedAll.dhall".extraConfig = cors-endpoint "*";
+                  locations."/cors/OnlyGithub.dhall".extraConfig = cors-endpoint "raw.githubusercontent.com";
+                  locations."/cors/OnlyOther.dhall".extraConfig = cors-endpoint "example.com";
+                  locations."/cors/Empty.dhall".extraConfig = cors-endpoint "";
+                  locations."/cors/NoCORS.dhall".extraConfig = cors-endpoint null;
+                  # Included because some clients apparently sometimes misparse "null" in CORS.
+                  locations."/cors/Null.dhall".extraConfig = cors-endpoint "null";
+                })
               ];
         };
     };
