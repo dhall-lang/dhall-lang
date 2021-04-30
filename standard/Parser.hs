@@ -1917,8 +1917,13 @@ nonEmptyListLiteral = do
 
     return (NonEmptyList (e0 :| es))
 
+shebang :: Parser ()
+shebang = do "#!"; many notEndOfLine; endOfLine; return ()
+
+
+
 {-| Parse a complete Dhall expression, including leading and trailing
     whitespace
 -}
 completeExpression :: Parser Expression
-completeExpression = do whsp; e <- expression; whsp; return e
+completeExpression = do optional shebang; whsp; e <- expression; whsp; return e
