@@ -932,8 +932,8 @@ non-empty-list-literal =
     "[" whsp [ "," whsp ] expression whsp *("," whsp expression whsp) [ "," whsp ] "]"
 
 ; We provide special support for the Unix shebang convention, by permitting
-; `#!` as a line comment only on the first line
+; `#!` as a line comment only on the first lines
 shebang = "#!" *not-end-of-line end-of-line
 
 ; This just adds surrounding whitespace for the top-level of the program
-complete-expression = [ shebang ] whsp expression whsp
+complete-expression = *shebang whsp expression whsp

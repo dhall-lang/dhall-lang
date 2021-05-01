@@ -1926,4 +1926,4 @@ shebang = do "#!"; many notEndOfLine; endOfLine; return ()
     whitespace
 -}
 completeExpression :: Parser Expression
-completeExpression = do optional shebang; whsp; e <- expression; whsp; return e
+completeExpression = do many shebang; whsp; e <- expression; whsp; return e
