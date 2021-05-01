@@ -111,6 +111,31 @@ file and then referencing the file path
 > $ dhall --file test.dhall
 > ```
 >
+> If you use a Unix-like operating system then newer versions of Dhall will let
+> you add the following line to the top of your file:
+>
+> ```dhall
+> #!/usr/bin/env -S dhall --file
+> let x = 1
+>
+> let y = 2
+>
+> in  x + y
+> ```
+>
+> Then you can make the file executable:
+>
+> ```bash
+> $ chmod u+x ./test.dhall
+> ```
+>
+> … which will allow you to run the file directly:
+>
+> ```bash
+> $ ./test.dhall
+> 3
+> ```
+>
 > This tutorial will not cover everything that the command-line utility can do,
 > but as a general rule anything you can do within the REPL you can also be
 > done from the command line without the REPL.
