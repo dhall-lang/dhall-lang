@@ -339,34 +339,38 @@ in
 
                 # Tests for CORS support
                 (let
-                  cors-endpoint = cors: ''
+                  cors-endpoint = cors: contents: ''
+                    add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
                     if ($request_method = 'OPTIONS') {
                       ${lib.optionalString (cors != null) ''
                         add_header 'Access-Control-Allow-Origin' "${cors}";
                       ''}
-                      add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
-                      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
                       add_header 'Access-Control-Max-Age' 600;
                       add_header 'Content-Type' 'text/plain; charset=utf-8';
                       add_header 'Content-Length' 0;
                       return 204;
                     }
                     if ($request_method = 'GET') {
-                      add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
-                      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
                       add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
                     }
-                    echo "42";
+                    echo "${contents}";
                   '';
 
                 in {
-                  locations."/cors/AllowedAll.dhall".extraConfig = cors-endpoint "*";
-                  locations."/cors/OnlyGithub.dhall".extraConfig = cors-endpoint "raw.githubusercontent.com";
-                  locations."/cors/OnlyOther.dhall".extraConfig = cors-endpoint "example.com";
-                  locations."/cors/Empty.dhall".extraConfig = cors-endpoint "";
-                  locations."/cors/NoCORS.dhall".extraConfig = cors-endpoint null;
+                  locations."/cors/AllowedAll.dhall".extraConfig = cors-endpoint "*" "42";
+                  locations."/cors/OnlyGithub.dhall".extraConfig = cors-endpoint "raw.githubusercontent.com" "42";
+                  locations."/cors/OnlySelf.dhall".extraConfig = cors-endpoint "test.dhall-lang.org" "42";
+                  locations."/cors/OnlyOther.dhall".extraConfig = cors-endpoint "example.com" "42";
+                  locations."/cors/Empty.dhall".extraConfig = cors-endpoint "" "42";
+                  locations."/cors/NoCORS.dhall".extraConfig = cors-endpoint null "42";
                   # Included because some clients apparently sometimes misparse "null" in CORS.
-                  locations."/cors/Null.dhall".extraConfig = cors-endpoint "null";
+                  locations."/cors/Null.dhall".extraConfig = cors-endpoint "null" "42";
+                  # Check that we can import from the same domain regardless of CORS
+                  locations."/cors/SelfImportAbsolute.dhall".extraConfig =
+                    cors-endpoint "*" "https://test.dhall-lang.org/cors/NoCORS.dhall";
+                  locations."/cors/SelfImportRelative.dhall".extraConfig =
+                    cors-endpoint "*" "./NoCORS.dhall";
                 })
               ];
         };
