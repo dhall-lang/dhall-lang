@@ -128,7 +128,7 @@ pkgsNew: pkgsOld: {
         ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
       done
 
-      ${pkgsNew.dhall}/bin/dhall type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
+      ${pkgsNew.dhall}/bin/dhall --unicode type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
     '';
 
   haskellPackages = pkgsOld.haskellPackages.override (old: {
