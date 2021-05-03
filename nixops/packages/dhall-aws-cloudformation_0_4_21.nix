@@ -8,7 +8,7 @@
     fetchSubmodules = false;
     sha256 = "0jksaqvny2a7l0l3xcsi7gpx53krfv9lmd8n6bsmqwbh17xsa3rw";
     directory = "";
-    file = "config.dhall";
+    file = "version.dhall";
     source = false;
     document = false;
     dependencies = [];
