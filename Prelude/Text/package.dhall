@@ -31,4 +31,7 @@
 , spaces =
       ./spaces.dhall sha256:fccfd4f26601e006bf6a79ca948dbd37c676cdd0db439554447320293d23b3dc
     ? ./spaces.dhall
+, upperASCII =
+      ./upperASCII.dhall sha256:45ae4fbd814b0474e65c28a4ee92b23b979892fa5bb73730bc99675ae790ca29
+    ? ./upperASCII.dhall
 }
