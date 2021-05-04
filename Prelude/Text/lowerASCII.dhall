@@ -39,6 +39,6 @@ let example0 = assert : lowerASCII "ABCdef" ≡ "abcdef"
 
 let -- This does not lowercase Unicode
     example1 =
-      assert : "Á" ≡ "Á"
+      assert : lowerASCII "Á" ≡ "Á"
 
 in  lowerASCII
