@@ -16,6 +16,9 @@
 , defaultMap =
       ./defaultMap.dhall sha256:3a3fa1264f6198800c27483cb144de2c5366484876d60b9c739a710ce0288588
     ? ./defaultMap.dhall
+, lowerASCII =
+      ./lowerASCII.dhall sha256:aac289b8aa44e8ce6a7e3228ee76ff588735c196856d56ff8fcc2a0d5056a197
+    ? ./lowerASCII.dhall
 , replace =
       ./replace.dhall sha256:7d132df0e091a43817bba8afa06d1bb487ee51c091430404ad6f8c78bc0328a6
     ? ./replace.dhall
