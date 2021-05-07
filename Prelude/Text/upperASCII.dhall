@@ -1,5 +1,8 @@
 {-|
 Uppercase all ASCII characters
+
+Note that this will also lowercase decomposed Unicode characters that contain
+codepoints in the ASCII range
 -}
 let upperASCII
     : Text → Text
@@ -37,8 +40,17 @@ let upperASCII
 
 let example0 = assert : upperASCII "ABCdef" ≡ "ABCDEF"
 
-let -- This does not uppercase Unicode
+let -- This does not uppercase precomposed Unicode characters
+    --
+    -- • The `Á` in the following example is U+00C1
     example1 =
       assert : upperASCII "á" ≡ "á"
+
+let -- … but this does uppercase decomposed Unicode characters
+    --
+    -- • The `Á` in the following example is U+0041 U+0301
+    -- • The `á` in the following example is U+0061 U+0301
+    example1 =
+      assert : upperASCII "á" ≡ "Á"
 
 in  upperASCII
