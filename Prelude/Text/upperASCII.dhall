@@ -1,7 +1,7 @@
 {-|
 Uppercase all ASCII characters
 
-Note that this will also lowercase decomposed Unicode characters that contain
+Note that this will also uppercase decomposed Unicode characters that contain
 codepoints in the ASCII range
 -}
 let upperASCII

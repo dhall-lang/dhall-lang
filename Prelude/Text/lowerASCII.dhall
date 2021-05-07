@@ -42,14 +42,14 @@ let example0 = assert : lowerASCII "ABCdef" ≡ "abcdef"
 
 let -- This does not lowercase precomposed Unicode characters
     --
-    -- The `Á` in the following example is U+00C1
+    -- • The `Á` in the following example is U+00C1
     example1 =
       assert : lowerASCII "Á" ≡ "Á"
 
 let -- … but this does lowercase decomposed Unicode characters
     --
-    -- The `Á` in the following example is U+0041 U+0301
-    -- The `á` in the following example is U+0061 U+0301
+    -- • The `Á` in the following example is U+0041 U+0301
+    -- • The `á` in the following example is U+0061 U+0301
     example1 =
       assert : lowerASCII "Á" ≡ "á"
 
