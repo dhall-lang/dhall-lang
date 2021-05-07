@@ -42,7 +42,7 @@ let example0 = assert : upperASCII "ABCdef" ≡ "ABCDEF"
 
 let -- This does not uppercase precomposed Unicode characters
     --
-    -- • The `Á` in the following example is U+00C1
+    -- • The `á` in the following example is U+00E1
     example1 =
       assert : upperASCII "á" ≡ "á"
 
