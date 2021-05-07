@@ -12,12 +12,12 @@ let fold
         natural
     = Natural/fold
 
-let example0 = assert : fold 3 Text (λ(x : Text) → "0" ++ x) "1" ≡ "0001"
+let example0 = assert : fold 3 Text (λ(x : Text) → "A" ++ x) "B" ≡ "AAAB"
 
 let example1 =
         assert
-      :   (λ(zero : Text) → fold 3 Text (λ(x : Text) → "0" ++ x) zero)
-        ≡ (λ(zero : Text) → "0" ++ ("0" ++ ("0" ++ zero)))
+      :   (λ(zero : Text) → fold 3 Text (λ(x : Text) → "A" ++ x) zero)
+        ≡ (λ(zero : Text) → "A" ++ ("A" ++ ("A" ++ zero)))
 
 let example2 =
         assert
