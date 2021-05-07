@@ -18,33 +18,31 @@ let example0 =
       :   fold
             Natural
             [ 2, 3, 5 ]
-            Natural
-            (λ(x : Natural) → λ(y : Natural) → x + y)
-            0
-        ≡ 10
+            Text
+            (λ(x : Natural) → λ(y : Text) → Natural/show x ++ y)
+            "0"
+        ≡ "2350"
 
 let example1 =
         assert
-      :   ( λ(nil : Natural) →
+      :   ( λ(nil : Text) →
               fold
                 Natural
                 [ 2, 3, 5 ]
-                Natural
-                (λ(x : Natural) → λ(y : Natural) → x + y)
+                Text
+                (λ(x : Natural) → λ(y : Text) → Natural/show x ++ y)
                 nil
           )
-        ≡ (λ(nil : Natural) → 2 + (3 + (5 + nil)))
+        ≡ (λ(nil : Text) → "2" ++ ("3" ++ ("5" ++ nil)))
 
 let example2 =
         assert
-      :   ( λ(list : Type) →
-            λ(cons : Natural → list → list) →
-            λ(nil : list) →
-              fold Natural [ 2, 3, 5 ] list cons nil
+      :   ( λ(cons : Natural → Text → Text) →
+            λ(nil : Text) →
+              fold Natural [ 2, 3, 5 ] Text cons nil
           )
-        ≡ ( λ(list : Type) →
-            λ(cons : Natural → list → list) →
-            λ(nil : list) →
+        ≡ ( λ(cons : Natural → Text → Text) →
+            λ(nil : Text) →
               cons 2 (cons 3 (cons 5 nil))
           )
 
