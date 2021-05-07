@@ -11,7 +11,7 @@
       ./Integer/package.dhall sha256:d1a572ca3a764781496847e4921d7d9a881c18ffcfac6ae28d0e5299066938a0
     ? ./Integer/package.dhall
 , List =
-      ./List/package.dhall sha256:547cd881988c6c5e3673ae80491224158e93a4627690db0196cb5efbbf00d2ba
+      ./List/package.dhall sha256:11081c23436cb9c5fa60d53416e62845071990b43b3c48973cb2f19f5d5adbee
     ? ./List/package.dhall
 , Location =
       ./Location/package.dhall sha256:0eb4e4a60814018009c720f6820aaa13cf9491eb1b09afb7b832039c6ee4d470

@@ -319,6 +319,13 @@
         ∀(cons : a → list → list) →
         ∀(nil : list) →
           list
+    , foldLeft :
+        ∀(a : Type) →
+        ∀(xs : List a) →
+        ∀(list : Type) →
+        ∀(cons : list → a → list) →
+        ∀(nil : list) →
+          list
     , generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) → List a
     , head : ∀(a : Type) → List a → Optional a
     , index : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → Optional a
