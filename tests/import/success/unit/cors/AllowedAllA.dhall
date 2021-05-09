@@ -1,1 +1,1 @@
-https://raw.githubusercontent.com/dhall-lang/dhall-lang/f5deb75b7783b13155c419cf41f5919057bdda39/tests/import/data/cors/AllowedAll.dhall
+https://raw.githubusercontent.com/dhall-lang/dhall-lang/5ff7ecd2411894dd9ce307dc23020987361d2d43/tests/import/data/cors/AllowedAll.dhall
