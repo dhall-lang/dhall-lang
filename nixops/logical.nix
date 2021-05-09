@@ -366,11 +366,16 @@ in
                   locations."/cors/NoCORS.dhall".extraConfig = cors-endpoint null "42";
                   # Included because some clients apparently sometimes misparse "null" in CORS.
                   locations."/cors/Null.dhall".extraConfig = cors-endpoint "null" "42";
-                  # Check that we can import from the same domain regardless of CORS
+                  # Check that we can import from the same domain regardless of CORS.
                   locations."/cors/SelfImportAbsolute.dhall".extraConfig =
                     cors-endpoint "*" "https://test.dhall-lang.org/cors/NoCORS.dhall";
                   locations."/cors/SelfImportRelative.dhall".extraConfig =
                     cors-endpoint "*" "./NoCORS.dhall";
+                  # Check that the correct host is used when chaining imports.
+                  locations."/cors/TwoHopsFail.dhall".extraConfig =
+                    cors-endpoint "*" "https://raw.githubusercontent.com/dhall-lang/dhall-lang/5ff7ecd2411894dd9ce307dc23020987361d2d43/tests/import/data/cors/OnlySelf.dhall";
+                  locations."/cors/TwoHopsSuccess.dhall".extraConfig =
+                    cors-endpoint "*" "https://raw.githubusercontent.com/dhall-lang/dhall-lang/5ff7ecd2411894dd9ce307dc23020987361d2d43/tests/import/data/cors/OnlyGithub.dhall";
                 })
               ];
         };
