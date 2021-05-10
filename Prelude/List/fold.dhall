@@ -24,26 +24,20 @@ let example0 =
         ≡ "2350"
 
 let example1 =
-        assert
-      :   ( λ(nil : Text) →
-              fold
-                Natural
-                [ 2, 3, 5 ]
-                Text
-                (λ(x : Natural) → λ(y : Text) → Natural/show x ++ y)
-                nil
-          )
-        ≡ (λ(nil : Text) → "2" ++ ("3" ++ ("5" ++ nil)))
+      λ(nil : Text) →
+          assert
+        :   fold
+              Natural
+              [ 2, 3, 5 ]
+              Text
+              (λ(x : Natural) → λ(y : Text) → Natural/show x ++ y)
+              nil
+          ≡ "2" ++ ("3" ++ ("5" ++ nil))
 
 let example2 =
-        assert
-      :   ( λ(cons : Natural → Text → Text) →
-            λ(nil : Text) →
-              fold Natural [ 2, 3, 5 ] Text cons nil
-          )
-        ≡ ( λ(cons : Natural → Text → Text) →
-            λ(nil : Text) →
-              cons 2 (cons 3 (cons 5 nil))
-          )
+      λ(cons : Natural → Text → Text) →
+      λ(nil : Text) →
+          assert
+        : fold Natural [ 2, 3, 5 ] Text cons nil ≡ cons 2 (cons 3 (cons 5 nil))
 
 in  fold

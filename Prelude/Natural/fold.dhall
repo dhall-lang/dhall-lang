@@ -15,13 +15,14 @@ let fold
 let example0 = assert : fold 3 Text (λ(x : Text) → "A" ++ x) "B" ≡ "AAAB"
 
 let example1 =
-        assert
-      :   (λ(zero : Text) → fold 3 Text (λ(x : Text) → "A" ++ x) zero)
-        ≡ (λ(zero : Text) → "A" ++ ("A" ++ ("A" ++ zero)))
+      λ(zero : Text) →
+          assert
+        :   fold 3 Text (λ(x : Text) → "A" ++ x) zero
+          ≡ "A" ++ ("A" ++ ("A" ++ zero))
 
 let example2 =
-        assert
-      :   (λ(succ : Text → Text) → λ(zero : Text) → fold 3 Text succ zero)
-        ≡ (λ(succ : Text → Text) → λ(zero : Text) → succ (succ (succ zero)))
+      λ(succ : Text → Text) →
+      λ(zero : Text) →
+        assert : fold 3 Text succ zero ≡ succ (succ (succ zero))
 
 in  fold
