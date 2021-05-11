@@ -1,6 +1,5 @@
 {-|
-`foldLeft` is like `List/fold` except that the base case of the fold is the
-first element in the `List`
+`foldLeft` is like `List/fold` except that the accumulation starts from the left
 
 If you treat the list `[ x, y, z ]` as `cons (cons (cons nil x) y) z`, then
 `foldLeft` just replaces each `cons` and `nil` with something else
