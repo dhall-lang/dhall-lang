@@ -1,10 +1,6 @@
 {-|
 Render an `XML` value as `Text`
 
-*WARNING:* rendering does not include any XML injection mitigations,
-therefore it should not be used to process arbitrary strings into
-element attributes or element data.
-
 For indentation and schema validation, see the `xmllint` utility
 bundled with libxml2.
 
@@ -48,15 +44,23 @@ let emptyAttributes =
 
 let Attr = { mapKey : Text, mapValue : Text }
 
-let `escape"` = Text/replace "\"" "\\\""
+let esc = λ(x : Text) → λ(y : Text) → Text/replace x "&${y};"
 
-let `escape<` = Text/replace "<" "\\<"
+let `escape&` = esc "&" "amp"
 
-let `escape&` = Text/replace "&" "\\&"
+let `escape<` = esc "<" "lt"
 
-let escapeText = λ(text : Text) → `escape<` (`escape&` text)
+let `escape>` = esc ">" "gt"
 
-let escapeAttr = λ(text : Text) → `escape"` (`escape<` (`escape&` text))
+let `escape'` = esc "'" "apos"
+
+let `escape"` = esc "\"" "quot"
+
+let escapeCommon = λ(text : Text) → `escape<` (`escape&` text)
+
+let escapeAttr = λ(text : Text) → `escape"` (`escape'` (escapeCommon text))
+
+let escapeText = λ(text : Text) → `escape>` (escapeCommon text)
 
 let renderAttr = λ(x : Attr) → " ${x.mapKey}=\"${escapeAttr x.mapValue}\""
 
@@ -123,9 +127,7 @@ let example1 =
             "\n"
             ""
             ''
-            <escape attribute="\<>'\"\&">
-            \<>'"\&
-            </escape>
+            <escape attribute="&lt;>&apos;&quot;&amp;">&lt;&gt;'"&amp;</escape>
             ''
 
 in  render
