@@ -108,7 +108,7 @@ pkgsNew: pkgsOld: {
     touch $out
   '';
 
-  expected-prelude = pkgsNew.runCommand "expected-prelude" {} ''
+  expected-prelude = pkgsNew.runCommand "expected-prelude" { XDG_CACHE_HOME= "."; } ''
     ${pkgsNew.rsync}/bin/rsync --archive ${../Prelude}/ "$out"
 
     ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
@@ -119,7 +119,8 @@ pkgsNew: pkgsOld: {
   '';
 
   expected-test-files =
-    pkgsNew.runCommand "expected-test-files" {} ''
+    pkgsNew.runCommand "expected-test-files"
+      { XDG_CACHE_HOME = "."; BUNDLE_PATH = "."; } ''
       ${pkgsNew.rsync}/bin/rsync --archive ${../tests}/ "$out"
 
       ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
