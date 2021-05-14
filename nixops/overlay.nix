@@ -120,7 +120,7 @@ pkgsNew: pkgsOld: {
 
   expected-test-files =
     pkgsNew.runCommand "expected-test-files"
-      { XDG_CACHE_HOME = "."; BUNDLE_PATH = "."; } ''
+      { XDG_CACHE_HOME = "."; HOME = "."; } ''
       ${pkgsNew.rsync}/bin/rsync --archive ${../tests}/ "$out"
 
       ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
