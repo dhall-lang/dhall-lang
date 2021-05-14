@@ -119,8 +119,7 @@ pkgsNew: pkgsOld: {
   '';
 
   expected-test-files =
-    pkgsNew.runCommand "expected-test-files"
-      { XDG_CACHE_HOME = "."; HOME = "."; } ''
+    pkgsNew.runCommand "expected-test-files" { HOME = "."; } ''
       ${pkgsNew.rsync}/bin/rsync --archive ${../tests}/ "$out"
 
       ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
@@ -129,7 +128,7 @@ pkgsNew: pkgsOld: {
         ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
       done
 
-      ${pkgsNew.dhall}/bin/dhall --unicode type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
+      ${pkgsNew.dhall}/bin/dhall --no-cache --unicode type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
     '';
 
   haskellPackages = pkgsOld.haskellPackages.override (old: {
