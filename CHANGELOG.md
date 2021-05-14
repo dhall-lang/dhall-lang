@@ -9,7 +9,7 @@ For more info about our versioning policy, see [versioning.md](standard/versioni
 
 New features:
 
-* [Add support for Unjix shebangs](https://github.com/dhall-lang/dhall-lang/pull/1158)
+* [Add support for Unix shebangs](https://github.com/dhall-lang/dhall-lang/pull/1158)
 
   Dhall files can now begin with any number of lines starting with `#!`.
 
