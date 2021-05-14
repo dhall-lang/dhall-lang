@@ -115,7 +115,7 @@ pkgsNew: pkgsOld: {
 
     FILES=$(${pkgsNew.findutils}/bin/find "$out" -type f ! -name README.md)
     ${pkgsNew.dhall}/bin/dhall lint $FILES
-    XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache $FILES
+    ${pkgsNew.dhall}/bin/dhall freeze --all --cache $FILES
   '';
 
   expected-test-files =
