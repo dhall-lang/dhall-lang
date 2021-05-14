@@ -37,6 +37,10 @@ Other changes:
  * [More CORS tests](https://github.com/dhall-lang/dhall-lang/pull/1171)
  * [Add tests for `Text/replace ""`](https://github.com/dhall-lang/dhall-lang/pull/1172)
 
+* Fixes and improvements to the Prelude:
+
+  * [Change `*/fold` examples to use different accumulator type](https://github.com/dhall-lang/dhall-lang/pull/1168)
+
 ## `v20.1.0`
 
 New features:
