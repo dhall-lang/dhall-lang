@@ -113,10 +113,9 @@ pkgsNew: pkgsOld: {
 
     ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
 
-    for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f ! -name README.md); do
-      ${pkgsNew.dhall}/bin/dhall lint --inplace "$FILE"
-      XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache --inplace "$FILE"
-    done
+    FILES=$(${pkgsNew.findutils}/bin/find "$out" -type f ! -name README.md)
+    ${pkgsNew.dhall}/bin/dhall lint $FILES
+    XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache $FILES
   '';
 
   expected-test-files =
@@ -129,7 +128,7 @@ pkgsNew: pkgsOld: {
         ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
       done
 
-      ${pkgsNew.dhall}/bin/dhall type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
+      ${pkgsNew.dhall}/bin/dhall --unicode type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
     '';
 
   haskellPackages = pkgsOld.haskellPackages.override (old: {

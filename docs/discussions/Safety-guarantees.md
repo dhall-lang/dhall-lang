@@ -156,7 +156,7 @@ You can also automatically freeze all imports within a file using
 the following command:
 
 ```console
-$ dhall freeze --inplace ./example.dhall
+$ dhall freeze ./example.dhall
 ```
 
 An import frozen in this way can never successfully return a different

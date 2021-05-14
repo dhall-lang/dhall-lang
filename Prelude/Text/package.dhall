@@ -16,6 +16,9 @@
 , defaultMap =
       ./defaultMap.dhall sha256:3a3fa1264f6198800c27483cb144de2c5366484876d60b9c739a710ce0288588
     ? ./defaultMap.dhall
+, lowerASCII =
+      ./lowerASCII.dhall sha256:26b076651120b907e869396bd3dc16271f2e12433062b2f26f296968a69515e7
+    ? ./lowerASCII.dhall
 , replace =
       ./replace.dhall sha256:7d132df0e091a43817bba8afa06d1bb487ee51c091430404ad6f8c78bc0328a6
     ? ./replace.dhall
@@ -28,4 +31,7 @@
 , spaces =
       ./spaces.dhall sha256:fccfd4f26601e006bf6a79ca948dbd37c676cdd0db439554447320293d23b3dc
     ? ./spaces.dhall
+, upperASCII =
+      ./upperASCII.dhall sha256:45ae4fbd814b0474e65c28a4ee92b23b979892fa5bb73730bc99675ae790ca29
+    ? ./upperASCII.dhall
 }
