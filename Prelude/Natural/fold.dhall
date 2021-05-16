@@ -12,24 +12,17 @@ let fold
         natural
     = Natural/fold
 
-let example0 = assert : fold 3 Natural (λ(x : Natural) → 5 * x) 1 ≡ 125
+let example0 = assert : fold 3 Text (λ(x : Text) → "A" ++ x) "B" ≡ "AAAB"
 
 let example1 =
-        assert
-      :   (λ(zero : Natural) → fold 3 Natural (λ(x : Natural) → 5 * x) zero)
-        ≡ (λ(zero : Natural) → 5 * (5 * (5 * zero)))
+      λ(zero : Text) →
+          assert
+        :   fold 3 Text (λ(x : Text) → "A" ++ x) zero
+          ≡ "A" ++ ("A" ++ ("A" ++ zero))
 
 let example2 =
-        assert
-      :   ( λ(natural : Type) →
-            λ(succ : natural → natural) →
-            λ(zero : natural) →
-              fold 3 natural succ zero
-          )
-        ≡ ( λ(natural : Type) →
-            λ(succ : natural → natural) →
-            λ(zero : natural) →
-              succ (succ (succ zero))
-          )
+      λ(succ : Text → Text) →
+      λ(zero : Text) →
+        assert : fold 3 Text succ zero ≡ succ (succ (succ zero))
 
 in  fold

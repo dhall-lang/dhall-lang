@@ -13,9 +13,8 @@ let fold
       λ(none : optional) →
         merge { Some = some, None = none } o
 
-let example0 = assert : fold Natural (Some 2) Natural (λ(x : Natural) → x) 0 ≡ 2
+let example0 = assert : fold Natural (Some 2) Text Natural/show "0" ≡ "2"
 
-let example1 =
-      assert : fold Natural (None Natural) Natural (λ(x : Natural) → x) 0 ≡ 0
+let example1 = assert : fold Natural (None Natural) Text Natural/show "0" ≡ "0"
 
 in  fold
