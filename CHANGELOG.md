@@ -36,6 +36,7 @@ Other changes:
  * [Add CORS tests](https://github.com/dhall-lang/dhall-lang/pull/1171)
  * [More CORS tests](https://github.com/dhall-lang/dhall-lang/pull/1171)
  * [Add tests for `Text/replace ""`](https://github.com/dhall-lang/dhall-lang/pull/1172)
+ * [Add a batch of tests](https://github.com/dhall-lang/dhall-lang/pull/1173)
 
 * Fixes and improvements to the Prelude:
 
