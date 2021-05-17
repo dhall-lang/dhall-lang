@@ -108,18 +108,18 @@ pkgsNew: pkgsOld: {
     touch $out
   '';
 
-  expected-prelude = pkgsNew.runCommand "expected-prelude" {} ''
+  expected-prelude = pkgsNew.runCommand "expected-prelude" { XDG_CACHE_HOME= "."; } ''
     ${pkgsNew.rsync}/bin/rsync --archive ${../Prelude}/ "$out"
 
     ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
 
     FILES=$(${pkgsNew.findutils}/bin/find "$out" -type f ! -name README.md)
     ${pkgsNew.dhall}/bin/dhall lint $FILES
-    XDG_CACHE_HOME=/var/empty ${pkgsNew.dhall}/bin/dhall freeze --all --cache $FILES
+    ${pkgsNew.dhall}/bin/dhall freeze --all --cache $FILES
   '';
 
   expected-test-files =
-    pkgsNew.runCommand "expected-test-files" {} ''
+    pkgsNew.runCommand "expected-test-files" { HOME = "."; } ''
       ${pkgsNew.rsync}/bin/rsync --archive ${../tests}/ "$out"
 
       ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
@@ -128,7 +128,7 @@ pkgsNew: pkgsOld: {
         ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
       done
 
-      ${pkgsNew.dhall}/bin/dhall --unicode type --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
+      ${pkgsNew.dhall}/bin/dhall --unicode type --no-cache --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"
     '';
 
   haskellPackages = pkgsOld.haskellPackages.override (old: {
