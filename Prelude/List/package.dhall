@@ -28,6 +28,9 @@
 , fold =
       ./fold.dhall sha256:10bb945c25ab3943bd9df5a32e633cbfae112b7d3af38591784687e436a8d814
     ? ./fold.dhall
+, foldLeft =
+      ./foldLeft.dhall sha256:3c6ab57950fe644906b7bbdef0b9523440b6ee17773ebb8cbd41ffacb8bfab61
+    ? ./foldLeft.dhall
 , generate =
       ./generate.dhall sha256:78ff1ad96c08b88a8263eea7bc8381c078225cfcb759c496f792edb5a5e0b1a4
     ? ./generate.dhall
