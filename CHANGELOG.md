@@ -27,6 +27,10 @@ New features:
   You can now uppercase and lowercase ASCII characters in `Text` using these
   two new Prelude utilities
 
+* [Add `Prelude.List.foldLeft`](https://github.com/dhall-lang/dhall-lang/pull/1170)
+
+  This lets you fold a list in the opposite direction of `Prelude.List.fold`
+
 Other changes:
 
 * Fixes and improvements to the standard:
