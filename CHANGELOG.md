@@ -22,6 +22,8 @@ New features:
   "Hello, world!"
   ```
 
+  See also: [Add support for extra Unix shebangs](https://github.com/dhall-lang/dhall-lang/pull/1163)
+
 * [Add `Prelude.Text.{lower,upper}ASCII` utilities](https://github.com/dhall-lang/dhall-lang/pull/1164)
 
   You can now uppercase and lowercase ASCII characters in `Text` using these
