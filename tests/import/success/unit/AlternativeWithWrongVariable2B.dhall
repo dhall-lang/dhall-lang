@@ -1,0 +1,1 @@
+λ(x : Natural) → x

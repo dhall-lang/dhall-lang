@@ -319,6 +319,13 @@
         ∀(cons : a → list → list) →
         ∀(nil : list) →
           list
+    , foldLeft :
+        ∀(a : Type) →
+        ∀(xs : List a) →
+        ∀(list : Type) →
+        ∀(cons : list → a → list) →
+        ∀(nil : list) →
+          list
     , generate : ∀(n : Natural) → ∀(a : Type) → ∀(f : Natural → a) → List a
     , head : ∀(a : Type) → List a → Optional a
     , index : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → Optional a
@@ -491,11 +498,13 @@
     , concatSep : ∀(separator : Text) → ∀(elements : List Text) → Text
     , default : ∀(o : Optional Text) → Text
     , defaultMap : ∀(a : Type) → ∀(f : a → Text) → ∀(o : Optional a) → Text
+    , lowerASCII : ∀(nil : Text) → Text
     , replace :
         ∀(needle : Text) → ∀(replacement : Text) → ∀(haystack : Text) → Text
     , replicate : ∀(num : Natural) → ∀(text : Text) → Text
     , show : Text → Text
     , spaces : ∀(a : Natural) → Text
+    , upperASCII : ∀(nil : Text) → Text
     }
 , XML :
     { Type : Type
