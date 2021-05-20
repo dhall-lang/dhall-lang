@@ -187,10 +187,10 @@ following these instructions:
 
 Once you do that, you can run the following scripts:
 
-* `./script/generate-test-files.sh` - This generates `.diag` files from `.cbor`
+* `./scripts/generate-test-files.sh` - This generates `.diag` files from `.cbor`
   files
 
-* `./script/lint-prelude.sh` - This freezes and lints the Prelude
+* `./scripts/lint-prelude.sh` - This freezes and lints the Prelude
 
 ## How do I get the "commit bit"?
 
