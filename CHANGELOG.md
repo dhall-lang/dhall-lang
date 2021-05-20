@@ -47,6 +47,7 @@ Other changes:
 * Fixes and improvements to the Prelude:
 
   * [Change `*/fold` examples to use different accumulator type](https://github.com/dhall-lang/dhall-lang/pull/1168)
+  * [Prelude: Escape XML text using the &…; method](https://github.com/dhall-lang/dhall-lang/pull/1174)
 
 ## `v20.1.0`
 
