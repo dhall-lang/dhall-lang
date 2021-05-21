@@ -5,6 +5,50 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v20.2.0`
+
+New features:
+
+* [Add support for Unix shebangs](https://github.com/dhall-lang/dhall-lang/pull/1158)
+
+  Dhall files can now begin with any number of lines starting with `#!`.
+
+  This comes in handy if you want to specify how to interpret the file using the
+  Unix shebang convention, like this:
+
+  ```dhall
+  #!/usr/bin/env -S dhall text --file
+
+  "Hello, world!"
+  ```
+
+  See also: [Add support for extra Unix shebangs](https://github.com/dhall-lang/dhall-lang/pull/1163)
+
+* [Add `Prelude.Text.{lower,upper}ASCII` utilities](https://github.com/dhall-lang/dhall-lang/pull/1164)
+
+  You can now uppercase and lowercase ASCII characters in `Text` using these
+  two new Prelude utilities
+
+* [Add `Prelude.List.foldLeft`](https://github.com/dhall-lang/dhall-lang/pull/1170)
+
+  This lets you fold a list in the opposite direction of `Prelude.List.fold`
+
+Other changes:
+
+* Fixes and improvements to the standard:
+
+ * [Fix typo in syntax.md](https://github.com/dhall-lang/dhall-lang/pull/1135)
+ * [Add reference implementation of parser](https://github.com/dhall-lang/dhall-lang/pull/1152)
+ * [Add CORS tests](https://github.com/dhall-lang/dhall-lang/pull/1171)
+ * [More CORS tests](https://github.com/dhall-lang/dhall-lang/pull/1171)
+ * [Add tests for `Text/replace ""`](https://github.com/dhall-lang/dhall-lang/pull/1172)
+ * [Add a batch of tests](https://github.com/dhall-lang/dhall-lang/pull/1173)
+
+* Fixes and improvements to the Prelude:
+
+  * [Change `*/fold` examples to use different accumulator type](https://github.com/dhall-lang/dhall-lang/pull/1168)
+  * [Prelude: Escape XML text using the &…; method](https://github.com/dhall-lang/dhall-lang/pull/1174)
+
 ## `v20.1.0`
 
 New features:
