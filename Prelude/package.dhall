@@ -25,6 +25,9 @@
 , Natural =
       ./Natural/package.dhall sha256:ee9ed2b28a417ed4e9a0c284801b928bf91b3fbdc1a68616347678c1821f1ddf
     ? ./Natural/package.dhall
+, NonEmpty =
+      ./NonEmpty/package.dhall sha256:283088c88c1fbb3f0ca8e4e361b9ac9f15b65c9ddcd4ef77ea76bb214acb7a5c
+    ? ./NonEmpty/package.dhall
 , Operator =
       ./Operator/package.dhall sha256:861f724704a7b4755c96f173e54d03f314492a2d046723404c31ff612b7bf2e6
     ? ./Operator/package.dhall

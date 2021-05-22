@@ -19,9 +19,21 @@ let List/concatMap =
         ../List/concatMap.dhall sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
       ? ../List/concatMap.dhall
 
-let NonEmpty
-    : Type → Type
-    = λ(a : Type) → { head : a, tail : List a }
+let NonEmpty =
+        ../NonEmpty/Type.dhall sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
+      ? ../NonEmpty/Type.dhall
+
+let NonEmpty/toList =
+        ../NonEmpty/toList.dhall sha256:0977fe14b77232a4451dcf409c43df4589c4b3cdde7b613aab8df183be1b53f5
+      ? ../NonEmpty/toList.dhall
+
+let NonEmpty/concat =
+        ../NonEmpty/concat.dhall sha256:6d55181938c06c6b806877028f6a241912e9c0935d9a10dd958775bf21e0f64d
+      ? ../NonEmpty/concat.dhall
+
+let NonEmpty/map =
+        ../NonEmpty/map.dhall sha256:93d53afe874bb2eed946c21ca5ada3c9716b7d00e6d8edfaba6484cd9c5a00bd
+      ? ../NonEmpty/map.dhall
 
 let NonEmpty/singleton
     : ∀(a : Type) → a → NonEmpty a
@@ -52,28 +64,6 @@ let List/uncons
                 acc
           )
           (None (NonEmpty a))
-
-let NonEmpty/toList
-    : ∀(a : Type) → NonEmpty a → List a
-    = λ(a : Type) → λ(nonEmpty : NonEmpty a) → [ nonEmpty.head ] # nonEmpty.tail
-
-let NonEmpty/concat
-    : ∀(a : Type) → NonEmpty (NonEmpty a) → NonEmpty a
-    = λ(a : Type) →
-      λ(lss : NonEmpty (NonEmpty a)) →
-        { head = lss.head.head
-        , tail =
-              lss.head.tail
-            # List/concatMap (NonEmpty a) a (NonEmpty/toList a) lss.tail
-        }
-
-let NonEmpty/map
-    : ∀(a : Type) → ∀(b : Type) → (a → b) → NonEmpty a → NonEmpty b
-    = λ(a : Type) →
-      λ(b : Type) →
-      λ(fn : a → b) →
-      λ(ls : NonEmpty a) →
-        { head = fn ls.head, tail = List/map a b fn ls.tail }
 
 let NonEmpty/mapHead
     : ∀(a : Type) → (a → a) → NonEmpty a → NonEmpty a

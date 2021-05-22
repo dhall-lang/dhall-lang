@@ -431,6 +431,86 @@
     , toDouble : ∀(n : Natural) → Double
     , toInteger : Natural → Integer
     }
+, NonEmpty :
+    { Type : ∀(a : Type) → Type
+    , all :
+        ∀(a : Type) →
+        ∀(f : a → Bool) →
+        ∀(xs : { head : a, tail : List a }) →
+          Bool
+    , any :
+        ∀(a : Type) →
+        ∀(f : a → Bool) →
+        ∀(xs : { head : a, tail : List a }) →
+          Bool
+    , concat :
+        ∀(a : Type) →
+        ∀ ( xss
+          : { head : { head : a, tail : List a }
+            , tail : List { head : a, tail : List a }
+            }
+          ) →
+          { head : a, tail : List a }
+    , concatMap :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → { head : b, tail : List b }) →
+        ∀(xs : { head : a, tail : List a }) →
+          { head : b, tail : List b }
+    , head : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → a
+    , index :
+        ∀(n : Natural) →
+        ∀(a : Type) →
+        ∀(xs : { head : a, tail : List a }) →
+          Optional a
+    , indexed :
+        ∀(a : Type) →
+        ∀(xs : { head : a, tail : List a }) →
+          { head : { index : Natural, value : a }
+          , tail : List { index : Natural, value : a }
+          }
+    , last : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → a
+    , length : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → Natural
+    , map :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → b) →
+        ∀(xs : { head : a, tail : List a }) →
+          { head : b, tail : List b }
+    , reverse :
+        ∀(a : Type) →
+        ∀(xs : { head : a, tail : List a }) →
+          { head : a, tail : List a }
+    , shifted :
+        ∀(a : Type) →
+        ∀ ( kvss
+          : { head :
+                { head : { index : Natural, value : a }
+                , tail : List { index : Natural, value : a }
+                }
+            , tail :
+                List
+                  { head : { index : Natural, value : a }
+                  , tail : List { index : Natural, value : a }
+                  }
+            }
+          ) →
+          { head : { index : Natural, value : a }
+          , tail : List { index : Natural, value : a }
+          }
+    , toList : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → List a
+    , unzip :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(xs : { head : { _1 : a, _2 : b }, tail : List { _1 : a, _2 : b } }) →
+          { _1 : { head : a, tail : List a }, _2 : { head : b, tail : List b } }
+    , zip :
+        ∀(a : Type) →
+        ∀(xs : { head : a, tail : List a }) →
+        ∀(b : Type) →
+        ∀(ys : { head : b, tail : List b }) →
+          { head : { _1 : a, _2 : b }, tail : List { _1 : a, _2 : b } }
+    }
 , Operator :
     { `!=` : ∀(m : Bool) → ∀(n : Bool) → Bool
     , `#` : ∀(type : Type) → ∀(m : List type) → ∀(n : List type) → List type
