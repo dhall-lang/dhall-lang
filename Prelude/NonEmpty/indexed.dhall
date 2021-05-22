@@ -1,7 +1,11 @@
 --| Tag each element of the `NonEmpty` list with its index
-let NonEmpty = ./Type.dhall
+let NonEmpty =
+        ./Type.dhall sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
+      ? ./Type.dhall
 
-let List/map = ../List/map.dhall
+let List/map =
+        ../List/map.dhall sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+      ? ../List/map.dhall
 
 let indexed
     : ∀(a : Type) → NonEmpty a → NonEmpty { index : Natural, value : a }

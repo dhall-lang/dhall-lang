@@ -3,9 +3,13 @@ Zip two `NonEmpty` lists into a single `NonEmpty`
 
 The resulting `NonEmpty` will have the length of the shortest of its arguments.
 -}
-let NonEmpty = ./Type.dhall
+let NonEmpty =
+        ./Type.dhall sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
+      ? ./Type.dhall
 
-let List/zip = ../List/zip.dhall
+let List/zip =
+        ../List/zip.dhall sha256:85ed955eabf3998767f4ad2a28e57d40cd4c68a95519d79e9b622f1d26d979da
+      ? ../List/zip.dhall
 
 let zip
     : ∀(a : Type) →

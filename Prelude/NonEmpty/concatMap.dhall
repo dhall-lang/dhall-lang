@@ -2,11 +2,17 @@
 Transform a `NonEmpty` list by applying a function to each element and
 flattening the results
 -}
-let NonEmpty = ./Type.dhall
+let NonEmpty =
+        ./Type.dhall sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
+      ? ./Type.dhall
 
-let NonEmpty/toList = ./toList.dhall
+let NonEmpty/toList =
+        ./toList.dhall sha256:0977fe14b77232a4451dcf409c43df4589c4b3cdde7b613aab8df183be1b53f5
+      ? ./toList.dhall
 
-let List/concatMap = ../List/concatMap.dhall
+let List/concatMap =
+        ../List/concatMap.dhall sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+      ? ../List/concatMap.dhall
 
 let concatMap
     : ∀(a : Type) → ∀(b : Type) → (a → NonEmpty b) → NonEmpty a → NonEmpty b
