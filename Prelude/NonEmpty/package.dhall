@@ -28,6 +28,9 @@
 , length =
       ./length.dhall sha256:eef3b857a164487cfdb960e3298c4731970b7a430011289cba35a9ad722ac989
     ? ./length.dhall
+, make =
+      ./make.dhall sha256:549de393673c4773c80a50ea578ea50d7f2c4c2eda31956e73fabc4e486f3b1e
+    ? ./make.dhall
 , map =
       ./map.dhall sha256:93d53afe874bb2eed946c21ca5ada3c9716b7d00e6d8edfaba6484cd9c5a00bd
     ? ./map.dhall
@@ -37,6 +40,9 @@
 , shifted =
       ./shifted.dhall sha256:36156973d6916aed10cfd8c59be7c019516bf0a2c47b499a17a8ef0611e1c189
     ? ./shifted.dhall
+, singleton =
+      ./singleton.dhall sha256:c9197aabe97695f7ca66f7419bf172d806b2c915594a8fc0d2ff6495db496ff2
+    ? ./singleton.dhall
 , toList =
       ./toList.dhall sha256:0977fe14b77232a4451dcf409c43df4589c4b3cdde7b613aab8df183be1b53f5
     ? ./toList.dhall

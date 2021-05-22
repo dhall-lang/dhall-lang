@@ -471,6 +471,11 @@
           }
     , last : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → a
     , length : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → Natural
+    , make :
+        ∀(a : Type) →
+        ∀(head : a) →
+        ∀(tail : List a) →
+          { head : a, tail : List a }
     , map :
         ∀(a : Type) →
         ∀(b : Type) →
@@ -498,6 +503,7 @@
           { head : { index : Natural, value : a }
           , tail : List { index : Natural, value : a }
           }
+    , singleton : ∀(a : Type) → ∀(x : a) → { head : a, tail : List a }
     , toList : ∀(a : Type) → ∀(xs : { head : a, tail : List a }) → List a
     , unzip :
         ∀(a : Type) →

@@ -31,9 +31,9 @@ let NonEmpty/map =
         ../NonEmpty/map.dhall sha256:93d53afe874bb2eed946c21ca5ada3c9716b7d00e6d8edfaba6484cd9c5a00bd
       ? ../NonEmpty/map.dhall
 
-let NonEmpty/singleton
-    : ∀(a : Type) → a → NonEmpty a
-    = λ(a : Type) → λ(x : a) → { head = x, tail = [] : List a }
+let NonEmpty/singleton =
+        ../NonEmpty/singleton.dhall sha256:c9197aabe97695f7ca66f7419bf172d806b2c915594a8fc0d2ff6495db496ff2
+      ? ../NonEmpty/singleton.dhall
 
 let List/uncons
     : ∀(a : Type) → List a → Optional (NonEmpty a)
