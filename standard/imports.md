@@ -874,19 +874,47 @@ Or in judgment form:
   [RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
   as a pure function from a byte array to text
 
-Resolution of expressions might not be always successful: pure expressions are
-always resolved, the `missing` keyword never resolves, and imports might not 
-resolve in cases like:
+The `?` operator lets you recover from some (but not all) import resolution
+failures.
 
-* an environment variable is not defined
-* file doesn't exist
-* URL is not reachable
-* parse error
-* hash mismatch
-* typecheck error
+Specifically, `e₀ ? e₁` is equivalent to `e₁` if `e₀` contains any imports that
+are *not cached* and *absent*, where an import is *not cached* if:
 
-By using the `?` operator, expressions are alternatively resolved, in
-left-to-right order:
+* the import is not protected by an integrity check, or:
+* the import is protected by an integrity check but is not cached
+
+… and an import is *absent* if:
+
+* the import references an environment variable that is not defined,
+* the import references a file that does not exist,
+* the import references URL that cannot be retrieved, or:
+* the import is the `missing` import.
+
+In other words, if any import cannot be retrieved or fetched from cache then the
+`?` fallback is applied.
+
+In contrast, `e₀ ? e₁` is equivalent to `e₀` if `e₀` fails to resolve an
+expression for any of the following reasons:
+
+* `e₀` imports an expression that fails to parse
+* `e₀` imports an expression that fails to type-check
+* `e₀` imports an expression that fails an integrity check
+* `e₀` imports an expression that fails due to a cyclic import
+
+In other words, the fallback expression is ignored if the import is present but
+fails for other reasons.
+
+For example:
+
+* `e₀ sha256:… ? e₁ = e₀ sha256:…` if `e₀ sha256:…` is cached
+* `e₀ sha256:… ? e₁ = e₀ sha256:…` if `e₀ sha256:…` is not cached, but `e₀` is
+  present and matches the integrity check
+* `e₀ sha256:… ? e₁ = e₀ sha256:…` if `e₀ sha256:…` is not cached, but `e₀` is
+  present and does not match the integrity check (meaning that the expression
+  as a whole is rejected without falling back to resolving `e₁`)
+* `e₀ sha256:… ? e₁ = e₁` if `e₀ sha256:…` is not cached and `e₀` is absent
+
+Formally:
 
 
     (Δ, here) × Γ₀ ⊢ e₀ ⇒ e₂ ⊢ Γ₁
@@ -895,8 +923,8 @@ left-to-right order:
 
 
     (Δ, here) × Γ₀ ⊢ e₁ ⇒ e₂ ⊢ Γ₁
-    ────────────────────────────────────  ; if `e₀` fails to resolve
-    (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁
+    ────────────────────────────────────  ; if `e₀` fails to resolve due to an
+    (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁  ; import that is not cached and absent
 
 
 For all other cases, recursively descend into sub-expressions:
