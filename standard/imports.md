@@ -888,7 +888,7 @@ are *not cached* and *absent*, where an import is *not cached* if:
 * the import references an environment variable that is not defined,
 * the import references a file that does not exist,
 * the import references URL that cannot be retrieved, or:
-* the import is the `missing` import.
+* the import is the `missing` keyword, which is treated as an absent import
 
 In other words, if any import cannot be retrieved or fetched from cache then the
 `?` fallback is applied.
