@@ -881,7 +881,7 @@ Specifically, `e₀ ? e₁` is equivalent to `e₁` if `e₀` contains any impor
 are *not cached* and *absent*, where an import is *not cached* if:
 
 * the import is not protected by an integrity check, or:
-* the import is protected by an integrity check but is not cached
+* the import is protected by an integrity check but not available from the cache
 
 … and an import is *absent* if:
 
