@@ -906,13 +906,15 @@ fails for other reasons.
 
 For example:
 
-* `e₀ sha256:… ? e₁ = e₀ sha256:…` if `e₀ sha256:…` is cached
-* `e₀ sha256:… ? e₁ = e₀ sha256:…` if `e₀ sha256:…` is not cached, but `e₀` is
-  present and matches the integrity check
-* `e₀ sha256:… ? e₁ = e₀ sha256:…` if `e₀ sha256:…` is not cached, but `e₀` is
-  present and does not match the integrity check (meaning that the expression
-  as a whole is rejected without falling back to resolving `e₁`)
-* `e₀ sha256:… ? e₁ = e₁` if `e₀ sha256:…` is not cached and `e₀` is absent
+* `e₀ sha256:… ? e₁` is equivalent to `e₀ sha256:…` if `e₀ sha256:…` is cached
+* `e₀ sha256:… ? e₁` is equivalent to `e₀ sha256:…` if `e₀ sha256:…` is not
+  cached, but `e₀` is present and matches the integrity check
+* `e₀ sha256:… ? e₁` is equivalent to `e₀ sha256:…` if `e₀ sha256:…` is not
+  cached, but `e₀` is present and does not match the integrity check (meaning
+  that the expression as a whole is rejected without falling back to resolving
+  `e₁`)
+* `e₀ sha256:… ? e₁` is equivalent to `e₁` if `e₀ sha256:…` is not cached and
+  `e₀` is absent
 
 Formally:
 
