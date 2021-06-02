@@ -893,8 +893,8 @@ are *not cached* and *absent*, where an import is *not cached* if:
 In other words, if any import cannot be retrieved or fetched from cache then the
 `?` fallback is applied.
 
-In contrast, `e₀ ? e₁` is equivalent to `e₀` if `e₀` fails to resolve an
-expression for any of the following reasons:
+In contrast, `e₀ ? e₁` is equivalent to `e₀` if `e₀` successfully resolves or
+`e₀` fails to resolve a sub-expression for any of the following reasons:
 
 * `e₀` imports an expression that fails to parse
 * `e₀` imports an expression that fails to type-check
@@ -919,14 +919,14 @@ For example:
 Formally:
 
 
-    (Δ, here) × Γ₀ ⊢ e₀ ⇒ e₂ ⊢ Γ₁
-    ────────────────────────────────────
-    (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁
-
-
     (Δ, here) × Γ₀ ⊢ e₁ ⇒ e₂ ⊢ Γ₁
     ────────────────────────────────────  ; if `e₀` fails to resolve due to an
     (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁  ; import that is not cached and absent
+
+
+    (Δ, here) × Γ₀ ⊢ e₀ ⇒ e₂ ⊢ Γ₁
+    ────────────────────────────────────  ; if `e₀` successfully resolves or
+    (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁  ; fails for any other reason
 
 
 For all other cases, recursively descend into sub-expressions:
