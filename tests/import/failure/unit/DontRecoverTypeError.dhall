@@ -1,1 +1,1 @@
-../../../type-inference/failure/unit/VariableFree.dhall ? 0
+../../data/doesNotTypecheck.dhall ? 0
