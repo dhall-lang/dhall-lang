@@ -1,4 +1,7 @@
-  { render =
+  { field =
+        ./field.dhall sha256:bc4f2896ef609f346057f8652d85ae06c8138660638a007a2a6fa4a49fce01ee
+      ? ./field.dhall
+  , render =
         ./render.dhall sha256:36befdd8bb5a1c2b372709da245a8d074533b86429e137b894c08ad16fa34836
       ? ./render.dhall
   , renderCompact =
