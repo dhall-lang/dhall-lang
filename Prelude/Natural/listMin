@@ -1,2 +1,3 @@
-  ./listMin.dhall sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
+  ./listMin.dhall
+    sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
 ? ./listMin.dhall

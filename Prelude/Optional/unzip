@@ -1,2 +1,3 @@
-  ./unzip.dhall sha256:d016c01ba91657a2f35609aa29087963d0f506bab0f41d5e8b7cd289dff39708
+  ./unzip.dhall
+    sha256:d016c01ba91657a2f35609aa29087963d0f506bab0f41d5e8b7cd289dff39708
 ? ./unzip.dhall

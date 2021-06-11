@@ -1,6 +1,7 @@
 --| `multiply m n` computes `m * n`.
 let nonPositive =
-        ./nonPositive.dhall sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
+        ./nonPositive.dhall
+          sha256:e00a852eed5b84ff60487097d8aadce53c9e5301f53ff4954044bd68949fac3b
       ? ./nonPositive.dhall
 
 let multiplyNonNegative =

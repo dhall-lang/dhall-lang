@@ -2,7 +2,8 @@
 Convert an `Integer` to an `Optional Natural`, with negative numbers becoming `None Natural`.
 -}
 let nonNegative =
-        ./nonNegative.dhall sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
+        ./nonNegative.dhall
+          sha256:b463373f070df6b1c8c7082051e0810fee38b360bab35256187c8c2b6af5c663
       ? ./nonNegative.dhall
 
 let toNatural

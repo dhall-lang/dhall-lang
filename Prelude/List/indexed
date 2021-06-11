@@ -1,2 +1,3 @@
-  ./indexed.dhall sha256:58bb44457fa81adf26f5123c1b2e8bef0c5aa22dac5fa5ebdfb7da84563b027f
+  ./indexed.dhall
+    sha256:58bb44457fa81adf26f5123c1b2e8bef0c5aa22dac5fa5ebdfb7da84563b027f
 ? ./indexed.dhall

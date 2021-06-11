@@ -1,6 +1,7 @@
 --| `add m n` computes `m + n`.
 let Integer/subtract =
-        ./subtract.dhall sha256:a34d36272fa8ae4f1ec8b56222fe8dc8a2ec55ec6538b840de0cbe207b006fda
+        ./subtract.dhall
+          sha256:a34d36272fa8ae4f1ec8b56222fe8dc8a2ec55ec6538b840de0cbe207b006fda
       ? ./subtract.dhall
 
 let add

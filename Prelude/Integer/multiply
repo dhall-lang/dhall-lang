@@ -1,2 +1,3 @@
-  ./multiply.dhall sha256:dcb1ed7c8475ece8d67db92cd249fc728541778ff82509e28c3760e341880e4d
+  ./multiply.dhall
+    sha256:dcb1ed7c8475ece8d67db92cd249fc728541778ff82509e28c3760e341880e4d
 ? ./multiply.dhall
