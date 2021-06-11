@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/reverse Natural [ 0, 1, 2 ]
+../../../../../../Prelude/List/reverse.dhall Natural [ 0, 1, 2 ]

@@ -1,1 +1,1 @@
-../../../../../../Prelude/Bool/even [ False, True ]
+../../../../../../Prelude/Bool/even.dhall [ False, True ]

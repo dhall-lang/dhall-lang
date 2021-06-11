@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/odd 3
+../../../../../../Prelude/Natural/odd.dhall 3

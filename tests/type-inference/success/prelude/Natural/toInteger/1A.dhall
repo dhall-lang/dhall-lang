@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/toInteger 0
+../../../../../../Prelude/Natural/toInteger.dhall 0

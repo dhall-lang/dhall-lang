@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/filter Natural Natural/even [ 2, 3, 5 ]
+../../../../../../Prelude/List/filter.dhall Natural Natural/even [ 2, 3, 5 ]

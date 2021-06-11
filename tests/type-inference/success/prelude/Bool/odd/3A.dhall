@@ -1,1 +1,1 @@
-../../../../../../Prelude/Bool/odd ([] : List Bool)
+../../../../../../Prelude/Bool/odd.dhall ([] : List Bool)

@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/shifted Bool ([] : List (List { index : Natural, value : Bool }))
+../../../../../../Prelude/List/shifted.dhall Bool ([] : List (List { index : Natural, value : Bool }))

@@ -1,5 +1,5 @@
   λ(nil : Natural)
-→ ../../../../../../Prelude/List/fold
+→ ../../../../../../Prelude/List/fold.dhall
   Natural
   [ 2, 3, 5 ]
   Natural

@@ -1,2 +1,2 @@
-../../../../../../Prelude/Bool/build 
+../../../../../../Prelude/Bool/build.dhall
 (λ(bool : Type) → λ(true : bool) → λ(false : bool) → true)

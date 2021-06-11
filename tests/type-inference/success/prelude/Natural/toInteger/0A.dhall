@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/toInteger 3
+../../../../../../Prelude/Natural/toInteger.dhall 3

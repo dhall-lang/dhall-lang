@@ -1,4 +1,4 @@
-../../../../../../Prelude/List/concat Natural
+../../../../../../Prelude/List/concat.dhall Natural
 [ [] : List Natural
 , [] : List Natural
 , [] : List Natural

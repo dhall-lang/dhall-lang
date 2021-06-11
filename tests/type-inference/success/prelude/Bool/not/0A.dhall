@@ -1,1 +1,1 @@
-../../../../../../Prelude/Bool/not True
+../../../../../../Prelude/Bool/not.dhall True

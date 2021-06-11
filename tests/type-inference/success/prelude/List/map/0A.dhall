@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/map Natural Bool Natural/even [ 2, 3, 5 ]
+../../../../../../Prelude/List/map.dhall Natural Bool Natural/even [ 2, 3, 5 ]

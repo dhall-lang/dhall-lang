@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/product ([] : List Natural)
+../../../../../../Prelude/Natural/product.dhall ([] : List Natural)

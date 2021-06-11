@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/generate 0 Bool Natural/even
+../../../../../../Prelude/List/generate.dhall 0 Bool Natural/even

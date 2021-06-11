@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/isZero 2
+../../../../../../Prelude/Natural/isZero.dhall 2

@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/odd 0
+../../../../../../Prelude/Natural/odd.dhall 0

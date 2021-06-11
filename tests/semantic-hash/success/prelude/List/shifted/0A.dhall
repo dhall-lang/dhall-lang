@@ -1,4 +1,4 @@
-../../../../../../Prelude/List/shifted
+../../../../../../Prelude/List/shifted.dhall
 Bool
 [ [ { index = 0, value = True }
   , { index = 1, value = True }
