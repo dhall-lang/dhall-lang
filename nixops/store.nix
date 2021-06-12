@@ -27,7 +27,9 @@ let
     dhall-kubernetes_4_0_0
     dhall-kubernetes_5_0_0
 
-    dhall-nomad_1_0_0
+    (dhall-nomad_1_0_0.override {
+      Prelude = Prelude_20_0_0;
+    })
 
     (dhall-semver_1_0_0.override {
       Prelude = Prelude_17_0_0;

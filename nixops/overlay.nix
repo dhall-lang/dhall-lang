@@ -54,7 +54,7 @@ pkgsNew: pkgsOld: {
     in
       import "${dhall-haskell}/default.nix";
 
-  inherit (pkgsNew.dhall-haskell-derivations) dhall-try;
+  inherit (pkgsNew.dhall-haskell-derivations) dhall-docs dhall-try;
 
   dhallPackages = pkgsOld.dhallPackages.override (old: {
       overrides =
@@ -140,6 +140,8 @@ pkgsNew: pkgsOld: {
                 pkgsNew.haskell.lib.overrideCabal
                   haskellPackagesOld.dhall-docs
                   (old: { broken = false; doCheck = false; });
+
+              mmark = pkgsNew.haskell.lib.dontCheck haskellPackagesOld.mmark;
 
               standard =
                 pkgsNew.haskell.lib.overrideCabal
