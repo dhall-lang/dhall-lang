@@ -19,27 +19,33 @@ in  XML.render
 
 -}
 let XML =
-        ./Type.dhall sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+        ./Type.dhall
+          sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
       ? ./Type.dhall
 
 let Text/concatMap =
-        ../Text/concatMap.dhall sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+        ../Text/concatMap.dhall
+          sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap.dhall
 
 let Text/concat =
-        ../Text/concat.dhall sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0
+        ../Text/concat.dhall
+          sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0
       ? ../Text/concat.dhall
 
 let element =
-        ./element.dhall sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
+        ./element.dhall
+          sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
       ? ./element.dhall
 
 let text =
-        ./text.dhall sha256:c83cd721d32d7dc28c04ce429c0cb22812639e572637ec348578a58ffb68844f
+        ./text.dhall
+          sha256:c83cd721d32d7dc28c04ce429c0cb22812639e572637ec348578a58ffb68844f
       ? ./text.dhall
 
 let emptyAttributes =
-        ./emptyAttributes.dhall sha256:11b86e2d3f3c75d47a1d580213d2a03fd2c36d64f3e9b6381de0ba23472f64d5
+        ./emptyAttributes.dhall
+          sha256:11b86e2d3f3c75d47a1d580213d2a03fd2c36d64f3e9b6381de0ba23472f64d5
       ? ./emptyAttributes.dhall
 
 let Attr = { mapKey : Text, mapValue : Text }

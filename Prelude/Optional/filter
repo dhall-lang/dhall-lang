@@ -1,2 +1,3 @@
-  ./filter.dhall sha256:54f0a487d578801819613fe000050c038c632edf1f9ccc57677e98ae0ef56b83
+  ./filter.dhall
+    sha256:54f0a487d578801819613fe000050c038c632edf1f9ccc57677e98ae0ef56b83
 ? ./filter.dhall

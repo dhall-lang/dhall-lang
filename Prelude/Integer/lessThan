@@ -1,2 +1,3 @@
-  ./lessThan.dhall sha256:eeaa0081d10c6c97464ef193c40f1aa5cbb12f0202972ab42f3d310c2fd6a3f0
+  ./lessThan.dhall
+    sha256:eeaa0081d10c6c97464ef193c40f1aa5cbb12f0202972ab42f3d310c2fd6a3f0
 ? ./lessThan.dhall

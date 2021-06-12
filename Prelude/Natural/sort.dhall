@@ -1,14 +1,17 @@
 --| `sort` sorts a `List` of `Natural`s in ascending order
 let greaterThanEqual =
-        ./greaterThanEqual.dhall sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+        ./greaterThanEqual.dhall
+          sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
       ? ./greaterThanEqual.dhall
 
 let listMin =
-        ./listMin.dhall sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
+        ./listMin.dhall
+          sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
       ? ./listMin.dhall
 
 let List/partition =
-        ../List/partition.dhall sha256:38147ac6d750a6492736dd90cc967bf09aa405c499de943c64fab7b86ae02f03
+        ../List/partition.dhall
+          sha256:38147ac6d750a6492736dd90cc967bf09aa405c499de943c64fab7b86ae02f03
       ? ../List/partition.dhall
 
 let Accumulator = { sorted : List Natural, rest : List Natural }

@@ -1,2 +1,3 @@
-  ./min.dhall sha256:f25f9c462e4dbf0eb15f9ff6ac840c6e9c82255a7f4f2ab408bdab338e028710
+  ./min.dhall
+    sha256:f25f9c462e4dbf0eb15f9ff6ac840c6e9c82255a7f4f2ab408bdab338e028710
 ? ./min.dhall

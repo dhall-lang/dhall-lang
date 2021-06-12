@@ -1,2 +1,3 @@
-  ./Entry.dhall sha256:f334283bdd9cd88e6ea510ca914bc221fc2dab5fb424d24514b2e0df600d5346
+  ./Entry.dhall
+    sha256:f334283bdd9cd88e6ea510ca914bc221fc2dab5fb424d24514b2e0df600d5346
 ? ./Entry.dhall

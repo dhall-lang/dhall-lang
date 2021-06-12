@@ -1,2 +1,3 @@
-  ./build.dhall sha256:28e61294bf2dd59dc57cf74f719d1568e60b5ba46c28eac586bc937eff4a2af1
+  ./build.dhall
+    sha256:28e61294bf2dd59dc57cf74f719d1568e60b5ba46c28eac586bc937eff4a2af1
 ? ./build.dhall

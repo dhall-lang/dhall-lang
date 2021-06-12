@@ -1,2 +1,3 @@
-  ./fold.dhall sha256:10bb945c25ab3943bd9df5a32e633cbfae112b7d3af38591784687e436a8d814
+  ./fold.dhall
+    sha256:10bb945c25ab3943bd9df5a32e633cbfae112b7d3af38591784687e436a8d814
 ? ./fold.dhall

@@ -1,2 +1,3 @@
-  ./shifted.dhall sha256:54fb22c7e952ebce1cfc0fcdd33ce4cfa817bff9d6564af268dea6685f8b5dfe
+  ./shifted.dhall
+    sha256:54fb22c7e952ebce1cfc0fcdd33ce4cfa817bff9d6564af268dea6685f8b5dfe
 ? ./shifted.dhall

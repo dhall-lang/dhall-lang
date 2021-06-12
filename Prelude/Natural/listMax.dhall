@@ -3,11 +3,13 @@
 `List` is empty
 -}
 let max =
-        ./max.dhall sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
+        ./max.dhall
+          sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
       ? ./max.dhall
 
 let Optional/map =
-        ../Optional/map.dhall sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
+        ../Optional/map.dhall
+          sha256:501534192d988218d43261c299cc1d1e0b13d25df388937add784778ab0054fa
       ? ../Optional/map.dhall
 
 let listMax
