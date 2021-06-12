@@ -1,1 +1,1 @@
-../../../../../../Prelude/Text/show "ABC"
+../../../../../../Prelude/Text/show.dhall "ABC"

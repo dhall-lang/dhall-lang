@@ -1,1 +1,1 @@
-../../../../../../Prelude/Text/concat [ "ABC", "DEF", "GHI" ]
+../../../../../../Prelude/Text/concat.dhall [ "ABC", "DEF", "GHI" ]

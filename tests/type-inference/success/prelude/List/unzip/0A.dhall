@@ -1,4 +1,4 @@
-../../../../../../Prelude/List/unzip
+../../../../../../Prelude/List/unzip.dhall
 Text
 Bool
 [ { _1 = "ABC", _2 = True }

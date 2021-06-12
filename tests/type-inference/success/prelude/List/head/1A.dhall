@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/head Natural ([] : List Natural)
+../../../../../../Prelude/List/head.dhall Natural ([] : List Natural)

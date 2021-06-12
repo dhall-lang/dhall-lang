@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/sum [ 2, 3, 5 ]
+../../../../../../Prelude/Natural/sum.dhall [ 2, 3, 5 ]

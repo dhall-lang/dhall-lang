@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/replicate 9 Natural 1
+../../../../../../Prelude/List/replicate.dhall 9 Natural 1

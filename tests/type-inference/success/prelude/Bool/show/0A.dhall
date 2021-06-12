@@ -1,1 +1,1 @@
-../../../../../../Prelude/Bool/show True
+../../../../../../Prelude/Bool/show.dhall True

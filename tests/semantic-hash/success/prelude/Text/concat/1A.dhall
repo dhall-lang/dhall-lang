@@ -1,1 +1,1 @@
-../../../../../../Prelude/Text/concat ([] : List Text)
+../../../../../../Prelude/Text/concat.dhall ([] : List Text)

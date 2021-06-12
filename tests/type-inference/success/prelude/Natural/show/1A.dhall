@@ -1,1 +1,1 @@
-../../../../../../Prelude/Natural/show 0
+../../../../../../Prelude/Natural/show.dhall 0

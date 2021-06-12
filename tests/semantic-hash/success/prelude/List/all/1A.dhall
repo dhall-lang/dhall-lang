@@ -1,1 +1,1 @@
-../../../../../../Prelude/List/all Natural Natural/even ([] : List Natural)
+../../../../../../Prelude/List/all.dhall Natural Natural/even ([] : List Natural)

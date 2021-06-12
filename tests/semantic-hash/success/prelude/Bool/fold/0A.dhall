@@ -1,1 +1,1 @@
-../../../../../../Prelude/Bool/fold True Natural 0 1
+../../../../../../Prelude/Bool/fold.dhall True Natural 0 1
