@@ -1,38 +1,47 @@
 --| Render a `JSON` value as `Text` in either JSON or YAML format.
 let JSON =
-        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
+        ./core.dhall
+          sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let Function/identity =
-        ../Function/identity.dhall sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
+        ../Function/identity.dhall
+          sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
       ? ../Function/identity.dhall
 
 let Text/concatMap =
-        ../Text/concatMap.dhall sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
+        ../Text/concatMap.dhall
+          sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap.dhall
 
 let List/map =
-        ../List/map.dhall sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
+        ../List/map.dhall
+          sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map.dhall
 
 let NonEmpty =
-        ../NonEmpty/Type.dhall sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
+        ../NonEmpty/Type.dhall
+          sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
       ? ../NonEmpty/Type.dhall
 
 let NonEmpty/toList =
-        ../NonEmpty/toList.dhall sha256:0977fe14b77232a4451dcf409c43df4589c4b3cdde7b613aab8df183be1b53f5
+        ../NonEmpty/toList.dhall
+          sha256:0977fe14b77232a4451dcf409c43df4589c4b3cdde7b613aab8df183be1b53f5
       ? ../NonEmpty/toList.dhall
 
 let NonEmpty/concat =
-        ../NonEmpty/concat.dhall sha256:6d55181938c06c6b806877028f6a241912e9c0935d9a10dd958775bf21e0f64d
+        ../NonEmpty/concat.dhall
+          sha256:6d55181938c06c6b806877028f6a241912e9c0935d9a10dd958775bf21e0f64d
       ? ../NonEmpty/concat.dhall
 
 let NonEmpty/map =
-        ../NonEmpty/map.dhall sha256:93d53afe874bb2eed946c21ca5ada3c9716b7d00e6d8edfaba6484cd9c5a00bd
+        ../NonEmpty/map.dhall
+          sha256:93d53afe874bb2eed946c21ca5ada3c9716b7d00e6d8edfaba6484cd9c5a00bd
       ? ../NonEmpty/map.dhall
 
 let NonEmpty/singleton =
-        ../NonEmpty/singleton.dhall sha256:c9197aabe97695f7ca66f7419bf172d806b2c915594a8fc0d2ff6495db496ff2
+        ../NonEmpty/singleton.dhall
+          sha256:c9197aabe97695f7ca66f7419bf172d806b2c915594a8fc0d2ff6495db496ff2
       ? ../NonEmpty/singleton.dhall
 
 let List/uncons
@@ -175,7 +184,8 @@ let addIndent = addPrefix "  "
 let indentTail = NonEmpty/mapTail Text addIndent
 
 let Format =
-        ./Format.dhall sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
+        ./Format.dhall
+          sha256:d7936b510cfc091faa994652af0eb5feb889cd44bc989edbe4f1eb8c5623caac
       ? ./Format.dhall
 
 let ObjectField = { mapKey : Text, mapValue : Block }

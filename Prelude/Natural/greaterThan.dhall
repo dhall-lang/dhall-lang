@@ -1,6 +1,7 @@
 --| `greaterThan` checks if one Natural is strictly greater than another.
 let lessThan =
-        ./lessThan.dhall sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
+        ./lessThan.dhall
+          sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
       ? ./lessThan.dhall
 
 let greaterThan

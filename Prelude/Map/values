@@ -1,2 +1,3 @@
-  ./values.dhall sha256:ae02cfb06a9307cbecc06130e84fd0c7b96b7f1f11648961e1b030ec00940be8
+  ./values.dhall
+    sha256:ae02cfb06a9307cbecc06130e84fd0c7b96b7f1f11648961e1b030ec00940be8
 ? ./values.dhall

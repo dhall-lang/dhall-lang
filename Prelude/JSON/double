@@ -1,2 +1,3 @@
-  ./double.dhall sha256:e70162c73c4978ad0d0d99505f61c7d990f3abadfcc08b34388b29c0934a7a32
+  ./double.dhall
+    sha256:e70162c73c4978ad0d0d99505f61c7d990f3abadfcc08b34388b29c0934a7a32
 ? ./double.dhall

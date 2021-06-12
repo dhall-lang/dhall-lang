@@ -1,2 +1,3 @@
-  ./equal.dhall sha256:2d99a205086aa77eea17ae1dab22c275f3eb007bccdc8d9895b93497ebfc39f8
+  ./equal.dhall
+    sha256:2d99a205086aa77eea17ae1dab22c275f3eb007bccdc8d9895b93497ebfc39f8
 ? ./equal.dhall

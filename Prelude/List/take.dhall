@@ -1,6 +1,7 @@
 --| Truncate a list to the first `n` elements
 let Natural/lessThan =
-        ../Natural/lessThan.dhall sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
+        ../Natural/lessThan.dhall
+          sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
       ? ../Natural/lessThan.dhall
 
 let take
