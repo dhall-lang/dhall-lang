@@ -19,6 +19,9 @@ pkgsNew: pkgsOld: {
   dhall =
     pkgsNew.haskell.lib.dontCheck pkgsNew.dhall-haskell-derivations.dhall;
 
+  dhall-docs =
+    pkgsNew.dhall-haskell-derivations.dhall-docs;
+
   dhall-grammar =
     pkgsNew.runCommand
       "instaparse-accepts-grammar"
@@ -136,11 +139,6 @@ pkgsNew: pkgsOld: {
         let
           extension =
             haskellPackagesNew: haskellPackagesOld: {
-              dhall-docs =
-                pkgsNew.haskell.lib.overrideCabal
-                  haskellPackagesOld.dhall-docs
-                  (old: { broken = false; doCheck = false; });
-
               standard =
                 pkgsNew.haskell.lib.overrideCabal
                   (haskellPackagesNew.callCabal2nix "standard" ../standard { })
