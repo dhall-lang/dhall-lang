@@ -1,22 +1,18 @@
 { and =
-    \(_ : List Bool) ->
-      List/fold Bool _ Bool (\(_ : Bool) -> \(_ : Bool) -> _@1 && _) True
-, build = \(_ : Type -> _ -> _@1 -> _@2) -> _ Bool True False
+    λ(_ : List Bool) →
+      List/fold Bool _ Bool (λ(_ : Bool) → λ(_ : Bool) → _@1 && _) True
+, build = λ(_ : Type → _ → _@1 → _@2) → _ Bool True False
 , even =
-    \(_ : List Bool) ->
-      List/fold Bool _ Bool (\(_ : Bool) -> \(_ : Bool) -> _@1 == _) True
+    λ(_ : List Bool) →
+      List/fold Bool _ Bool (λ(_ : Bool) → λ(_ : Bool) → _@1 == _) True
 , fold =
-    \(_ : Bool) ->
-    \(_ : Type) ->
-    \(_ : _) ->
-    \(_ : _@1) ->
-      if _@3 then _@1 else _
-, not = \(_ : Bool) -> _ == False
+    λ(_ : Bool) → λ(_ : Type) → λ(_ : _) → λ(_ : _@1) → if _@3 then _@1 else _
+, not = λ(_ : Bool) → _ == False
 , odd =
-    \(_ : List Bool) ->
-      List/fold Bool _ Bool (\(_ : Bool) -> \(_ : Bool) -> _@1 != _) False
+    λ(_ : List Bool) →
+      List/fold Bool _ Bool (λ(_ : Bool) → λ(_ : Bool) → _@1 != _) False
 , or =
-    \(_ : List Bool) ->
-      List/fold Bool _ Bool (\(_ : Bool) -> \(_ : Bool) -> _@1 || _) False
-, show = \(_ : Bool) -> if _ then "True" else "False"
+    λ(_ : List Bool) →
+      List/fold Bool _ Bool (λ(_ : Bool) → λ(_ : Bool) → _@1 || _) False
+, show = λ(_ : Bool) → if _ then "True" else "False"
 }
