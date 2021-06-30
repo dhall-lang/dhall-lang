@@ -1,1 +1,1 @@
-(λ(x : Bool) → x) : Bool → Bool
+(λ(x : Bool) → x) : ∀ (x : Bool) → Bool
