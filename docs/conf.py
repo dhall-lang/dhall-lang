@@ -23,6 +23,7 @@ html_theme_options = {
 html_static_path = ['_static']
 templates_path = ['_templates']
 extensions = [
+    'recommonmark',
     # Auto-generate section labels.
     'sphinx.ext.autosectionlabel',
 ]

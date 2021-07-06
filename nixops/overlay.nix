@@ -2,10 +2,10 @@ pkgsNew: pkgsOld: {
   docs =
     pkgsNew.runCommand "docs"
       { nativeBuildInputs = [
-          pkgsNew.pythonPackages.sphinx
-          pkgsNew.pythonPackages.sphinx_rtd_theme
-          pkgsNew.pythonPackages.recommonmark
-          pkgsNew.pythonPackages.pygments
+          pkgsNew.python3Packages.sphinx
+          pkgsNew.python3Packages.sphinx_rtd_theme
+          pkgsNew.python3Packages.recommonmark
+          pkgsNew.python3Packages.pygments
         ];
       }
       ''
@@ -18,6 +18,9 @@ pkgsNew: pkgsOld: {
 
   dhall =
     pkgsNew.haskell.lib.dontCheck pkgsNew.dhall-haskell-derivations.dhall;
+
+  dhall-docs =
+    pkgsNew.dhall-haskell-derivations.dhall-docs;
 
   dhall-grammar =
     pkgsNew.runCommand
@@ -136,11 +139,6 @@ pkgsNew: pkgsOld: {
         let
           extension =
             haskellPackagesNew: haskellPackagesOld: {
-              dhall-docs =
-                pkgsNew.haskell.lib.overrideCabal
-                  haskellPackagesOld.dhall-docs
-                  (old: { broken = false; doCheck = false; });
-
               standard =
                 pkgsNew.haskell.lib.overrideCabal
                   (haskellPackagesNew.callCabal2nix "standard" ../standard { })
@@ -412,7 +410,7 @@ pkgsNew: pkgsOld: {
     touch $out
   '';
 
-  python27 = pkgsOld.python27.override (old: {
+  python38 = pkgsOld.python38.override (old: {
       packageOverrides =
         let
           extension = pythonPackagesNew: pythonPackagesOld: {
@@ -424,12 +422,12 @@ pkgsNew: pkgsOld: {
             recommonmark = pythonPackagesOld.recommonmark.overrideAttrs (old: {
                 patches =
                   (old.patches or []) ++ [
-                    (pkgsNew.fetchpatch {
-                        url = "https://patch-diff.githubusercontent.com/raw/readthedocs/recommonmark/pull/181.patch";
+  #                 (pkgsNew.fetchpatch {
+  #                     url = "https://patch-diff.githubusercontent.com/raw/readthedocs/recommonmark/pull/181.patch";
 
-                        sha256 = "0rp6qi95cml1g1mplfkmc7lpv7czmg5rs1zqjkf5b4d3mkzm6bjs";
-                      }
-                    )
+  #                     sha256 = "0rp6qi95cml1g1mplfkmc7lpv7czmg5rs1zqjkf5b4d3mkzm6bjs";
+  #                   }
+  #                 )
                   ];
               }
             );
