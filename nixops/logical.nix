@@ -17,7 +17,7 @@ in
         builtins.fetchTarball {
           url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/5675b122a947b40e551438df6a623efad19fd2e7/nixos-mailserver-5675b122a947b40e551438df6a623efad19fd2e7.tar.gz";
 
-          sha256 = "0c73kb6b552cypdcvrnf8qlnabpp13s9skk22r3wgsb8dwjz01dm";
+          sha256 = "1fwhb7a5v9c98nzhf3dyqf3a5ianqh7k50zizj8v5nmj3blxw4pi";
         };
 
     in
