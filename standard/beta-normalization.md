@@ -74,6 +74,7 @@ is the same.
 * [Unions](#unions)
 * [`Integer`](#integer)
 * [`Double`](#double)
+* [`Date`/`Time`/`TimeZone`](#date-time-timezone)
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
@@ -2413,6 +2414,49 @@ where `show : Double → Text` is shorthand for `Double/show` and `read : Text �
 Double` is the function in the implementation of Dhall which takes a correctly
 formated text representation of a `Double` as input and outputs a `Double`.
 
+## `Date` / `Time` / `TimeZone`
+
+`Date`, `Time`, and `TimeZone` types are in normal form::
+
+
+    ───────────
+    Date ⇥ Date
+
+
+    ───────────
+    Time ⇥ Time
+
+
+    ───────────────────
+    TimeZone ⇥ TimeZone
+
+
+```haskell
+betaNormalize (Builtin Date    ) = Builtin Date
+betaNormalize (Builtin Time    ) = Builtin Time
+betaNormalize (Builtin TimeZone) = Builtin TimeZone
+```
+
+… and the corresponding literals are also in normal form:
+
+
+    ───────────────────────
+    YYYY-MM-DD ⇥ YYYY-MM-DD
+
+
+    ───────────────────
+    hh:mm:ss ⇥ hh:mm:ss
+
+
+    ───────────────
+    ±HH:MM ⇥ ±HH:MM
+
+
+```haskell
+betaNormalize (DateLiteral d    ) = DateLiteral d
+betaNormalize (TimeLiteral t p  ) = TimeLiteral t p
+betaNormalize (TimeZoneLiteral z) = TimeZoneLiteral z
+```
 
 ## Functions
 

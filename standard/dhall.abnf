@@ -503,6 +503,49 @@ natural-literal =
 
 integer-literal = ( "+" / "-" ) natural-literal
 
+; All temporal literals need to be valid dates according to RFC3339, meaning
+; that:
+;
+; * Months must be in the range 1-12
+; * The day of the month must be valid according to the corresponding month
+; * Feburary 29 is only permitted on leap years
+;
+; The only exception to this is leap seconds, which are not supported.  In
+; other words, the valid range of the seconds field is always 0-59.
+temporal-literal =
+    ; "YYYY-MM-DDThh:mm:ss±HH:MM", parsed as a `{ date : Date, time : Time, timeZone : TimeZone }`
+      full-date "T" partial-time time-offset
+    ; "YYYY-MM-DDThh:mm:ss", parsed as a `{ date : Date, time : Time }`
+    / full-date "T" partial-time
+    ; "hh:mm:ss±HH:MM", parsed as a `{ time : Time, timeZone, TimeZone }`
+    / partial-time time-offset
+    ; "YYYY-MM-DD", parsed as a `Date`
+    / full-date
+    ; "hh:mm:ss", parsed as a `Time`
+    / partial-time
+    ; "±HH:MM", parsed as a `TimeZone`
+    / time-offset
+
+; Taken from RFC 3339 with some differences
+date-fullyear   = 4DIGIT
+date-month      = 2DIGIT  ; 01-12
+date-mday       = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31 based on
+                          ; month/year
+time-hour       = 2DIGIT  ; 00-23
+time-minute     = 2DIGIT  ; 00-59
+time-second     = 2DIGIT  ; 00-59 (**UNLIKE** RFC 3339, we don't support leap
+                          ; seconds)
+time-secfrac    = "." 1*DIGIT
+time-numoffset  = ("+" / "-") time-hour ":" time-minute
+time-offset     = "Z" / time-numoffset
+
+partial-time    = time-hour ":" time-minute ":" time-second
+                  [time-secfrac]
+full-date       = date-fullyear "-" date-month "-" date-mday
+full-time       = partial-time time-offset
+
+date-time       = full-date "T" full-time
+
 ; If the identifier matches one of the names in the `builtin` rule, then it is a
 ; builtin, and should be treated as the corresponding item in the list of
 ; "Reserved identifiers for builtins" specified in the `standard/README.md` document.
@@ -862,8 +905,10 @@ type-selector = "(" whsp expression whsp ")"
 ; NOTE: Backtrack when parsing the first three alternatives (i.e. the numeric
 ; literals).  This is because they share leading characters in common
 primitive-expression =
+      temporal-literal
+
     ; "2.0"
-      double-literal
+    / double-literal
     
     ; "2"
     / natural-literal
@@ -873,6 +918,8 @@ primitive-expression =
     
     ; '"ABC"'
     / text-literal
+
+    ; YYYY-MM
     
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"

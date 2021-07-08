@@ -23,6 +23,8 @@ import Data.ByteString (ByteString)
 import Data.Functor (void)
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.String (IsString(..))
+import Data.Fixed (Pico)
+import Data.Ratio ((%))
 import Data.Text (Text)
 import Data.Void (Void)
 import Numeric.Natural (Natural)
@@ -61,6 +63,7 @@ import qualified Data.Map                           as Map
 import qualified Data.Scientific                    as Scientific
 import qualified Data.Text                          as Text
 import qualified Data.Text.Encoding                 as Text.Encoding
+import qualified Data.Time                          as Time
 import qualified Multiline
 
 {-| @newtype@ wrapper around the `Parsec` type to improve inferred types and
@@ -570,6 +573,9 @@ builtin =
     <|> _Double
     <|> _Text
     <|> _List
+    <|> _Date
+    <|> _Time
+    <|> _TimeZone
 
 _NaturalFold :: Parser Builtin
 _NaturalFold = do "Natural/fold"; return NaturalFold
@@ -666,6 +672,15 @@ _Text = do "Text"; return Text
 
 _List :: Parser Builtin
 _List = do "List"; return List
+
+_Date :: Parser Builtin
+_Date = do "Date"; return Date
+
+_Time :: Parser Builtin
+_Time = do "Time"; return Time
+
+_TimeZone :: Parser Builtin
+_TimeZone = do "Time"; return TimeZone
 
 _Location :: Parser ()
 _Location = void "Location"
@@ -795,6 +810,178 @@ integerLiteral = do
     n <- naturalLiteral
 
     return (s (fromIntegral n))
+
+temporalLiteral :: Parser Expression
+temporalLiteral =
+        try (do
+            date <- fullDate
+
+            "T" <|> "t"
+
+            time <- partialTime
+
+            timeZone <- timeOffset
+
+            return
+                (RecordLiteral
+                    [   ("date"    , date)
+                    ,   ("time"    , time)
+                    ,   ("timeZone", timeZone)
+                    ]
+                )
+        )
+    <|> try (do
+            date <- fullDate
+
+            "T" <|> "t"
+
+            time <- partialTime
+
+            return
+                (RecordLiteral
+                    [   ("date", date)
+                    ,   ("time", time)
+                    ]
+                )
+        )
+    <|> try (do
+            time <- partialTime
+
+            timeZone <- timeOffset
+
+            return
+                (RecordLiteral
+                    [   ("time"    , time)
+                    ,   ("timeZone", timeZone)
+                    ]
+                )
+        )
+    <|> try fullDate
+    <|> try partialTime
+    <|> try timeOffset
+
+
+dateFullYear :: Parser Integer
+dateFullYear = do
+    digits <- replicateM 4 (satisfy digit)
+
+    return (digits `base` 10)
+
+dateMonth :: Parser Int
+dateMonth = do
+    digits <- replicateM 2 (satisfy digit)
+
+    let month = digits `base` 10
+
+    if 1 <= month && month <= 12
+        then return month
+        else fail "Invalid month"
+
+dateMday :: Parser Int
+dateMday = do
+    digits <- replicateM 2 (satisfy digit)
+
+    let day = digits `base` 10
+
+    if 1 <= day && day <= 31
+        then return day
+        else fail "Invalid day"
+
+timeHour :: Parser Int
+timeHour = do
+    digits <- replicateM 2 (satisfy digit)
+
+    let hour = digits `base` 10
+
+    if 0 <= hour && hour < 24
+        then return hour
+        else fail "Invalid hour"
+
+timeMinute :: Parser Int
+timeMinute = do
+    digits <- replicateM 2 (satisfy digit)
+
+    let minute = digits `base` 10
+
+    if 0 <= minute && minute < 60
+        then return minute
+        else fail "Invalid minute"
+
+timeSecond :: Parser Pico
+timeSecond = do
+    digits <- replicateM 2 (satisfy digit)
+
+    let second = digits `base` 10
+
+    if 0 <= second && second < 60
+        then return second
+        else fail "Invalid second"
+
+timeSecFrac :: Parser (Pico, Int)
+timeSecFrac = do
+    "."
+
+    digits <- some (satisfy digit)
+
+    let precision = length digits
+
+    return (fromRational ((digits `base` 10) % (10 ^ precision)), precision)
+
+timeNumOffset :: Parser Expression
+timeNumOffset = do
+    s <- sign
+
+    hour <- timeHour
+
+    ":"
+
+    minute <- timeMinute
+
+    let minutes = s (hour * 60 + minute)
+
+    return (TimeZoneLiteral (Time.TimeZone minutes Prelude.False ""))
+
+timeOffset :: Parser Expression
+timeOffset =
+        (do "Z"
+
+            return (TimeZoneLiteral (Time.TimeZone 0 Prelude.False ""))
+        )
+    <|> timeNumOffset
+
+partialTime :: Parser Expression
+partialTime = do
+    hour <- timeHour
+
+    ":"
+
+    minute <- timeMinute
+
+    ":"
+
+    second <- timeSecond
+
+    (fraction, precision) <- timeSecFrac <|> pure (0, 0)
+
+    let time = Time.TimeOfDay hour minute (second + fraction)
+
+    return (TimeLiteral time precision)
+
+fullDate :: Parser Expression
+fullDate = do
+    year <- dateFullYear
+
+    "-"
+
+    month <- dateMonth
+
+    "-"
+
+    day <- dateMday
+
+    case Time.fromGregorianValid year month day of
+        Nothing -> fail "Invalid calendar day"
+        Just d  -> return (DateLiteral d)
 
 identifier :: Parser Expression
 identifier = variable <|> fmap Constant constant <|> fmap Builtin builtin
@@ -1759,7 +1946,8 @@ typeSelector = do
 
 primitiveExpression :: Parser Expression
 primitiveExpression =
-        (do n <- try doubleLiteral; return (DoubleLiteral n))
+        temporalLiteral
+    <|> (do n <- try doubleLiteral; return (DoubleLiteral n))
     <|> (do n <- naturalLiteral; return (NaturalLiteral n))
     <|> (do n <- integerLiteral; return (IntegerLiteral n))
     <|> (do t <- textLiteral; return (TextLiteral t))

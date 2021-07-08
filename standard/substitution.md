@@ -594,6 +594,33 @@ substitute (IntegerLiteral n) _x _n _e = IntegerLiteral n
 ```
 
 
+    ────────────────────────────────
+    YYYY-MM-DD[x@n ≔ e] = YYYY-MM-DD
+
+
+```haskell
+substitute (DateLiteral n) _x _n _e = DateLiteral n
+```
+
+
+    ────────────────────────────
+    hh:mm:ss[x@n ≔ e] = hh:mm:ss
+
+
+```haskell
+substitute (TimeLiteral n p) _x _n _e = TimeLiteral n p
+```
+
+
+    ────────────────────────
+    ±HH:MM[x@n ≔ e] = ±HH:MM
+
+
+```haskell
+substitute (TimeZoneLiteral n) _x _n _e = TimeZoneLiteral n
+```
+
+
     ──────────────────
     "s"[x@n ≔ e] = "s"
 
@@ -810,6 +837,18 @@ substitute (Some a₀) x n e = Some a₁
 
     ────────────────────
     List[x@n ≔ e] = List
+
+
+    ────────────────────
+    Date[x@n ≔ e] = Date
+
+
+    ────────────────────
+    Time[x@n ≔ e] = Time
+
+
+    ────────────────────────────
+    TimeZone[x@n ≔ e] = TimeZone
 
 
     ────────────────────

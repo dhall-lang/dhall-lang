@@ -603,6 +603,33 @@ shift _d _x _m (IntegerLiteral n) = IntegerLiteral n
 ```
 
 
+    ───────────────────────────────────
+    ↑(d, x, m, YYYY-MM-DD) = YYYY-MM-DD
+
+
+```haskell
+shift _d _x _m (DateLiteral d) = DateLiteral d
+```
+
+
+    ───────────────────────────────
+    ↑(d, x, m, hh:mm:ss) = hh:mm:ss
+
+
+```haskell
+shift _d _x _m (TimeLiteral t p) = TimeLiteral t p
+```
+
+
+    ───────────────────────────
+    ↑(d, x, m, ±HH:MM) = ±HH:MM
+
+
+```haskell
+shift _d _x _m (TimeZoneLiteral z) = TimeZoneLiteral z
+```
+
+
     ─────────────────────
     ↑(d, x, m, "s") = "s"
 
@@ -818,6 +845,18 @@ shift d x m (Some a₀) = Some a₁
 
     ───────────────────────
     ↑(d, x, m, List) = List
+
+
+    ───────────────────────
+    ↑(d, x, m, Date) = Date
+
+
+    ───────────────────────
+    ↑(d, x, m, Time) = Date
+
+
+    ───────────────────────────────
+    ↑(d, x, m, TimeZone) = TimeZone
 
 
     ───────────────────────
