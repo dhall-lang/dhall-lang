@@ -617,6 +617,26 @@ then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
 
+    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeaders
+    getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
+                                               ; with a `mapValue` equal to `origin`,
+                                               ; falling back to `[]` if no such key is found.
+    parent </> https://authority directory file using headers = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
+    Γ(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
+                                         ; binding any response headers to
+                                         ; `responseHeaders` if child was a
+                                         ; remote import
+    corsCompliant(parent, child, responseHeaders)  ; If `child` was not a remote
+                                                   ; import and therefore had no
+                                                   ; response headers then skip
+                                                   ; this CORS check
+    (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
+    ε ⊢ e₁ : T
+    ────────────────────────────────────  ; * child ∉ (Δ, parent)
+    (Δ, parent) × Γ₀ ⊢ https://authority directory file ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
+
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
@@ -720,14 +740,47 @@ referentially transparent, if it honours CORS, no header forwarding necessary,
 etc.  Canonicalization and chaining are the only transformations applied to the
 import.
 
+When requesting a remote resource, include headers according to the user's
+configuration. This configuration has the type:
+
+```
+List { mapKey : Text, mapValue : { mapKey : Text, mapValue : Text } }
+```
+
+(i.e. "Map Text (Map Text Text)" using the prelude `Map` type constructor)
+
+The toplevel map is known as the "origin header configuration", and the individual maps
+which make up the keys of the toplevel map are known as the "per-origin headers".
+
+The key of this expression represents an HTTP(s) origin, including
+port - e.g. "github.com:443".
+
+When importing from an origin which appears as a key in the origin header configuration,
+an implementation must add the corresponding per-origin headers to each request.
+
+The configuration is loaded from either the environment or a configuration file:
+
+1. If the DHALL_HEADERS environment variable is set, interpret it as a dhall expression
+2. Otherwise:
+   a. If $XDG_CONFIG_HOME is set, load "$XDG_CONFIG_HOME/dhall/headers.dhall"
+   b. Otherwise, load "~/.config/dhall/headers.dhall"
+
+This file is optional. If the above steps attempt to load a path that doesn't exist,
+it's treated as an empty list, not an error.
+
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
+    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeaders
+    getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
+                                               ; with a `mapValue` equal to `origin`,
+                                               ; falling back to `[]` if no such key is found.
+    ε ⊢ headers : List { mapKey : Text, mapValue : Text }
     (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁
     ε ⊢ resolvedRequestHeaders : H
     H ∈ { List { mapKey : Text, mapValue : Text }, List { header : Text, value : Text } }
-    resolvedRequestHeaders ⇥ normalizedRequestHeaders
+    resolvedRequestHeaders # headers ⇥ normalizedRequestHeaders
     parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
     referentiallySane(parent, child)
@@ -749,6 +802,13 @@ For example, if `normalizedRequestHeaders` in the above judgment was:
 include the following header line:
 
     Authorization: token 5199831f4dd3b79e7c5b7e0ebe75d67aa66e79d4
+
+
+If headers appear both in the user configuration for a given origin and inline
+(`using headers`), they are merged. If a header is specified in both locations,
+the user configuration takes precedence over the inline headers. This allows
+inline headers to be used as a fallback for compatibility with previous
+versions of dhall or users without custom configuration.
 
 If the import is protected with a `sha256:base16Hash` integrity check, then:
 
