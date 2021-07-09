@@ -516,8 +516,9 @@ integer-literal = ( "+" / "-" ) natural-literal
 ; * The day of the month must be valid according to the corresponding month
 ; * Feburary 29 is only permitted on leap years
 ;
-; The only exception to this is leap seconds, which are not supported.  In
-; other words, the valid range of the seconds field is always 0-59.
+; The only exception to this is leap seconds, which are not supported because we
+; treat dates and times separately.  In other words, the valid range of the
+; seconds field is always 0-59.
 ;
 ; We also deviate from RFC 3339 by using `time-numoffset` instead of
 ; `time-offset`, otherwise `Z` alone would be a valid Dhall expression
