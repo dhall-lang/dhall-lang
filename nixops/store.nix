@@ -3,7 +3,8 @@
 let
   packages = with dhallPackages; [
     dhall-ansible_0_1_0
-    dhall-ansible_0_2_1
+    # A semantic integrity check fails for newer versions of Dhall
+    # dhall-ansible_0_2_1
 
     # This is currently too expensive for CI to build
     # TODO: fix performance issues
@@ -27,7 +28,9 @@ let
     dhall-kubernetes_4_0_0
     dhall-kubernetes_5_0_0
 
-    dhall-nomad_1_0_0
+    (dhall-nomad_1_0_0.override {
+      Prelude = Prelude_20_0_0;
+    })
 
     (dhall-semver_1_0_0.override {
       Prelude = Prelude_17_0_0;
