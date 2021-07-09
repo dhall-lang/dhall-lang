@@ -518,19 +518,22 @@ integer-literal = ( "+" / "-" ) natural-literal
 ;
 ; The only exception to this is leap seconds, which are not supported.  In
 ; other words, the valid range of the seconds field is always 0-59.
+;
+; We also deviate from RFC 3339 by using `time-numoffset` instead of
+; `time-offset`, otherwise `Z` alone would be a valid Dhall expression
 temporal-literal =
     ; "YYYY-MM-DDThh:mm:ss±HH:MM", parsed as a `{ date : Date, time : Time, timeZone : TimeZone }`
-      full-date "T" partial-time time-offset
+      full-date "T" partial-time time-numoffset
     ; "YYYY-MM-DDThh:mm:ss", parsed as a `{ date : Date, time : Time }`
     / full-date "T" partial-time
     ; "hh:mm:ss±HH:MM", parsed as a `{ time : Time, timeZone, TimeZone }`
-    / partial-time time-offset
+    / partial-time time-numoffset
     ; "YYYY-MM-DD", parsed as a `Date`
     / full-date
     ; "hh:mm:ss", parsed as a `Time`
     / partial-time
-    ; "±HH:MM" or "Z", parsed as a `TimeZone`
-    / time-offset
+    ; "±HH:MM", parsed as a `TimeZone`
+    / time-numoffset
 
 ; Taken from RFC 3339 with some differences
 date-fullyear   = 4DIGIT
@@ -541,18 +544,19 @@ time-hour       = 2DIGIT  ; 00-23
 time-minute     = 2DIGIT  ; 00-59
 time-second     = 2DIGIT  ; 00-59 (**UNLIKE** RFC 3339, we don't support leap
                           ; seconds)
+
 ; Like RFC 3339, we require an implementation to support *parsing* an arbitrary
 ; time precision, but an implementation only needs to support storing/encoding
 ; at least nanosecond precision.  In other words an implementation only needs to
 ; preserve 9 digits after the decimal point.
 time-secfrac    = "." 1*DIGIT  ; RFC 3339 
 time-numoffset  = ("+" / "-") time-hour ":" time-minute
-time-offset     = "Z" / time-numoffset  ; "Z" desugars to "+00:00"
 
 partial-time    = time-hour ":" time-minute ":" time-second
                   [time-secfrac]
 full-date       = date-fullyear "-" date-month "-" date-mday
-full-time       = partial-time time-offset
+
+full-time       = partial-time time-numoffset
 
 date-time       = full-date "T" full-time
 
