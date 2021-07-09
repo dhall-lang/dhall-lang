@@ -541,7 +541,11 @@ time-hour       = 2DIGIT  ; 00-23
 time-minute     = 2DIGIT  ; 00-59
 time-second     = 2DIGIT  ; 00-59 (**UNLIKE** RFC 3339, we don't support leap
                           ; seconds)
-time-secfrac    = "." 1*DIGIT
+; Like RFC 3339, we require an implementation to support *parsing* an arbitrary
+; time precision, but an implementation only needs to support storing/encoding
+; at least nanosecond precision.  In other words an implementation only needs to
+; preserve 9 digits after the decimal point.
+time-secfrac    = "." 1*DIGIT  ; RFC 3339 
 time-numoffset  = ("+" / "-") time-hour ":" time-minute
 time-offset     = "Z" / time-numoffset  ; "Z" desugars to "+00:00"
 

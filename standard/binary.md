@@ -1343,7 +1343,9 @@ encode (TimeLiteral (Time.TimeOfDay hh mm ss) precision) =
 
     -- NOTE: The CBORG standard permits the mantissa to be a bignum, but
     -- Haskell's `Time` type does not support more than 12 decimal places
-    -- worth of precision, so the mantissa always fits in an `Int`.
+    -- worth of precision, so the mantissa always fits in an `Int`.  This is
+    -- compatible with the standard, which only requires at least 9 decimal
+    -- places worth of precision.
     m = truncate (ss * 10^precision)
 ```
 
