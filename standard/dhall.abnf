@@ -529,7 +529,7 @@ temporal-literal =
     / full-date
     ; "hh:mm:ss", parsed as a `Time`
     / partial-time
-    ; "±HH:MM", parsed as a `TimeZone`
+    ; "±HH:MM" or "Z", parsed as a `TimeZone`
     / time-offset
 
 ; Taken from RFC 3339 with some differences
@@ -543,7 +543,7 @@ time-second     = 2DIGIT  ; 00-59 (**UNLIKE** RFC 3339, we don't support leap
                           ; seconds)
 time-secfrac    = "." 1*DIGIT
 time-numoffset  = ("+" / "-") time-hour ":" time-minute
-time-offset     = "Z" / time-numoffset
+time-offset     = "Z" / time-numoffset  ; "Z" desugars to "+00:00"
 
 partial-time    = time-hour ":" time-minute ":" time-second
                   [time-secfrac]
