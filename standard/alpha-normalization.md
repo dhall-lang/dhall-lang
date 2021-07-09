@@ -793,7 +793,7 @@ alphaNormalize (Some a₀) = Some a₁
 
 
     ───────────────────
-    TimeZOne ↦ TimeZone
+    TimeZone ↦ TimeZone
 
 
     ───────────
