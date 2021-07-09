@@ -1,1 +1,1 @@
-λ(_ : Type) → λ(_ : Optional _) → merge { `None` = True, `Some` = λ(_ : _@1) → False } _
+let x = 3 in λ(_ : Type) → λ(_ : Optional _) → merge { `None` = True, `Some` = λ(_ : _@1) → False } _

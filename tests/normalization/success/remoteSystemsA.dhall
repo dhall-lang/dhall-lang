@@ -1,6 +1,6 @@
-let Text/concatMap = ../../../Prelude/Text/concatMap
+let Text/concatMap = ../../../Prelude/Text/concatMap.dhall
 
-let Text/concatSep = ../../../Prelude/Text/concatSep
+let Text/concatSep = ../../../Prelude/Text/concatSep.dhall
 
 let Row =
       { cores :
