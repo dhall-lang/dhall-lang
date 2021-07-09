@@ -1324,7 +1324,7 @@ encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : k
 
 
 ```haskell
-encode (DateLiteral d) = TList [ TInt (fromInteger _YYYY), TInt _MM, TInt _DD ]
+encode (DateLiteral d) = TList [ TInt 30, TInt (fromInteger _YYYY), TInt _MM, TInt _DD ]
   where
     (_YYYY, _MM, _DD) = Time.toGregorian d
 ```

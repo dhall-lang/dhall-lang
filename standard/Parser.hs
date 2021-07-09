@@ -574,8 +574,8 @@ builtin =
     <|> _Text
     <|> _List
     <|> _Date
-    <|> _Time
     <|> _TimeZone
+    <|> _Time
 
 _NaturalFold :: Parser Builtin
 _NaturalFold = do "Natural/fold"; return NaturalFold
@@ -680,7 +680,7 @@ _Time :: Parser Builtin
 _Time = do "Time"; return Time
 
 _TimeZone :: Parser Builtin
-_TimeZone = do "Time"; return TimeZone
+_TimeZone = do "TimeZone"; return TimeZone
 
 _Location :: Parser ()
 _Location = void "Location"
