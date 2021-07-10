@@ -820,7 +820,7 @@ temporalLiteral =
 
             time <- partialTime
 
-            timeZone <- timeNumOffset
+            timeZone <- timeOffset
 
             return
                 (RecordLiteral
@@ -847,7 +847,7 @@ temporalLiteral =
     <|> try (do
             time <- partialTime
 
-            timeZone <- timeNumOffset
+            timeZone <- timeOffset
 
             return
                 (RecordLiteral
@@ -940,6 +940,14 @@ timeNumOffset = do
     let minutes = s (hour * 60 + minute)
 
     return (TimeZoneLiteral (Time.TimeZone minutes Prelude.False ""))
+
+timeOffset :: Parser Expression
+timeOffset =
+        (do "Z"
+
+            return (TimeZoneLiteral (Time.TimeZone 0 Prelude.False ""))
+        )
+    <|> timeNumOffset
 
 partialTime :: Parser Expression
 partialTime = do

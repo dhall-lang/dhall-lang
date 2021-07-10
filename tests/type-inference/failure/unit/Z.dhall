@@ -1,4 +1,4 @@
--- Verify that implementations are not parsing `Z` as `+00:00`.  If they follow
--- the grammar correctly then this will be parsed as an unbound variable named
--- `Z`
+-- The purpose of this test is to check that an implementation is not parsing a
+-- standalone `Z` as a `TimeOffset`.  Instead, this should be treated as an
+-- unbound variable named `Z`
 Z
