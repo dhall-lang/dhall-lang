@@ -1337,16 +1337,18 @@ encode (DateLiteral d) = TList [ TInt 30, TInt (fromInteger _YYYY), TInt _MM, TI
 
 ```haskell
 encode (TimeLiteral (Time.TimeOfDay hh mm ss) precision) =
-    TList [ TInt 31, TInt hh, TInt mm, TTagged 4 (TList [ TInt e, TInt m ]) ]
+    TList [ TInt 31, TInt hh, TInt mm, TTagged 4 (TList [ TInt e, m ]) ]
   where
     e = negate precision
 
-    -- NOTE: The CBORG standard permits the mantissa to be a bignum, but
-    -- Haskell's `Time` type does not support more than 12 decimal places
-    -- worth of precision, so the mantissa always fits in an `Int`.  This is
-    -- compatible with the standard, which only requires at least 9 decimal
-    -- places worth of precision.
-    m = truncate (ss * 10^precision)
+    mantissa :: Integer
+    mantissa = truncate (ss * 10^precision)
+
+    m   |   fromIntegral (minBound :: Int) <= mantissa
+        &&  mantissa <= fromIntegral (maxBound :: Int) =
+            TInt (fromInteger mantissa)
+        | otherwise =
+            TInteger mantissa
 ```
 
 
