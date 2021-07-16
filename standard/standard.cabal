@@ -21,6 +21,7 @@ library
                      , parser-combinators
                      , scientific
                      , text
+                     , time
   exposed-modules:     AlphaNormalization
                      , BetaNormalization
                      , Binary

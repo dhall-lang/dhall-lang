@@ -539,6 +539,33 @@ alphaNormalize (IntegerLiteral n) = IntegerLiteral n
 ```
 
 
+    ───────────────────────
+    YYYY-MM-DD ↦ YYYY-MM-DD
+
+
+```haskell
+alphaNormalize (DateLiteral n) = DateLiteral n
+```
+
+
+    ───────────────────
+    hh:mm:ss ↦ hh:mm:ss
+
+
+```haskell
+alphaNormalize (TimeLiteral n p) = TimeLiteral n p
+```
+
+
+    ───────────────────
+    ±HH:MM ↦ ±HH:MM
+
+
+```haskell
+alphaNormalize (TimeZoneLiteral n) = TimeZoneLiteral n
+```
+
+
     ─────────
     "s" ↦ "s"
 
@@ -755,6 +782,18 @@ alphaNormalize (Some a₀) = Some a₁
 
     ───────────
     List ↦ List
+
+
+    ───────────
+    Date ↦ Date
+
+
+    ───────────
+    Time ↦ Time
+
+
+    ───────────────────
+    TimeZone ↦ TimeZone
 
 
     ───────────

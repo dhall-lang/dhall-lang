@@ -85,6 +85,9 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / ±n                                ; Integer literal
   / "s"                               ; Uninterpolated text literal
   / "s${t}ss…"                        ; Interpolated text literal
+  / YYYY-MM-DD                        ; Date
+  / hh:mm:ss                          ; Time
+  / ±HH:MM                            ; Time zone
   / {}                                ; Empty record type
   / { k : T, ks… }                    ; Non-empty record type
   / {=}                               ; Empty record literal
@@ -174,6 +177,8 @@ import Data.List.NonEmpty (NonEmpty)
 import Data.Text (Text)
 import Numeric.Natural (Natural)
 
+import qualified Data.Time as Time
+
 -- | Top-level type representing a Dhall expression
 data Expression
     = Variable Text Natural
@@ -224,6 +229,12 @@ data Expression
     | TextLiteral TextLiteral
       -- ^ > "s"
       --   > "s${t}ss…"  
+    | DateLiteral Time.Day
+    | TimeLiteral
+        Time.TimeOfDay
+        Int
+        -- ^ Precision
+    | TimeZoneLiteral Time.TimeZone
     | RecordType [(Text, Expression)]
       -- ^ > {}
       --   > { k : T, ks… }
@@ -318,6 +329,9 @@ data Builtin
     | True
     | False
     | None
+    | Date
+    | Time
+    | TimeZone
     deriving (Show)
 
 -- | Type-checking constants

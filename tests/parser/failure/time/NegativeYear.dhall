@@ -1,0 +1,2 @@
+-- Negative years are not permitted
+-0001-01-01

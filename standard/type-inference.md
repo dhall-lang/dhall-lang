@@ -30,6 +30,7 @@ normalize.
 * [`Bool`](#bool)
 * [`Natural`](#natural)
 * [`Text`](#text)
+* [`Date` / `Time` / `TimeZone`](#date-time-timezone)
 * [`List`](#list)
 * [`Optional`](#optional)
 * [Records](#records)
@@ -290,6 +291,44 @@ result of type `Text`:
 
 
 If the operator arguments do not have type `Text`, then that is a type error.
+
+## `Date` / `Time` / `TimeZone`
+
+`Date`, `Time`, and `TimeZone` are all `Type`s:
+
+
+    ───────────────
+    Γ ⊢ Date : Type
+
+
+    ───────────────
+    Γ ⊢ Time : Type
+
+
+    ───────────────────
+    Γ ⊢ TimeZone : Type
+
+
+`Date` literals have type `Date`:
+
+
+    ─────────────────────
+    Γ ⊢ YYYY-MM-DD : Date
+
+
+`Time` literals have type `Time`:
+
+
+    ───────────────────
+    Γ ⊢ hh:mm:ss : Time
+
+
+… and `TimeZone` literals have type `TimeZone`:
+
+
+    ─────────────────────
+    Γ ⊢ ±HH:MM : TimeZone
+
 
 ## `List`
 

@@ -24,6 +24,7 @@ import Syntax
 import qualified Data.ByteArray     as ByteArray
 import qualified Data.List          as List
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.Time          as Time
 import qualified Data.Ord           as Ord
 import qualified GHC.Float          as Float
 import qualified Numeric.Half       as Half
@@ -135,6 +136,7 @@ e =   n              ; Unsigned integer    (Section 2.1, Major type = 0)
   /  n.n             ; Double float        (Section 2.3, Value = 27)
   /  nn              ; Unsigned bignum     (Section 2.4, Tag = 2)
   / -nn              ; Negative bignum     (Section 2.4, Tag = 3)
+  /  m*10^e          ; Decimal fraction    (Section 2.4, Tag = 4)
   / CBORTag n e      ; CBOR tag            (Section 2.4, Tag = n)
 ```
 
@@ -350,6 +352,18 @@ matching their identifier.
 
 
     ─────────────────────
+    encode(Date) = "Date"
+
+
+    ─────────────────────
+    encode(Time) = "Time"
+
+
+    ─────────────────────────────
+    encode(TimeZone) = "TimeZone"
+
+
+    ─────────────────────
     encode(Type) = "Type"
 
 
@@ -392,6 +406,9 @@ encode (Builtin Integer         ) = TString "Integer"
 encode (Builtin Double          ) = TString "Double"
 encode (Builtin Text            ) = TString "Text"
 encode (Builtin List            ) = TString "List"
+encode (Builtin Date            ) = TString "Date"
+encode (Builtin Time            ) = TString "Time"
+encode (Builtin TimeZone        ) = TString "TimeZone"
 encode (Constant Type           ) = TString "Type"
 encode (Constant Kind           ) = TString "Kind"
 encode (Constant Sort           ) = TString "Sort"
@@ -1299,6 +1316,60 @@ encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : k
     v₁ = encode v₀
 ```
 
+### `Date` / `Time` / `TimeZone`
+
+
+    ─────────────────────────────────────────
+    encode(YYYY-MM-DD) = [ 30, YYYY, MM, DD ]
+
+
+```haskell
+encode (DateLiteral d) = TList [ TInt 30, TInt (fromInteger _YYYY), TInt _MM, TInt _DD ]
+  where
+    (_YYYY, _MM, _DD) = Time.toGregorian d
+```
+
+
+    ss = m*10^e
+    ─────────────────────────────────────────
+    encode(hh:mm:ss) = [ 31, hh, mm, m*10^e ]
+
+
+```haskell
+encode (TimeLiteral (Time.TimeOfDay hh mm ss) precision) =
+    TList [ TInt 31, TInt hh, TInt mm, TTagged 4 (TList [ TInt e, m ]) ]
+  where
+    e = negate precision
+
+    mantissa :: Integer
+    mantissa = truncate (ss * 10^precision)
+
+    m   |   fromIntegral (minBound :: Int) <= mantissa
+        &&  mantissa <= fromIntegral (maxBound :: Int) =
+            TInt (fromInteger mantissa)
+        | otherwise =
+            TInteger mantissa
+```
+
+
+    ─────────────────────────────────────
+    encode(+HH:MM) = [ 32, True, HH, MM ]
+
+
+    ──────────────────────────────────────
+    encode(-HH:MM) = [ 32, False, HH, MM ]
+
+
+```haskell
+encode (TimeZoneLiteral (Time.TimeZone minutes _ _)) =
+    TList [ TInt 32, TBool sign, TInt _HH, TInt _MM ]
+  where
+    sign = 0 <= minutes
+
+    (_HH, _MM) = abs minutes `divMod` 60
+```
+
+
 ## Decoding judgment
 
 
@@ -1443,6 +1514,18 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────
     decode("List") = List
+
+
+    ─────────────────────────
+    decode("Date") = Date
+
+
+    ─────────────────────────
+    decode("Time") = Time
+
+
+    ─────────────────────────────
+    decode("TimeZone") = TimeZone
 
 
     ─────────────────────────
@@ -1945,6 +2028,27 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode(e₁) = e₀   decode(v₁) = v₀
     ─────────────────────────────────────────────────────
     decode([29, e₁, [ k, ks… ]  v₁]) = e₀ with k.ks… = v₀
+
+
+### `Date` / `Time` / `TimeZone`
+
+
+    ───────────────────────────────────────
+    decode([30, YYYY, MM, DD]) = YYYY-MM-DD
+
+
+    m*10^e = ss
+    ───────────────────────────────────────
+    decode([31, hh, mm, m*10^e]) = hh:mm:ss
+
+
+    ───────────────────────────────────
+    decode([32, true, HH, MM]) = +HH:MM
+
+
+    ────────────────────────────────────
+    decode([33, false, HH, MM]) = -HH:MM
+
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
 [multihash]: https://github.com/multiformats/multihash
