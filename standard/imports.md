@@ -447,7 +447,27 @@ both imports have been canonicalized) or `missing` imports:
     referentiallySane(https://authority₀ directory₀ file₀, missing)
 
 
-... whereas non-remote imports can import anything:
+Environment variables mustn't import relative imports, since we don't know the
+directory they were meant to be relative to:
+
+
+    ────────────────────────────────
+    referentiallySane(env:x, https://authority directory file)
+
+
+    ────────────────────────────────
+    referentiallySane(env:x, missing)
+
+
+    ────────────────────────────────
+    referentiallySane(env:x, path file)
+
+
+    ────────────────────────────────
+    referentiallySane(env:x, ~ path file)
+
+
+... whereas other non-remote imports can import anything:
 
 
     ────────────────────────────────────
@@ -464,10 +484,6 @@ both imports have been canonicalized) or `missing` imports:
 
     ──────────────────────────────────────
     referentiallySane(~ path file, import)
-
-
-    ────────────────────────────────
-    referentiallySane(env:x, import)
 
 
 This is a security check because it prevents remote imports from exfiltrating
