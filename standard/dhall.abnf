@@ -557,9 +557,6 @@ time-offset     = "Z" / time-numoffset  ; "Z" desugars to "+00:00"
 partial-time    = time-hour ":" time-minute ":" time-second
                   [time-secfrac]
 full-date       = date-fullyear "-" date-month "-" date-mday
-full-time       = partial-time time-offset
-
-date-time       = full-date "T" full-time
 
 ; If the identifier matches one of the names in the `builtin` rule, then it is a
 ; builtin, and should be treated as the corresponding item in the list of
