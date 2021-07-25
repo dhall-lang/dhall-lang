@@ -55,8 +55,6 @@ New features:
 
 * [Add Prelude support for NonEmpty lists](https://github.com/dhall-lang/dhall-lang/pull/1177)
 
-
-
 ## `v20.2.0`
 
 New features:
