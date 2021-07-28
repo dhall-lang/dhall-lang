@@ -1,3 +1,3 @@
-  ∀(a : Type)
-→ ∀(kvss : List (List { index : Natural, value : a }))
-→ List { index : Natural, value : a }
+  Type
+→ List (List { index : Natural, value : _ })
+→ List { index : Natural, value : _@1 }

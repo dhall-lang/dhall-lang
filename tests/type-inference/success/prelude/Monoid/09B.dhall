@@ -1,1 +1,1 @@
-∀(a : Type) → ∀(xs : List (Optional a)) → Optional a
+Type → List (Optional _) → Optional _@1
