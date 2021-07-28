@@ -1,3 +1,3 @@
-  Type
-→ List (List { index : Natural, value : _ })
-→ List { index : Natural, value : _@1 }
+Type →
+List (List { index : Natural, value : _ }) →
+  List { index : Natural, value : _@1 }
