@@ -53,6 +53,44 @@ Other changes:
 
 New features:
 
+* [Add support for origin-based header configuration](https://github.com/dhall-lang/dhall-lang/pull/1192)
+
+  You can now customize headers out-of-band by creating a `headers.dhall` file
+  in one of the following locations:
+
+  * `~/.config/dhall/headers.dhall`
+  * `${XDG_CONFIG_HOME}/dhall/headers.dhall`
+  * `env:DHALL_HEADERS`
+
+  This headers file has type `Map Text (Map Text Text)` and might look something
+  like this:
+
+  ```dhall
+  toMap {
+    `raw.githubusercontent.com:443` = toMap { Authorization = "TOKEN" }
+  }
+  ```
+
+  Where each outer `Map` key is of the form `host:port` and the nner `Map`
+  contains custom header-value pairs.  These custom headers are supplied
+  to any imports destined for tht origin.
+
+  These out-of-band custom headers work in conjunction with the in-band custom
+  headers supplied by the `using` keyword, but the out-of-band custome headers
+  take precedence.  For example, if one were to import:
+
+  ```dhall
+  https://raw.githubusercontent.com/example.dhall using
+    ( toMap
+      { Authorization = "ANOTHER TOKEN"
+      , User-Agent = "dhall"
+      }
+    )
+  ```
+
+  … then the `User-Agent` header would now also be set to `"dhall"`, but the
+  `Authorization` would still be `"TOKEN"`.
+
 * [Add Prelude support for NonEmpty lists](https://github.com/dhall-lang/dhall-lang/pull/1177)
 
 ## `v20.2.0`
