@@ -5,6 +5,94 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v21.0.0`
+
+Breaking changes:
+
+* [Standardize support for dates / times / time zones](https://github.com/dhall-lang/dhall-lang/pull/1191)
+
+  Dhall now provides language support for time types and literals, including
+  almost all combinations of dates, time, and time zones.
+
+  For example, these are all valid temporal literals and their corresponding
+  types:
+
+  ```dhall
+  2020-01-01                : Date
+  00:00:00                  : Time
+  +00:00                    : TimeZone
+  2020-01-01T00:00:00       : { date : Date, time : Time }
+  00:00:00+00:00            : { time : Time, timeZone : TimeZone }
+  2020-01-01T00:00:00+00:00 : { date : Date, time : Time, timeZone : TimeZone }
+  ```
+
+  Currently there are not yet built-in functions associated with temporal
+  values.  This change only adds the new types and support for projecting out
+  components of complex literals as record fields.
+
+  This is a breaking change because `Date` / `Time` / `TimeZone` are now
+  reserved identifier names.
+
+* [Change `?` to only fall back on absent imports](https://github.com/dhall-lang/dhall-lang/pull/1181)
+
+  The `?` operator will no longer recover from type errors, parse errors,
+  hash mismatches, or cyclic imports found within the first import.  The second
+  import will only be tried if the first import cannot be retrieved at all
+  (either from cache or the specified location).
+
+  This is a breaking change because some Dhall programs which used to succeed
+  will now fail.  Specifically, a program which relied on the `?` operator to
+  recover from non-import-related errors will now begin to fail.
+
+Other changes:
+
+* Fixes and improvements to the standard test suite:
+  * [Add parser failure test for whitespace before `with`](https://github.com/dhall-lang/dhall-lang/pull/1184)
+  * [Fix Prelude test files to use `.dhall` suffix](https://github.com/dhall-lang/dhall-lang/pull/1186)
+  * [Test changes for `dhall-purescript`](https://github.com/dhall-lang/dhall-lang/pull/1190)
+
+New features:
+
+* [Add support for origin-based header configuration](https://github.com/dhall-lang/dhall-lang/pull/1192)
+
+  You can now customize headers out-of-band by creating a `headers.dhall` file
+  in one of the following locations:
+
+  * `~/.config/dhall/headers.dhall`
+  * `${XDG_CONFIG_HOME}/dhall/headers.dhall`
+  * `env:DHALL_HEADERS`
+
+  This headers file has type `Map Text (Map Text Text)` and might look something
+  like this:
+
+  ```dhall
+  toMap {
+    `raw.githubusercontent.com:443` = toMap { Authorization = "TOKEN" }
+  }
+  ```
+
+  Where each outer `Map` key is of the form `host:port` and the nner `Map`
+  contains custom header-value pairs.  These custom headers are supplied
+  to any imports destined for tht origin.
+
+  These out-of-band custom headers work in conjunction with the in-band custom
+  headers supplied by the `using` keyword, but the out-of-band custome headers
+  take precedence.  For example, if one were to import:
+
+  ```dhall
+  https://raw.githubusercontent.com/example.dhall using
+    ( toMap
+      { Authorization = "ANOTHER TOKEN"
+      , User-Agent = "dhall"
+      }
+    )
+  ```
+
+  … then the `User-Agent` header would now also be set to `"dhall"`, but the
+  `Authorization` would still be `"TOKEN"`.
+
+* [Add Prelude support for NonEmpty lists](https://github.com/dhall-lang/dhall-lang/pull/1177)
+
 ## `v20.2.0`
 
 New features:
