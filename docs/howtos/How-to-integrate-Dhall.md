@@ -43,12 +43,6 @@ You can convert Dhall to one of the following configuration formats if your lang
 
 * [XML](https://git.sr.ht/~singpolyma/dhall-xml-ruby) - Via the `dhall-to-xml` executable
 
-* TOML - Via the `dhall-to-json` executable
-
-  Dhall does not yet support conversion to TOML, but until then you may be able to work around this
-  by using the fact that TOML is a superset of JSON (assuming that you do not care about the appearance
-  of the intermediate configuration file).
-
 * [Bash](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-bash/README.md) - Via the `dhall-to-bash` executable
 
   Technically not a "configuration format", but many programs are configured via Bash scripts
