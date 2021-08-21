@@ -136,6 +136,10 @@ to this cache – for example, you could:
 You should make it so that the environment variable `DHALL_TEST_VAR` is set to
 the string "6 * 7". This enables testing importing from environment variables.
 
+Some test cases have a `${TestcaseName}ENV.dhall` file, containing a Text
+map, i.e. `List { mapKey: Text, mapValue: Text }`. If present, you should
+resolve the test expression with the given environment variables set.
+
 The tests should:
 - parse `A` and `B`
 - resolve the imports for both `A` and `B`, in a context with a single ancestor
