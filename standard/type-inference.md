@@ -710,9 +710,9 @@ If a union alternative is non-empty, then the corresponding constructor is a
 function that wraps a value of the appropriate type:
 
 
-    Γ ⊢ u : c   u ⇥ < x : T | ts… >
-    ────────────────────────────────────
-    Γ ⊢ u.x : ∀(x : T) → < x : T | ts… >
+    Γ ⊢ u : c   u ⇥ < x : T | ts… >   ↑(1, x, 0, < x : T | ts… >) = U
+    ─────────────────────────────────────────────────────────────────
+    Γ ⊢ u.x : ∀(x : T) → U
 
 
 If a union alternative is empty, then the corresponding constructor's type is
