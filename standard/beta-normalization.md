@@ -74,7 +74,7 @@ is the same.
 * [Unions](#unions)
 * [`Integer`](#integer)
 * [`Double`](#double)
-* [`Date`/`Time`/`TimeZone`](#date-time-timezone)
+* [`Date`/`Time`/`TimeZone`](#date--time--timezone)
 * [Functions](#functions)
 * [`let` expressions](#let-expressions)
 * [Type annotations](#type-annotations)
