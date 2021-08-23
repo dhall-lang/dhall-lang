@@ -190,6 +190,10 @@ data Expression
     | Let Text (Maybe Expression) Expression Expression
       -- ^ > let x : A = a in b
       --   > let x     = a in b
+    | LetUnpack [(Text, Maybe Text)] IsExhaustive Expression Expression
+      -- ^ > let { x = x1 } = a in b
+      --   > let { x }      = a in b
+      --   > let { x, .. }  = a in b
     | If Expression Expression Expression
       -- ^ > if t then l else r
     | Merge Expression Expression (Maybe Expression)
@@ -228,7 +232,7 @@ data Expression
       -- ^ > ±n
     | TextLiteral TextLiteral
       -- ^ > "s"
-      --   > "s${t}ss…"  
+      --   > "s${t}ss…"
     | DateLiteral Time.Day
     | TimeLiteral
         Time.TimeOfDay
@@ -251,6 +255,8 @@ data Expression
     | Builtin Builtin
     | Constant Constant
     deriving (Show)
+
+type IsExhaustive = Bool
 
 -- | Associative binary operators
 data Operator

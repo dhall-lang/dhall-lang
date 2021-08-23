@@ -2574,6 +2574,42 @@ betaNormalize (Let x _ a₀ b₀) = b₃
 
 ```
 
+## `let` unpacking
+
+    r₀ = {}
+    a₀ ⇥ {=}
+    ───────────────────────────
+    let r₀ = a₀ in b ⇥ b
+
+    r₀ = { `...` }
+    ───────────────────────────
+    let r₀ = a₀ in b ⇥ b
+
+    a₀ ⇥ { x = e, a₁… }
+    r₀ = { x = y, r₁… }
+    ─────────────────────────────────────────────────
+    let r₀ = a₀ in b ⇥ let y = e in let r₁ = a₁ in b
+
+    a₀ ⇥ { x = e, a₁… }
+    r₀ = { x, r₁… }
+    ─────────────────────────────────────────────────
+    let r₀ = a₀ in b ⇥ let x = e in let r₁ = a₁ in b
+
+```haskell
+betaNormalize (LetUnpack r₀ ellipsis a₀ b)
+    | [] <- r₀
+    , RecordLiteral [] <- a₀ = b
+
+    | [] <- r₀
+    , True <- ellipsis = b
+
+    | (x, y):r₁ <- r₀
+    , RecordLiteral a₀' <- betaNormalize a₀
+    , Just e <- lookup x a₀'
+    , let a₁ = RecordLiteral $ delteBy ((==) x . fst) a₀' =
+        betaNormalize (Let (fromMaybe x y) Nothing e (LetUnpack r₁ ellipses a₁ b))
+```
+
 ## Type annotations
 
 Simplify a type annotation by removing the annotation:
