@@ -250,6 +250,10 @@ substitute (Let y Nothing a₀ b₀) x n e₀ = Let y Nothing a₁ b₁
     b₁ = substitute b₀ x n e₁
 ```
 
+```haskell
+substitute (LetPattern _ _ _) _ _ _ = error "not implemented"
+```
+
 ## Imports
 
 You can substitute expressions with unresolved imports because the language

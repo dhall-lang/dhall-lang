@@ -264,6 +264,11 @@ shift d x m (Let y Nothing a₀ b₀) = Let y Nothing a₁ b₁
     b₁ = shift d x m b₀
 ```
 
+
+```haskell
+shift _ _ _ (LetPattern _ _ _) = error "unimplemented"
+```
+
 ## Imports
 
 You can shift expressions with unresolved imports because the language enforces

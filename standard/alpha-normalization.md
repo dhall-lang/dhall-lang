@@ -214,6 +214,11 @@ alphaNormalize (Let x Nothing a₀ b₀) = Let "_" Nothing a₁ b₄
     b₄ = alphaNormalize b₃
 ```
 
+
+```haskell
+alphaNormalize (LetPattern _ _ _) = error "unimplemented"
+```
+
 ## Variables
 
 Variables are already in α-normal form:
@@ -754,8 +759,8 @@ alphaNormalize (Some a₀) = Some a₁
 
     ───────────────────────────
     Text/replace ↦ Text/replace
- 
- 
+
+
     ───────────
     Bool ↦ Bool
 

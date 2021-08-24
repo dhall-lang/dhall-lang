@@ -35,6 +35,7 @@ import Syntax
     ( Builtin(..)
     , Constant(..)
     , Expression(..)
+    , Pattern(..)
     , File(..)
     , FilePrefix(..)
     , ImportMode(..)
@@ -1542,7 +1543,7 @@ expression =
 
             return (If a b c)
         )
-    <|> (do bindings <- many letBinding
+    <|> (do bindings <- many letPattern
 
             in_
 
@@ -1550,7 +1551,7 @@ expression =
 
             b <- expression
 
-            return (foldr (\(x, mA, a) -> Let x mA a) b bindings)
+            return (foldr (\(p, a) -> LetPattern p a) b bindings)
         )
     <|> (do forall
 
@@ -1666,6 +1667,7 @@ annotatedExpression = do
 
     annotation <|> return a
 
+{-
 letBinding :: Parser (Text, Maybe Expression, Expression)
 letBinding = do
     let_
@@ -1696,6 +1698,76 @@ letBinding = do
     whsp
 
     return (x, mA, a)
+-}
+
+letPattern :: Parser (Pattern, Expression)
+letPattern = do
+    let_
+
+    whsp1
+
+    p <- bindPattern
+
+    whsp
+
+    "="
+
+    whsp
+
+    a <- expression
+
+    whsp
+
+    return (p, a)
+
+bindPattern :: Parser Pattern
+bindPattern = do
+    p <- recordPattern <|> variablePattern
+    let annotation = do
+            ":"
+
+            whsp1
+
+            expression
+
+    _T <- optional annotation
+    return $ case _T of
+        Just _T' -> PAnnotation p _T'
+        Nothing -> p
+
+variablePattern :: Parser Pattern
+variablePattern = do
+    name <- label
+    return $ PVariable name
+
+recordPattern :: Parser Pattern
+recordPattern = do
+    "{"
+
+    whsp
+
+    optional (do ","; whsp)
+
+    f <- many fields
+
+    whsp
+
+    "}"
+
+    return $ PRecord f
+  where
+    fields = do
+        k <- nonreservedLabel
+
+        whsp
+
+        "="
+
+        whsp
+
+        p <- bindPattern
+
+        return (k, p)
 
 emptyListLiteral :: Parser Expression
 emptyListLiteral = do

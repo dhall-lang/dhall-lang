@@ -156,6 +156,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
 module Syntax
     ( -- * Types
       Expression(..)
+    , Pattern(..)
     , Operator(..)
     , TextLiteral(..)
     , Builtin(..)
@@ -190,10 +191,9 @@ data Expression
     | Let Text (Maybe Expression) Expression Expression
       -- ^ > let x : A = a in b
       --   > let x     = a in b
-    | LetUnpack [(Text, Maybe Text)] IsExhaustive Expression Expression
-      -- ^ > let { x = x1 } = a in b
-      --   > let { x }      = a in b
-      --   > let { x, .. }  = a in b
+    | LetPattern Pattern Expression Expression
+      -- ^ see @Pattern@ for the different types of patterns
+      --   > let { x = b, … } = a in z
     | If Expression Expression Expression
       -- ^ > if t then l else r
     | Merge Expression Expression (Maybe Expression)
@@ -256,7 +256,14 @@ data Expression
     | Constant Constant
     deriving (Show)
 
-type IsExhaustive = Bool
+data Pattern
+    = PVariable Text
+      -- ^ > x
+    | PRecord [(Text, Pattern)]
+      -- ^ > { x = y,  }
+    | PAnnotation Pattern Expression
+      -- ^ > x : T
+    deriving (Show)
 
 -- | Associative binary operators
 data Operator

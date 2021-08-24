@@ -11,6 +11,7 @@ import Shift (shift)
 import Substitution (substitute)
 import Syntax
 
+import qualified Data.Function      as Function
 import qualified Data.Text          as Text
 import qualified Data.List          as List
 import qualified Data.Map           as Map
@@ -2574,40 +2575,59 @@ betaNormalize (Let x _ a₀ b₀) = b₃
 
 ```
 
-## `let` unpacking
+## `let` patterns
 
-    r₀ = {}
+    p₀ = x
+    let x = a₀ in b₀ ⇥ b₁
+    ───────────────────────────  ; simple variable pattern
+    letp p₀ = a₀ in b₀ ⇥ b₁
+
+    p₀ = {}
     a₀ ⇥ {=}
-    ───────────────────────────
-    let r₀ = a₀ in b ⇥ b
+    ───────────────────────────  ; base case for exhaustive record pattern
+    let p₀ = a₀ in b ⇥ b
 
-    r₀ = { `...` }
-    ───────────────────────────
-    let r₀ = a₀ in b ⇥ b
+    p₀ = { `...` }
+    ─────────────────────────── ; base case for non-exhaustive record pattern
+    let p₀ = a₀ in b ⇥ b
 
-    a₀ ⇥ { x = e, a₁… }
-    r₀ = { x = y, r₁… }
-    ─────────────────────────────────────────────────
-    let r₀ = a₀ in b ⇥ let y = e in let r₁ = a₁ in b
+    p₀ = { x = y, p₁… }
+    a₀ ⇥ { x = e , a₁… }
+    a₂ = {
+    letp y = e in letp p₁ = a₁ in b₀ ⇥ b₁
+    ────────────────────────────────────  ; inductive case for record pattern
+    letp p₀ = a₀ in b₀ ⇥ b₁
 
-    a₀ ⇥ { x = e, a₁… }
-    r₀ = { x, r₁… }
-    ─────────────────────────────────────────────────
-    let r₀ = a₀ in b ⇥ let x = e in let r₁ = a₁ in b
+    p₀ = { x, … }
+    p₁ = { x = x, … }
+    letp p₁ = a₀ in b₀ ⇥ b₁
+    ───────────────────────────  ; desugar record puns into the inductive case
+    letp p₀ = a₀ in b₀ ⇥ b₁
+
+    p₀ = p₁ : T
+    letp p₁ = a₀ : T in b₀ ⇥ b₁
+    ───────────────────────────  ; move annotation in a pattern to the corresponding value
+    letp p₀ = a₀ in b₀ ⇥ b₁
 
 ```haskell
-betaNormalize (LetUnpack r₀ ellipsis a₀ b)
-    | [] <- r₀
-    , RecordLiteral [] <- a₀ = b
+betaNormalize (LetPattern p₀ a₀ b₀)
+    | PVariable x <- p₀ =
+        betaNormalize (Let x Nothing a₀ b₀)
 
-    | [] <- r₀
-    , True <- ellipsis = b
+    | PRecord [] <- p₀
+    , RecordLiteral [] <- betaNormalize a₀ =
+        betaNormalize b₀
 
-    | (x, y):r₁ <- r₀
-    , RecordLiteral a₀' <- betaNormalize a₀
-    , Just e <- lookup x a₀'
-    , let a₁ = RecordLiteral $ delteBy ((==) x . fst) a₀' =
-        betaNormalize (Let (fromMaybe x y) Nothing e (LetUnpack r₁ ellipses a₁ b))
+    | PRecord ((x, p₁):xps₀) <- p₀
+    , RecordLiteral a₁ <- betaNormalize a₀
+    , Just e <- lookup x a₁
+    , let a₂ = RecordLiteral $ List.deleteBy ((==) `Function.on` fst) (x, e) a₁ =
+        betaNormalize $ LetPattern p₁ e (LetPattern (PRecord xps₀) a₂ b₀)
+
+    | PAnnotation p₁ _T <- p₀ =
+        betaNormalize $ LetPattern p₁ (Annotation a₀ _T) b₀
+
+    | otherwise = error "invalid pattern"
 ```
 
 ## Type annotations

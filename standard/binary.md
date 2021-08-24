@@ -11,6 +11,7 @@ import Syntax
     ( Builtin(..)
     , Constant(..)
     , Expression(..)
+    , Pattern(..)
     , File(..)
     , FilePrefix(..)
     , ImportMode(..)
@@ -1280,6 +1281,54 @@ encode expression@(Let _ _ _ _) = loop id expression
         z₁ = encode z₀
 ```
 
+#### Patterns
+
+
+    ────────────────────────
+    encodePattern(x) = [ 1, "x" ]
+
+    encodePattern(P₀) = P₁   …
+    ────────────────────────
+    encodePattern({ x = P₀, … }) = [ 2, { "x" =  P₁, … }]
+
+    encodePattern(T₀) = T₁
+    encodePattern(P₀) = P₁
+    ────────────────────────
+    encodePattern(P₀ : T₀) = [ 3, P₁, T₁ ]
+
+
+    encodePattern(P₀) = P₁   encode(a₀) = a₁
+    encodePattern(Q₀) = Q₁   encode(b₀) = b₁
+    ...
+    encode(z₀) = z₁
+    ──────────────────────────────────────────────────────────────────────────────
+    encode(letp P₀ = a₀ in letp Q₀ = b₀ ... in z₀) = [ 32, P₁, a₁, Q₁, b₁, ..., z₁ ]
+
+```haskell
+encode expression@(LetPattern _ _ _) = loop id expression :: Term
+  where
+    loop difference (LetPattern _P₀ a₀ c) =
+        loop (difference . ([ _P₁, a₁ ] <>)) c
+      where
+        _P₁ = encodePattern _P₀
+
+        a₁ = encode a₀
+
+    loop difference z₀ = TList (TInt 32 : difference [ z₁ ])
+      where
+        z₁ = encode z₀
+
+    encodePattern :: Pattern -> Term
+    encodePattern (PVariable x) = TList [ TInt 1, TString x ]
+    encodePattern (PRecord xPs₀) = TList [ TInt 2, TMap xPs₁ ]
+      where
+        xPs₁ = map adapt (List.sortBy (Ord.comparing fst) xPs₀)
+
+        adapt (x, _P) = (TString x, encodePattern _P)
+    encodePattern (PAnnotation _P _T) = TList [ TInt 3, encodePattern _P, encode _T ]
+```
+
+
 ### Type annotations
 
 
@@ -2012,6 +2061,35 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode(A₁) = A₀   decode(a₁) = a₀   decode(b₁) = b₀   ...   decode(z₁) = z₀
     ──────────────────────────────────────────────────────────────────────────────────────────
     decode([ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]) = let x : A₀ = a₀ let y = b₀ ... in z₀
+
+#### Patterns
+
+
+    ────────────────────────────
+    decodePattern([1, "x"]) = x
+
+    decodePattern(P₁) = P₀   …
+    ─────────────────────────────────────────────────────
+    decodePattern([ 2, { "x" =  P₁, … }]) = { x = P₀, … }
+
+    decodePattern(T₁) = T₀
+    decodePattern(P₁) = P₀
+    ──────────────────────────────────────
+    decodePattern([ 3, P₁, T₁ ]) = P₀ : T₀
+
+Decode a CBOR array beginning with a `32` as a `let` pattern expression:
+
+
+    decode(A₁) = A₀   decode(a₁) = a₀   decode(b₁) = b₀   ...   decode(z₁) = z₀
+    ───────────────────────────────────────────────────────────────────────────────────────────
+    decode([ 25, "x", A₁, a₁, "y", null, b₁, ..., z₁ ]) = let x : A₀ = a₀ let y = b₀ ... in z₀
+
+    decodePattern(P₁) = P₀   encode(a₁) = a₀
+    decodePattern(Q₁) = Q₀   encode(b₁) = b₀
+    ...
+    decode(z₁) = z₀
+    ──────────────────────────────────────────────────────────────────────────────
+    decode([ 32, P₁, a₁, Q₁, b₁, ..., z₁ ]) = letp P₀ = a₀ in letp Q₀ = b₀ ... in z₀
 
 
 ### Type annotations
