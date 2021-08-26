@@ -617,7 +617,9 @@ then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
 
-    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeaders
+    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeadersExpr
+    (ε, here) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context,
+                                                         ; from the current location.
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapValue` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
@@ -768,11 +770,17 @@ The configuration is loaded from either the environment or a configuration file:
 This file is optional. If the above steps attempt to load a path that doesn't exist,
 it's treated as an empty list, not an error.
 
+When importing the origin header configuration, local imports are resolved as normal.
+Note that remote imports will not succeed, as that would implicitly require the origin
+header configuration to be imported, which is rejected as a cyclic import.
+
 If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeaders
+    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeadersExpr
+    (ε, here) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context,
+                                                         ; from the current location.
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapValue` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
