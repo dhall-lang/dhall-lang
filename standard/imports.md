@@ -617,9 +617,9 @@ then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
 
-    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeadersExpr
-    (ε, here) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context,
-                                                         ; from the current location.
+    headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
+    Γ(headersPath) = userHeadersExpr
+    (ε, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapValue` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
@@ -778,9 +778,9 @@ If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    Γ(env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []) = userHeadersExpr
-    (ε, here) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context,
-                                                         ; from the current location.
+    headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
+    Γ(headersPath) = userHeadersExpr
+    (ε, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapValue` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
