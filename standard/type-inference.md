@@ -30,7 +30,7 @@ normalize.
 * [`Bool`](#bool)
 * [`Natural`](#natural)
 * [`Text`](#text)
-* [`Date` / `Time` / `TimeZone`](#date-time-timezone)
+* [`Date` / `Time` / `TimeZone`](#date--time--timezone)
 * [`List`](#list)
 * [`Optional`](#optional)
 * [Records](#records)
