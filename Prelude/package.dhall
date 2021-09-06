@@ -52,7 +52,7 @@
     ? ./JSON/package.dhall
 , Text =
       ./Text/package.dhall
-        sha256:17a0e0e881b05436d7e3ae94a658af9da5ba2a921fafa0d1d545890978853434
+        sha256:79b671a70ac459b799a53bbb8a383cc8b81b40421745c54bf0fb1143168cbd6f
     ? ./Text/package.dhall
 , XML =
       ./XML/package.dhall
