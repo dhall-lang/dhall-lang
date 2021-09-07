@@ -1,1 +1,1 @@
-∀(a : Type) → ∀(xss : List (List a)) → List a
+Type → List (List _) → List _@1
