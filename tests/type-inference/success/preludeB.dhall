@@ -588,6 +588,7 @@
     , replace :
         ∀(needle : Text) → ∀(replacement : Text) → ∀(haystack : Text) → Text
     , replicate : ∀(num : Natural) → ∀(text : Text) → Text
+    , shell-escape : ∀(xs : Text) → Text
     , show : Text → Text
     , spaces : ∀(a : Natural) → Text
     , upperASCII : ∀(nil : Text) → Text

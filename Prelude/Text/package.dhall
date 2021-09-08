@@ -34,6 +34,10 @@
       ./replicate.dhall
         sha256:1b398b1d464b3a6c7264a690ac3cacb443b5683b43348c859d68e7c2cb925c4f
     ? ./replicate.dhall
+, shell-escape =
+      ./shell-escape.dhall
+        sha256:d53521b3f478cb18a7d63730bc0e3153c2124b70d6ac9a1f610ce7db67cfc7a2
+    ? ./shell-escape.dhall
 , show =
       ./show.dhall
         sha256:c9dc5de3e5f32872dbda57166804865e5e80785abe358ff61f1d8ac45f1f4784
