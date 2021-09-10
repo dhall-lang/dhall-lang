@@ -1,5 +1,6 @@
 {-|
-Create a Text value to be inserted into an XML element as content.
+Create a Text value to be inserted into an XML element as content with no
+character escaping.
 
 ```
 let XML = ./package.dhall
@@ -8,10 +9,10 @@ in  XML.render
     ( XML.element
       { name = "location"
       , attributes = XML.emptyAttributes
-      , content = [ XML.text "/foo/bar" ]
+      , content = [ XML.rawText "<bar n=\"1\"/>" ]
       }
     )
-= "<location>/foo/bar</location>"
+= "<foo><bar n=\"1\"/></foo>"
 ```
 -}
 let XML =
@@ -19,7 +20,7 @@ let XML =
           sha256:ab91a0edaf0513e0083b1dfae5efa160adc99b0e589775a4a699ab77cce528a9
       ? ./Type.dhall
 
-let text
+let rawText
     : Text → XML
     = λ(d : Text) →
       λ(XML : Type) →
@@ -34,6 +35,6 @@ let text
                 XML
           }
         ) →
-        xml.text d
+        xml.rawText d
 
-in  text
+in  rawText

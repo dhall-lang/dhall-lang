@@ -15,6 +15,8 @@ For example, the following XML element:
  → λ ( xml
      : { text :
            Text → XML
+       , rawText :
+           Text → XML
        , element :
              { attributes :
                  List { mapKey : Text, mapValue : Text }
@@ -49,6 +51,7 @@ let XML/Type
     = ∀(XML : Type) →
       ∀ ( xml
         : { text : Text → XML
+          , rawText : Text → XML
           , element :
               { attributes : List { mapKey : Text, mapValue : Text }
               , content : List XML
