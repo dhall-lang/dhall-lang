@@ -56,6 +56,6 @@
     ? ./Text/package.dhall
 , XML =
       ./XML/package.dhall
-        sha256:6a15ea2ab1918f97374ec2fe3b90c056fb807fb3a90c1c44ce9fb9233f59c0e5
+        sha256:2e111f0952087d42072b059f0bf4c95861a46bffa67ad4c8c39086edf405f32e
     ? ./XML/package.dhall
 }
