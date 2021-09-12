@@ -611,6 +611,7 @@
                             , name : Text
                             } →
                               XML
+                        , rawText : Text → XML
                         , text : Text → XML
                         }
                       ) →
@@ -627,6 +628,7 @@
                 , name : Text
                 } →
                   XML
+            , rawText : Text → XML
             , text : Text → XML
             }
           ) →
@@ -646,6 +648,22 @@
                 , name : Text
                 } →
                   XML
+            , rawText : Text → XML
+            , text : Text → XML
+            }
+          ) →
+          XML
+    , rawText :
+        ∀(d : Text) →
+        ∀(XML : Type) →
+        ∀ ( xml
+          : { element :
+                { attributes : List { mapKey : Text, mapValue : Text }
+                , content : List XML
+                , name : Text
+                } →
+                  XML
+            , rawText : Text → XML
             , text : Text → XML
             }
           ) →
@@ -660,6 +678,7 @@
                     , name : Text
                     } →
                       XML
+                , rawText : Text → XML
                 , text : Text → XML
                 }
               ) →
@@ -676,6 +695,7 @@
                 , name : Text
                 } →
                   XML
+            , rawText : Text → XML
             , text : Text → XML
             }
           ) →
