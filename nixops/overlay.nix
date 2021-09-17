@@ -194,7 +194,7 @@ pkgsNew: pkgsOld: {
     ansible =
       pkgsNew.fetchurl {
         url    = "https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Mark-Large-RGB-Mango.png";
-        sha256 = "1zmd6gnx6gx9z6n5i02ipidc2ypakhhv07nznr3a5jjbyl4qqj3y";
+        sha256 = "0naxgnhz1py1559ldinmnqimi43m2mkxa2nzffzaxkycfha5m58b";
       };
 
     argocd =
@@ -320,14 +320,14 @@ pkgsNew: pkgsOld: {
 
         url = "https://drive.google.com/uc?export=download&id=1cC7MFfkq3sCj_NK4sBCC8hgUPWbLxval";
 
-        sha256 = "1hxm7w7zs462s002sv02mqpzfggx35ix95k1p9884x278cpq76sx";
+        sha256 = "042p9w8j5wxsv22gsz2fkdr9pp9il3j1q9cf87rxn1xc8jsp6nxq";
 
         postFetch = ''
           BASENAME="HashiCorp-Nomad.zip"
           mv "$downloadedFile" "$BASENAME"
           unpackFile "$BASENAME"
           ${pkgsNew.tree}/bin/tree .
-          ${pkgsNew.coreutils}/bin/mv "7 - Nomad/2 - Secondary - Vertical/RGB/PNG/Nomad_VerticalLogo_FullColor_RGB.png" "$out"
+          ${pkgsNew.coreutils}/bin/mv "Nomad/2 - Secondary - Vertical/RGB/PNG/Nomad_VerticalLogo_Color_RGB.png" "$out"
         '';
       }).overrideAttrs (old: {
         nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
