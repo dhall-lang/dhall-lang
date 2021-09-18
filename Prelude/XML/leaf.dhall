@@ -11,12 +11,12 @@ in  XML.render (XML.leaf { name = "foobar", attributes = XML.emptyAttributes })
 -}
 let XML =
         ./Type.dhall
-          sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+          sha256:ab91a0edaf0513e0083b1dfae5efa160adc99b0e589775a4a699ab77cce528a9
       ? ./Type.dhall
 
 let element =
         ./element.dhall
-          sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
+          sha256:79266d604e147caf37e985581523b684f7bac66de0c93dd828841df3dfc445f9
       ? ./element.dhall
 
 let leaf
