@@ -17,7 +17,8 @@ pkgsNew: pkgsOld: {
       '';
 
   dhall =
-    pkgsNew.haskell.lib.dontCheck pkgsNew.dhall-haskell-derivations.dhall;
+    pkgsNew.haskell.lib.dontCheck
+      (pkgsNew.dhall-haskell-derivations ./dhall-haskell.json).dhall;
 
   dhall-docs =
     pkgsNew.dhall-haskell-derivations.dhall-docs;
@@ -41,9 +42,9 @@ pkgsNew: pkgsOld: {
         touch $out
       '';
 
-  dhall-haskell-derivations =
+  dhall-haskell-derivations = file:
     let
-      json = builtins.fromJSON (builtins.readFile ./dhall-haskell.json);
+      json = builtins.fromJSON (builtins.readFile file);
 
       dhall-haskell =
         pkgsNew.fetchFromGitHub {
@@ -57,7 +58,9 @@ pkgsNew: pkgsOld: {
     in
       import "${dhall-haskell}/default.nix";
 
-  inherit (pkgsNew.dhall-haskell-derivations) dhall-try;
+  # We have to use an older build of Dhall since the latest version doesn't
+  # support GHCJS
+  inherit (pkgsNew.dhall-haskell-derivations ./dhall-haskell-old.json) dhall-try;
 
   dhallPackages = pkgsOld.dhallPackages.override (old: {
       overrides =
