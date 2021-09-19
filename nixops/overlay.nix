@@ -21,7 +21,7 @@ pkgsNew: pkgsOld: {
       (pkgsNew.dhall-haskell-derivations ./dhall-haskell.json).dhall;
 
   dhall-docs =
-    pkgsNew.dhall-haskell-derivations.dhall-docs;
+    (pkgsNew.dhall-haskell-derivations ./dhall-haskell.json).dhall-docs;
 
   dhall-grammar =
     pkgsNew.runCommand
