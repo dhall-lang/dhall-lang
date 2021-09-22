@@ -101,7 +101,7 @@ pkgsNew: pkgsOld: {
     for FILE in $(${pkgsNew.findutils}/bin/find ${../tests} -type f -name '*.dhall'); do
       LAST_CHARACTER=$(${pkgsNew.coreutils}/bin/tail --bytes 1 "$FILE")
 
-      if [ "''${FILE}" == "tests/parser/success/unit/TrailingLineCommentWithoutNewlineA.dhall" ]; then
+      if [[ "''${FILE}" == *tests/parser/success/unit/TrailingLineCommentWithoutNewlineA.dhall ]]; then
           # This test intentionally omit a trailing newline
           continue
       fi
