@@ -8,7 +8,7 @@ bundled with libxml2.
 let XML = ./package.dhall
 
 in  XML.render
-    ( XML.node
+    ( XML.element
       { name = "foo"
       , attributes = [ XML.attribute "a" "x", XML.attribute "b" (Natural/show 2) ]
       , content = [ XML.leaf { name = "bar", attributes = XML.emptyAttributes } ]
@@ -20,7 +20,7 @@ in  XML.render
 -}
 let XML =
         ./Type.dhall
-          sha256:461930f3aab769ba537d1a4fd71f411504b0c8d1c1a78d65177be8ded0df8a5c
+          sha256:ab91a0edaf0513e0083b1dfae5efa160adc99b0e589775a4a699ab77cce528a9
       ? ./Type.dhall
 
 let Text/concatMap =
@@ -35,12 +35,12 @@ let Text/concat =
 
 let element =
         ./element.dhall
-          sha256:e0b948053c8cd8ccca9c39244d89e3f42db43d222531c18151551dfc75208b4b
+          sha256:79266d604e147caf37e985581523b684f7bac66de0c93dd828841df3dfc445f9
       ? ./element.dhall
 
 let text =
         ./text.dhall
-          sha256:c83cd721d32d7dc28c04ce429c0cb22812639e572637ec348578a58ffb68844f
+          sha256:a59670560a08bfc815893dee1f3eae21a5252400f8a619d1cd7bdd9f48eea2ab
       ? ./text.dhall
 
 let emptyAttributes =
@@ -76,6 +76,7 @@ let render
         x
           Text
           { text = escapeText
+          , rawText = λ(t : Text) → t
           , element =
               λ ( elem
                 : { attributes : List { mapKey : Text, mapValue : Text }
