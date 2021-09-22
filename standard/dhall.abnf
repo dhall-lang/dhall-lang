@@ -166,7 +166,9 @@ not-end-of-line = %x20-7F / valid-non-ascii / tab
 
 ; NOTE: Slightly different from Haskell-style single-line comments because this
 ; does not require a space after the dashes
-line-comment = "--" *not-end-of-line end-of-line
+line-comment-prefix = "--" *not-end-of-line
+
+line-comment = line-comment-prefix end-of-line
 
 whitespace-chunk =
       " "
@@ -995,4 +997,4 @@ non-empty-list-literal =
 shebang = "#!" *not-end-of-line end-of-line
 
 ; This just adds surrounding whitespace for the top-level of the program
-complete-expression = *shebang whsp expression whsp
+complete-expression = *shebang whsp expression whsp [ line-comment-prefix ]

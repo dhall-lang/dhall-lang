@@ -186,8 +186,11 @@ notEndOfLine = void (satisfy predicate)
         ||  validNonAscii c
         ||  tab == c
 
+lineCommentPrefix :: Parser ()
+lineCommentPrefix = do "--"; many notEndOfLine; return ()
+
 lineComment :: Parser ()
-lineComment = do "--"; many notEndOfLine; endOfLine; return ()
+lineComment = try (do lineCommentPrefix; endOfLine; return ())
 
 whitespaceChunk :: Parser ()
 whitespaceChunk =
@@ -2108,10 +2111,14 @@ nonEmptyListLiteral = do
 shebang :: Parser ()
 shebang = do "#!"; many notEndOfLine; endOfLine; return ()
 
-
-
 {-| Parse a complete Dhall expression, including leading and trailing
     whitespace
 -}
 completeExpression :: Parser Expression
-completeExpression = do many shebang; whsp; e <- expression; whsp; return e
+completeExpression = do
+    many shebang
+    whsp
+    e <- expression
+    whsp
+    _ <- optional lineCommentPrefix
+    return e
