@@ -821,7 +821,7 @@ expression =
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
+    / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 expression
 
     ; "[] : t"
     ;
@@ -834,7 +834,7 @@ expression =
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
+    / toMap whsp1 import-expression whsp ":" whsp1 expression
 
     ; "assert : Natural/even 1 === False"
     / assert whsp ":" whsp1 expression
@@ -850,7 +850,7 @@ let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "="
 
 ; "[] : t"
 empty-list-literal =
-    "[" whsp [ "," whsp ] "]" whsp ":" whsp1 application-expression
+    "[" whsp [ "," whsp ] "]" whsp ":" whsp1 expression
 
 with-expression =
     import-expression 1*(whsp1 with whsp1 with-clause)
