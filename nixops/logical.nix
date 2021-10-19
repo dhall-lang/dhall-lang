@@ -424,7 +424,7 @@ in
 
               db_work_mem: "40MB"
 
-              version: 41f09ee29c44424901054a7dbe0bf8c0a9b86742
+              version: 25097fa0af9927d4fb43a5b195951c8c533acf02
 
             env:
               LANG: en_US.UTF-8
@@ -479,7 +479,7 @@ in
 
             cd ${discourseDirectory}
 
-            ${pkgs.git}/bin/git fetch https://github.com/discourse/discourse_docker.git 77edaf675a47729bb693d09b94713a2a98b5d686
+            ${pkgs.git}/bin/git fetch https://github.com/discourse/discourse_docker.git aadd087790dfdb22fd68b6e6602339da7bb7f43e
 
             ${pkgs.git}/bin/git checkout FETCH_HEAD
 
@@ -529,6 +529,8 @@ in
 
       in
         { wantedBy = [ "multi-user.target" ];
+
+          enable = false;
 
           after = [ "network-online.target" ];
 
