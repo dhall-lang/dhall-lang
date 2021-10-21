@@ -382,7 +382,7 @@ with                  = %x77.69.74.68
 keyword =
       if / then / else
     / let / in
-    / using / missing 
+    / using / missing
     / assert / as
     / Infinity / NaN
     / merge / Some / toMap
@@ -552,7 +552,7 @@ time-second     = 2DIGIT  ; 00-59 (**UNLIKE** RFC 3339, we don't support leap
 ; time precision, but an implementation only needs to support storing/encoding
 ; at least nanosecond precision.  In other words an implementation only needs to
 ; preserve 9 digits after the decimal point.
-time-secfrac    = "." 1*DIGIT  ; RFC 3339 
+time-secfrac    = "." 1*DIGIT  ; RFC 3339
 time-numoffset  = ("+" / "-") time-hour ":" time-minute
 time-offset     = "Z" / time-numoffset  ; "Z" desugars to "+00:00"
 
@@ -793,52 +793,52 @@ import = import-hashed [ whsp as whsp1 (Text / Location) ]
 expression =
     ; "\(x : a) -> b"
       lambda whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
-    
+
     ; "if a then b else c"
     / if whsp1 expression whsp then whsp1 expression whsp else whsp1 expression
-    
+
     ; "let x : t = e1 in e2"
     ; "let x     = e1 in e2"
     ; We allow dropping the `in` between adjacent let-expressions; the following are equivalent:
     ; "let x = e1 let y = e2 in e3"
     ; "let x = e1 in let y = e2 in e3"
     / 1*let-binding in whsp1 expression
-    
+
     ; "forall (x : a) -> b"
     / forall whsp "(" whsp nonreserved-label whsp ":" whsp1 expression whsp ")" whsp arrow whsp expression
-    
+
     ; "a -> b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
     / operator-expression whsp arrow whsp expression
-    
+
     ; "a with x = b"
     ;
     ; NOTE: Backtrack if parsing this alternative fails
     / with-expression
-    
+
     ; "merge e1 e2 : t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 application-expression
-    
+    / merge whsp1 import-expression whsp1 import-expression whsp ":" whsp1 expression
+
     ; "[] : t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the opening bracket whether or not this will be an empty list or
     ; a non-empty list
     / empty-list-literal
-    
+
     ; "toMap e : t"
     ;
     ; NOTE: Backtrack if parsing this alternative fails since we can't tell
     ; from the keyword whether there will be a type annotation or not
-    / toMap whsp1 import-expression whsp ":" whsp1 application-expression
-    
+    / toMap whsp1 import-expression whsp ":" whsp1 expression
+
     ; "assert : Natural/even 1 === False"
     / assert whsp ":" whsp1 expression
-    
+
     ; "x : t"
     / annotated-expression
 
@@ -850,7 +850,7 @@ let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "="
 
 ; "[] : t"
 empty-list-literal =
-    "[" whsp [ "," whsp ] "]" whsp ":" whsp1 application-expression
+    "[" whsp [ "," whsp ] "]" whsp ":" whsp1 expression
 
 with-expression =
     import-expression 1*(whsp1 with whsp1 with-clause)
@@ -886,13 +886,13 @@ application-expression =
 first-application-expression =
     ; "merge e1 e2"
       merge whsp1 import-expression whsp1 import-expression
-    
+
     ; "Some e"
     / Some whsp1 import-expression
-    
+
     ; "toMap e"
     / toMap whsp1 import-expression
-    
+
     / import-expression
 
 import-expression = import / completion-expression
@@ -923,33 +923,33 @@ primitive-expression =
 
     ; "2.0"
     / double-literal
-    
+
     ; "2"
     / natural-literal
-    
+
     ; "+2"
     / integer-literal
-    
+
     ; '"ABC"'
     / text-literal
 
     ; YYYY-MM
-    
+
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
     / "{" whsp [ "," whsp ] record-type-or-literal whsp "}"
-    
+
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo | Bar : Bool >"
     / "<" whsp [ "|" whsp ] union-type whsp ">"
-    
+
     ; "[1, 2, 3]"
     / non-empty-list-literal
-    
+
     ; "x"
     ; "x@2"
     / identifier
-    
+
     ; "( e )"
     / "(" complete-expression ")"
 
