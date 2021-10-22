@@ -619,7 +619,7 @@ resolve imports within the retrieved expression:
 
     headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
     Γ(headersPath) = userHeadersExpr
-    (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context
+    (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapValue` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
@@ -780,7 +780,7 @@ the resolved expression as additional headers supplied to the HTTP request:
 
     headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
     Γ(headersPath) = userHeadersExpr
-    (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁  ; Resolve userHeadersExpr with an empty import context
+    (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapValue` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
