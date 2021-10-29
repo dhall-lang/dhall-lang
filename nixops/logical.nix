@@ -424,7 +424,7 @@ in
 
               db_work_mem: "40MB"
 
-              version: 41f09ee29c44424901054a7dbe0bf8c0a9b86742
+              version: ae91818c194a79b9a5216f2a2709a331f3509207
 
             env:
               LANG: en_US.UTF-8
@@ -479,7 +479,7 @@ in
 
             cd ${discourseDirectory}
 
-            ${pkgs.git}/bin/git fetch https://github.com/discourse/discourse_docker.git 77edaf675a47729bb693d09b94713a2a98b5d686
+            ${pkgs.git}/bin/git fetch https://github.com/discourse/discourse_docker.git aadd087790dfdb22fd68b6e6602339da7bb7f43e
 
             ${pkgs.git}/bin/git checkout FETCH_HEAD
 
@@ -582,7 +582,7 @@ in
       extraGroups = [ "wheel" ];
 
       openssh.authorizedKeys.keys = [
-        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCFb1mAXG9cehfjq3FkEgRKMZW48d+IDE9YLbXruy283sf8UZYicKIFkht1nVd8MBd4/iWM23GXtLtyB4F5WXqeDpJFghfxDjoLkU146pSuAmqSOJo0HYOqiMYZJl6MeNtzzMjk6319WSQ80zI9eVNJqLAsTl5OfKHrqZBP32PC3CPQkCW8sQD8fbT/BG0tghUeC/X+LIho0enF58vN180IDsTjcJTjKGu/WzPU6RkyfNoE9LM2cjDKQ4nhucYZs03rklBKUbNB3FW5BM2/AKMzRJ5IkcMiqg6YOkkpB2rw0kbPW0/tAws1lvK8/aoCDw+ou8d4G4jYWqUEl7Okcryd PIV AUTH pubkey"
+        "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOPqrkBYfB4lJ6A85hTAWVbWHj2S2a+gT51UNCpwIRIioGkJC/Kpdhu5+duxTk9k6NHUpdNPcZX23gYwXGt7f0E= YubiKey #10162344 PIV Slot 9a"
       ];
     };
 
