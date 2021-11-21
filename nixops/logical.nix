@@ -180,7 +180,7 @@ in
 
       virtualHosts =
         let
-          latestRelease = "v21.0.0";
+          latestRelease = "v21.1.0";
 
           prelude = {
             forceSSL = true;
