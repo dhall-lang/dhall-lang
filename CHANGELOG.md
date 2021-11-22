@@ -5,6 +5,47 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v21.1.0`
+
+Other changes:
+
+New features:
+
+* [Fix `merge` and `toMap` annotations to behave the same as ordinary type annotations](https://github.com/dhall-lang/dhall-lang/pull/1230)
+
+  Before this change an expression like this:
+
+  ```dhall
+  λ(x : <>) → merge {=} x : ∀(a : Type) → a
+  ```
+
+  … would not have type-checked as it would have been parsed as:
+
+  ```dhall
+  λ(x : <>) → (merge {=} x) : ∀(a : Type) → a
+  ```
+
+  … where the `∀(a : Type) → a` is treated as an ordinary type annotation and
+  not a `merge`-specific annotation used to handle the special case of an empty
+  `merge`.
+
+  After this change, the type annotations that are specially-associated with
+  `merge` and `toMap` expressions to handle their empty cases behave the same as
+  ordinary type annotations.
+
+* [Permit a trailing line comment without a newline](https://github.com/dhall-lang/dhall-lang/pull/1226)
+
+* [Add `Prelude.Text.shell-escape`](https://github.com/dhall-lang/dhall-lang/pull/1218)
+
+* [Add `Prelude.XML` support for non-escaped `Text`](https://github.com/dhall-lang/dhall-lang/pull/1225)
+
+* Fixes and improvements to the standard:
+
+  * [Remove unused `date-time` and `full-time` abnf rules](https://github.com/dhall-lang/dhall-lang/pull/1193)
+  * [Fix logic for inferring type of constructor](https://github.com/dhall-lang/dhall-lang/pull/1208)
+  * [Fix judgment for origin-based header support](https://github.com/dhall-lang/dhall-lang/pull/1229)
+  * [Fix parent imports when resolving `headers.dhall`](https://github.com/dhall-lang/dhall-lang/pull/1233)
+
 ## `v21.0.0`
 
 Breaking changes:
