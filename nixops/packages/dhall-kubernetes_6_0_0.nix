@@ -1,6 +1,6 @@
 { buildDhallGitHubPackage, directory }:
   buildDhallGitHubPackage {
-    name = "dhall-kubernetes";
+    name = "dhall-kubernetes-${directory}";
     githubBase = "github.com";
     owner = "dhall-lang";
     repo = "dhall-kubernetes";
