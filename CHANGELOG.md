@@ -7,8 +7,6 @@ For more info about our versioning policy, see [versioning.md](standard/versioni
 
 ## `v21.1.0`
 
-Other changes:
-
 New features:
 
 * [Fix `merge` and `toMap` annotations to behave the same as ordinary type annotations](https://github.com/dhall-lang/dhall-lang/pull/1230)
@@ -38,6 +36,8 @@ New features:
 * [Add `Prelude.Text.shell-escape`](https://github.com/dhall-lang/dhall-lang/pull/1218)
 
 * [Add `Prelude.XML` support for non-escaped `Text`](https://github.com/dhall-lang/dhall-lang/pull/1225)
+
+Other changes:
 
 * Fixes and improvements to the standard:
 
