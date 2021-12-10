@@ -312,6 +312,12 @@
     , drop : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
     , empty : ∀(a : Type) → List a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → List a
+    , filterMap :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → Optional b) →
+        ∀(xs : List a) →
+          List b
     , fold :
         ∀(a : Type) →
         List a →
