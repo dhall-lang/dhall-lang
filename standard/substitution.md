@@ -176,7 +176,7 @@ substitute (Forall y _A₀ _B₀) x n e₀ = Forall y _A₁ _B₁
   where
     _A₁ = substitute _A₀ x n e₀
 
-    e₁ = shift 1 x 0 e₀
+    e₁ = shift 1 y 0 e₀
 
     _B₁ = substitute _B₀ x n e₁
 ```

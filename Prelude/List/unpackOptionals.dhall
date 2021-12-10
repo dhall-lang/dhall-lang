@@ -1,17 +1,12 @@
 --| Unpack Optionals in a List, omitting None items.
-let List/concatMap =
-        ./concatMap.dhall
-          sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
-      ? ./concatMap.dhall
-
-let Optional/toList =
-        ../Optional/toList.dhall
-          sha256:d78f160c619119ef12389e48a629ce293d69f7624c8d016b7a4767ab400344c4
-      ? ../Optional/toList.dhall
+let List/filterMap =
+        ./filterMap.dhall
+          sha256:94b7ed4204d1c79aaf55527ef51024e7085b8dd2896952cffbd12d8f95e16f46
+      ? ./filterMap.dhall
 
 let unpackOptionals
     : ∀(a : Type) → ∀(l : List (Optional a)) → List a
-    = λ(a : Type) → List/concatMap (Optional a) a (Optional/toList a)
+    = λ(a : Type) → List/filterMap (Optional a) a (λ(x : Optional a) → x)
 
 let property1 =
       λ(a : Type) → λ(x : a) → assert : unpackOptionals a [ Some x ] ≡ [ x ]
