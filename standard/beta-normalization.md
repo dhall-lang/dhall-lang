@@ -1013,7 +1013,7 @@ is performed:
 
     f ⇥ Text/replace "NEEDLE" replacement  ; If the "NEEDLE" is found within
     a ⇥ "beforeNEEDLEafter"                ; the string, then replace.
-    "before${replacement}" ++ Text/replace "NEEDLE" replacement "after" → e
+    "before${replacement}" ++ Text/replace "NEEDLE" replacement "after" ⇥ e
     ───────────────────────────────────────────────────────────────────────
     f a ⇥ e
 
@@ -1038,8 +1038,8 @@ betaNormalize (Application f a₀)
             loop (s : ss) = Chunks ((s, replacement) : xys) z
               where
                 Chunks xys z = loop ss
-
-        in  TextLiteral (loop (Text.splitOn needle haystack))
+            e = betaNormalize (TextLiteral (loop (Text.splitOn needle haystack)))
+        in e
 ```
 
 All of the built-in functions on `Text` are in normal form:
