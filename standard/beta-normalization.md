@@ -433,7 +433,8 @@ betaNormalize (Application f g)
   where
     b = betaNormalize
             (Application
-                (Application g
+                (Application
+                    (Application g (Builtin Natural))
                     (Lambda "x" (Builtin Natural)
                         (Operator (Variable "x" 0) Plus (NaturalLiteral 1))
                     )
