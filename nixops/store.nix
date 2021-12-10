@@ -24,18 +24,40 @@ let
 
     dhall-dot_1_0_0
 
-    dhall-kubernetes_3_0_0
-    dhall-kubernetes_4_0_0
-    dhall-kubernetes_5_0_0
-    dhall-kubernetes_6_0_0
+    (dhall-kubernetes_3_0_0.override { directory = "1.12"; })
+    (dhall-kubernetes_3_0_0.override { directory = "1.13"; })
+    (dhall-kubernetes_3_0_0.override { directory = "1.14"; })
+    (dhall-kubernetes_3_0_0.override { directory = "1.15"; })
+    (dhall-kubernetes_3_0_0.override { directory = "1.16"; })
+    (dhall-kubernetes_3_0_0.override { directory = "1.17"; })
+    (dhall-kubernetes_4_0_0.override { directory = "1.12"; })
+    (dhall-kubernetes_4_0_0.override { directory = "1.13"; })
+    (dhall-kubernetes_4_0_0.override { directory = "1.14"; })
+    (dhall-kubernetes_4_0_0.override { directory = "1.15"; })
+    (dhall-kubernetes_4_0_0.override { directory = "1.16"; })
+    (dhall-kubernetes_4_0_0.override { directory = "1.17"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.12"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.13"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.14"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.15"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.16"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.17"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.18"; })
+    (dhall-kubernetes_5_0_0.override { directory = "1.19"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.12"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.13"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.14"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.15"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.16"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.17"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.18"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.19"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.20"; })
+    (dhall-kubernetes_6_0_0.override { directory = "1.21"; })
 
-    (dhall-nomad_1_0_0.override {
-      Prelude = Prelude_20_0_0;
-    })
+    (dhall-nomad_1_0_0.override { Prelude = Prelude_20_0_0; })
 
-    (dhall-semver_1_0_0.override {
-      Prelude = Prelude_17_0_0;
-    })
+    (dhall-semver_1_0_0.override { Prelude = Prelude_17_0_0; })
 
     Prelude_14_0_0
     Prelude_15_0_0
