@@ -136,7 +136,7 @@ alphaNormalize (Forall x _A₀ _B₀) = Forall "_" _A₁ _B₄
 
     _B₃ = shift (-1) x 0 _B₂
 
-    _B₄ = alphaNormalize _B₂
+    _B₄ = alphaNormalize _B₃
 ```
 
 
