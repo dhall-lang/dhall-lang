@@ -34,6 +34,10 @@
       ./filter.dhall
         sha256:8ebfede5bbfe09675f246c33eb83964880ac615c4b1be8d856076fdbc4b26ba6
     ? ./filter.dhall
+, filterMap =
+      ./filterMap.dhall
+        sha256:94b7ed4204d1c79aaf55527ef51024e7085b8dd2896952cffbd12d8f95e16f46
+    ? ./filterMap.dhall
 , fold =
       ./fold.dhall
         sha256:10bb945c25ab3943bd9df5a32e633cbfae112b7d3af38591784687e436a8d814

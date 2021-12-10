@@ -133,6 +133,12 @@ to this cache – for example, you could:
    tests/import/cache`), or
  - copy the cache to a fresh temporary directory for each test run.
 
+You must run these tests in such a way that the home directory `~` is set to
+the `dhall-lang/tests/import/home/` directory. For example, on unix systems you
+could set the environment `HOME` to the absolute location of the
+`dhall-lang/tests/import/home/` directory. On windows the environment variable
+would be `%USERPROFILE%`.
+
 You should make it so that the environment variable `DHALL_TEST_VAR` is set to
 the string "6 * 7". This enables testing importing from environment variables.
 
