@@ -1733,11 +1733,14 @@ withExpression = do
 
     return (foldl (\e (ks, v) -> With e ks v) a clauses)
 
+anyLabelOrSomeOrQuestion :: Parser Text
+anyLabelOrSomeOrQuestion = anyLabelOrSome <|> "?"
+
 withClause :: Parser (NonEmpty Text, Expression)
 withClause = do
-    k <- anyLabelOrSome
+    k <- anyLabelOrSomeOrQuestion
 
-    ks <- many (do try (do whsp; "."); whsp; anyLabelOrSome)
+    ks <- many (do try (do whsp; "."); whsp; anyLabelOrSomeOrQuestion)
 
     whsp
 
