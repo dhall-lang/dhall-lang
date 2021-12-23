@@ -434,6 +434,14 @@ isolation:
 Note that the above rules forbid an `Optional` element that is a `Type`.  More
 generally, if the element type is not a `Type` then that is a type error.
 
+An `Optional` update using the `with` keyword must preserve the type of the "inner" value.
+
+
+    Γ ⊢ e : Optional T
+    Γ ⊢ v : T
+    ──────────────────────────────────
+    Γ ⊢ e with ?.ks… = v : Optional T
+
 
 ## Records
 
@@ -575,9 +583,6 @@ necessary:
     ───────────────────────────────────────────  ; k₀ ∉ ts
     Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
 
-
-If the expression being updated (i.e. the `e` in `e with ks… = v`) is not a
-record then that is a type error.
 
 Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
