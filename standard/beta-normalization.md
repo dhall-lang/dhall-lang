@@ -1441,6 +1441,43 @@ betaNormalize (Some t₀) = Some t₁
     t₁ = betaNormalize t₀
 ```
 
+The `?` path componet can be used with the `with` keyword to update `Optional` values.
+
+
+    e₀ ⇥ None T
+    ─────────────────────────
+    e₀ with ?.ks… = v₀ ⇥ None T
+
+
+    e₀ ⇥ Some e₁
+    v₀ ⇥ v₁
+    ────────────────────────
+    e₀ with ? = v₀ ⇥ Some v₁
+
+
+    e₀ ⇥ Some e₁
+    e₁ with k₁.ks₁… = v₀ ⇥ e₂
+    ────────────────────────
+    e₀ with ?.k₁.ks₁… = v₀ ⇥ Some e₂
+
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | "?" :| _ <- ks₀
+    , Application (Builtin None) _T <- betaNormalize e₀ =
+        Application (Builtin None) _T
+
+    | "?" :| [] <- ks₀
+    , Some _ <- betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        Some v₁
+
+    | "?" :| (k₁ : ks₁) <- ks₀
+    , Some e₁ <- betaNormalize e₀
+    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
+        Some e₂
+```
+
 ## Records
 
 Normalizing a record type sorts the fields and normalizes the type of each
@@ -1875,6 +1912,11 @@ A record update using the `with` keyword replaces the given (possibly-nested) fi
     e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₁, es… }
 
 
+    e₀ ⇥ e₁   v₀ ⇥ v₁
+    ─────────────────────────────────────  ; If no other rule matches
+    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
+
+
 ```haskell
 betaNormalize (With e₀ ks₀ v₀)
     | k :| [] <- ks₀
@@ -1893,54 +1935,7 @@ betaNormalize (With e₀ ks₀ v₀)
     , Nothing <- lookup k₀ kvs
     , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
         RecordLiteral (Map.toList (Map.insert k₀ e₁ (Map.fromList kvs)))
-```
 
-The `?` path componet can be used with the `with` keyword to update `Optional` values.
-
-    e₀ ⇥ None T
-    ─────────────────────────
-    e₀ with ?.ks… = v₀ ⇥ None T
-
-
-    e₀ ⇥ Some e₁
-    v₀ ⇥ v₁
-    ────────────────────────
-    e₀ with ? = v₀ ⇥ Some v₁
-
-
-    e₀ ⇥ Some e₁
-    e₁ with k₁.ks₁… = v₀ ⇥ e₂
-    ────────────────────────
-    e₀ with ?.k₁.ks₁… = v₀ ⇥ Some e₂
-
-
-```haskell
-betaNormalize (With e₀ ks₀ v₀)
-    | "?" :| _ <- ks₀
-    , Application (Builtin None) _T <- betaNormalize e₀ =
-        Application (Builtin None) _T
-
-    | "?" :| [] <- ks₀
-    , Some _ <- betaNormalize e₀
-    , let v₁ = betaNormalize v₀ =
-        Some v₁
-
-    | "?" :| (k₁ : ks₁) <- ks₀
-    , Some e₁ <- betaNormalize e₀
-    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
-        Some e₂
-```
-
-If no other rule for `with` matches:
-
-
-    e₀ ⇥ e₁   v₀ ⇥ v₁
-    ─────────────────────────────────────  ; If no other rule matches
-    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
-
-
-```haskell
-betaNormalize (With e₀ ks₀ v₀)
     | let e₁ = betaNormalize e₀
     , let v₁ = betaNormalize v₀ =
         With e₁ ks₀ v₁
