@@ -263,6 +263,9 @@ anyLabel = label
 anyLabelOrSome :: Parser Text
 anyLabelOrSome = anyLabel <|> "Some"
 
+withLabel :: Parser Text
+withLabel = anyLabelOrSome <|> "?"
+
 doubleQuoteChunk :: Parser TextLiteral
 doubleQuoteChunk =
         interpolation
@@ -1733,14 +1736,11 @@ withExpression = do
 
     return (foldl (\e (ks, v) -> With e ks v) a clauses)
 
-anyLabelOrSomeOrQuestion :: Parser Text
-anyLabelOrSomeOrQuestion = anyLabelOrSome <|> "?"
-
 withClause :: Parser (NonEmpty Text, Expression)
 withClause = do
-    k <- anyLabelOrSomeOrQuestion
+    k <- withLabel
 
-    ks <- many (do try (do whsp; "."); whsp; anyLabelOrSomeOrQuestion)
+    ks <- many (do try (do whsp; "."); whsp; withLabel)
 
     whsp
 
