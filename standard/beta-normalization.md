@@ -2105,6 +2105,8 @@ inert.  The expression does not reduce further until supplied to a `merge`.
 -- fall-through case for β-normalizing the `Field` constructor
 ```
 
+### `merge` expressions
+
 `merge` expressions are the canonical way to eliminate a union value.  The
 first argument to `merge` is a record of handlers and the second argument is a
 union value, which can be in one of two forms:
@@ -2208,6 +2210,71 @@ betaNormalize (Merge t₀ u₀ _T)
 
     u₁ = betaNormalize u₀
 ```
+
+### `showConstructor` expressions
+
+`showConstructor` expressions are another way to eliminate a union value.
+The argument is a union value and the result is the `Text` representation
+of the constructor for that value.
+
+
+    u₀ ⇥ < x : T₀ | … >.x a
+    ────────────────────────
+    showConstructor u₀ ⇥ "x"
+
+
+    u₀ ⇥ < x | … >.x
+    ────────────────────────
+    showConstructor u₀ ⇥ "x"
+
+
+`Optional`s are handled as if they were union values of type
+`< None | Some : A >`:
+
+
+    u₀ ⇥ Some a
+    ───────────────────────────
+    showConstructor u₀ ⇥ "Some"
+
+
+    u₀ ⇥ None A
+    ───────────────────────────
+    showConstructor u₀ ⇥ "None"
+
+
+If the union is abstract, then normalize its argument:
+
+
+    u₀ ⇥ u₁
+    ───────────────────────────────────────  ; If no other rule matches
+    showConstructor u₀ ⇥ showConstructor u₁
+
+
+```haskell
+betaNormalize (ShowConstructor u₀)
+  | Application (Field (UnionType _xTs₀) x) _a <- u₀
+  , let t = TextLiteral (Chunks [] x) =
+      t
+
+  | Field (UnionType _xTs₀) x <- u₀
+  , let t = TextLiteral (Chunks [] x) =
+      t
+
+  | Application (Builtin None) _A <- u₀
+  , let t = TextLiteral (Chunks [] "None") =
+      t
+
+  | Some _a <- u₀
+  , let t = TextLiteral (Chunks [] "Some") =
+      t
+
+  | otherwise =
+     ShowConstructor u₁
+
+  where
+    u₁ = betaNormalize u₀
+```
+
 
 ## `Integer`
 

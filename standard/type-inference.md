@@ -723,6 +723,7 @@ the same as the original union type:
     ───────────────────────────
     Γ ⊢ u.x : < x | ts… >
 
+### `merge` expressions
 
 A `merge` expression is well-typed if there is a one-to-one correspondence
 between the fields of the handler record and the alternatives of the union:
@@ -801,6 +802,25 @@ If there are two handlers with different output types then that is a type error.
 
 If a `merge` expression has a type annotation that doesn't match every handler's
 output type then that is a type error.
+
+### `showConstructor` expressions
+
+A `showConstructor` expression with a union or an `Optional` as its first
+argument has type `Text`.
+
+
+    Γ ⊢ u : c   u ⇥ < x | ts… >
+    ──────────────────────────────
+    Γ ⊢ showConstructor u.x : Text
+
+
+    Γ ⊢ o : Optional A
+    ────────────────────────────
+    Γ ⊢ showConstructor o : Text
+
+
+If the first argument of a `showConstructor` expression is not a union or an
+`Optional` then that is a type error.
 
 ## `Integer`
 

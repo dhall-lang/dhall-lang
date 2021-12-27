@@ -727,6 +727,19 @@ encode (ToMap t₀ (Just _T₀)) = TList [ TInt 27, t₁, _T₁ ]
     _T₁ = encode _T₀
 ```
 
+### `showConstructor` expressions
+
+    encode(t₀) = t₁
+    ─────────────────────────────
+    encode(showConstructor t₀) = [ 34, t₁ ]
+
+
+```haskell
+encode (ShowConstructor t₀) = TList [ TInt 34, t₁ ]
+  where
+    t₁ = encode t₀
+```
+
 ### Records
 
 Dhall record types translate to CBOR maps:
@@ -1774,6 +1787,16 @@ Decode a CBOR array beginning with a `27` as a `toMap` expression:
     decode(t₁) = t₀   decode(T₁) = T₀
     ──────────────────────────────────────
     decode([ 27, t₁, T₁ ]) = toMap t₀ : T₀
+
+
+### `showConstructor` expressions
+
+Decode a CBOR array beginning with a `34` as a `showConstructor` expression:
+
+
+    decode(t₁) = t₀
+    ─────────────────────────────
+    decode([ 34, t₁ ]) = showConstructor t₀
 
 
 ### Records
