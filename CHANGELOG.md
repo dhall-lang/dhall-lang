@@ -5,6 +5,38 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v22.0.0`
+
+Breaking changes:
+
+* [Require non-empty whitespace after `let` binding](https://github.com/dhall-lang/dhall-lang/pull/1252)
+
+  Before this change an expression like this was permitted:
+
+  ```dhall
+  let x = 3let y = x in y
+  ```
+
+  … because the grammar did not require non-empty whitespace in between `let`
+  bindings.  Now the grammar requires non-empty whitespace in between bindings
+  so the above expression is no longer permitted.
+
+New features:
+
+* [Add `Prelude.List.filterMap`](https://github.com/dhall-lang/dhall-lang/pull/1245)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+  * [Fix empty lines inside the definition of rules](https://github.com/dhall-lang/dhall-lang/pull/1251)
+  * [Fix reference implementation of α-normalization](https://github.com/dhall-lang/dhall-lang/pull/1247)
+  * [Fix reference implementation of `shift`](https://github.com/dhall-lang/dhall-lang/pull/1248)
+  * [Fix reference implementation of `Natural/build`](https://github.com/dhall-lang/dhall-lang/pull/1244)
+  * [Fix reference implementation of `Text/replace`](https://github.com/dhall-lang/dhall-lang/pull/1246)
+* Fixes and improvements to the standard test suite:
+  * [Add test for importing relative to the home directory](https://github.com/dhall-lang/dhall-lang/pull/1250)
+  * [Add test for `Some` label in `with` expression](https://github.com/dhall-lang/dhall-lang/pull/1253)
+
 ## `v21.1.0`
 
 New features:
