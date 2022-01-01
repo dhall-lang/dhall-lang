@@ -35,6 +35,7 @@ normalize.
 * [`Optional`](#optional)
 * [Records](#records)
 * [Unions](#unions)
+* [`with` expressions](#with-expressions)
 * [`Integer`](#integer)
 * [`Double`](#double)
 * [Functions](#functions)
@@ -434,15 +435,6 @@ isolation:
 Note that the above rules forbid an `Optional` element that is a `Type`.  More
 generally, if the element type is not a `Type` then that is a type error.
 
-An `Optional` update using the `with` keyword must preserve the type of the "inner" value.
-
-
-    Γ ⊢ e : Optional T
-    Γ ⊢ v : T
-    ──────────────────────────────────
-    Γ ⊢ e with ?.ks… = v : Optional T
-
-
 ## Records
 
 Record types are "anonymous", meaning that they are uniquely defined by the
@@ -552,37 +544,6 @@ Non-recursive right-biased merge also requires that both arguments are records:
 
 
 If the operator arguments are not records then that is a type error.
-
-A record update using the `with` keyword replaces a field:
-
-
-    Γ ⊢ e : { k : T₁, ts… }
-    Γ ⊢ v : T₂
-    ──────────────────────────────────
-    Γ ⊢ e with k = v : { k : T₂, ts… }
-
-
-    Γ ⊢ e : { ts… }
-    Γ ⊢ v : T
-    ─────────────────────────────────  ; k ∉ ts
-    Γ ⊢ e with k = v : { k : T, ts… }
-
-
-... and record updates can be nested, creating intermediate records if
-necessary:
-
-
-    Γ ⊢ e : { k₀ : T₀, ts… }
-    Γ ⊢ e.k₀ with k₁.ks… = v : T₁
-    ───────────────────────────────────────────
-    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
-
-
-    Γ ⊢ e : { ts… }
-    Γ ⊢ {=} with k₁.ks… = v : T₁
-    ───────────────────────────────────────────  ; k₀ ∉ ts
-    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
-
 
 Recursive record type merge requires that both arguments are record type
 literals.  Any conflicting fields must be safe to recursively merge:
@@ -806,6 +767,48 @@ If there are two handlers with different output types then that is a type error.
 
 If a `merge` expression has a type annotation that doesn't match every handler's
 output type then that is a type error.
+
+## `with` expressions
+
+A record update using the `with` keyword replaces a field:
+
+
+    Γ ⊢ e : { k : T₁, ts… }
+    Γ ⊢ v : T₂
+    ──────────────────────────────────
+    Γ ⊢ e with k = v : { k : T₂, ts… }
+
+
+    Γ ⊢ e : { ts… }
+    Γ ⊢ v : T
+    ─────────────────────────────────  ; k ∉ ts
+    Γ ⊢ e with k = v : { k : T, ts… }
+
+
+... and record updates can be nested, creating intermediate records if
+necessary:
+
+
+    Γ ⊢ e : { k₀ : T₀, ts… }
+    Γ ⊢ e.k₀ with k₁.ks… = v : T₁
+    ───────────────────────────────────────────
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
+
+
+    Γ ⊢ e : { ts… }
+    Γ ⊢ {=} with k₁.ks… = v : T₁
+    ───────────────────────────────────────────  ; k₀ ∉ ts
+    Γ ⊢ e with k₀.k₁.ks… = v : { k₀ : T₁, ts… }
+
+
+An `Optional` update using the `with` keyword must preserve the type of the "inner" value.
+
+
+    Γ ⊢ e : Optional T
+    Γ ⊢ v : T
+    ──────────────────────────────────
+    Γ ⊢ e with ?.ks… = v : Optional T
+
 
 ## `Integer`
 
