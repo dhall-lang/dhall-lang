@@ -810,6 +810,9 @@ An `Optional` update using the `with` keyword must preserve the type of the "inn
     Γ ⊢ e with ?.ks… = v : Optional T
 
 
+If the expression being updated (i.e. the `e in e with ks… = v`) is not a
+record or an `Optional` then that is a type error.
+
 ## `Integer`
 
 `Integer` is a type:

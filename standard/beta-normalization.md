@@ -2254,9 +2254,6 @@ betaNormalize (With e₀ ks₀ v₀)
         With e₁ ks₀ v₁
 ```
 
-If the expression being updated (i.e. the `e in e with ks… = v`) is not a
-record or an `Optional` then that is a type error.
-
 ## `Integer`
 
 The `Integer` type is in normal form:
