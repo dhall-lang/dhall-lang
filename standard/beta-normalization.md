@@ -2187,18 +2187,18 @@ A record update using the `with` keyword replaces the given (possibly-nested) fi
 
 ```haskell
 betaNormalize (With e₀ ks₀ v₀)
-    | k :| [] <- ks₀
+    | (Label k) :| [] <- ks₀
     , RecordLiteral kvs <- betaNormalize e₀
     , let v₁ = betaNormalize v₀ =
         RecordLiteral (Map.toList (Map.insert k v₁ (Map.fromList kvs)))
 
-    | k₀ :| (k₁ : ks₁) <- ks₀
+    | (Label k₀) :| (k₁ : ks₁) <- ks₀
     , RecordLiteral kvs <- betaNormalize e₀
     , Just e₁ <- lookup k₀ kvs
     , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
         RecordLiteral (Map.toList (Map.insert k₀ e₂ (Map.fromList kvs)))
 
-    | k₀ :| (k₁ : ks₁) <- ks₀
+    | (Label k₀) :| (k₁ : ks₁) <- ks₀
     , RecordLiteral kvs <- betaNormalize e₀
     , Nothing <- lookup k₀ kvs
     , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
@@ -2227,16 +2227,16 @@ An `Optional` update using the `with` keyword uses the `?` path component.
 
 ```haskell
 betaNormalize (With e₀ ks₀ v₀)
-    | "?" :| _ <- ks₀
+    | DescendOptional :| _ <- ks₀
     , Application (Builtin None) _T <- betaNormalize e₀ =
         Application (Builtin None) _T
 
-    | "?" :| [] <- ks₀
+    | DescendOptional :| [] <- ks₀
     , Some _ <- betaNormalize e₀
     , let v₁ = betaNormalize v₀ =
         Some v₁
 
-    | "?" :| (k₁ : ks₁) <- ks₀
+    | DescendOptional :| (k₁ : ks₁) <- ks₀
     , Some e₁ <- betaNormalize e₀
     , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
         Some e₂

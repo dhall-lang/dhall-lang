@@ -19,6 +19,7 @@ import Syntax
     , Scheme(..)
     , TextLiteral(..)
     , URL(..)
+    , PathComponent(..)
     )
 
 import qualified Data.ByteArray     as ByteArray
@@ -57,6 +58,8 @@ expressions to and from a binary representation
     * [Imports](#imports)
     * [`let`-expressions](#let-expressions)
     * [Type annotations](#type-annotations)
+    * [`with`-expressions](#with-expressions)
+    * [`Date` / `Time` / `TimeZone`](#date--time--timezone)
 * [Decoding judgment](#decoding-judgment)
     * [CBOR Tags](#cbor-tags)
     * [Built-in constants](#built-in-constants-1)
@@ -78,6 +81,8 @@ expressions to and from a binary representation
     * [Imports](#imports-1)
     * [`let`-expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
+    * [`with`-expressions](#with-expressions-1)
+    * [`Date` / `Time` / `TimeZone`](#date--time--timezone-1)
 
 ## Motivation
 
@@ -1296,7 +1301,7 @@ encode (Annotation t₀ _T₀) = TList [ TInt 26, t₁, _T₁ ]
     _T₁ = encode _T₀
 ```
 
-### Nested record update
+### `with` expressions
 
 
     encode(e₀) = e₁   encode(v₀) = v₁
@@ -1309,9 +1314,13 @@ encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : k
   where
     e₁ = encode e₀
 
-    k₁ = TString k₀
+    -- FIXME
+    f (Label k) = TString k
+    f DescendOptional = TString "?"
 
-    ks₁ = map TString ks₀
+    k₁ = f k₀
+
+    ks₁ = map f ks₀
 
     v₁ = encode v₀
 ```
@@ -2022,7 +2031,7 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
 
 
-### Nested record update
+### `with` expressions
 
 
     decode(e₁) = e₀   decode(v₁) = v₀
