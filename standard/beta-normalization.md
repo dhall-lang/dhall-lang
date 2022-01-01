@@ -2185,11 +2185,6 @@ A record update using the `with` keyword replaces the given (possibly-nested) fi
     e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₁, es… }
 
 
-    e₀ ⇥ e₁   v₀ ⇥ v₁
-    ─────────────────────────────────────  ; If no other rule matches
-    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
-
-
 ```haskell
 betaNormalize (With e₀ ks₀ v₀)
     | k :| [] <- ks₀
@@ -2208,10 +2203,6 @@ betaNormalize (With e₀ ks₀ v₀)
     , Nothing <- lookup k₀ kvs
     , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
         RecordLiteral (Map.toList (Map.insert k₀ e₁ (Map.fromList kvs)))
-
-    | let e₁ = betaNormalize e₀
-    , let v₁ = betaNormalize v₀ =
-        With e₁ ks₀ v₁
 ```
 
 An `Optional` update using the `with` keyword uses the `?` path component.
@@ -2249,6 +2240,18 @@ betaNormalize (With e₀ ks₀ v₀)
     , Some e₁ <- betaNormalize e₀
     , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
         Some e₂
+```
+
+    e₀ ⇥ e₁   v₀ ⇥ v₁
+    ─────────────────────────────────────  ; If no other rule matches
+    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
+
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | let e₁ = betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        With e₁ ks₀ v₁
 ```
 
 If the expression being updated (i.e. the `e in e with ks… = v`) is not a
