@@ -376,7 +376,8 @@ forall-keyword        = %x66.6f.72.61.6c.6c ; "forall"
 forall-symbol         = %x2200 ; Unicode FOR ALL
 forall                = forall-symbol / forall-keyword
 with                  = %x77.69.74.68
-showConstructor      = %x73.68.6f.77.43.6f.6e.73.74.72.75.63.74.6f.72
+showConstructor       = %x73.68.6f.77.43.6f.6e.73.74.72.75.63.74.6f.72
+
 
 ; Unused rule that could be used as negative lookahead in the
 ; `simple-label` rule for parsers that support this.

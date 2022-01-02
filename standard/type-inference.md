@@ -809,9 +809,9 @@ A `showConstructor` expression with a union or an `Optional` as its first
 argument has type `Text`.
 
 
-    Γ ⊢ u : c   u ⇥ < x | ts… >
+    Γ ⊢ e : < ts… >
     ──────────────────────────────
-    Γ ⊢ showConstructor u.x : Text
+    Γ ⊢ showConstructor e : Text
 
 
     Γ ⊢ o : Optional A
