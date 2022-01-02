@@ -849,7 +849,7 @@ expression =
 annotated-expression = operator-expression [ whsp ":" whsp1 expression ]
 
 ; "let x = e1"
-let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp
+let-binding = let whsp1 nonreserved-label whsp [ ":" whsp1 expression whsp ] "=" whsp expression whsp1
 
 ; "[] : t"
 empty-list-literal =

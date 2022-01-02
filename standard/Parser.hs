@@ -1710,7 +1710,7 @@ letBinding = do
 
     a <- expression
 
-    whsp
+    whsp1
 
     return (x, mA, a)
 
