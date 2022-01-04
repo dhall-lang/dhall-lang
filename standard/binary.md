@@ -2047,7 +2047,7 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
     ────────────────────────────────────
-    decode([33, false, HH, MM]) = -HH:MM
+    decode([32, false, HH, MM]) = -HH:MM
 
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
