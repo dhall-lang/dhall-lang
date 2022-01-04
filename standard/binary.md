@@ -2027,7 +2027,7 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
 
     decode(e₁) = e₀   decode(v₁) = v₀
     ─────────────────────────────────────────────────────
-    decode([29, e₁, [ k, ks… ]  v₁]) = e₀ with k.ks… = v₀
+    decode([29, e₁, [ k, ks… ], v₁]) = e₀ with k.ks… = v₀
 
 
 ### `Date` / `Time` / `TimeZone`
