@@ -93,7 +93,7 @@ in  isWeekDay DayOfWeek.Thursday
 ## Operators
 
 All of the operators in the language are associative, meaning that for
-any operator (which we will denote `x`), the following property holds:
+any operator (which we will denote `+`), the following property holds:
 
 ```dhall
 (x + y) + z = x + (y + z)
