@@ -19,6 +19,7 @@ import Syntax
     , Scheme(..)
     , TextLiteral(..)
     , URL(..)
+    , PathComponent(..)
     )
 
 import qualified Data.ByteArray     as ByteArray
@@ -57,6 +58,8 @@ expressions to and from a binary representation
     * [Imports](#imports)
     * [`let`-expressions](#let-expressions)
     * [Type annotations](#type-annotations)
+    * [`with`-expressions](#with-expressions)
+    * [`Date` / `Time` / `TimeZone`](#date--time--timezone)
 * [Decoding judgment](#decoding-judgment)
     * [CBOR Tags](#cbor-tags)
     * [Built-in constants](#built-in-constants-1)
@@ -78,6 +81,8 @@ expressions to and from a binary representation
     * [Imports](#imports-1)
     * [`let`-expressions](#let-expressions-1)
     * [Type annotations](#type-annotations-1)
+    * [`with`-expressions](#with-expressions-1)
+    * [`Date` / `Time` / `TimeZone`](#date--time--timezone-1)
 
 ## Motivation
 
@@ -1309,24 +1314,49 @@ encode (Annotation t₀ _T₀) = TList [ TInt 26, t₁, _T₁ ]
     _T₁ = encode _T₀
 ```
 
-### Nested record update
+### `with` expressions
+
+A `with` expression is encoded as a list beginning with `29`, followed by the
+subject of the expression, the path, and the value for the update.
+
+Special path components are encoded as ints.
+* `?` is encoded as `0`
+
+
+    encode(e₀ with k₀.ks₀… = v₀) = [ 29, e₁, [ k₁, ks₁… ], v₁ ]
+    ────────────────────────────────────────────────────────────────
+    encode(e₀ with ?.k₀.ks₀… = v₀) = [ 29, e₁, [ 0, k₁, ks₁… ], v₁ ]
 
 
     encode(e₀) = e₁   encode(v₀) = v₁
-    ───────────────────────────────────────────────────────
-    encode(e₀ with k.ks… = v₀) = [ 29, e₁, [ k, ks… ], v₁ ]
+    ──────────────────────────────────────────────
+    encode(e₀ with ? = v₀) = [ 29, e₁, [ 0 ], v₁ ]
+
+
+All other path components are encoded as strings.
+
+
+    encode(e₀ with k₀.ks₀… = v₀) = [ 29, e₁, [ k₁, ks₁… ], v₁ ]
+    ────────────────────────────────────────────────────────────────  ; k ≠ ?
+    encode(e₀ with k.k₀.ks₀… = v₀) = [ 29, e₁, [ k, k₁, ks₁… ], v₁ ]
+
+
+    encode(e₀) = e₁   encode(v₀) = v₁
+    ──────────────────────────────────────────────  ; k ≠ ?
+    encode(e₀ with k = v₀) = [ 29, e₁, [ k ], v₁ ]
 
 
 ```haskell
 encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : ks₁), v₁ ]
   where
     e₁ = encode e₀
-
-    k₁ = TString k₀
-
-    ks₁ = map TString ks₀
-
     v₁ = encode v₀
+
+    k₁ = encodeKey k₀
+    ks₁ = map encodeKey ks₀
+      
+    encodeKey DescendOptional = TInt 0
+    encodeKey (Label k)       = TString k
 ```
 
 ### `Date` / `Time` / `TimeZone`
@@ -2045,12 +2075,12 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     decode([ 26, t₁, T₁ ]) = t₀ : T₀
 
 
-### Nested record update
+### `with` expressions
 
 
     decode(e₁) = e₀   decode(v₁) = v₀
     ─────────────────────────────────────────────────────
-    decode([29, e₁, [ k, ks… ]  v₁]) = e₀ with k.ks… = v₀
+    decode([29, e₁, [ k, ks… ], v₁]) = e₀ with k.ks… = v₀
 
 
 ### `Date` / `Time` / `TimeZone`
@@ -2070,7 +2100,7 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
 
 
     ────────────────────────────────────
-    decode([33, false, HH, MM]) = -HH:MM
+    decode([32, false, HH, MM]) = -HH:MM
 
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5

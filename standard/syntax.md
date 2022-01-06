@@ -167,6 +167,7 @@ module Syntax
     , Scheme(..)
     , FilePrefix(..)
     , File(..)
+    , PathComponent(..)
 
       -- * Re-exports
     , Natural
@@ -219,7 +220,7 @@ data Expression
       -- ^ > T::r
     | Assert Expression
       -- ^ > assert : T
-    | With Expression (NonEmpty Text) Expression
+    | With Expression (NonEmpty PathComponent) Expression
       -- ^ > e with k.ks… = v
     | DoubleLiteral Double
       -- ^ > n.n
@@ -401,5 +402,10 @@ data File = File
     { directory :: [Text]  -- ^ Directory path components (in reverse order)
     , file :: Text         -- ^ File name
     }
+    deriving (Show)
+
+data PathComponent
+    = Label Text
+    | DescendOptional
     deriving (Show)
 ```
