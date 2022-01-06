@@ -859,7 +859,7 @@ with-expression =
     import-expression 1*(whsp1 with whsp1 with-clause)
 
 with-clause =
-    with-label *(whsp "." whsp with-label) whsp "=" whsp operator-expression
+    with-component *(whsp "." whsp with-component) whsp "=" whsp operator-expression
 
 operator-expression = equivalent-expression
 
