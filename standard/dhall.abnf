@@ -232,7 +232,7 @@ any-label = label
 any-label-or-some = any-label / Some
 
 ; Allow `?` as path component in `with`.
-with-label = any-label-or-some / "?"
+with-component = any-label-or-some / "?"
 
 ; Dhall's double-quoted strings are similar to JSON strings (RFC7159) except:
 ;
