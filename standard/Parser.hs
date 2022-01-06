@@ -43,6 +43,7 @@ import Syntax
     , Scheme(..)
     , TextLiteral(..)
     , URL(..)
+    , PathComponent(..)
     )
 import Text.Megaparsec
     ( MonadParsec
@@ -262,6 +263,9 @@ anyLabel = label
 
 anyLabelOrSome :: Parser Text
 anyLabelOrSome = anyLabel <|> "Some"
+
+withComponent :: Parser PathComponent
+withComponent = (Label <$> anyLabelOrSome) <|> (DescendOptional <$ "?")
 
 doubleQuoteChunk :: Parser TextLiteral
 doubleQuoteChunk =
@@ -1733,11 +1737,11 @@ withExpression = do
 
     return (foldl (\e (ks, v) -> With e ks v) a clauses)
 
-withClause :: Parser (NonEmpty Text, Expression)
+withClause :: Parser (NonEmpty PathComponent, Expression)
 withClause = do
-    k <- anyLabelOrSome
+    k <- withComponent
 
-    ks <- many (do try (do whsp; "."); whsp; anyLabelOrSome)
+    ks <- many (do try (do whsp; "."); whsp; withComponent)
 
     whsp
 
