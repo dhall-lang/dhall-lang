@@ -466,6 +466,7 @@ reservedKeywords =
     , "toMap"
     , "forall"
     , "with"
+    , "showConstructor"
     ]
 
 keyword :: Parser ()
@@ -486,6 +487,7 @@ keyword =
     <|> toMap
     <|> forallKeyword
     <|> with
+    <|> showConstructor
 
 if_ :: Parser ()
 if_ = void "if"
@@ -545,6 +547,9 @@ forall = forallSymbol <|> forallKeyword
 
 with :: Parser ()
 with = void "with"
+
+showConstructor :: Parser ()
+showConstructor = void "showConstructor"
 
 builtin :: Parser Builtin
 builtin =
@@ -1655,6 +1660,15 @@ expression =
             a <- expression
 
             return (Assert a)
+        )
+    <|> try (do
+            showConstructor
+
+            whsp1
+
+            a <- importExpression
+
+            return (ShowConstructor a)
         )
     <|> annotatedExpression
 

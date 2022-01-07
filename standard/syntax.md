@@ -97,6 +97,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
                                       ; alternative
   / < k | ks… >                       ; Union type with at least one empty
                                       ; alternative
+  / showConstructor t                 ; Union to Text elimination
   / missing                           ; Identity for import alternatives,
                                       ; will always fail to resolve
   / l ? r                             ; Alternative imports resolution
@@ -246,6 +247,8 @@ data Expression
       -- ^ > <>
       --   > < k : T | ks… >
       --   > < k | ks… >
+    | ShowConstructor Expression
+      -- ^ > showConstructor t
     | Import ImportType ImportMode (Maybe (Digest SHA256))
     | Some Expression
       -- ^ > Some s

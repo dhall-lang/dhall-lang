@@ -362,6 +362,17 @@ substitute (ToMap t₀ Nothing) x n e = ToMap t₁ Nothing
 ```
 
 
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────
+    (showConstructor t₀)[x@n ≔ e] = showConstructor t₁
+
+
+```haskell
+substitute (ShowConstructor t₀) x n e = ShowConstructor t₁
+  where
+    t₁ = substitute t₀ x n e
+```
+
     T₀[x@n ≔ e] = T₁
     ────────────────────────────
     ([] : T₀)[x@n ≔ e] = [] : T₁
