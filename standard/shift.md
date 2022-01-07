@@ -376,6 +376,17 @@ shift d x m (ToMap t₀ Nothing) = ToMap t₁ Nothing
 ```
 
 
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────────────
+    ↑(d, x, m, showConstructor t₀) = showConstructor t₁
+
+
+```haskell
+shift d x m (ShowConstructor t₀) = ShowConstructor t₁
+  where
+    t₁ = shift d x m t₀
+```
+
     ↑(d, x, m, T₀) = T₁
     ─────────────────────────────
     ↑(d, x, m, [] : T₀) = [] : T₁
