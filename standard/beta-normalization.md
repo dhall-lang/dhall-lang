@@ -72,6 +72,7 @@ is the same.
 * [`Optional`](#optional)
 * [Records](#records)
 * [Unions](#unions)
+* [`with` expressions](#with-expressions)
 * [`Integer`](#integer)
 * [`Double`](#double)
 * [`Date`/`Time`/`TimeZone`](#date--time--timezone)
@@ -1848,62 +1849,6 @@ betaNormalize (Operator ls₀ Prefer rs₀)
     rs₁= betaNormalize rs₀
 ```
 
-A record update using the `with` keyword replaces the given (possibly-nested) field:
-
-
-    e₀ ⇥ { k = e₁, es… }
-    v₀ ⇥ v₁
-    ────────────────────────────────
-    e₀ with k = v₀ ⇥ { k = v₁, es… }
-
-
-    e₀ ⇥ { es… }
-    v₀ ⇥ v₁
-    ────────────────────────────────  ; k ∉ es
-    e₀ with k = v₀ ⇥ { k = v₁, es… }
-
-
-    e₀ ⇥ { k₀ = e₁, es… }
-    e₁ with k₁.ks₁… = v₀ ⇥ e₂
-    ──────────────────────────────────────────
-    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₂, es… }
-
-
-    e₀ ⇥ { es… }
-    {=} with k₁.ks₁… = v₀ ⇥ e₁
-    ──────────────────────────────────────────  ; k₀ ∉ es
-    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₁, es… }
-
-
-    e₀ ⇥ e₁   v₀ ⇥ v₁
-    ─────────────────────────────────────  ; If no other rule matches
-    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
-
-
-```haskell
-betaNormalize (With e₀ ks₀ v₀)
-    | k :| [] <- ks₀
-    , RecordLiteral kvs <- betaNormalize e₀
-    , let v₁ = betaNormalize v₀ =
-        RecordLiteral (Map.toList (Map.insert k v₁ (Map.fromList kvs)))
-
-    | k₀ :| (k₁ : ks₁) <- ks₀
-    , RecordLiteral kvs <- betaNormalize e₀
-    , Just e₁ <- lookup k₀ kvs
-    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
-        RecordLiteral (Map.toList (Map.insert k₀ e₂ (Map.fromList kvs)))
-
-    | k₀ :| (k₁ : ks₁) <- ks₀
-    , RecordLiteral kvs <- betaNormalize e₀
-    , Nothing <- lookup k₀ kvs
-    , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
-        RecordLiteral (Map.toList (Map.insert k₀ e₁ (Map.fromList kvs)))
-
-    | let e₁ = betaNormalize e₀
-    , let v₁ = betaNormalize v₀ =
-        With e₁ ks₀ v₁
-```
-
 Recursive record type merge combines two record types, recursively merging any
 fields that collide.  The type system ensures that colliding fields must be
 record types:
@@ -2105,6 +2050,8 @@ inert.  The expression does not reduce further until supplied to a `merge`.
 -- fall-through case for β-normalizing the `Field` constructor
 ```
 
+### `merge` expressions
+
 `merge` expressions are the canonical way to eliminate a union value.  The
 first argument to `merge` is a record of handlers and the second argument is a
 union value, which can be in one of two forms:
@@ -2207,6 +2154,170 @@ betaNormalize (Merge t₀ u₀ _T)
     t₁ = betaNormalize t₀
 
     u₁ = betaNormalize u₀
+```
+
+### `showConstructor` expressions
+
+`showConstructor` expressions are another way to eliminate a union value.
+The argument is a union value and the result is the `Text` representation
+of the constructor for that value.
+
+
+    u₀ ⇥ < x : T₀ | … >.x a
+    ────────────────────────
+    showConstructor u₀ ⇥ "x"
+
+
+    u₀ ⇥ < x | … >.x
+    ────────────────────────
+    showConstructor u₀ ⇥ "x"
+
+
+`Optional`s are handled as if they were union values of type
+`< None | Some : A >`:
+
+
+    u₀ ⇥ Some a
+    ───────────────────────────
+    showConstructor u₀ ⇥ "Some"
+
+
+    u₀ ⇥ None A
+    ───────────────────────────
+    showConstructor u₀ ⇥ "None"
+
+
+If the union is abstract, then normalize its argument:
+
+
+    u₀ ⇥ u₁
+    ───────────────────────────────────────  ; If no other rule matches
+    showConstructor u₀ ⇥ showConstructor u₁
+
+
+```haskell
+betaNormalize (ShowConstructor u₀)
+  | Application (Field (UnionType _xTs₀) x) _a <- u₀
+  , let t = TextLiteral (Chunks [] x) =
+      t
+
+  | Field (UnionType _xTs₀) x <- u₀
+  , let t = TextLiteral (Chunks [] x) =
+      t
+
+  | Application (Builtin None) _A <- u₀
+  , let t = TextLiteral (Chunks [] "None") =
+      t
+
+  | Some _a <- u₀
+  , let t = TextLiteral (Chunks [] "Some") =
+      t
+
+  | otherwise =
+     ShowConstructor u₁
+
+  where
+    u₁ = betaNormalize u₀
+```
+
+## `with` expressions
+
+The `with` keyword can be used to update records and `Optional`s.
+
+A record update using the `with` keyword replaces the given (possibly-nested) field:
+
+
+    e₀ ⇥ { k = e₁, es… }
+    v₀ ⇥ v₁
+    ────────────────────────────────
+    e₀ with k = v₀ ⇥ { k = v₁, es… }
+
+
+    e₀ ⇥ { es… }
+    v₀ ⇥ v₁
+    ────────────────────────────────  ; k ∉ es
+    e₀ with k = v₀ ⇥ { k = v₁, es… }
+
+
+    e₀ ⇥ { k₀ = e₁, es… }
+    e₁ with k₁.ks₁… = v₀ ⇥ e₂
+    ──────────────────────────────────────────
+    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₂, es… }
+
+
+    e₀ ⇥ { es… }
+    {=} with k₁.ks₁… = v₀ ⇥ e₁
+    ──────────────────────────────────────────  ; k₀ ∉ es
+    e₀ with k₀.k₁.ks₁… = v₀ ⇥ { k₀ = e₁, es… }
+
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | (Label k) :| [] <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        RecordLiteral (Map.toList (Map.insert k v₁ (Map.fromList kvs)))
+
+    | (Label k₀) :| (k₁ : ks₁) <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , Just e₁ <- lookup k₀ kvs
+    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
+        RecordLiteral (Map.toList (Map.insert k₀ e₂ (Map.fromList kvs)))
+
+    | (Label k₀) :| (k₁ : ks₁) <- ks₀
+    , RecordLiteral kvs <- betaNormalize e₀
+    , Nothing <- lookup k₀ kvs
+    , let e₁ = betaNormalize (With (RecordLiteral []) (k₁ :| ks₁) v₀) =
+        RecordLiteral (Map.toList (Map.insert k₀ e₁ (Map.fromList kvs)))
+```
+
+An `Optional` update using the `with` keyword uses the `?` path component.
+
+
+    e₀ ⇥ None T
+    ─────────────────────────
+    e₀ with ?.ks… = v₀ ⇥ None T
+
+
+    e₀ ⇥ Some e₁
+    v₀ ⇥ v₁
+    ────────────────────────
+    e₀ with ? = v₀ ⇥ Some v₁
+
+
+    e₀ ⇥ Some e₁
+    e₁ with k₁.ks₁… = v₀ ⇥ e₂
+    ────────────────────────
+    e₀ with ?.k₁.ks₁… = v₀ ⇥ Some e₂
+
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | DescendOptional :| _ <- ks₀
+    , Application (Builtin None) _T <- betaNormalize e₀ =
+        Application (Builtin None) _T
+
+    | DescendOptional :| [] <- ks₀
+    , Some _ <- betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        Some v₁
+
+    | DescendOptional :| (k₁ : ks₁) <- ks₀
+    , Some e₁ <- betaNormalize e₀
+    , let e₂ = betaNormalize (With e₁ (k₁ :| ks₁) v₀) =
+        Some e₂
+```
+
+    e₀ ⇥ e₁   v₀ ⇥ v₁
+    ─────────────────────────────────────  ; If no other rule matches
+    e₀ with ks₀… = v₀ ⇥ e₁ with ks₀… = v₁
+
+
+```haskell
+betaNormalize (With e₀ ks₀ v₀)
+    | let e₁ = betaNormalize e₀
+    , let v₁ = betaNormalize v₀ =
+        With e₁ ks₀ v₁
 ```
 
 ## `Integer`

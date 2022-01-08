@@ -312,6 +312,17 @@ alphaNormalize (ToMap t₀ Nothing) = ToMap t₁ Nothing
     t₁ = alphaNormalize t₀
 ```
 
+    t₀ ↦ t₁
+    ───────────────────────────────────────
+    showConstructor t₀ ↦ showConstructor t₁
+
+
+```haskell
+alphaNormalize (ShowConstructor t₀) = ShowConstructor t₁
+  where
+    t₁ = alphaNormalize t₀
+```
+
 
     T₀ ↦ T₁
     ─────────────────
