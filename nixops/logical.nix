@@ -330,6 +330,9 @@ in
                     '';
 
                     "/bar".extraConfig = ''
+                      if ($http_test = "") {
+                        return 403;
+                      }
                       return 200 'True';
                     '';
                   };
