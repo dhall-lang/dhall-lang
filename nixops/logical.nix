@@ -332,6 +332,7 @@ in
                     "/bar".extraConfig = ''
                       return 200 'True';
                     '';
+                  };
                 }
 
                 # A random string to test caching behavior
