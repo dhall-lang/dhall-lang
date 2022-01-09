@@ -60,7 +60,7 @@ New features:
 
   ```dhall
   >>> { x = Some { y = 2 } } with x.?.y = 3
-  { x = Some { y = 2 } }
+  { x = Some { y = 3 } }
   ```
 
   You can even use this to update an `Optional` value without any record fields:
