@@ -9,4 +9,4 @@
    to the transitive relative imports of `https://test.dhall-lang.org/Bool/*` in
    order to succeed.
 -}
-https://test.dhall-lang.org/foo using (toMap { Test = "" })
+https://test.dhall-lang.org/foo using (toMap { Test = "Example" })
