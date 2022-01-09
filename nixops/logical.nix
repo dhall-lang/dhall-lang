@@ -352,6 +352,9 @@ in
                       return 204;
                     }
                     if ($request_method = 'GET') {
+                      ${lib.optionalString (cors != null) ''
+                        add_header 'Access-Control-Allow-Origin' "${cors}";
+                      ''}
                       add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
                     }
                     echo "${contents}";
