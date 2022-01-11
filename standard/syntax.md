@@ -254,7 +254,7 @@ data Expression
       -- ^ > Some s
     | Builtin Builtin
     | Constant Constant
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | Associative binary operators
 data Operator
@@ -271,7 +271,7 @@ data Operator
     | NotEqual            -- ^ > !=
     | Equivalent          -- ^ > ===
     | Alternative         -- ^ > ?
-    deriving (Show)
+    deriving (Show, Eq)
 
 {-| Data structure used to represent an interpolated @Text@ literal
 
@@ -286,7 +286,7 @@ data Operator
     > TextLiteral [("foo", Variable "x" 0), ("bar", Variable "y" 0)] "baz"
 -}
 data TextLiteral = Chunks [(Text, Expression)] Text
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | This instance comes in handy for implementing @Text@-related operations
 instance Semigroup TextLiteral where
@@ -336,7 +336,7 @@ data Builtin
     | Date
     | Time
     | TimeZone
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | Type-checking constants
 data Constant
@@ -351,7 +351,7 @@ data ImportMode
     | RawText   -- ^ @as Text@: import the path as raw text
     | Location  -- ^ @as Location@: don't import and instead represent the path
                 --   as a Dhall expression
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | Where to locate the import
 data ImportType
@@ -366,7 +366,7 @@ data ImportType
         --   > ~/directory/file
     | Env Text
         -- ^ > env:x
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | Structured representation of an HTTP(S) URL
 data URL = URL
@@ -375,13 +375,13 @@ data URL = URL
     , path      :: File
     , query     :: Maybe Text
     }
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | The URL scheme
 data Scheme
     = HTTP  -- ^ > http:\/\/
     | HTTPS -- ^ > https:\/\/
-    deriving (Show)
+    deriving (Show, Eq)
 
 -- | The anchor for a local filepath
 data FilePrefix
@@ -389,7 +389,7 @@ data FilePrefix
     | Here      -- ^ @.@, a path relative to the current working directory
     | Parent    -- ^ @..@, a path relative to the parent working directory
     | Home      -- ^ @~@, a path relative to the user's home directory
-    deriving (Show)
+    deriving (Show, Eq)
 
 {-| Structured representation of a file path
 
@@ -402,10 +402,10 @@ data File = File
     { directory :: [Text]  -- ^ Directory path components (in reverse order)
     , file :: Text         -- ^ File name
     }
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PathComponent
     = Label Text
     | DescendOptional
-    deriving (Show)
+    deriving (Show, Eq)
 ```

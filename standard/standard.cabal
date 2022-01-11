@@ -65,3 +65,4 @@ test-suite tasty
   default-extensions:  OverloadedStrings
   default-language:    Haskell2010
   ghc-options:         -Wall
+  other-modules: Test.Parser, Test.Util, Test.AlphaNormalization
