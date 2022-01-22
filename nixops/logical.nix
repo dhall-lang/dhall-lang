@@ -80,7 +80,11 @@ in
     '';
   };
 
-  networking.firewall.allowedTCPPorts = [ 22 80 443 ];
+  networking = {
+    enableIPv6 = false;
+
+    firewall.allowedTCPPorts = [ 22 80 443 ];
+  };
 
   nix = {
     autoOptimiseStore = true;
