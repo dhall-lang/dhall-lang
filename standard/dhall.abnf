@@ -921,36 +921,36 @@ type-selector = "(" whsp expression whsp ")"
 ; literals).  This is because they share leading characters in common
 primitive-expression =
       temporal-literal
-
+    ;
     ; "2.0"
     / double-literal
-    
+    ;
     ; "2"
     / natural-literal
-    
+    ;
     ; "+2"
     / integer-literal
-    
+    ;
     ; '"ABC"'
     / text-literal
-
+    ;
     ; YYYY-MM
-    
+    ;
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"
     / "{" whsp [ "," whsp ] record-type-or-literal whsp "}"
-    
+    ;
     ; "< Foo : Integer | Bar : Bool >"
     ; "< Foo | Bar : Bool >"
     / "<" whsp [ "|" whsp ] union-type whsp ">"
-    
+    ;
     ; "[1, 2, 3]"
     / non-empty-list-literal
-    
+    ;
     ; "x"
     ; "x@2"
     / identifier
-    
+    ;
     ; "( e )"
     / "(" complete-expression ")"
 
