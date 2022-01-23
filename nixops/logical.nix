@@ -178,6 +178,18 @@ in
 
       recommendedTlsSettings = true;
 
+      # For some reason nginx fails to forward HTTP requests to GitHub when
+      # using IPv6.  See:
+      #
+      #     https://github.com/dhall-lang/dhall-lang/issues/1268
+      #
+      # Perhaps a better solution would have been to ensure that the local
+      # `nscd` service only returns IPv6 addresses, but I can't find any
+      # documentation specifying how to do that.
+      appendHttpConfig = ''
+        resolver 127.0.0.1 ipv6=off;
+      '';
+
       virtualHosts =
         let
           latestRelease = "v21.1.0";
@@ -208,8 +220,15 @@ in
                 rewrite ^/(v[^/]+)$ https://github.com/dhall-lang/dhall-lang/tree/$1/Prelude redirect;
                 rewrite ^/(v[^/]+)/(.*)$ /dhall-lang/dhall-lang/$1/Prelude/$2 break;
                 rewrite ^/(.*)$ /dhall-lang/dhall-lang/${latestRelease}/Prelude/$1 break;
+                # Even though we set the resolver to disable IPv6 above, that
+                # still only affects dynamic DNS resolution and nginx (as far as
+                # I know) doesn't have an option to disable IPv6 when resolving
+                # DNS addresses at startup time.  See:
+                #
+                #     https://serverfault.com/a/1006465
+                set $empty "";
+                proxy_pass https://raw.githubusercontent.com$empty;
               '';
-              proxyPass = "https://raw.githubusercontent.com";
             };
           };
 
