@@ -81,9 +81,11 @@ Other changes:
   * [Fix reference implementation of `Natural/build`](https://github.com/dhall-lang/dhall-lang/pull/1244)
   * [Fix reference implementation of `Text/replace`](https://github.com/dhall-lang/dhall-lang/pull/1246)
   * [Fix typos in binary encoding spec](https://github.com/dhall-lang/dhall-lang/pull/1259)
+  * [Correct type for header configuration](https://github.com/dhall-lang/dhall-lang/pull/1262)
 * Fixes and improvements to the standard test suite:
   * [Add test for importing relative to the home directory](https://github.com/dhall-lang/dhall-lang/pull/1250)
   * [Add test for `Some` label in `with` expression](https://github.com/dhall-lang/dhall-lang/pull/1253)
+  * [Fix header forwarding test](https://github.com/dhall-lang/dhall-lang/pull/1263)
 
 ## `v21.1.0`
 
