@@ -746,7 +746,7 @@ When requesting a remote resource, include headers according to the user's
 configuration. This configuration has the type:
 
 ```
-List { mapKey : Text, mapValue : { mapKey : Text, mapValue : Text } }
+List { mapKey : Text, mapValue : List { mapKey : Text, mapValue : Text } }
 ```
 
 (i.e. "Map Text (Map Text Text)" using the prelude `Map` type constructor)

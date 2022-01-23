@@ -319,14 +319,23 @@ in
             pkgs.lib.mkMerge
               [ prelude
 
-                # Same as `prelude.dhall-lang.org` except requires a header named
-                # `Test` to be present to authorize requests.  This is used to test
-                # support for header forwarding for the test suite.
-                { locations."/".extraConfig = ''
-                    if ($http_test = "") {
-                      return 403;
-                    }
-                  '';
+                # This is used to test support for header forwarding for the
+                # test suite.
+                { locations = {
+                    "/foo".extraConfig = ''
+                      if ($http_test = "") {
+                        return 403;
+                      }
+                      return 200 './bar';
+                    '';
+
+                    "/bar".extraConfig = ''
+                      if ($http_test = "") {
+                        return 403;
+                      }
+                      return 200 'True';
+                    '';
+                  };
                 }
 
                 # A random string to test caching behavior
@@ -352,6 +361,9 @@ in
                       return 204;
                     }
                     if ($request_method = 'GET') {
+                      ${lib.optionalString (cors != null) ''
+                        add_header 'Access-Control-Allow-Origin' "${cors}";
+                      ''}
                       add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
                     }
                     echo "${contents}";
