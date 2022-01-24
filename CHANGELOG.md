@@ -5,6 +5,88 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v22.0.0`
+
+Breaking changes:
+
+* [New `showConstructor` keyword for converting union alternative to `Text`](https://github.com/dhall-lang/dhall-lang/pull/1257)
+
+  You can now render the constructor name for a union alternative using the
+  `showConstructor` keyword, like this:
+
+  ```dhall
+  let Example = < A : Bool | B >
+
+  in  [ showConstructor (Example.A True), showConstructor Example.B ]
+  ```
+
+  … which evaluates to:
+
+  ```dhall
+  [ "A", "B" ]
+  ```
+
+  `showConstructor` also works on `Optional` and `Bool` values, too:
+
+  ```dhall
+  >>> showConstructor (None Bool)
+  "None"
+  >>> showConstructor (Some True)
+  "Some"
+  >>> showConstructor True
+  "True"
+  >>> showConstructor False
+  "False"
+  ```
+
+* [Require non-empty whitespace after `let` binding](https://github.com/dhall-lang/dhall-lang/pull/1252)
+
+  Before this change an expression like this was permitted:
+
+  ```dhall
+  let x = 3let y = x in y
+  ```
+
+  … because the grammar did not require non-empty whitespace in between `let`
+  bindings.  Now the grammar requires non-empty whitespace in between bindings
+  so the above expression is no longer permitted.
+
+New features:
+
+* [Add `with` support for modifying `Optional` values](https://github.com/dhall-lang/dhall-lang/pull/1254)
+
+  You can now use a path component named `?` to modify values nested inside of
+  `Optional` types, like this:
+
+  ```dhall
+  >>> { x = Some { y = 2 } } with x.?.y = 3
+  { x = Some { y = 3 } }
+  ```
+
+  You can even use this to update an `Optional` value without any record fields:
+
+  ```dhall
+  >>> Some 0 with ? = 1
+  Some 1
+  ```
+
+* [Add `Prelude.List.filterMap`](https://github.com/dhall-lang/dhall-lang/pull/1245)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+  * [Fix empty lines inside the definition of rules](https://github.com/dhall-lang/dhall-lang/pull/1251)
+  * [Fix reference implementation of α-normalization](https://github.com/dhall-lang/dhall-lang/pull/1247)
+  * [Fix reference implementation of `shift`](https://github.com/dhall-lang/dhall-lang/pull/1248)
+  * [Fix reference implementation of `Natural/build`](https://github.com/dhall-lang/dhall-lang/pull/1244)
+  * [Fix reference implementation of `Text/replace`](https://github.com/dhall-lang/dhall-lang/pull/1246)
+  * [Fix typos in binary encoding spec](https://github.com/dhall-lang/dhall-lang/pull/1259)
+  * [Correct type for header configuration](https://github.com/dhall-lang/dhall-lang/pull/1262)
+* Fixes and improvements to the standard test suite:
+  * [Add test for importing relative to the home directory](https://github.com/dhall-lang/dhall-lang/pull/1250)
+  * [Add test for `Some` label in `with` expression](https://github.com/dhall-lang/dhall-lang/pull/1253)
+  * [Fix header forwarding test](https://github.com/dhall-lang/dhall-lang/pull/1263)
+
 ## `v21.1.0`
 
 New features:
