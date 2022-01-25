@@ -390,9 +390,9 @@ in
 
                 in {
                   locations."/cors/AllowedAll.dhall".extraConfig = cors-endpoint "*" "42";
-                  locations."/cors/OnlyGithub.dhall".extraConfig = cors-endpoint "raw.githubusercontent.com" "42";
-                  locations."/cors/OnlySelf.dhall".extraConfig = cors-endpoint "test.dhall-lang.org" "42";
-                  locations."/cors/OnlyOther.dhall".extraConfig = cors-endpoint "example.com" "42";
+                  locations."/cors/OnlyGithub.dhall".extraConfig = cors-endpoint "https://raw.githubusercontent.com" "42";
+                  locations."/cors/OnlySelf.dhall".extraConfig = cors-endpoint "https://test.dhall-lang.org" "42";
+                  locations."/cors/OnlyOther.dhall".extraConfig = cors-endpoint "https://example.com" "42";
                   locations."/cors/Empty.dhall".extraConfig = cors-endpoint "" "42";
                   locations."/cors/NoCORS.dhall".extraConfig = cors-endpoint null "42";
                   # Included because some clients apparently sometimes misparse "null" in CORS.
