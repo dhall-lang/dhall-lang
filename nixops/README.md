@@ -273,7 +273,7 @@ somehow need to recreate everything from scratch:
     *   **Visible in the list of projects**: True
     *   **Identifier**: `${project}`
     *   **Display name**: `${project}`
-    *   **Description**: `CI for for ${project}`
+    *   **Description**: `CI for ${project}`
     *   **Owner**: `${USERNAME}`
     *   **Declarative spec file**: `${project}.json`
     *   **Declarative input**:
