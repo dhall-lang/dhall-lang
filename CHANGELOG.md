@@ -1555,7 +1555,7 @@ Breaking changes:
 
 * [Don't URL-decode path segments](https://github.com/dhall-lang/dhall-lang/pull/704)
 
-  This changes the the binary representation of URLs to pass through path
+  This changes the binary representation of URLs to pass through path
   segments without decoding them for better interoperability with other tools.
 
   This is a technically breaking change because the binary format changes for

@@ -933,7 +933,7 @@ Or in judgment form:
 
 ... where:
 
-* The `sha256` judgment stands in for the the SHA-256 hashing algorithm
+* The `sha256` judgment stands in for the SHA-256 hashing algorithm
   specified in
   [RFC4634 - Section 8.2.2](https://tools.ietf.org/html/rfc4634#section-8.2.2),
   treated as a pure function from an arbitrary byte array to a 64-byte array
