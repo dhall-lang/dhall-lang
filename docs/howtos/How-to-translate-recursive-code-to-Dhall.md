@@ -250,7 +250,7 @@ Like before, our recursive `toNatural` function is performing substitution by:
 
 *   replacing every occurrence of `Nat` with `Natural`
 *   replacing every occurrence of `Zero` with `0`
-*   replacing every occurrence of `Succ` with an anonymous funciton
+*   replacing every occurrence of `Succ` with an anonymous function
 
 ... which means that we could have equivalently written:
 
