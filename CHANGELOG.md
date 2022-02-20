@@ -634,7 +634,7 @@ Breaking changes:
 
   This includes two precedence changes:
 
-  * `with` expressions now forbid operators for their left-hand agument
+  * `with` expressions now forbid operators for their left-hand argument
 
     For example, now these parentheses are required:
 
