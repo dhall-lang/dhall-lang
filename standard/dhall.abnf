@@ -522,7 +522,7 @@ integer-literal = ( "+" / "-" ) natural-literal
 ;
 ; * Months must be in the range 1-12
 ; * The day of the month must be valid according to the corresponding month
-; * Feburary 29 is only permitted on leap years
+; * February 29 is only permitted on leap years
 ;
 ; The only exception to this is leap seconds, which are not supported because we
 ; treat dates and times separately.  In other words, the valid range of the
