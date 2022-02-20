@@ -83,9 +83,9 @@ directoryToTestTree directory = do
                         Nothing -> do
                             return [ ]
 
-    testTreess <- traverse process children
+    testTrees <- traverse process children
 
-    return (Tasty.testGroup name (concat testTreess))
+    return (Tasty.testGroup name (concat testTrees))
 
 main :: IO ()
 main = do
