@@ -199,7 +199,7 @@ New features:
   to any imports destined for tht origin.
 
   These out-of-band custom headers work in conjunction with the in-band custom
-  headers supplied by the `using` keyword, but the out-of-band custome headers
+  headers supplied by the `using` keyword, but the out-of-band custom headers
   take precedence.  For example, if one were to import:
 
   ```dhall
