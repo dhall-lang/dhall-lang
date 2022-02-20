@@ -3,7 +3,7 @@ name:                standard
 version:             1.0.0
 synopsis:            Literate Haskell semantics for Dhall
 description:         The Dhall semantics are written in literate Haskell,
-                     meaning that the logical jugdments are written side-by-side
+                     meaning that the logical judgments are written side-by-side
                      with the equivalent Haskell code in order to minimize
                      ambiguity.
 build-type:          Simple
