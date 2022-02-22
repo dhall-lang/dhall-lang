@@ -199,7 +199,7 @@ New features:
   to any imports destined for tht origin.
 
   These out-of-band custom headers work in conjunction with the in-band custom
-  headers supplied by the `using` keyword, but the out-of-band custome headers
+  headers supplied by the `using` keyword, but the out-of-band custom headers
   take precedence.  For example, if one were to import:
 
   ```dhall
@@ -634,7 +634,7 @@ Breaking changes:
 
   This includes two precedence changes:
 
-  * `with` expressions now forbid operators for their left-hand agument
+  * `with` expressions now forbid operators for their left-hand argument
 
     For example, now these parentheses are required:
 
@@ -1555,7 +1555,7 @@ Breaking changes:
 
 * [Don't URL-decode path segments](https://github.com/dhall-lang/dhall-lang/pull/704)
 
-  This changes the the binary representation of URLs to pass through path
+  This changes the binary representation of URLs to pass through path
   segments without decoding them for better interoperability with other tools.
 
   This is a technically breaking change because the binary format changes for

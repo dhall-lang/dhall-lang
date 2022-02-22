@@ -106,7 +106,7 @@ class DhallLexer(RegexLexer):
     }
 lexers['dhall'] = DhallLexer(startinline=True)
 
-# Alias for compat with github syntax highligher name
+# Alias for compat with github syntax highlighter name
 from pygments.lexers.shell import BashLexer
 from pygments.lexers.haskell import HaskellLexer
 lexers['bash'] = BashLexer(startinline=True)

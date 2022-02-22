@@ -1859,7 +1859,7 @@ interpret the code to remove indirection if necessary.
 > in  y
 > ```
 >
-> In other words, the the interpreter knows that the two `x`s in the line
+> In other words, the interpreter knows that the two `x`s in the line
 > `let x = x` are different `x`s.  In fact, the interpreter can keep track of
 > all `x`s in scope and we can access all of them unambiguously by their
 > [De Bruijn index][debruijn].  For example, this expression retrieves both `x`s

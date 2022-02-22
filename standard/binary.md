@@ -1601,7 +1601,7 @@ is the variable index, which can be either a compact integer or a bignum:
 
 
 A decoder MUST accept an integer that is not encoded using the most compact
-representation.  For example, a naked unsiged bignum storing `0` is valid, even
+representation.  For example, a naked unsigned bignum storing `0` is valid, even
 though the `0` could have been stored in a single byte as as a compact unsigned
 integer instead.
 
