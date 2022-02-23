@@ -76,16 +76,27 @@ you're not looking.
 Dhall provides two complementary features to secure expressions imported from
 untrusted sources:
 
+* You can “freeze” the imported expression, pinning its value with a cryptographic hash
 * You can audit any expression by eliminating all indirection
-* After auditing an expression you can freeze the import with an integrity check
 
 To illustrate this, suppose that you are authoring the above code and depending
-on the imported `concatSep` function for the first time.  You can use the
-command-line interpreter named `dhall` to retrieve, type-check, and remove all
+on the imported `concatSep` function for the first time.  The first step is to
+retrieve and hash the imported expression:
+
+```dhall
+$ dhall hash <<< 'https://prelude.dhall-lang.org/Text/concatSep'
+```
+
+```
+sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
+```
+
+This hash can then be used to refer to this specific version of the expression; using the
+command-line interpreter named `dhall`, one can retrieve, type-check, and remove all
 indirection in the expression, like this:
 
 ```console
-$ dhall --annotate <<< 'https://prelude.dhall-lang.org/Text/concatSep'
+$ dhall --annotate <<< 'https://prelude.dhall-lang.org/Text/concatSep sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a'
 ```
 
 ```dhall
@@ -127,19 +138,7 @@ indirection-free normal form is what you audit when examining untrusted code.
 Every Dhall expression has a canonical normal form because the Dhall configuration
 language is not Turing-complete.
 
-If you understand and trust what you see then you can freeze the import using
-an integrity check.  If you replace the `dhall` command with `dhall hash`:
-
-```dhall
-$ dhall hash <<< 'https://prelude.dhall-lang.org/Text/concatSep'
-```
-
-```
-sha256:fa909c0b2fd4f9edb46df7ff72ae105ad0bd0ae00baa7fe53b0e43863f9bd34a
-```
-
-... then you will get a hash that you can append to an import to freeze the
-imported expression, like this:
+Now that we have reviewed the `concatSep` function, we can pin its import (using the hash we already computed) and ensure that it is the same as the expression we audited:
 
 ```dhall
 let concatSep =
