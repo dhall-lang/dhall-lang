@@ -13,7 +13,7 @@ You can integrate the Dhall configuration language into your project in one of t
 The following languages can read in Dhall configuration files directly using a package that natively implements Dhall:
 
 * [Clojure](https://github.com/f-f/dhall-clj) - Via the `dhall-clj` package
-* [Haskell](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall/README.md) - Via the `dhall` package
+* [Haskell](https://github.com/dhall-lang/dhall-haskell) - Via the `dhall` package
 * [Go](https://github.com/philandstuff/dhall-golang) - Via the `dhall-golang` package
 * [Ruby](https://git.sr.ht/~singpolyma/dhall-ruby) - Via the `dhall-ruby` package
 * [Rust](https://crates.io/crates/serde_dhall) - Via the `serde_dhall` package
@@ -27,27 +27,27 @@ The following languages can read in Dhall configuration files by building on top
 
 The following language bindings are currently in progress:
 
-* [PureScript](https://github.com/MonoidMusician/dhall-purescript/blob/master/README.md) - Via the `dhall-purescript` package
+* [PureScript](https://github.com/MonoidMusician/dhall-purescript) - Via the `dhall-purescript` package
 
 The following integrations built on top of another implementation are still in progress:
 
-* [C](https://github.com/as-capabl/clay-dhall/blob/master/README.md) - Using the Haskell package as a shared library
+* [C](https://github.com/as-capabl/clay-dhall) - Using the Haskell package as a shared library
 
 ## External executable
 
 You can convert Dhall to one of the following configuration formats if your language does not natively support Dhall.
 
-* [YAML](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-yaml/README.md) - Via the `dhall-to-yaml-ng` executable
+* [YAML](https://github.com/dhall-lang/dhall-haskell/tree/master/dhall-yaml) - Via the `dhall-to-yaml-ng` executable
 
-* [JSON](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-json/README.md) - Via the `dhall-to-json` executable
+* [JSON](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-json) - Via the `dhall-to-json` executable
 
 * [XML](https://git.sr.ht/~singpolyma/dhall-xml-ruby) - Via the `dhall-to-xml` executable
 
-* [Bash](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-bash/README.md) - Via the `dhall-to-bash` executable
+* [Bash](https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-bash) - Via the `dhall-to-bash` executable
 
   Technically not a "configuration format", but many programs are configured via Bash scripts
 
-* [Kubernetes](https://github.com/dhall-lang/dhall-kubernetes/blob/master/README.md) - Via the `dhall-to-yaml` executable
+* [Kubernetes](https://github.com/dhall-lang/dhall-kubernetes) - Via the `dhall-to-yaml` executable
 
   `dhall-kubernetes` is a repository containing Kubernetes-related Dhall types and functions.  However, you still need to use `dhall-to-yaml` to generate the YAML configuration that Kubernetes expects since Kubernetes is not Dhall-aware
 
