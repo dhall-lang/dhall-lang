@@ -1369,6 +1369,80 @@ betaNormalize (Application f as)
         NonEmptyList (NonEmpty.reverse as₁)
 ```
 
+`List/drop` removes the first `n` elements of a list:
+
+
+    f ⇥ List/drop n A₀   as ⇥ [] : A₁
+    ──────────────────────────────────
+    f as ⇥ [] : A₁
+
+
+    f ⇥ List/drop 0 A₀   as ⇥ [ a, as… ]
+    ────────────────────────────────────
+    f as ⇥ [ a, as… ]
+
+
+    f ⇥ List/drop n A₀   List/drop (n - 1) [ as… ] ⇥ bs
+    ───────────────────────────────────────────────────
+    f [ a, as… ] ⇥ bs
+
+
+```haskell
+betaNormalize (Application f as)
+    | Application
+        (Application (Builtin ListDrop) (NaturalLiteral _)
+        )
+        _A₀ <- betaNormalize f
+    , EmptyList _A₁ <- betaNormalize as =
+        EmptyList _A₁
+
+    | Application
+        (Application (Builtin ListDrop) (NaturalLiteral n)
+        )
+        _A₀ <- betaNormalize f
+    , NonEmptyList as₁ <- betaNormalize as =
+        case NonEmpty.drop (fromEnum n) as₁ of
+            [] -> EmptyList _A₀
+            x:xs -> NonEmptyList (x :| xs)
+```
+
+`List/take` takes the first `n` elements of a list:
+
+
+    f ⇥ List/take n A₀   as ⇥ [] : A₁
+    ──────────────────────────────────
+    f as ⇥ [] : A₁
+
+
+    f ⇥ List/take 0 A₀   as ⇥ [ a, as… ]
+    ───────────────────────────────────
+    f as ⇥ [] : A₁
+
+
+    f ⇥ List/take n A₀   List/take (n - 1) [ as… ] ⇥ [ bs… ]
+    ────────────────────────────────────────────────────────
+    f [a, as… ] ⇥ [a, bs… ]
+
+
+```haskell
+betaNormalize (Application f as)
+    | Application
+        (Application (Builtin ListTake) (NaturalLiteral _)
+        )
+        _A₀ <- betaNormalize f
+    , EmptyList _A₁ <- betaNormalize as =
+        EmptyList _A₁
+
+    | Application
+        (Application (Builtin ListTake) (NaturalLiteral n)
+        )
+        _A₀ <- betaNormalize f
+    , NonEmptyList as₁ <- betaNormalize as =
+        case NonEmpty.take (fromEnum n) as₁ of
+            [] -> EmptyList _A₀
+            x:xs -> NonEmptyList (x :| xs)
+```
+
 All of the built-in functions on `List`s are in normal form:
 
 
@@ -1400,6 +1474,14 @@ All of the built-in functions on `List`s are in normal form:
     List/reverse ⇥ List/reverse
 
 
+    ─────────────────────
+    List/drop ⇥ List/drop
+
+
+    ─────────────────────
+    List/take ⇥ List/take
+
+
 ```haskell
 betaNormalize (Builtin ListBuild  ) = Builtin ListBuild
 betaNormalize (Builtin ListFold   ) = Builtin ListFold
@@ -1408,6 +1490,8 @@ betaNormalize (Builtin ListHead   ) = Builtin ListHead
 betaNormalize (Builtin ListLast   ) = Builtin ListLast
 betaNormalize (Builtin ListIndexed) = Builtin ListIndexed
 betaNormalize (Builtin ListReverse) = Builtin ListReverse
+betaNormalize (Builtin ListDrop   ) = Builtin ListDrop
+betaNormalize (Builtin ListTake   ) = Builtin ListTake
 ```
 
 ## `Optional`

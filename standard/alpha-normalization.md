@@ -760,13 +760,21 @@ alphaNormalize (Some a₀) = Some a₁
 
 
     ─────────────────────
+    List/drop ↦ List/drop
+
+
+    ─────────────────────
+    List/take ↦ List/take
+
+
+    ─────────────────────
     Text/show ↦ Text/show
 
 
     ───────────────────────────
     Text/replace ↦ Text/replace
- 
- 
+
+
     ───────────
     Bool ↦ Bool
 

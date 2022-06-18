@@ -823,6 +823,14 @@ shift d x m (Some a₀) = Some a₁
 
 
     ─────────────────────────────────
+    ↑(d, x, m, List/drop) = List/drop
+
+
+    ─────────────────────────────────
+    ↑(d, x, m, List/take) = List/take
+
+
+    ─────────────────────────────────
     ↑(d, x, m, Text/show) = Text/show
 
 

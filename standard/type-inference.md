@@ -407,6 +407,14 @@ The built-in functions on `List`s have the following types:
     Γ ⊢ List/reverse : ∀(a : Type) → List a → List a
 
 
+    ───────────────────────────────────────────────────────
+    Γ ⊢ List/drop : Natural → ∀(a : Type) → List a → List a
+
+
+    ───────────────────────────────────────────────────────
+    Γ ⊢ List/take : Natural → ∀(a : Type) → List a → List a
+
+
 ## `Optional`
 
 `Optional` is a function from a `Type` to another `Type`:

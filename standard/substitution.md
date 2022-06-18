@@ -815,6 +815,14 @@ substitute (Some a₀) x n e = Some a₁
 
 
     ──────────────────────────────
+    List/drop[x@n ≔ e] = List/drop
+
+
+    ──────────────────────────────
+    List/take[x@n ≔ e] = List/take
+
+
+    ──────────────────────────────
     Text/show[x@n ≔ e] = Text/show
 
 
