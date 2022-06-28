@@ -16,7 +16,7 @@
     ? ./Integer/package.dhall
 , List =
       ./List/package.dhall
-        sha256:9354d34f85346a9bfc486e3454b0368c48d7021d926832943ae3f423bce64f83
+        sha256:e52165f690a541755bb2ce180f4ad693100aa9c18352f2925d4751140aedc056
     ? ./List/package.dhall
 , Location =
       ./Location/package.dhall
@@ -36,7 +36,7 @@
     ? ./Natural/package.dhall
 , NonEmpty =
       ./NonEmpty/package.dhall
-        sha256:c24686a230a4b3cd51e5a57cd4510b4f8242f813d7823d41bac5954e7af56f7a
+        sha256:3818bf39f176e09c98326564ead5b70fa90af3bfc6aeb8ddc56900ff1279de73
     ? ./NonEmpty/package.dhall
 , Operator =
       ./Operator/package.dhall

@@ -309,7 +309,7 @@
     , concatMap :
         ∀(a : Type) → ∀(b : Type) → ∀(f : a → List b) → ∀(xs : List a) → List b
     , default : ∀(a : Type) → ∀(o : Optional (List a)) → List a
-    , drop : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
+    , drop : Natural → ∀(a : Type) → List a → List a
     , empty : ∀(a : Type) → List a
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : List a) → List a
     , filterMap :
@@ -352,7 +352,7 @@
         ∀(a : Type) →
         ∀(kvss : List (List { index : Natural, value : a })) →
           List { index : Natural, value : a }
-    , take : ∀(n : Natural) → ∀(a : Type) → ∀(xs : List a) → List a
+    , take : Natural → ∀(a : Type) → List a → List a
     , unpackOptionals : ∀(a : Type) → ∀(xs : List (Optional a)) → List a
     , unzip :
         ∀(a : Type) →

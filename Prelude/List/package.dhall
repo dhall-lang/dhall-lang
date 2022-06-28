@@ -24,7 +24,7 @@
     ? ./default.dhall
 , drop =
       ./drop.dhall
-        sha256:af983ba3ead494dd72beed05c0f3a17c36a4244adedf7ced502c6512196ed0cf
+        sha256:edb53b148bd214735ff3e0aeeb31439e926539fbacf00446d2a020f6602292b0
     ? ./drop.dhall
 , empty =
       ./empty.dhall
@@ -56,7 +56,7 @@
     ? ./head.dhall
 , index =
       ./index.dhall
-        sha256:e657b55ecae4d899465c3032cb1a64c6aa6dc2aa3034204f3c15ce5c96c03e63
+        sha256:7a8d7f1e038f601fd1ae93bcc904e91aef9ef6453e3da63d18b24321de79741e
     ? ./index.dhall
 , indexed =
       ./indexed.dhall
@@ -100,7 +100,7 @@
     ? ./shifted.dhall
 , take =
       ./take.dhall
-        sha256:b3e08ee8c3a5bf3d8ccee6b2b2008fbb8e51e7373aef6f1af67ad10078c9fbfa
+        sha256:10e6238b04663aed7a1fce5afb59126f28cf59cbfc2917bae116e9d598564239
     ? ./take.dhall
 , unpackOptionals =
       ./unpackOptionals.dhall
@@ -112,6 +112,6 @@
     ? ./unzip.dhall
 , zip =
       ./zip.dhall
-        sha256:85ed955eabf3998767f4ad2a28e57d40cd4c68a95519d79e9b622f1d26d979da
+        sha256:115058338c19749e55e594408d17032f291688e4b7b28e6a20641270d1173c73
     ? ./zip.dhall
 }
