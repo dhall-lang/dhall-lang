@@ -60,6 +60,13 @@
       header {
         margin-bottom: 2rem;
       }
+
+      @media (min-width: 992px) {
+        .dropdown-menu {
+          max-height: calc(100vh - 85px);
+          overflow-y:auto;
+        }
+      }     
     </style>
     <link rel="stylesheet" href="./css/codemirror.css">
     <link rel="stylesheet" href="./css/bootstrap.min.css">
