@@ -100,7 +100,7 @@ the latest available version of `dhall-json`.  Then navigate to the directory wh
 downloaded the archive and run:
 
 ```console
-$ tar --extract --bzip2 --file dhall-json-*-x86_64-macos.tar.bz2
+$ tar --extract --file dhall-json-*-x86_64-macos.tar.bz2
 ```
 
 That should create a `./bin` subdirectory underneath your current directory
@@ -143,7 +143,7 @@ the latest available version of `dhall-json`.  Then navigate to the directory wh
 downloaded the archive and run:
 
 ```console
-$ tar --extract --bzip2 --file dhall-json-*-x86_64-linux.tar.bz2
+$ tar --extract --file dhall-json-*-x86_64-linux.tar.bz2
 ```
 
 That should create a `./bin` subdirectory underneath your current directory
