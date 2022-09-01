@@ -1,8 +1,8 @@
 pkgsNew: pkgsOld: {
-  codemirror = pkgsNew.fetchurl {
+  codemirror = pkgsNew.fetchzip {
     url = "https://codemirror.net/5/codemirror.zip";
 
-    sha256 = "173mgxsyw2ni61dr3pznl21p613pyiwrrk4w10kjsk03fygq5zch";
+    sha256 = "1dz1p789s9w5qlns86xfjkih88rhh930jz6v5j7azwgz4nqkcf41";
   };
 
   docs =
