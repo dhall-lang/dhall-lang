@@ -1,4 +1,10 @@
 pkgsNew: pkgsOld: {
+  codemirror = pkgsNew.fetchurl {
+    url = "https://codemirror.net/5/codemirror.zip";
+
+    sha256 = "173mgxsyw2ni61dr3pznl21p613pyiwrrk4w10kjsk03fygq5zch";
+  };
+
   docs =
     pkgsNew.runCommand "docs"
       { nativeBuildInputs = [
@@ -406,8 +412,6 @@ pkgsNew: pkgsOld: {
         sha256 = "0j7khvym2p4f8dqdl7k7k4rypj1hai2rj0pjzb6h41fvjyjmbrrr";
       };
   };
-
-  npm = pkgsNew.callPackage ./npm { };
 
   prelude-lint = pkgsNew.runCommand "prelude-lint" {} ''
     ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-prelude}/ ./Prelude.expected
