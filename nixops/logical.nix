@@ -149,7 +149,7 @@ in
     logrotate = {
       enable = true;
 
-      configFile = ''
+      configFile = pkgs.writeText "logrotate.conf" ''
         /var/spool/nginx/logs/*.log {
           create 0644 nginx nginx
           daily
