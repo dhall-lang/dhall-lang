@@ -128,6 +128,7 @@ in
           authorization = dhall-lang
           context = hydra
         </githubstatus>
+        github_authorization = dhall-lang
         binary_cache_secret_key_file = ${nixServe.privateKey}
       '';
 
@@ -405,7 +406,9 @@ in
     openssh.enable = true;
   };
 
-  system.stateVersion = "21.11";
+  system.stateVersion = "20.09";
+
+  services.postgresql.package = pkgs.postgresql_13;
 
   systemd.services = {
     discourse =

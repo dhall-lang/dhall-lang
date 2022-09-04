@@ -6,7 +6,7 @@ index be3ae53b..cf36b16b 100644
  use LWP::UserAgent;
  use JSON;
  use Hydra::Helper::CatalystUtils;
-+use File::Slurp;
++use File::Slurper 'read_text';
  use File::Temp;
  use POSIX qw(strftime);
  
@@ -37,7 +37,7 @@ index be3ae53b..cf36b16b 100644
      # TODO Allow filtering of some kind here?
      (my $owner, my $repo) = split ' ', $value;
 -    my $auth = $self->{config}->{github_authorization}->{$owner};
-+    my $token = read_file("/etc/hydra/authorization/$owner");
++    my $token = read_text("/etc/hydra/authorization/$owner");
      my %pulls;
      my $ua = LWP::UserAgent->new();
 -    _iterate("https://api.github.com/repos/$owner/$repo/pulls?per_page=100", $auth, \%pulls, $ua);
@@ -53,7 +53,7 @@ index 08ba25bb..5b8742a3 100644
  
  use strict;
  use parent 'Hydra::Plugin';
-+use File::Slurp;
++use File::Slurper 'read_text';
  use HTTP::Request;
  use JSON;
  use LWP::UserAgent;
@@ -63,7 +63,7 @@ index 08ba25bb..5b8742a3 100644
                      $req->header('Accept' => 'application/vnd.github.v3+json');
 -                    $req->header('Authorization' => ($self->{config}->{github_authorization}->{$owner} // $conf->{authorization}));
 +                    my $authorization = $self->{config}->{github_authorization}->{$owner} // $conf->{authorization};
-+                    my $token = read_file("/etc/hydra/authorization/$authorization");
++                    my $token = read_text("/etc/hydra/authorization/$authorization");
 +                    $token =~ s/\s+//;
 +                    $req->header('Authorization' => "token $token");
                      $req->content($body);
