@@ -169,7 +169,9 @@ pkgsNew: pkgsOld: {
     }
   );
 
-  hydra-unstable = pkgsOld.hydra-unstable.overrideAttrs (old: {
+  hydra_unstable = pkgsOld.hydra_unstable.overrideAttrs (old: {
+      doCheck = false;
+
       patches = (old.patches or []) ++ [
         ./hydra.patch
         ./no-restrict-eval.patch
