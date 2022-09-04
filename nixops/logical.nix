@@ -546,9 +546,7 @@ in
         build = "${repositoryDirectory}/result";
 
       in
-        { enable = false;
-
-          wantedBy = [ "multi-user.target" ];
+        { wantedBy = [ "multi-user.target" ];
 
           after = [ "network-online.target" ];
 
