@@ -128,7 +128,6 @@ in
           authorization = dhall-lang
           context = hydra
         </githubstatus>
-        github_authorization = dhall-lang
         binary_cache_secret_key_file = ${nixServe.privateKey}
       '';
 
