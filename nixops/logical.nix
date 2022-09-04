@@ -69,7 +69,7 @@ in
 
     loginAccounts = {
       "discourse@dhall-lang.org" = {
-        hashedPassword = "$6$WNGVf74Y7w$iMAfx7BW1KhNfyG.44ty39f5cnBP64mb.tpluV9BjCp130pc3sem5IqUe9O1w1yr0X6uwDq.pfz394oZdvNbi0";
+        hashedPassword = "$6$VO2o5.dGS10OLLvF$6RlSpsAFafktWURf30KctZvuy.91HsAJWaBTclNDbtX4CXyzCrwv3SHs/KpTjnudJjhVUSbJbC1eQOmi1bx2..";
 
         aliases = [ "postmaster@dhall-lang.org" ];
       };
@@ -128,6 +128,7 @@ in
           authorization = dhall-lang
           context = hydra
         </githubstatus>
+        github_authorization = dhall-lang
         binary_cache_secret_key_file = ${nixServe.privateKey}
       '';
 
@@ -405,7 +406,9 @@ in
     openssh.enable = true;
   };
 
-  system.stateVersion = "21.11";
+  system.stateVersion = "20.09";
+
+  services.postgresql.package = pkgs.postgresql_13;
 
   systemd.services = {
     discourse =
