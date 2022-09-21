@@ -1,0 +1,1 @@
+< UserId : Natural | UserName : Text >

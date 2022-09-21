@@ -1,0 +1,1 @@
+< GroupId : Natural | GroupName : Text >
