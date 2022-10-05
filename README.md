@@ -23,7 +23,7 @@ The easiest way to get started experimenting with Dhall is to install the
 `dhall-to-json` and/or `dhall-to-yaml` executables, which enable you to
 generate JSON and YAML, respectively, on the command line. Platform- and
 runtime-specific installation instructions can be found in [the Dhall
-wiki][dhall-json-tutorial-wiki].
+documentation][dhall-json-tutorial-wiki].
 
 For other ways to integrate Dhall in your project, read:
 

@@ -15,9 +15,9 @@ in
     let
       nixos-mailserver =
         builtins.fetchTarball {
-          url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/5675b122a947b40e551438df6a623efad19fd2e7/nixos-mailserver-5675b122a947b40e551438df6a623efad19fd2e7.tar.gz";
+          url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/f535d8123c4761b2ed8138f3d202ea710a334a1d/nixos-mailserver-f535d8123c4761b2ed8138f3d202ea710a334a1d.tar.gz";
 
-          sha256 = "1fwhb7a5v9c98nzhf3dyqf3a5ianqh7k50zizj8v5nmj3blxw4pi";
+          sha256 = "0csx2i8p7gbis0n5aqpm57z5f9cd8n9yabq04bg1h4mkfcf7mpl6";
         };
 
     in
@@ -69,7 +69,7 @@ in
 
     loginAccounts = {
       "discourse@dhall-lang.org" = {
-        hashedPassword = "$6$WNGVf74Y7w$iMAfx7BW1KhNfyG.44ty39f5cnBP64mb.tpluV9BjCp130pc3sem5IqUe9O1w1yr0X6uwDq.pfz394oZdvNbi0";
+        hashedPassword = "$6$VO2o5.dGS10OLLvF$6RlSpsAFafktWURf30KctZvuy.91HsAJWaBTclNDbtX4CXyzCrwv3SHs/KpTjnudJjhVUSbJbC1eQOmi1bx2..";
 
         aliases = [ "postmaster@dhall-lang.org" ];
       };
@@ -107,7 +107,7 @@ in
     acme = {
       acceptTerms = true;
 
-      email = "Gabriel439@gmail.com";
+      defaults.email = "Gabriel439@gmail.com";
     };
 
     sudo.wheelNeedsPassword = false;
@@ -139,8 +139,6 @@ in
 
       notificationSender = "noreply@dhall-lang.org";
 
-      package = pkgs.hydra-unstable;
-
       useSubstitutes = true;
     };
 
@@ -151,7 +149,7 @@ in
     logrotate = {
       enable = true;
 
-      extraConfig = ''
+      configFile = pkgs.writeText "logrotate.conf" ''
         /var/spool/nginx/logs/*.log {
           create 0644 nginx nginx
           daily
@@ -406,6 +404,10 @@ in
 
     openssh.enable = true;
   };
+
+  system.stateVersion = "20.09";
+
+  services.postgresql.package = pkgs.postgresql_13;
 
   systemd.services = {
     discourse =

@@ -529,17 +529,17 @@ integer-literal = ( "+" / "-" ) natural-literal
 ; seconds field is always 0-59.
 ;
 temporal-literal =
-    ; "YYYY-MM-DDThh:mm:ss±HH:MM", parsed as a `{ date : Date, time : Time, timeZone : TimeZone }`
+    ; "YYYY-MM-DDThh:mm:ss[+-]HH:MM", parsed as a `{ date : Date, time : Time, timeZone : TimeZone }`
       full-date "T" partial-time time-offset
     ; "YYYY-MM-DDThh:mm:ss", parsed as a `{ date : Date, time : Time }`
     / full-date "T" partial-time
-    ; "hh:mm:ss±HH:MM", parsed as a `{ time : Time, timeZone, TimeZone }`
+    ; "hh:mm:ss[+-]HH:MM", parsed as a `{ time : Time, timeZone, TimeZone }`
     / partial-time time-offset
     ; "YYYY-MM-DD", parsed as a `Date`
     / full-date
     ; "hh:mm:ss", parsed as a `Time`
     / partial-time
-    ; "±HH:MM", parsed as a `TimeZone`
+    ; "[+-]HH:MM", parsed as a `TimeZone`
     ;
     ; Carefully note that this `time-numoffset` and not `time-offset`, meaning
     ; that a standalone `Z` is not a valid Dhall literal for a `TimeZone`

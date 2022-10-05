@@ -36,7 +36,11 @@ let
   vm =
     (import "${nixpkgs}/nixos" {
       configuration = {
-        imports = [ ./nixops/logical.nix ./nixops/physical.nix ];
+        imports = [
+          ./nixops/logical.nix
+          ./nixops/physical.nix
+          "${nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix"
+        ];
 
         networking.hostName = "dhall-lang";
 
@@ -51,7 +55,7 @@ let
         virtualisation = {
           cores = 2;
 
-          memorySize = "4096";
+          memorySize = 4096;
         };
       };
 

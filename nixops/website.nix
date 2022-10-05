@@ -1,5 +1,5 @@
-{ coreutils, dhall-try, haskell, jQuery, logo, nodePackages, npm, runCommand
-, twitterBootstrap
+{ codemirror, coreutils, dhall-try, haskell, jQuery, logo, nodePackages
+, runCommand, twitterBootstrap
 }:
 
 runCommand "try-dhall" {} ''
@@ -13,12 +13,12 @@ runCommand "try-dhall" {} ''
   ${coreutils}/bin/ln --symbolic ${twitterBootstrap}/js/bootstrap.min.js $out/js
   ${coreutils}/bin/ln --symbolic ${twitterBootstrap}/js/bootstrap.min.js.map $out/js
   ${coreutils}/bin/ln --symbolic ${twitterBootstrap}/css/bootstrap.min.css $out/css
-  ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/lib/codemirror.js $out/js
-  ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/mode/haskell/haskell.js $out/js
-  ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/mode/shell/shell.js $out/js
-  ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/mode/javascript/javascript.js $out/js
-  ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/mode/yaml/yaml.js $out/js
-  ${coreutils}/bin/ln --symbolic ${npm.codemirror}/lib/node_modules/codemirror/lib/codemirror.css $out/css
+  ${coreutils}/bin/ln --symbolic ${codemirror}/lib/codemirror.js $out/js
+  ${coreutils}/bin/ln --symbolic ${codemirror}/mode/haskell/haskell.js $out/js
+  ${coreutils}/bin/ln --symbolic ${codemirror}/mode/shell/shell.js $out/js
+  ${coreutils}/bin/ln --symbolic ${codemirror}/mode/javascript/javascript.js $out/js
+  ${coreutils}/bin/ln --symbolic ${codemirror}/mode/yaml/yaml.js $out/js
+  ${coreutils}/bin/ln --symbolic ${codemirror}/lib/codemirror.css $out/css
   ${coreutils}/bin/ln --symbolic ${dhall-try}/bin/dhall-try.jsexe/all.min.js $out/js
   ${coreutils}/bin/ln --symbolic ${logo.argocd} $out/img/argocd-logo.png
   ${coreutils}/bin/ln --symbolic ${logo.ansible} $out/img/ansible-logo.png

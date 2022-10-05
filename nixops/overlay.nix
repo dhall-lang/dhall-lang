@@ -1,4 +1,10 @@
 pkgsNew: pkgsOld: {
+  codemirror = pkgsNew.fetchzip {
+    url = "https://codemirror.net/5/codemirror.zip";
+
+    sha256 = "1dz1p789s9w5qlns86xfjkih88rhh930jz6v5j7azwgz4nqkcf41";
+  };
+
   docs =
     pkgsNew.runCommand "docs"
       { nativeBuildInputs = [
@@ -163,7 +169,9 @@ pkgsNew: pkgsOld: {
     }
   );
 
-  hydra-unstable = pkgsOld.hydra-unstable.overrideAttrs (old: {
+  hydra_unstable = pkgsOld.hydra_unstable.overrideAttrs (old: {
+      doCheck = false;
+
       patches = (old.patches or []) ++ [
         ./hydra.patch
         ./no-restrict-eval.patch
@@ -406,8 +414,6 @@ pkgsNew: pkgsOld: {
         sha256 = "0j7khvym2p4f8dqdl7k7k4rypj1hai2rj0pjzb6h41fvjyjmbrrr";
       };
   };
-
-  npm = pkgsNew.callPackage ./npm { };
 
   prelude-lint = pkgsNew.runCommand "prelude-lint" {} ''
     ${pkgsNew.rsync}/bin/rsync --archive ${pkgsNew.expected-prelude}/ ./Prelude.expected
