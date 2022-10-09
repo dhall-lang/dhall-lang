@@ -1,8 +1,6 @@
-let Access/Mask = ./../AccessMask/Mask.dhall
-
 let Mask = ./Mask.dhall
 
-let Access/union = ./../AccessMask/union.dhall
+let Access/union = ../AccessMask/union.dhall
 
 -- | Calculates the union of the access rights set by both `Mask`s using
 -- `Access/union`.

@@ -1,4 +1,4 @@
-let Access = ./../Access.dhall
+let Access = ../Access.dhall
 
 let Mask = ./Mask.dhall
 
@@ -7,7 +7,7 @@ let Mask = ./Mask.dhall
 -- flag will be set to the flags value given in @m@. Otherwise, the value set
 -- in @m@ is ignored and the value of the flag in the result is `None`.
 let toAccessWith
-    : Mask -> Access
+    : Mask -> Mask -> Access
     = \(set : Mask) ->
       \(m : Mask) ->
         { execute = if set.execute then Some m.execute else None Bool

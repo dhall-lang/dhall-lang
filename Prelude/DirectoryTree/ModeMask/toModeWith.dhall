@@ -1,14 +1,14 @@
-let Access = ./../Access.dhall
+let Access = ../Access.dhall
 
-let Access/Mask = ./../AccessMask/Mask.dhall
+let Access/Mask = ../AccessMask/Mask.dhall
 
-let Mode = ./../Mode.dhall
+let Mode = ../Mode.dhall
 
 let Mask = ./Mask.dhall
 
-let Access/equal = ./../equalAccess.dhall
+let Access/equal = ../equalAccess.dhall
 
-let Access/toAccessWith = ./../AccessMask/toAccessWith.dhall
+let Access/toAccessWith = ../AccessMask/toAccessWith.dhall
 
 let f
     : Access/Mask -> Access/Mask -> Optional Access

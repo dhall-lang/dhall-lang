@@ -1,11 +1,11 @@
 let Mask = ./Mask.dhall
 
-let Bool/not = ./../../Bool/not.dhall
+let Bool/not = ../../Bool/not.dhall
 
 -- | Inverts the flags set in a `Mask`.
 let invert
     : Mask -> Mask
-    = \(m : Access) ->
+    = \(m : Mask) ->
         { read = Bool/not m.read
         , write = Bool/not m.write
         , execute = Bool/not m.execute

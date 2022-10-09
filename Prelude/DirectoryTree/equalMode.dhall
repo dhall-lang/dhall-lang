@@ -12,7 +12,9 @@ let f
           { None = merge { None = True, Some = \(a2 : Access) -> False } o2
           , Some =
               \(a1 : Access) ->
-                merge { None = False, Some = \(a2 : Access) -> Access/equal a1 a2 } o2
+                merge
+                  { None = False, Some = \(a2 : Access) -> Access/equal a1 a2 }
+                  o2
           }
           o1
 

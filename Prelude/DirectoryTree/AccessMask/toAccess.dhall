@@ -1,4 +1,4 @@
-let Access = ./../Access.dhall
+let Access = ../Access.dhall
 
 let Mask = ./Mask.dhall
 

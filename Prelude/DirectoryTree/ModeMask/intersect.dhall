@@ -1,8 +1,6 @@
-let Access/Mask = ./../AccessMask/Mask.dhall
-
 let Mask = ./Mask.dhall
 
-let Access/intersect = ./../AccessMask/intersect.dhall
+let Access/intersect = ../AccessMask/intersect.dhall
 
 -- | Calculates the intersection of the access rights of two `Mask`s using
 -- `Access/intersect`.

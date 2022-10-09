@@ -1,8 +1,8 @@
-let Mode = ./../Mode.dhall
+let Mode = ../Mode.dhall
 
 let Mask = ./Mask.dhall
 
-let Access/toAccess = ./../AccessMask/toAccess.dhall
+let Access/toAccess = ../AccessMask/toAccess.dhall
 
 let toMode
     : Mask -> Mode
