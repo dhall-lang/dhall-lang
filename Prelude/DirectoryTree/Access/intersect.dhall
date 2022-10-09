@@ -1,26 +1,31 @@
-let Access = ./../Access.dhall
+let Mask = ./Mask.dhall
 
-let f
-    : Optional Bool -> Optional Bool -> Optional Bool
-    = \(o1 : Optional Bool) ->
-      \(o2 : Optional Bool) ->
-        merge
-          { None = None Bool
-          , Some =
-              \(b1 : Bool) ->
-                merge
-                  { None = None Bool, Some = \(b2 : Bool) -> Some (b1 && b2) }
-                  o2
-          }
-          o1
-
+-- | @intersect a b@ intesects the flags of the two `Mask`s @a@ and @b@.
+-- This resembles the bitwise "and", i.e. the value of a flag is 'True' if and
+-- only if it is set to 'True' in both @a@ and @b@.
+-- As a consequence @intersect a rwx == a@ and @intersect a none == none@ for
+-- all @a@.
 let intersect
-    : Access -> Access -> Access
-    = \(a1 : Access) ->
-      \(a2 : Access) ->
-        { read = f a1.read a2.read
-        , write = f a1.write a2.write
-        , execute = f a1.execute a2.execute
+    : Mask -> Mask -> Mask
+    = \(m1 : Mask) ->
+      \(m2 : Mask) ->
+        { read = m1.read && m2.read
+        , write = m1.write && m2.write
+        , execute = m1.execute && m2.execute
         }
+
+let example0 =
+      let a = ./r.dhall
+
+      let rwx = ./rwx.dhall
+
+      in  assert : intersect a rwx === a
+
+let example1 =
+      let a = ./r.dhall
+
+      let none = ./none.dhall
+
+      in  assert : intersect a none === none
 
 in  intersect

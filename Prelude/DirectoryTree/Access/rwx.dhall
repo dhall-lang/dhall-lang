@@ -1,1 +1,1 @@
-{ read = Some True, write = Some True, execute = Some True } : ./../Access.dhall
+{ read = True, write = True, execute = True } : ./Mask.dhall

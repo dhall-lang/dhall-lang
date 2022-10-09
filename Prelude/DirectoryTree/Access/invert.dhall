@@ -1,16 +1,28 @@
-let Access = ./../Access.dhall
+let Mask = ./Mask.dhall
 
 let Bool/not = ./../../Bool/not.dhall
 
-let Optional/map = ./../../Optional/map.dhall
-
-let f
-    : Optional Bool -> Optional Bool
-    = Optional/map Bool Bool Bool/not
-
+-- | Inverts the flags set in a `Mask`.
 let invert
-    : Access -> Access
-    = \(a : Access) ->
-        { read = f a.read, write = f a.write, execute = f a.execute }
+    : Mask -> Mask
+    = \(m : Access) ->
+        { read = Bool/not m.read
+        , write = Bool/not m.write
+        , execute = Bool/not m.execute
+        }
+
+let example0 =
+      let none = ./none.dhall
+
+      let rwx = ./rwx.dhall
+
+      in  assert : invert rwx === none
+
+let example1 =
+      let none = ./none.dhall
+
+      let rwx = ./rwx.dhall
+
+      in  assert : invert none === rwx
 
 in  invert
