@@ -592,6 +592,9 @@ builtin =
     <|> _ListReverse
     <|> _TextShow
     <|> _TextReplace
+    <|> _DateShow
+    <|> _TimeShow
+    <|> _TimeZoneShow
     <|> _Bool
     <|> _True
     <|> _False
@@ -672,6 +675,15 @@ _TextShow = do "Text/show"; return TextShow
 
 _TextReplace :: Parser Builtin
 _TextReplace = do "Text/replace"; return TextReplace
+
+_DateShow :: Parser Builtin
+_DateShow = do "Date/show"; return DateShow
+
+_TimeShow :: Parser Builtin
+_TimeShow = do "Time/show"; return TimeShow
+
+_TimeZoneShow :: Parser Builtin
+_TimeZoneShow = do "TimeZone/show"; return TimeZoneShow
 
 _Bool :: Parser Builtin
 _Bool = do "Bool"; return Bool

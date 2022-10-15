@@ -324,6 +324,18 @@ matching their identifier.
     encode(Text/replace) = "Text/replace"
 
 
+    ───────────────────────────────
+    encode(Date/show) = "Date/show"
+
+
+    ───────────────────────────────
+    encode(Time/show) = "Time/show"
+
+
+    ───────────────────────────────────────
+    encode(TimeZone/show) = "TimeZone/show"
+
+
     ─────────────────────
     encode(Bool) = "Bool"
 
@@ -407,6 +419,9 @@ encode (Builtin ListIndexed     ) = TString "List/indexed"
 encode (Builtin ListReverse     ) = TString "List/reverse"
 encode (Builtin TextShow        ) = TString "Text/show"
 encode (Builtin TextReplace     ) = TString "Text/replace"
+encode (Builtin DateShow        ) = TString "Date/show"
+encode (Builtin TimeShow        ) = TString "Time/show"
+encode (Builtin TimeZoneShow    ) = TString "TimeZone/show"
 encode (Builtin Bool            ) = TString "Bool"
 encode (Builtin Optional        ) = TString "Optional"
 encode (Builtin None            ) = TString "None"
@@ -1561,6 +1576,18 @@ a built-in identifier if it matches any of the following strings:
 
     ───────────────────────────────
     decode("Text/show") = Text/show
+
+
+    ───────────────────────────────
+    decode("Date/show") = Date/show
+
+
+    ───────────────────────────────
+    decode("Time/show") = Time/show
+
+
+    ───────────────────────────────────────
+    decode("TimeZone/show") = TimeZone/show
 
 
     ─────────────────────────

@@ -331,6 +331,21 @@ If the operator arguments do not have type `Text`, then that is a type error.
     Γ ⊢ ±HH:MM : TimeZone
 
 
+The `{Date,Time,TimeZone}/show` functions have the following type:
+
+
+    ───────────────────────────
+    Γ ⊢ Date/show : Date → Text
+
+
+    ───────────────────────────
+    Γ ⊢ Time/show : Time → Text
+
+
+    ───────────────────────────────────
+    Γ ⊢ TimeZone/show : TimeZone → Text
+
+
 ## `List`
 
 `List` is a function from a `Type` to another `Type`:

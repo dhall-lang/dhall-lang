@@ -124,6 +124,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
                                       ; values becoming negative and vice-versa
   / Integer/clamp                     ; Convert Integer to Natural by clamping
                                       ; negative values to zero
+  / Date/show                         ; Convert Date to Text representation
   / Double/show                       ; Convert Double to Text representation
   / List/build                        ; List introduction
   / List/fold                         ; List elimination
@@ -134,6 +135,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/reverse                      ; Reverse list
   / Text/show                         ; Convert Text to its own representation
   / Text/replace                      ; Replace a section of a Text literal
+  / Time/show                         ; Convert Time to Text representation
+  / TimeZone/show                     ; Convert TimeZone to Text representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
   / Natural                           ; Natural type
@@ -305,42 +308,45 @@ instance Monoid TextLiteral where
 
 -- | Builtin values
 data Builtin
-    = NaturalBuild
-    | NaturalFold
-    | NaturalIsZero
-    | NaturalEven
-    | NaturalOdd
-    | NaturalToInteger
-    | NaturalShow
-    | NaturalSubtract
-    | IntegerToDouble
-    | IntegerShow
-    | IntegerNegate
-    | IntegerClamp
+    = DateShow
     | DoubleShow
+    | IntegerClamp
+    | IntegerNegate
+    | IntegerShow
+    | IntegerToDouble
     | ListBuild
     | ListFold
-    | ListLength
     | ListHead
-    | ListLast
     | ListIndexed
+    | ListLast
+    | ListLength
     | ListReverse
-    | TextShow
+    | NaturalBuild
+    | NaturalEven
+    | NaturalFold
+    | NaturalIsZero
+    | NaturalOdd
+    | NaturalShow
+    | NaturalSubtract
+    | NaturalToInteger
     | TextReplace
+    | TextShow
+    | TimeShow
+    | TimeZoneShow
     | Bool
-    | Optional
-    | Natural
-    | Integer
-    | Double
-    | Text
     | Bytes
-    | List
-    | True
-    | False
-    | None
     | Date
+    | Double
+    | False
+    | Integer
+    | List
+    | Natural
+    | None
+    | Optional
+    | Text
     | Time
     | TimeZone
+    | True
     deriving (Show)
 
 -- | Type-checking constants

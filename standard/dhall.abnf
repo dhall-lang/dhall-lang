@@ -427,6 +427,9 @@ builtin =
     / List-reverse
     / Text-show
     / Text-replace
+    / Date-show
+    / Time-show
+    / TimeZone-show
     / Bool
     / True
     / False
@@ -486,6 +489,9 @@ List-indexed      = %x4c.69.73.74.2f.69.6e.64.65.78.65.64
 List-reverse      = %x4c.69.73.74.2f.72.65.76.65.72.73.65
 Text-show         = %x54.65.78.74.2f.73.68.6f.77
 Text-replace      = %x54.65.78.74.2f.72.65.70.6c.61.63.65
+Date-show         = %x44.61.74.65.2f.73.68.6f.77
+Time-show         = %x54.69.6d.65.2f.73.68.6f.77
+TimeZone-show     = %x54.69.6d.65.5a.6f.6e.65.2f.73.68.6f.77
 
 ; Operators
 combine       = %x2227 / "/\"

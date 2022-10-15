@@ -2,6 +2,10 @@
       ./Bool/package.dhall
         sha256:dde2b9b71afdd26878c06e90cd2cde4488063457d5fbe30e02baed3bec5eede6
     ? ./Bool/package.dhall
+, Date =
+      ./Date/package.dhall
+        sha256:fc0c5efc924fa99aa8e5dea5d78c3dc1a24cb550028342b90149ea78cb5ca873
+    ? ./Date/package.dhall
 , Double =
       ./Double/package.dhall
         sha256:b8d20ab3216083622ae371fb42a6732bc67bb2d66e84989c8ddba7556a336cf7
@@ -14,6 +18,10 @@
       ./Integer/package.dhall
         sha256:d1a572ca3a764781496847e4921d7d9a881c18ffcfac6ae28d0e5299066938a0
     ? ./Integer/package.dhall
+, JSON =
+      ./JSON/package.dhall
+        sha256:5f98b7722fd13509ef448b075e02b9ff98312ae7a406cf53ed25012dbc9990ac
+    ? ./JSON/package.dhall
 , List =
       ./List/package.dhall
         sha256:26d1b4cd800219d8b67043c638926aa6e5517ea74a0bd3e371974514621bca04
@@ -46,14 +54,18 @@
       ./Optional/package.dhall
         sha256:74331dfe59c09db65edc7ec4498bff92473c8c06d92752f9470d26e25f91320c
     ? ./Optional/package.dhall
-, JSON =
-      ./JSON/package.dhall
-        sha256:5f98b7722fd13509ef448b075e02b9ff98312ae7a406cf53ed25012dbc9990ac
-    ? ./JSON/package.dhall
 , Text =
       ./Text/package.dhall
         sha256:79b671a70ac459b799a53bbb8a383cc8b81b40421745c54bf0fb1143168cbd6f
     ? ./Text/package.dhall
+, Time =
+      ./Time/package.dhall
+        sha256:6715c4c71a113429fef8b94e4561a93c288942dad9dfd75ac545de96c5b5652a
+    ? ./Time/package.dhall
+, TimeZone =
+      ./TimeZone/package.dhall
+        sha256:c17fd403c637856f34c8287168b92974e8c1a3a7331967f75276d179057084fd
+    ? ./TimeZone/package.dhall
 , XML =
       ./XML/package.dhall
         sha256:2e111f0952087d42072b059f0bf4c95861a46bffa67ad4c8c39086edf405f32e

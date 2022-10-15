@@ -871,6 +871,119 @@ x ++ "" ≡ x
 (x ++ y) ++ z = x ++ (y ++ z)
 ```
 
+## Date
+
+`Date` represents a day of the year
+
+#### Type
+
+```
+────────────────
+Γ ⊢ Date : Type
+```
+
+### Literals: `Date`
+
+A `Date` literal has the form `YYYY-MM-DD`
+
+```dhall
+⊢ :type 2000-01-01
+
+Date
+```
+
+### Function `Date/show`
+
+The `Date/show` built-in function renders a `Date` as a valid Dhall literal:
+
+```dhall
+⊢ Date/show 2000-01-01
+
+"2000-01-01"
+```
+
+## Time
+
+`Time` represents a time of day
+
+#### Type
+
+```
+────────────────
+Γ ⊢ Time : Type
+```
+
+### Literals: `Time`
+
+A `Time` literal has the form `HH:MM:SS` and the seconds may have a fractional
+component.
+
+```dhall
+⊢ :type 00:00:00
+
+Time
+
+⊢ :type 11:59:59.99
+
+Time
+```
+
+### Function `Time/show`
+
+The `Time/show` built-in function renders a `Time` as a valid Dhall literal:
+
+```dhall
+⊢ Date/show 00:00:00
+
+"00:00:00"
+```
+
+## Time
+
+`Time` represents a time of day
+
+#### Type
+
+```
+────────────────
+Γ ⊢ TimeZone : Type
+```
+
+### Literals: `TimeZone`
+
+A `TimeZone` literal has the form `±HH:MM`.
+
+```dhall
+⊢ :type +07:00
+
+TimeZone
+
+⊢ :type -05:00
+
+TimeZone
+```
+
+### Function `TimeZone/show`
+
+The `TimeZone/show` built-in function renders a `Time` as a valid Dhall literal:
+
+```dhall
+⊢ TimeZone/show +00:00
+
+"+00:00"
+```
+
+## List
+
+A `List` is an ordered sequence of elements, all of which have the same type.
+
+#### Type
+
+```
+──────────────────────
+Γ ⊢ List : Type → Type
+```
+
 ## List
 
 A `List` is an ordered sequence of elements, all of which have the same type.

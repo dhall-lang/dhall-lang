@@ -116,6 +116,28 @@
     Text/replace "-" "_" "foo-bar" = "foo_bar"
     ```
 
+*   `Date` / `Time` / `TimeZone`
+
+    ```dhall
+    2022-09-02T03:15+07:00 : { date : Date, time : Time, timeZone : TimeZone }
+
+    2022-09-02T03:15 : { date : Date, time : Time }
+
+    03:15+07:00 : { time : Time, timeZone : TimeZone }
+
+    2022-09-02 : Date
+
+    03:15:00 : Time
+
+    +07:00 : TimeZone
+
+    Date/show 2022-09-02 = "2022-09-02"
+
+    Time/show 03:15:00 = "03:15:00"
+
+    TimeZone/show +07:00 = "+07:00"
+    ```
+
 ## Complex types
 
 *   `List`:
