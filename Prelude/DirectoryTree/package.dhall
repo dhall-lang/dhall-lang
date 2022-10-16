@@ -8,7 +8,11 @@
 , Mode = ./Mode/package.dhall
 , Tree = ./Tree.dhall
 , User = ./User.dhall
+, groupId = ./groupId.dhall
+, groupName = ./groupName.dhall
 , makeTree = ./makeTree.dhall
 , makeTreeFromList = ./makeTreeFromList.dhall
 , makeTreesFromList = ./makeTreesFromList.dhall
+, userId = ./userId.dhall
+, userName = ./userName.dhall
 }
