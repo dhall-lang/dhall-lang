@@ -1,15 +1,16 @@
-let File = ./File.dhall
-
 let Make = ./Make.dhall
 
 let Metadata = ./Metadata.dhall
 
-let path
-    : forall (tree : Type) -> Make tree -> List Metadata -> File -> tree
+-- | @makeTree tree make parents x@ places the tree @x@ below the directory
+-- @parent@. @parent@ is given as a list of 'Metadata' values where each of
+-- those will be used to create the respective level of the directory tree.
+let makeTree
+    : forall (tree : Type) -> Make tree -> List Metadata -> tree -> tree
     = \(tree : Type) ->
       \(make : Make tree) ->
       \(parents : List Metadata) ->
-      \(file : File) ->
+      \(leaf : tree) ->
         List/fold
           Metadata
           parents
@@ -18,6 +19,6 @@ let path
             \(result : tree) ->
               make.directory (directory /\ { content = [ result ] })
           )
-          (make.file file)
+          leaf
 
-in  path
+in  makeTree
