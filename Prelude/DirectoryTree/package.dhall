@@ -5,6 +5,7 @@
 , File = ./File.dhall
 , Group = ./Group.dhall
 , Make = ./Make.dhall
+, Metadata = ./Metadata.dhall
 , Mode = ./Mode.dhall
 , ModeMask = ./ModeMask/package.dhall
 , Tree = ./Tree.dhall
