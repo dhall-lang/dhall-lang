@@ -4,6 +4,7 @@
 , Entry = ./Entry.dhall
 , File = ./File.dhall
 , Group = ./Group.dhall
+, Make = ./Make.dhall
 , Mode = ./Mode.dhall
 , ModeMask = ./ModeMask/package.dhall
 , Tree = ./Tree.dhall
