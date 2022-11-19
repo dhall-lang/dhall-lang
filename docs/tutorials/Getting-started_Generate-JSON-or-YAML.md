@@ -204,6 +204,18 @@ To avoid repetition, we'll only use the `dhall-to-json` tool throughout the rest
 of this tutorial, although all of the following examples work equally well for
 the `dhall-to-yaml` tool.
 
+> **Exercise:** Run the following inputs through `dhall-to-json`.
+>
+> ```console
+> 'let x = "1" in { x = "${x}" }'
+> ```
+> ```console
+> 'let pet = "dog" let name = "fido" in { pet = "${pet}", name = "${name}" }'
+> ```
+> ```console
+> 'let x = 3 let y = 5 in [x, y, x * y]'
+> ```
+
 > **Exercise:** What Dhall expression generates the following JSON:
 >
 > ```json
