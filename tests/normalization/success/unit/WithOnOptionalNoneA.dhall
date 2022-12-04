@@ -1,1 +1,1 @@
-None with ? = 1
+(None Natural) with ? = 1
