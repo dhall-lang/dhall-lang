@@ -1,9 +1,15 @@
 {- | Calculates the intersection of the access rights of two `Mask`s using
 `Access/intersect`.
 -}
-let Mask = ./Type.dhall
+let Mask =
+        ./Type.dhall
+          sha256:4f97762058f24053e03997565a78800a5a2586159deaa265a4ee84a3d94ad471
+      ? ./Type.dhall
 
-let Access/intersect = ../../Access/Mask/intersect.dhall
+let Access/intersect =
+        ../../Access/Mask/intersect.dhall
+          sha256:7c7dab3e305f43cba556e0778b5a797cf8e9b1d1a6c6f6fe0ea311c329919663
+      ? ../../Access/Mask/intersect.dhall
 
 let intersect
     : Mask -> Mask -> Mask

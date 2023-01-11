@@ -3,17 +3,35 @@ respective field is set in the first `Mask` @x@, then the flag will be set to
 the flags value given in @m@. Otherwise, the value set in @m@ is ignored and the
 value of the flag in the result is `None`.
 -}
-let Access = ../../Access/Type.dhall
+let Access =
+        ../../Access/Type.dhall
+          sha256:50689ae80f8c8dcd6e7af33fbc20ea871afb92ec87104253cdbae01f838f6c38
+      ? ../../Access/Type.dhall
 
-let Access/Mask = ../../Access/Mask/Type.dhall
+let Access/Mask =
+        ../../Access/Mask/Type.dhall
+          sha256:c0fa7626b69e117086439a7b4ee15d1a80e16e38fe2ccc13f55e6dd26030b4df
+      ? ../../Access/Mask/Type.dhall
 
-let Mode = ../Type.dhall
+let Mode =
+        ../Type.dhall
+          sha256:f05819ec2145e7dabf4aa167338bee6d326aabd81355dcf0b078e358bd34ec60
+      ? ../Type.dhall
 
-let Mask = ./Type.dhall
+let Mask =
+        ./Type.dhall
+          sha256:4f97762058f24053e03997565a78800a5a2586159deaa265a4ee84a3d94ad471
+      ? ./Type.dhall
 
-let Access/equal = ../../Access/equal.dhall
+let Access/equal =
+        ../../Access/equal.dhall
+          sha256:5fa90f55505780a7be942275d6bbb2b1f1fb7857364332ed732a0241c2165e53
+      ? ../../Access/equal.dhall
 
-let Access/toAccessWith = ../../Access/Mask/toAccessWith.dhall
+let Access/toAccessWith =
+        ../../Access/Mask/toAccessWith.dhall
+          sha256:814ab74ad292c121620a1f468837d4a5473323423bf68c1bceca69e7b3c59077
+      ? ../../Access/Mask/toAccessWith.dhall
 
 let f
     : Access/Mask -> Access/Mask -> Optional Access
