@@ -1,4 +1,5 @@
--- | A schema for a blank file mode.
+{- | A schema for a blank file mode.
+-}
 let Access = ./../Access/Type.dhall
 
 in  { Type = ./Type.dhall

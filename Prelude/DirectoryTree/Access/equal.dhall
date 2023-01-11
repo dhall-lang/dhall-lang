@@ -1,3 +1,5 @@
+{- | `equal` checks if two `Access` settings are equal.
+-}
 let Access = ./Type.dhall
 
 let f
@@ -12,7 +14,6 @@ let f
           }
           o1
 
---| `equal` checks if two `Access` settings are equal.
 let equal
     : Access -> Access -> Bool
     = \(a1 : Access) ->

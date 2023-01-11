@@ -1,11 +1,11 @@
+{- | @makeTreesFromList tree make parents xs@ places the trees @xs@ below the
+directory @parent@. @parent@ is given as a list of 'Metadata' values where each
+of those will be used to create the respective level of the directory tree.
+-}
 let Make = ./Make.dhall
 
 let Metadata = ../Entry/Metadata.dhall
 
--- | @makeTreesFromList tree make parents xs@ places the trees @xs@ below the
--- directory @parent@. @parent@ is given as a list of 'Metadata' values where
--- each of those will be used to create the respective level of the directory
--- tree.
 let makeTreesFromList
     : forall (tree : Type) ->
       Make tree ->

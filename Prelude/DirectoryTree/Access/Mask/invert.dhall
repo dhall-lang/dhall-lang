@@ -1,8 +1,9 @@
+{- | Inverts the flags set in a `Mask`.
+-}
 let Mask = ./Type.dhall
 
 let Bool/not = ../../../Bool/not.dhall
 
--- | Inverts the flags set in a `Mask`.
 let invert
     : Mask -> Mask
     = \(m : Mask) ->

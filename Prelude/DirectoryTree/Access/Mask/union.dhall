@@ -1,10 +1,10 @@
+{- | @union a b@ intesects the flags of the two `Mask`s @a@ and @b@.
+This resembles the bitwise "or", i.e. the value of a flag is 'True' if it is set
+to 'True' in either @a@ and @b@. As a consequence @union a rwx == rwx@ and
+@intersect a none == a@ for all @a@.
+-}
 let Mask = ./Type.dhall
 
--- | @union a b@ intesects the flags of the two `Mask`s @a@ and @b@.
--- This resembles the bitwise "or", i.e. the value of a flag is 'True' if it is
--- set to 'True' in either @a@ and @b@.
--- As a consequence @union a rwx == rwx@ and @intersect a none == a@ for all
--- @a@.
 let union
     : Mask -> Mask -> Mask
     = \(m1 : Mask) ->

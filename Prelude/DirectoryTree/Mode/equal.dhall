@@ -1,3 +1,5 @@
+{- | `equal` checks if two `Mode`s are equal.
+-}
 let Access = ./../Access/Type.dhall
 
 let Mode = ./Type.dhall
@@ -18,7 +20,6 @@ let f
           }
           o1
 
---| `equal` checks if two `Mode`s are equal.
 let equal
     : Mode -> Mode -> Bool
     = \(m1 : Mode) ->

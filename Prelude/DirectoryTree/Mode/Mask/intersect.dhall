@@ -1,9 +1,11 @@
+{- | Calculates the intersection of the access rights of two `Mask`s using
+`Access/intersect`.
+-}
+
 let Mask = ./Type.dhall
 
 let Access/intersect = ../../Access/Mask/intersect.dhall
 
--- | Calculates the intersection of the access rights of two `Mask`s using
--- `Access/intersect`.
 let intersect
     : Mask -> Mask -> Mask
     = \(m1 : Mask) ->

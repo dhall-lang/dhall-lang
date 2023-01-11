@@ -1,9 +1,10 @@
+{- | Calculates the union of the access rights set by both `Mask`s using
+`Access/union`.
+-}
 let Mask = ./Type.dhall
 
 let Access/union = ../../Access/Mask/union.dhall
 
--- | Calculates the union of the access rights set by both `Mask`s using
--- `Access/union`.
 let union
     : Mask -> Mask -> Mask
     = \(m1 : Mask) ->

@@ -1,3 +1,8 @@
+{- | @toModeWith x m@ converts some fields of a `Mask` @m@ to a `Mode`: If the
+respective field is set in the first `Mask` @x@, then the flag will be set to
+the flags value given in @m@. Otherwise, the value set in @m@ is ignored and the
+value of the flag in the result is `None`.
+-}
 let Access = ../../Access/Type.dhall
 
 let Access/Mask = ../../Access/Mask/Type.dhall
@@ -22,10 +27,6 @@ let f
             then  None Access
             else  Some x
 
--- | @toModeWith x m@ converts some fields of a `Mask` @m@ to a `Mode`: If the
--- respective field is set in the first `Mask` @x@, then the flag will be set to
--- the flags value given in @m@. Otherwise, the value set in @m@ is ignored and
--- the value of the flag in the result is `None`.
 let toModeWith
     : Mask -> Mask -> Mode
     = \(set : Mask) ->
