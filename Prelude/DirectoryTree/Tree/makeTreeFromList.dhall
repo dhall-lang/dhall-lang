@@ -1,8 +1,8 @@
 let Make = ./Make.dhall
 
-let Metadata = ./Metadata.dhall
+let Metadata = ../Entry/Metadata.dhall
 
-let NonEmpty = ../NonEmpty/Type.dhall
+let NonEmpty = ../../NonEmpty/Type.dhall
 
 let makeTreesFromList = ./makeTreesFromList.dhall
 

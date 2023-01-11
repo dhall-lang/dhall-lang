@@ -1,6 +1,6 @@
 let Make = ./Make.dhall
 
-let Metadata = ./Metadata.dhall
+let Metadata = ../Entry/Metadata.dhall
 
 -- | @makeTree tree make parents x@ places the tree @x@ below the directory
 -- @parent@. @parent@ is given as a list of 'Metadata' values where each of

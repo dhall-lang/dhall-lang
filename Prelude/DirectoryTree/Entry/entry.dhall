@@ -1,10 +1,10 @@
-let Entry = ./Entry.dhall
+let Entry = ./Type.dhall
 
-let User = ./User.dhall
+let User = ../User/Type.dhall
 
-let Group = ./Group.dhall
+let Group = ../Group/Type.dhall
 
-let Mode = ./Mode.dhall
+let Mode = ../Mode/Type.dhall
 
 in  \(content : Type) ->
       { Type = Entry content
