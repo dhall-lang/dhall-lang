@@ -15,11 +15,7 @@ let intersect
         }
 
 let example0 =
-      let a = ./r.dhall
-
-      let rwx = ./rwx.dhall
-
-      in  assert : intersect a rwx === a
+      let a = ./r.dhall let rwx = ./rwx.dhall in assert : intersect a rwx === a
 
 let example1 =
       let a = ./r.dhall

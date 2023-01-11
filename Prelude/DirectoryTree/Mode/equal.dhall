@@ -1,10 +1,10 @@
 {- | `equal` checks if two `Mode`s are equal.
 -}
-let Access = ./../Access/Type.dhall
+let Access = ../Access/Type.dhall
 
 let Mode = ./Type.dhall
 
-let Access/equal = ./../Access/equal.dhall
+let Access/equal = ../Access/equal.dhall
 
 let f
     : Optional Access -> Optional Access -> Bool

@@ -1,4 +1,1 @@
-{ Type = ./Type.dhall
-, id = ./id.dhall
-, name = ./name.dhall
-}
+{ Type = ./Type.dhall, id = ./id.dhall, name = ./name.dhall }
