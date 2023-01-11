@@ -18,29 +18,51 @@ let intersect
         }
 
 let example0 =
-      let a =
+      let r =
               ./r.dhall
                 sha256:26d7fc8df6194a8051946eac88d0d7fecce690bff6819e69b3c74edf65ac027a
             ? ./r.dhall
+
+      let w =
+              ./w.dhall
+                sha256:9d10dfc672f61bbb2828c7be2121aae2502938c25adb47bb8cce3c40ba99821b
+            ? ./w.dhall
+
+      let x =
+              ./x.dhall
+                sha256:a966fd88c05a5912a6daa8409e0c9e396f0a4810b51def1e1f62a95e18235f10
+            ? ./x.dhall
 
       let rwx =
               ./rwx.dhall
                 sha256:cafda16b1ecc0d2f9a63f3aab229a02e18aebb054283c73e50517f1e3727cd27
             ? ./rwx.dhall
 
-      in  assert : intersect a rwx === a
-
-let example1 =
-      let a =
-              ./r.dhall
-                sha256:26d7fc8df6194a8051946eac88d0d7fecce690bff6819e69b3c74edf65ac027a
-            ? ./r.dhall
-
       let none =
               ./none.dhall
                 sha256:db6c3bb734bb3288441f2664379706052943eaba35c021326a600d41ca766925
             ? ./none.dhall
 
-      in  assert : intersect a none === none
+      in  assert : intersect r (intersect w (intersect x rwx)) === none
+
+let example1 =
+      \(a : Mask) ->
+        let rwx =
+                ./rwx.dhall
+                  sha256:cafda16b1ecc0d2f9a63f3aab229a02e18aebb054283c73e50517f1e3727cd27
+              ? ./rwx.dhall
+
+        in    assert
+            :     intersect a rwx
+              ===  { execute = a.execute, read = a.read, write = a.write }
+
+let example2 =
+      \(a : Mask) ->
+        let none =
+                ./none.dhall
+                  sha256:db6c3bb734bb3288441f2664379706052943eaba35c021326a600d41ca766925
+              ? ./none.dhall
+
+        in  assert : intersect a none === none
 
 in  intersect

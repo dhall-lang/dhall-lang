@@ -54,4 +54,18 @@ let toModeWith
         , other = f set.other m.other
         }
 
+let example0 =
+      \(a : Mask) ->
+        let none =
+                ./none.dhall
+                  sha256:7cac21e2b72cadf3ee0bf10680df4902ca73b6ee070219df5eac1a24cd66ccdf
+              ? ./none.dhall
+
+        let Mode/none =
+                ../none.dhall
+                  sha256:0ed46da7e6acbdff9e4c9e27a9f2770075a7cd6cb6bb565765c62093df1b5563
+              ? ../none.dhall
+
+        in  assert : toModeWith none a === Mode/none
+
 in  toModeWith

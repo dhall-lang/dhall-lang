@@ -1,3 +1,6 @@
+{- | Convert a `Mask` value to a `Mode` value.
+For a partial conversion see `toModeWith`.
+-}
 let Mode =
         ../Type.dhall
           sha256:f05819ec2145e7dabf4aa167338bee6d326aabd81355dcf0b078e358bd34ec60

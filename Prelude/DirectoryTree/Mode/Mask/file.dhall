@@ -1,3 +1,5 @@
+{- | Permissions commonly used for regular files: rw-r--r--
+-}
 let r =
         ../../Access/Mask/r.dhall
           sha256:26d7fc8df6194a8051946eac88d0d7fecce690bff6819e69b3c74edf65ac027a

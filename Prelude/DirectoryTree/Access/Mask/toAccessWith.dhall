@@ -22,4 +22,22 @@ let toAccessWith
         , write = if set.write then Some m.write else None Bool
         }
 
+let example0 =
+      \ ( a
+        :   ./Type.dhall
+              sha256:c0fa7626b69e117086439a7b4ee15d1a80e16e38fe2ccc13f55e6dd26030b4df
+          ? ./Type.dhall
+        ) ->
+        let Access/none =
+                ../none.dhall
+                  sha256:955a2eed689139c811d4b9ef3dd8d0c484392b18c3bb8752c59fd69dbdaf4881
+              ? ../none.dhall
+
+        let none =
+                ./none.dhall
+                  sha256:db6c3bb734bb3288441f2664379706052943eaba35c021326a600d41ca766925
+              ? ./none.dhall
+
+        in  assert : toAccessWith none a === Access/none
+
 in  toAccessWith
