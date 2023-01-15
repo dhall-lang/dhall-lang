@@ -1,3 +1,5 @@
+{-| Permissions with no flags set: ---------
+-}
 let none =
         ../../Access/Mask/none.dhall
           sha256:db6c3bb734bb3288441f2664379706052943eaba35c021326a600d41ca766925
