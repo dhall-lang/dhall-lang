@@ -1,4 +1,4 @@
-{- | Convert a `Mask` value to a `Mode` value.
+{-| Convert a `Mask` value to a `Mode` value.
 For a partial conversion see `toModeWith`.
 -}
 let Mode =

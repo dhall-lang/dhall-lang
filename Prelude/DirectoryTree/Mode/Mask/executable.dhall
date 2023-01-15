@@ -1,4 +1,4 @@
-{- | Permissions commonly used for executable files: rwxr-xr-x
+{-| Permissions commonly used for executable files: rwxr-xr-x
 -}
 let rwx =
         ../../Access/Mask/rwx.dhall

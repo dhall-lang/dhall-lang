@@ -1,4 +1,4 @@
-{- | Inverts each access right set in a `Mask` using `Access/invert`.
+{-| Inverts each access right set in a `Mask` using `Access/invert`.
 -}
 let Mask =
         ./Type.dhall

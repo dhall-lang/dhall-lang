@@ -1,4 +1,4 @@
-{- | `equal` checks if two `Mode`s are equal.
+{-| `equal` checks if two `Mode`s are equal.
 -}
 let Access =
         ../Access/Type.dhall

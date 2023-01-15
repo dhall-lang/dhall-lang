@@ -1,4 +1,4 @@
-{- | @toModeWith x m@ converts some fields of a `Mask` @m@ to a `Mode`: If the
+{-| @toModeWith x m@ converts some fields of a `Mask` @m@ to a `Mode`: If the
 respective field is set in the first `Mask` @x@, then the flag will be set to
 the flags value given in @m@. Otherwise, the value set in @m@ is ignored and the
 value of the flag in the result is `None`.

@@ -1,4 +1,4 @@
-{- | @union a b@ intesects the flags of the two `Mask`s @a@ and @b@.
+{-| @union a b@ combines the flags of the two `Mask`s @a@ and @b@.
 This resembles the bitwise "or", i.e. the value of a flag is 'True' if it is set
 to 'True' in either @a@ and @b@. As a consequence @union a rwx == rwx@ and
 @union a none == a@ for all @a@.

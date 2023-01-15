@@ -1,4 +1,4 @@
-{- | Calculates the intersection of the access rights of two `Mask`s using
+{-| Calculates the intersection of the access rights of two `Mask`s using
 `Access/intersect`.
 -}
 let Mask =

@@ -1,4 +1,4 @@
-{- | Calculates the union of the access rights set by both `Mask`s using
+{-| Calculates the union of the access rights set by both `Mask`s using
 `Access/union`.
 -}
 let Mask =

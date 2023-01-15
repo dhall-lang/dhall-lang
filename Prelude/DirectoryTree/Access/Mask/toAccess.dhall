@@ -1,4 +1,4 @@
-{- | Convert a `Mask` value to an `Access` value.
+{-| Convert a `Mask` value to an `Access` value.
 For a partial conversion see `toAccessWith`.
 -}
 let Access =

@@ -1,4 +1,4 @@
-{- | A complete mode with all access rights specified explicitely.
+{-| A complete mode with all access rights specified explicitely.
 For an incomplete mode where some access rights might not be set see `Mode`.
 -}
 let Access/Mask =

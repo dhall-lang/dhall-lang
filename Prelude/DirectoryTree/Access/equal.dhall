@@ -1,4 +1,4 @@
-{- | `equal` checks if two `Access` settings are equal.
+{-| `equal` checks if two `Access` settings are equal.
 -}
 let Access =
         ./Type.dhall
