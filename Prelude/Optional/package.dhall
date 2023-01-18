@@ -22,6 +22,10 @@
       ./default.dhall
         sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
     ? ./default.dhall
+, equal =
+      ./equal.dhall
+        sha256:5411888399fe9c6720f7f3b59caf5eff3e8e8c30402d09f34e46a4457649a35a
+    ? ./equal.dhall
 , filter =
       ./filter.dhall
         sha256:54f0a487d578801819613fe000050c038c632edf1f9ccc57677e98ae0ef56b83
