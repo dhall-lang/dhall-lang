@@ -1,6 +1,6 @@
 { Bool =
       ./Bool/package.dhall
-        sha256:7ee950e7c2142be5923f76d00263e536b71d96cb9c190d7743c1679501ddeb0a
+        sha256:dde2b9b71afdd26878c06e90cd2cde4488063457d5fbe30e02baed3bec5eede6
     ? ./Bool/package.dhall
 , Double =
       ./Double/package.dhall
@@ -44,7 +44,7 @@
     ? ./Operator/package.dhall
 , Optional =
       ./Optional/package.dhall
-        sha256:37b84d6fe94c591d603d7b06527a2d3439ba83361e9326bc7b72517c7dc54d4e
+        sha256:74331dfe59c09db65edc7ec4498bff92473c8c06d92752f9470d26e25f91320c
     ? ./Optional/package.dhall
 , JSON =
       ./JSON/package.dhall
