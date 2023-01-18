@@ -2,6 +2,7 @@
     { and : ∀(xs : List Bool) → Bool
     , build :
         ∀(f : ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool) → Bool
+    , equal : ∀(x : Bool) → ∀(y : Bool) → Bool
     , even : ∀(xs : List Bool) → Bool
     , fold :
         ∀(b : Bool) → ∀(bool : Type) → ∀(true : bool) → ∀(false : bool) → bool
@@ -553,6 +554,12 @@
         ∀(o : Optional a) →
           Optional b
     , default : ∀(a : Type) → ∀(default : a) → ∀(o : Optional a) → a
+    , equal :
+        ∀(a : Type) →
+        ∀(compare : a → a → Bool) →
+        ∀(ox : Optional a) →
+        ∀(oy : Optional a) →
+          Bool
     , filter : ∀(a : Type) → ∀(f : a → Bool) → ∀(xs : Optional a) → Optional a
     , fold :
         ∀(a : Type) →
