@@ -15,19 +15,14 @@ let Access/equal =
           sha256:5fa90f55505780a7be942275d6bbb2b1f1fb7857364332ed732a0241c2165e53
       ? ../Access/equal.dhall
 
+let Optional/equal =
+        ../../Optional/equal.dhall
+          sha256:5411888399fe9c6720f7f3b59caf5eff3e8e8c30402d09f34e46a4457649a35a
+      ? ../../Optional/equal.dhall
+
 let f
     : Optional Access -> Optional Access -> Bool
-    = \(o1 : Optional Access) ->
-      \(o2 : Optional Access) ->
-        merge
-          { None = merge { None = True, Some = \(a2 : Access) -> False } o2
-          , Some =
-              \(a1 : Access) ->
-                merge
-                  { None = False, Some = \(a2 : Access) -> Access/equal a1 a2 }
-                  o2
-          }
-          o1
+    = Optional/equal Access Access/equal
 
 let equal
     : Mode -> Mode -> Bool
