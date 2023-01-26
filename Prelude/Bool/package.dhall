@@ -6,6 +6,10 @@
       ./build.dhall
         sha256:add7cb9acacac705410088d876a7e4488e046a7aded304f06c51accffd7f1b7b
     ? ./build.dhall
+, equal =
+      ./equal.dhall
+        sha256:f0dc047ca14644c2a979bb126f2a3c6659ec770c66bd7beb70ae4a9d05815709
+    ? ./equal.dhall
 , even =
       ./even.dhall
         sha256:72a05ee550636a3acb768360fa51ba0db0326763e0cf1ceb737f0f3607fc0fe5
