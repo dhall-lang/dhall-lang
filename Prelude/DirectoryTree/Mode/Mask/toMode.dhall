@@ -1,5 +1,6 @@
-{-| Convert a `Mask` value to a `Mode` value.
-For a partial conversion see `toModeWith`.
+{-|
+Convert a `Mask` value to a `Mode` value. For a partial conversion see
+`toModeWith`.
 -}
 let Mode =
         ../Type.dhall

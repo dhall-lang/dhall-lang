@@ -1,4 +1,5 @@
-{-| Permissions with group flags set: ---rwx---
+{-|
+Permissions with group flags set: ---rwx---
 -}
 let rwx =
         ../../Access/Mask/rwx.dhall

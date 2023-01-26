@@ -1,4 +1,5 @@
-{-| An `Entry` without content. That in turn implies that the type of the entry
+{-|
+An `Entry` without content. That in turn implies that the type of the entry
 (i.e. whether it is a file or a directory) is not (yet) fixed as well.
 -}
 let User =

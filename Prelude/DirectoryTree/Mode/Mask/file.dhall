@@ -1,4 +1,5 @@
-{-| Permissions commonly used for regular files: rw-r--r--
+{-|
+Permissions commonly used for regular files: rw-r--r--
 -}
 let r =
         ../../Access/Mask/r.dhall

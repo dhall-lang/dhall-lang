@@ -1,7 +1,8 @@
-{-| @toAccessWith x m@ converts some fields of a `Mask` @m@ to an `Access`
-setting: If the respective field is set in the first `Mask` @x@, then the flag
-will be set to the flags value given in @m@. Otherwise, the value set in @m@ is
-ignored and the value of the flag in the result is `None`.
+{-|
+@toAccessWith x m@ converts some fields of a `Mask` @m@ to an `Access` setting:
+If the respective field is set in the first `Mask` @x@, then the flag will be
+set to the flags value given in @m@. Otherwise, the value set in @m@ is ignored
+and the value of the flag in the result is `None`.
 
 For a motivation of this function see the documenation on `toModeWith`.
 -}

@@ -1,4 +1,5 @@
-{-| Permissions with no flags set: ---------
+{-|
+Permissions with no flags set: ---------
 -}
 let none =
         ../../Access/Mask/none.dhall

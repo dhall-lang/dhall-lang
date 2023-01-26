@@ -1,4 +1,5 @@
-{-| Inverts the flags set in a `Mask`.
+{-|
+Inverts the flags set in a `Mask`.
 -}
 let Mask =
         ./Type.dhall

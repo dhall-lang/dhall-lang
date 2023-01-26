@@ -1,5 +1,6 @@
-{-| Convert a `Mask` value to an `Access` value.
-For a partial conversion see `toAccessWith`.
+{-|
+Convert a `Mask` value to an `Access` value. For a partial conversion see
+`toAccessWith`.
 -}
 let Access =
         ../Type.dhall

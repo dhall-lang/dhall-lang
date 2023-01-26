@@ -1,4 +1,5 @@
-{-| A schema for a blank file mode.
+{-|
+A schema for a blank file mode.
 -}
 { Type =
       ./Type.dhall

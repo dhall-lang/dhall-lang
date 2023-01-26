@@ -1,5 +1,6 @@
-{-| An incomplete mode where some access rights might not be set explicitely.
-For a complete mode with all access rights specified explicitely see `Mask`.
+{-|
+An incomplete mode where some access rights might not be set explicitely. For a
+complete mode with all access rights specified explicitely see `Mask`.
 -}
 let Access =
         ../Access/Type.dhall

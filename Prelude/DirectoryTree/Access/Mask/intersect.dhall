@@ -1,7 +1,8 @@
-{-| @intersect a b@ intesects the flags of the two `Mask`s @a@ and @b@.
-This resembles the bitwise "and", i.e. the value of a flag is 'True' if and only
-if it is set to 'True' in both @a@ and @b@. As a consequence
-@intersect a rwx == a@ and @intersect a none == none@ for all @a@.
+{-|
+@intersect a b@ intesects the flags of the two `Mask`s @a@ and @b@. This
+resembles the bitwise "and", i.e. the value of a flag is 'True' if and only if
+it is set to 'True' in both @a@ and @b@. As a consequence @intersect a rwx == a@
+and @intersect a none == none@ for all @a@.
 -}
 let Mask =
         ./Type.dhall

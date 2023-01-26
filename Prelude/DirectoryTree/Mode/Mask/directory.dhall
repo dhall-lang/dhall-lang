@@ -1,4 +1,5 @@
-{-| Permissions commonly used for directories: rwxr-xr-x
+{-|
+Permissions commonly used for directories: rwxr-xr-x
 -}
 let rwx =
         ../../Access/Mask/rwx.dhall
