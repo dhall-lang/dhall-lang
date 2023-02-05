@@ -2851,7 +2851,7 @@ Such headers must be defined for each URL (and port) as a nested `Map`:
 List { mapKey : Text, mapValue : List { mapKey : Text, mapValue : Text } }
 ```
 
-The key of the outer map is the hostname and port. Its value is a map containing header names and values 
+The key of the outer `Map` is the hostname and port. Its value is a `Map` containing header names and values 
 (in the same way shown above with the `using` command).
 
 If all imports from [httpbin.org](https://httpbin.org) should contain a header `"Authorization": "Bearer somemagictoken"` then you define
