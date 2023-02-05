@@ -2843,6 +2843,41 @@ Error: Unbound variable: secret
 (input):1:1
 ```
 
+As an alternative you can define default HTTP headers used to fetch an import
+without changing the Dhall file itself. This even works for nested imports.
+
+Such headers must be defined for each URL (and port) as a nested `Map`:
+```
+List { mapKey : Text, mapValue : List { mapKey : Text, mapValue : Text } }
+```
+
+The key of the outer `Map` is the hostname and port. Its value is a `Map` containing header names and values 
+(in the same way shown above with the `using` command).
+
+If all imports from [httpbin.org](https://httpbin.org) should contain a header `"Authorization": "Bearer somemagictoken"` then you define
+a nested map like this:
+```
+toMap { 
+  `httpbin.org:443` = toMap { 
+    Authorization = "Bearer somemagictoken" 
+  }
+}
+```
+
+Now you have 3 ways to provide Dhall access to this nested map: store the expression in the...
+1. environment variable `DHALL_HEADERS`
+2. `${XDG_CONFIG_HOME}/dhall/headers.dhall` file (where `XDG_CONFIG_HOME` is an environment variable containing a path)
+3. `~/.config/dhall/headers.dhall` file
+
+Assuming that you store the headers definition as above, you can import anything from that host:
+````
+let d = https://httpbin.org/some/path/mydhall.dhall
+````
+… and the request will contain the header `"Authorization": "Bearer somemagictoken"` (which the above URL will automatically include back in the response)
+
+Note that you can use this default definition together with the `using` keyword. In that case the default headers
+will be combined with the headers defined by `using`. 
+
 Most Dhall packages are essentially large (possibly nested) records that you can
 import that contain useful types and functions as their fields.
 
