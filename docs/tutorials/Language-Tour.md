@@ -2854,7 +2854,7 @@ List { mapKey : Text, mapValue : List { mapKey : Text, mapValue : Text } }
 The key of the outer map is the hostname and port. Its value is a map containing header names and values 
 (in the same way shown above with the `using` command).
 
-If all imports from *httpbin.org* should contain a header `"Authorization": "Bearer somemagictoken"` then you define
+If all imports from [httpbin.org](https://httpbin.org) should contain a header `"Authorization": "Bearer somemagictoken"` then you define
 this nested map like this:
 ```
 toMap { 
