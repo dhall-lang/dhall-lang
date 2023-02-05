@@ -762,27 +762,19 @@ an implementation must add the corresponding per-origin headers to each request.
 
 The configuration is loaded from either the environment or a configuration file:
 
-1. If the DHALL_HEADERS environment variable is set, interpret it as a dhall expression. 
+1. If the DHALL_HEADERS environment variable is set, interpret it as a dhall expression
 2. Otherwise:
    a. If $XDG_CONFIG_HOME is set, load "$XDG_CONFIG_HOME/dhall/headers.dhall"
    b. Otherwise, load "~/.config/dhall/headers.dhall"
 
-If DHALL_HEADERS is defined it will be always be utilized for import resolution. The expression must be of the same 
-type as described above, otherwise it will be treated as an error. 
-```
-List { mapKey : Text, mapValue : List { mapKey : Text, mapValue : Text } }
-```
-
-
-The *headers.dhall* file is optional. If the above steps attempt to load a path that doesn't exist,
+This file is optional. If the above steps attempt to load a path that doesn't exist,
 it's treated as an empty list, not an error.
 
 When importing the origin header configuration, local imports are resolved as normal.
 Note that remote imports will not succeed, as that would implicitly require the origin
 header configuration to be imported, which is rejected as a cyclic import.
 
-If an import ends with `using headers` (where `headers` is a list of key/value pairs like 
-`[ { mapKey = "Authorization", mapValue = "Bearer longtokenvalue" } ]`) , resolve the `headers` import and use
+If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
