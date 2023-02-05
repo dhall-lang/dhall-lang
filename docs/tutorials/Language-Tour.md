@@ -2844,7 +2844,7 @@ Error: Unbound variable: secret
 ```
 
 As an alternative you can define default HTTP headers used to fetch an import
-without changing the dhall file itself. This even works for nested imports.
+without changing the Dhall file itself. This even works for nested imports.
 
 Such headers must be defined for each URL (and port) as a nested `Map`:
 ```
