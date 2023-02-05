@@ -2855,7 +2855,7 @@ The key of the outer map is the hostname and port. Its value is a map containing
 (in the same way shown above with the `using` command).
 
 If all imports from [httpbin.org](https://httpbin.org) should contain a header `"Authorization": "Bearer somemagictoken"` then you define
-this nested map like this:
+a nested map like this:
 ```
 toMap { 
   "httpbin.org:443" = toMap { 
