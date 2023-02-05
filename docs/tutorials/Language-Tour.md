@@ -2858,7 +2858,7 @@ If all imports from [httpbin.org](https://httpbin.org) should contain a header `
 a nested map like this:
 ```
 toMap { 
-  "httpbin.org:443" = toMap { 
+  `httpbin.org:443` = toMap { 
     "Authorization" = "Bearer somemagictoken" 
   }
 }
