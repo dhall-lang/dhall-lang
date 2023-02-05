@@ -2869,8 +2869,6 @@ Now you have 3 ways to provide Dhall access to this nested map: store the expres
 2. `${XDG_CONFIG_HOME}/dhall/headers.dhall` file (where `XDG_CONFIG_HOME` is an environment variable containing a path)
 3. `~/.config/dhall/headers.dhall` file
 
-dhall will look up the definition in this order and if found it must conform to the nested map as described above.
-
 Assuming that you store the headers definition as above, you can import anything from that host:
 ````
 let d = https://httpbin.org/some/path/mydhall.dhall
