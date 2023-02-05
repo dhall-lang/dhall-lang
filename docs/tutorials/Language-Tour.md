@@ -2871,9 +2871,7 @@ Now you have 3 ways to provide Dhall access to this nested map: store the expres
 
 dhall will look up the definition in this order and if found it must conform to the nested map as described above.
 
-Now we assume that you store the example above in one of the three ways.
-
-Next we write a dhall file containing this import
+Assuming that you store the headers definition as above, you can import anything from that host:
 ````
 let d = https://httpbin.org/some/path/mydhall.dhall
 ````
