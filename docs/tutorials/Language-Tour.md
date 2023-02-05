@@ -2867,7 +2867,7 @@ toMap {
 Now you have 3 ways to provide Dhall access to this nested map: store the expression in the...
 1. environment variable `DHALL_HEADERS`
 2. `${XDG_CONFIG_HOME}/dhall/headers.dhall` file (where `XDG_CONFIG_HOME` is an environment variable containing a path)
-3. file  ~/.config/dhall/headers.dhall
+3. `~/.config/dhall/headers.dhall` file
 
 dhall will look up the definition in this order and if found it must conform to the nested map as described above.
 
