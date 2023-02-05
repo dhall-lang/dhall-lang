@@ -2875,7 +2875,7 @@ Assuming that you store the headers definition as above, you can import anything
 ````
 let d = https://httpbin.org/some/path/mydhall.dhall
 ````
-Then the request to fetch *mydhall.dhall* will contain the header `"Authorization": "Bearer somemagictoken"`
+… and the request will contain the header `"Authorization": "Bearer somemagictoken"` (which the above URL will automatically include back in the response)
 
 Note that you can use this default definition together with the `using` keyword. In that case the default headers
 will be combined with the headers defined by `using`. 
