@@ -2859,7 +2859,7 @@ a nested map like this:
 ```
 toMap { 
   `httpbin.org:443` = toMap { 
-    "Authorization" = "Bearer somemagictoken" 
+    Authorization = "Bearer somemagictoken" 
   }
 }
 ```
