@@ -1,6 +1,6 @@
 set -e
 
-nix build --file ./release.nix vm
+nix --extra-experimental-features nix-command build --file ./release.nix vm
 
 trap 'rm --force dhall-lang.qcow2' EXIT
 
