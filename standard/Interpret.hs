@@ -12,9 +12,13 @@ module Interpret
     ) where
 
 import qualified Binary
-import qualified Data.Text.IO    as Text.IO
+import qualified Codec.CBOR.Term    as CBOR
+import qualified Codec.CBOR.Write   as CBOR
+import qualified Data.ByteString    as ByteString
+import qualified Data.Text.IO       as Text.IO
 import qualified Parser
-import qualified Text.Megaparsec as Megaparsec
+import qualified System.Environment
+import qualified Text.Megaparsec    as Megaparsec
 
 main :: IO ()
 main = do
@@ -31,4 +35,11 @@ main = do
        Left  errors     -> fail (Megaparsec.errorBundlePretty errors)
        Right expression -> return expression
 
-    print (Binary.encode expression)
+    let encoded = Binary.encode expression
+
+    print encoded
+
+    args <- System.Environment.getArgs
+    case args of
+        [fp] -> ByteString.writeFile fp (CBOR.toStrictByteString (CBOR.encodeTerm encoded))
+        _ -> return ()
