@@ -1058,6 +1058,30 @@ betaNormalize (Builtin TextShow   ) = Builtin TextShow
 betaNormalize (Builtin TextReplace) = Builtin TextReplace
 ```
 
+## `Bytes`
+
+The `Bytes` type is in normal form:
+
+
+    ─────────────
+    Bytes ⇥ Bytes
+
+
+```haskell
+betaNormalize (Builtin Bytes) = Builtin Bytes
+```
+
+An `Bytes` literal is in normal form:
+
+
+    ───────────────────────────────────────────
+    0x"0123456789abcdef" ⇥ 0x"0123456789abcdef"
+
+
+```haskell
+betaNormalize (BytesLiteral xs) = BytesLiteral xs
+```
+
 ## `List`
 
 The `List` type-level function is in normal form:

@@ -140,6 +140,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Integer                           ; Integer type
   / Double                            ; Double type
   / Text                              ; Text type
+  / Bytes                             ; Bytes type
   / List                              ; List type
   / True                              ; True term
   / False                             ; False term
@@ -175,6 +176,7 @@ module Syntax
     ) where
 
 import Crypto.Hash (Digest, SHA256)
+import Data.ByteString (ByteString)
 import Data.List.NonEmpty (NonEmpty)
 import Data.Text (Text)
 import Numeric.Natural (Natural)
@@ -231,6 +233,8 @@ data Expression
     | TextLiteral TextLiteral
       -- ^ > "s"
       --   > "s${t}ss…"  
+    | BytesLiteral ByteString
+      -- ^ > 0x"abcdef0123456789"
     | DateLiteral Time.Day
     | TimeLiteral
         Time.TimeOfDay
@@ -329,6 +333,7 @@ data Builtin
     | Integer
     | Double
     | Text
+    | Bytes
     | List
     | True
     | False
@@ -348,6 +353,7 @@ data Constant
 -- | How to interpret the path to the import
 data ImportMode
     = Code      -- ^ The default behavior: import the path as code to interpret
+    | RawBytes  -- ^ @as Bytes@: import the path as raw bytes
     | RawText   -- ^ @as Text@: import the path as raw text
     | Location  -- ^ @as Location@: don't import and instead represent the path
                 --   as a Dhall expression

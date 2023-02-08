@@ -356,6 +356,11 @@ interpolation = "${" complete-expression "}"
 
 text-literal = (double-quote-literal / single-quote-literal)
 
+; %x22 = '"'
+bytes-base16-literal = "0x" %x22 *HEXDIGIT %x22
+
+bytes-literal = bytes-base16-literal
+
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings
 ;
@@ -941,6 +946,9 @@ primitive-expression =
     ;
     ; '"ABC"'
     / text-literal
+    ;
+    ; '0x"01234567689abcdef"'
+    / bytes-literal
     ;
     ; "{ foo = 1      , bar = True }"
     ; "{ foo : Integer, bar : Bool }"

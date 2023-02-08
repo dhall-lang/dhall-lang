@@ -597,6 +597,15 @@ alphaNormalize (TextLiteral (Chunks xys₀ z)) = TextLiteral (Chunks xys₁ z)
 ```
 
 
+    ───────────────────────────────────────────
+    0x"0123456789abcdef" ↦ 0x"0123456789abcdef"
+
+
+```haskell
+alphaNormalize (BytesLiteral xs) = BytesLiteral xs
+```
+
+
     ───────
     {} ↦ {}
 

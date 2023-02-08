@@ -1,4 +1,4 @@
-cabal-version:       >=1.10
+cabal-version:       >=2.0
 name:                standard
 version:             1.0.0
 synopsis:            Literate Haskell semantics for Dhall
@@ -10,12 +10,12 @@ build-type:          Simple
 
 library
   build-depends:       base
+                     , base16
                      , bytestring
                      , cborg
                      , containers
                      , cryptonite
                      , half
-                     , markdown-unlit
                      , megaparsec
                      , memory
                      , parser-combinators
@@ -39,6 +39,8 @@ library
                      , GeneralizedNewtypeDeriving
                      , OverloadedStrings
                      , TypeFamilies
+                     , TypeOperators
+  build-tool-depends:  markdown-unlit:markdown-unlit
   ghc-options:         -pgmL markdown-unlit -Wall -Werror
 
 executable dhall

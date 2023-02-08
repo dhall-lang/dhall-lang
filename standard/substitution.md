@@ -652,6 +652,15 @@ substitute (TextLiteral (Chunks xys₀ z)) x n e = TextLiteral (Chunks xys₁ z)
 ```
 
 
+    ────────────────────────────────────────────────────
+    0x"0123456789abcdef"[x@n ≔ e] = 0x"0123456789abcdef"
+
+
+```haskell
+substitute (BytesLiteral xs) _x _n _e = BytesLiteral xs
+```
+
+
     ────────────────
     {}[x@n ≔ e] = {}
 

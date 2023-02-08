@@ -352,6 +352,10 @@ matching their identifier.
     encode(Text) = "Text"
 
 
+    ───────────────────────
+    encode(Bytes) = "Bytes"
+
+
     ─────────────────────
     encode(List) = "List"
 
@@ -410,6 +414,7 @@ encode (Builtin Natural         ) = TString "Natural"
 encode (Builtin Integer         ) = TString "Integer"
 encode (Builtin Double          ) = TString "Double"
 encode (Builtin Text            ) = TString "Text"
+encode (Builtin Bytes           ) = TString "Bytes"
 encode (Builtin List            ) = TString "List"
 encode (Builtin Date            ) = TString "Date"
 encode (Builtin Time            ) = TString "Time"
@@ -1050,6 +1055,21 @@ odd elements being strings and the even ones being interpolated expressions.
 Note: this means that the first and the last encoded elements are always strings,
 even if they are empty strings.
 
+### `Bytes`
+
+Encode `Bytes` literals by decoding it from its encoded representation to a CBOR
+Major-2 byte string:
+
+
+    base16decode(0x"0123456789abcdef") = rawBytes
+    ──────────────────────────────────────────────────
+    encode(0x"0123456789abcdef") = [ 33, b"rawBytes" ]
+
+
+```haskell
+encode (BytesLiteral xs) = TList [ TInt 33, TBytes xs ]
+```
+
 ### `assert`
 
 An assertion encoded its own annotation (regardless of whether the annotation is
@@ -1079,6 +1099,7 @@ Imports are encoded as a list where the first three elements are always:
     * The import type is `0` for when importing a Dhall expression (the default)
     * The import type is `1` for importing `as Text`
     * The import type is `2` for importing `as Location`
+    * The import type is `3` for importing `as Bytes`
 
 For example, if an import does not specify an integrity check or import type
 then the CBOR expression begins with:
@@ -1203,8 +1224,17 @@ instead of `0`:
     encode(import as Text) = [ 24, x, 1, xs… ]
 
 
-If you import `as Location`, then the third element encoding the import type is `2`
+If you import `as Bytes`, then the third element encoding the import type is `3`
 instead of `0`:
+
+
+    encode(import) = [ 24, x, 0, xs… ]
+    ───────────────────────────────────────────
+    encode(import as Bytes) = [ 24, x, 3, xs… ]
+
+
+If you import `as Location`, then the third element encoding the import type is
+`2` instead of `0`:
 
 
     encode(import) = [ 24, x, 0, xs… ]
@@ -1223,6 +1253,7 @@ encode (Import importType₀ importMode₀ hash₀) =
     importMode₁ = case importMode₀ of
         Code     -> TInt 0
         RawText  -> TInt 1
+        RawBytes -> TInt 3
         Location -> TInt 2
 
     importType₁ = case importType₀ of
@@ -1354,7 +1385,7 @@ encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : k
 
     k₁ = encodeKey k₀
     ks₁ = map encodeKey ks₀
-      
+
     encodeKey DescendOptional = TInt 0
     encodeKey (Label k)       = TString k
 ```
@@ -1553,6 +1584,10 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────
     decode("Text") = Text
+
+
+    ─────────────────────────
+    decode("Bytes") = Bytes
 
 
     ─────────────────────────
@@ -1972,6 +2007,16 @@ Decode a CBOR array beginning with a `18` as a `Text` literal:
     decode([ 18, "a", b₁, "c", d₁, "e", …, "x", y₁, "z" ]) = "a${b₀}c${d}e…x${y₀}z"
 
 
+### `Bytes`
+
+Decode a CBOR array beginning with a `33` as a `Bytes` literal:
+
+
+    base16encode(rawBytes) = 0x"0123456789abcdef"
+    ──────────────────────────────────────────────────
+    decode([ 33, b"rawBytes" ]) = 0x"0123456789abcdef"
+
+
 ### `assert`
 
 Decode a CBOR array beginning with a `19` as an `assert`:
@@ -1984,7 +2029,7 @@ Decode a CBOR array beginning with a `19` as an `assert`:
 
 ### Imports
 
-Decode a CBOR array beginning with a `24` as an import
+Decode a CBOR array beginning with a `24` as an import.
 
 The decoding rules are the exact opposite of the encoding rules:
 
@@ -2032,6 +2077,11 @@ The decoding rules are the exact opposite of the encoding rules:
     decode([ 24, x, 0, xs… ]) = import
     ──────────────────────────────────────────
     decode([ 24, x, 1, xs… ]) = import as Text
+
+
+    decode([ 24, x, 0, xs… ]) = import
+    ───────────────────────────────────────────
+    decode([ 24, x, 3, xs… ]) = import as Bytes
 
 
     decode([ 24, x, 0, xs… ]) = import
