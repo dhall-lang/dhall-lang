@@ -30,7 +30,7 @@ Uses Haskell bindings to Dhall to simplify redundant appliance cluster configura
 
 ### [Bellroy](https://bellroy.com/)
 
-Uses Dhall to generate configuration files for [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [GitHub Actions](https://github.com/features/actions), and [Backstage](https://backstage.io).
+Uses Dhall to generate configuration files for [AWS CloudFormation](https://aws.amazon.com/cloudformation/) (using [dhall-aws-cloudformation](https://github.com/jcouyang/dhall-aws-cloudformation)), [GitHub Actions](https://github.com/features/actions) (using [github-actions-dhall](https://github.com/regadas/github-actions-dhall)), and [Backstage](https://backstage.io).
 
 ### [Cachix](https://github.com/cachix/cachix)
 
