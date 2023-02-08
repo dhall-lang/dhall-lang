@@ -1066,6 +1066,11 @@ Major-2 byte string:
     encode(0x"0123456789abcdef") = [ 33, b"rawBytes" ]
 
 
+The `base16decode` judgement stands in for the base-16 decoding algorithm
+specified in
+[RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
+as a pure function from text to a byte array.
+
 ```haskell
 encode (BytesLiteral xs) = TList [ TInt 33, TBytes xs ]
 ```
@@ -2016,6 +2021,11 @@ Decode a CBOR array beginning with a `33` as a `Bytes` literal:
     ──────────────────────────────────────────────────
     decode([ 33, b"rawBytes" ]) = 0x"0123456789abcdef"
 
+
+The `base16encode` judgement stands in for the base-16 encoding algorithm
+specified in
+[RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
+as a pure function from a byte array to text.
 
 ### `assert`
 

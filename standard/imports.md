@@ -953,11 +953,11 @@ Or in judgment form:
 * The `sha256` judgment stands in for the SHA-256 hashing algorithm
   specified in
   [RFC4634 - Section 8.2.2](https://tools.ietf.org/html/rfc4634#section-8.2.2),
-  treated as a pure function from an arbitrary byte array to a 64-byte array
+  treated as a pure function from an arbitrary byte array to a 64-byte array.
 * The `base16Encode` judgement stands in for the base-16 encoding algorithm
   specified in
   [RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
-  as a pure function from a byte array to text
+  as a pure function from a byte array to text.
 
 The `?` operator lets you recover from some (but not all) import resolution
 failures.

@@ -118,7 +118,7 @@ s''           : A multi-line `Text` literal with only one line
 ss
 s''           : A multi-ine `Text` literal with more than one line
 
-0x"0123456789abcdef" : A base16-encoded `Bytes` literal
+0x"0123456789abcdef" : A base16-encoded `Bytes` literal [RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8)
 ```
 
 You will see this notation in judgments that perform induction on lists,
