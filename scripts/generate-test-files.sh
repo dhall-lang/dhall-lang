@@ -1,5 +1,13 @@
 set -eu
 
-nix --extra-experimental-features nix-command build --file ./release.nix expected-test-files
-rsync --archive --checksum --delete result/ ./tests
+my-nix() {
+    nix --extra-experimental-features nix-command --extra-experimental-features flakes "${@}"
+}
+
+my-rsync() {
+    my-nix run 'nixpkgs#rsync' -- "${@}"
+}
+
+my-nix build --file ./release.nix expected-test-files
+my-rsync --archive --checksum --delete result/ ./tests
 chmod -R u+w ./tests
