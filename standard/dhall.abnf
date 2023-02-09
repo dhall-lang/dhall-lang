@@ -356,10 +356,10 @@ interpolation = "${" complete-expression "}"
 
 text-literal = (double-quote-literal / single-quote-literal)
 
-; %x22 = '"'
-bytes-base16-literal = "0x" %x22 *HEXDIG %x22
-
-bytes-literal = bytes-base16-literal
+bytes-literal =
+    ; Hexadecimal with "0x" prefix
+    ; %x22 = '"'
+      "0" %x78 %x22 *HEXDIG %x22
 
 ; RFC 5234 interprets string literals as case-insensitive and recommends using
 ; hex instead for case-sensitive strings

@@ -29,7 +29,7 @@ import Data.Text (Text)
 import Data.Void (Void)
 import Numeric.Natural (Natural)
 import Prelude hiding (exponent, takeWhile)
-import Text.Megaparsec.Char (char, string)
+import Text.Megaparsec.Char (char)
 
 import Syntax
     ( Builtin(..)
@@ -450,18 +450,17 @@ interpolation = do
 textLiteral :: Parser TextLiteral
 textLiteral = doubleQuoteLiteral <|> singleQuoteLiteral
 
-bytesBase16Literal :: Parser ByteString
-bytesBase16Literal = do
-    string "0x\""
-
-    chunks <- many (satisfy hexDig)
-
-    char '"'
-
-    return (Base16.decodeBase16Lenient $ ByteString8.pack chunks)
-
 bytesLiteral :: Parser ByteString
-bytesLiteral = bytesBase16Literal
+bytesLiteral = try hexadecimal
+  where
+    hexadecimal = do
+        "0x\""
+
+        chunks <- many (satisfy hexDig)
+
+        char '"'
+
+        return (Base16.decodeBase16Lenient $ ByteString8.pack chunks)
 
 reservedKeywords :: [Text]
 reservedKeywords =
@@ -813,7 +812,7 @@ doubleLiteral =
     <|> numericDoubleLiteral
 
 naturalLiteral :: Parser Natural
-naturalLiteral = hexadecimal <|> decimal <|> zero
+naturalLiteral = try (hexadecimal <|> decimal <|> zero)
   where
     hexadecimal = do
         "0x"
@@ -1493,7 +1492,7 @@ hash = do
     let base16 = Text.Encoding.encodeUtf8 (Text.pack hexDigits)
 
     bytes <-  case ByteArray.Encoding.convertFromBase Base16 base16 of
-        Left err -> fail err
+        Left string -> fail string
         Right bytes -> return (bytes :: ByteString)
 
     case Hash.digestFromByteString bytes of
