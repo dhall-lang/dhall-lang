@@ -1,2 +1,4 @@
-docs/_site
+docs/_site/
+dist-newstyle/
+/result
 .history
