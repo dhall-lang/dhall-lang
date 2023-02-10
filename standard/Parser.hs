@@ -48,6 +48,7 @@ import Syntax
 import Text.Megaparsec
     ( MonadParsec
     , Parsec
+    , count
     , notFollowedBy
     , satisfy
     , takeWhileP
@@ -451,16 +452,18 @@ textLiteral :: Parser TextLiteral
 textLiteral = doubleQuoteLiteral <|> singleQuoteLiteral
 
 bytesLiteral :: Parser ByteString
-bytesLiteral = try hexadecimal
+bytesLiteral = hexadecimal
   where
     hexadecimal = do
         "0x\""
 
-        chunks <- many (satisfy hexDig)
+        chunks <- many (count 2 (satisfy hexDig))
 
         char '"'
 
-        return (Base16.decodeBase16Lenient $ ByteString8.pack chunks)
+        case Base16.decodeBase16 $ ByteString8.pack $ concat chunks of
+            Left e -> fail $ Text.unpack e
+            Right bytes -> return bytes
 
 reservedKeywords :: [Text]
 reservedKeywords =
@@ -812,7 +815,7 @@ doubleLiteral =
     <|> numericDoubleLiteral
 
 naturalLiteral :: Parser Natural
-naturalLiteral = try (hexadecimal <|> decimal <|> zero)
+naturalLiteral = hexadecimal <|> decimal <|> zero
   where
     hexadecimal = do
         "0x"
@@ -1987,7 +1990,7 @@ primitiveExpression :: Parser Expression
 primitiveExpression =
         temporalLiteral
     <|> (do n <- try doubleLiteral; return (DoubleLiteral n))
-    <|> (do n <- naturalLiteral; return (NaturalLiteral n))
+    <|> (do n <- try naturalLiteral; return (NaturalLiteral n))
     <|> (do n <- integerLiteral; return (IntegerLiteral n))
     <|> (do t <- textLiteral; return (TextLiteral t))
     <|> (do x <- bytesLiteral; return (BytesLiteral x))
