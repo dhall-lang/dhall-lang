@@ -697,7 +697,7 @@ If an import ends with `as Bytes`, import the raw contents of the file as a
 
 Similar to the `as Text` import, note that `0x"0123456789abcdef"` in the above
 judgment is a Dhall `Bytes` literal and the same observation concerning semantic
-integraty checks applies: The semantic integrity check is not a hash of the raw
+integrity checks applies: The semantic integrity check is not a hash of the raw
 underlying byte string but the one of the encoded Dhall expression.
 
 If an import ends with `as Location`, import its location as a value of type

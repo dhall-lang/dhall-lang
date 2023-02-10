@@ -1071,7 +1071,7 @@ The `Bytes` type is in normal form:
 betaNormalize (Builtin Bytes) = Builtin Bytes
 ```
 
-An `Bytes` literal is in normal form:
+A `Bytes` literal is in normal form:
 
 
     ───────────────────────────────────────────

@@ -1058,12 +1058,12 @@ even if they are empty strings.
 ### `Bytes`
 
 Encode `Bytes` literals by decoding it from its encoded representation to a CBOR
-Major-2 byte string:
+major type 2 byte string:
 
 
-    base16decode(0x"0123456789abcdef") = rawBytes
-    ──────────────────────────────────────────────────
-    encode(0x"0123456789abcdef") = [ 33, b"rawBytes" ]
+    base16decode(0x"0123456789abcdef") = bytes
+    ───────────────────────────────────────────────
+    encode(0x"0123456789abcdef") = [ 33, b"bytes" ]
 
 
 The `base16decode` judgement stands in for the base-16 decoding algorithm
@@ -2017,9 +2017,9 @@ Decode a CBOR array beginning with a `18` as a `Text` literal:
 Decode a CBOR array beginning with a `33` as a `Bytes` literal:
 
 
-    base16encode(rawBytes) = 0x"0123456789abcdef"
-    ──────────────────────────────────────────────────
-    decode([ 33, b"rawBytes" ]) = 0x"0123456789abcdef"
+    base16encode(bytes) = 0x"0123456789abcdef"
+    ───────────────────────────────────────────────
+    decode([ 33, b"bytes" ]) = 0x"0123456789abcdef"
 
 
 The `base16encode` judgement stands in for the base-16 encoding algorithm
