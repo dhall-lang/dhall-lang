@@ -1,7 +1,7 @@
 set -e
 
 my-nix() {
-    nix --extra-experimental-features nix-command --extra-experimental-features flakes "${@}"
+    nix --extra-experimental-features 'nix-command flakes' "${@}"
 }
 
 my-nix build --file ./release.nix vm
