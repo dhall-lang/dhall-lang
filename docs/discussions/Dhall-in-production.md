@@ -28,6 +28,10 @@ Uses Haskell bindings to Dhall to configure application servers
 
 Uses Haskell bindings to Dhall to simplify redundant appliance cluster configurations
 
+### [Bellroy](https://bellroy.com/)
+
+Uses Dhall to generate configuration files for [AWS CloudFormation](https://aws.amazon.com/cloudformation/) (using [dhall-aws-cloudformation](https://github.com/jcouyang/dhall-aws-cloudformation)), [GitHub Actions](https://github.com/features/actions) (using [github-actions-dhall](https://github.com/regadas/github-actions-dhall)), and [Backstage](https://backstage.io).
+
 ### [Cachix](https://github.com/cachix/cachix)
 
 Uses `dhall-haskell` to persist user configuration between command line interface invocations.
