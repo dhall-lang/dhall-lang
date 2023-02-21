@@ -473,6 +473,11 @@ pkgsNew: pkgsOld: {
     ${pkgsNew.rsync}/bin/rsync --archive ${../tests}/ ./tests.actual
 
     ${pkgsNew.diffutils}/bin/diff --recursive ./tests.{actual,expected}
+    ! ${pkgsNew.findutils}/bin/find . \
+        | ${pkgsNew.coreutils}/bin/tr '[:upper:]' '[:lower:]' \
+        | ${pkgsNew.coreutils}/bin/sort \
+        | ${pkgsNew.coreutils}/bin/uniq -c \
+        | ${pkgsNew.gnugrep}/bin/grep -v '^ *1 '
 
     touch $out
   '';
