@@ -18,6 +18,8 @@
 , List/last
 , List/indexed
 , List/reverse
+, List/drop
+, List/take
 , Text/show
 , Text/replace
 , Bool

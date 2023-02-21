@@ -795,7 +795,7 @@ Text
 |     Line 1
 |     Line 2
 | ''
-| 
+|
 
 Text
 ```
@@ -1186,6 +1186,88 @@ List/last a (List/reverse a xs) = List/head a xs
 List/length a (List/reverse a xs) = List/length a xs
 ```
 
+### Function: `List/drop`
+
+The `List/drop` built-in function removes the first `n` elements of a list
+
+```dhall
+⊢ List/drop 2 Natural [ 2, 3, 5 ]
+
+[ 5 ]
+```
+
+#### Type
+
+```
+──────────────────────────────────────────────────────────────
+Γ ⊢ List/drop : ∀(n : Natural) → ∀(a : Type) → List a → List a
+```
+
+#### Rules
+
+```dhall
+List/drop n a ([] : List a) = [] : List a
+
+List/drop n a (xs # ys) =
+      List/fold
+        { index : Natural, value : a }
+        (List/indexed a (xs # ys))
+        (List a)
+        ( λ(z : { index : Natural, value : a }) →
+          λ(zs : List a) →
+            if    Natural/isZero (Natural/subtract z.index n)
+            then  [ z.value ] # zs
+            else  zs
+        )
+        ([] : List a)
+
+List/drop n a [x] =
+      if    Natural/isZero n
+      then  [x]
+      else  ([] : List a)
+```
+
+### Function: `List/take`
+
+The `List/take` built-in function removes the first `n` elements of a list
+
+```dhall
+⊢ List/take take 2 Natural [ 2, 3, 5 ]
+
+[ 2, 3 ]
+```
+
+#### Type
+
+```
+──────────────────────────────────────────────────────────────
+Γ ⊢ List/take : ∀(n : Natural) → ∀(a : Type) → List a → List a
+```
+
+#### Rules
+
+```dhall
+List/take n a ([] : List a) = [] : List a
+
+List/take n a (xs # ys) =
+      List/fold
+        { index : Natural, value : a }
+        (List/indexed a (xs # ys))
+        (List a)
+        ( λ(z : { index : Natural, value : a }) →
+          λ(zs : List a) →
+            if    Natural/isZero (Natural/subtract z.index n) == False
+            then  [ z.value ] # zs
+            else  zs
+        )
+        ([] : List a)
+
+List/take n a [x] =
+      if    Natural/isZero n
+      then  ([] : List a)
+      else  [x]
+```
+
 ## Optional
 
 An `Optional` value represents a value that might be present or absent.
@@ -1353,7 +1435,7 @@ containing the expected `Type` and `default` values):
 -- Entering multi-line mode. Press <Ctrl-D> to finish.
 | let Example = { Type = { foo : Natural, bar : Bool }, default = { bar = False } }
 | in  Example::{ foo = 1 }
-| 
+|
 
 { bar = False, foo = 1 }
 ```
@@ -1373,16 +1455,16 @@ each possible alternative.
 ⊢ :paste
 -- Entering multi-line mode. Press <Ctrl-D> to finish.
 | let Example = < Left : Natural | Right : Bool >
-| 
+|
 | let handlers =
 |       { Left = Natural/even
 |       , Right = λ(b : Bool) → b
 |       }
-| 
+|
 | in  [ merge handlers (Example.Left 1)
 |     , merge handlers (Example.Right True)
 |     ]
-| 
+|
 
 [ False, True ]
 ```
@@ -1487,7 +1569,7 @@ that import instead of a Dhall expression:
         margin: 0;
         padding: 0;
         font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        
+
     }
     div {
         width: 600px;
@@ -1507,7 +1589,7 @@ that import instead of a Dhall expression:
             width: auto;
         }
     }
-    </style>    
+    </style>
 </head>
 
 <body>
@@ -1532,9 +1614,9 @@ The `using` keyword lets you add headers to an HTTP(S) request:
 ''
 {
   "headers": {
-    "Accept-Encoding": "gzip", 
-    "Host": "httpbin.org", 
-    "User-Agent": "dhall", 
+    "Accept-Encoding": "gzip",
+    "Host": "httpbin.org",
+    "User-Agent": "dhall",
     "X-Amzn-Trace-Id": "Root=1-5f49b61e-263a9e784179107a83d8714a"
   }
 }
@@ -1553,11 +1635,11 @@ You can name expressions using the `let` keyword:
 ⊢ :paste
 -- Entering multi-line mode. Press <Ctrl-D> to finish.
 | let x = 1
-| 
+|
 | let y : Natural = 2
-| 
+|
 | in  x + y
-| 
+|
 
 3
 ```

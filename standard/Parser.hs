@@ -573,6 +573,8 @@ builtin =
     <|> _ListLast
     <|> _ListIndexed
     <|> _ListReverse
+    <|> _ListDrop
+    <|> _ListTake
     <|> _TextShow
     <|> _TextReplace
     <|> _Bool
@@ -648,6 +650,12 @@ _ListIndexed = do "List/indexed"; return ListIndexed
 
 _ListReverse :: Parser Builtin
 _ListReverse = do "List/reverse"; return ListReverse
+
+_ListDrop :: Parser Builtin
+_ListDrop = do "List/drop"; return ListDrop
+
+_ListTake :: Parser Builtin
+_ListTake = do "List/take"; return ListTake
 
 _TextShow :: Parser Builtin
 _TextShow = do "Text/show"; return TextShow

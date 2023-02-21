@@ -132,6 +132,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List/last                         ; Last element of list
   / List/indexed                      ; Tag elements with index
   / List/reverse                      ; Reverse list
+  / List/drop                         ; Remove elements from beginning of list
+  / List/take                         ; Remove elements from end of list
   / Text/show                         ; Convert Text to its own representation
   / Text/replace                      ; Replace a section of a Text literal
   / Bool                              ; Bool type
@@ -230,7 +232,7 @@ data Expression
       -- ^ > ±n
     | TextLiteral TextLiteral
       -- ^ > "s"
-      --   > "s${t}ss…"  
+      --   > "s${t}ss…"
     | DateLiteral Time.Day
     | TimeLiteral
         Time.TimeOfDay
@@ -321,6 +323,8 @@ data Builtin
     | ListLast
     | ListIndexed
     | ListReverse
+    | ListDrop
+    | ListTake
     | TextShow
     | TextReplace
     | Bool

@@ -11,9 +11,11 @@ module Interpret
       main
     ) where
 
+import           BetaNormalization (betaNormalize)
 import qualified Binary
 import qualified Data.Text.IO    as Text.IO
 import qualified Parser
+import           System.Environment (getArgs)
 import qualified Text.Megaparsec as Megaparsec
 
 main :: IO ()
@@ -31,4 +33,9 @@ main = do
        Left  errors     -> fail (Megaparsec.errorBundlePretty errors)
        Right expression -> return expression
 
-    print (Binary.encode expression)
+    args <- getArgs
+    let expression1 = if elem "normalize" args
+                      then betaNormalize expression
+                      else expression
+
+    print (Binary.encode expression1)

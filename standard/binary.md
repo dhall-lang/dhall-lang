@@ -401,6 +401,8 @@ encode (Builtin ListHead        ) = TString "List/head"
 encode (Builtin ListLast        ) = TString "List/last"
 encode (Builtin ListIndexed     ) = TString "List/indexed"
 encode (Builtin ListReverse     ) = TString "List/reverse"
+encode (Builtin ListDrop        ) = TString "List/drop"
+encode (Builtin ListTake        ) = TString "List/take"
 encode (Builtin TextShow        ) = TString "Text/show"
 encode (Builtin TextReplace     ) = TString "Text/replace"
 encode (Builtin Bool            ) = TString "Bool"
@@ -1354,7 +1356,7 @@ encode (With e₀ (k₀ :| ks₀) v₀) = TList [ TInt 29, e₁, TList (k₁ : k
 
     k₁ = encodeKey k₀
     ks₁ = map encodeKey ks₀
-      
+
     encodeKey DescendOptional = TInt 0
     encodeKey (Label k)       = TString k
 ```
