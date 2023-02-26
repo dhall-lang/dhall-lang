@@ -1,11 +1,11 @@
 { Directory =
-      ./Directory.dhall
+      ./DirectoryEntry.dhall
         sha256:163a4536fdd05ce122d793ceda01d03fcffb29463817ae8b7b5601bf4a06ce6e
-    ? ./Directory.dhall
+    ? ./DirectoryEntry.dhall
 , File =
-      ./File.dhall
+      ./FileEntry.dhall
         sha256:23a8cb29d96aeb623501519d9a62c5c49659e8d1c30b4ae4f2399809e3fd3a01
-    ? ./File.dhall
+    ? ./FileEntry.dhall
 , Metadata =
       ./Metadata.dhall
         sha256:8c240a00094238a73904af63ac0924b3e6aba1655312f20a2a27f88554e2febe
