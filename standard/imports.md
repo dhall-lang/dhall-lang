@@ -677,11 +677,28 @@ If an import ends with `as Text`, import the raw contents of the file as a
 
 
 Carefully note that `"s"` in the above judgment is a Dhall `Text` literal.  This
-implies that if you an import an expression as `Text` and you also protect the
-import with a semantic integrity check then the you encode the string literal
-as a Dhall expression and then hash that.  The semantic integrity check is not a
+implies that if you import an expression as `Text` and you also protect the
+import with a semantic integrity check then you encode the string literal
+as a Dhall expression and hash that.  The semantic integrity check is not a
 hash of the raw underlying text.
 
+If an import ends with `as Bytes`, import the raw contents of the file as a
+`Bytes` value instead of importing the file a Dhall expression:
+
+
+    parent </> import₀ = import₁
+    canonicalize(import₁) = child
+    referentiallySane(parent, child)
+    Γ(child) = 0x"0123456789abcdef" using responseHeaders  ; Read the raw contents of the file
+    corsCompliant(parent, child, responseHeaders)
+    ─────────────────────────────────────────────────────────────
+    (Δ, parent) × Γ ⊢ import₀ as Bytes ⇒ 0x"0123456789abcdef" ⊢ Γ
+
+
+Similar to the `as Text` import, note that `0x"0123456789abcdef"` in the above
+judgment is a Dhall `Bytes` literal and the same observation concerning semantic
+integrity checks applies: The semantic integrity check is not a hash of the raw
+underlying byte string but the one of the encoded Dhall expression.
 
 If an import ends with `as Location`, import its location as a value of type
 `< Local : Text | Remote : Text | Environment : Text | Missing >` instead of
@@ -936,11 +953,11 @@ Or in judgment form:
 * The `sha256` judgment stands in for the SHA-256 hashing algorithm
   specified in
   [RFC4634 - Section 8.2.2](https://tools.ietf.org/html/rfc4634#section-8.2.2),
-  treated as a pure function from an arbitrary byte array to a 64-byte array
+  treated as a pure function from an arbitrary byte array to a 64-byte array.
 * The `base16Encode` judgement stands in for the base-16 encoding algorithm
   specified in
   [RFC4648 - Section 8](https://tools.ietf.org/html/rfc4648#section-8), treated
-  as a pure function from a byte array to text
+  as a pure function from a byte array to text.
 
 The `?` operator lets you recover from some (but not all) import resolution
 failures.

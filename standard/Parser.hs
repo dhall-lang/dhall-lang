@@ -48,6 +48,7 @@ import Syntax
 import Text.Megaparsec
     ( MonadParsec
     , Parsec
+    , count
     , notFollowedBy
     , satisfy
     , takeWhileP
@@ -58,6 +59,8 @@ import Text.Megaparsec
 import qualified Control.Monad.Combinators.NonEmpty as Combinators.NonEmpty
 import qualified Crypto.Hash                        as Hash
 import qualified Data.ByteArray.Encoding            as ByteArray.Encoding
+import qualified Data.ByteString.Char8              as ByteString8
+import qualified Data.ByteString.Base16             as Base16
 import qualified Data.Char                          as Char
 import qualified Data.List.NonEmpty                 as NonEmpty
 import qualified Data.Map                           as Map
@@ -448,6 +451,20 @@ interpolation = do
 textLiteral :: Parser TextLiteral
 textLiteral = doubleQuoteLiteral <|> singleQuoteLiteral
 
+bytesLiteral :: Parser ByteString
+bytesLiteral = hexadecimal
+  where
+    hexadecimal = do
+        "0x\""
+
+        chunks <- many (count 2 (satisfy hexDig))
+
+        char '"'
+
+        case Base16.decodeBase16 $ ByteString8.pack $ concat chunks of
+            Left e -> fail $ Text.unpack e
+            Right bytes -> return bytes
+
 reservedKeywords :: [Text]
 reservedKeywords =
     [ "if"
@@ -542,8 +559,8 @@ forallKeyword = void "forall"
 forallSymbol :: Parser ()
 forallSymbol = void "∀"
 
-forall :: Parser ()
-forall = forallSymbol <|> forallKeyword
+forall_ :: Parser ()
+forall_ = forallSymbol <|> forallKeyword
 
 with :: Parser ()
 with = void "with"
@@ -584,6 +601,7 @@ builtin =
     <|> _Integer
     <|> _Double
     <|> _Text
+    <|> _Bytes
     <|> _List
     <|> _Date
     <|> _TimeZone
@@ -681,6 +699,9 @@ _Double = do "Double"; return Double
 
 _Text :: Parser Builtin
 _Text = do "Text"; return Text
+
+_Bytes :: Parser Builtin
+_Bytes = do "Bytes"; return Bytes
 
 _List :: Parser Builtin
 _List = do "List"; return List
@@ -1564,7 +1585,7 @@ expression =
 
             return (foldr (\(x, mA, a) -> Let x mA a) b bindings)
         )
-    <|> (do forall
+    <|> (do forall_
 
             whsp
 
@@ -1969,9 +1990,10 @@ primitiveExpression :: Parser Expression
 primitiveExpression =
         temporalLiteral
     <|> (do n <- try doubleLiteral; return (DoubleLiteral n))
-    <|> (do n <- naturalLiteral; return (NaturalLiteral n))
+    <|> (do n <- try naturalLiteral; return (NaturalLiteral n))
     <|> (do n <- integerLiteral; return (IntegerLiteral n))
     <|> (do t <- textLiteral; return (TextLiteral t))
+    <|> (do x <- bytesLiteral; return (BytesLiteral x))
     <|> (do "{"
 
             whsp

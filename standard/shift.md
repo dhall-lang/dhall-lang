@@ -660,6 +660,15 @@ shift d x m (TextLiteral (Chunks xys₀ z)) = TextLiteral (Chunks xys₁ z)
         t₁ = shift d x m t₀
 ```
 
+
+    ───────────────────────────────────────────────────────
+    ↑(d, x, m, 0x"0123456789abcdef") = 0x"0123456789abcdef"
+
+
+```haskell
+shift _d _x _m (BytesLiteral xs) = BytesLiteral xs
+```
+
     ───────────────────
     ↑(d, x, m, {}) = {}
 

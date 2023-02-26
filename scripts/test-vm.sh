@@ -1,6 +1,10 @@
 set -e
 
-nix build --file ./release.nix vm
+my-nix() {
+    nix --extra-experimental-features 'nix-command flakes' "${@}"
+}
+
+my-nix build --file ./release.nix vm
 
 trap 'rm --force dhall-lang.qcow2' EXIT
 
