@@ -78,6 +78,10 @@
       ./map.dhall
         sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
     ? ./map.dhall
+, mapWithIndex =
+      ./mapWithIndex.dhall
+        sha256:2de1664cd344e0709921fc1ee193ea834494bb07ae7dcf046e3fa7f7148a68e3
+    ? ./mapWithIndex.dhall
 , null =
       ./null.dhall
         sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80
@@ -114,4 +118,8 @@
       ./zip.dhall
         sha256:85ed955eabf3998767f4ad2a28e57d40cd4c68a95519d79e9b622f1d26d979da
     ? ./zip.dhall
+, WithIndex =
+      ./WithIndex.dhall
+        sha256:fd62c3fb18b64bde754288b7e1243115a51dd3b6ab2294b1c99fc7207f53fc78
+    ? ./WithIndex.dhall
 }

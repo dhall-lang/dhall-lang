@@ -1,6 +1,8 @@
 --| Tag each element of the list with its index
+let List/WithIndex = ./WithIndex.dhall
+
 let indexed
-    : ∀(a : Type) → List a → List { index : Natural, value : a }
+    : ∀(a : Type) → List a → List (List/WithIndex a)
     = List/indexed
 
 let example0 =
@@ -12,8 +14,6 @@ let example0 =
           ]
 
 let example1 =
-        assert
-      :   indexed Bool ([] : List Bool)
-        ≡ ([] : List { index : Natural, value : Bool })
+      assert : indexed Bool ([] : List Bool) ≡ ([] : List (List/WithIndex Bool))
 
 in  indexed
