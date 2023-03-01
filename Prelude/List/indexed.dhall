@@ -1,5 +1,8 @@
 --| Tag each element of the list with its index
-let List/WithIndex = ./WithIndex.dhall
+let List/WithIndex =
+        ./WithIndex.dhall
+          sha256:fd62c3fb18b64bde754288b7e1243115a51dd3b6ab2294b1c99fc7207f53fc78
+      ? ./WithIndex.dhall
 
 let indexed
     : ∀(a : Type) → List a → List (List/WithIndex a)
