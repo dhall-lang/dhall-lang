@@ -5,16 +5,16 @@ let List/map =
       ? ./map.dhall
 
 let List/mapWithIndex
-    : ∀(a : Type) →
-      ∀(b : Type) →
-      ({ index : Natural, value : a } → b) →
-      List a →
-        List b
+    : ∀(a : Type) → ∀(b : Type) → (Natural → a → b) → List a → List b
     = λ(a : Type) →
       λ(b : Type) →
-      λ(f : { index : Natural, value : a } → b) →
-      λ(list : List a) →
-        List/map { index : Natural, value : a } b f (List/indexed a list)
+      λ(f : Natural → a → b) →
+      λ(xs : List a) →
+        List/map
+          { index : Natural, value : a }
+          b
+          (λ(i : { index : Natural, value : a }) → f i.index i.value)
+          (List/indexed a xs)
 
 let List/empty =
         ./empty.dhall
@@ -31,8 +31,9 @@ let example0 =
       :   List/mapWithIndex
             Text
             (List Text)
-            ( λ(indexedText : { index : Natural, value : Text }) →
-                List/replicate indexedText.index Text indexedText.value
+            ( λ(index : Natural) →
+              λ(value : Text) →
+                List/replicate index Text value
             )
             [ "A", "B", "C" ]
         ≡ [ List/empty Text, [ "B" ], [ "C", "C" ] ]
