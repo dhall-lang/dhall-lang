@@ -118,8 +118,4 @@
       ./zip.dhall
         sha256:85ed955eabf3998767f4ad2a28e57d40cd4c68a95519d79e9b622f1d26d979da
     ? ./zip.dhall
-, WithIndex =
-      ./WithIndex.dhall
-        sha256:fd62c3fb18b64bde754288b7e1243115a51dd3b6ab2294b1c99fc7207f53fc78
-    ? ./WithIndex.dhall
 }

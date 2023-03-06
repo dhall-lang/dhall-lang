@@ -4,18 +4,17 @@ let List/map =
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ./map.dhall
 
-let List/WithIndex =
-        ./WithIndex.dhall
-          sha256:fd62c3fb18b64bde754288b7e1243115a51dd3b6ab2294b1c99fc7207f53fc78
-      ? ./WithIndex.dhall
-
 let List/mapWithIndex
-    : ∀(a : Type) → ∀(b : Type) → (List/WithIndex a → b) → List a → List b
+    : ∀(a : Type) →
+      ∀(b : Type) →
+      ({ index : Natural, value : a } → b) →
+      List a →
+        List b
     = λ(a : Type) →
       λ(b : Type) →
-      λ(f : List/WithIndex a → b) →
+      λ(f : { index : Natural, value : a } → b) →
       λ(list : List a) →
-        List/map (List/WithIndex a) b f (List/indexed a list)
+        List/map { index : Natural, value : a } b f (List/indexed a list)
 
 let List/empty =
         ./empty.dhall
@@ -32,7 +31,7 @@ let example0 =
       :   List/mapWithIndex
             Text
             (List Text)
-            ( λ(indexedText : List/WithIndex Text) →
+            ( λ(indexedText : { index : Natural, value : Text }) →
                 List/replicate indexedText.index Text indexedText.value
             )
             [ "A", "B", "C" ]
