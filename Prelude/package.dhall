@@ -16,7 +16,7 @@
     ? ./Integer/package.dhall
 , List =
       ./List/package.dhall
-        sha256:9354d34f85346a9bfc486e3454b0368c48d7021d926832943ae3f423bce64f83
+        sha256:1dc1520710a70c857e27d12fc8656060c31a06aac7db738664fdc238c40f5717
     ? ./List/package.dhall
 , Location =
       ./Location/package.dhall

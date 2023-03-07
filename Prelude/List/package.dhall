@@ -78,6 +78,10 @@
       ./map.dhall
         sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
     ? ./map.dhall
+, mapWithIndex =
+      ./mapWithIndex.dhall
+        sha256:98599e0b55c5d3ae75264ba90657c6f68c7ce32834bd12b215acaea711eed6eb
+    ? ./mapWithIndex.dhall
 , null =
       ./null.dhall
         sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80

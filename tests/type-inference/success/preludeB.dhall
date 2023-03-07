@@ -341,6 +341,12 @@
     , last : ∀(a : Type) → List a → Optional a
     , length : ∀(a : Type) → List a → Natural
     , map : ∀(a : Type) → ∀(b : Type) → ∀(f : a → b) → ∀(xs : List a) → List b
+    , mapWithIndex :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : Natural → a → b) →
+        ∀(xs : List a) →
+          List b
     , null : ∀(a : Type) → ∀(xs : List a) → Bool
     , partition :
         ∀(a : Type) →
