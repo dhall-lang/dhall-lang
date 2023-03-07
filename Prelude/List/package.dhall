@@ -80,7 +80,7 @@
     ? ./map.dhall
 , mapWithIndex =
       ./mapWithIndex.dhall
-        sha256:2de1664cd344e0709921fc1ee193ea834494bb07ae7dcf046e3fa7f7148a68e3
+        sha256:98599e0b55c5d3ae75264ba90657c6f68c7ce32834bd12b215acaea711eed6eb
     ? ./mapWithIndex.dhall
 , null =
       ./null.dhall
