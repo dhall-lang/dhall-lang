@@ -26,6 +26,10 @@
       ./map
         sha256:23e09b0b9f08649797dfe1ca39755d5e1c7cad2d0944bdd36c7a0bf804bde8d0
     ? ./map
+, mapMaybe =
+      ./mapMaybe.dhall
+        sha256:4ea58b720d7af38cef3ef07bef36e476caeed21032cd4a9dc733868a74d9a521
+    ? ./mapMaybe.dhall
 , unpackOptionals =
       ./unpackOptionals.dhall
         sha256:66c3e6f6f81418cf99342e1dba739617c01af4b27c1ca5e2e1d7bce64a522e22

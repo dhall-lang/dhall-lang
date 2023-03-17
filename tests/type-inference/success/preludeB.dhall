@@ -341,6 +341,12 @@
     , last : ∀(a : Type) → List a → Optional a
     , length : ∀(a : Type) → List a → Natural
     , map : ∀(a : Type) → ∀(b : Type) → ∀(f : a → b) → ∀(xs : List a) → List b
+    , mapMaybe :
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → Optional b) →
+        ∀(xs : List a) →
+          List b
     , mapWithIndex :
         ∀(a : Type) →
         ∀(b : Type) →
@@ -395,6 +401,13 @@
         ∀(a : Type) →
         ∀(b : Type) →
         ∀(f : a → b) →
+        ∀(m : List { mapKey : k, mapValue : a }) →
+          List { mapKey : k, mapValue : b }
+    , mapMaybe :
+        ∀(k : Type) →
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(f : a → Optional b) →
         ∀(m : List { mapKey : k, mapValue : a }) →
           List { mapKey : k, mapValue : b }
     , unpackOptionals :
