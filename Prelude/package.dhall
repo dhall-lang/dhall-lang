@@ -16,7 +16,7 @@
     ? ./Integer/package.dhall
 , List =
       ./List/package.dhall
-        sha256:1dc1520710a70c857e27d12fc8656060c31a06aac7db738664fdc238c40f5717
+        sha256:26d1b4cd800219d8b67043c638926aa6e5517ea74a0bd3e371974514621bca04
     ? ./List/package.dhall
 , Location =
       ./Location/package.dhall
@@ -24,7 +24,7 @@
     ? ./Location/package.dhall
 , Map =
       ./Map/package.dhall
-        sha256:c6602939eb75ddaf43e75a37e1f27ace97e03685ceb9d77605b4372547f7cfa8
+        sha256:c5e79a9de642644a09b96a2ec3147c5d8662b7926f09610e751c0c0f6ed0b30a
     ? ./Map/package.dhall
 , Monoid =
       ./Monoid.dhall
