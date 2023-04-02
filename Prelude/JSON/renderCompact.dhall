@@ -1,16 +1,16 @@
 --| This renders JSON on a single line
 let JSON =
-        ./core.dhall
+        missing
           sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let Text/concatMapSep =
-        ../Text/concatMapSep
+        missing
           sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
       ? ../Text/concatMapSep
 
 let renderInteger =
-        ./renderInteger.dhall
+        missing
           sha256:15b8d2ae46d5002832741927af787761df49798c911e2bf85db7a7b9cb5c078c
       ? ./renderInteger.dhall
 

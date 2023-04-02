@@ -3,8 +3,8 @@ Render a `Date` as `Text` using the same representation as Dhall source code
 (i.e. `YYYY-MM-DD`)
 -}
 let show
-      : Date → Text
-      = Date/show
+    : Date → Text
+    = Date/show
 
 let example0 = assert : show 2000-09-02 ≡ "2000-09-02"
 

@@ -7,12 +7,12 @@ and the value of the flag in the result is `None`.
 For a motivation of this function see the documenation on `toModeWith`.
 -}
 let Access =
-        ../Type.dhall
+        missing
           sha256:50689ae80f8c8dcd6e7af33fbc20ea871afb92ec87104253cdbae01f838f6c38
       ? ../Type.dhall
 
 let Mask =
-        ./Type.dhall
+        missing
           sha256:c0fa7626b69e117086439a7b4ee15d1a80e16e38fe2ccc13f55e6dd26030b4df
       ? ./Type.dhall
 
@@ -28,12 +28,12 @@ let toAccessWith
 let example0 =
       \(a : Mask) ->
         let Access/none =
-                ../none.dhall
+                missing
                   sha256:955a2eed689139c811d4b9ef3dd8d0c484392b18c3bb8752c59fd69dbdaf4881
               ? ../none.dhall
 
         let none =
-                ./none.dhall
+                missing
                   sha256:db6c3bb734bb3288441f2664379706052943eaba35c021326a600d41ca766925
               ? ./none.dhall
 

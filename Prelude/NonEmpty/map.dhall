@@ -1,11 +1,11 @@
 --| Transform a `NonEmpty` list by applying a function to each element
 let NonEmpty =
-        ./Type.dhall
+        missing
           sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
       ? ./Type.dhall
 
 let List/map =
-        ../List/map.dhall
+        missing
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map.dhall
 

@@ -1,22 +1,22 @@
 --| Apply a function across the values of a `Map k v`, dropping
 -- entries whose values return `None`.
 let Map/empty =
-        ./empty.dhall
+        missing
           sha256:4c612558b8bbe8f955550ed3fb295d57b1b864c85cd52615b52d0ee0e9682e52
       ? ./empty.dhall
 
 let Map/unpackOptionals =
-        ./unpackOptionals.dhall
+        missing
           sha256:66c3e6f6f81418cf99342e1dba739617c01af4b27c1ca5e2e1d7bce64a522e22
       ? ./unpackOptionals.dhall
 
 let Map/map =
-        ./map.dhall
+        missing
           sha256:23e09b0b9f08649797dfe1ca39755d5e1c7cad2d0944bdd36c7a0bf804bde8d0
       ? ./map.dhall
 
 let Map/Type =
-        ./Type.dhall
+        missing
           sha256:210c7a9eba71efbb0f7a66b3dcf8b9d3976ffc2bc0e907aadfb6aa29c333e8ed
       ? ./Type.dhall
 

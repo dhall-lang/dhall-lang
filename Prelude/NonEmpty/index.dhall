@@ -1,11 +1,11 @@
 --| Retrieve an element from a `NonEmpty` list using its 0-based index
 let NonEmpty =
-        ./Type.dhall
+        missing
           sha256:e2e247455a858317e470e0e4affca8ac07f9f130570ece9cb7ac1f4ea3deb87f
       ? ./Type.dhall
 
 let List/index =
-        ../List/index.dhall
+        missing
           sha256:e657b55ecae4d899465c3032cb1a64c6aa6dc2aa3034204f3c15ce5c96c03e63
       ? ../List/index.dhall
 

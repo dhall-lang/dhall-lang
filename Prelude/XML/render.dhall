@@ -19,32 +19,32 @@ in  XML.render
 
 -}
 let XML =
-        ./Type.dhall
+        missing
           sha256:ab91a0edaf0513e0083b1dfae5efa160adc99b0e589775a4a699ab77cce528a9
       ? ./Type.dhall
 
 let Text/concatMap =
-        ../Text/concatMap.dhall
+        missing
           sha256:7a0b0b99643de69d6f94ba49441cd0fa0507cbdfa8ace0295f16097af37e226f
       ? ../Text/concatMap.dhall
 
 let Text/concat =
-        ../Text/concat.dhall
+        missing
           sha256:731265b0288e8a905ecff95c97333ee2db614c39d69f1514cb8eed9259745fc0
       ? ../Text/concat.dhall
 
 let element =
-        ./element.dhall
+        missing
           sha256:79266d604e147caf37e985581523b684f7bac66de0c93dd828841df3dfc445f9
       ? ./element.dhall
 
 let text =
-        ./text.dhall
+        missing
           sha256:a59670560a08bfc815893dee1f3eae21a5252400f8a619d1cd7bdd9f48eea2ab
       ? ./text.dhall
 
 let emptyAttributes =
-        ./emptyAttributes.dhall
+        missing
           sha256:11b86e2d3f3c75d47a1d580213d2a03fd2c36d64f3e9b6381de0ba23472f64d5
       ? ./emptyAttributes.dhall
 

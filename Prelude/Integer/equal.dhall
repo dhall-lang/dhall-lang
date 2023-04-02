@@ -1,6 +1,6 @@
 --| `equal` checks if two Integers are equal.
 let Natural/equal =
-        ../Natural/equal.dhall
+        missing
           sha256:7f108edfa35ddc7cebafb24dc073478e93a802e13b5bc3fd22f4768c9b066e60
       ? ../Natural/equal.dhall
 

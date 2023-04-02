@@ -19,12 +19,12 @@ in  JSON.render
 ```
 -}
 let JSON =
-        ./Type.dhall
+        missing
           sha256:40edbc9371979426df63e064333b02689b969c4cfbbccfa481216d2d1a6e9759
       ? ./Type.dhall
 
 let List/map =
-        ../List/map.dhall
+        missing
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map.dhall
 
