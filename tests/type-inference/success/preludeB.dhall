@@ -11,6 +11,7 @@
     , or : ∀(xs : List Bool) → Bool
     , show : ∀(b : Bool) → Text
     }
+, Date : { show : Date → Text }
 , Double : { show : Double → Text }
 , Function :
     { compose :
@@ -625,6 +626,8 @@
     , spaces : ∀(a : Natural) → Text
     , upperASCII : ∀(nil : Text) → Text
     }
+, Time : { show : Time → Text }
+, TimeZone : { show : TimeZone → Text }
 , XML :
     { Type : Type
     , attribute :

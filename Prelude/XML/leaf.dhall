@@ -10,12 +10,12 @@ in  XML.render (XML.leaf { name = "foobar", attributes = XML.emptyAttributes })
 ```
 -}
 let XML =
-        ./Type.dhall
+        missing
           sha256:ab91a0edaf0513e0083b1dfae5efa160adc99b0e589775a4a699ab77cce528a9
       ? ./Type.dhall
 
 let element =
-        ./element.dhall
+        missing
           sha256:79266d604e147caf37e985581523b684f7bac66de0c93dd828841df3dfc445f9
       ? ./element.dhall
 

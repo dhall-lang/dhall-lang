@@ -19,12 +19,12 @@ in  XML.render
 ```
 -}
 let XML =
-        ./Type.dhall
+        missing
           sha256:ab91a0edaf0513e0083b1dfae5efa160adc99b0e589775a4a699ab77cce528a9
       ? ./Type.dhall
 
 let List/map =
-        ../List/map.dhall
+        missing
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map.dhall
 

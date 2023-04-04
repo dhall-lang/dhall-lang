@@ -12,6 +12,7 @@ import Substitution (substitute)
 import Syntax
 
 import qualified Data.Text          as Text
+import qualified Data.Time          as Time
 import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.Ord           as Ord
@@ -2592,6 +2593,64 @@ betaNormalize (Builtin TimeZone) = Builtin TimeZone
 betaNormalize (DateLiteral d    ) = DateLiteral d
 betaNormalize (TimeLiteral t p  ) = TimeLiteral t p
 betaNormalize (TimeZoneLiteral z) = TimeZoneLiteral z
+```
+
+To normalize the three `{Date,Time,TimeZone}/show` functions, render the
+value as valid Dhall source code:
+
+    f ⇥ Date/show   a ⇥ YYYY-MM-DD
+    ──────────────────────────────
+    f a ⇥ "YYYY-MM-DD"
+
+    f ⇥ Time/show   a ⇥ hh:mm:ss
+    ────────────────────────────
+    f a ⇥ "hh:mm:ss"
+
+    f ⇥ TimeZone/show   a ⇥ ±HH:MM
+    ──────────────────────────────
+    f a ⇥ "±HH:MM"
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin DateShow <- betaNormalize f
+    , DateLiteral d <- betaNormalize a =
+        TextLiteral (Chunks [] (renderDate d))
+  where
+    renderDate = Text.pack . Time.formatTime Time.defaultTimeLocale "%0Y-%m-%d"
+betaNormalize (Application f a)
+    | Builtin TimeShow <- betaNormalize f
+    , TimeLiteral d _ <- betaNormalize a =
+        TextLiteral (Chunks [] (renderTime d))
+  where
+    renderTime = Text.pack . Time.formatTime Time.defaultTimeLocale "%H:%M:%S%Q"
+betaNormalize (Application f a)
+    | Builtin TimeZoneShow <- betaNormalize f
+    , TimeZoneLiteral d <- betaNormalize a =
+        TextLiteral (Chunks [] (renderTimeZone d))
+  where
+    renderTimeZone = Text.pack . Time.formatTime Time.defaultTimeLocale "%Ez"
+```
+
+All of the built-in functions on `Date` / `Time` / `TimeZone` are in normal
+form:
+
+
+    ─────────────────────
+    Date/show ⇥ Date/show
+
+
+    ─────────────────────
+    Time/show ⇥ Time/show
+
+
+    ─────────────────────────────
+    TimeZone/show ⇥ TimeZone/show
+
+
+```haskell
+betaNormalize (Builtin DateShow    ) = Builtin DateShow
+betaNormalize (Builtin TimeShow    ) = Builtin TimeShow
+betaNormalize (Builtin TimeZoneShow) = Builtin TimeZoneShow
 ```
 
 ## Functions

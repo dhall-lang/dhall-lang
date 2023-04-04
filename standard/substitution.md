@@ -831,6 +831,18 @@ substitute (Some a₀) x n e = Some a₁
     Text/replace[x@n ≔ e] = Text/replace
 
 
+    ──────────────────────────────
+    Date/show[x@n ≔ e] = Date/show
+
+
+    ──────────────────────────────
+    Time/show[x@n ≔ e] = Time/show
+
+
+    ──────────────────────────────────────
+    TimeZone/show[x@n ≔ e] = TimeZone/show
+
+
     ────────────────────
     Bool[x@n ≔ e] = Bool
 

@@ -3,17 +3,17 @@ This utility omits all `null` record fields, which is often the idiomatic way
 for a configuration to encode absent fields
 -}
 let JSON =
-        ./core.dhall
+        missing
           sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let List/concatMap =
-        ../List/concatMap.dhall
+        missing
           sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
       ? ../List/concatMap.dhall
 
 let List/map =
-        ../List/map.dhall
+        missing
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ../List/map.dhall
 

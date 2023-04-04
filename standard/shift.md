@@ -839,6 +839,18 @@ shift d x m (Some a₀) = Some a₁
     ↑(d, x, m, Text/replace) = Text/replace
 
 
+    ─────────────────────────────────
+    ↑(d, x, m, Date/show) = Date/show
+
+
+    ─────────────────────────────────
+    ↑(d, x, m, Time/show) = Time/show
+
+
+    ─────────────────────────────────────────
+    ↑(d, x, m, TimeZone/show) = TimeZone/show
+
+
     ───────────────────────
     ↑(d, x, m, Bool) = Bool
 

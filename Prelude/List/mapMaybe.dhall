@@ -1,11 +1,11 @@
 --| Apply a function across a list, keeping only the `Some` results.
 let List/unpackOptionals =
-        ./unpackOptionals.dhall
+        missing
           sha256:0cbaa920f429cf7fc3907f8a9143203fe948883913560e6e1043223e6b3d05e4
       ? ./unpackOptionals.dhall
 
 let List/map =
-        ./map.dhall
+        missing
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ./map.dhall
 

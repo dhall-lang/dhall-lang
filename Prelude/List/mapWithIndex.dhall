@@ -1,6 +1,6 @@
 --| Transform a list by applying a function to each element with its index
 let List/map =
-        ./map.dhall
+        missing
           sha256:dd845ffb4568d40327f2a817eb42d1c6138b929ca758d50bc33112ef3c885680
       ? ./map.dhall
 
@@ -17,12 +17,12 @@ let List/mapWithIndex
           (List/indexed a xs)
 
 let List/empty =
-        ./empty.dhall
+        missing
           sha256:b2f561f35098c457353723c93a22bd5de28d26ecc5370814bef9dfda421e0147
       ? ./empty.dhall
 
 let List/replicate =
-        ./replicate.dhall
+        missing
           sha256:d4250b45278f2d692302489ac3e78280acb238d27541c837ce46911ff3baa347
       ? ./replicate.dhall
 
