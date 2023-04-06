@@ -1477,29 +1477,6 @@ containing the expected `Type` and `default` values):
 T::r = (T.default ⫽ r) : T.Type
 ```
 
-### Keyword: `merge`
-
-The `merge` keyword consumes a union value by providing one handler for
-each possible alternative.
-
-```dhall
-⊢ :paste
--- Entering multi-line mode. Press <Ctrl-D> to finish.
-| let Example = < Left : Natural | Right : Bool >
-| 
-| let handlers =
-|       { Left = Natural/even
-|       , Right = λ(b : Bool) → b
-|       }
-| 
-| in  [ merge handlers (Example.Left 1)
-|     , merge handlers (Example.Right True)
-|     ]
-| 
-
-[ False, True ]
-```
-
 ### Keyword: `toMap`
 
 The `toMap` keyword converts a record literal to a `List` of key-value pairs:
@@ -1516,6 +1493,108 @@ The `toMap` keyword converts a record literal to a `List` of key-value pairs:
 toMap (x ∧ y) = toMap x # toMap y
 
 toMap {=} : T = [] : T
+```
+
+### Keyword: `with`
+
+The `with` keyword performs a nested record update:
+
+```dhall
+⊢ { bio = { name = "Jane Doe", age = 24 }, job = "Engineer" } with bio.age = 30
+
+{ bio = { age = 30, name = "Jane Doe" }, job = "Engineer" }
+```
+
+These record updates can change a field's type:
+
+```dhall
+⊢ { foo = 1 } with foo = True
+{ foo = True }
+```
+
+You can also update a value nested inside of an `Optional` value using `?` as a
+path component:
+
+```dhall
+⊢ (Some { foo = 1 }) with ?.foo = 2
+
+Some { foo = 2 }
+
+⊢ (None { foo : Natural }) with ?.foo = 2
+
+None { foo : Natural }
+```
+
+## Unions
+
+### Keyword: `merge`
+
+The `merge` keyword consumes a union value by providing one handler for
+each possible alternative.
+
+```dhall
+⊢ :let Example = < Left : Natural | Right : Bool >
+
+Example : Type
+
+⊢ :let handlers = { Left = Natural/even, Right = λ(b : Bool) → b }
+
+handlers : { Left : Natural → Bool, Right : ∀(b : Bool) → Bool }
+
+⊢ merge handlers (Example.Left 1)
+
+False
+
+⊢ merge handlers (Example.Right True)
+
+True
+```
+
+The `merge` keyword also works on `Optional` values, too:
+
+```dhall
+⊢ :let handlers = { Some = Natural/even, None = False }
+
+handlers : { None : Bool, Some : Natural → Bool }
+
+⊢ merge handlers (Some 2)
+
+True
+
+⊢ merge handlers (None Natural)
+
+False
+```
+
+### Keyword: `showConstructor`
+
+The `showConstructor` keyword converts a union value to a `Text` representation
+of the union constructor's name.
+
+```dhall
+⊢ :let Example = < Left : Natural | Right : Bool >
+
+Example : Type
+
+⊢ showConstructor (Example.Left 0)
+
+"Left"
+
+⊢ showConstructor (Example.Right True)
+
+"Right"
+```
+
+The `showConstructor` keyword also works on `Optional` values, too:
+
+```dhall
+⊢ showConstructor (None Natural)
+
+"None"
+
+⊢ showConstructor (Some 1)
+
+"Some"
 ```
 
 ## Imports
