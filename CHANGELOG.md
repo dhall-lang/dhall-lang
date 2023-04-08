@@ -5,6 +5,84 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v23.0.0`
+
+Breakin changes:
+
+* [New support for `Bytes` literals](https://github.com/dhall-lang/dhall-lang/pull/1323)
+
+  You can now store `Bytes` within Dhall, which comprises two changes to the
+  language:
+
+  * A new `Bytes` type 
+
+  * Support for `Bytes` literals of the form `0x"…"`
+
+  For example, the following Dhall literal represents a valid sequence of four
+  bytes:
+
+  ```dhall
+  0x"00FF12DE"
+  ```
+
+  This is a technically breaking change because `Bytes` is now a reserved
+  identifier.
+
+* [New `{Date,Time,TimeZone}/show` builtins](https://github.com/dhall-lang/dhall-lang/pull/1328)
+
+  You can now render temporal literals as `Text` representing valid Dhall
+  source code:
+
+  ```dhall
+  Date/show : Date → Text
+
+  Time/show : Time → Text
+
+  TimeZone/show : TimeZone → Text
+  ```
+
+  For example:
+
+  ```dhall
+  ⊢ Date/show 2000-01-01
+
+  "2000-01-01"
+
+  ⊢ Time/show 11:59:59
+
+  "11:59:59"
+
+  ⊢ TimeZone/show -08:00
+
+  "-08:00"
+  ```
+
+  This is a technically breaking change because `Date/show`, `Time/show`, and
+  `TimeZone/show` are now reserved identifiers.
+
+New features:
+
+* [Add `dhall to-directory-tree` related definitions](https://github.com/dhall-lang/dhall-lang/pull/1306)
+
+  This adds several utilities underneath a new `Prelude.DirectoryTree`
+  hierarchy for working with the `dhall to-directory-tree` subcommand.
+  Specifically, the sucommand now supports setting metadata on generated paths
+  and the utilities support working with this new metadata-related
+  functionality.
+
+* [Add `Prelude.List.mapMaybe` and `Prelude.Map.mapMaybe`](https://github.com/dhall-lang/dhall-lang/pull/1330)
+
+  These come in handy when transforming `List`s in `Map`s when you also want to
+  filter out keys.
+
+Other changes:
+
+* Fixes and improvements to the standard:
+  * [Remove Unicode char `±` from ABNF](https://github.com/dhall-lang/dhall-lang/pull/1289)
+* Fixes and improvements to the standard test suite:
+  * [Fix `None`-related teest](https://github.com/dhall-lang/dhall-lang/pull/1288)
+  * [Add test for changing type of field inside `Optional`](https://github.com/dhall-lang/dhall-lang/pull/1332)
+
 ## `v22.0.0`
 
 Breaking changes:
