@@ -2403,6 +2403,16 @@ let example1 = assert : default (None Natural) === 0
 in  default
 ```
 
+For nested unions, you could write like this:
+
+```dhall
+let Lang = < JS | TS >
+
+let Web = < A : < JS | TS > | B : Lang >
+
+in  { js = Web.A Lang.JS, ts = Web.B < JS | TS >.TS }
+```
+
 ## Multiple function arguments
 
 All Dhall functions are functions of one argument, and there are two ways you
