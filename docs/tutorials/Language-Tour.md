@@ -2403,14 +2403,16 @@ let example1 = assert : default (None Natural) === 0
 in  default
 ```
 
-For nested unions, you could write like this:
+Nested unions could be written like this:
 
 ```dhall
-let Lang = < JS | TS >
+let Lang = < Dhall | Haskell >
 
-let Web = < A : < JS | TS > | B : Lang >
+let Github = < Repo : Lang | Gist : Lang >
 
-in  { js = Web.A Lang.JS, ts = Web.B < JS | TS >.TS }
+in  { dhall-lang = Github.Repo Lang.Dhall
+    , fibonacci = Github.Gist < Dhall | Haskell >.Haskell
+    }
 ```
 
 ## Multiple function arguments
