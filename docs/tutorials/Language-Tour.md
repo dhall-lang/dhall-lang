@@ -2403,7 +2403,7 @@ let example1 = assert : default (None Natural) === 0
 in  default
 ```
 
-Nested unions could be written like this:
+You can nest unions, too, like in this example:
 
 ```dhall
 let Lang = < Dhall | Haskell >
