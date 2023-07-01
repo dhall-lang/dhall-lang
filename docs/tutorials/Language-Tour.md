@@ -2411,7 +2411,7 @@ let Lang = < Dhall | Haskell >
 let Github = < Repo : Lang | Gist : Lang >
 
 in  { dhall-lang = Github.Repo Lang.Dhall
-    , fibonacci = Github.Gist < Dhall | Haskell >.Haskell
+    , fibonacci = Github.Gist Lang.Haskell
     }
 ```
 
