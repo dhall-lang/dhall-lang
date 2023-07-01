@@ -2403,6 +2403,18 @@ let example1 = assert : default (None Natural) === 0
 in  default
 ```
 
+You can nest unions, too, like in this example:
+
+```dhall
+let Lang = < Dhall | Haskell >
+
+let Github = < Repo : Lang | Gist : Lang >
+
+in  { dhall-lang = Github.Repo Lang.Dhall
+    , fibonacci = Github.Gist Lang.Haskell
+    }
+```
+
 ## Multiple function arguments
 
 All Dhall functions are functions of one argument, and there are two ways you
