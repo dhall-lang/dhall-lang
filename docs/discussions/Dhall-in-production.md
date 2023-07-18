@@ -57,10 +57,6 @@ Uses Dhall customized with additional built-ins as a serializable domain-specifi
 
 Uses `dhall-to-yaml` to simplify redundant runtime configuration
 
-### Kos Media, LLC
-
-Uses `dhall`, `dhall-json`, and `dhall-nix` to convert Dhall definitions for microservice configs and encrypted secrets to various formats including JSON, YAML, and Nix in their delivery pipeline (currently into AWS).
-
 ### [KSF Media](https://github.com/KSF-Media)
 
 Uses `dhall-kubernetes`, `dhall-to-yaml` and `dhall-to-text` to configure, modularize and template Terraform and Kubernetes configurations
