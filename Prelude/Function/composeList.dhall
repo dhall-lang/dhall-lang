@@ -14,9 +14,9 @@ let identity =
 
 let composeList
     : ∀(a : Type) → List (a → a) → a → a
-    = λ(A : Type) →
-      λ(functions : List (A → A)) →
-        List/fold (A → A) functions (A → A) (compose A A A) (identity A)
+    = λ(a : Type) →
+      λ(functions : List (a → a)) →
+        List/fold (a → a) functions (a → a) (compose a a a) (identity a)
 
 let example0 =
         assert
