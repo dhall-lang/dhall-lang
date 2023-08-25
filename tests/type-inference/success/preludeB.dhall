@@ -22,6 +22,7 @@
         ∀(g : B → C) →
         ∀(x : A) →
           C
+    , composeList : ∀(A : Type) → ∀(functions : List (A → A)) → A → A
     , identity : ∀(a : Type) → ∀(x : a) → a
     }
 , Integer :
