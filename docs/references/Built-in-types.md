@@ -938,9 +938,9 @@ The `Time/show` built-in function renders a `Time` as a valid Dhall literal:
 "00:00:00"
 ```
 
-## Time
+## TimeZone
 
-`Time` represents a time of day
+`TimeZone` represents a time offset.
 
 #### Type
 
@@ -965,23 +965,12 @@ TimeZone
 
 ### Function `TimeZone/show`
 
-The `TimeZone/show` built-in function renders a `Time` as a valid Dhall literal:
+The `TimeZone/show` built-in function renders a `TimeZone` as a valid Dhall literal:
 
 ```dhall
 ⊢ TimeZone/show +00:00
 
 "+00:00"
-```
-
-## List
-
-A `List` is an ordered sequence of elements, all of which have the same type.
-
-#### Type
-
-```
-──────────────────────
-Γ ⊢ List : Type → Type
 ```
 
 ## List
