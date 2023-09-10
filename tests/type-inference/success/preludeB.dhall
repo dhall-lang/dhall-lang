@@ -15,13 +15,14 @@
 , Double : { show : Double → Text }
 , Function :
     { compose :
-        ∀(A : Type) →
-        ∀(B : Type) →
-        ∀(C : Type) →
-        ∀(f : A → B) →
-        ∀(g : B → C) →
-        ∀(x : A) →
-          C
+        ∀(a : Type) →
+        ∀(b : Type) →
+        ∀(c : Type) →
+        ∀(f : a → b) →
+        ∀(g : b → c) →
+        ∀(x : a) →
+          c
+    , composeList : ∀(a : Type) → ∀(functions : List (a → a)) → a → a
     , identity : ∀(a : Type) → ∀(x : a) → a
     }
 , Integer :

@@ -12,7 +12,7 @@
     ? ./Double/package.dhall
 , Function =
       missing
-        sha256:6d17cf0fd4fabe1737fb117f87c04b8ff82b299915a5b673c0a543b134b8fffe
+        sha256:f4ca848f69034f9d7a74e12c556c3a3396966c1de3a9427a102d1aff4580192f
     ? ./Function/package.dhall
 , Integer =
       missing

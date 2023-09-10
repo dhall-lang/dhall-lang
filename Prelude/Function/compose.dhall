@@ -1,12 +1,12 @@
 --| Compose two functions into one.
 let compose
     : ∀(a : Type) → ∀(b : Type) → ∀(c : Type) → (a → b) → (b → c) → a → c
-    = λ(A : Type) →
-      λ(B : Type) →
-      λ(C : Type) →
-      λ(f : A → B) →
-      λ(g : B → C) →
-      λ(x : A) →
+    = λ(a : Type) →
+      λ(b : Type) →
+      λ(c : Type) →
+      λ(f : a → b) →
+      λ(g : b → c) →
+      λ(x : a) →
         g (f x)
 
 let example0 =
