@@ -116,10 +116,11 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Natural/even                      ; Test if even
   / Natural/odd                       ; Test if odd
   / Natural/toInteger                 ; Convert Natural to Integer
-  / Natural/show                      ; Convert Natural to Text representation
+  / Natural/show                      ; Convert Natural to Text representation using decimal notation
+  / Natural/showHex                   ; Convert Natural to Text representation using hexadecimal notation
   / Natural/subtract                  ; Perform truncated subtraction on two Naturals
   / Integer/toDouble                  ; Convert Integer to Double
-  / Integer/show                      ; Convert Integer to Text representation
+  / Integer/show                      ; Convert Integer to Text representation using decimal notation
   / Integer/negate                    ; Invert sign of Integers, with positive
                                       ; values becoming negative and vice-versa
   / Integer/clamp                     ; Convert Integer to Natural by clamping
@@ -327,6 +328,7 @@ data Builtin
     | NaturalIsZero
     | NaturalOdd
     | NaturalShow
+    | NaturalShowHex
     | NaturalSubtract
     | NaturalToInteger
     | TextReplace

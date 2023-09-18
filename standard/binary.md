@@ -264,6 +264,10 @@ matching their identifier.
     encode(Natural/show) = "Natural/show"
 
 
+    ───────────────────────────────────────────
+    encode(Natural/showHex) = "Natural/showHex"
+
+
     ─────────────────────────────────────────────
     encode(Natural/subtract) = "Natural/subtract"
 
@@ -404,6 +408,7 @@ encode (Builtin NaturalEven     ) = TString "Natural/even"
 encode (Builtin NaturalOdd      ) = TString "Natural/odd"
 encode (Builtin NaturalToInteger) = TString "Natural/toInteger"
 encode (Builtin NaturalShow     ) = TString "Natural/show"
+encode (Builtin NaturalShowHex  ) = TString "Natural/showHex"
 encode (Builtin NaturalSubtract ) = TString "Natural/subtract"
 encode (Builtin IntegerToDouble ) = TString "Integer/toDouble"
 encode (Builtin IntegerShow     ) = TString "Integer/show"
@@ -1520,6 +1525,10 @@ a built-in identifier if it matches any of the following strings:
 
     ─────────────────────────────────────────
     decode("Natural/show") = Natural/show
+
+
+    ───────────────────────────────────────────
+    decode("Natural/showHex") = Natural/showHex
 
 
     ─────────────────────────────────────────────────

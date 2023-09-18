@@ -40,7 +40,7 @@
     ? ./Monoid.dhall
 , Natural =
       missing
-        sha256:ee9ed2b28a417ed4e9a0c284801b928bf91b3fbdc1a68616347678c1821f1ddf
+        sha256:e3539603bee7585dccf3485ae2f5c2512f417ac4b0165256e09de75d3740061f        
     ? ./Natural/package.dhall
 , NonEmpty =
       missing

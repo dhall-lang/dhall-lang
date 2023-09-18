@@ -771,6 +771,10 @@ substitute (Some a₀) x n e = Some a₁
     Natural/show[x@n ≔ e] = Natural/show
 
 
+    ──────────────────────────────────────────
+    Natural/showHex[x@n ≔ e] = Natural/showHex
+
+
     ────────────────────────────────────────────
     Natural/subtract[x@n ≔ e] = Natural/subtract
 

@@ -716,6 +716,10 @@ alphaNormalize (Some a₀) = Some a₁
     Natural/show ↦ Natural/show
 
 
+    ─────────────────────────────────
+    Natural/showHex ↦ Natural/showHex
+
+
     ───────────────────────────────────
     Natural/subtract ↦ Natural/subtract
 

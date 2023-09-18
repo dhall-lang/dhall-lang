@@ -17,6 +17,7 @@ import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.Ord           as Ord
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Text.Printf        as Printf
 ```
 
 β-normalization is a function of the following form:
@@ -701,7 +702,7 @@ betaNormalize (Application f a)
 ```
 
 `Natural/show` transforms a `Natural` number into a `Text` literal representing
-valid Dhall code for representing that `Natural` number:
+valid Dhall code for representing that `Natural` number in decimal notation:
 
 
     f ⇥ Natural/show   a ⇥ n
@@ -716,6 +717,24 @@ betaNormalize (Application f a)
         TextLiteral (Chunks [] (renderNatural n))
   where
     renderNatural n = Text.pack (show n)
+```
+
+`Natural/showHex` transforms a `Natural` number into a `Text` literal representing
+valid Dhall code for representing that `Natural` number in hexadecimal notation:
+
+
+    f ⇥ Natural/showHex   a ⇥ 0xn
+    ─────────────────────────────
+    f a ⇥ "0xn"
+
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin NaturalShowHex <- betaNormalize f
+    , NaturalLiteral n       <- betaNormalize a =
+        TextLiteral (Chunks [] (renderNaturalHex n))
+  where
+    renderNaturalHex n = Text.pack (Printf.printf "0x%X" n)
 ```
 
 `Natural/subtract` performs truncating subtraction, as in
@@ -826,6 +845,8 @@ All of the built-in functions on `Natural` numbers are in normal form:
     ───────────────────────────
     Natural/show ⇥ Natural/show
 
+    ─────────────────────────────────
+    Natural/showHex ⇥ Natural/showHex
 
     ───────────────────────────────────
     Natural/subtract ⇥ Natural/subtract
@@ -839,6 +860,7 @@ betaNormalize (Builtin NaturalEven     ) = Builtin NaturalEven
 betaNormalize (Builtin NaturalOdd      ) = Builtin NaturalOdd
 betaNormalize (Builtin NaturalToInteger) = Builtin NaturalToInteger
 betaNormalize (Builtin NaturalShow     ) = Builtin NaturalShow
+betaNormalize (Builtin NaturalShowHex  ) = Builtin NaturalShowHex
 betaNormalize (Builtin NaturalSubtract ) = Builtin NaturalSubtract
 ```
 
@@ -2390,7 +2412,7 @@ bit. When the magnitude of `a` is greater than or equal to `c`, the magnitude
 will round to `Infinity`, where `c = 2^1024 - 2^970 ≈ 1.8e308`.
 
 `Integer/show` transforms an `Integer` into a `Text` literal representing valid
-Dhall code for representing that `Integer` number:
+Dhall code for representing that `Integer` number in decimal notation:
 
 
     f ⇥ Integer/show   a ⇥ ±n
@@ -2412,7 +2434,6 @@ betaNormalize (Application f a)
 Note that the `Text` representation of the rendered `Integer` should include
 a leading `+` sign if the number is non-negative and a leading `-` sign if
 the number is negative.
-
 
 `Integer/negate` inverts the sign of an `Integer`, leaving `0` unchanged:
 

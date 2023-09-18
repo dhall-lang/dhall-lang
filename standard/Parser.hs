@@ -576,6 +576,7 @@ builtin =
     <|> _NaturalEven
     <|> _NaturalOdd
     <|> _NaturalToInteger
+    <|> _NaturalShowHex
     <|> _NaturalShow
     <|> _IntegerToDouble
     <|> _IntegerShow
@@ -630,6 +631,9 @@ _NaturalToInteger = do "Natural/toInteger"; return NaturalToInteger
 
 _NaturalShow :: Parser Builtin
 _NaturalShow = do "Natural/show"; return NaturalShow
+
+_NaturalShowHex :: Parser Builtin
+_NaturalShowHex = do "Natural/showHex"; return NaturalShowHex
 
 _IntegerToDouble :: Parser Builtin
 _IntegerToDouble = do "Integer/toDouble"; return IntegerToDouble

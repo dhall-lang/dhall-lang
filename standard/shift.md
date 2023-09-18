@@ -783,6 +783,10 @@ shift d x m (Some a₀) = Some a₁
     ↑(d, x, m, Natural/show) = Natural/show
 
 
+    ─────────────────────────────────────────────
+    ↑(d, x, m, Natural/showHex) = Natural/showHex
+
+
     ───────────────────────────────────────────────
     ↑(d, x, m, Integer/toDouble) = Integer/toDouble
 

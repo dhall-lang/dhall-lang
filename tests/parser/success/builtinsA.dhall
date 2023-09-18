@@ -5,6 +5,7 @@
 , Natural/odd
 , Natural/toInteger
 , Natural/show
+, Natural/showHex
 , Integer/toDouble
 , Integer/show
 , Integer/negate

@@ -537,6 +537,24 @@ decimal notation:
 Γ ⊢ Natural/show : Natural → Text
 ```
 
+### Function `Natural/showHex`
+
+The `Natural/showHex` built-in function renders a `Natural` number as `Text` in
+hexadecimal notation, with a `0x` prefix and using uppercase letters:
+
+```dhall
+⊢ Natural/showHex 42
+
+"0x2A"
+```
+
+#### Type
+
+```
+────────────────────────────────────
+Γ ⊢ Natural/showHex : Natural → Text
+```
+
 ### Function `Natural/toInteger`
 
 The `Natural/toInteger` built-in function converts a `Natural` number to the

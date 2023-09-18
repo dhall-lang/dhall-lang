@@ -453,6 +453,7 @@
     , odd : Natural → Bool
     , product : ∀(xs : List Natural) → Natural
     , show : Natural → Text
+    , showHex : Natural → Text
     , sort : ∀(xs : List Natural) → List Natural
     , subtract : Natural → Natural → Natural
     , sum : ∀(xs : List Natural) → Natural

@@ -61,6 +61,8 @@
     Natural/subtract 1 3 = 2
 
     Natural/show 2 = "2"
+
+    Natural/showHex 32167 = "0x7DA7"
     ```
 
 *   `Integer`:
