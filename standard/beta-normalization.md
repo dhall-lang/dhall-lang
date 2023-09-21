@@ -2406,7 +2406,7 @@ betaNormalize (Application f a)
   where
     renderInteger n
         | 0 <= n    = "+" <> Text.pack (show n)
-        | otherwise = "-" <> Text.pack (show n)
+        | otherwise = Text.pack (show n)
 ```
 
 Note that the `Text` representation of the rendered `Integer` should include
