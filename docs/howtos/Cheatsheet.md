@@ -72,7 +72,7 @@
     ```dhall
     …, -2, -1, +0, +1, +2, … : Integer
 
-    …, -0x10, -0xF, -0xE, …, 0xE, 0xF, 0x10, … : Integer  -- Hexadecimal notation
+    …, -0x10, -0xF, -0xE, …, +0xE, +0xF, +0x10, … : Integer  -- Hexadecimal notation
 
     …, -0b10, -0b1, +0b0, +0b1, +0b10, … : Integer  -- Binary notation
 
