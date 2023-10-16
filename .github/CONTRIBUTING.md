@@ -41,7 +41,7 @@ The two most common repositories that we often redirect people to are:
 
 You can either open issues [here][dhall-lang-issues] to ask a question
 or use the [Dhall discourse][dhall-discourse].  You can also use
-[Stack Overflow][stack-overflow].  I (@Gabriel439) subscribe by e-mail
+[Stack Overflow][stack-overflow].  I (@Gabriella439) subscribe by e-mail
 to any Stack Overflow issues created with the tag `dhall`.
 
 ## Do I belong here?
@@ -70,7 +70,7 @@ approved then you can proceed with a pull request.
 You also don't have to understand how to translate your change to a formal
 grammar or type-checking judgments in order to propose the change.  Just propose
 your idea and if your idea is approved then you can ask somebody (including
-@Gabriel439) to formally standardize your change via a pull request for you.
+@Gabriella439) to formally standardize your change via a pull request for you.
 
 The proposed change should also include some examples that show how it should be 
 used, eventual caveats, etc.  These examples should end up in the [tests][dhall-lang-tests]
@@ -95,7 +95,7 @@ are:
 
 *   [`dhall-haskell` - Haskell bindings to Dhall](https://github.com/dhall-lang/dhall-haskell)
 
-    Led by @Gabriel439
+    Led by @Gabriella439
 
 *   [`dhall-clj` - Clojure bindings to Dhall](https://github.com/f-f/dhall-clj)
 
@@ -194,7 +194,7 @@ Once you do that, you can run the following scripts:
 
 ## How do I get the "commit bit"?
 
-Just ask!  I (@Gabriel439) hand out the commit bit freely to anybody who
+Just ask!  I (@Gabriella439) hand out the commit bit freely to anybody who
 displays sustained interest in the project, sometimes even if they don't ask.
 However, you shouldn't assume that you are undeserving if I haven't given you
 the commit bit.  I might just be busy or forgetful, so I appreciate a helpful
