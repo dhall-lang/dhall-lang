@@ -80,7 +80,7 @@ Other changes:
 * Fixes and improvements to the standard:
   * [Remove Unicode char `±` from ABNF](https://github.com/dhall-lang/dhall-lang/pull/1289)
 * Fixes and improvements to the standard test suite:
-  * [Fix `None`-related teest](https://github.com/dhall-lang/dhall-lang/pull/1288)
+  * [Fix `None`-related test](https://github.com/dhall-lang/dhall-lang/pull/1288)
   * [Add test for changing type of field inside `Optional`](https://github.com/dhall-lang/dhall-lang/pull/1332)
 
 ## `v22.0.0`
