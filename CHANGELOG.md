@@ -1481,7 +1481,7 @@ Other changes:
   * [Clarify type inference for record literals](https://github.com/dhall-lang/dhall-lang/pull/740)
   * [Fix type-inference rules for `merge`](https://github.com/dhall-lang/dhall-lang/pull/762)
   * [Specify binary encoding of `-0.0`](https://github.com/dhall-lang/dhall-lang/pull/761)
-  * [Specify how to encoded union constructors](https://github.com/dhall-lang/dhall-lang/pull/765)
+  * [Specify how to encode union constructors](https://github.com/dhall-lang/dhall-lang/pull/765)
 
 * Fixes and improvements to the standard test suite:
 
