@@ -1018,5 +1018,7 @@ non-empty-list-literal =
 ; `#!` as a line comment only on the first lines
 shebang = "#!" *not-end-of-line end-of-line
 
-; This just adds surrounding whitespace for the top-level of the program
-complete-expression = *shebang whsp expression whsp [ line-comment-prefix ]
+complete-expression = whsp expression whsp
+
+; This just adds surrounding whitespace for the top-level of the program in a Dhall file.
+complete-dhall-file = *shebang complete-expression [ line-comment-prefix ]
