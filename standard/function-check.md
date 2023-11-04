@@ -119,7 +119,7 @@ For example, these are type-level functions permitted by the above rule:
 
     List
 
-    λ(m : Type) → m → [ m ]
+    λ(m : Type) → m → List m
 
 When `c₀ = Type` and `c₁ = Kind` you get functions from terms to types (i.e.
 "dependent" types):
