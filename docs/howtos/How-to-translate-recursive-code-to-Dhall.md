@@ -83,7 +83,7 @@ Because `F` is itself _not_ recursive, its definition will be accepted by Dhall:
 let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } > in F
 ```
 
-As another example, take a binary tree:
+As another example, take a binary tree (with just integer leaf values):
 
 ```haskell
 data TreeInt = Leaf Int | Branch TreeInt TreeInt
@@ -190,7 +190,7 @@ Those type definitions are not recursive because they just use a previously defi
 
 A mathematical proof of this property is given in the paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) by P. Wadler. In this tutorial we will focus on the practical use of those type constructions.
 
-Let us now show the Dhall code for the examples shown in the previous section.
+Let us now write the Dhall code for the examples shown in the previous section.
 
 The type `ListInt` (a list with integer values):
 
@@ -284,7 +284,7 @@ let x1 : ListInt = λ(r : Type) → λ(frr : F r → r) →
   in x1
 ```
 
-We have written the code in a verbose way in order to show how we build up values of type `r` from scratch. It is clear how to continue to more complicated values of type `ListInt`:
+We have written the code in a verbose way in order to show how we build up values of type `r` from scratch. We can continue in the same way to encode more complicated values of type `ListInt`:
 
 ```dhall
 let x2 : ListInt = λ(r : Type) → λ(frr : F r → r) →
@@ -302,7 +302,7 @@ We find that we can implement values of type `ListInt` if we just choose zero or
 
 Could we hide the verbose boilerplate and make working with `ListInt` easier? Let us introduce "constructors" `nil` and `cons` so that the code for `x2` will be just `cons +456 (cons -123 nil)`.
 
-The `nil` constructors is the same as `x0` shown above. The `cons` constructors encapsulates one step
+The `nil` constructor is the same as `x0` shown above. The `cons` constructor encapsulates one step of the boilerplate code:
 
 ```dhall
 let nil : ListInt = λ(r : Type) → λ(frr : F r → r) →
@@ -314,7 +314,7 @@ let cons: Integer → ListInt → ListInt = λ(head : Integer) → λ(tail : Lis
     in cons +456 (cons -123 nil)
 ```
 
-In this code, it is important that we may write `tail r f` while computing `fr`. The value `tail : ListInt` is a function (since `ListInt` is a function type). We are using that function with the type `r` that we have received in the body of `cons`. We are allowed to do this because `tail`, being a value of type `ListInt`, is a function that can work with arbitrary types `r`.
+In this code, it is important that we are allowed to write `tail r f` while computing `fr`. The value `tail : ListInt` is a function (since `ListInt` is a function type). We are using that function with the type `r` that we have received in the body of `cons`. We are allowed to do this because `tail`, being a value of type `ListInt`, is a function that can work with arbitrary types `r`.
 
 Let us also implement a `foldLeft` function for `ListInt`. That function serves as a general "aggregation" algorithm, converting a list of integers into an aggregated value of some type. The type signature of `foldLeft` is:
 
@@ -322,7 +322,7 @@ Let us also implement a `foldLeft` function for `ListInt`. That function serves 
 foldLeft : ∀(r : Type) → ∀(init : r) → ∀(update : r → Integer → r) → ListInt → r
 ```
 
-The arguments of `foldLeft` are an arbitrary result type `r`, an initial value of type `r`, and a function that takes the currently aggregated value of type `r`, the next integer from the list, and computes the next aggregated value.
+The arguments of `foldLeft` are an arbitrary result type `r`, an initial value of type `r`, and an "updater" function of type `r → Integer → r`. The arguments of the updater function are the currently aggregated value of type `r` and a next integer from the list. The result is the next aggregated value (of type `r`).
 
 It is perhaps surprising that the code of `foldLeft` is _non-recursive_:
 
@@ -355,9 +355,11 @@ The only way of creating a list of 1000 integers would be to write an expression
 
 In this way, the Church encoding hides the loops and allows us to represent iterative computations without recursion.
 
+At the same time, it guarantees that all recursive structures will be finite and all operations on those structures will terminate.
+
 ### Church encoding and `fold` types are equivalent
 
-There is an equivalence relationship between a Church-encoded type, such as `ListInt`, and the type of the corresponding `foldLeft` function.
+How to generalize `foldLeft` from `ListInt` to arbitrary other recursive types? That is done via an equivalence relationship between a Church-encoded type, such as `ListInt`, and the type of the corresponding `foldLeft` function.
 
 Looking at the type of `foldLeft` for `ListInt`, we note that the type of functions `F r → r` is equivalent to a pair of functions: one function with zero arguments (returning just `r`) and one with the type signature of `update : r → Integer → r`. For this reason, the data required to create a function of type `F r → r` is the same as the data contained in the arguments of `foldLeft` (that is, `init` and `update`).
 
