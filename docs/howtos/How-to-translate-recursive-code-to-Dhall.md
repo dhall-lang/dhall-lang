@@ -379,7 +379,7 @@ This is exactly the same as `ListInt → ListInt`, and the function of that type
 
 Keeping this in mind, we may say that the Church encoding method consists of encoding recursive types via the types of their `fold` functions.
 
-The same argument will hold for any recursive types, including recursive types with extra type parameters. Given a recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r)  → r`, a `fold` function can be implemented in general as an identity function of type `C → C` adapted to the type signature of Fold:
+The same argument will hold for any recursive types, including recursive types with extra type parameters. Given a recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r)  → r`, a `fold` function can be implemented in general as an identity function of type `C → C` adapted to the type signature of `fold`:
 
 ```dhall
 ∀(r : Type) → ∀(frr : F r → r) → C → r
