@@ -2,7 +2,7 @@
 
 > Embed recursive data types and functions in a non-recursive language
 
-The Dhall configuration language only provides built-in support for one
+The Dhall configuration language provides built-in support only for one
 recursive data type: `List`. The language does not provide built-in
 support for user-defined recursive types, recursive values, or recursive
 functions.
@@ -14,7 +14,7 @@ data ListInt = Nil | Cons Int ListInt
 ```
 
 This code is not supported in Dhall because it is a recursive definition:
-it uses the type `ListInt` while defining `ListInt`. Dhall will print an error:
+it uses the type `ListInt` itself while defining `ListInt`. Dhall will print an error:
 
 ```dhall
 ⊢ let ListInt : Type = < Nil | Cons : { head: Integer, tail : ListInt } > in ListInt
@@ -37,9 +37,11 @@ But this definition is rejected by Dhall because `step` may not be used inside i
 Error: Unbound variable: step
 ```
 
+## Why is recursion not supported directly?
+
 Rejecting native recursion is one of the core design decisions in Dhall.
 It ensures that any well-typed Dhall program will always evaluate to a final value (called the "normal form") in finite time.
-It is simply not possible to write a Dhall program that type-checks but then enters an infinite loop while evaluating the normal form.
+It is simply not possible to write a Dhall program that type-checks but then enters an infinite loop while evaluating.
 This limitation is a valuable property for a configuration language.
 
 Despite that limitation, you can still work with a wide range of recursive types and functions in Dhall.
@@ -47,13 +49,15 @@ This guide explains how to do that, walking through examples of progressively in
 
 ## How to implement recursive types: a general recipe
 
-The main idea is to replace a given recursive type definition by a more detailed definition showing how a value of the recursive type may be constructed from simpler parts or from primitive values.
-That definition will be _itself_ non-recursive and so it will be accepted by Dhall.
-Then we use a trick (known as the "Church encoding") that involves universally quantified types. With that trick, Dhall will create a complicated-looking type that represents our recursive data structure.
+The main idea is to replace a given recursive type definition by a more detailed description showing how a value of the recursive type may be constructed from simpler parts or from primitive values.
+That description will be _itself_ non-recursive, and so it will be accepted by Dhall.
+Then we use a trick (known as the "Church encoding") that involves universally quantified types. With that trick, Dhall will create a complicated-looking type that is not recursive but still is able to represent our recursive data structure.
+
+We will now explain this technique step by step.
 
 ### Step 1: from a recursive type definition to a recursion scheme
 
-First, we rewrite a recursive type definition in the form of an equation `T = F T` where `F` will be a new type constructor called the "recursion scheme". We will need to define `F` appropriately.
+First, we rewrite a Haskell recursive type definition in the form `data T = F T` where `F` will be a new type constructor called the "recursion scheme". We will need to define `F` appropriately.
 
 For example, the integer list type has this Haskell definition:
 
@@ -61,13 +65,15 @@ For example, the integer list type has this Haskell definition:
 data ListInt = Nil | Cons Int ListInt
 ```
 
-We need to rewrite this definition as an equation `ListInt = F ListInt`, where `F` will be a suitable new type constructor. It is clear that this type constructor needs to be of this form:
+We need to rewrite this definition as `data ListInt = F ListInt`, where `F` needs to be a suitable new type constructor. It is clear that this type constructor should be this:
 
 ```haskell
 data F r = Nil | Cons Int r
 ```
 
-We define `F r` by replacing all recursive instances of `ListInt` via the type parameter `r`. (Here the letter `r` reminds us of the word "recursion".)
+We find `F r` by replacing all recursive instances of `ListInt` via the type parameter `r`. (Here the letter `r` reminds us of the word "recursion".)
+
+If we substitute `ListInt` for `r` in `F r`, we obtain `Nil | Cons Int ListInt`, which is exactly the right-hand side of the original recursive definition. In this way, `data ListInt = F ListInt` is the same as `data ListInt = Nil | Cons Int ListInt`. It shows that our choice of `F` is correct. 
 
 The recursion scheme `F` describes all the possible ways of constructing a value of a recursive type. In this example, there are only two ways of constructing a value of type `ListInt`: first, `Nil` is a value of type `ListInt`. Second, if we _somehow_ already have a value `r` of type `ListInt`, we can use `Cons` to construct new values of type `ListInt`, for instance, `Cons -123 r`. 
 
