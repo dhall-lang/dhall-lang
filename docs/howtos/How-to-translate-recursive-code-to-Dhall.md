@@ -402,7 +402,7 @@ This suggests that the set of constructors for an arbitrary recursion scheme `F`
 
 There is always a unique value of that type. That value is called the `build` function for the Church-encoded type. 
 
-In Dhall, the only built-in recursive type is `List`. The corresponding `fold` and `build` functors are the built-in symbols `List/fold` and `List/build`.
+In Dhall, the only built-in recursive type is `List`. The corresponding `fold` and `build` functions are the built-in symbols `List/fold` and `List/build`.
 
 # Examples
 
