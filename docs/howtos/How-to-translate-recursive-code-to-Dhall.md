@@ -400,7 +400,7 @@ The pair of types `(nil, cons)` is equivalent to a single value of type `F ListI
 
 This suggests that the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C` is just a value of type `F C → C`. 
 
-There is always a unique value of that type. That value is called the `build` function for the Church-encoded type. 
+There is always a unique value of that type that satisfies certain required properties (not in scope for this tutorial). That value is called the `build` function for the Church-encoded type. 
 
 In Dhall, the only built-in recursive type is `List`. The corresponding `fold` and `build` functions are the built-in symbols `List/fold` and `List/build`.
 
