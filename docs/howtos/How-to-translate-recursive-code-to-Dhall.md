@@ -398,9 +398,23 @@ let cons: Integer → ListInt → ListInt = ...
 
 The pair of types `(nil, cons)` is equivalent to a single value of type `F ListInt → ListInt`.
 
-This suggests that the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C` is just a value of type `F C → C`. 
+This suggests that the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r) → r` is just a value of type `F C → C`. 
 
-There is always a unique value of that type that satisfies certain required properties (not in scope for this tutorial). That value is called the `build` function for the Church-encoded type. 
+There is always a unique value of that type that satisfies certain required properties (not in scope for this tutorial). That value is called the `build` function for the Church-encoded type.
+
+A general implementation of `build` depends on having the `fmapF` function for the type constructor `F`. So, this technique only works when `F` is a covariant type constructor. But this is always true in all practical cases.
+
+The Dhall code for `build` is:
+
+```dhall
+let C = ∀(r : Type) → (F r → r) → r
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ...
+let build : F C → C = λ(fc : F C) → λ(r : Type) → λ(frr : F r → r) →
+    let c2r : C → r = λ(c : C) → c r frr
+    let fr : F r = fmapF C r c2r fc
+    in frr fr
+  in build
+```
 
 In Dhall, the only built-in recursive type is `List`. The corresponding `fold` and `build` functions are the built-in symbols `List/fold` and `List/build`.
 
