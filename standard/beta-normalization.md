@@ -2653,17 +2653,17 @@ betaNormalize (Builtin TimeShow    ) = Builtin TimeShow
 betaNormalize (Builtin TimeZoneShow) = Builtin TimeZoneShow
 ```
 
-### Note about the precision of seconds in `TimeLiteral`
+### The precision of seconds in `TimeLiteral`
 
 Dhall's `TimeLiteral`s support up to 12 decimal digits of precision in the value of seconds.
 If more than 12 digits are given, the `Time/show` function will pad the values with trailing zeros.
 
-For example, the time literal `09:00:00.0123456789012345678901234567890000000000` is printed by `Time/show` with 40 after-comma digits, matching the precision given in the Dhall source for that literal:
+For example, the time literal `09:00:00.0987654321098765432109876543210987654321` only keeps the first 12 after-comma digits but is printed by `Time/show` with 40 after-comma digits, matching the precision given in the Dhall source for that literal:
 
 ```dhall
-⊢ let t = 09:00:00.0123456789012345678901234567890000000000 in " let t = " ++ Time/show t
+⊢ let t = 09:00:00.0987654321098765432109876543210987654321 in " let t = " ++ Time/show t
 
-" let t = 09:00:00.0123456789010000000000000000000000000000"
+" let t = 09:00:00.0987654321090000000000000000000000000000"
 ```
 
 ## Functions
