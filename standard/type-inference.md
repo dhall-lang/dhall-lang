@@ -44,6 +44,7 @@ normalize.
 * [Assertions](#assertions)
 * [Nested record updates](#assertions)
 * [Imports](#imports)
+* [Detecting free variables](#free-variables)
 
 ## Normalization
 
@@ -734,6 +735,7 @@ An implementation could simply loop over the inferred record type.
     A₀ ≡ A₁
     Γ ⊢ t₁ : { ts… }
     Γ ⊢ u₁ : < us… >
+    x ∉ freeVars(T₀)
     ↑(-1, x, 0, T₀) = T₁
     Γ ⊢ (merge t₁ u₁ : T₁) : T₂
     ────────────────────────────────────  ; `x` not free in `T₀`
@@ -749,17 +751,18 @@ An implementation could simply loop over the inferred record type.
     Γ ⊢ merge t₀ u₀ : T₀
 
 If `x` is free in `T₀` then it is a type error.
+See [Detecting free variables](#free-variables) for details about the `freeVars` judgment.
 
 `Optional`s can also be `merge`d as if they had type `< None | Some : A >`.
 To achieve that, we type-check a new `merge` expression with a second argument (`x`) of that type:
 
 
-    Γ ⊢ o : Optional A
-    ↑(1, x, 0, (Γ, x : < None | Some : A >)) = Γ₁
-    ↑(1, x, 0, t) = t₁
+    Γ₀ ⊢ o : Optional A
+    ↑(1, x, 0, (Γ₀, x : < None | Some : A >)) = Γ₁
+    ↑(1, x, 0, t₀) = t₁
     Γ₁ ⊢ merge t₁ x : T
     ──────────────────────────────────
-    Γ ⊢ merge t o : T
+    Γ₀ ⊢ merge t₀ o : T
 
 
 If the first argument of a `merge` expression is not a record then that is a
@@ -1097,4 +1100,192 @@ If the inferred types do not match, then that is also a type error.
 
 ## Imports
 
-An expression with unresolved imports cannot be type-checked
+An expression with unresolved imports cannot be type-checked.
+
+## Free variables
+
+For `merge` expressions, type-checking requires determining the set of free variables in a term.
+This is done via the `freeVars` judgment.
+The `freeVars` judgment is a function that gives the set of variables that are free (with the de Bruijn index equal to 0) in a term.
+
+The input of a `freeVars` judgment is a term.
+The output is a set of variable names (without de Bruijn indices).
+
+For example, free variables of the term `x + y` is the set of variables `x` and `y`. Free variables of the term `λ(x : Natural) → x + y` is the set containing only `y`, as `x` is not free in that term.
+
+For these examples, we write the judgments as:
+
+    freeVars(x + y) = { x, y }
+
+    freeVars(λ(x : Natural) → x + y) = { y }
+
+
+The rules of the `freeVars` judgment are standard for lambda-calculus (see, for example, [this tutorial](https://opendsa.cs.vt.edu/ODSA/Books/PL/html/FreeBoundVariables.html)) except for the special handling of de Bruijn indices.
+
+The set of free variables is empty for:
+
+- all literals that contain no other terms (numerical, date or time, bytes, etc. literals, but not text literals with interpolations and not record literals or record types)
+- for built-in terms such as `List` or `Natural/show`
+- for built-in constant symbols such as `Type`, `True` or `False`
+- and for imports without a `using headers` option, as imported expressions may not contain free variables
+
+
+    ───────────────── ; n is a Natural literal
+    freeVars(n) = { }
+
+
+
+    ───────────────── ; t is a time literal
+    freeVars(t) = { }
+
+
+    ...
+
+
+    ──────────────────────────── ; Natural/show is a built-in term
+    freeVars(Natural/show) = { }
+
+
+    ...
+
+
+    ───────────────────── ; False is a built-in constant
+    freeVars(False) = { }
+
+
+    ...
+
+
+    ──────────────────────── ; import without a headers term
+    freeVars(import x) = { }
+
+
+Special rules apply to variables, function types, function expressions, and `let` expressions.
+
+For variables:
+
+
+    ─────────────────────── ; Variable with zero de Bruijn index
+    freeVars(x @ 0) = { x }
+
+
+
+    ─────────────────────────── ; Variable with a non-zero de Bruijn index
+    freeVars(x @ (1 + n)) = { }
+
+
+For function expressions, function types, and `let` expressions, the body of the substitution must be shifted before computing `freeVars` and the name of the new bound variable must be removed from the free variable set:
+
+
+    freeVars(T) = V₀
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    V₁ = {x} ∪ V₂
+    x ∉ V₂
+    V₃ = V₀ ∪ V₂
+    ──────────────────────────── ; if x ∈ freeVars(a₁)
+    freeVars(λ(x : T) → a₀) = V₃
+
+
+    freeVars(T) = V₀
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    x ∉ V₁
+    V₂ = V₀ ∪ V₁
+    ──────────────────────────── ; if x ∉ freeVars(a₁)
+    freeVars(λ(x : T) → a₀) = V₂
+
+The rules for function types are the same:
+
+
+    freeVars(T) = V₀
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    V₁ = {x} ∪ V₂
+    x ∉ V₂
+    V₃ = V₀ ∪ V₂
+    ─────────────────────────── ; if x ∈ freeVars(a₁)
+    freeVars(∀(x : T) → a₀) = V₃
+
+
+    freeVars(T) = V₀
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    x ∉ V₁
+    V₂ = V₀ ∪ V₁
+    ─────────────────────────── ; if x ∉ freeVars(a₁)
+    freeVars(∀(x : T) → a₀) = V₂
+
+
+The rules for `let` expressions are the same except that there may be free variables in the body expression and the type annotation may be missing:
+
+When type annotations are present:
+
+
+    freeVars(T) = V₀
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    V₁ = {x} ∪ V₂
+    x ∉ V₂
+    freeVars(b₀) = V₃
+    V₄ = V₀ ∪ V₂ ∪ V₃
+    ─────────────────────────────────── ; if x ∈ freeVars(a₁)
+    freeVars(let x : T = b₀ in a₀) = V₄
+
+
+    freeVars(T) = V₀
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    x ∉ V₁
+    freeVars(b₀) = V₂
+    V₃ = V₀ ∪ V₁ ∪ V₂
+    ─────────────────────────────────── ; if x ∉ freeVars(a₁)
+    freeVars(let x : T = b₀ in a₀) = V₃
+
+
+When type annotations are missing:
+
+
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    V₁ = {x} ∪ V₂
+    x ∉ V₂
+    freeVars(b₀) = V₃
+    V₄ = V₂ ∪ V₃
+    ─────────────────────────────── ; if x ∈ freeVars(a₁)
+    freeVars(let x = b₀ in a₀) = V₃
+
+
+    ↑(1, x, 0, a₀) = a₁
+    freeVars(a₁) = V₁
+    x ∉ V₁
+    freeVars(b₀) = V₂
+    V₃ = V₁ ∪ V₂
+    ───────────────────────────────; if x ∉ freeVars(a₁)
+    freeVars(let x = b₀ in a₀) = V₃
+
+
+For terms of all other forms, `freeVars` is computed as the union of the sets of free variables computed recursively for all subterms. 
+
+    
+    freeVars(f) = V₁
+    freeVars(b) = V₂
+    V₃ = V₁ ∪ V₂
+    ──────────────────
+    freeVars(f b) = V₃
+
+    
+    freeVars(a) = V₁
+    freeVars(b) = V₂
+    freeVars(c) = V₃
+    V₄ = V₁ ∪ V₂ ∪ V₃
+    ─────────────────────────────────
+    freeVars(if a then b else c) = V₄
+
+
+    ...
+
+    
+    freeVars(T) = V₁
+    ────────────────────────
+    freeVars(assert: T) = V₁
