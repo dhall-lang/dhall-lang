@@ -111,6 +111,8 @@ with each variable disambiguates which type annotation in the context to use:
 If the natural number associated with the variable is greater than or equal to
 the number of type annotations in the context matching the variable then that is
 a type error.
+For example, if the context has a single type annotation (say, `x : T`)
+then `x@0` is valid but `x@1` is a type error.
 
 ## `Bool`
 
@@ -747,12 +749,14 @@ An implementation could simply loop over the inferred record type.
     Γ ⊢ merge t₀ u₀ : T₀
 
 
-`Optional`s can also be `merge`d as if they had type `< None | Some : A >`:
+`Optional`s can also be `merge`d as if they had type `< None | Some : A >`.
+To achieve that, we type-check a new `merge` expression with a second argument (`x`) of that type:
 
 
-    Γ₀ ⊢ o : Optional A
-    ↑(1, x, 0, (Γ₀, x : < None | Some : A >)) = Γ₁
-    Γ₁ ⊢ merge t x : T
+    Γ ⊢ o : Optional A
+    ↑(1, x, 0, (Γ, x : < None | Some : A >)) = Γ₁
+    ↑(1, x, 0, t) = t₁
+    Γ₁ ⊢ merge t₁ x : T
     ──────────────────────────────────
     Γ ⊢ merge t o : T
 
