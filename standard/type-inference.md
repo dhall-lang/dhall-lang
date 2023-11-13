@@ -748,6 +748,7 @@ An implementation could simply loop over the inferred record type.
     ─────────────────────────────────────
     Γ ⊢ merge t₀ u₀ : T₀
 
+If `x` is free in `T₀` then it is a type error.
 
 `Optional`s can also be `merge`d as if they had type `< None | Some : A >`.
 To achieve that, we type-check a new `merge` expression with a second argument (`x`) of that type:
