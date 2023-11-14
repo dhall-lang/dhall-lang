@@ -458,14 +458,14 @@ generally, if the element type is not a `Type` then that is a type error.
 Record types are "anonymous", meaning that they are uniquely defined by the
 names and types of their fields.
 
-An empty record is a `Type`:
+An empty record type is a `Type`:
 
 
     ─────────────
     Γ ⊢ {} : Type
 
 
-A non-empty record can store terms, types and kinds:
+A non-empty record type can store terms, types and kinds:
 
 
     Γ ⊢ T : t₀   Γ ⊢ { xs… } : t₁   t₀ ⋁ t₁ = t₂
@@ -476,9 +476,7 @@ A non-empty record can store terms, types and kinds:
 If the type of a field is not `Type`, `Kind`, or `Sort` then that is a type
 error.
 
-Carefully note that there should be no need to handle duplicate fields by this
-point because the [desugaring rules for record literals](./record.md) merge
-duplicate fields into unique fields.
+If a record type has duplicate fields then it is a type error.
 
 Record values are also anonymous. The inferred record type has sorted fields
 and normalized field types.
@@ -492,6 +490,10 @@ and normalized field types.
     ──────────────────────────────────────────────────────────  ; x ∉ { xs… }
     Γ ⊢ { x = t, xs… } : { x : T, ts… }
 
+
+Carefully note that there should be no need to handle duplicate fields by this
+point because the [desugaring rules for record literals](./record.md) merge
+duplicate fields into unique fields.
 
 You can only select field(s) from the record if they are present:
 

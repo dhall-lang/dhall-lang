@@ -981,7 +981,7 @@ betaNormalize (Application f a)
     | Builtin TextShow           <- betaNormalize f
     , TextLiteral (Chunks [] s₀) <- betaNormalize a
     , let s₁ =
-              ( Text.replace "\"" "\\\""
+              "\"" ++ ( Text.replace "\"" "\\\""
               . Text.replace "$"  "\\u0024"
               . Text.replace "\b" "\\b"
               . Text.replace "\f" "\\f"
@@ -989,7 +989,7 @@ betaNormalize (Application f a)
               . Text.replace "\r" "\\r"
               . Text.replace "\t" "\\t"
               . Text.replace "\\" "\\\\"
-              ) s₀ =
+              ) s₀ + "\"" =
         TextLiteral (Chunks [] s₁)
 ```
 
@@ -1617,7 +1617,7 @@ literal, we can simplify it similarly:
 betaNormalize (Field t₀ x)
     | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
     , Just v                                             <- lookup x xvs =
-        Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁
+        Field (Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁) x
 
     | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
     , Nothing                                            <- lookup x xvs
@@ -1626,7 +1626,7 @@ betaNormalize (Field t₀ x)
 
     | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
     , Just v                                             <- lookup x xvs =
-        Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])
+        Field (Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])) x
 
     | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
     , Nothing                                            <- lookup x xvs
@@ -1709,7 +1709,7 @@ betaNormalize (ProjectByLabels t₀ xs₀)
                   (ProjectByLabels l (xs₀ \\ ks))
                   Prefer
                   (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀)) =
-        t₁
+        betaNormalize t₁
 
     | otherwise
     , let t₁ = betaNormalize t₀
@@ -1801,7 +1801,7 @@ betaNormalize (Operator ls₀ CombineRecordTerms rs₀)
     , let mr = Map.fromList xrs
     , let combine l r = Operator l CombineRecordTerms r
     , let m = Map.unionWith combine ml mr =
-        RecordLiteral (Map.toAscList m)
+        betaNormalize (RecordLiteral (Map.toAscList m))
 
     | otherwise =
         Operator ls₁ CombineRecordTerms rs₁
@@ -1866,6 +1866,9 @@ betaNormalize (Operator ls₀ Prefer rs₀)
     , let m = Map.union mr ml =
         RecordLiteral (Map.toAscList m)
 
+    | equivalent ls₀ rs₀ =
+         ls₁
+
     | otherwise =
         Operator ls₁ Prefer rs₁
   where
@@ -1924,7 +1927,7 @@ betaNormalize (Operator ls₀ CombineRecordTypes rs₀)
     , let mr = Map.fromList xrs
     , let combine l r = Operator l CombineRecordTypes r
     , let m = Map.unionWith combine ml mr =
-        RecordType (Map.toAscList m)
+        betaNormalize (RecordType (Map.toAscList m))
 
     | otherwise =
         Operator ls₁ CombineRecordTypes rs₁
