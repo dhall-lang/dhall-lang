@@ -981,7 +981,7 @@ betaNormalize (Application f a)
     | Builtin TextShow           <- betaNormalize f
     , TextLiteral (Chunks [] s₀) <- betaNormalize a
     , let s₁ =
-              "\"" ++ ( Text.replace "\"" "\\\""
+              "\"" <> ( Text.replace "\"" "\\\""
               . Text.replace "$"  "\\u0024"
               . Text.replace "\b" "\\b"
               . Text.replace "\f" "\\f"
@@ -989,7 +989,7 @@ betaNormalize (Application f a)
               . Text.replace "\r" "\\r"
               . Text.replace "\t" "\\t"
               . Text.replace "\\" "\\\\"
-              ) s₀ + "\"" =
+              ) s₀ <> "\"" =
         TextLiteral (Chunks [] s₁)
 ```
 
