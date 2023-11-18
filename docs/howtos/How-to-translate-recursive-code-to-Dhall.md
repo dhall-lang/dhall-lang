@@ -14,7 +14,7 @@ data ListInt = Nil | Cons Int ListInt
 ```
 
 This code is not supported in Dhall because it is a recursive definition:
-it uses the type `ListInt` itself while defining `ListInt`. Dhall will print an error:
+the type `ListInt` is being defined using the type `ListInt` itself. A corresponding definition in Dhall syntax is rejected by Dhall:
 
 ```dhall
 ⊢ let ListInt : Type = < Nil | Cons : { head: Integer, tail : ListInt } > in ListInt
@@ -29,7 +29,7 @@ step :: Int -> Int
 step n = if n == 0 then 0 else step (n - 1)
 ```
 
-But this definition is rejected by Dhall because `step` may not be used inside its own definition:
+A corresponding definition in Dhall syntax would be:
 
 ```dhall
 ⊢ let step = \(n: Natural) -> if Natural/isZero n then 0 else step (Natural/subtract 1 n) in step
@@ -37,10 +37,12 @@ But this definition is rejected by Dhall because `step` may not be used inside i
 Error: Unbound variable: step
 ```
 
+This code is rejected by Dhall because `step` may not be used inside its own definition.
+
 ## Why is recursion not supported directly?
 
 Rejecting native recursion is one of the core design decisions in Dhall.
-It ensures that any well-typed Dhall program will always evaluate to a final value (called the "normal form") in finite time.
+It ensures that any well-typed Dhall program will always evaluate to a final value (called the "normal form") within finite time.
 It is simply not possible to write a Dhall program that type-checks but then enters an infinite loop while evaluating.
 This limitation is a valuable property for a configuration language.
 
@@ -51,7 +53,7 @@ This guide explains how to do that, walking through examples of progressively in
 
 The main idea is to replace a given recursive type definition by a more detailed description showing how a value of the recursive type may be constructed from simpler parts or from primitive values.
 That description will be _itself_ non-recursive, and so it will be accepted by Dhall.
-Then we use a trick (known as the "Church encoding") that involves universally quantified types. With that trick, Dhall will create a complicated-looking type that is not recursive but still is able to represent our recursive data structure.
+Then one needs to use a trick (known as the "Church encoding") that involves universally quantified types. With that trick, Dhall will create a complicated-looking type that is not recursive but still is able to represent our recursive data structure.
 
 We will now explain this technique step by step.
 
@@ -345,21 +347,20 @@ In this way, Dhall is able to construct integer lists and also to run loops over
 
 The technique of Church encoding may be unfamiliar and perplexing. If we are actually working with recursive types and recursive functions, why do we no longer see any recursion in the code? In `foldLeft`, why is there no code that iterates over a list of integers in a loop?
 
-An answer is found by comparing the codes for the values `x0`, `x1`, and `x2` shown in the previous section. Those values are functions whose second argument is a function `frr : F r → r`. The code for `x0` calls that function only once. The code for `x1` calls that function twice, and the code for `x2` calls that function three times.
+An answer is found by comparing the codes for the values `x0`, `x1`, and `x2` shown in the previous section when working with `ListInt`. The values `x0`, `x1`, and `x2` are functions whose second argument is a function `frr : F r → r`. The code for `x0` calls that function only once; the code for `x1` calls that function twice; and the code for `x2` calls that function three times.
 
-This explains why `foldLeft` is nonrecursive. The code of `foldLeft` merely prepares a function `frr` and passes it to the given value of type `ListInt`. If we run `foldLeft` on `x2`, it is the code of `x2` that will call the function `frr` three times. There is no loop in `x2`; it is just hard-coded in `x2` to apply `frr` three times.
+This explains why `foldLeft` is non-recursive. The code of `foldLeft` merely prepares a function `frr` and passes it to the given value of type `ListInt`. If we run `foldLeft` on `x2`, it is the code of `x2` that will call the function `frr` three times. There is also no loop in `x2`; it is just hard-coded in the function `x2` to apply `frr` three times.
 
 A list of 1000 integers will be represented by a function (call it `x1000 : ListInt`) that takes an argument `frr : F r → r` and calls the `frr` function a thousand times.
-
-The only way of creating a list of 1000 integers would be to write an expression such as `cons 0 (cons 1 (cons 2 (...)))`. This guarantees that all lists are finite, and that all functions operating on such lists will terminate.
+This is because the only way of creating a list of 1000 integers is to create an expression such as `cons 1 (cons 2 (cons 3 (... (cons 1000 nil)))...)`.
 
 In this way, the Church encoding hides the loops and allows us to represent iterative computations without recursion.
 
-At the same time, it guarantees that all recursive structures will be finite and all operations on those structures will terminate.
+At the same time, the Church encoding guarantees that all recursive structures will be finite and all operations on those structures will terminate. It is for that reason that Dhall is able to accept Church encodings.
 
 ### Church encoding and `fold` types are equivalent
 
-How to generalize `foldLeft` from `ListInt` to arbitrary other recursive types? That is done via an equivalence relationship between a Church-encoded type, such as `ListInt`, and the type of the corresponding `foldLeft` function.
+How to generalize `foldLeft` from `ListInt` to arbitrary recursive types? That is done via an equivalence relationship between a Church-encoded type, such as `ListInt`, and the type of the corresponding `foldLeft` function.
 
 Looking at the type of `foldLeft` for `ListInt`, we note that the type of functions `F r → r` is equivalent to a pair of functions: one function with zero arguments (returning just `r`) and one with the type signature of `update : r → Integer → r`. For this reason, the data required to create a function of type `F r → r` is the same as the data contained in the arguments of `foldLeft` (that is, `init` and `update`).
 
@@ -400,15 +401,16 @@ The pair of types `(nil, cons)` is equivalent to a single value of type `F ListI
 
 This suggests that the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r) → r` is just a value of type `F C → C`. 
 
-There is always a unique value of that type that satisfies certain required properties (not in scope for this tutorial). That value is called the `build` function for the Church-encoded type.
+There always exists a unique value of type `F C → C` that satisfies certain required properties (which are beyond the scope of this tutorial). That value is denoted as the `build` function for the Church-encoded type.
 
 A general implementation of `build` depends on having the `fmapF` function for the type constructor `F`. So, this technique only works when `F` is a covariant type constructor. But this is always true in all practical cases.
 
 The Dhall code for `build` is:
 
 ```dhall
+let F = ∀(r : Type) → ... -- Define it here.
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ... -- Define it here.
 let C = ∀(r : Type) → (F r → r) → r
-let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ...
 let build : F C → C = λ(fc : F C) → λ(r : Type) → λ(frr : F r → r) →
     let c2r : C → r = λ(c : C) → c r frr
     let fr : F r = fmapF C r c2r fc
@@ -416,7 +418,77 @@ let build : F C → C = λ(fc : F C) → λ(r : Type) → λ(frr : F r → r) �
   in build
 ```
 
-In Dhall, the only built-in recursive type is `List`. The corresponding `fold` and `build` functions are the built-in symbols `List/fold` and `List/build`.
+In Dhall, the only built-in recursive data type is `List`. The corresponding `fold` and `build` functions are the built-in symbols `List/fold` and `List/build`. 
+
+### Pattern matching on Church-encoded values
+
+When working with recursive types in ordinary functional languages, one often uses pattern matching. For example, here is a simple function that detects whether a given tree is a single leaf:
+
+```haskell
+data TreeInt = Leaf Int | Branch TreeInt TreeInt
+
+isSingleLeaf: TreeInt -> Bool
+isSingleLeaf t = case t of
+    Leaf _ -> true
+    Branch _ _ -> false
+```
+
+The Dhall translation of `TreeInt` is a Church-encoded type:
+
+```dhall
+let F = λ(r : Type) → < Leaf: Integer | Branch : { left : r, right : r } >
+let TreeInt = ∀(r : Type) → (F r → r) → r
+    in TreeInt
+```
+
+A value of type `TreeInt` is a function, so we cannot perform pattern matching on that value. How can we implement functions like `isSingleLeaf` in Dhall?
+
+The general method for translating pattern matching into Church-encoded types `C` consists of two steps. The first step is to define a function we will call `unroll`, of type `C → F C`. This function is the inverse of the function `build : F C → C` from the previous subsection.
+
+The Dhall code for `unroll` is:
+
+```dhall
+let F = λ(r : Type) → ... -- Define it here.
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ... -- Define it here.
+let C = ∀(r : Type) → (F r → r) → r
+let unroll : C → F C =
+  let fmapBuild : F (F C) → F C = fmapF (F C) C build -- Use the definition of `build` above.
+    in λ(c : C) → c (F C) fmapBuild
+```
+
+A rigorous proof that `unroll` and `build` are inverse functions is shown in the paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) and is beyond the scope of this tutorial.
+
+The second step is to apply `unroll` to the value on which we need to use pattern matching. The result will be a value of type `F C`, which will be typically a union type. Then we can use ordinary pattern matching on values of that type.
+
+With this technique, functions like `isSingleLeaf` are translated to Dhall straightforwardly:
+
+```dhall
+-- Assume definitions of TreeInt and unroll as shown above.
+let isSingleLeaf : TreeInt → Bool = λ(c : TreeInt) →
+    merge {
+      Leaf = λ(_ : Integer) → true,
+      Branch = λ(_ : { left : TreeInt, right : TreeInt }) → false
+    } (unroll c)
+  in isSingleLeaf
+```
+
+Another example of pattern matching is taking the first element of a list but returning `None` if the list is empty:
+
+```dhall
+-- Assume definitions of ListInt and unroll as shown above.
+let headOptional : ListInt → Optional Integer = λ(c : ListInt) →
+    merge {
+      Cons = λ(list : { head : Integer, tail : ListInt }) → Some (list.head),
+      Nil = None Integer
+    } (unroll c)
+  in headOptional
+```
+
+### Performance
+
+The performance of Church-encoded values is often slow. The main source of slowness is that a value `c` of a Church-encoded type `C` is a function that may call its parameter `frr : F r → r` many times. For example, a `ListInt` value representing a list of 1000 integers is a function that calls its parameter `frr` 1000 times. So, evaluating any code that applies `c` to some `frr` will have to perform 1000 evaluations of some function. The evaluation time is linear in the data size.
+
+In particular, this applies to the code of `unroll`. Since we use `unroll` for pattern matching, any single pattern matching will be linear in the data size. For instance, evaluating `headOptional` takes time that is linear in the length of the list, even though we may have expected that `headOptional` only needs to examine the first element of the list. If `headOptional` is called repeatedly, evaluation may become quite slow.
 
 # Examples
 
