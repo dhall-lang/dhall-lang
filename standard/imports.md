@@ -617,27 +617,26 @@ then you retrieve the expression from the canonicalized path and transitively
 resolve imports within the retrieved expression:
 
 
-    headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
-    Γ(headersPath) = userHeadersExpr
-    (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
+    headersPath = env:DHALL_HEADERS ? "${env:XDG_CONFIG_HOME as Text}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
+    (Δ, parent, headersPath) × Γ₀ ⊢ headersPath ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapKey` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
     parent </> https://authority directory file using headers = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
-                                         ; binding any response headers to
-                                         ; `responseHeaders` if child was a
-                                         ; remote import
+    Γ₁(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
+                                          ; binding any response headers to
+                                          ; `responseHeaders` if child was a
+                                          ; remote import
     corsCompliant(parent, child, responseHeaders)  ; If `child` was not a remote
                                                    ; import and therefore had no
                                                    ; response headers then skip
                                                    ; this CORS check
-    (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
+    (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
     ────────────────────────────────────  ; * child ∉ (Δ, parent)
-    (Δ, parent) × Γ₀ ⊢ https://authority directory file ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
+    (Δ, parent) × Γ₀ ⊢ https://authority directory file ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
 
     parent </> import₀ = import₁
     canonicalize(import₁) = child
@@ -795,27 +794,26 @@ If an import ends with `using headers`, resolve the `headers` import and use
 the resolved expression as additional headers supplied to the HTTP request:
 
 
-    headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
-    Γ(headersPath) = userHeadersExpr
-    (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
+    headersPath = env:DHALL_HEADERS ? "${env:XDG_CONFIG_HOME as Text}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
+    (Δ, parent, headersPath) × Γ₀ ⊢ headersPath ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
                                                ; with a `mapKey` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
     ε ⊢ headers : List { mapKey : Text, mapValue : Text }
-    (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁
+    (Δ, parent) × Γ₁ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₂
     ε ⊢ resolvedRequestHeaders : H
     H ∈ { List { mapKey : Text, mapValue : Text }, List { header : Text, value : Text } }
     resolvedRequestHeaders # headers ⇥ normalizedRequestHeaders
     parent </> https://authority directory file using normalizedRequestHeaders = import
     canonicalize(import) = child
     referentiallySane(parent, child)
-    Γ₁(child) = e₀ using responseHeaders
+    Γ₂(child) = e₀ using responseHeaders
       ; Append normalizedRequestHeaders to the above request's headers
     corsCompliant(parent, child, responseHeaders)
-    (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
+    (Δ, parent, child) × Γ₂ ⊢ e₀ ⇒ e₁ ⊢ Γ₃
     ε ⊢ e₁ : T
     ──────────────────────────────────────────────────────────────────────────  ; * child ∉ Δ
-    (Δ, parent) × Γ₀ ⊢ https://authority directory file using requestHeaders ⇒ e₁ ⊢ Γ₂
+    (Δ, parent) × Γ₀ ⊢ https://authority directory file using requestHeaders ⇒ e₁ ⊢ Γ₃
 
 
 For example, if `normalizedRequestHeaders` in the above judgment was:
