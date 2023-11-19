@@ -621,7 +621,7 @@ resolve imports within the retrieved expression:
     Γ(headersPath) = userHeadersExpr
     (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
-                                               ; with a `mapValue` equal to `origin`,
+                                               ; with a `mapKey` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
     parent </> https://authority directory file using headers = import₁
     canonicalize(import₁) = child
@@ -799,7 +799,7 @@ the resolved expression as additional headers supplied to the HTTP request:
     Γ(headersPath) = userHeadersExpr
     (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
-                                               ; with a `mapValue` equal to `origin`,
+                                               ; with a `mapKey` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
     ε ⊢ headers : List { mapKey : Text, mapValue : Text }
     (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁
