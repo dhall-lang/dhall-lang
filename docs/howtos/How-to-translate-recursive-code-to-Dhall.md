@@ -473,7 +473,7 @@ let unroll : C → F C =
     in λ(c : C) → c (F C) fmapBuild
 ```
 
-A rigorous proof that `unroll` and `build` are inverse functions is shown in the paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) and is beyond the scope of this tutorial.
+A rigorous proof that `unroll` and `build` are inverse functions is shown in the paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) and is beyond the scope of this tutorial. Let us just remark that because we have these functions, the types `C` and `F C` are equivalent (isomorphic). Any data of type `C` can be mapped into data of type `F C` and back, without loss of information. In that sense, the type `C` satisfies the "type equation" `C = F C`. This is one way of defining rigorously the meaning of recursive types that one writes in Haskell as `data T = F T`.
 
 The second step is to apply `unroll` to the value on which we need to use pattern matching. The result will be a value of type `F C`, which will be typically a union type. Then we can use ordinary pattern matching on values of that type.
 
