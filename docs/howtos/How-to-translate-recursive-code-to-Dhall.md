@@ -433,7 +433,16 @@ isSingleLeaf t = case t of
     Branch _ _ -> false
 ```
 
-The Dhall translation of `TreeInt` is a Church-encoded type:
+Another example is a function that checks whether the first element of a list exists:
+
+
+```haskell
+headMaybe :: [a] -> Maybe a
+headMaybe []     = Nothing
+headMaybe (x:xs) = Just x
+```
+
+The Dhall translation of `TreeInt` and `ListInt` are Church-encoded types:
 
 ```dhall
 let F = λ(r : Type) → < Leaf: Integer | Branch : { left : r, right : r } >
@@ -441,7 +450,15 @@ let TreeInt = ∀(r : Type) → (F r → r) → r
     in TreeInt
 ```
 
-A value of type `TreeInt` is a function, so we cannot perform pattern matching on that value. How can we implement functions like `isSingleLeaf` in Dhall?
+and
+
+```dhall
+let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } >
+let ListInt = ∀(r : Type) → (F r → r) → r
+in ListInt
+```
+
+Values of type `TreeInt` and `ListInt` are functions, so we cannot perform pattern matching on such values. How can we implement functions like `isSingleLeaf` and `headMaybe` in Dhall?
 
 The general method for translating pattern matching into Church-encoded types `C` consists of two steps. The first step is to define a function we will call `unroll`, of type `C → F C`. This function is the inverse of the function `build : F C → C` from the previous subsection.
 
@@ -460,7 +477,9 @@ A rigorous proof that `unroll` and `build` are inverse functions is shown in the
 
 The second step is to apply `unroll` to the value on which we need to use pattern matching. The result will be a value of type `F C`, which will be typically a union type. Then we can use ordinary pattern matching on values of that type.
 
-With this technique, functions like `isSingleLeaf` are translated to Dhall straightforwardly:
+With this technique, `isSingleLeaf` and `headMaybe` are translated to Dhall straightforwardly.
+
+For `C = TreeInt`, the type `F C` is the union type `< Leaf: Integer | Branch : { left : TreeInt, right : TreeInt } >`. The function `isSingleLeaf` is implemented via Pattern-matching on that type:
 
 ```dhall
 -- Assume definitions of TreeInt and unroll as shown above.
@@ -472,7 +491,7 @@ let isSingleLeaf : TreeInt → Bool = λ(c : TreeInt) →
   in isSingleLeaf
 ```
 
-Another example of pattern matching is taking the first element of a list but returning `None` if the list is empty:
+For `C = ListInt`, the type `F C` is the union type `< Nil | Cons : { head : Integer, tail : ListInt } >`. The function `headOptional`, similar to Haskell's `headMaybe`, is written in Dhall like this:
 
 ```dhall
 -- Assume definitions of ListInt and unroll as shown above.
