@@ -520,8 +520,10 @@ double-literal =
     / numeric-double-literal
 
 natural-literal =
+    ; Binary with "0b" prefix
+      "0" %x62 1*BIT
     ; Hexadecimal with "0x" prefix
-      "0" %x78 1*HEXDIG
+    / "0" %x78 1*HEXDIG
     ; Decimal; leading 0 digits are not allowed
     / ("1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9") *DIGIT
     ; ... except for 0 itself
