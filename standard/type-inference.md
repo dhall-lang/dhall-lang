@@ -1207,22 +1207,11 @@ When type annotations are present:
     freeVars(T) = V₀
     ↑(1, x, 0, a₀) = a₁
     freeVars(a₁) = V₁
-    V₁ = {x} ∪ V₂
-    x ∉ V₂
+    V₂ = V₁ \ {x}
     freeVars(b₀) = V₃
     V₄ = V₀ ∪ V₂ ∪ V₃
-    ─────────────────────────────────── ; if x ∈ freeVars(a₁)
+    ───────────────────────────────────
     freeVars(let x : T = b₀ in a₀) = V₄
-
-
-    freeVars(T) = V₀
-    ↑(1, x, 0, a₀) = a₁
-    freeVars(a₁) = V₁
-    x ∉ V₁
-    freeVars(b₀) = V₂
-    V₃ = V₀ ∪ V₁ ∪ V₂
-    ─────────────────────────────────── ; if x ∉ freeVars(a₁)
-    freeVars(let x : T = b₀ in a₀) = V₃
 
 
 When type annotations are missing:
