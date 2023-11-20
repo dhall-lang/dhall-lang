@@ -1092,7 +1092,7 @@ encode (BytesLiteral xs) = TList [ TInt 33, TBytes xs ]
 
 ### `assert`
 
-An assertion encoded its own annotation (regardless of whether the annotation is
+An assertion encodes its own annotation (regardless of whether the annotation is
 an equivalence or not):
 
 

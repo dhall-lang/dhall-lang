@@ -80,7 +80,7 @@ Other changes:
 * Fixes and improvements to the standard:
   * [Remove Unicode char `±` from ABNF](https://github.com/dhall-lang/dhall-lang/pull/1289)
 * Fixes and improvements to the standard test suite:
-  * [Fix `None`-related teest](https://github.com/dhall-lang/dhall-lang/pull/1288)
+  * [Fix `None`-related test](https://github.com/dhall-lang/dhall-lang/pull/1288)
   * [Add test for changing type of field inside `Optional`](https://github.com/dhall-lang/dhall-lang/pull/1332)
 
 ## `v22.0.0`
@@ -1481,7 +1481,7 @@ Other changes:
   * [Clarify type inference for record literals](https://github.com/dhall-lang/dhall-lang/pull/740)
   * [Fix type-inference rules for `merge`](https://github.com/dhall-lang/dhall-lang/pull/762)
   * [Specify binary encoding of `-0.0`](https://github.com/dhall-lang/dhall-lang/pull/761)
-  * [Specify how to encoded union constructors](https://github.com/dhall-lang/dhall-lang/pull/765)
+  * [Specify how to encode union constructors](https://github.com/dhall-lang/dhall-lang/pull/765)
 
 * Fixes and improvements to the standard test suite:
 

@@ -70,9 +70,9 @@ system (see the ["Function check"](#function-check) section for more details).
 Type abstraction and type application are explicit and not inferred.  Dhall also
 supports additional built-in functions, operators, and constants for efficiency.
 
-Dhall also supports referencing shadowed variables through the use of DeBruijn
+Dhall also supports referencing shadowed variables through the use of De Bruijn
 indices.  This document spells out in detail how to implement these
-DeBruijn-like variable references.
+De Bruijn-like variable references.
 
 ## Expressions
 
@@ -278,7 +278,7 @@ The syntax of contexts is:
       / Γ, x : T  ; A context extended with a type annotation for a variable
 
 Contexts are ordered and there can be multiple type annotations in the context
-for the same variable.  The DeBruijn index associated with each variable
+for the same variable.  The De Bruijn index associated with each variable
 disambiguates which variable to refer to in the context.
 
 ## Shift context
