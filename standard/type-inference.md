@@ -1182,20 +1182,10 @@ For function expressions, function types, and `let` expressions, the body of the
     freeVars(T) = V₀
     ↑(1, x, 0, a₀) = a₁
     freeVars(a₁) = V₁
-    V₁ = {x} ∪ V₂
-    x ∉ V₂
+    V₂ = V₁ \ {x}
     V₃ = V₀ ∪ V₂
-    ──────────────────────────── ; if x ∈ freeVars(a₁)
+    ────────────────────────────
     freeVars(λ(x : T) → a₀) = V₃
-
-
-    freeVars(T) = V₀
-    ↑(1, x, 0, a₀) = a₁
-    freeVars(a₁) = V₁
-    x ∉ V₁
-    V₂ = V₀ ∪ V₁
-    ──────────────────────────── ; if x ∉ freeVars(a₁)
-    freeVars(λ(x : T) → a₀) = V₂
 
 The rules for function types are the same:
 
