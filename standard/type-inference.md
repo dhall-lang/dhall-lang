@@ -740,7 +740,7 @@ An implementation could simply loop over the inferred record type.
     x ∉ freeVars(T₀)
     ↑(-1, x, 0, T₀) = T₁
     Γ ⊢ (merge t₁ u₁ : T₁) : T₂
-    ────────────────────────────────────  ; `x` not free in `T₀`
+    ────────────────────────────────────
     Γ ⊢ merge t₀ u₀ : T₁
 
 
