@@ -1151,15 +1151,15 @@ The set of free variables is empty for:
     ...
 
 
-    ───────────────────── ; False is a built-in constant
-    freeVars(False) = { }
+    ───────────────────── ; Type is a built-in constant
+    freeVars(Type) = { }
 
 
     ...
 
 
-    ──────────────────────── ; import without a headers term
-    freeVars(import x) = { }
+    ────────────────────────----------- ; import without a headers term
+    freeVars(https://example.com) = { }
 
 
 Special rules apply to variables, function types, function expressions, and `let` expressions.

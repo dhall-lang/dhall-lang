@@ -1705,11 +1705,12 @@ betaNormalize (ProjectByLabels t₀ xs₀)
     , let ks = map fst rs
     , let predicate x = x `elem` ks
     , let t₁ =
-              Operator
-                  (ProjectByLabels l (xs₀ \\ ks))
-                  Prefer
-                  (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀)) =
-        betaNormalize t₁
+              betaNormalize (
+                  Operator
+                      (ProjectByLabels l (xs₀ \\ ks))
+                      Prefer
+                      (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀))) =
+        t₁
 
     | otherwise
     , let t₁ = betaNormalize t₀
@@ -2658,15 +2659,15 @@ betaNormalize (Builtin TimeZoneShow) = Builtin TimeZoneShow
 
 ### The precision of seconds in `TimeLiteral`
 
-Dhall's `TimeLiteral`s support up to 12 decimal digits of precision in the value of seconds.
-If more than 12 digits are given, the `Time/show` function will pad the values with trailing zeros.
+Dhall's `TimeLiteral` type supports unlimited precision in the value of seconds.
+The `Time/show` function will retain the complete precision as given, even if the seconds fraction ends with zeros.
 
-For example, the time literal `09:00:00.0987654321098765432109876543210987654321` only keeps the first 12 after-comma digits but is printed by `Time/show` with 40 after-comma digits, matching the precision given in the Dhall source for that literal:
+For example, the time literal `09:00:00.0987654321098765432109876543210000000000` is printed by `Time/show` with 40 after-comma digits, matching the precision given in the Dhall source for that literal:
 
 ```dhall
-⊢ let t = 09:00:00.0987654321098765432109876543210987654321 in " let t = " ++ Time/show t
+⊢ let t = 09:00:00.0987654321098765432109876543210000000000 in " let t = " ++ Time/show t
 
-" let t = 09:00:00.0987654321090000000000000000000000000000"
+" let t = 09:00:00.0987654321098765432109876543210000000000"
 ```
 
 ## Functions
