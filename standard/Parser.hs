@@ -827,8 +827,15 @@ doubleLiteral =
     <|> numericDoubleLiteral
 
 naturalLiteral :: Parser Natural
-naturalLiteral = hexadecimal <|> decimal <|> zero
+naturalLiteral = binary <|> hexadecimal <|> decimal <|> zero
   where
+    binary = do
+        "0b"
+
+        digits <- atLeast 1 (satisfy $ between '0' '1')
+
+        return (digits `base` 2)
+
     hexadecimal = do
         "0x"
 
