@@ -1159,7 +1159,7 @@ You can see a real example of this pattern in the Prelude's support for
 ## Conclusion
 
 The general algorithm for translating recursive code to non-recursive code is
-known as Boehm Berarducci encoding and based off of this paper:
+known as the Boehm-Berarducci encoding and is shown in this paper:
 
 * [Automatic synthesis of typed Λ-programs on term algebras](http://www.sciencedirect.com/science/article/pii/0304397585901355)
 
