@@ -41,21 +41,21 @@ This code is rejected by Dhall because `step` may not be used inside its own def
 
 ## Why is recursion not supported directly?
 
-Rejecting native recursion is one of the core design decisions in Dhall.
+Rejecting direct recursion is one of the core design decisions in Dhall.
 It ensures that any well-typed Dhall program will always evaluate to a final value (called the "normal form") within finite time.
-It is simply not possible to write a Dhall program that type-checks but then enters an infinite loop while evaluating.
-This limitation is a valuable property for a configuration language.
+Because of that limitation, it is simply not possible to write a Dhall program that type-checks but then enters an infinite loop while evaluating.
+This is a valuable property for a configuration language.
 
-Despite that limitation, you can still work with a wide range of recursive types and functions in Dhall.
+However, one can still work with a wide range of recursive types and functions in Dhall. 
 This guide explains how to do that, walking through examples of progressively increasing difficulty.
 
 ## How to implement recursive types: a general recipe
 
-The main idea is to replace a given recursive type definition by a more detailed description showing how a value of the recursive type may be constructed from simpler parts or from primitive values.
+The main idea is to replace a recursive type definition by a more detailed description showing how a value of the recursive type may be constructed from simpler parts or from primitive values.
 That description will be _itself_ non-recursive, and so it will be accepted by Dhall.
-Then one needs to use a trick (known as the "Church encoding") that involves universally quantified types. With that trick, Dhall will create a complicated-looking type that is not recursive but still is able to represent our recursive data structure.
+Then one needs to use a trick (known as the "Church encoding") that involves universally quantified types. That trick replaces a recursive type definition with an equivalent but more complicated type whose definition is _not_ recursive.
 
-We will now explain this technique step by step.
+We will now explain the Church encoding technique step by step.
 
 ### Step 1: from a recursive type definition to a recursion scheme
 
@@ -390,18 +390,29 @@ The same argument will hold for any recursive types, including recursive types w
 
 In the previous section we showed the constructors `nil` and `cons` for the `ListInt` type. What is the corresponding technique for an arbitrary Church-encoded type with a given recursion scheme `F`?
 
-Looking at the types of `nil` and `cons`, we see a pattern:
+Both the constructors `nil` and `cons` have types of the form "something that returns a `ListInt` value":
 
 ```dhall
 let nil : ListInt = ...
 let cons: Integer → ListInt → ListInt = ...
 ```
 
-The pair of types `(nil, cons)` is equivalent to a single value of type `F ListInt → ListInt`.
+To make this pattern more apparent, we can rewrite those types equivalently as functions from some record types to `ListInt`:
+
+```dhall
+let nil1 : {} -> ListInt = ...
+let cons1: { x : Integer, l : ListInt } → ListInt = ...
+```
+
+The two constructors `nil1` and `cons1` are equivalent to a single function `nil1cons1 : < n : { } | c : { x : Integer, l : ListInt } > → ListInt`.
+
+Note that the argument of that function has type `< n : { } | c : { x : Integer, l : ListInt } >`, which is equivalent to `F ListInt` because `F ListInt` is just `< Nil | Cons : { head : Integer, tail : ListInt } >`.
+
+So, we find that the two constructors `nil` and `cons` may be replaced by a single value of type `F ListInt → ListInt`.
 
 This suggests that the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r) → r` is just a value of type `F C → C`. 
 
-There always exists a unique value of type `F C → C` that satisfies certain required properties (which are beyond the scope of this tutorial). That value is denoted as the `build` function for the Church-encoded type.
+It turns out that there is a unique value of type `F C → C` that satisfies certain required properties (which are beyond the scope of this tutorial). That value is denoted as the `build` function for the Church-encoded type `C`. The `build` function encapsulates all the basic constructors that are used for building values the type `C`.
 
 A general implementation of `build` depends on having the `fmapF` function for the type constructor `F`. So, this technique only works when `F` is a covariant type constructor. But this is always true in all practical cases.
 
