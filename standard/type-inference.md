@@ -94,7 +94,7 @@ Since `x` is a synonym for `x@0`, you can shorten this rule to:
 
 
 The order of types in the context matters because there can be multiple type
-annotations in the context for the same variable.  The DeBruijn index associated
+annotations in the context for the same variable.  The De Bruijn index associated
 with each variable disambiguates which type annotation in the context to use:
 
 

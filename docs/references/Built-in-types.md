@@ -253,6 +253,14 @@ Natural
 Natural
 ```
 
+… or using binary notation:
+
+```dhall
+⊢ :type 0b1011
+
+Natural
+```
+
 #### Rules
 
 A `Natural` number `n` is equivalent to adding `1` `n` times
@@ -598,6 +606,18 @@ Integer
 ⊢ +0xff
 
 +255
+```
+
+… or binary notation:
+
+```dhall
+⊢ +0b1011
+
++11
+
+⊢ -0x10
+
+-2
 ```
 
 ### Function `Integer/negate`
