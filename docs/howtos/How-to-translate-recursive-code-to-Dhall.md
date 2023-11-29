@@ -67,13 +67,13 @@ For example, the integer list type has this Haskell definition:
 data ListInt = Nil | Cons Int ListInt
 ```
 
-We need to rewrite this definition as `data ListInt = F ListInt`, where `F` needs to be a suitable new type constructor. It is clear that this type constructor should be this:
+We need to rewrite this definition as `data ListInt = F ListInt`, where `F` needs to be a suitable new type constructor. It is clear what `F` should be:
 
 ```haskell
 data F r = Nil | Cons Int r
 ```
 
-We find `F r` by replacing all recursive instances of `ListInt` via the type parameter `r`. (Here the letter `r` reminds us of the word "recursion".)
+We find `F r` by replacing all recursive instances of `ListInt` via the type parameter `r`. (Here the letter `r` reminds us of "recursion".)
 
 If we substitute `ListInt` for `r` in `F r`, we obtain `Nil | Cons Int ListInt`, which is exactly the right-hand side of the original recursive definition. In this way, `data ListInt = F ListInt` is the same as `data ListInt = Nil | Cons Int ListInt`. It shows that our choice of `F` is correct. 
 
