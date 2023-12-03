@@ -1514,7 +1514,7 @@ betaNormalize (RecordLiteral xts₀) = RecordLiteral xts₁
         t₁ = betaNormalize t₀
 ```
 
-Simplify a record selection if the argument is a record literal:
+Simplify a record selection if the argument is a record literal or record type:
 
 
     t ⇥ { x = v, … }
@@ -1527,6 +1527,9 @@ betaNormalize (Field t x)
     | RecordLiteral xvs <- betaNormalize t
     , Just v            <- lookup x xvs =
         v
+    | RecordType xTs <- betaNormalize t
+    , Just _T    <- lookup x xTs =
+        _T
 ```
 
 If the argument is a record projection, select from the contained record.
@@ -1655,12 +1658,17 @@ You can also project out more than one field into a new record:
     t.{} ⇥ {=}
 
 
-Simplify a record projection if the argument is a record literal:
+Simplify a record projection if the argument is a record literal or record type:
 
 
     t ⇥ { x = v, ts… }   { ts… }.{ xs… } ⇥ { ys… }
     ──────────────────────────────────────────────
     t.{ x, xs… } ⇥ { x = v, ys… }
+
+
+    t ⇥ { x : T, ts… }   { ts… }.{ xs… } ⇥ { ys… }
+    ──────────────────────────────────────────────
+    t.{ x, xs… } ⇥ { x : T, ys… }
 
 
 If the argument is itself a projection, skip the inner projection:
@@ -1696,6 +1704,10 @@ betaNormalize (ProjectByLabels t₀ xs₀)
     | RecordLiteral xvs <- betaNormalize t₀
     , let predicate (x, _v) = x `elem` xs₀ =
         RecordLiteral (filter predicate xvs)
+
+    | RecordType xTs <- betaNormalize t₀
+    , let predicate (x, _T) = x `elem` xs₀ =
+        RecordType (filter predicate xTs)
 
     | ProjectByLabels t₁ _ys  <- betaNormalize t₀
     , let t₂ = betaNormalize (ProjectByLabels t₁ xs₀) =
