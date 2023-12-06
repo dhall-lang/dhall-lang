@@ -286,7 +286,7 @@ let F = λ(a : Type) → λ(b : Type) → < Name : Text | OneLayer : b | TwoLaye
 let G = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
 let Layer = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → a
 let Layer2 = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → b
-in ...
+    in { layer = Layer, layer2 = Layer2 } -- Return a record containing both types.
 ```
 
 
@@ -314,10 +314,10 @@ let x : ListInt = λ(r : Type) → λ(frr : F r → r) → ... -- Some code here
 
 The code of this function must work for any type `r` whatsoever. How can we produce a value of type `r` if we do not even know what type it is?
 
-The only possibility of doing that is by applying the function `frr` to some argument of type `F r`. So, now we need to see how we could produce a value of type `F r`.
+We can do that only by applying the function `frr` to some argument of type `F r`. So, now we need to see how we could produce a value of type `F r`.
 
 We notice that `F r` is a union type with one of the possibilities being just `Nil`.
-So, we can give that value `Nil` as an argument to `frr`. This will give us a value of type `r` that we can return. So, one possibility of implementing a value of type `ListInt` is:
+So, we can give that value `Nil` as an argument to `frr`. This will give us a value of type `r` that we can return. So, one possibility of implementing a value of type `ListInt` is `x0` defined like this:
 
 ```dhall
 let x0 : ListInt = λ(r : Type) → λ(frr : F r → r) →
@@ -327,7 +327,7 @@ let x0 : ListInt = λ(r : Type) → λ(frr : F r → r) →
   in x0
 ```
 
-The other possibility in the union type of `F r` is `Cons` with a record that contains an `Integer` and a previously known value of type `r`. But where will we get that previous value? So far, we could only get that value out of using `Nil` when we defined `x0` just above. Let us build upon that code. Choosing the integer value arbitrarily as `-123`, we write:
+The other variant of the union type `F r` is `Cons` containing a record with an `Integer` and a previously known value of type `r`. But where will we get that previous value? So far, we could only get the value `x0` defined just above. Let us build upon that code. Choosing the integer value arbitrarily as `-123`, we write:
 
 ```dhall
 let x1 : ListInt = λ(r : Type) → λ(frr : F r → r) →
@@ -339,7 +339,7 @@ let x1 : ListInt = λ(r : Type) → λ(frr : F r → r) →
   in x1
 ```
 
-We have written the code in a verbose way in order to show how we build up values of type `r` from scratch. We can continue in the same way to encode more complicated values of type `ListInt`:
+We have written the code in a verbose way in order to show the pattern of how to build up more values of type `r` (denoted `r0`, `r1`, ...). We can continue in the same way to encode more complicated values of type `ListInt`:
 
 ```dhall
 let x2 : ListInt = λ(r : Type) → λ(frr : F r → r) →
