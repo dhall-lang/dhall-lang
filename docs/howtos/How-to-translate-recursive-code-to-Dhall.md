@@ -59,7 +59,7 @@ We will now explain the Church encoding technique step by step.
 
 ### Step 1: from a recursive type definition to a recursion scheme
 
-First, we rewrite a Haskell recursive type definition in the form `data T = F T` where `F` will be a new type constructor called the "recursion scheme". We will need to define `F` appropriately.
+First, we rewrite a Haskell recursive type definition in the form `data T = F T` where `F` is a new type constructor called the "recursion scheme". We will need to define `F` appropriately each time.
 
 For example, the integer list type has this Haskell definition:
 
@@ -73,19 +73,19 @@ We need to rewrite this definition as `data ListInt = F ListInt`, where `F` need
 data F r = Nil | Cons Int r
 ```
 
-We find `F r` by replacing all recursive instances of `ListInt` via the type parameter `r`. (Here the letter `r` reminds us of "recursion".)
+We find `F r` by replacing all recursive instances of `ListInt` by the type parameter `r`. (Here the letter `r` reminds us of "recursion".)
 
-If we substitute `ListInt` for `r` in `F r`, we obtain `Nil | Cons Int ListInt`, which is exactly the right-hand side of the original recursive definition. In this way, `data ListInt = F ListInt` is the same as `data ListInt = Nil | Cons Int ListInt`. It shows that our choice of `F` is correct. 
+If we substitute `ListInt` for `r` in `F r`, we obtain `Nil | Cons Int ListInt`, which is exactly the right-hand side of the original recursive definition. In this way, `data ListInt = F ListInt` is the same as `data ListInt = Nil | Cons Int ListInt`. It shows that our choice of `F` is correct for `ListInt`.
 
-The recursion scheme `F` describes all the possible ways of constructing a value of a recursive type. In this example, there are only two ways of constructing a value of type `ListInt`: first, `Nil` is a value of type `ListInt`. Second, if we _somehow_ already have a value `r` of type `ListInt`, we can use `Cons` to construct new values of type `ListInt`, for instance, `Cons -123 r`. 
+The recursion scheme (`F`) describes all the possible ways of constructing a value of a recursive type. In this example, there are only two ways of constructing a value of type `ListInt`: first, `Nil` is a value of type `ListInt`. Second, if we _somehow_ already have a value `r` of type `ListInt`, we can use `Cons` to construct new values of type `ListInt`, for instance, `Cons -123 r`. 
 
-Because `F` is itself _not_ recursive, its definition will be accepted by Dhall:
+Because `F` is itself _not_ recursive, its definition will be accepted by Dhall. The Dhall code for `F` is:
 
 ```dhall
 let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } > in F
 ```
 
-As another example, take a binary tree (with just integer leaf values):
+As another example, take a binary tree with integer leaf values:
 
 ```haskell
 data TreeInt = Leaf Int | Branch TreeInt TreeInt
@@ -97,7 +97,7 @@ The corresponding recursion scheme `F` is defined by:
 data F r = Leaf Int | Branch r r
 ```
 
-This is a _non-recursive_ type constructor defined in Dhall by:
+This `F` is a _non-recursive_ type constructor defined in Dhall by:
 
 ```dhall
 let F = λ(r : Type) → < Leaf: Integer | Branch : { left : r, right : r } > in F
@@ -105,7 +105,7 @@ let F = λ(r : Type) → < Leaf: Integer | Branch : { left : r, right : r } > in
 
 If a recursive data type has itself some type parameters, those type parameters will have to be added to `F` in addition to the type parameter `r`.
 
-A list with a type parameter in Haskell:
+A list with a type parameter can be defined in Haskell as:
 
 ```haskell
 data List a = Nil | Cons a (List a)
@@ -117,7 +117,7 @@ The corresponding recursion scheme is:
 data F a r = Nil | Cons a r
 ```
 
-The Dhall code is:
+The corresponding Dhall code is:
 
 ```dhall
 let F = λ(a : Type) → λ(r : Type) →
@@ -130,7 +130,7 @@ A binary tree with a type parameter in Haskell:
 data Tree a = Leaf a | Branch (Tree a) (Tree a)
 ```
 
-The corresponding recursion scheme is:
+The corresponding recursion scheme `F` is:
 
 ```haskell
 data F a r = Leaf a | Branch r r
@@ -143,7 +143,7 @@ let F = λ(a : Type) → λ(r : Type) →
    < Leaf : a | Branch : { left : r, right : r } > in F
 ```
 
-As another example, consider a binary tree with more type parameters:
+As another example, consider a binary tree with two type parameters:
 
 ```haskell
 data TreeAB a b = LeafA a | LeafB b | Branch (TreeAB a b) (TreeAB a b)
@@ -162,25 +162,51 @@ let F = λ(a : Type) → λ(b : Type) → λ(r : Type) →
    < LeafA : a | LeafB : b | Branch : { left : r, right : r } > in F
 ```
 
-We see that we can always produce a non-recursive type constructor `F` for any recursive type definition.
-The code of `F` will be accepted by Dhall.
+A somewhat more complicated example is a "mutually recursive" type definition where two types are defined in terms of each other.
+
+```haskell
+data Layer = Name String | OneLayer Layer | TwoLayers Layer2 Layer2
+data Layer2 = Name2 String | ManyLayers [ Layer ]   
+```
+
+The type `Layer` is defined via itself and `Layer2`, while `Layer2` is defined via `Layer`.
+
+We need two recursion schemes (`F` and `F2`) to describe this definition. In terms of the recursion schemes, the type definitions should look like this:
+
+```haskell
+data Layer = Layer (F Layer Layer2)
+data Layer2 = Layer2 (G Layer Layer2)
+data F a b = Name String |  OneLayer a | TwoLayers b b
+data G a b = Name2 String | ManyLayers [ a ]
+```
+
+The recursion schemes `F` and `G` are non-recursive type constructors with two type parameters each. The Dhall code for this example is:
+
+```dhall
+let F = λ(a : Type) → λ(b : Type) → < Name : Text | OneLayer : b | TwoLayers: { left : b, right : b } >
+let G = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
+in ...
+```
+
+These examples show how to convert any recursive type definition into a corresponding recursion scheme, which we will often denote by `F` in this tutorial. 
+The definition of `F` is non-recursive and will be accepted by Dhall.
 
 ### Step 2: the Church encoding
 
-Now we use a trick known as the "Church encoding". This trick converts any recursion scheme `F` into a type that contains a universal quantifier. In Dhall, that type is written as:
+Now we show a trick known as the "Church encoding". This trick converts any recursion scheme `F` into a specially defined type that contains a universal quantifier. In Dhall, that type is written as:
 
 ```dhall
 ∀(r : Type) → (F r → r) → r
 ```
 
-Carefully note that the Church encoding uses the universal quantifier (`∀`) and not the `λ` symbol.
+Carefully note that the Church encoding uses the universal quantifier (`∀`) and not the `λ` symbol. Let us explain the difference in some detail:
 
-The expression `λ(r : Type) → P r` (with some type constructor `P`) would be a function that needs to be applied to a particular type in order to produce a result type. In other words, it would be a _type constructor_ that itself is not of type `Type` but of type `Type → Type`. This is not what we need for the Church encoding.  
+The expression `λ(r : Type) → P r` (with some type constructor `P`) would be a function that needs to be applied to a particular type in order to produce a result type. In other words, it would be a _type constructor_ that is itself not of type `Type` but of type `Type → Type`. This is not what we need for the Church encoding.  
 
-Compare that with what happens if we use the universal quantifier.
-A value of type `∀(r : Type) → P r` is a function with a type parameter.
-That is, some code that works for all types `r` in the same way and produces a value of type `P r` no matter what type `r` might be.
-A value of type `∀(r : Type) → P r` is a function expression of the form `λ(r : Type) → ...`. We will see below how to work with those expressions.
+If we use the universal quantifier,
+a value of type `∀(r : Type) → P r` is a function with a type parameter, returning a value.
+This is some code that works for all types `r` in the same way and produces a value of type `P r` no matter what type `r` might be.
+So, a value of type `∀(r : Type) → P r` is a function expression of the form `λ(r : Type) → ...`. We will see below how to work with those expressions.
 
 If the recursion scheme `F` has additional type parameters `a`, `b`, etc., we need to write the Church encoding with all those parameters next to `F`:
 
@@ -188,11 +214,27 @@ If the recursion scheme `F` has additional type parameters `a`, `b`, etc., we ne
 λ(a : Type) → λ(b : Type) → ∀(r : Type) → (F a b r → r) → r
 ```
 
-Those type definitions are not recursive because they just use a previously defined (and also non-recursive) type constructor `F` in a type expression with quantifiers. However, it turns out that those definitions are equivalent to defining recursive data types with the additional guarantee that the resulting data structures are always finite.
+For mutually recursive definitions with several recursion schemes, we write a Church-encoded type for each mutually recursive type separately. For instance, if we have two mutually recursive types with recursion schemes `F` and `G`, we write:
 
-A mathematical proof of this property is given in the paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) by P. Wadler. In this tutorial we will focus on the practical use of those type constructions.
+```dhall
+∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → a
+```
 
-Let us now write the Dhall code for the examples shown in the previous section.
+for the first type and:
+
+```dhall
+∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → b
+```
+
+for the second type.
+
+All those type definitions are not recursive because they just use previously defined (and also non-recursive) type constructors in a type expression with quantifiers. However, it turns out that those definitions are equivalent to recursive data types, with the additional guarantee that the resulting data structures are always finite.
+
+It is not obvious why a type of the form `∀(r : Type) → (F r → r) → r` is equivalent to a recursively defined type `T = F T`.
+A mathematical proof of this property is given in the paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) by P. Wadler.
+In this tutorial we will focus on the practical use of Church encodings.
+
+Let us write the Dhall code for the examples shown in the previous section.
 
 The type `ListInt` (a list with integer values):
 
@@ -237,9 +279,20 @@ let TreeAB = λ(a : Type) → λ(b : Type) → ∀(r : Type) → (F a b r → r)
     in TreeAB
 ```
 
+Two mutually recursive types `Layer` and `Layer2`:
+
+```dhall
+let F = λ(a : Type) → λ(b : Type) → < Name : Text | OneLayer : b | TwoLayers: { left : b, right : b } >
+let G = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
+let Layer = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → a
+let Layer2 = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → b
+in ...
+```
+
+
 ### Step 3: Working with recursive types
 
-We have shown a recipe for converting any recursive type definition into a recursion scheme and finally into non-recursive (but complicated) Church-encoded type.
+We have shown a recipe for converting any recursive type definition into a recursion scheme and finally into non-recursive (but more complicated) Church-encoded type.
 
 It takes some work to figure out how to write values of those types and to develop techniques for programming with Church encodings more conveniently.
 
@@ -300,23 +353,29 @@ let x2 : ListInt = λ(r : Type) → λ(frr : F r → r) →
   in x2
 ```
 
-We find that we can implement values of type `ListInt` if we just choose zero or more integers and write code as shown above with zero or more similar-looking steps. Each step contains an arbitrary integer value and computes a new value of type `r` out of a previous value. In this way, the type `ListInt` represents (possibly empty) lists of integer values. There is no other way of constructing a value of type `ListInt`.
+We find that we can implement values of type `ListInt` if we just choose a list of zero or more integers (`-123`, `+456`, etc.) and write code as shown above with zero or more similar-looking steps. Each step contains an arbitrary integer value and computes a new value of type `r` out of a previous value. In this way, the type `ListInt` represents (possibly empty) lists of integer values. There is no other way of constructing a value of type `ListInt`.
 
 Could we hide the verbose boilerplate and make working with `ListInt` easier? Let us introduce "constructors" `nil` and `cons` so that the code for `x2` will be just `cons +456 (cons -123 nil)`.
 
 The `nil` constructor is the same as `x0` shown above. The `cons` constructor encapsulates one step of the boilerplate code:
 
 ```dhall
+let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } >
+
+let ListInt = ∀(r : Type) → (F r → r) → r
+
 let nil : ListInt = λ(r : Type) → λ(frr : F r → r) →
-    frr < Nil | Cons : { head : Integer, tail : r } >.Nil
+    frr (F r).Nil
+
 let cons: Integer → ListInt → ListInt = λ(head : Integer) → λ(tail : ListInt) →
     λ(r : Type) → λ(frr : F r → r) →
-        let fr = < Nil | Cons : { head : Integer, tail : r } >.Cons {head = head, tail = tail r f }
-        in frr fr
+        let fr = (F r).Cons { head = head, tail = tail r frr }
+            in frr fr
+
     in cons +456 (cons -123 nil)
 ```
 
-In this code, it is important that we are allowed to write `tail r f` while computing `fr`. The value `tail : ListInt` is a function (since `ListInt` is a function type). We are using that function with the type `r` that we have received in the body of `cons`. We are allowed to do this because `tail`, being a value of type `ListInt`, is a function that can work with arbitrary types `r`.
+In this code, it is important that we are allowed to write `tail r frr` while computing `fr`. The value `tail : ListInt` is a function whose first argument is a type. We are using that function with the type `r` that we have received in the body of `cons`. We are allowed to do this because `tail`, being a value of type `ListInt`, is a function that can work with arbitrary types `r`.
 
 Let us also implement a `foldLeft` function for `ListInt`. That function serves as a general "aggregation" algorithm, converting a list of integers into an aggregated value of some type. The type signature of `foldLeft` is:
 
@@ -333,8 +392,8 @@ let foldLeft : ∀(r : Type) → ∀(init : r) → ∀(update : r → Integer �
   λ(r : Type) → λ(init : r) → λ(update : r → Integer → r) → λ(list : ListInt) →
     let consR : { head : Integer, tail : r } → r = λ(fr : { head : Integer, tail : r }) → update fr.tail fr.head
     let frr : F r → r = λ(fr : F r) → merge { Nil = init, Cons = consR } fr
-    in list r frr
-  in foldLeft
+        in list r frr
+    in foldLeft
 ```
 
 This code merely calls the given value `list : ListInt` on a certain function `fr : F r → r`. That function is constructed out of the given arguments `init` and `update`.
@@ -343,18 +402,30 @@ Because `foldLeft` is non-recursive, Dhall accepts that function.
 
 In this way, Dhall is able to construct integer lists and also to run loops over them, computing an aggregated value using `foldLeft`.
 
+As an example, we use `foldLeft` to implement a function that converts a `ListInt` value into the built-in list type `List Integer`:
+
+```dhall
+let toList : ListInt → List Integer = λ(list : ListInt) →
+    foldLeft (List Integer) ([]: List Integer) (λ(r : List Integer) → λ(x: Integer) → r # [ x ]) list
+
+    in toList (cons +456 (cons -123 nil))
+```
+
+The result is computed as `[ +456, -123 ]`.
+
+
 ### Where did the recursion go?
 
 The technique of Church encoding may be unfamiliar and perplexing. If we are actually working with recursive types and recursive functions, why do we no longer see any recursion in the code? In `foldLeft`, why is there no code that iterates over a list of integers in a loop?
 
 An answer is found by comparing the codes for the values `x0`, `x1`, and `x2` shown in the previous section when working with `ListInt`. The values `x0`, `x1`, and `x2` are functions whose second argument is a function `frr : F r → r`. The code for `x0` calls that function only once; the code for `x1` calls that function twice; and the code for `x2` calls that function three times.
 
-This explains why `foldLeft` is non-recursive. The code of `foldLeft` merely prepares a function `frr` and passes it to the given value of type `ListInt`. If we run `foldLeft` on `x2`, it is the code of `x2` that will call the function `frr` three times. There is also no loop in `x2`; it is just hard-coded in the function `x2` to apply `frr` three times.
+This explains why `foldLeft` is non-recursive. The code of `foldLeft` merely prepares a function `frr` and passes it to the given value of type `ListInt`. If we run `foldLeft` on `x2`, it is the code of `x2` that will call the function `frr` three times. There is actually no loop in `x2`; it is just hard-coded in the function `x2` to apply `frr` three times in a row.
 
-A list of 1000 integers will be represented by a function (call it `x1000 : ListInt`) that takes an argument `frr : F r → r` and calls the `frr` function a thousand times.
+A list of 1000 integers will be represented by a function (call it `x1000 : ListInt`) that takes an argument `frr : F r → r` and applies `frr` a thousand times to some arguments.
 This is because the only way of creating a list of 1000 integers is to create an expression such as `cons 1 (cons 2 (cons 3 (... (cons 1000 nil)))...)`.
 
-In this way, the Church encoding hides the loops and allows us to represent iterative computations without recursion.
+In this way, the Church encoding avoids loops and allows us to represent iterative computations without recursion.
 
 At the same time, the Church encoding guarantees that all recursive structures will be finite and all operations on those structures will terminate. It is for that reason that Dhall is able to accept Church encodings.
 
@@ -414,13 +485,13 @@ This suggests that the set of constructors for an arbitrary recursion scheme `F`
 
 It turns out that there is a unique value of type `F C → C` that satisfies certain required properties (which are beyond the scope of this tutorial). That value is denoted as the `build` function for the Church-encoded type `C`. The `build` function encapsulates all the basic constructors that are used for building values the type `C`.
 
-A general implementation of `build` depends on having the `fmapF` function for the type constructor `F`. So, this technique only works when `F` is a covariant type constructor. But this is always true in all practical cases.
+A general implementation of `build` depends on having the standard `fmapF` function for the type constructor `F`. So, this technique only works when `F` is a covariant type constructor. But this is always true in all practical cases.
 
 The Dhall code for `build` is:
 
 ```dhall
-let F = ∀(r : Type) → ... -- Define it here.
-let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ... -- Define it here.
+let F = ∀(r : Type) → ... -- Define it here. This is non-recursive.
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ... -- Define it here. This is non-recursive.
 let C = ∀(r : Type) → (F r → r) → r
 let build : F C → C = λ(fc : F C) → λ(r : Type) → λ(frr : F r → r) →
     let c2r : C → r = λ(c : C) → c r frr
@@ -466,7 +537,7 @@ and
 ```dhall
 let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } >
 let ListInt = ∀(r : Type) → (F r → r) → r
-in ListInt
+    in ListInt
 ```
 
 Values of type `TreeInt` and `ListInt` are functions, so we cannot perform pattern matching on such values. How can we implement functions like `isSingleLeaf` and `headMaybe` in Dhall?
@@ -476,8 +547,8 @@ The general method for translating pattern matching into Church-encoded types `C
 The Dhall code for `unroll` is:
 
 ```dhall
-let F = λ(r : Type) → ... -- Define it here.
-let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ... -- Define it here.
+let F = λ(r : Type) → ... -- Define it here. This is non-recursive.
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b = ... -- Define it here. This is non-recursive.
 let C = ∀(r : Type) → (F r → r) → r
 let unroll : C → F C =
   let fmapBuild : F (F C) → F C = fmapF (F C) C build -- Use the definition of `build` above.
@@ -488,12 +559,23 @@ A rigorous proof that `unroll` and `build` are inverse functions is shown in the
 
 The second step is to apply `unroll` to the value on which we need to use pattern matching. The result will be a value of type `F C`, which will be typically a union type. Then we can use ordinary pattern matching on values of that type.
 
-With this technique, `isSingleLeaf` and `headMaybe` are translated to Dhall straightforwardly.
+This technique allows us to translate `isSingleLeaf` and `headMaybe` to Dhall.
 
-For `C = TreeInt`, the type `F C` is the union type `< Leaf: Integer | Branch : { left : TreeInt, right : TreeInt } >`. The function `isSingleLeaf` is implemented via Pattern-matching on that type:
+For `C = TreeInt`, the type `F C` is the union type `< Leaf: Integer | Branch : { left : TreeInt, right : TreeInt } >`. The function `isSingleLeaf` is implemented via pattern matching on that type:
 
 ```dhall
--- Assume definitions of TreeInt and unroll as shown above.
+let F = λ(r : Type) → < Leaf: Integer | Branch : { left : r, right : r } >
+
+let TreeInt = ∀(r : Type) → (F r → r) → r
+
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b =
+    λ(a : Type) → λ(b : Type) → λ(f : a → b) → λ(fa : F a) → merge {
+      Leaf = (F b).Leaf,
+      Branch = λ(branch : { left : TreeInt, right : TreeInt }) → (F b).Branch { left = f branch.left, right = f branch.right }
+    } fa
+
+-- Assume the definition of `unroll` as shown above.
+
 let isSingleLeaf : TreeInt → Bool = λ(c : TreeInt) →
     merge {
       Leaf = λ(_ : Integer) → true,
@@ -502,17 +584,30 @@ let isSingleLeaf : TreeInt → Bool = λ(c : TreeInt) →
   in isSingleLeaf
 ```
 
-For `C = ListInt`, the type `F C` is the union type `< Nil | Cons : { head : Integer, tail : ListInt } >`. The function `headOptional`, similar to Haskell's `headMaybe`, is written in Dhall like this:
+For `C = ListInt`, the type `F C` is the union type `< Nil | Cons : { head : Integer, tail : ListInt } >`. The function `headOptional` that replaces Haskell's `headMaybe` is written in Dhall like this:
 
 ```dhall
--- Assume definitions of ListInt and unroll as shown above.
+let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } >
+
+let ListInt = ∀(r : Type) → (F r → r) → r
+
+let fmapF : ∀(a : Type) → ∀(b : Type) → (a → b) → F a → F b =
+    λ(a : Type) → λ(b : Type) → λ(f : a → b) → λ(fa : F a) → merge {
+      Nil = (F b).Nil,
+      Cons = λ(pair : { head : Integer, tail : a }) → (F b).Cons (pair // { tail = f pair.tail })
+    } fa
+
+-- Assume the definition of `unroll` as shown above.
+
 let headOptional : ListInt → Optional Integer = λ(c : ListInt) →
     merge {
       Cons = λ(list : { head : Integer, tail : ListInt }) → Some (list.head),
       Nil = None Integer
     } (unroll c)
-  in headOptional
+  in headOptional (cons -456 (cons +123 nil))
 ```
+
+The result is computed as `Some -456`.
 
 ### Performance
 
