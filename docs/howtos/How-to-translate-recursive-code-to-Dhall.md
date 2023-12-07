@@ -175,16 +175,21 @@ We need two recursion schemes (`F` and `F2`) to describe this definition. In ter
 
 ```haskell
 data Layer = Layer (F Layer Layer2)
-data Layer2 = Layer2 (G Layer Layer2)
+data Layer2 = Layer2 (F2 Layer Layer2)
+```
+
+We will achieve this formulation if we define  `F` and `F2` by:
+
+```haskell
 data F a b = Name String |  OneLayer a | TwoLayers b b
 data G a b = Name2 String | ManyLayers [ a ]
 ```
 
-The recursion schemes `F` and `G` are non-recursive type constructors with two type parameters each. The Dhall code for this example is:
+The recursion schemes `F` and `F2` are non-recursive type constructors with two type parameters each. The Dhall code for this example is:
 
 ```dhall
 let F = λ(a : Type) → λ(b : Type) → < Name : Text | OneLayer : b | TwoLayers: { left : b, right : b } >
-let G = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
+let F2 = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
 in ...
 ```
 
@@ -214,16 +219,16 @@ If the recursion scheme `F` has additional type parameters `a`, `b`, etc., we ne
 λ(a : Type) → λ(b : Type) → ∀(r : Type) → (F a b r → r) → r
 ```
 
-For mutually recursive definitions with several recursion schemes, we write a Church-encoded type for each mutually recursive type separately. For instance, if we have two mutually recursive types with recursion schemes `F` and `G`, we write:
+For mutually recursive definitions with several recursion schemes, we write a Church-encoded type for each mutually recursive type separately. For instance, if we have two mutually recursive types with recursion schemes `F` and `F2`, we write:
 
 ```dhall
-∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → a
+∀(a : Type) → ∀(b : Type) → (F a b → a) → (F2 a b → b) → a
 ```
 
 for the first type and:
 
 ```dhall
-∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → b
+∀(a : Type) → ∀(b : Type) → (F a b → a) → (F2 a b → b) → b
 ```
 
 for the second type.
@@ -283,9 +288,9 @@ Two mutually recursive types `Layer` and `Layer2`:
 
 ```dhall
 let F = λ(a : Type) → λ(b : Type) → < Name : Text | OneLayer : b | TwoLayers: { left : b, right : b } >
-let G = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
-let Layer = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → a
-let Layer2 = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (G a b → b) → b
+let F2 = λ(a : Type) → λ(b : Type) → < Name2 : Text | ManyLayers : List a >
+let Layer = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (F2 a b → b) → a
+let Layer2 = ∀(a : Type) → ∀(b : Type) → (F a b → a) → (F2 a b → b) → b
     in { layer = Layer, layer2 = Layer2 } -- Return a record containing both types.
 ```
 
@@ -477,13 +482,16 @@ let cons1: { x : Integer, l : ListInt } → ListInt = ...
 
 The two constructors `nil1` and `cons1` are equivalent to a single function `nil1cons1 : < n : { } | c : { x : Integer, l : ListInt } > → ListInt`.
 
-Note that the argument of that function has type `< n : { } | c : { x : Integer, l : ListInt } >`, which is equivalent to `F ListInt` because `F ListInt` is just `< Nil | Cons : { head : Integer, tail : ListInt } >`.
+The argument of that function has type `< n : { } | c : { x : Integer, l : ListInt } >`, which is equivalent to `F ListInt` because `F ListInt` means `< Nil | Cons : { head : Integer, tail : ListInt } >`.
 
 So, we find that the two constructors `nil` and `cons` may be replaced by a single value of type `F ListInt → ListInt`.
 
-This suggests that the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r) → r` is just a value of type `F C → C`. 
+Of course, practical programming is more convenient with the pair of constructors `nil` and `cons`.
+But the equivalence of that pair (`nil` and `cons`) to a single value of type `F ListInt → ListInt` shows us how to generalize this technique from `ListInt` to an arbitrary recursive type.
 
-It turns out that there is a unique value of type `F C → C` that satisfies certain required properties (which are beyond the scope of this tutorial). That value is denoted as the `build` function for the Church-encoded type `C`. The `build` function encapsulates all the basic constructors that are used for building values the type `C`.
+Namely, the set of constructors for an arbitrary recursion scheme `F` and the corresponding Church-encoded type `C = ∀(r : Type) → (F r → r) → r` is just a specific value of type `F C → C`. 
+
+It turns out that there is a unique value of type `F C → C` that satisfies certain required properties (which are beyond the scope of this tutorial). We will denote that value by `build: F C → C`. The `build` function encapsulates all the basic constructors that are used for building values the type `C`.
 
 A general implementation of `build` depends on having the standard `fmapF` function for the type constructor `F`. So, this technique only works when `F` is a covariant type constructor. But this is always true in all practical cases.
 
