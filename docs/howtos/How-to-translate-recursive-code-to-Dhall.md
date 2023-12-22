@@ -716,9 +716,9 @@ into data of type `F C` and back, without loss of information. In that sense, th
 rigorously the meaning of recursive types written in Haskell as `data T = F T`.
 
 The second step is to apply `unroll` to the value on which we need to use pattern matching. The result will be a value of type `F C`, which will be typically a
-union type. Then we can use ordinary pattern matching on values of that type.
+union type. Then we can use the ordinary pattern matching (`merge` in Dhall) on values of that type.
 
-This technique allows us to translate `isSingleLeaf` and `headMaybe` to Dhall.
+This technique allows us to translate `isSingleLeaf` and `headMaybe` to Dhall. Let us look at some examples.
 
 For `C = TreeInt`, the type `F C` is the union type `< Leaf: Integer | Branch : { left : TreeInt, right : TreeInt } >`. The function `isSingleLeaf` is
 implemented via pattern matching on that type:
