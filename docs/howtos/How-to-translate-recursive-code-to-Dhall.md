@@ -579,8 +579,8 @@ In Dhall, the only built-in recursive data type is `List`. The corresponding `fo
 ### Example of using `fold` and `build`: pretty-printing a binary tree
 
 We have shown how to define the `fold` and `build` functions for any Church-encoded type, given the recursion scheme `F` and the corresponding `fmapF` function.
-When working with a specific type, such as a binary tree, it is often convenient to implement the `fold` function and the constructors specifically for that
-type.
+When working with a specific type, such as a binary tree, it is often convenient to implement specific constructors for that type instead of using the
+generic `build` function.
 
 As an example, we will now implement a function that prints a `TreeInt` value in a Lisp-like format such as `"((+1) ((+2) (+3)))"`.
 
@@ -651,6 +651,8 @@ let print : TreeInt → Text = λ(tree: ∀(r : Type) → (F r → r) → r) →
 let test = assert : print example1 === "((+1) ((+2) (+3)))"
 ```
 
+Similarly to this example, one can use `fold` to implement a wide range of recursive functions on trees.
+
 ### Pattern matching on Church-encoded values
 
 When working with recursive types in ordinary functional languages, one often uses pattern matching. For example, here is a simple function that detects whether
@@ -708,11 +710,10 @@ let unroll : C → F C =
 
 A rigorous proof that `unroll` and `build` are inverse functions is shown in the
 paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt), which is beyond the scope of this tutorial.
-Let
-us just remark that because we have those functions, the types `C` and `F C` are equivalent (isomorphic) to each other. Any data of type `C` can be mapped into
-data of
-type `F C` and back, without loss of information. In that sense, the type `C` satisfies the "type equation" `C = F C`. This is one way of defining rigorously
-the meaning of recursive types written in Haskell as `data T = F T`.
+
+Let us just remark that because we have those functions, the types `C` and `F C` are equivalent (isomorphic) to each other. Any data of type `C` can be mapped
+into data of type `F C` and back, without loss of information. In that sense, the type `C` satisfies the "type equation" `C = F C`. This is one way of defining
+rigorously the meaning of recursive types written in Haskell as `data T = F T`.
 
 The second step is to apply `unroll` to the value on which we need to use pattern matching. The result will be a value of type `F C`, which will be typically a
 union type. Then we can use ordinary pattern matching on values of that type.
@@ -928,9 +929,13 @@ let zip : ∀(a : Type) → C a → ∀(b : Type) → C b → C { _1 : a, _2 : b
    )
 ```
 
+### Example: Zipping two trees
+
 ### Traversing a Church-encoded type constructor
 
 A more advanced example is the `traverse` function.
+
+### Example: Traversing a tree
 
 ### Performance
 
