@@ -772,7 +772,7 @@ The result is computed as `Some -456`.
 
 ### Other operations on Church-encoded data types
 
-Recursive data types such as lists and trees support certain useful operations such as `concat`, `zip`, `traverse` and others. Normally, those operations are
+Recursive data types such as lists and trees support certain useful operations such as `concat`, `join`, or `traverse`. Normally, those operations are
 implemented via recursive code. To use those operations in Dhall, we need to avoid using recursion and instead work directly with Church-encoded
 data. Let us show some examples of how this can be done.
 
@@ -866,81 +866,20 @@ let test = assert : reverseNEL Natural example1 === example2
 let test = assert : reverseNEL Natural example2 === example1
 ```
 
-### Zipping a Church-encoded type constructor
+### Sizing a Church-encoded type constructor
 
 The functions `concatNEL` and `reverseNEL` shown in the previous section are specific to list-like sequences and cannot be straightforwardly generalized to
 other recursive types.
 
-However, this _can_ be done with the standard `zip` function. That function is defined on lists in the Dhall standard library:
+However, a number of useful functions (such as `filter`, `join`, `traverse`) can be implemented generally for any Church-encoded data type. Within the scope of
+this tutorial, we will now show the implementation of functions that compute the maximum depth and the total size of a recursive data structure.
 
-```dhall
-let List/zip = https://prelude.dhall-lang.org/List/zip 
-let test = assert : List/zip Natural  [ 1, 2, 3 ] Text [ "a", "b", "c" ] === [ { _1 = 1, _2 = "a" }, { _1 = 2, _2 = "b" }, { _1 = 3, _2 = "c" } ]
-```
-
-A similar `zip` function can be defined for many other type constructors (for instance, trees of any shape). We will now show how to define a `zip` function for
-any Church-encoded type constructor, as long as its recursion scheme already has a suitable `zip` function.
-
-The Church encoding for a type constructor has the form:
-
-```dhall
-let F : Type → Type → Type = λ(a : Type) → λ(r : Type) → ... -- Define the recursion scheme here.
-let C : Type → Type = λ(a : Type) → ∀(r : Type) → (F a r → r) → r
-```
-
-We are looking for a `zip` function with the type signature:
-
-```dhall
-zip : ∀(a : Type) → C a → ∀(b : Type) → C b → C { _1 : a, _2 : b }
-```
-
-To implement `zip`, we will need to compute a value of type `F { _1 : a, _2 : b } r → r) → r` from values of types `(F a r → r) → r` and `(F b r → r) → r`. A
-continuation-passing technique can perform a similar operation on simpler types:
-
-```dhall
-λ(a : Type) → λ(b : Type) → λ(r : Type) →  -- Assume that types a, b, r are given.
-let zipCont : ((a → r) → r) → ((b → r) → r) → ({ _1 : a, _2 : b } → r) → r  =
-  λ(arr : (a → r) → r) → λ(brr : (b → r) → r) → λ(abr : {_1 : a, _2: b} → r) → 
-    arr (λ(x : a) → 
-      brr (λ(y : b) →
-        abr {_1 = x , _2 = y}
-      )
-    )
-```
-
-It is clear that we need a `zipF` function for the type constructor `F` that works similarly with respect to the first type parameter. The function `zipF`
-should have type `F a r → F b r → F { _1 : a, _2 : b } r`, or in more detail:
-
-```dhall
-let zipF_Type = ∀(a : Type) → ∀(b : Type) → ∀(r : Type) → F a r → F b r  → F { _1 : a, _2 : b } r
-let zipF: zipF_Type = ... -- Implement it here. 
-```
-
-Assuming that such a function is given, we can now implement `zip`:
-
-```dhall
-let zip : ∀(a : Type) → C a → ∀(b : Type) → C b → C { _1 : a, _2 : b }
-= λ(a : Type) → λ(ca : C a) → λ(b : Type) → λ(cb : C b)
-  → λ(r : Type) → λ(fabr: F { _1 : a, _2 : b } r → r) → 
-   ca r (λ(x : F a r) →
-     cb r (λ(y : F b r) →
-       fabr (zipF a b r x y)
-     )
-   )
-```
-
-### Example: Zipping two trees
-
-### Traversing a Church-encoded type constructor
-
-A more advanced example is the `traverse` function.
-
-### Example: Traversing a tree
+TODO
 
 ### Performance
 
 The performance of Church-encoded values is slower than that of directly implemented data structures. Although `fold` is a non-recursive function, its execution
-time is linear in the data size because `fold` traverses the entire data.
+time is linear in the data size because `fold` needs to traverse the entire data.
 
 Another source of slowness is that a value `c` of a Church-encoded type `C` is a function that may call its parameter `frr : F r → r` many times. For example,
 a `ListInt` value representing a list of 1000 integers is a function that calls its parameter `frr` 1000 times. So, evaluating any code that applies `c` to
