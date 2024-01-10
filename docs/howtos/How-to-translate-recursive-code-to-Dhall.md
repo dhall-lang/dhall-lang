@@ -869,12 +869,89 @@ let test = assert : reverseNEL Natural example2 === example1
 ### Sizing a Church-encoded type constructor
 
 The functions `concatNEL` and `reverseNEL` shown in the previous section are specific to list-like sequences and cannot be straightforwardly generalized to
-other recursive types.
+other recursive types, such as trees.
 
-However, a number of useful functions (such as `filter`, `join`, `traverse`) can be implemented generally for any Church-encoded data type. Within the scope of
-this tutorial, we will now show the implementation of functions that compute the maximum depth and the total size of a recursive data structure.
+However, a number of useful functions (such as `filter`, `join`, `traverse`) can be implemented generally for any Church-encoded data type.
+Within this tutorial's limited scope, we just look at some functions that compute the total size and the maximum depth of a data structure.
 
-TODO
+Suppose we are given an arbitrary recursion scheme `F` with two type parameters. It defines a type constructor `C` via Church encoding as:
+
+```dhall
+let F = ∀(a : Type) → ∀(r : Type) → ...
+let C = ∀(a : Type) → ∀(r : Type) → (F a r → r) → r
+```
+
+We imagine that a value `p : C a` is a data structure that stores zero or more values of type `a`.
+
+The "total size" of `p` is the number of the values of type `a` that it stores. For example, if `p` is a list of 5 elements then the size of `p` is 5. The size
+of a `TreeInt` value `branch (branch (leaf +10) (leaf +20)) (leaf +30)` is 3 because it stores three numbers.
+
+The "maximum depth" of `p` is the depth of nested recursion required to obtain that value. For example, if `p` is a `TreeInt`
+value `branch (branch (leaf +10) (leaf +20)) (leaf +30)` then the depth of `p` is 2. The depth of a single-leaf tree (such as `leaf +10`) is 0.
+
+The goal is to implement these functions generically, for all Church-encoded data structures at once.
+
+Both of those functions need to traverse the entire data structure and to accumulate a `Natural` value. Let us begin with `size`:
+
+```dhall
+let size : ∀(a : Type) → ∀(ca : C a) → Natural =
+  λ(a : Type) → λ(ca : C a) →
+    let sizeF : F a Natural → Natural = ??? 
+    in ca Natural sizeF
+```
+
+The function `sizeF` should count the number of data items stored in `F a Natural`. The values of type `Natural` inside `F` represent the sizes of nested
+instances of `C a`; those sizes have been already computed.
+
+It is clear that the function `sizeF` will need to be different for each recursion scheme `F`.
+For a given value `fa : f a Natural`, the result of `sizeF fa` will be equal to the number of values of type `a` stored in `fa` plus the sum of all natural
+numbers stored in `fa`.
+
+For example, non-empty lists are described by `F a r = < One : a | Cons : { head : a, tail: r } >`.
+The corresponding `sizeF` function is:
+
+```dhall
+let sizeF : < One : a | Cons : { head : a, tail: Natural } > → Natural = λ(fa : < One : a | Cons : { head : a, tail: Natural } >) → merge {
+      One = λ(x : a) → 1,
+      Cons = λ(x : { head : a, tail: Natural }) → 1 + x.tail,
+   } fa
+```
+
+Binary trees are described by `F a r = < Leaf : a | Branch : { left : r, right: r } >`.
+The corresponding `sizeF` function is:
+
+```dhall
+let sizeF : < Leaf : a | Branch : { left : Natural, right: Natural } > → Natural = λ(fa : < Leaf : a | Branch : { left : Natural, right: Natural } >) → merge {
+      Leaf = λ(x : a) → 1,
+      Branch = λ(x : { left : Natural, right: Natural }) → x.left + x.right,
+   } fa
+```
+
+Having realized that `sizeF` needs to be supplied for each recursion scheme `F`, we can implement `size` like this:
+
+```dhall
+let size : ∀(a : Type) → ∀(sizeF : ∀(b : Type) → F b Natural → Natural) → ∀(ca : C a) → Natural =
+  λ(a : Type) → λ(ca : C a) → λ(sizeF : ∀(b : Type) → F b Natural → Natural) →
+    ca Natural (sizeF a)
+```
+
+Turning now to the `depth` function, we proceed similarly and realize that the only difference is in the `sizeF` function.
+Instead of `sizeF` described above, we need `depthF` with the same type signature `∀(b : Type) → F b Natural → Natural`.
+For the depth calculation, `depthF` should return 1 plus the maximum of all values of type `Natural` that are present. If no such values are present, it just
+returns 1.
+
+For non-empty lists (and also for empty lists), the `depthF` function is the same as `sizeF` (because the recursion depth is the same as the list size).
+
+For binary trees, the corresponding `depthF` function is:
+
+```dhall
+let depthF : < Leaf : a | Branch : { left : Natural, right: Natural } > → Natural = λ(fa : < Leaf : a | Branch : { left : Natural, right: Natural } >) → Natural/subtract 1 (merge {
+      Leaf = λ(x : a) → 1,
+      Branch = λ(x : { left : Natural, right: Natural }) → 1 + Natural/max x.left x.right,
+   } fa)
+```
+
+Here the functions `Natural/max` and `Natural/subtract` come from the standard Dhall prelude.
 
 ### Performance
 
