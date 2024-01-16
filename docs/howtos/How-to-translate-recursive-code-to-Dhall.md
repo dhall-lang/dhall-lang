@@ -773,8 +773,7 @@ The result is computed as `Some -456`.
 ### Other operations on Church-encoded data types
 
 Recursive data types such as lists and trees support certain useful operations such as `concat`, `join`, or `traverse`. Normally, those operations are
-implemented via recursive code. To use those operations in Dhall, we need to avoid using recursion and instead work directly with Church-encoded
-data. Let us show some examples of how this can be done.
+implemented via recursive code. To use those operations in Dhall, we need to avoid using recursion and instead use the Church-encoded data (that is, a fold-like function) as the provider of iteration. Let us show some examples of how this can be done.
 
 #### Concatenating and reversing non-empty lists
 
