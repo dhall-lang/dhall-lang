@@ -330,9 +330,9 @@ type.
 
 It takes some work to figure out how to write values of those types and to develop techniques for programming with Church encodings more conveniently.
 
-#### Worked example: `ListInt`
+#### Example: `ListInt`
 
-To learn those techniques, we begin by looking at the type `ListInt` whose Dhall code is:
+To learn those techniques, we begin by looking at the Church-encoded type `ListInt` whose Dhall code is:
 
 ```dhall
 let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } >
@@ -467,7 +467,7 @@ let toList : ListInt → List Integer = λ(list : ListInt) →
 
 The result is computed as `[ +456, -123 ]`.
 
-### Where did the recursion go?
+## Where did the recursion go?
 
 The technique of Church encoding may be perplexing. If we are actually working with recursive types and recursive functions, why do we no longer
 see any recursion in the code? In `foldRight`, why is there no code that iterates over a list of integers in a loop?
@@ -493,7 +493,7 @@ Data structures that contain 1000 integers are replaced by functions that are ha
 guarantees that all recursive structures will be finite and all operations on those structures will terminate. It is for
 that reason that Dhall is able to accept Church encodings of recursive types without compromising any safety guarantees.
 
-### Church encoding and `fold` types are equivalent
+## Church encoding and `fold` types are equivalent
 
 How to generalize `foldRight` from `ListInt` to arbitrary recursive types? That is done via an equivalence relationship between a Church-encoded type, such
 as `ListInt`, and the type of the corresponding `foldRight` function.
@@ -538,7 +538,7 @@ typical type signature of `fold`-like functions:
 
 In practice, it is easier to use a value of type `C` directly as a `fold` function. We will see an example of that usage shortly.
 
-### The `build` function
+## The `build` function
 
 In the previous section we showed the constructors `nil` and `cons` for the `ListInt` type. What is the corresponding technique for an arbitrary Church-encoded
 type with a given recursion scheme `F`?
@@ -669,7 +669,7 @@ let test = assert : print example1 === "(+1 (+2 +3))"
 
 Similarly to this example, one can use `fold` to implement a wide range of recursive functions on trees.
 
-### Pattern matching on Church-encoded values
+## Pattern matching on Church-encoded values
 
 When working with recursive types in ordinary functional languages, one often uses pattern matching. For example, here is a simple function that detects whether
 a given tree is a single leaf:
@@ -785,7 +785,7 @@ let headOptional : ListInt → Optional Integer = λ(c : ListInt) →
 
 The result is computed as `Some -456`.
 
-### Other operations on Church-encoded data types
+## Other operations on Church-encoded data types
 
 Recursive data types such as lists and trees support certain useful operations such as `concat`, `filter`, or `traverse`. Normally, those operations are
 implemented via recursive code. To use those operations in Dhall, we need to avoid using recursion and instead use the Church-encoded data (that is, a fold-like
@@ -968,7 +968,7 @@ let depthF : < Leaf : a | Branch : { left : Natural, right: Natural } > → Natu
 
 Here the functions `Natural/max` and `Natural/subtract` come from the standard Dhall prelude.
 
-### Performance
+## Performance
 
 The performance of Church-encoded values is slower than that of directly implemented data structures. Although `fold` is a non-recursive function, its execution
 time is linear in the data size because `fold` needs to traverse the entire data.
