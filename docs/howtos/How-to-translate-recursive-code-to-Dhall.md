@@ -786,7 +786,7 @@ The result is computed as `Some -456`.
 
 ### Other operations on Church-encoded data types
 
-Recursive data types such as lists and trees support certain useful operations such as `concat`, `join`, or `traverse`. Normally, those operations are
+Recursive data types such as lists and trees support certain useful operations such as `concat`, `filter`, or `traverse`. Normally, those operations are
 implemented via recursive code. To use those operations in Dhall, we need to avoid using recursion and instead use the Church-encoded data (that is, a fold-like
 function) as the provider of iteration. Let us show some examples of how this can be done.
 
@@ -1023,61 +1023,74 @@ $ ghci Example0.hs
 ["John","Mary","Jane"]
 ```
 
-The equivalent Dhall code would be:
+To convert this to non-recursive Dhall code, we use the Church encoding recipe.
+
+The first step is to define the recursion scheme. We name the type parameter `_Person` to avoid confusion, as we will want to define the type `Person` later.
+
+```dhall
+let F = λ(_Person : Type) → { name: String, children: List _Person }
+```
+
+This definition is non-recursive and will be accepted by Dhall.
+
+We do not need to Church-encode `List` as it is natively supported in Dhall.
+
+The next step is to define the Church-encoded type `Person`:
+
+```dhall
+let Person = ∀(_Person : Type) → (F _Person → _Person) → _Person
+```
+
+This replaces the Haskell definition of the type `Person`.
+
+Next, we create the example value of type `Person`. We will name the function parameter `MakePerson` for clearer comparison with the Haskell code.
+
+```dhall
+let example : Person = λ(_Person : Type) → λ(MakePerson : F _Person → _Person) →
+    MakePerson {
+        name = "John",
+        children =
+            [ MakePerson { name = "Mary", children = [] : List _Person ]
+            , MakePerson { name = "Jane", children = [] : List _Person ]
+            ]
+    } 
+```
+
+Now we need to translate the recursive function `everybody` to Dhall.
+Actually, one cannot mechanically translate arbitrary recursive code to Church-encoded types.
+This is possible only for certain classes of recursive functions.
+One such class comprises "fold-like" functions: that is, functions whose recursive calls are performed directly on substructures of the recursive data type.
+It turns out that `everybody` is a fold-like function. To see why, let us visualize how that function works on a given recursive data structure in Haskell:
+
+```haskell
+everybody (MakePerson { name = "John", children = [ child1, child2, ... ] })
+  == "John" : concat [(everybody child1), (everybody child2), ...]
+```
+
+Here `child1` and `child2` are substructures of the recursive data type `Person`. Each of them is again of type `Person`.
+Once the recursive calls `everybody child1`, `everybody child2`, etc., are finished, we obtain a list of values of type `List String`. The remaining computation
+is equivalent to a function of type `String → List (List String) → List String`.
+
+That type is equivalent to just `F (List String) → List String` and is exactly the same type as the argument of the Church-encoded type `Person` if we use the
+type `List String` instead of the type argument `_Person`.
+
+So, the recursive pattern can be replaced by a "fold" where we just need to supply a "folding function" of type `F (List String) → List String` as its argument.
+
+The Dhall code is:
+
+```dhall
+let everybody : Person → List Text =
+    let concat = http://prelude.dhall-lang.org/List/concat
+    let foldingFunction : F (List Text) → List Text = λ(p : F (List Text)) →
+        [ p.name ] # concat Text p.children
+    in
+    λ(x : Person) → x (List Text) foldingFunction
+```
+
+Put together the entire Dhall code and run it:
 
 ```dhall
 -- example0.dhall
-
-let Person
-    : Type
-    = ∀(Person : Type) →
-      ∀(MakePerson : { children : List Person, name : Text } → Person) →
-        Person
-
-let example
-    : Person
-    = λ(Person : Type) →
-      λ(MakePerson : { children : List Person, name : Text } → Person) →
-        MakePerson
-          { children =
-            [ MakePerson { children = [] : List Person, name = "Mary" }
-            , MakePerson { children = [] : List Person, name = "Jane" }
-            ]
-          , name = "John"
-          }
-
-let everybody
-    : Person → List Text
-    = let concat = http://prelude.dhall-lang.org/List/concat
-
-      in  λ(x : Person) →
-            x
-              (List Text)
-              ( λ(p : { children : List (List Text), name : Text }) →
-                  [ p.name ] # concat Text p.children
-              )
-
-let result
-    : List Text
-    = everybody example
-
-in  result
-```
-
-... which evaluates to the same result:
-
-```console
-$ dhall <<< './example0.dhall'
-List Text
-
-[ "John", "Mary", "Jane" ]
-```
-
-Carefully note that there is more than one bound variable named `Person` in the
-above example. We can disambiguate them by prefixing some of them with an
-underscore (i.e. `_Person`):
-
-```dhall
 let Person
     : Type
     = ∀(_Person : Type) →
@@ -1114,50 +1127,21 @@ let result
 in  result
 ```
 
-The way that this works is that a recursive function like `everybody` is
-performing substitution. In this specific case, `everybody` is:
+... which evaluates to the same result as the Haskell code:
 
-* replacing each occurrence of the type `Person` with the type `List Text`
-* replacing each occurrence of the `MakePerson` function with the following
-  anonymous function:
+```console
+$ dhall <<< './example0.dhall'
+List Text
 
-  ```dhall
-  λ(p : { children : List (List Text), name : Text }) →
-    [ p.name ] # concat Text p.children
-  ```
-
-... which means that our previous example could also have been written like
-this:
-
-```dhall
-let concat = http://prelude.dhall-lang.org/List/concat
-
-let Person
-    : Type
-    = List Text
-
-let MakePerson
-    : { children : List Person, name : Text } → Person
-    = λ(p : { children : List Person, name : Text }) →
-        [ p.name ] # concat Text p.children
-
-let result =
-      MakePerson
-        { children =
-          [ MakePerson { children = [] : List Person, name = "Mary" }
-          , MakePerson { children = [] : List Person, name = "Jane" }
-          ]
-        , name = "John"
-        }
-
-in  result
+[ "John", "Mary", "Jane" ]
 ```
 
-## Recursive sum type
+## Recursive union types
 
-Sum types work in the same way, except that instead of one constructor (i.e.
-`MakePerson`) we now have two constructors: `Succ` and `Zero`. For example,
-this Haskell code:
+Recursive union types are covered by the same Church encoding recipe, except that their recursion schemes `F` will be union types.
+Instead of writing lots of `merge` expressions, it is more convenient to replace the type of functions `F r → r` by a curried function type.
+
+For example, consider the natural number type implemented recursively with two constructors `Zero` and `Succ` via this Haskell code:
 
 ```haskell
 -- Example1.hs
@@ -1185,7 +1169,13 @@ $ ghci Example1.hs
 3
 ```
 
-... corresponds to this Dhall code:
+The Church encoding can be written without union types as:
+
+```dhall
+let Nat : Type = ∀(_Nat : Type) → ∀(Zero : _Nat) → ∀(Succ : _Nat → _Nat) → _Nat
+```
+
+So, the Haskell code corresponds to this Dhall code (we rename `_Nat` to just `Nat` for brevity):
 
 ```dhall
 -- example1.dhall
@@ -1219,32 +1209,6 @@ $ dhall <<< './example1.dhall'
 Natural
 
 3
-```
-
-Like before, our recursive `toNatural` function is performing substitution by:
-
-* replacing every occurrence of `Nat` with `Natural`
-* replacing every occurrence of `Zero` with `0`
-* replacing every occurrence of `Succ` with an anonymous function
-
-... which means that we could have equivalently written:
-
-```dhall
-let Nat = Natural
-
-let Zero
-    : Nat
-    = 0
-
-let Succ
-    : Nat → Nat
-    = λ(n : Nat) → 1 + n
-
-let result
-    : Nat
-    = Succ (Succ (Succ Zero))
-
-in  result
 ```
 
 ## Mutually recursive types
@@ -1329,47 +1293,14 @@ both of the Haskell `evenToNatural` and `oddToNatural` functions. You can
 define a separate `Even` and `evenToNatural` in Dhall, too, but they would not
 reuse any of the logic from `Odd` or `oddToNatural`.
 
-Like before, our recursive `oddToNatural` function is performing substitution
-by:
-
-* replacing every occurrence of `Even` with `Natural`
-* replacing every occurrence of `Odd` with `Natural`
-* replacing every occurrence of `Zero` with `0`
-* replacing every occurrence of `SuccEven` with an anonymous function
-* replacing every occurrence of `SuccOdd` with an anonymous function
-
-... which means that we could have equivalently written:
-
-```dhall
-let Odd
-    : Type
-    = Natural
-
-let Even
-    : Type
-    = Natural
-
-let Zero
-    : Even
-    = 0
-
-let SuccEven
-    : Odd → Even
-    = λ(n : Odd) → 1 + n
-
-let SuccOdd
-    : Even → Odd
-    = λ(n : Even) → 1 + n
-
-let result = SuccOdd (SuccEven (SuccOdd Zero))
-
-in  result
-```
-
 ## Smart constructors
 
-You can create "smart constructors" for end users to use for assembling a
-recursive type. The following examples implement the same logic as the prior
+The `build` function shown earlier is, in principle, equivalent to all possible constructors that one may need when building values of a recursive type.
+When working with recursive union types, however, using the `build` function requires writing lots of `merge` expressions.
+
+It is more convenient to create several "smart constructors" that replace the need for `merge` expressions.
+
+The following examples implement the same logic as the prior
 examples, except defining convenient intermediate constructors along the way.
 
 For example, we can define a `MakePerson` smart constructor and then use that
@@ -1563,7 +1494,7 @@ in  result
 
 In each case, the general pattern for building the "smart constructors" is the
 same: any time we reach a recursive occurrence of the type, we apply the
-recursive occurrence to all of the variables we brought into scope, in the
+recursive occurrence to all the variables we brought into scope, in the
 same order.
 
 For example, when building the smart constructor for `MakePerson`, each
