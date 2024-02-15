@@ -42,8 +42,8 @@ This code is rejected by Dhall because `step` may not be used inside its own def
 ## Why is recursion not supported directly?
 
 Prohibiting direct recursion is one of the core design decisions in Dhall.
-It ensures that any well-typed Dhall program will always evaluate to a final value (called the "normal form") within finite time.
-Because of that limitation, it is simply not possible to write a Dhall program that type-checks but then enters an infinite loop while evaluating.
+It ensures that any well-typed Dhall program will always evaluate to a final value (called the "normal form") within a finite time.
+Because of that limitation, it is simply not possible to write a Dhall program that type-checks but enters an infinite loop while evaluating.
 This is a valuable property for a configuration language.
 
 Nevertheless, one can still work with a wide range of recursive types and functions in Dhall.
@@ -88,7 +88,7 @@ The recursion scheme (`F`) describes all the possible ways of constructing a val
 a value of type `ListInt`: first, `Nil` is a value of type `ListInt`. Second, if we _somehow_ already have a value `r` of type `ListInt`, we can use `Cons` to
 construct new values of type `ListInt`, for instance, `Cons -123 r`.
 
-Because `F` is itself _not_ recursive, its definition will be accepted by Dhall. The Dhall code for `F` is:
+Because `F` is itself _not_ recursive, Dhall will accept its definition. The Dhall code for `F` is:
 
 ```dhall
 let F = λ(r : Type) → < Nil | Cons : { head : Integer, tail : r } >
@@ -229,7 +229,7 @@ example.
 
 We will compare the Dhall expressions `λ(r : Type) → Optional r` and `∀(r : Type) → Optional r`.
 
-The expression `λ(r : Type) → Optional r` is equivalent to just the type constructor `Optional`. It is a function operating on types; it needs to be applied to
+The expression `λ(r : Type) → Optional r` is equivalent to just the type constructor `Optional`. It is a function operating on types: it needs to be applied to
 a particular type in
 order to produce a result type. The expression `λ(r : Type) → Optional r` is itself of type `Type → Type`. This is not what we need for the Church encoding.
 
@@ -269,8 +269,8 @@ structures are always finite.
 
 It is far from obvious why a type of the form `∀(r : Type) → (F r → r) → r` is equivalent to a recursively defined type `T = F T`.
 A mathematical proof of that property is given in the
-paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) by P. Wadler.
-In this tutorial we will focus on the practical use of Church encodings.
+paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt) by P. Wadler.
+In this tutorial, we will focus on the practical use of Church encoding.
 
 Let us write the Dhall code for the examples shown in the previous section.
 
@@ -451,7 +451,8 @@ Because `foldRight` is non-recursive, Dhall accepts that function.
 
 In this way, Dhall is able to construct integer lists and also to run loops over them, computing an aggregated value using `foldRight`.
 
-If we take, for example the list `l = cons +456 (cons -123 nil)`, which corresponds to the ordinary list `[+456, -123]`, then `foldRight r init update l` starts
+If we take, for example, the list `l = cons +456 (cons -123 nil)`,
+which corresponds to the ordinary list `[+456, -123]`, then `foldRight r init update l` starts
 from the initial value `init : r`. Then it takes the right-most element of the list (`-123`) and computes `update -123 init`. Then it
 computes `update +456 (update -123)`. This fits with the name "fold right": the computation starts from the right-most element of the list and iterates to the
 left.
@@ -599,7 +600,7 @@ generic `build` function.
 
 As an example, we will now implement a function that converts a `TreeInt` value into a string in a LISP-like format, such as `"(+1 (+2 +3))"`.
 
-As we have see before, `TreeInt` is Church-encoded via the recursion scheme `F` defined by:
+As we have seen before, `TreeInt` is Church-encoded via the recursion scheme `F` defined by:
 
 ```dhall
 let F = λ(r : Type) → < Leaf: Integer | Branch : { left : r, right : r } >
@@ -653,7 +654,7 @@ let example1 = branch (leaf +1) (branch (leaf +2) (leaf +3))
 
 To implement a pretty-printer for `TreeInt`, we use values of type `TreeInt` as `fold` functions. The type signature of the Church encoding takes care of
 recursion for us. We only need to implement a non-recursive function `frr : F Text → Text` that describes how to create the text representation for a larger
-tree - either from a leaf or from the text representations of the two subtrees. We enclose values in parentheses and add a space between two subtrees:
+tree — either from a leaf or from the text representations of the two subtrees. We enclose values in parentheses and add a space between two subtrees:
 
 ```dhall
 let print : TreeInt → Text = λ(tree: ∀(r : Type) → (F r → r) → r) →
@@ -725,7 +726,7 @@ let unroll : C → F C =
 A rigorous proof that `unroll` and `build` are inverse functions is shown in the
 paper ["Recursive types for free"](https://homepages.inf.ed.ac.uk/wadler/papers/free-rectypes/free-rectypes.txt), which is beyond the scope of this tutorial.
 
-Let us just remark that because we have those functions, the types `C` and `F C` are equivalent (isomorphic) to each other. Any data of type `C` can be mapped
+Because of those functions, the types `C` and `F C` are equivalent (isomorphic) to each other. Any data of type `C` can be mapped
 into data of type `F C` and back, without loss of information. In that sense, the type `C` satisfies the "type equation" `C = F C`. This is one way of defining
 rigorously the meaning of recursive types written in Haskell as `data T = F T`.
 
