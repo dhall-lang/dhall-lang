@@ -1,5 +1,5 @@
 --| Apply a function across the values of a `Map k v`, dropping
--- entries whose values return `None`.
+--  entries whose values return `None`.
 let Map/empty =
         missing
           sha256:4c612558b8bbe8f955550ed3fb295d57b1b864c85cd52615b52d0ee0e9682e52

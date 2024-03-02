@@ -1,5 +1,5 @@
-{-| Composes a list of functions starting from the left
-
+{-|
+Composes a list of functions starting from the left.
 -}
 let compose =
         missing
