@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title>The Dhall configuration language</title>
     <meta name="description" content="Maintainable configuration files">
@@ -66,7 +66,7 @@
           max-height: calc(100vh - 85px);
           overflow-y:auto;
         }
-      }     
+      }
     </style>
     <link rel="stylesheet" href="./css/codemirror.css">
     <link rel="stylesheet" href="./css/bootstrap.min.css">
@@ -75,7 +75,7 @@
   </head>
   <body>
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-left" href="https://dhall-lang.org"><img src="./img/dhall-large-logo.svg" height="31px" alt="Dhall logo"></a>
+      <a class="navbar-left" href="https://dhall-lang.org"><img src="./img/dhall-large-logo.svg" height="31" alt="Dhall logo"></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -151,19 +151,19 @@
               Languages
             </a>
             <div class="dropdown-menu" aria-labelledby="languagesDropdown">
-              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-bash/README.md"><img src = "./img/bash-logo.png" height="32px" alt="Bash logo"><span>Bash</span></a>
+              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-bash/README.md"><img src = "./img/bash-logo.png" height="32" alt="Bash logo"><span>Bash</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/f-f/dhall-clj/blob/master/README.md"><img src = "./img/clojure-logo.svg" height="32px" alt="Clojure logo"><span>Clojure</span></a>
+              <a class="nav-link" href="https://github.com/f-f/dhall-clj/blob/master/README.md"><img src = "./img/clojure-logo.svg" height="32" alt="Clojure logo"><span>Clojure</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/philandstuff/dhall-golang"><img src = "./img/go-logo.svg" height="32px" alt="Go logo"><span>Go</span></a>
+              <a class="nav-link" href="https://github.com/philandstuff/dhall-golang"><img src = "./img/go-logo.svg" height="32" alt="Go logo"><span>Go</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall/README.md"><img src = "./img/haskell-logo.png" height="32px" alt="Haskell logo"><span>Haskell</span></a>
+              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall/README.md"><img src = "./img/haskell-logo.png" height="32" alt="Haskell logo"><span>Haskell</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/tree/master/dhall-nix"><img src = "./img/nix-logo.png" height="32px" alt="Nix logo"><span>Nix</span></a>
+              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/tree/master/dhall-nix"><img src = "./img/nix-logo.png" height="32" alt="Nix logo"><span>Nix</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://git.sr.ht/~singpolyma/dhall-ruby"><img src = "./img/ruby-logo.svg" height="32px" alt="Ruby logo"><span>Ruby</span></a>
+              <a class="nav-link" href="https://git.sr.ht/~singpolyma/dhall-ruby"><img src = "./img/ruby-logo.svg" height="32" alt="Ruby logo"><span>Ruby</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/Nadrieril/dhall-rust"><img src = "./img/rust-logo.png" height="32px" alt="Rust logo"><span>Rust</span></a>
+              <a class="nav-link" href="https://github.com/Nadrieril/dhall-rust"><img src = "./img/rust-logo.png" height="32" alt="Rust logo"><span>Rust</span></a>
             </div>
           </li>
           <li class="nav-item dropdown">
@@ -171,11 +171,11 @@
               File formats
             </a>
             <div class="dropdown-menu" aria-labelledby="formatsDropdown">
-              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-yaml/README.md"><img src = "./img/yaml-logo.png" height="20px" alt="YAML logo"><span>YAML</span></a>
+              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-yaml/README.md"><img src = "./img/yaml-logo.png" height="20" alt="YAML logo"><span>YAML</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-json/README.md"><img src = "./img/json-logo.svg" height="32px" alt="JSON logo"><span>JSON</span></a>
+              <a class="nav-link" href="https://github.com/dhall-lang/dhall-haskell/blob/master/dhall-json/README.md"><img src = "./img/json-logo.svg" height="32" alt="JSON logo"><span>JSON</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://git.sr.ht/~singpolyma/dhall-xml-ruby"><img src = "./img/xml-logo.svg" height="32px" alt="XML logo"><span>XML</span></a>
+              <a class="nav-link" href="https://git.sr.ht/~singpolyma/dhall-xml-ruby"><img src = "./img/xml-logo.svg" height="32" alt="XML logo"><span>XML</span></a>
             </div>
           </li>
           <li class="nav-item dropdown">
@@ -183,48 +183,48 @@
               Packages
             </a>
             <div class="dropdown-menu" aria-labelledby="packagesDropdown">
-              <a class="nav-link" href="https://github.com/softwarefactory-project/dhall-ansible"><img src = "./img/ansible-logo.png" height="32px" alt="Ansible logo"><span>Ansible</span></a>
+              <a class="nav-link" href="https://github.com/softwarefactory-project/dhall-ansible"><img src = "./img/ansible-logo.png" height="32" alt="Ansible logo"><span>Ansible</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/EarnestResearch/dhall-packages/blob/master/kubernetes/argocd/Readme.md"><img src = "./img/argocd-logo.png" height="32px" alt="Argo CD logo"><span>Argo CD</span></a>
+              <a class="nav-link" href="https://github.com/EarnestResearch/dhall-packages/blob/master/kubernetes/argocd/Readme.md"><img src = "./img/argocd-logo.png" height="32" alt="Argo CD logo"><span>Argo CD</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/jcouyang/dhall-aws-cloudformation"><img src = "./img/cloudformation-logo.png" height="24px" alt="CloudFormation logo"><span><font size="-1">CloudFormation</font></span></a>
+              <a class="nav-link" href="https://github.com/jcouyang/dhall-aws-cloudformation"><img src = "./img/cloudformation-logo.png" height="24" alt="CloudFormation logo"><span style="font-size: smaller">CloudFormation</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/coralogix/dhall-concourse"><img src = "./img/concourse-logo.png" height="32px" alt="Concourse logo"><span>Concourse</span></a>
+              <a class="nav-link" href="https://github.com/coralogix/dhall-concourse"><img src = "./img/concourse-logo.png" height="32" alt="Concourse logo"><span>Concourse</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/softwarefactory-project/dhall-containerfile"><img src = "./img/docker-logo.png" height="24px" alt="Docker logo"><span>Docker</span></a>
+              <a class="nav-link" href="https://github.com/softwarefactory-project/dhall-containerfile"><img src = "./img/docker-logo.png" height="24" alt="Docker logo"><span>Docker</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/bgamari/dhall-gitlab-ci"><img src = "./img/gitlab-logo.png" height="32px" alt="GitLab logo"><span>GitLab</span></a>
+              <a class="nav-link" href="https://github.com/bgamari/dhall-gitlab-ci"><img src = "./img/gitlab-logo.png" height="32" alt="GitLab logo"><span>GitLab</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/coralogix/dhall-kops/blob/master/README.md"><img src = "./img/kops-logo.svg" height="32px" alt="kops logo"><span>kops</span></a>
+              <a class="nav-link" href="https://github.com/coralogix/dhall-kops/blob/master/README.md"><img src = "./img/kops-logo.svg" height="32" alt="kops logo"><span>kops</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/dhall-lang/dhall-kubernetes/blob/master/README.md"><img src = "./img/kubernetes-logo.svg" height="32px" alt="Kubernetes logo"><span>Kubernetes</span></a>
+              <a class="nav-link" href="https://github.com/dhall-lang/dhall-kubernetes/blob/master/README.md"><img src = "./img/kubernetes-logo.svg" height="32" alt="Kubernetes logo"><span>Kubernetes</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/seatgeek/dhall-nomad"><img src = "./img/nomad-logo.png" height="32px" alt="Nomad logo"><span>Nomad</span></a>
+              <a class="nav-link" href="https://github.com/seatgeek/dhall-nomad"><img src = "./img/nomad-logo.png" height="32" alt="Nomad logo"><span>Nomad</span></a>
               <div class="dropdown-divider"></div>
-              <a class="nav-link" href="https://github.com/coralogix/dhall-prometheus-operator"><img src = "./img/prometheus-logo.svg" height="32px" alt="Prometheus logo"><span>Prometheus</span></a>
+              <a class="nav-link" href="https://github.com/coralogix/dhall-prometheus-operator"><img src = "./img/prometheus-logo.svg" height="32" alt="Prometheus logo"><span>Prometheus</span></a>
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://github.com/dhall-lang/dhall-lang/blob/master/README.md"><img src = "./img/github-logo.png" height="25px" alt="GitHub logo"></a>
+            <a class="nav-link" href="https://github.com/dhall-lang/dhall-lang/blob/master/README.md"><img src = "./img/github-logo.png" height="25" alt="GitHub logo"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://twitter.com/dhall_lang"><img src = "./img/twitter-logo.svg" height="25px" alt="Twitter logo"></a>
+            <a class="nav-link" href="https://twitter.com/dhall_lang"><img src = "./img/twitter-logo.svg" height="25" alt="Twitter logo"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://discourse.dhall-lang.org"><img src = "./img/discourse-logo.svg" height="25px" alt="Discourse logo"></a>
+            <a class="nav-link" href="https://discourse.dhall-lang.org"><img src = "./img/discourse-logo.svg" height="25" alt="Discourse logo"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://functionalprogramming.slack.com/app_redirect?channel=dhall"><img src = "./img/slack-logo.png" height="30px" alt="Slack logo"></a>
+            <a class="nav-link" href="https://functionalprogramming.slack.com/app_redirect?channel=dhall"><img src = "./img/slack-logo.png" height="30" alt="Slack logo"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://funprog.zulipchat.com/#narrow/stream/214956-Dhall"><img src = "./img/zulip-logo.png" height="30px" alt="Zulip logo"></a>
+            <a class="nav-link" href="https://funprog.zulipchat.com/#narrow/stream/214956-Dhall"><img src = "./img/zulip-logo.png" height="30" alt="Zulip logo"></a>
           </li>
           <li class="nav-item">
           <li class="nav-item">
-            <a class="nav-link" href="https://stackoverflow.com/questions/tagged/dhall"><img src = "./img/stack-overflow-logo.svg" height="32px" alt="Stack Overflow logo"></a>
+            <a class="nav-link" href="https://stackoverflow.com/questions/tagged/dhall"><img src = "./img/stack-overflow-logo.svg" height="32" alt="Stack Overflow logo"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://opencollective.com/dhall"><img src = "./img/opencollective-logo.svg" height="25px" alt="Open Collective logo"></a>
+            <a class="nav-link" href="https://opencollective.com/dhall"><img src = "./img/opencollective-logo.svg" height="25" alt="Open Collective logo"></a>
           </li>
         </ul>
       </div>
@@ -305,10 +305,10 @@
       behavior-preserving</p>
       <div class="scalable" style="font-size: 0; line-height: 0;">
         <div class="scalable" style="display: inline-block; overflow: hidden; width: 528px;">
-          <img src="./img/hash.gif" style="width: calc(100% * 1072 / 528);">
+          <img src="./img/hash.gif" style="width: calc(100% * 1072 / 528);" alt="A screencast: the semantic hash of a Dhall expression is invariant under a series of rafactorings.">
         </div>
         <div class="scalable" style="display: inline-block; overflow: hidden; width: 528px;">
-          <img src="./img/hash.gif" style="width: calc(100% * 1072 / 528); margin-left: calc(100% * -544 / 528);">
+          <img src="./img/hash.gif" style="width: calc(100% * 1072 / 528); margin-left: calc(100% * -544 / 528);" alt="">
         </div>
       </div>
       <hr class="my-4">
@@ -318,7 +318,7 @@
       <hr class="my-4">
       <p>Did you inherit a messy configuration?  Use the type system and
       integrated editor support to navigate more effectively.</p>
-      <img src="./img/completion.gif" class="scalable">
+      <img src="./img/completion.gif" class="scalable" alt="Syntax highlighting, clickable imports, tooltips displaying expression types and autocompletion of Dhall code in the VSCode editor.">
       <p></p>
       <a href="https://marketplace.visualstudio.com/items?itemName=dhall.vscode-dhall-lsp-server" class="btn btn-lg btn-outline-dark bg-light">VSCode plugin <i class="fas fa-code" ></i></a>
     </div>
@@ -333,7 +333,7 @@
       <p>The language aims to support safely importing and evaluating untrusted
       Dhall code, even code authored by malicious users.  We treat the inability
       to do so as a specification bug.</p>
-      <a href="https://docs.dhall-lang.org/discussions/Safety-guarantees.html"class="btn btn-lg btn-outline-dark bg-light">Safety guarantees<i class="fas fa-shield-alt"></i></a>
+      <a href="https://docs.dhall-lang.org/discussions/Safety-guarantees.html" class="btn btn-lg btn-outline-dark bg-light">Safety guarantees<i class="fas fa-shield-alt"></i></a>
     </div>
     <div class="container jumbotron" style="background-color: #fbf3c8">
       <h1 class="display-4">Use programming language features</h1>
@@ -348,10 +348,10 @@
       <div class="container">
       <div class="row">
       <div class="col-sm">
-      <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Configs are code are configs are code <a href="https://t.co/fVBs7T7P3j">https://t.co/fVBs7T7P3j</a></p>&mdash; Charity Majors (@mipsytipsy) <a href="https://twitter.com/mipsytipsy/status/1184673208491864064?ref_src=twsrc%5Etfw">October 17, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Configs are code are configs are code <a href="https://t.co/fVBs7T7P3j">https://t.co/fVBs7T7P3j</a></p>&mdash; Charity Majors (@mipsytipsy) <a href="https://twitter.com/mipsytipsy/status/1184673208491864064?ref_src=twsrc%5Etfw">October 17, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js"></script>
       </div>
       <div class="col-sm">
-      <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Configuration testing is quite underrated in an industry where the majority of work is becoming configuration.</p>&mdash; JBD (@rakyll) <a href="https://twitter.com/rakyll/status/1177324158956388352?ref_src=twsrc%5Etfw">September 26, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Configuration testing is quite underrated in an industry where the majority of work is becoming configuration.</p>&mdash; JBD (@rakyll) <a href="https://twitter.com/rakyll/status/1177324158956388352?ref_src=twsrc%5Etfw">September 26, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js"></script>
       </div>
       </div>
       </div>
@@ -359,78 +359,77 @@
     </div>
     <hr class="my-4">
     <p class="text-center">This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
-  </body>
-  <script language="javascript" src="./js/codemirror.js"></script>
-  <script language="javascript" src="./js/haskell.js"></script>
-  <script language="javascript" src="./js/shell.js"></script>
-  <script language="javascript" src="./js/yaml.js"></script>
-  <script language="javascript">
-    let dhallInput  = document.getElementById("dhall-input");
+    <script src="./js/codemirror.js"></script>
+    <script src="./js/haskell.js"></script>
+    <script src="./js/shell.js"></script>
+    <script src="./js/yaml.js"></script>
+    <script>
+      let dhallInput  = document.getElementById("dhall-input");
 
-    input = CodeMirror.fromTextArea(dhallInput, {
-      lineNumbers: true,
-      mode: "haskell"
-    });
-
-    let dhallOutput = document.getElementById("dhall-output");
-
-    output = CodeMirror.fromTextArea(dhallOutput, {
-      lineNumbers: true,
-      mode: "yaml",
-      readOnly: true
-    });
-
-    let highlight0 = document.getElementById("highlight0");
-
-    h0 = CodeMirror.fromTextArea(highlight0, {
-      lineNumbers: true,
-      mode: "haskell",
-      readOnly: true
-    });
-
-    let highlight1 = document.getElementById("highlight1");
-
-    h1 = CodeMirror.fromTextArea(highlight1, {
-      lineNumbers: true,
-      mode: "shell",
-      readOnly: true
-    });
-
-    let diff = document.getElementById("diff");
-
-    d0 = CodeMirror.fromTextArea(diff, {
-      lineNumbers: false,
-      mode: "shell",
-      readOnly: true
-    });
-
-    let highlight2 = document.getElementById("highlight2");
-
-    h2 = CodeMirror.fromTextArea(highlight2, {
-      lineNumbers: true,
-      mode: "haskell",
-      readOnly: true
-    });
-  </script>
-  <script defer language="javascript" src="./js/jquery.min.js"></script>
-  <script defer language="javascript" src="./js/bootstrap.min.js"></script>
-  <script defer language="javascript" src="./js/javascript.js"></script>
-  <script defer language="javascript" src="./js/js-yaml.min.js"></script>
-  <script language="javascript">
-    let dhallTab    = document.getElementById("dhall-tab");
-    let typeTab     = document.getElementById("type-tab");
-    let jsonTab     = document.getElementById("json-tab");
-    let yamlTab     = document.getElementById("yaml-tab");
-    let hashTab     = document.getElementById("hash-tab");
-
-    function selectTab(tabClass, tabId) {
-      Array.from(document.getElementsByClassName(tabClass)).forEach(element => {
-        element.classList.remove("active");
+      input = CodeMirror.fromTextArea(dhallInput, {
+        lineNumbers: true,
+        mode: "haskell"
       });
-      document.getElementById(tabId).classList.toggle("active");
-    }
 
-    let example0 = `{- This is an example Dhall configuration file
+      let dhallOutput = document.getElementById("dhall-output");
+
+      output = CodeMirror.fromTextArea(dhallOutput, {
+        lineNumbers: true,
+        mode: "yaml",
+        readOnly: true
+      });
+
+      let highlight0 = document.getElementById("highlight0");
+
+      h0 = CodeMirror.fromTextArea(highlight0, {
+        lineNumbers: true,
+        mode: "haskell",
+        readOnly: true
+      });
+
+      let highlight1 = document.getElementById("highlight1");
+
+      h1 = CodeMirror.fromTextArea(highlight1, {
+        lineNumbers: true,
+        mode: "shell",
+        readOnly: true
+      });
+
+      let diff = document.getElementById("diff");
+
+      d0 = CodeMirror.fromTextArea(diff, {
+        lineNumbers: false,
+        mode: "shell",
+        readOnly: true
+      });
+
+      let highlight2 = document.getElementById("highlight2");
+
+      h2 = CodeMirror.fromTextArea(highlight2, {
+        lineNumbers: true,
+        mode: "haskell",
+        readOnly: true
+      });
+    </script>
+    <script defer src="./js/jquery.min.js"></script>
+    <script defer src="./js/bootstrap.min.js"></script>
+    <script defer src="./js/javascript.js"></script>
+    <script defer src="./js/js-yaml.min.js"></script>
+    <script>
+      let dhallTab    = document.getElementById("dhall-tab");
+      let typeTab     = document.getElementById("type-tab");
+      let jsonTab     = document.getElementById("json-tab");
+      let yamlTab     = document.getElementById("yaml-tab");
+      let hashTab     = document.getElementById("hash-tab");
+
+      function selectTab(tabClass, tabId) {
+        Array.from(document.getElementsByClassName(tabClass)).forEach(element => {
+          element.classList.remove("active");
+        });
+        document.getElementById(tabId).classList.toggle("active");
+      }
+
+      let example0 = `{- This is an example Dhall configuration file
 
    Can you spot the mistake?
 
@@ -443,7 +442,7 @@
 , publicKey  = "/home/blil/.ssh/id_ed25519.pub"
 }`
 
-    let example1 = `{- Don't repeat yourself!
+      let example1 = `{- Don't repeat yourself!
 
    Repetition is error-prone
 -}
@@ -456,7 +455,7 @@ in  { home       = "/home/\${user}"
 
 {- Change the name "bill" to "jane" -}`;
 
-    let example2 = `{- More than one user?  Use a function! -}
+      let example2 = `{- More than one user?  Use a function! -}
 
 let makeUser = \\(user : Text) ->
       let home       = "/home/\${user}"
@@ -468,7 +467,7 @@ in  [ makeUser "bill"
     , makeUser "jane"
     ]`
 
-    let example3 = `{- You can optionally add types
+      let example3 = `{- You can optionally add types
 
    \`x : T\` means that \`x\` has type \`T\`
 -}
@@ -495,7 +494,7 @@ let configs : List Config =
 in  configs
 `;
 
-    let example4 = `{- Need to generate a lot of users?
+      let example4 = `{- Need to generate a lot of users?
 
    Use the \`generate\` function from the Dhall Prelude
 -}
@@ -532,14 +531,14 @@ let Config =
 in  {- Try generating 20 users instead of 10 -}
     generate 10 Config buildUser`
 
-    function set(example, tabId){
-      input.setValue(example);
-      selectTab("example-tab", tabId);
-    };
+      function set(example, tabId){
+        input.setValue(example);
+        selectTab("example-tab", tabId);
+      };
 
-    input.setValue(example0);
+      input.setValue(example0);
 
-    h0.setValue(`-- ./company.dhall
+      h0.setValue(`-- ./company.dhall
 
 let Prelude =
       https://prelude.dhall-lang.org/v19.0.0/package.dhall sha256:eb693342eb769f782174157eba9b5924cf8ac6793897fc36a31ccbd6f56dafe2
@@ -579,7 +578,7 @@ in  { emails = Prelude.List.map User Text toEmail users
     }
 `);
 
-    h1.setValue(`$ dhall-to-yaml <<< '(./company.dhall).bios'
+      h1.setValue(`$ dhall-to-yaml <<< '(./company.dhall).bios'
 - age: 23
   name: John Doe
 - age: 29
@@ -599,7 +598,7 @@ $ dhall text <<< '(./company.dhall).greetingPage'
 </html>
 `);
 
-    d0.setValue(`$ dhall diff \\
+      d0.setValue(`$ dhall diff \\
     'https://prelude.dhall-lang.org/v18.0.0/package.dhall' \\
     'https://prelude.dhall-lang.org/v19.0.0/package.dhall'
 
@@ -610,7 +609,7 @@ $ dhall text <<< '(./company.dhall).greetingPage'
 , …
 }`);
 
-    h2.setValue(`-- Import packages
+      h2.setValue(`-- Import packages
 let JSON =
       https://prelude.dhall-lang.org/v19.0.0/JSON/package.dhall sha256:79dfc281a05bc7b78f927e0da0c274ee5709b1c55c9e5f59499cb28e9d6f3ec0
 
@@ -662,6 +661,7 @@ let test =
 
 in  Instance/toJSON
 `);
-  </script>
-  <script defer language="javascript" src="./js/all.min.js"></script>
+    </script>
+    <script defer src="./js/all.min.js"></script>
+  </body>
 </html>
