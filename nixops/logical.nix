@@ -150,7 +150,7 @@ in
       enable = true;
 
       configFile = pkgs.writeText "logrotate.conf" ''
-        /var/spool/nginx/logs/*.log {
+        /var/log/nginx/*.log  {
           create 0644 nginx nginx
           daily
           rotate 7
@@ -159,7 +159,7 @@ in
           compress
           sharedscripts
           postrotate
-            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx/nginx.pid 2>/dev/null)" > /dev/null || true
+            systemctl reload nginx
           endscript
         }
       '';
