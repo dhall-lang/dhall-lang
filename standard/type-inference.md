@@ -508,6 +508,31 @@ You can only select field(s) from the record if they are present:
     Γ ⊢ e.{ x, xs… } : { x : T, ts₁… }
 
 
+You can also access field(s) from record types, using the same syntax:
+
+
+    Γ ⊢ e : c₀
+    e ⇥ { x : T, xs… }
+    Γ ⊢ T : c₁
+    ──────────────────
+    Γ ⊢ e.x : c₁
+
+
+    Γ ⊢ e : c₀
+    e ⇥ { ts… }
+    ───────────
+    e.{} : Type
+
+
+    Γ ⊢ e : c₀
+    e ⇥ { x : T, xs… }
+    Γ ⊢ T : c₁
+    Γ ⊢ e.{ xs… } : c₂
+    c₁ ⋁ c₂ = c₃
+    ───────────────────  ; x ∉ { xs… }
+    e.{ x, xs… } : c₃
+
+
 Record projection can also be done by specifying the target record type.
 For instance, provided that `s` is a record type and `e` is the source record,
 `e.(s)` produces another record of type `s` whose values are taken from the
