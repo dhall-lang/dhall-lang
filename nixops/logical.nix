@@ -189,6 +189,8 @@ in
 
             locations."/" = {
               extraConfig = ''
+                proxy_ssl_server_name on;
+
                 if ($request_method = 'OPTIONS') {
                   add_header 'Access-Control-Allow-Origin' "*";
                   add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
