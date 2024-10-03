@@ -142,8 +142,10 @@ would be `%USERPROFILE%`.
 You should make it so that the environment variable `DHALL_TEST_VAR` is set to
 the string "6 * 7". This enables testing importing from environment variables.
 
-Some test cases have a `${TestcaseName}ENV.dhall` file, containing a Text
-map, i.e. `List { mapKey: Text, mapValue: Text }`. If present, you should
+Some test cases have a `${TestcaseName}ENV.dhall` file, containing a `Text`
+map, i.e., a value of type `List { mapKey: Text, mapValue: Text }`. If present, you should
+read the `${TestcaseName}ENV.dhall` file, beta-normalize it,
+obtain the given environment names and values from the resulting `mapKey`s and `mapValue`s, and
 resolve the test expression with the given environment variables set.
 
 The tests should:
