@@ -29,6 +29,7 @@
 , Integer
 , Double
 , Text
+, Bytes
 , List
 , Type
 , Kind
