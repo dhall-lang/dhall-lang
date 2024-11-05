@@ -439,6 +439,7 @@ builtin =
     / Integer
     / Double
     / Text
+    / Bytes
     / Date
     / Time
     / TimeZone
