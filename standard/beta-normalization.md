@@ -981,7 +981,7 @@ betaNormalize (Application f a)
     | Builtin TextShow           <- betaNormalize f
     , TextLiteral (Chunks [] s₀) <- betaNormalize a
     , let s₁ =
-              ( Text.replace "\"" "\\\""
+              "\"" <> ( Text.replace "\"" "\\\""
               . Text.replace "$"  "\\u0024"
               . Text.replace "\b" "\\b"
               . Text.replace "\f" "\\f"
@@ -989,7 +989,7 @@ betaNormalize (Application f a)
               . Text.replace "\r" "\\r"
               . Text.replace "\t" "\\t"
               . Text.replace "\\" "\\\\"
-              ) s₀ =
+              ) s₀ <> "\"" =
         TextLiteral (Chunks [] s₁)
 ```
 
@@ -1617,7 +1617,7 @@ literal, we can simplify it similarly:
 betaNormalize (Field t₀ x)
     | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
     , Just v                                             <- lookup x xvs =
-        Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁
+        Field (Operator (RecordLiteral [(x, v)]) CombineRecordTerms t₁) x
 
     | Operator (RecordLiteral xvs) CombineRecordTerms t₁ <- betaNormalize t₀
     , Nothing                                            <- lookup x xvs
@@ -1626,7 +1626,7 @@ betaNormalize (Field t₀ x)
 
     | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
     , Just v                                             <- lookup x xvs =
-        Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])
+        Field (Operator t₁ CombineRecordTerms (RecordLiteral [(x, v)])) x
 
     | Operator t₁ CombineRecordTerms (RecordLiteral xvs) <- betaNormalize t₀
     , Nothing                                            <- lookup x xvs
@@ -1705,10 +1705,11 @@ betaNormalize (ProjectByLabels t₀ xs₀)
     , let ks = map fst rs
     , let predicate x = x `elem` ks
     , let t₁ =
-              Operator
-                  (ProjectByLabels l (xs₀ \\ ks))
-                  Prefer
-                  (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀)) =
+              betaNormalize (
+                  Operator
+                      (ProjectByLabels l (xs₀ \\ ks))
+                      Prefer
+                      (ProjectByLabels (RecordLiteral rs) (filter predicate xs₀))) =
         t₁
 
     | otherwise
@@ -1801,7 +1802,7 @@ betaNormalize (Operator ls₀ CombineRecordTerms rs₀)
     , let mr = Map.fromList xrs
     , let combine l r = Operator l CombineRecordTerms r
     , let m = Map.unionWith combine ml mr =
-        RecordLiteral (Map.toAscList m)
+        betaNormalize (RecordLiteral (Map.toAscList m))
 
     | otherwise =
         Operator ls₁ CombineRecordTerms rs₁
@@ -1866,6 +1867,9 @@ betaNormalize (Operator ls₀ Prefer rs₀)
     , let m = Map.union mr ml =
         RecordLiteral (Map.toAscList m)
 
+    | equivalent ls₀ rs₀ =
+         ls₁
+
     | otherwise =
         Operator ls₁ Prefer rs₁
   where
@@ -1924,7 +1928,7 @@ betaNormalize (Operator ls₀ CombineRecordTypes rs₀)
     , let mr = Map.fromList xrs
     , let combine l r = Operator l CombineRecordTypes r
     , let m = Map.unionWith combine ml mr =
-        RecordType (Map.toAscList m)
+        betaNormalize (RecordType (Map.toAscList m))
 
     | otherwise =
         Operator ls₁ CombineRecordTypes rs₁
@@ -1995,7 +1999,7 @@ betaNormalize (ToMap t₀ (Just _T₀))
         in  NonEmptyList (fmap adapt ((x₀, v₀) :| xvs))
 
     | RecordLiteral [] <- t₁ =
-        EmptyList _T₀
+        EmptyList _T₁
 
     | otherwise =
         ToMap t₁ (Just _T₁)
@@ -2651,6 +2655,19 @@ form:
 betaNormalize (Builtin DateShow    ) = Builtin DateShow
 betaNormalize (Builtin TimeShow    ) = Builtin TimeShow
 betaNormalize (Builtin TimeZoneShow) = Builtin TimeZoneShow
+```
+
+### The precision of seconds in `TimeLiteral`
+
+Dhall's `TimeLiteral` type supports unlimited precision in the value of seconds.
+The `Time/show` function will retain the complete precision as given, even if the seconds fraction ends with zeros.
+
+For example, the time literal `09:00:00.0987654321098765432109876543210000000000` is printed by `Time/show` with 40 after-comma digits, matching the precision given in the Dhall source for that literal:
+
+```dhall
+⊢ let t = 09:00:00.0987654321098765432109876543210000000000 in " let t = " ++ Time/show t
+
+" let t = 09:00:00.0987654321098765432109876543210000000000"
 ```
 
 ## Functions
