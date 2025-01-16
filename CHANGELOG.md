@@ -5,6 +5,34 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v23.1.0`
+
+New features:
+
+* [Support binary literals for `Natural` and `Integer` literals](https://github.com/dhall-lang/dhall-lang/pull/1355)
+
+  You can now use `0b…` notation for `Natural` literals and `±0b…` notation for
+  `Integer` literals to write them out in binary.
+
+  For example:
+
+  ```dhall
+  0b101010  -- Same as: 42
+  +0b1011   -- Same as: +11
+  -0b111    -- Same as: -7
+  ```
+
+* [Add `Prelude.Function.composeList`](https://github.com/dhall-lang/dhall-lang/pull/1348)
+
+Other changes:
+
+* Fixes and improvements to the standard:
+  * [Fix reference implementation to not emit extra minus sign](https://github.com/dhall-lang/dhall-lang/pull/1350)
+  * [Fix the standard grammar](https://github.com/dhall-lang/dhall-lang/pull/1362)
+  * [Several assorted fixes to the standard](https://github.com/dhall-lang/dhall-lang/pull/1365)
+* Fixes and improvements to the standard test suite:
+  * [Fix an import test](https://github.com/dhall-lang/dhall-lang/pull/1367)
+
 ## `v23.0.0`
 
 Breakin changes:
