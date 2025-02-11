@@ -1,21 +1,21 @@
 { Make =
       missing
-        sha256:235d511ed943dded33b46b1717df263037329394e27fb4b9c677eda5af924458
+        sha256:83732bb907405d696fb3c0478807260cee6bd35a7b6de042d83dd91c90168860
     ? ./Make.dhall
 , Type =
       missing
-        sha256:01820cec8324cb701b6cc99e1dbbc8aacf0115db7795c6c3a023e4f1818fea79
+        sha256:492ca423139fa156ff3fee16644b09b2c01caf5f492f4caf23434bd98ae687af
     ? ./Type.dhall
 , makeTree =
       missing
-        sha256:e67054bceeb8f55968d89dbaa4b60b726a4ec544e49bd0c5622d5b487610e804
+        sha256:d940cce152280588a9f6a520bad2c9a4ef3fb3ace748e87645b18476cbd24a7f
     ? ./makeTree.dhall
 , makeTreeFromList =
       missing
-        sha256:ca73533264b52ed9eb29f51e7ac6dfc83c94c9051c5c52486d84b4a3ef7f0274
+        sha256:28470e981e6762fa6784d5522552508bdbffb73f116c3d97a9f818df191d687a
     ? ./makeTreeFromList.dhall
 , makeTreesFromList =
       missing
-        sha256:34ed54a0fc4072cbcb32d0b40adc3ad4e5d978c8dcd7fece9670bf0616f4ab18
+        sha256:cae3a005080a9de7b01910710cffeec43f17f08070deeb8e905ab0bb9610bdd8
     ? ./makeTreesFromList.dhall
 }
