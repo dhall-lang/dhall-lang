@@ -16,5 +16,5 @@ let TextFile =
 in  \(tree : Type) ->
       { directory : Directory tree -> tree
       , binary-file : BinaryFile -> tree
-      , text-file : TextFile -> tree
+      , file : TextFile -> tree
       }
