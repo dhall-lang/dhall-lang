@@ -6,7 +6,7 @@ tree.
 -}
 let Make =
         missing
-          sha256:235d511ed943dded33b46b1717df263037329394e27fb4b9c677eda5af924458
+          sha256:33c52c16f76b41c3635b57a38ce0286f1ad8b3163a3f07a3b41b808ac5bfeb5b
       ? ./Make.dhall
 
 let Metadata =
@@ -21,7 +21,7 @@ let NonEmpty =
 
 let makeTreesFromList =
         missing
-          sha256:34ed54a0fc4072cbcb32d0b40adc3ad4e5d978c8dcd7fece9670bf0616f4ab18
+          sha256:02fce5b194da66c2f98bd05af0a3bfdccf0b57d7971f17bcafee436652d9a88e
       ? ./makeTreesFromList.dhall
 
 let makeTreeFromList
