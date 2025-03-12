@@ -983,11 +983,11 @@ examine the first element of the list. If `headOptional` is called repeatedly, e
 
 The functions `concatNEL` and `reverseNEL` shown previously are quadratic in the length of the list because they use `foldNEL` twice nested.
 
-# Examples
+## Examples
 
 We will now illustrate the general recipe on more examples, showing how to translate recursive Haskell code into non-recursive Dhall definitions.
 
-## Recursive record
+### Recursive record
 
 Consider the following recursive Haskell code:
 
@@ -1137,7 +1137,7 @@ List Text
 [ "John", "Mary", "Jane" ]
 ```
 
-## Recursive union types
+### Recursive union types
 
 Recursive union types are covered by the same Church encoding recipe, except that their recursion schemes `F` will be union types.
 Instead of writing lots of `merge` expressions, it is more convenient to replace the type of functions `F r → r` by a curried function type.
@@ -1212,7 +1212,7 @@ Natural
 3
 ```
 
-## Mutually recursive types
+### Mutually recursive types
 
 The above pattern generalizes to mutually recursive types, too. For example,
 this Haskell code:
@@ -1294,7 +1294,7 @@ both of the Haskell `evenToNatural` and `oddToNatural` functions. You can
 define a separate `Even` and `evenToNatural` in Dhall, too, but they would not
 reuse any of the logic from `Odd` or `oddToNatural`.
 
-## Smart constructors
+### Smart constructors
 
 The `build` function shown earlier is, in principle, equivalent to all possible constructors that one may need when building values of a recursive type.
 When working with recursive union types, however, using the `build` function requires writing lots of `merge` expressions.
@@ -1545,12 +1545,12 @@ let SuccEven
          -- Here: ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 ```
 
-## JSON
+### JSON
 
 You can see a real example of this pattern in the Prelude's support for
 [`JSON`](https://github.com/dhall-lang/dhall-lang/blob/master/Prelude/JSON/Type.dhall)
 
-## Conclusion
+### Conclusion
 
 The general algorithm for translating recursive code to non-recursive code is
 known as the Boehm-Berarducci encoding and is shown in this paper:

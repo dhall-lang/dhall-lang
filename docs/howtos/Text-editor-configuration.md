@@ -1,10 +1,10 @@
-# Text Editor Configuration
+# Text editor configuration
 
 You can use the language server protocol `dhall-lsp-server` with different editors:
 
-* [Vim](#VIM)
-* [Emacs](#EMACS)
-* [Visual Studio Code](#vscode)
+* [Vim](#vim)
+* [Emacs](#emacs)
+* [Visual Studio Code](#visual-studio-code)
 
 The current LSP implementation features the following extensions:
 
@@ -18,7 +18,7 @@ to download the `dhall-lsp-server`. Make sure the command is in your search `PAT
 [installation]: <tutorials/Getting-started_Generate-JSON-or-YAML:installation>
 
 
-## VIM
+## Vim
 
 Using [LanguageClient](https://github.com/autozimu/LanguageClient-neovim):
 
@@ -87,7 +87,7 @@ Keys | Action
 `F5` | show all lsp client functions
 
 
-## EMACS
+## Emacs
 
 Using [lsp-mode](https://github.com/emacs-lsp/lsp-mode):
 
@@ -172,7 +172,7 @@ Here are the commands you need to know:
 [lsp-mode-configuration]: https://github.com/emacs-lsp/lsp-mode#configure-lsp-mode
 
 
-## vscode
+## Visual Studio Code
 
 Using [PanAeon/vscode-dhall-lsp-server][vscode-dhall]:
 
