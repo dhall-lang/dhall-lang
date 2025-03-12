@@ -847,15 +847,24 @@ necessary:
 
 
 An `Optional` update using the `with` keyword must preserve the type of the "inner" value.
+(This restriction is due to the fact that Dhall performs beta-reduction with no type information available.)
 
 
-    Γ ⊢ e : Optional T
-    Γ ⊢ v : T
+    Γ ⊢ e : Optional T₀
+    Γ ⊢ v : T₁
+    T₀ ≡ T₁
     ──────────────────────────────────
-    Γ ⊢ e with ?.ks… = v : Optional T
+    Γ ⊢ e with ? = v : Optional T₀
+    
+    
+    Γ ⊢ e : Optional T₀
+    Γ, x : T₀ ⊢ x with k.ks… = v : T₁
+    T₀ ≡ T₁
+    ────────────────────────────────── x ∉ FV(v)
+    Γ ⊢ e with ?.k.ks… = v : Optional T₀
 
 
-If the expression being updated (i.e. the `e in e with ks… = v`) is not a
+If the expression being updated (i.e., the `e` in `e with ks… = v`) is not a
 record or an `Optional` then that is a type error.
 
 ## `Integer`
