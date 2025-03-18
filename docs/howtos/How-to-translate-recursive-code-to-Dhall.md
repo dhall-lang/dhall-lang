@@ -1299,7 +1299,7 @@ reuse any of the logic from `Odd` or `oddToNatural`.
 The `build` function shown earlier is, in principle, equivalent to all possible constructors that one may need when building values of a recursive type.
 When working with recursive union types, however, using the `build` function requires writing lots of `merge` expressions.
 
-It is more convenient to create several "smart constructors" that replace the need for `merge` expressions.
+It is more convenient to create several "smart constructors" that remove the need for `merge` expressions.
 
 The following examples implement the same logic as the prior
 examples, except defining convenient intermediate constructors along the way.
@@ -1550,7 +1550,7 @@ let SuccEven
 You can see a real example of this pattern in the Prelude's support for
 [`JSON`](https://github.com/dhall-lang/dhall-lang/blob/master/Prelude/JSON/Type.dhall)
 
-### Conclusion
+## Conclusion
 
 The general algorithm for translating recursive code to non-recursive code is
 known as the Boehm-Berarducci encoding and is shown in this paper:
