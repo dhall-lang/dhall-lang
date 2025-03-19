@@ -86,4 +86,20 @@
       missing
         sha256:b9277ac637d09142a3a3ac79137ef5955c42f8b33b6746d59db2c9d75ccdd745
     ? ./subtract.dhall
+, showHex =
+      missing
+        sha256:ddf7e6450aa7abf1c2e9bb60dbeecd04288372d5c87efbbb8119a91a0c814a5f
+    ? ./showHex.dhall
+, showInBase =
+      missing
+        sha256:392e1c620374180c1c57524589d34fd47685515caca5f6a622e14f6b2b8a245b
+    ? ./showInBase.dhall
+, digitCount =
+      missing
+        sha256:6b2648646811feb57d19383bf1e0ec88f45c50ef5d551e5caede401bff6ef46d
+    ? ./digitCount.dhall
+, divMod =
+      missing
+        sha256:f67ea0379b1bda355afd13d538040a3ed0f0164a36c5c986239fb6b319103620
+    ? ./divMod.dhall
 }
