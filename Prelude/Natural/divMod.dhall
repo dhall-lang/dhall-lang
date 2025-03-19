@@ -28,16 +28,6 @@ let powersUntil
 
         in  Natural/fold p (List Natural) appendNewPower [ 1 ]
 
-let Function/nonexpanding =
-        missing
-          sha256:442e6ba8da95ba802b995f4adb91c05bffe29b92c962f1fcd1e13f39c99c7ed3
-      ? ../Function/nonexpanding.dhall
-
-let Function/nonexpandingPredicate =
-        missing
-          sha256:8c843e0f81446254797f7806a8a7764683867bce9589c4fc419e846e7c3e3ea8
-      ? ../Function/nonexpandingPredicate.dhall
-
 let Natural/lessThanEqual =
         missing
           sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
@@ -72,12 +62,7 @@ let egyptianDivMod
 
 let divMod
     : Natural → Natural → Result
-    = Function/nonexpanding
-        Natural
-        Function/nonexpandingPredicate.Natural
-        (Natural → Result)
-        (λ(_ : Natural) → { div = 0, mod = 0 })
-        egyptianDivMod
+    = egyptianDivMod
 
 let _ = assert : divMod 10 1 ≡ { div = 10, mod = 0 }
 
@@ -96,6 +81,8 @@ let _ =
 
 let safeDivMod
     : ∀(y : Natural) → AtLeast1 y → Natural → Result
-    = λ(y : Natural) → λ(_ : AtLeast1 y) → λ(x : Natural) → divMod y x
+    = λ(y : Natural) → λ(_ : AtLeast1 y) → λ(x : Natural) → divMod x y
+
+let _ = assert : safeDivMod 2 {=} 11 ≡ { div = 5, mod = 1 }
 
 in  safeDivMod
