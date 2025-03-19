@@ -63,7 +63,7 @@ let unsafeDivModNotForSmallY
 
 let _ =
         assert
-      : unsafeDivModNotForSmallY 100000000 121 ≡ { div = 826446, mod = 34 }
+      : unsafeDivModNotForSmallY 100000000 111111 ≡ { div = 900, mod = 100 }
 
 let _ =
         assert
@@ -124,21 +124,12 @@ let lookupDigit =
 
 let maxBase = List/length Text digits
 
-let iterate =
-        missing
-          sha256:e4999ccce190a2e2a6ab9cb188e3af6c40df474087827153005293f11bfe1d26
-      ? ../List/iterate
-
-let digitCount =
-        missing
-          sha256:6b2648646811feb57d19383bf1e0ec88f45c50ef5d551e5caede401bff6ef46d
-      ? ./digitCount.dhall
-
-let AtLeast1 = Validate Natural (λ(n : Natural) → Natural/lessThanEqual 1 n)
-
-let AtMostMaxBase =
-      Validate Natural (λ(n : Natural) → Natural/lessThanEqual n maxBase)
--- todo remove this
+let BaseWithinLimits =
+      Validate
+        Natural
+        ( λ(n : Natural) →
+            Natural/lessThanEqual 1 n && Natural/lessThanEqual n maxBase
+        )
 
 let powersUntil
     -- `powersUntil b p q` will create a list [1, b, b^2, b^3, ..., b^k] where k is such that q * b ^ k <= p < q * b ^ (k + 1) .
@@ -157,38 +148,11 @@ let powersUntil
 
         in  Natural/fold p (List Natural) appendNewPower [ 1 ]
 
-let divmod
-
-    = λ(a : Natural) →
-      λ(b : Natural) →
-        let powers2 = powersUntil 2 a b
-
-        let update
-            : Natural → Result → Result
-            = λ(power2 : Natural) →
-              λ(prev : Result) →
-                if    Natural/lessThan prev.mod (power2 * b)
-                then  prev
-                else  { div = prev.div + power2
-                      , mod = Natural/subtract (power2 * b) prev.mod
-                      }
-
-        in  List/fold Natural powers2 Result update { div = 0, mod = a }
-
-
 let digitsAsText
-    : ∀(base : Natural) → AtLeast1 base → AtMostMaxBase base → Natural → Text
+    : ∀(base : Natural) → Natural → Text
     = λ(base : Natural) →
-      λ(baseIsAtLeast1 : AtLeast1 base) →
-      λ(_ : AtMostMaxBase base) →
       λ(n : Natural) →
-        let basePowers =
-              iterate
-                (digitCount base baseIsAtLeast1 n)
-                Natural
-                (λ(p : Natural) → p * base)
-                1
-let basePowers = powersUntil base n 1
+        let basePowers = powersUntil base n 1
 
         let Accum = { digitsSoFar : Text, remainder : Natural }
 
@@ -210,29 +174,28 @@ let basePowers = powersUntil base n 1
         in  (List/fold Natural basePowers Accum update init).digitsSoFar
 
 let showInBase
-    : ∀(base : Natural) → AtLeast1 base → AtMostMaxBase base → Natural → Text
+    : ∀(base : Natural) → BaseWithinLimits base → Natural → Text
     = λ(base : Natural) →
-      λ(baseIsAtLeast1 : AtLeast1 base) →
-      λ(baseIsWithinLimit : AtMostMaxBase base) →
+      λ(_ : BaseWithinLimits base) →
       λ(n : Natural) →
         if    Natural/isZero n
         then  "0"
         else  if Natural/lessThanEqual base 1
         then  Natural/fold n Text (λ(t : Text) → t ++ "1") ""
-        else  digitsAsText base baseIsAtLeast1 baseIsWithinLimit n
+        else  digitsAsText base n
 
-let _ = assert : showInBase 4 {=} {=} 3 ≡ "3"
+let _ = assert : showInBase 4 {=} 3 ≡ "3"
 
-let _ = assert : showInBase 16 {=} {=} 0 ≡ "0"
+let _ = assert : showInBase 16 {=} 0 ≡ "0"
 
-let _ = assert : showInBase 16 {=} {=} 5 ≡ "5"
+let _ = assert : showInBase 16 {=} 5 ≡ "5"
 
-let _ = assert : showInBase 16 {=} {=} 15 ≡ "F"
+let _ = assert : showInBase 16 {=} 15 ≡ "F"
 
-let _ = assert : showInBase 16 {=} {=} 16 ≡ "10"
+let _ = assert : showInBase 16 {=} 16 ≡ "10"
 
-let _ = assert : showInBase 25 {=} {=} 12345 ≡ "JIK"
+let _ = assert : showInBase 25 {=} 12345 ≡ "JIK"
 
-let _ = assert : showInBase 1 {=} {=} 5 ≡ "11111"
+let _ = assert : showInBase 1 {=} 5 ≡ "11111"
 
 in  showInBase

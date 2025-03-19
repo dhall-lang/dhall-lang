@@ -3,13 +3,13 @@ Render a `Natural` number as `Text` in hexadecimal base.
 -}
 let showInBase =
         missing
-          sha256:392e1c620374180c1c57524589d34fd47685515caca5f6a622e14f6b2b8a245b
+          sha256:ed26718d8287380b3a17dd81825cbce08671601dd696204abd3f4df651c6c8f4
       ? ./showInBase.dhall
 
 let showHex
     : Natural → Text
     = λ(n : Natural) →
-        "0x" ++ (if Natural/isZero n then "0" else showInBase 16 {=} {=} n)
+        "0x" ++ (if Natural/isZero n then "0" else showInBase 16 {=} n)
 
 let _ = assert : showHex 0 ≡ "0x0"
 
