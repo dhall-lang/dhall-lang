@@ -44,7 +44,6 @@ let unsafeDivModNotForSmallY
       -- Warning: This function computes x / y. But it is unsafe (gives wrong results when y = 0)
       -- and also quite slow when y is much smaller than x.
       -- For example, `unsafeDivModNotForSmallY 1000000000000 121` takes a very long time.
-      -- Use Natural/divMod instead. Example: `Natural/divMod 121 {=} 1000000000000` is fast.
       λ(x : Natural) →
       λ(y : Natural) →
         let init
@@ -139,6 +138,43 @@ let AtLeast1 = Validate Natural (λ(n : Natural) → Natural/lessThanEqual 1 n)
 
 let AtMostMaxBase =
       Validate Natural (λ(n : Natural) → Natural/lessThanEqual n maxBase)
+-- todo remove this
+
+let powersUntil
+    -- `powersUntil b p q` will create a list [1, b, b^2, b^3, ..., b^k] where k is such that q * b ^ k <= p < q * b ^ (k + 1) .
+    : Natural → Natural → Natural → List Natural
+    = λ(b : Natural) →
+      λ(p : Natural) →
+      λ(q : Natural) →
+        let appendNewPower =
+              λ(prev : List Natural) →
+                let nextPower =
+                      b * Optional/default Natural 0 (List/last Natural prev)
+
+                in  if    Natural/lessThan p (nextPower * q)
+                    then  prev
+                    else  prev # [ nextPower ]
+
+        in  Natural/fold p (List Natural) appendNewPower [ 1 ]
+
+let divmod
+
+    = λ(a : Natural) →
+      λ(b : Natural) →
+        let powers2 = powersUntil 2 a b
+
+        let update
+            : Natural → Result → Result
+            = λ(power2 : Natural) →
+              λ(prev : Result) →
+                if    Natural/lessThan prev.mod (power2 * b)
+                then  prev
+                else  { div = prev.div + power2
+                      , mod = Natural/subtract (power2 * b) prev.mod
+                      }
+
+        in  List/fold Natural powers2 Result update { div = 0, mod = a }
+
 
 let digitsAsText
     : ∀(base : Natural) → AtLeast1 base → AtMostMaxBase base → Natural → Text
@@ -152,6 +188,7 @@ let digitsAsText
                 Natural
                 (λ(p : Natural) → p * base)
                 1
+let basePowers = powersUntil base n 1
 
         let Accum = { digitsSoFar : Text, remainder : Natural }
 
