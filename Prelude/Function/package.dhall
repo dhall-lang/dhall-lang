@@ -10,10 +10,6 @@
       missing
         sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
     ? ./identity.dhall
-, Validate =
-      missing
-        sha256:ff769464d570cd70b8f461c957d2fe449827e585d5f266abf8ca0689dd4e4373
-    ? ./Validate.dhall
 , nonexpanding =
       missing
         sha256:442e6ba8da95ba802b995f4adb91c05bffe29b92c962f1fcd1e13f39c99c7ed3
