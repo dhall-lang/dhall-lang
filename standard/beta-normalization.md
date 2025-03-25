@@ -493,8 +493,10 @@ betaNormalize (Application f b)
         in  t₁
 ```
 
-For efficiency, Dhall implementations are encouraged to optimize the evaluation of `Natural/fold n B g b` via a loop that computes the normal form of `b`, the normal form of  `g b`, the normal form of `g (g b)`, etc., and stop the evaluation if the normal form stops changing (even if the limit `n` has not been reached).
-If at some step `t = g (g (... (g b)...))` and `g t == t` as normal forms, it is safe to stop iterations and to return `t`. 
+For efficiency, Dhall implementations are encouraged to implement the evaluation of `Natural/fold n B g b` via a loop
+that computes the normal form of `b`, the normal form of  `g b`, the normal form of `g (g b)`, etc., until the normal
+form stops changing (even if the limit `n` has not been reached).
+If at some step `t = g (g (... (g b)...))` and `g t == t` as normal forms, it is safe to stop iterations and to return `t`.
 This simple shortcut ensures efficient evaluation of certain numerical routines such as `Natural/divMod` in the Prelude.
 
 Even though `Natural/fold` and `Natural/build` suffice for all `Natural` number

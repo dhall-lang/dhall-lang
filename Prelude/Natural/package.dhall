@@ -88,10 +88,9 @@
     ? ./subtract.dhall
 , showHex =
       missing
-        sha256:f01e2dee70170e8f797c683dbd7f23a85293fe1fd52d3f6a63747bf8ccc80afd
+        sha256:f0b69ed10fec21f1e8a17e95fe0235fade172f45ebd8bce99630da5d8045efe4
     ? ./showHex.dhall
-, showInBase =
-      missing
-        sha256:ed26718d8287380b3a17dd81825cbce08671601dd696204abd3f4df651c6c8f4
-    ? ./showInBase.dhall
+, digitsInBase = missing
+      sha256:33c39ad3ae7467e9b27718e0f678723e62f4803c24fbaa552cf8a0c0481b57c7
+  ? ./digitsInBase.dhall
 }
