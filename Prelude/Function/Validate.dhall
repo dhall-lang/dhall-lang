@@ -16,11 +16,15 @@ let Bool/not =
 
 let voidIdentity = λ(x : <>) → x
 
+let _ = {=} : Validate Bool boolTrue False
+
+let _ = {=} : Validate Bool boolTrue True
+
+let _ = {=} : Validate Bool Bool/not False
+
 let _ =
-      [ {=} : Validate Bool boolTrue False
-      , {=} : Validate Bool boolTrue True
-      , {=} : Validate Bool Bool/not False
-      , let _ = voidIdentity : Validate Bool Bool/not True → <> in {=}
-      ]
+    -- Verify that `Validate Bool Bool/not True` is the void type by type-annotating the `voidIdentity`.
+    -- (Note that we cannot use `assert` directly on types as `assert : <> === <>`.)
+      voidIdentity : Validate Bool Bool/not True → <>
 
 in  Validate

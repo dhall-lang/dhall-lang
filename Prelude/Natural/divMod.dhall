@@ -1,4 +1,4 @@
---| `divmod b x` computes x / b via integer division with modainder. The result is `{ div = ..., mod = ... }` and it is guaranteed that `x === b * div + mod` as long as `b` is nonzero.
+--| `divmod b x` computes x / b via integer division with remainder. The result is `{ div = ..., mod = ... }`. It is guaranteed that `x === b * div + mod` and that `b` is nonzero.
 let Natural/lessThan =
         missing
           sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
@@ -38,27 +38,29 @@ let Validate =
           sha256:ff769464d570cd70b8f461c957d2fe449827e585d5f266abf8ca0689dd4e4373
       ? ../Function/Validate.dhall
 
-let AtLeast1 = Validate Natural (λ(n : Natural) → Natural/lessThanEqual 1 n)
+let AtLeast1 =
+    -- The type `AtLeast1 n` is void if `n < 1`.
+      Validate Natural (λ(n : Natural) → Natural/lessThanEqual 1 n)
 
 let egyptianDivMod
     : Natural → Natural → Result
     =
-      -- This algorithm is uniformly fast for computing a / b even for large a and/or b.
-      λ(a : Natural) →
-      λ(b : Natural) →
-        let powers2 = powersUntil 2 a b
+      -- This algorithm is uniformly fast for computing x / y even for large x and/or y.
+      λ(x : Natural) →
+      λ(y : Natural) →
+        let powers2 = powersUntil 2 x y
 
         let update
             : Natural → Result → Result
             = λ(power2 : Natural) →
               λ(prev : Result) →
-                if    Natural/lessThan prev.mod (power2 * b)
+                if    Natural/lessThan prev.mod (power2 * y)
                 then  prev
                 else  { div = prev.div + power2
-                      , mod = Natural/subtract (power2 * b) prev.mod
+                      , mod = Natural/subtract (power2 * y) prev.mod
                       }
 
-        in  List/fold Natural powers2 Result update { div = 0, mod = a }
+        in  List/fold Natural powers2 Result update { div = 0, mod = x }
 
 let divMod
     : Natural → Natural → Result
