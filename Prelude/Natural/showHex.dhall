@@ -64,7 +64,7 @@ let digits =
 let lookupDigit
     : Natural → Text
     =
-      -- This will return "?" when the digit index is out of bounds. This should not happen because the `base = 16` is hard-coded.
+      -- This will return "?" when the digit index is out of bounds. This should not happen because `base = 16` is hard-coded.
       λ(d : Natural) → Optional/default Text "?" (indexTextStop1 d digits)
 
 let showHex

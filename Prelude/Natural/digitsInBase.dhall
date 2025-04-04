@@ -1,5 +1,5 @@
 {-|
-Render a `Natural` number as `Text` in hexadecimal base.
+Render a `Natural` number as a list of digits in a given base.
 -}
 
 let Natural/lessThan =
@@ -112,11 +112,11 @@ let digitsInBase
 
               in  (List/fold Natural basePowers Accum update init).digitsSoFar
 
-let _ = assert : digitsInBase 4 3 ≡ [ 3 ]
+let _ = assert : digitsInBase 10 12345 ≡ [ 1, 2, 3, 4, 5 ]
+
+let _ = assert : digitsInBase 3 4 ≡ [ 1, 1 ]
 
 let _ = assert : digitsInBase 16 0 ≡ [ 0 ]
-
-let _ = assert : digitsInBase 16 5 ≡ [ 5 ]
 
 let _ = assert : digitsInBase 16 15 ≡ [ 15 ]
 
