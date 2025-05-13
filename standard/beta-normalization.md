@@ -2635,6 +2635,55 @@ betaNormalize (Application f a)
     renderTimeZone = Text.pack . Time.formatTime Time.defaultTimeLocale "%Ez"
 ```
 
+To normalize the `Date/{year,month,day}` functions, extract the
+corresponding date component:
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin DateYear <- betaNormalize f
+    , DateLiteral d <- betaNormalize a =
+        NaturalLiteral (getYear d)
+  where
+    getYear = fromIntegral . (\(y,_,_) -> y) . Time.toGregorian
+betaNormalize (Application f a)
+    | Builtin DateMonth <- betaNormalize f
+    , DateLiteral d <- betaNormalize a =
+        NaturalLiteral (getMonth d)
+  where
+    getMonth = fromIntegral . (\(_,m,_) -> m) . Time.toGregorian
+betaNormalize (Application f a)
+    | Builtin DateDay <- betaNormalize f
+    , DateLiteral d <- betaNormalize a =
+        NaturalLiteral (getDay d)
+  where
+    getDay = fromIntegral . (\(_,_,d) -> d) . Time.toGregorian
+```
+
+To normalize the `Time/{hour,minute,second}` functions, extract the
+corresponding time component:
+
+```haskell
+betaNormalize (Application f a)
+    | Builtin TimeHour <- betaNormalize f
+    , TimeLiteral t _ <- betaNormalize a =
+        NaturalLiteral (getHour t)
+  where
+    getHour (Time.TimeOfDay h _ _) = fromIntegral h
+betaNormalize (Application f a)
+    | Builtin TimeMinute <- betaNormalize f
+    , TimeLiteral t _ <- betaNormalize a =
+        NaturalLiteral (getMinute t)
+  where
+    getMinute (Time.TimeOfDay _ m _) = fromIntegral m
+betaNormalize (Application f a)
+    | Builtin TimeSecond <- betaNormalize f
+    , TimeLiteral t _ <- betaNormalize a =
+        NaturalLiteral (getSecond t)
+  where
+    getSecond (Time.TimeOfDay _ _ picoseconds) =  floor picoseconds
+```
+
+
 All of the built-in functions on `Date` / `Time` / `TimeZone` are in normal
 form:
 
@@ -2642,10 +2691,26 @@ form:
     ─────────────────────
     Date/show ⇥ Date/show
 
+    ─────────────────────
+    Date/year ⇥ Date/year
+
+    ───────────────────────
+    Date/month ⇥ Date/month
+
+    ───────────────────
+    Date/day ⇥ Date/day
 
     ─────────────────────
     Time/show ⇥ Time/show
 
+    ─────────────────────
+    Time/hour ⇥ Time/hour
+
+    ─────────────────────────
+    Time/minute ⇥ Time/minute
+
+    ─────────────────────────
+    Time/second ⇥ Time/second
 
     ─────────────────────────────
     TimeZone/show ⇥ TimeZone/show
@@ -2653,8 +2718,15 @@ form:
 
 ```haskell
 betaNormalize (Builtin DateShow    ) = Builtin DateShow
+betaNormalize (Builtin DateYear    ) = Builtin DateYear
+betaNormalize (Builtin DateMonth   ) = Builtin DateMonth
+betaNormalize (Builtin DateDay     ) = Builtin DateDay
 betaNormalize (Builtin TimeShow    ) = Builtin TimeShow
+betaNormalize (Builtin TimeHour    ) = Builtin TimeHour
+betaNormalize (Builtin TimeMinute  ) = Builtin TimeMinute
+betaNormalize (Builtin TimeSecond  ) = Builtin TimeSecond
 betaNormalize (Builtin TimeZoneShow) = Builtin TimeZoneShow
+
 ```
 
 ### The precision of seconds in `TimeLiteral`

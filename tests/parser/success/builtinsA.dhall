@@ -1,4 +1,7 @@
-[ Date/show
+[ Date/day
+, Date/month
+, Date/show
+, Date/year
 , Double/show
 , Integer/clamp
 , Integer/negate
@@ -21,6 +24,9 @@
 , Natural/toInteger
 , Text/replace
 , Text/show
+, Time/hour
+, Time/minute
+, Time/second
 , Time/show
 , TimeZone/show
 , Bool
