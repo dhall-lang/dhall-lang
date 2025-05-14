@@ -781,7 +781,31 @@ alphaNormalize (Some a₀) = Some a₁
 
 
     ─────────────────────
+    Date/year ↦ Date/year
+
+
+    ───────────────────────
+    Date/month ↦ Date/month
+
+
+    ───────────────────
+    Date/day ↦ Date/day
+
+
+    ─────────────────────
     Time/show ↦ Time/show
+
+
+    ─────────────────────
+    Time/hour ↦ Time/hour
+
+
+    ─────────────────────────
+    Time/minute ↦ Time/minute
+
+
+    ─────────────────────────
+    Time/second ↦ Time/second
 
 
     ─────────────────────────────

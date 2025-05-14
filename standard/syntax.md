@@ -125,6 +125,9 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Integer/clamp                     ; Convert Integer to Natural by clamping
                                       ; negative values to zero
   / Date/show                         ; Convert Date to Text representation
+  / Date/year                         ; Extract the year component of a Date
+  / Date/month                        ; Extract the month component of a Date
+  / Date/day                          ; Extract the day component of a Date
   / Double/show                       ; Convert Double to Text representation
   / List/build                        ; List introduction
   / List/fold                         ; List elimination
@@ -136,6 +139,9 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Text/show                         ; Convert Text to its own representation
   / Text/replace                      ; Replace a section of a Text literal
   / Time/show                         ; Convert Time to Text representation
+  / Time/hour                         ; Extract the hour component of Time
+  / Time/minute                       ; Extract the minute component of Time
+  / Time/second                       ; Extract the second component of Time
   / TimeZone/show                     ; Convert TimeZone to Text representation
   / Bool                              ; Bool type
   / Optional                          ; Optional type
@@ -309,6 +315,9 @@ instance Monoid TextLiteral where
 -- | Builtin values
 data Builtin
     = DateShow
+    | DateYear
+    | DateMonth
+    | DateDay
     | DoubleShow
     | IntegerClamp
     | IntegerNegate
@@ -332,6 +341,9 @@ data Builtin
     | TextReplace
     | TextShow
     | TimeShow
+    | TimeHour
+    | TimeMinute
+    | TimeSecond
     | TimeZoneShow
     | Bool
     | Bytes

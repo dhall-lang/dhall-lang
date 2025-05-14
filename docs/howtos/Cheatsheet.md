@@ -137,7 +137,19 @@
 
     Date/show 2022-09-02 = "2022-09-02"
 
+    Date/year 2024-07-13 = 2024
+
+    Date/month 2024-07-13 = 7
+
+    Date/day 2024-07-13 = 13
+
     Time/show 03:15:00 = "03:15:00"
+
+    Time/hour 17:03:29 = 17
+
+    Time/minute 17:03:29 = 3
+
+    Time/second 17:03:29 = 29
 
     TimeZone/show +07:00 = "+07:00"
     ```
