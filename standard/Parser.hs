@@ -1381,7 +1381,7 @@ domain :: Parser Text
 domain = do
     a <- domainlabel
 
-    b <- many ("." <> domainlabel)
+    b <- many (try ("." <> domainlabel))
 
     c <- "." <|> ""
 
