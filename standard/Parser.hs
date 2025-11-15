@@ -1200,7 +1200,7 @@ ipLiteral = "[" <> (ipv6Address <|> ipvFuture) <> "]"
 
 ipvFuture :: Parser Text
 ipvFuture = do
-        "v"
+        ("v" <|> "V")
     <>  takeWhile1 hexDig
     <>  "."
     <>  takeWhile1 (\c -> unreserved c || subDelims c || c == ':')
