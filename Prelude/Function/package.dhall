@@ -10,4 +10,12 @@
       missing
         sha256:f78b96792b459cb664f41c6119bd8897dd04353a3343521d436cd82ad71cb4d4
     ? ./identity.dhall
+, nonexpanding =
+      missing
+        sha256:442e6ba8da95ba802b995f4adb91c05bffe29b92c962f1fcd1e13f39c99c7ed3
+    ? ./nonexpanding.dhall
+, nonexpandingPredicate =
+      missing
+        sha256:8c843e0f81446254797f7806a8a7764683867bce9589c4fc419e846e7c3e3ea8
+    ? ./nonexpandingPredicate.dhall
 }
