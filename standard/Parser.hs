@@ -597,7 +597,13 @@ builtin =
     <|> _TextShow
     <|> _TextReplace
     <|> _DateShow
+    <|> _DateYear
+    <|> _DateMonth
+    <|> _DateDay
     <|> _TimeShow
+    <|> _TimeHour
+    <|> _TimeMinute
+    <|> _TimeSecond
     <|> _TimeZoneShow
     <|> _Bool
     <|> _True
@@ -683,8 +689,26 @@ _TextReplace = do "Text/replace"; return TextReplace
 _DateShow :: Parser Builtin
 _DateShow = do "Date/show"; return DateShow
 
+_DateYear :: Parser Builtin
+_DateYear = do "Date/year"; return DateYear
+
+_DateMonth :: Parser Builtin
+_DateMonth = do "Date/month"; return DateMonth
+
+_DateDay :: Parser Builtin
+_DateDay = do "Date/day"; return DateDay
+
 _TimeShow :: Parser Builtin
 _TimeShow = do "Time/show"; return TimeShow
+
+_TimeHour :: Parser Builtin
+_TimeHour = do "Time/hour"; return TimeHour
+
+_TimeMinute :: Parser Builtin
+_TimeMinute = do "Time/minute"; return TimeMinute
+
+_TimeSecond :: Parser Builtin
+_TimeSecond = do "Time/second"; return TimeSecond
 
 _TimeZoneShow :: Parser Builtin
 _TimeZoneShow = do "TimeZone/show"; return TimeZoneShow

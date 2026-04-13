@@ -922,6 +922,36 @@ The `Date/show` built-in function renders a `Date` as a valid Dhall literal:
 "2000-01-01"
 ```
 
+### Function `Date/year`
+
+The `Date/year` built-in function extracts the year component of a `Date` value as a `Natural` number:
+
+```dhall
+⊢ Date/year 1918-10-07
+
+1918
+```
+
+### Function `Date/month`
+
+The `Date/month` built-in function extracts the month component of a `Date` value as a `Natural` number:
+
+```dhall
+⊢ Date/month 1918-10-07
+
+10
+```
+
+### Function `Date/day`
+
+The `Date/day` built-in function extracts the day component of a `Date` value as a `Natural` number:
+
+```dhall
+⊢ Date/day 1918-10-07
+
+7
+```
+
 ## Time
 
 `Time` represents a time of day
@@ -956,6 +986,36 @@ The `Time/show` built-in function renders a `Time` as a valid Dhall literal:
 ⊢ Date/show 00:00:00
 
 "00:00:00"
+```
+
+### Function `Time/hour`
+
+The `Time/hour` built-in function extracts the hour component of a `Time` value as a `Natural` number:
+
+```dhall
+⊢ Time/hour 07:12:42
+
+7
+```
+
+### Function `Time/minute`
+
+The `Time/minute` built-in function extracts the minute component of a `Time` value as a `Natural` number:
+
+```dhall
+⊢ Time/minute 07:12:42
+
+12
+```
+
+### Function `Time/second`
+
+The `Time/second` built-in function extracts the second component of a `Time` value as a `Natural` number:
+
+```dhall
+⊢ Time/second 07:12:42
+
+42
 ```
 
 ## TimeZone
