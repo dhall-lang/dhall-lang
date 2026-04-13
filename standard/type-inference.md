@@ -604,7 +604,7 @@ If they share a field in common that is not a record type then that is a type
 error.
 
 Recursive record merge requires that the types of both arguments can be
-combined with recursive record merge:
+combined with recursive record type merge:
 
 
     Γ ⊢ l : T₀
@@ -613,6 +613,39 @@ combined with recursive record merge:
     T₀ ⩓ T₁ ⇥ T₂
     ───────────────
     Γ ⊢ l ∧ r : T₂
+
+
+The recursive record merge operator (`∧`) can be also used for recursive record _type_ merge.
+When used with record types, the operator `∧` behaves as an alias for the operator `⩓`.
+
+
+    Γ ⊢ l : t
+    Γ ⊢ r : Type
+    l ⇥ { ls… }
+    r ⇥ {}
+    ─────────────
+    Γ ⊢ l ∧ r : t
+
+
+    Γ ⊢ l : t₀
+    Γ ⊢ r : t₁
+    l ⇥ { ls… }
+    r ⇥ { a : A, rs… }
+    Γ ⊢ { ls… } ⩓ { rs… } : t
+    t₀ ⋁ t₁ = t₂
+    ─────────────────────────  ; a ∉ ls
+    Γ ⊢ l ∧ r : t₂
+
+
+    Γ ⊢ l : t₀
+    Γ ⊢ r : t₁
+    l ⇥ { a : A₀, ls… }
+    r ⇥ { a : A₁, rs… }
+    Γ ⊢ A₀ ⩓ A₁ : T₀
+    Γ ⊢ { ls… } ⩓ { rs… } : T₁
+    t₀ ⋁ t₁ = t₂
+    ──────────────────────────
+    Γ ⊢ l ∧ r : t₂
 
 
 The `toMap` operator can be applied only to a record value, and every field
