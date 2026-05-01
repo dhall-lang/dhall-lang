@@ -12,7 +12,7 @@
     ? ./clamp.dhall
 , equal =
       missing
-        sha256:2d99a205086aa77eea17ae1dab22c275f3eb007bccdc8d9895b93497ebfc39f8
+        sha256:c4fa85383ea4013c6b8a7494c24c0cef86ee736fa5e8749f940c97f7a18623cf
     ? ./equal.dhall
 , greaterThan =
       missing

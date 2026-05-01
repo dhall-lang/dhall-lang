@@ -52,7 +52,7 @@
     ? ./lessThanEqual.dhall
 , equal =
       missing
-        sha256:7f108edfa35ddc7cebafb24dc073478e93a802e13b5bc3fd22f4768c9b066e60
+        sha256:d7d98753b1551f1dbd51b09231ffe4d000a74f76f3a9457990bf7bb4f640ff5e
     ? ./equal.dhall
 , greaterThanEqual =
       missing
