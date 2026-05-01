@@ -44,11 +44,11 @@
     ? ./toInteger.dhall
 , lessThan =
       missing
-        sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
+        sha256:11d199975930afe0a666095d43948588d4bc4aa52c4fd8dbbfe68c72dd3f1908
     ? ./lessThan.dhall
 , lessThanEqual =
       missing
-        sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+        sha256:0e3dd9c7f319dc4d88898d7b1811dfbf7ea55d4fc997fd0b455d1b0647991fad
     ? ./lessThanEqual.dhall
 , equal =
       missing
@@ -56,31 +56,31 @@
     ? ./equal.dhall
 , greaterThanEqual =
       missing
-        sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+        sha256:33319c5defc5b556a2e0355cdc6369b0138c5d0de787a85c98e35dc307c855e7
     ? ./greaterThanEqual.dhall
 , greaterThan =
       missing
-        sha256:f702abcdfcd7ad73619b9285d7e41c3a1d017fb6b8d037cf40bd93bf30c09b2c
+        sha256:c18d363525e6b3f714277a16afbdc90ae6781a7869c45445b4431278a6d00957
     ? ./greaterThan.dhall
 , min =
       missing
-        sha256:f25f9c462e4dbf0eb15f9ff6ac840c6e9c82255a7f4f2ab408bdab338e028710
+        sha256:5edc58a27db590a8ef6561c3f0032f75468df637476520e4348308f4ccf7c010
     ? ./min.dhall
 , max =
       missing
-        sha256:1f3b18da330223ab039fad11693da72c7e68d516f50502c73f41a89a097b62f7
+        sha256:6c4f967eb6202fff3ec1985f1112ae04b11ff72357f1d10a7c810d826ee1d68b
     ? ./max.dhall
 , listMin =
       missing
-        sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
+        sha256:de0ffc7476fbfd7084bc314b1a0d394966c2c52d669e0e06b1ce74a0631e2446
     ? ./listMin.dhall
 , listMax =
       missing
-        sha256:20906ffcc9970f740106d4516cb7868b43d75ff8c9f00ff8a9680ae68c48a472
+        sha256:f8ad44e829b5c8ac0b4407181fc89fcaf7e43b34de669a88a186ad8dc9e47a9b
     ? ./listMax.dhall
 , sort =
       missing
-        sha256:36ce8b3e5538454763987ca904d8d7c5ba34c2147434a19eddd51f684432b260
+        sha256:2a801d39710387dc4302cfe468085bce2157eb67c8b7f99c645260403164d07d
     ? ./sort.dhall
 , subtract =
       missing

@@ -1,7 +1,7 @@
 --| `lessThan` checks if one Integer is less than another.
 let greaterThan =
         missing
-          sha256:d23affd73029fc9aaf867c2c7b86510ca2802d3f0d1f3e1d1a93ffd87b7cb64b
+          sha256:70e28fc451db0b4d7d4e845f71d40d441c939365023f68645f0cb0f70a6a9dee
       ? ./greaterThan.dhall
 
 let lessThan

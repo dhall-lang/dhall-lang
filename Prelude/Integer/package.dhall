@@ -16,19 +16,19 @@
     ? ./equal.dhall
 , greaterThan =
       missing
-        sha256:d23affd73029fc9aaf867c2c7b86510ca2802d3f0d1f3e1d1a93ffd87b7cb64b
+        sha256:70e28fc451db0b4d7d4e845f71d40d441c939365023f68645f0cb0f70a6a9dee
     ? ./greaterThan.dhall
 , greaterThanEqual =
       missing
-        sha256:a9fa2dc5cd6067a23b39d7fe8d14a63109583b320429fb0e446658a5aae0a958
+        sha256:da434fb078bd8558c0a80f4209be5a0c53fd610be033ae097a3d608cbe17d94d
     ? ./greaterThanEqual.dhall
 , lessThan =
       missing
-        sha256:eeaa0081d10c6c97464ef193c40f1aa5cbb12f0202972ab42f3d310c2fd6a3f0
+        sha256:0388eedc228f9a5d298f2cac30c86eb21290de07930b662fd431fe90b4bebabb
     ? ./lessThan.dhall
 , lessThanEqual =
       missing
-        sha256:e3cca9f3942f81fa78a2bea23c0c24519c67cfe438116c38e797e12dcd26f6bc
+        sha256:9325300826d708bdc1d86dabba599b93c375e2c8db20176bed272a8256482555
     ? ./lessThanEqual.dhall
 , multiply =
       missing
