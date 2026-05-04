@@ -10,7 +10,7 @@ let NonEmpty =
 
 let List/zip =
         missing
-          sha256:85ed955eabf3998767f4ad2a28e57d40cd4c68a95519d79e9b622f1d26d979da
+          sha256:22cc765df21a2eb28b08c953beaf541bdd625ff95dbaaf8696fb3af14a5c9e6c
       ? ../List/zip.dhall
 
 let zip
