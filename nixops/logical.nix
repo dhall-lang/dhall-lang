@@ -631,6 +631,16 @@ in
       ];
     };
 
+    winitzki = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN79g8Z+ZYr01NV7sUaCinx1QON8C3FW/G1J+sZvt3c2YvptIVra3NPr7TsjLLgHWI03J5uf/wQHpm7AaFNVhWBUa35V2RB4U1BeM+yqk9/hzvJbxjKNW6+Jv5KObEvc3ARkynhLfpt1hSXGlqidHc85HKZjLeRnW5pNPkOnvGi+fkdYUV6clq4VvSE6KMpJfJ4pfL+vHRR4StzWNROzQyn14bqMbB+V36TPUBbHMkhrzF6sPHpkR8HncHvcS7WLJLDiIHxn51bK2wq+qGodlX+J/tNlbX2vv7n7W8danQQGaCjDheSLP0GWtn+BTz6jEP/65146cS9xKiNgz/3xbEH9MnHEaH3xbYo4ZfMtpxOHBupvyXHZrwzFZeEjwUMnugg1+cMVKLLS64QEQ31ijSoOvBch8zhE6QAahnz46Wx8NjhQEKvqwuRquPBXI3uQ3VopLYh3p9/Ay3svshq2jmya5dW6qQb6B1tJRyiDPd2ez6mclG4cG/zHkGMiJMrlnTAIpPLN0YLGKpBm2gJ1sQk6pXDSaMQbmhODwfMyx6/JOWOwwHZmFUpqyqm8TNcysHWQNbUFHt8PKKrYrBByi+UzN09q8ggoqAUFlZPGw7GzNcFda+lB2fQtcTq5TGWA+tSrmopq+Lx9zIjsJ780SUNe3aDIr7niygTePsVQ2stw== winitzki@gmail.com"
+      ];
+    };
+
     hydra.createHome = lib.mkForce false;
   };
 
