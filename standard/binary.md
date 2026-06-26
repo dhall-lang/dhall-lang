@@ -765,6 +765,19 @@ encode (ShowConstructor t₀) = TList [ TInt 34, t₁ ]
     t₁ = encode t₀
 ```
 
+### `readConstructor` expressions
+
+    encode(t₀) = t₁
+    ─────────────────────────────
+    encode(readConstructor t₀) = [ 35, t₁ ]
+
+
+```haskell
+encode (ReadConstructor t₀) = TList [ TInt 35, t₁ ]
+  where
+    t₁ = encode t₀
+```
+
 ### Records
 
 Dhall record types translate to CBOR maps:
@@ -1894,6 +1907,16 @@ Decode a CBOR array beginning with a `34` as a `showConstructor` expression:
     decode(t₁) = t₀
     ─────────────────────────────
     decode([ 34, t₁ ]) = showConstructor t₀
+
+
+### `readConstructor` expressions
+
+Decode a CBOR array beginning with a `35` as a `readConstructor` expression:
+
+
+    decode(t₁) = t₀
+    ─────────────────────────────
+    decode([ 35, t₁ ]) = readConstructor t₀
 
 
 ### Records

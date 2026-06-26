@@ -488,6 +488,7 @@ reservedKeywords =
     , "forall"
     , "with"
     , "showConstructor"
+    , "readConstructor"
     ]
 
 keyword :: Parser ()
@@ -509,6 +510,7 @@ keyword =
     <|> forallKeyword
     <|> with
     <|> showConstructor
+    <|> readConstructor
 
 if_ :: Parser ()
 if_ = void "if"
@@ -571,6 +573,9 @@ with = void "with"
 
 showConstructor :: Parser ()
 showConstructor = void "showConstructor"
+
+readConstructor :: Parser ()
+readConstructor = void "readConstructor"
 
 builtin :: Parser Builtin
 builtin =
@@ -1713,6 +1718,15 @@ expression =
             a <- importExpression
 
             return (ShowConstructor a)
+        )
+    <|> try (do
+            readConstructor
+
+            whsp1
+
+            a <- importExpression
+
+            return (ReadConstructor a)
         )
     <|> annotatedExpression
 

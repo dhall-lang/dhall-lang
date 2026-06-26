@@ -387,6 +387,18 @@ shift d x m (ShowConstructor t₀) = ShowConstructor t₁
     t₁ = shift d x m t₀
 ```
 
+
+    ↑(d, x, m, t₀) = t₁
+    ───────────────────────────────
+    ↑(d, x, m, readConstructor t₀) = readConstructor t₁
+
+
+```haskell
+shift d x m (ReadConstructor t₀) = ReadConstructor t₁
+  where
+    t₁ = shift d x m t₀
+```
+
     ↑(d, x, m, T₀) = T₁
     ─────────────────────────────
     ↑(d, x, m, [] : T₀) = [] : T₁

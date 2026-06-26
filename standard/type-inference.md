@@ -838,6 +838,26 @@ argument has type `Text`.
 If the first argument of a `showConstructor` expression is not a union or an
 `Optional` then that is a type error.
 
+### `readConstructor` expressions
+
+A `readConstructor` expression requires as its first argument an "enum-like"
+type: this means a union type all of whose alternatives are empty, such as
+`< Red | Green | Blue >`, or the empty union type `<>` (every alternative of
+which is vacuously empty).
+
+The result of `readConstructor T` is a function of type `Text → Optional T`:
+
+
+    Γ ⊢ T : Type   T ⇥ < x₀ | x₁ | … | xₙ >
+    ───────────────────────────────────────────────
+    Γ ⊢ readConstructor T : Text → Optional T
+
+
+The argument `T` must normalize to an enum-like union type.
+
+If `T` normalizes to a union type with any non-empty alternatives, or if `T`
+normalizes to a non-union type, then that is a type error.
+
 ## `with` expressions
 
 A record update using the `with` keyword replaces a field:

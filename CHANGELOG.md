@@ -5,6 +5,32 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## Unreleased
+
+Breaking changes:
+
+* [New `readConstructor` keyword for reading a `Text` into a union alternative](https://github.com/dhall-lang/dhall-lang/issues/1425)
+
+  `readConstructor` is the partial inverse of `showConstructor`.  Given an
+  enum-like union type (a union all of whose alternatives are empty),
+  `readConstructor` produces a function from `Text` to an `Optional` of that
+  union, looking up the supplied `Text` among the union's alternatives:
+
+  ```dhall
+  let Example = < A | B | C >
+
+  in  [ readConstructor Example "A", readConstructor Example "X" ]
+  ```
+
+  … which evaluates to:
+
+  ```dhall
+  [ Some Example.A, None Example ]
+  ```
+
+  This is a technically breaking change because `readConstructor` is now a
+  reserved identifier.
+
 ## `v23.1.0`
 
 New features:
