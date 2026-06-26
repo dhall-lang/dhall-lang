@@ -1,0 +1,1 @@
+readConstructor Natural "A"
