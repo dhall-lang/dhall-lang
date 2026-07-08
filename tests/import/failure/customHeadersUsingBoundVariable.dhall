@@ -10,6 +10,6 @@
 
 let x = "Bar"
 
-in https://httpbin.org/headers
+in http://localhost:18080/headers
      using [ { mapKey = "Foo", mapValue = x } ]
      as Text
