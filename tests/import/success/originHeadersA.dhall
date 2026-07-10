@@ -1,1 +1,1 @@
-https://httpbin.org/user-agent as Text
+http://localhost:18080/user-agent as Text
