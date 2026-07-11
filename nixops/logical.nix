@@ -254,6 +254,31 @@ in
               proxy_set_header X-Forwarded-Host $host;
               proxy_set_header X-Forwarded-Server $host;
               proxy_set_header Accept-Encoding "";
+
+              # Require traffic to originate from Cloudflare to mitigate spam
+              allow 173.245.48.0/20;
+              allow 103.21.244.0/22;
+              allow 103.22.200.0/22;
+              allow 103.31.4.0/22;
+              allow 141.101.64.0/18;
+              allow 108.162.192.0/18;
+              allow 190.93.240.0/20;
+              allow 188.114.96.0/20;
+              allow 197.234.240.0/22;
+              allow 198.41.128.0/17;
+              allow 162.158.0.0/15;
+              allow 104.16.0.0/13;
+              allow 104.24.0.0/14;
+              allow 172.64.0.0/13;
+              allow 131.0.72.0/22;
+              allow 2400:cb00::/32;
+              allow 2606:4700::/32;
+              allow 2803:f800::/32;
+              allow 2405:b500::/32;
+              allow 2405:8100::/32;
+              allow 2a06:98c0::/29;
+              allow 2c0f:f248::/32;
+              deny all;
             '';
 
             enableACME = true;
@@ -603,6 +628,16 @@ in
 
       openssh.authorizedKeys.keys = [
         "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOPqrkBYfB4lJ6A85hTAWVbWHj2S2a+gT51UNCpwIRIioGkJC/Kpdhu5+duxTk9k6NHUpdNPcZX23gYwXGt7f0E= YubiKey #10162344 PIV Slot 9a"
+      ];
+    };
+
+    winitzki = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN79g8Z+ZYr01NV7sUaCinx1QON8C3FW/G1J+sZvt3c2YvptIVra3NPr7TsjLLgHWI03J5uf/wQHpm7AaFNVhWBUa35V2RB4U1BeM+yqk9/hzvJbxjKNW6+Jv5KObEvc3ARkynhLfpt1hSXGlqidHc85HKZjLeRnW5pNPkOnvGi+fkdYUV6clq4VvSE6KMpJfJ4pfL+vHRR4StzWNROzQyn14bqMbB+V36TPUBbHMkhrzF6sPHpkR8HncHvcS7WLJLDiIHxn51bK2wq+qGodlX+J/tNlbX2vv7n7W8danQQGaCjDheSLP0GWtn+BTz6jEP/65146cS9xKiNgz/3xbEH9MnHEaH3xbYo4ZfMtpxOHBupvyXHZrwzFZeEjwUMnugg1+cMVKLLS64QEQ31ijSoOvBch8zhE6QAahnz46Wx8NjhQEKvqwuRquPBXI3uQ3VopLYh3p9/Ay3svshq2jmya5dW6qQb6B1tJRyiDPd2ez6mclG4cG/zHkGMiJMrlnTAIpPLN0YLGKpBm2gJ1sQk6pXDSaMQbmhODwfMyx6/JOWOwwHZmFUpqyqm8TNcysHWQNbUFHt8PKKrYrBByi+UzN09q8ggoqAUFlZPGw7GzNcFda+lB2fQtcTq5TGWA+tSrmopq+Lx9zIjsJ780SUNe3aDIr7niygTePsVQ2stw== winitzki@gmail.com"
       ];
     };
 

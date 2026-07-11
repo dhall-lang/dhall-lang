@@ -1,1 +1,1 @@
-https://test.dhall-lang.org/cors/Empty.dhall
+http://127.0.0.1:18080/cors/Empty.dhall

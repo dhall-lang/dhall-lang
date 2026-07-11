@@ -1,1 +1,1 @@
-https://raw.githubusercontent.com/dhall-lang/dhall-lang/5ff7ecd2411894dd9ce307dc23020987361d2d43/tests/import/data/cors/OnlyOther.dhall
+http://localhost:18080/tests/import/data/cors/OnlyOther.dhall

@@ -1224,7 +1224,7 @@ ipLiteral = "[" <> (ipv6Address <|> ipvFuture) <> "]"
 
 ipvFuture :: Parser Text
 ipvFuture = do
-        "v"
+        ("v" <|> "V")
     <>  takeWhile1 hexDig
     <>  "."
     <>  takeWhile1 (\c -> unreserved c || subDelims c || c == ':')
@@ -1405,7 +1405,7 @@ domain :: Parser Text
 domain = do
     a <- domainlabel
 
-    b <- many ("." <> domainlabel)
+    b <- many (try ("." <> domainlabel))
 
     c <- "." <|> ""
 

@@ -10,4 +10,4 @@
    referentially transparent.  Or in other words, any import that is globally
    addressable must have a meaning that is not context-sensitive.
 -}
-https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/tests/import/data/referentiallyOpaque.dhall
+http://localhost:18080/tests/import/data/referentiallyOpaque.dhall
