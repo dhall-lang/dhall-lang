@@ -1,1 +1,1 @@
-http://localhost:18080/tests/import/data/cors/Prelude.dhall
+https://localhost:18443/tests/import/data/cors/Prelude.dhall

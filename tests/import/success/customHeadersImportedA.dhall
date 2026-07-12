@@ -1,4 +1,5 @@
 https://localhost:18443/user-agent using ([ { mapKey = "User-Agent"
-                                            , mapValue = "inline-header"
+                                            , mapValue =
+                                                http://localhost:18080/tests/import/data/example.txt as Text
                                             }
                                           ]) as Text
