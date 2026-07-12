@@ -3,4 +3,4 @@
    * The `missing` should be treated as referentially transparent (and therefore
      be a valid transitive dependency of a remote import)
 -}
-https://localhost:18443/nadrieril/dhall/tests/import/success/unit/asLocation/MissingA.dhall
+http://localhost:18080/tests/import/success/unit/asLocation/MissingA.dhall
