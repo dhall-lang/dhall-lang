@@ -2,10 +2,10 @@ toMap
   { DHALL_HEADERS =
       ''
       toMap {
-        `localhost:18080` = toMap {
+        `localhost:18443` = toMap {
           `User-Agent` = env:USER_AGENT as Text
         }
       }
       ''
-      , USER_AGENT = "Dhall (from env)"
+  , USER_AGENT = "Dhall (from env)"
   }

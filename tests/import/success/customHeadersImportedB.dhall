@@ -1,6 +1,5 @@
 ''
 {
-  "user-agent": "Hello, world!
-"
+  "user-agent": "Hello, world!"
 }
 ''

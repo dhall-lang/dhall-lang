@@ -5,7 +5,7 @@
 -}
 let _ =
         assert
-      :   https://localhost:18443/random-string as Text
-        ≡ https://localhost:18443/random-string as Text
+      :   http://localhost:18080/random-string as Text
+        ≡ http://localhost:18080/random-string as Text
 
 in  0
