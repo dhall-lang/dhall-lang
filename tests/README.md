@@ -241,11 +241,7 @@ The following custom endpoints are used to test CORS compliance:
 | `GET /cors/SelfImportRelative.dhall` | `Access-Control-Allow-Origin: *` | `./NoCORS.dhall` |
 | `GET /cors/TwoHopsFail.dhall` | `Access-Control-Allow-Origin: *` | `https://localhost:18443/tests/import/data/cors/OnlySelf.dhall` |
 | `GET /cors/TwoHopsSuccess.dhall` | `Access-Control-Allow-Origin: *` | `https://localhost:18443/tests/import/data/cors/OnlyGithub.dhall` |
- 
-##### Header forwarding helper
 
-- `GET /foo` with `Test: example` -> `./bar`, else `404`
-- `GET /bar` with `Test: example` -> `True`, else `404`
 
 ### Running `binary-decode` tests
 
