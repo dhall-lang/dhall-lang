@@ -122,7 +122,7 @@ Certain tests (such as `CacheImports` and `CacheImportsCanonicalize`) require th
 
 The tests should:
 - parse `A` and `B`
-- resolve the imports for both `A` and `B`, in a context with a single ancestor
+- resolve the imports for `A`, in a context with a single ancestor
   consisting of the relative path from the parent directory of this repository
   to the test file (for example:
   `./dhall-lang/tests/import/success/asLocationA.dhall`)
@@ -131,6 +131,7 @@ The tests should:
 Where `A` and `B` are:
 - `A`: text with unresolved imports
 - `B`: text where all the imports have been resolved, normalized and replaced with their value
+(the expression in `B` should not contain any imports, so it is not necessary to resolve any imports in it)
 
 The ancestor ensures that the `as Location` tests chain in the expected way.
 
