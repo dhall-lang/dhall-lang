@@ -116,7 +116,28 @@ Where `A` and `B` are:
 
 (Note: for the `failure` tests we just expect typecheck failure)
 
+Certain tests (such as `CacheImports` and `CacheImportsCanonicalize`) require the import system to be implemented and a custom Web server to run on `localhost` during tests. See below in the section about the import tests for details regarding that Web server.
+
 ### Running `import` tests
+
+The tests should:
+- parse `A` and `B`
+- resolve the imports for `A`, in a context with a single ancestor
+  consisting of the relative path from the parent directory of this repository
+  to the test file (for example:
+  `./dhall-lang/tests/import/success/asLocationA.dhall`)
+- the results should match
+
+Where `A` and `B` are:
+- `A`: text with unresolved imports
+- `B`: text where all the imports have been resolved, normalized and replaced with their value
+(the expression in `B` should not contain any imports, so it is not necessary to resolve any imports in it)
+
+The ancestor ensures that the `as Location` tests chain in the expected way.
+
+The import tests require the following additional setup steps:
+
+#### Cache
 
 You must run these tests in such a way that they can read cache
 entries from `dhall-lang/tests/import/cache/dhall` as if it were the Dhall
@@ -133,6 +154,9 @@ to this cache – for example, you could:
    tests/import/cache`), or
  - copy the cache to a fresh temporary directory for each test run.
 
+
+#### Environment variables
+
 You must run these tests in such a way that the home directory `~` is set to
 the `dhall-lang/tests/import/home/` directory. For example, on unix systems you
 could set the environment `HOME` to the absolute location of the
@@ -142,23 +166,83 @@ would be `%USERPROFILE%`.
 You should make it so that the environment variable `DHALL_TEST_VAR` is set to
 the string "6 * 7". This enables testing importing from environment variables.
 
-Some test cases have a `${TestcaseName}ENV.dhall` file, containing a Text
-map, i.e. `List { mapKey: Text, mapValue: Text }`. If present, you should
+Some test cases have a `${TestcaseName}ENV.dhall` file, containing a `Text`
+map, i.e., a value of type `List { mapKey: Text, mapValue: Text }`. If present, you should
+read the `${TestcaseName}ENV.dhall` file, beta-normalize it,
+obtain the given environment names and values from the resulting `mapKey`s and `mapValue`s, and
 resolve the test expression with the given environment variables set.
 
-The tests should:
-- parse `A` and `B`
-- resolve the imports for both `A` and `B`, in a context with a single ancestor
-  consisting of the relative path from the parent directory of this repository
-  to the test file (for example:
-  `./dhall-lang/tests/import/success/asLocationA.dhall`)
-- the results should match
+#### Local Web server for tests
 
-Where `A` and `B` are:
-- `A`: text with unresolved imports
-- `B`: text where all the imports have been resolved, normalized and replaced with their value
+Several import tests exercise the HTTP and HTTPS imports and validate the header-passing functionality and the CORS compliance of the Dhall import system. For that to work, a custom local Web server must run on `localhost` during the import tests.
 
-The ancestor ensures that the `as Location` tests chain in the expected way.
+The tests intentionally use both `localhost` and `127.0.0.1` to exercise the CORS functionality with distinct HTTP origins.
+
+The specification of the local Web server's endpoints is as follows:
+
+The server should respond on `http://localhost:18080` and `https://localhost:18443` with the same endpoints.
+
+The HTTPS server may use a self-signed certificate.
+In that case, the test suite should configure the import system to accept self-signed certificates.
+
+The server should respond to `GET` requests only.
+
+The server should respond with code `404` on unknown URLs.
+
+##### Static files
+
+For requests to `GET /tests/import/*` the server should return the corresponding static files from `tests/import/...` in this repository, together with the CORS header `Access-Control-Allow-Origin: *`.
+
+When the server responds with a static text file, the file must be served with Unix newlines.
+All static files under `tests/import/...` already have Unix newlines.
+The server should not replace them with other (e.g., Windows) newlines. 
+
+##### Random strings
+
+For requests to `GET /random-string` the server should give a different response on each request.
+
+The response may be a random string or a deterministically calculated value such as the current request count.
+
+##### User agent
+
+For requests to `GET /user-agent` the server should check the `User-Agent` header in the request.
+
+If the header is present and has value `<value>` then the response body is `{\n  "user-agent": "<value>"\n}\n`.
+
+If the header is not present then the response body is `{\n  "user-agent": "none_given"\n}\n`.
+
+##### Header passing
+
+The header passing is tested using the two custom endpoints `/foo` and `/bar`.
+
+For requests to `GET /foo`:
+
+- if the header named `Test` (case-insensitive) has value `example` then the response is the text `./bar`
+- otherwise the response is code `403`
+
+For requests to `GET /bar`:
+
+- if the header named `Test` (case-insensitive) has value `example` then the response is the text `True`
+- otherwise the response is code `403`
+ 
+##### CORS endpoints
+
+The following custom endpoints are used to test CORS compliance:
+
+| Request | Output CORS header | Output body |
+| --- | --- | --- |
+| `GET /cors/AllowedAll.dhall` | `Access-Control-Allow-Origin: *` | `42` |
+| `GET /cors/OnlyGithub.dhall` | `Access-Control-Allow-Origin: https://localhost:18443` | `42` |
+| `GET /cors/OnlyOther.dhall` | `Access-Control-Allow-Origin: https://localhost:28080` | `42` |
+| `GET /cors/OnlySelf.dhall` | `Access-Control-Allow-Origin: https://127.0.0.1:18443` | `42` |
+| `GET /cors/Empty.dhall` | `Access-Control-Allow-Origin: ` (empty value) | `42` |
+| `GET /cors/NoCORS.dhall` | No `Access-Control-Allow-Origin` header | `42` |
+| `GET /cors/Null.dhall` | `Access-Control-Allow-Origin: null` | `42` |
+| `GET /cors/SelfImportAbsolute.dhall` | `Access-Control-Allow-Origin: *` | `https://127.0.0.1:18443/cors/NoCORS.dhall` |
+| `GET /cors/SelfImportRelative.dhall` | `Access-Control-Allow-Origin: *` | `./NoCORS.dhall` |
+| `GET /cors/TwoHopsFail.dhall` | `Access-Control-Allow-Origin: *` | `https://localhost:18443/tests/import/data/cors/OnlySelf.dhall` |
+| `GET /cors/TwoHopsSuccess.dhall` | `Access-Control-Allow-Origin: *` | `https://localhost:18443/tests/import/data/cors/OnlyGithub.dhall` |
+
 
 ### Running `binary-decode` tests
 

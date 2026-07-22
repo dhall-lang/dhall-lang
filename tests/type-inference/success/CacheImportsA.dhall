@@ -4,8 +4,8 @@
 	execution of dhall.
 -}
 let _ =
-		assert
-	  :   https://test.dhall-lang.org/random-string as Text
-		≡ https://test.dhall-lang.org/random-string as Text
+        assert
+      :   http://localhost:18080/random-string as Text
+        ≡ http://localhost:18080/random-string as Text
 
 in  0

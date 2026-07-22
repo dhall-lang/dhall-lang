@@ -1,1 +1,1 @@
-https://test.dhall-lang.org/cors/SelfImportAbsolute.dhall
+https://127.0.0.1:18443/cors/SelfImportAbsolute.dhall

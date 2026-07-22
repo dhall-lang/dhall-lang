@@ -106,9 +106,9 @@ end-of-line =
 
 ; This rule matches all characters that are not:
 ;
-; * not ASCII
-; * not part of a surrogate pair
-; * not a "non-character"
+; * ASCII
+; * part of a surrogate pair
+; * a "non-character"
 valid-non-ascii =
       %x80-D7FF
     ; %xD800-DFFF = surrogate pairs
@@ -439,6 +439,7 @@ builtin =
     / Integer
     / Double
     / Text
+    / Bytes
     / Date
     / Time
     / TimeZone

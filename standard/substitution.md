@@ -135,11 +135,11 @@ All of the following rules cover expressions that can bind variables:
 
 
 ```haskell
-substitute (Lambda x _A₀ b₀) x' n e₀ | x == x' = Lambda x _A₁ b₁
+substitute (Lambda y _A₀ b₀) x n e₀ | x == y = Lambda y _A₁ b₁
   where
     _A₁ = substitute _A₀ x n e₀
 
-    e₁ = shift 1 x 0 e₀
+    e₁ = shift 1 y 0 e₀
 
     b₁ = substitute b₀ x (1 + n) e₁
 
@@ -164,11 +164,11 @@ substitute (Lambda y _A₀ b₀) x n e₀ = Lambda y _A₁ b₁
 
 
 ```haskell
-substitute (Forall x _A₀ _B₀) x' n e₀ | x == x' = Forall x _A₁ _B₁
+substitute (Forall y _A₀ _B₀) x n e₀ | x == y = Forall y _A₁ _B₁
   where
     _A₁ = substitute _A₀ x n e₀
 
-    e₁ = shift 1 x 0 e₀
+    e₁ = shift 1 y 0 e₀
 
     _B₁ = substitute _B₀ x (1 + n) e₁
 
@@ -213,13 +213,13 @@ substitute (Forall y _A₀ _B₀) x n e₀ = Forall y _A₁ _B₁
 
 
 ```haskell
-substitute (Let x (Just _A₀) a₀ b₀) x' n e₀ | x == x' = Let x (Just _A₁) a₁ b₁
+substitute (Let y (Just _A₀) a₀ b₀) x n e₀ | x == y = Let y (Just _A₁) a₁ b₁
   where
     _A₁ = substitute _A₀ x n e₀
 
     a₁ = substitute a₀ x n e₀
 
-    e₁ = shift 1 x 0 e₀
+    e₁ = shift 1 y 0 e₀
 
     b₁ = substitute b₀ x (1 + n) e₁
 
@@ -233,11 +233,11 @@ substitute (Let y (Just _A₀) a₀ b₀) x n e₀ = Let y (Just _A₁) a₁ b�
 
     b₁ = substitute b₀ x n e₁
 
-substitute (Let x Nothing a₀ b₀) x' n e₀ | x == x' = Let x Nothing a₁ b₁
+substitute (Let y Nothing a₀ b₀) x n e₀ | x == y = Let y Nothing a₁ b₁
   where
     a₁ = substitute a₀ x n e₀
 
-    e₁ = shift 1 x 0 e₀
+    e₁ = shift 1 y 0 e₀
 
     b₁ = substitute b₀ x (1 + n) e₁
 

@@ -8,7 +8,7 @@ These cookbooks teach you how to solve specific tasks:
    :maxdepth: 2
 
    How-to-integrate-Dhall
-   Text-Editor-Configuration
+   Text-editor-configuration
    Cheatsheet
    FAQ
    How-to-translate-recursive-code-to-Dhall

@@ -605,7 +605,7 @@ Import resolution is a function of the following form:
       the interpreter visited along the way to `here`
 * `Γ₀` (an input) is an unordered map from imports to expressions representing
   the state of the filesystem/environment/web before the import
-    * `Γ₀(import)` means to retrieve the expression located at `import`
+    * `Γ₀(import)` means to retrieve the expression located at `import`, either by reading from the map `Γ₀` or by reading the external resource (a file, a URL, or environment variable) if `import` is not a key in `Γ₀`
 * `e₀` (an input) is the expression to resolve
 * `e₁` (an output) is the import-free resolved expression
 * `Γ₁` (an output) is an unordered map from imports to expressions representing
@@ -618,15 +618,15 @@ resolve imports within the retrieved expression:
 
 
     headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
-    Γ(headersPath) = userHeadersExpr
+    Γ₀(headersPath) = userHeadersExpr
     (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
-                                               ; with a `mapValue` equal to `origin`,
+                                               ; with a `mapKey` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
     parent </> https://authority directory file using headers = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
+    Γ₁(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
                                          ; binding any response headers to
                                          ; `responseHeaders` if child was a
                                          ; remote import
@@ -634,15 +634,15 @@ resolve imports within the retrieved expression:
                                                    ; import and therefore had no
                                                    ; response headers then skip
                                                    ; this CORS check
-    (Δ, parent, child) × Γ₀ ⊢ e₀ ⇒ e₁ ⊢ Γ₁
+    (Δ, parent, child) × Γ₁ ⊢ e₀ ⇒ e₁ ⊢ Γ₂
     ε ⊢ e₁ : T
     ────────────────────────────────────  ; * child ∉ (Δ, parent)
-    (Δ, parent) × Γ₀ ⊢ https://authority directory file ⇒ e₁ ⊢ Γ₁  ; * import₀ ≠ missing
+    (Δ, parent) × Γ₀ ⊢ https://authority directory file ⇒ e₁ ⊢ Γ₂  ; * import₀ ≠ missing
 
     parent </> import₀ = import₁
     canonicalize(import₁) = child
     referentiallySane(parent, child)
-    Γ(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
+    Γ₀(child) = e₀ using responseHeaders  ; Retrieve the expression, possibly
                                          ; binding any response headers to
                                          ; `responseHeaders` if child was a
                                          ; remote import
@@ -796,10 +796,10 @@ the resolved expression as additional headers supplied to the HTTP request:
 
 
     headersPath = env:DHALL_HEADERS ? "${XDG_CONFIG_HOME}/dhall/headers.dhall" ? ~/.config/dhall/headers.dhall ? []
-    Γ(headersPath) = userHeadersExpr
+    Γ₀(headersPath) = userHeadersExpr
     (Δ, parent, headersPath) × Γ₀ ⊢ userHeadersExpr ⇒ userHeaders ⊢ Γ₁
     getKey(userHeaders, origin, []) = headers  ; Extract the first `mapValue` from `userHeaders`
-                                               ; with a `mapValue` equal to `origin`,
+                                               ; with a `mapKey` equal to `origin`,
                                                ; falling back to `[]` if no such key is found.
     ε ⊢ headers : List { mapKey : Text, mapValue : Text }
     (Δ, parent) × Γ₀ ⊢ requestHeaders ⇒ resolvedRequestHeaders ⊢ Γ₁

@@ -3,7 +3,7 @@ toMap
   { DHALL_HEADERS =
       ''
       toMap {
-        `httpbin.org:443` = toMap {
+        `localhost:18443` = toMap {
           `User-Agent` = http://example.com as Text
         }
       }

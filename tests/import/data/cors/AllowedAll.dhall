@@ -1,1 +1,1 @@
-https://test.dhall-lang.org/cors/AllowedAll.dhall
+https://127.0.0.1:18443/cors/AllowedAll.dhall

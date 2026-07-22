@@ -358,10 +358,14 @@ unbracedEscape = beginsUpToC <|> beginsWithD <|> beginsWithE <|> beginsWithF
         return ((digit0 : digits1 <> [ digit2 ]) `base` 16)
 
 bracedCodepoint :: Parser Int
-bracedCodepoint = planes1Through16 <|> unbracedEscape <|> threeDigits
+bracedCodepoint = try planes1Through16 <|> try unbracedEscape <|> threeDigits
   where
-    planes1Through16 = do
-        prefix <- fmap digitToNumber (satisfy hexDig) <|> (do "10"; return 16)
+    planes1Through16 =
+            try (do "10"; (0x100000 +) <$> unicodeSuffix)
+        <|> planes1Through15
+
+    planes1Through15 = do
+        prefix <- fmap digitToNumber (satisfy hexDig)
 
         suffix <- unicodeSuffix
 
@@ -1196,7 +1200,7 @@ ipLiteral = "[" <> (ipv6Address <|> ipvFuture) <> "]"
 
 ipvFuture :: Parser Text
 ipvFuture = do
-        "v"
+        ("v" <|> "V")
     <>  takeWhile1 hexDig
     <>  "."
     <>  takeWhile1 (\c -> unreserved c || subDelims c || c == ':')
@@ -1377,7 +1381,7 @@ domain :: Parser Text
 domain = do
     a <- domainlabel
 
-    b <- many ("." <> domainlabel)
+    b <- many (try ("." <> domainlabel))
 
     c <- "." <|> ""
 

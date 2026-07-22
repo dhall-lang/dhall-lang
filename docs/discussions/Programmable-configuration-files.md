@@ -169,7 +169,7 @@ in  [ ordinaryUser "john"
 ```
 
 The above configuration has factored out the part that `john`, `jane`, and
-`alice` shared in common by creating a helper function named `ordinaryUser`.
+`chad` shared in common by creating a helper function named `ordinaryUser`.
 This function takes a single argument named `user` and computes the record for
 that user, including the public and private key paths.
 
@@ -453,7 +453,7 @@ Now we can define what a "programmable configuration file" is:
 
 You might be used to thinking of configuration files as being inert data but
 a "programmable configuration file" gives you access to programming language
-features (like functions) and lets you translate the file an inert format by
+features (like functions) and lets you translate the file to an inert format by
 evaluating all of the programming language features.
 
 [JSON]: https://en.wikipedia.org/wiki/JSON

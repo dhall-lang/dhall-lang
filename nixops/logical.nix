@@ -101,7 +101,7 @@ in
   nixpkgs.overlays = [ (import ./overlay.nix) ];
 
   programs.ssh.knownHosts."github.com".publicKey =
-      "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==";
+      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=";
 
   security = {
     acme = {
@@ -150,7 +150,7 @@ in
       enable = true;
 
       configFile = pkgs.writeText "logrotate.conf" ''
-        /var/spool/nginx/logs/*.log {
+        /var/log/nginx/*.log  {
           create 0644 nginx nginx
           daily
           rotate 7
@@ -159,7 +159,7 @@ in
           compress
           sharedscripts
           postrotate
-            kill -USR1 "$(${pkgs.coreutils}/bin/cat /run/nginx/nginx.pid 2>/dev/null)" > /dev/null || true
+            systemctl reload nginx
           endscript
         }
       '';
@@ -180,7 +180,7 @@ in
 
       virtualHosts =
         let
-          latestRelease = "v23.0.0";
+          latestRelease = "v23.1.0";
 
           prelude = {
             forceSSL = true;
@@ -189,6 +189,8 @@ in
 
             locations."/" = {
               extraConfig = ''
+                proxy_ssl_server_name on;
+
                 if ($request_method = 'OPTIONS') {
                   add_header 'Access-Control-Allow-Origin' "*";
                   add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
@@ -252,6 +254,31 @@ in
               proxy_set_header X-Forwarded-Host $host;
               proxy_set_header X-Forwarded-Server $host;
               proxy_set_header Accept-Encoding "";
+
+              # Require traffic to originate from Cloudflare to mitigate spam
+              allow 173.245.48.0/20;
+              allow 103.21.244.0/22;
+              allow 103.22.200.0/22;
+              allow 103.31.4.0/22;
+              allow 141.101.64.0/18;
+              allow 108.162.192.0/18;
+              allow 190.93.240.0/20;
+              allow 188.114.96.0/20;
+              allow 197.234.240.0/22;
+              allow 198.41.128.0/17;
+              allow 162.158.0.0/15;
+              allow 104.16.0.0/13;
+              allow 104.24.0.0/14;
+              allow 172.64.0.0/13;
+              allow 131.0.72.0/22;
+              allow 2400:cb00::/32;
+              allow 2606:4700::/32;
+              allow 2803:f800::/32;
+              allow 2405:b500::/32;
+              allow 2405:8100::/32;
+              allow 2a06:98c0::/29;
+              allow 2c0f:f248::/32;
+              deny all;
             '';
 
             enableACME = true;
@@ -601,6 +628,16 @@ in
 
       openssh.authorizedKeys.keys = [
         "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOPqrkBYfB4lJ6A85hTAWVbWHj2S2a+gT51UNCpwIRIioGkJC/Kpdhu5+duxTk9k6NHUpdNPcZX23gYwXGt7f0E= YubiKey #10162344 PIV Slot 9a"
+      ];
+    };
+
+    winitzki = {
+      isNormalUser = true;
+
+      extraGroups = [ "wheel" ];
+
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN79g8Z+ZYr01NV7sUaCinx1QON8C3FW/G1J+sZvt3c2YvptIVra3NPr7TsjLLgHWI03J5uf/wQHpm7AaFNVhWBUa35V2RB4U1BeM+yqk9/hzvJbxjKNW6+Jv5KObEvc3ARkynhLfpt1hSXGlqidHc85HKZjLeRnW5pNPkOnvGi+fkdYUV6clq4VvSE6KMpJfJ4pfL+vHRR4StzWNROzQyn14bqMbB+V36TPUBbHMkhrzF6sPHpkR8HncHvcS7WLJLDiIHxn51bK2wq+qGodlX+J/tNlbX2vv7n7W8danQQGaCjDheSLP0GWtn+BTz6jEP/65146cS9xKiNgz/3xbEH9MnHEaH3xbYo4ZfMtpxOHBupvyXHZrwzFZeEjwUMnugg1+cMVKLLS64QEQ31ijSoOvBch8zhE6QAahnz46Wx8NjhQEKvqwuRquPBXI3uQ3VopLYh3p9/Ay3svshq2jmya5dW6qQb6B1tJRyiDPd2ez6mclG4cG/zHkGMiJMrlnTAIpPLN0YLGKpBm2gJ1sQk6pXDSaMQbmhODwfMyx6/JOWOwwHZmFUpqyqm8TNcysHWQNbUFHt8PKKrYrBByi+UzN09q8ggoqAUFlZPGw7GzNcFda+lB2fQtcTq5TGWA+tSrmopq+Lx9zIjsJ780SUNe3aDIr7niygTePsVQ2stw== winitzki@gmail.com"
       ];
     };
 

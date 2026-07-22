@@ -5,8 +5,8 @@
    returns `True`, and both URLs reject all requests without a `Test` header.
 
    This test requires that the initial import to
-   `https://test.dhall-lang.org/foo` forwards the `Test` header
-   to the transitive relative import of `https://test.dhall-lang.org/bar` in
+   `https://localhost:18443/foo` forwards the `Test` header
+   to the transitive relative import of `https://localhost:18443/bar` in
    order to succeed.
 -}
-https://test.dhall-lang.org/foo using (toMap { Test = "Example" })
+https://localhost:18443/foo using (toMap { Test = "Example" })
