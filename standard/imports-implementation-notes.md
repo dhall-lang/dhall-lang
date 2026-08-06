@@ -518,11 +518,12 @@ During this first phase:
 The result is a non-normalized expression that may still contain hash-protected
 imports.
 
-That expression is the artifact stored in the semantic cache for `as Source`.
+That expression is the internal source-preserving artifact used to realize
+`as Source`.
 
 ### Phase 2: finalize for use by the parent
 
-The cached `as Source` artifact is not the final runtime value.
+The source-preserving artifact is not the final runtime value.
 
 Before returning a value to the caller, the resolver performs a second pass that
 expands the remaining hashed imports.
@@ -535,6 +536,11 @@ Then it:
 
 The result returned to the parent is import-free, but it was not forced through
 the same normalization path that an ordinary code import would take.
+
+For a hash-protected `as Source` import, this finalized import-free result is
+also the cache product written to the semantic cache. This is what makes the
+hash of a frozen `as Source` import stable even if a transitive import is later
+frozen in the source text.
 
 ### Example of using imports `as Source`
 
@@ -593,8 +599,8 @@ Typical locations are:
 For ordinary imports, the semantic cache stores the encoded normalized
 expressions.
 
-For `as Source`, the semantic cache stores the encoded source-preserving
-artifacts.
+For `as Source`, the semantic cache stores the encoded finalized import-free
+results, without applying the ordinary alpha-beta-normalization step.
 
 These use the same cache namespace and the same file naming convention.
 
@@ -853,17 +859,21 @@ do this:
        - For an ordinary code import: recursively resolve
          imports in the Dhall expression from the previous step, inlining each import into that expression.
          Then typecheck and fully normalize the resulting expression.
-       - For an import `as Source`: recursively resolve imports in the Dhall
+       - For an import `as Source`: first recursively resolve imports in the Dhall
          expression from the previous step in the special mode where we do
-         not normalize any resolved imports and do not inline hash-protected imports. 
+         not normalize any resolved imports and do not inline hash-protected imports.
+         This builds the internal source-preserving artifact.
+         Then run another recursive resolving step where the remaining
+         hash-protected child imports are inlined, producing the final
+         import-free result without an additional normalization pass.
    12. If the import is hash-protected, compute the SHA256 hash of the CBOR-encoded cache product.
-       (For imports `as Source`, the cache product may be a non-normalized expression containing unresolved hash-protected imports.
+       (For imports `as Source`, the cache product is the finalized import-free
+       result from the previous step, encoded without alpha-beta-normalization.
        For all other imports, the cache product is a fully normalized expression without imports.)
        Check that the hash value agrees with what is given in sha256:... and if this does not
-       match it's a hard failure of import. If the hash matches, save the encoded artifact to the cache on disk.
-   13. If the mode is `as Source` then run another recursive resolving step where the remaining hash-protected child imports are inlined.
-       This computes the final import-free result. (Note that the cache product may still contain unresolved hash-protected imports.)
-   14. Pop the child import from the stack. Return the final Dhall result to the parent.
+       match it's a hard failure of import. If the hash matches, save the encoded cache product to the cache on disk.
+   13. Return the final Dhall result to the parent.
+   14. Pop the child import from the stack.
 4. If the current node is an import alternative `e0 ? e1`:
    1. Try resolving `e0`.
    2. If `e0` fails because an import is absent and not already available from
