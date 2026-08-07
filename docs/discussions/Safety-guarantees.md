@@ -545,8 +545,8 @@ expansion to this document.
 [hcl]: https://www.terraform.io/docs/configuration/syntax.html
 [jsonnet]: https://jsonnet.org/
 [json-schema]: https://json-schema.org/
-[json-tutorial]: https://github.com/dhall-lang/dhall-lang/wiki/Getting-started:-Generate-JSON-or-YAML
-[programmable]: https://github.com/dhall-lang/dhall-lang/wiki/Programmable-configuration-files
+[json-tutorial]: <tutorials/Getting-started_Generate-JSON-or-YAML>
+[programmable]: <discussions/Programmable-configuration-files>
 [sass]: https://sass-lang.com/
 [sbt]: https://www.scala-sbt.org/
 [webpack]: https://webpack.js.org/configuration/configuration-languages/

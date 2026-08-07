@@ -3791,5 +3791,5 @@ an issue here:
 We do our best to keep the tutorial up-to-date as the language evolves, but we
 sometimes miss things.
 
-[recursion]: https://github.com/dhall-lang/dhall-lang/wiki/How-to-translate-recursive-code-to-Dhall
+[recursion]: <howtos/How-to-translate-recursive-code-to-Dhall>
 [debruijn]: https://en.wikipedia.org/wiki/De_Bruijn_index
