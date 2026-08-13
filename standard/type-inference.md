@@ -334,15 +334,39 @@ If the operator arguments do not have type `Text`, then that is a type error.
     Γ ⊢ ±HH:MM : TimeZone
 
 
-The `{Date,Time,TimeZone}/show` functions have the following type:
+The built-in functions on `Date`, `Time` and `TimeZone` have the following types:
 
 
     ───────────────────────────
     Γ ⊢ Date/show : Date → Text
 
 
+    ──────────────────────────────
+    Γ ⊢ Date/year : Date → Natural
+
+
+    ───────────────────────────────
+    Γ ⊢ Date/month : Date → Natural
+
+
+    ─────────────────────────────
+    Γ ⊢ Date/day : Date → Natural
+
+
     ───────────────────────────
     Γ ⊢ Time/show : Time → Text
+
+
+    ──────────────────────────────
+    Γ ⊢ Time/hour : Time → Natural
+
+
+    ────────────────────────────────
+    Γ ⊢ Time/minute : Time → Natural
+
+
+    ────────────────────────────────
+    Γ ⊢ Time/second : Time → Natural
 
 
     ───────────────────────────────────

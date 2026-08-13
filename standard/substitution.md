@@ -836,7 +836,31 @@ substitute (Some a₀) x n e = Some a₁
 
 
     ──────────────────────────────
+    Date/year[x@n ≔ e] = Date/year
+
+
+    ────────────────────────────────
+    Date/month[x@n ≔ e] = Date/month
+
+
+    ────────────────────────────
+    Date/day[x@n ≔ e] = Date/day
+
+
+    ──────────────────────────────
     Time/show[x@n ≔ e] = Time/show
+
+
+    ──────────────────────────────
+    Time/hour[x@n ≔ e] = Time/hour
+
+
+    ──────────────────────────────────
+    Time/minute[x@n ≔ e] = Time/minute
+
+
+    ──────────────────────────────────
+    Time/second[x@n ≔ e] = Time/second
 
 
     ──────────────────────────────────────
