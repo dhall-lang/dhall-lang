@@ -324,6 +324,18 @@ alphaNormalize (ShowConstructor t₀) = ShowConstructor t₁
 ```
 
 
+    t₀ ↦ t₁
+    ───────────────────────────────────────
+    readConstructor t₀ ↦ readConstructor t₁
+
+
+```haskell
+alphaNormalize (ReadConstructor t₀) = ReadConstructor t₁
+  where
+    t₁ = alphaNormalize t₀
+```
+
+
     T₀ ↦ T₁
     ─────────────────
     [] : T₀ ↦ [] : T₁

@@ -373,6 +373,18 @@ substitute (ShowConstructor t₀) x n e = ShowConstructor t₁
     t₁ = substitute t₀ x n e
 ```
 
+
+    t₀[x@n ≔ e] = t₁
+    ──────────────────────────────
+    (readConstructor t₀)[x@n ≔ e] = readConstructor t₁
+
+
+```haskell
+substitute (ReadConstructor t₀) x n e = ReadConstructor t₁
+  where
+    t₁ = substitute t₀ x n e
+```
+
     T₀[x@n ≔ e] = T₁
     ────────────────────────────
     ([] : T₀)[x@n ≔ e] = [] : T₁

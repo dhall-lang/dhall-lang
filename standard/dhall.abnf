@@ -386,6 +386,7 @@ forall-symbol         = %x2200 ; Unicode FOR ALL
 forall                = forall-symbol / forall-keyword
 with                  = %x77.69.74.68
 showConstructor       = %x73.68.6f.77.43.6f.6e.73.74.72.75.63.74.6f.72
+readConstructor       = %x72.65.61.64.43.6f.6e.73.74.72.75.63.74.6f.72
 
 
 ; Unused rule that could be used as negative lookahead in the
@@ -400,6 +401,7 @@ keyword =
     / forall-keyword
     / with
     / showConstructor
+    / readConstructor
 
 ; Note that there is a corresponding parser test in
 ; `tests/parser/success/builtinsA.dhall`. Please update it when
@@ -917,6 +919,9 @@ first-application-expression =
     ;
     ; "showConstructor e"
     / showConstructor whsp1 import-expression
+    ;
+    ; "readConstructor e"
+    / readConstructor whsp1 import-expression
     ;
     / import-expression
 

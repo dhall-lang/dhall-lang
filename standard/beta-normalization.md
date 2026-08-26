@@ -2216,7 +2216,7 @@ of the constructor for that value.
     showConstructor u₀ ⇥ "None"
 
 
-If the union is abstract, then normalize its argument:
+If the union value is abstract, then normalize it:
 
 
     u₀ ⇥ u₁
@@ -2247,6 +2247,58 @@ betaNormalize (ShowConstructor u₀)
 
   where
     u₁ = betaNormalize u₀
+```
+
+### `readConstructor` expressions
+
+`readConstructor` can be viewed as a sort-of inverse to `showConstructor`.
+
+The typechecker verifies that `readConstructor T` is applied only to union
+types `T` that are "enum-like": every alternative of `T` empty. In that case,
+`readConstructor T` is typechecked as a function of type `Text → Optional T`.
+
+Applying `readConstructor T` to a `Text` value `t` looks up `t` among the
+alternatives of the union type `T`.  If `t` matches one of the alternatives
+then the result of `readConstructor T t` is that alternative's constructed
+value wrapped in `Some`:
+
+
+    f ⇥ readConstructor < x₀ | … | xₘ | … | xₙ >   t ⇥ "xₘ"
+    ───────────────────────────────────────────────────────
+    f t ⇥ Some < x₀ | … | xₘ | … | xₙ >.xₘ
+
+
+If `t` does not match any alternative then the result is `None` applied
+to the union type:
+
+
+    f ⇥ readConstructor < x₀ | … | xₙ >   t ⇥ "y"    ; "y" ∉ { x₀, …, xₙ }
+    ─────────────────────────────────────────────────────────────────────
+    f t ⇥ None < x₀ | … | xₙ >
+
+
+```haskell
+betaNormalize (Application f t)
+    | ReadConstructor (UnionType xTs) <- betaNormalize f
+    , TextLiteral (Chunks [] x)       <- betaNormalize t =
+        case lookup x xTs of
+            Just Nothing -> Some (Field (UnionType xTs) x)
+            _            -> Application (Builtin None) (UnionType xTs)
+```
+
+A `readConstructor` expression that is not (yet) applied to a `Text` literal
+normalizes its argument:
+
+
+    T₀ ⇥ T₁
+    ───────────────────────────────────────  ; If no other rule matches
+    readConstructor T₀ ⇥ readConstructor T₁
+
+
+```haskell
+betaNormalize (ReadConstructor t₀) = ReadConstructor t₁
+  where
+    t₁ = betaNormalize t₀
 ```
 
 ## `with` expressions
