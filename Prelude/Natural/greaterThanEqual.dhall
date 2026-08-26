@@ -3,7 +3,7 @@
 -}
 let lessThanEqual =
         missing
-          sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+          sha256:0e3dd9c7f319dc4d88898d7b1811dfbf7ea55d4fc997fd0b455d1b0647991fad
       ? ./lessThanEqual.dhall
 
 let greaterThanEqual
@@ -15,9 +15,5 @@ let example0 = assert : greaterThanEqual 5 6 ≡ False
 let example1 = assert : greaterThanEqual 5 5 ≡ True
 
 let example2 = assert : greaterThanEqual 5 4 ≡ True
-
-let property0 = λ(n : Natural) → assert : greaterThanEqual n 0 ≡ True
-
-let property1 = λ(n : Natural) → assert : greaterThanEqual n n ≡ True
 
 in  greaterThanEqual

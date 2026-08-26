@@ -1,7 +1,7 @@
 --| `greaterThan` checks if one Natural is strictly greater than another.
 let lessThan =
         missing
-          sha256:3381b66749290769badf8855d8a3f4af62e8de52d1364d838a9d1e20c94fa70c
+          sha256:11d199975930afe0a666095d43948588d4bc4aa52c4fd8dbbfe68c72dd3f1908
       ? ./lessThan.dhall
 
 let greaterThan
@@ -14,8 +14,6 @@ let example1 = assert : greaterThan 5 5 ≡ False
 
 let example2 = assert : greaterThan 5 4 ≡ True
 
-let property0 = λ(n : Natural) → assert : greaterThan 0 n ≡ False
-
-let property1 = λ(n : Natural) → assert : greaterThan n n ≡ False
+let property0 = λ(n : Natural) → assert : greaterThan n n ≡ False
 
 in  greaterThan

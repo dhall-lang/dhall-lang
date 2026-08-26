@@ -1,12 +1,12 @@
 --| `lessThanEqual` checks if one Integer is less than or equal to another.
 let Natural/greaterThanEqual =
         missing
-          sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+          sha256:33319c5defc5b556a2e0355cdc6369b0138c5d0de787a85c98e35dc307c855e7
       ? ../Natural/greaterThanEqual.dhall
 
 let Natural/lessThanEqual =
         missing
-          sha256:1a5caa2b80a42b9f58fff58e47ac0d9a9946d0b2d36c54034b8ddfe3cb0f3c99
+          sha256:0e3dd9c7f319dc4d88898d7b1811dfbf7ea55d4fc997fd0b455d1b0647991fad
       ? ../Natural/lessThanEqual.dhall
 
 let nonPositive =

@@ -24,7 +24,7 @@
     ? ./head.dhall
 , index =
       missing
-        sha256:0ba2fcc9227fab10676cd61b47a18d779818a19c16727c7cc4b4c78e114fd663
+        sha256:9bac358793660657ec170b7d952e895ab64849af4ff12ed44f44a46280b5b15a
     ? ./index.dhall
 , indexed =
       missing
@@ -48,7 +48,7 @@
     ? ./map.dhall
 , reverse =
       missing
-        sha256:a6d810cdd3badffd4e7ca82091609a855cffac900c82d7ff3724463fbc2d5ff2
+        sha256:f0893b68cb1c110e5492246ac2cb0b3568a4611adb14869a39fbe08c73c90464
     ? ./reverse.dhall
 , shifted =
       missing
@@ -68,6 +68,6 @@
     ? ./unzip.dhall
 , zip =
       missing
-        sha256:073f8b4808b6d1db84964f772f6291e6ea193602163438db43fa282c560c01e4
+        sha256:dfdf4ae408022bbd25082f9e88f4f7b25e7b92a2ac3326c5accbef26dc9b3832
     ? ./zip.dhall
 }
