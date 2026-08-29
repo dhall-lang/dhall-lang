@@ -1957,7 +1957,7 @@ selectorExpression = do
 
 selector :: Parser (Expression -> Expression)
 selector =
-        (do x  <- anyLabel    ; return (\e -> Field           e x ))
+        (do x  <- anyLabelOrSome; return (\e -> Field           e x ))
     <|> (do ks <- labels      ; return (\e -> ProjectByLabels e ks))
     <|> (do t  <- typeSelector; return (\e -> ProjectByType   e t ))
 

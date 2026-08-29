@@ -7,14 +7,36 @@ For more info about our versioning policy, see [versioning.md](standard/versioni
 
 ## `v23.2.0`
 
+New features:
+
+* Allow `Some` as a field selector and union constructor
+
+  `Some` was already a valid record/union *label* (via `any-label-or-some`),
+  but `e.Some` failed to parse because `selector` used `any-label`, which
+  excludes keywords. `e.None` and `e.List` already worked.
+
+  This is a backwards-compatible change: programs that previously failed to
+  parse now succeed. `Some e` remains the Optional special form. Unquoted
+  `let Some = …` is still a parse error. Quoted `` let `Some` = … `` is
+  unchanged (still a valid binder, like other quoted keywords).
+
+  Examples:
+
+  ```dhall
+  { Some = 2, None = 4 }.Some
+
+  let U = < Some : Bool | None | List : Text >
+  in  U.Some True
+  ```
+
 Other changes:
 
 * Fixes and improvements to the standard:
-  * Require unlimited fractional-second precision in `TimeLiteral`
+  * Clarify unlimited fractional-second precision in `TimeLiteral`
 
-    Implementations must parse and preserve every digit after the decimal point
-    in a `Time` literal (including trailing zeros). `Time/show` renders the
-    complete precision. The grammar previously allowed storing only 9 digits.
+    The reference implementation now parses and preserves every digit after the decimal
+    point in a `Time` literal (including trailing zeros). `Time/show` renders the
+    complete precision as given. Clarify in comments that this extends RFC 3339.
 
 ## `v23.1.0`
 
