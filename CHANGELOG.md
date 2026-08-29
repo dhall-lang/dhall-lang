@@ -5,6 +5,17 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v23.2.0`
+
+Other changes:
+
+* Fixes and improvements to the standard:
+  * Require unlimited fractional-second precision in `TimeLiteral`
+
+    Implementations must parse and preserve every digit after the decimal point
+    in a `Time` literal (including trailing zeros). `Time/show` renders the
+    complete precision. The grammar previously allowed storing only 9 digits.
+
 ## `v23.1.0`
 
 New features:

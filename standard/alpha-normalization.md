@@ -564,7 +564,7 @@ alphaNormalize (DateLiteral n) = DateLiteral n
 
 
 ```haskell
-alphaNormalize (TimeLiteral n p) = TimeLiteral n p
+alphaNormalize (TimeLiteral hh mm ss frac p) = TimeLiteral hh mm ss frac p
 ```
 
 

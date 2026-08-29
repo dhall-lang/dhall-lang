@@ -23,9 +23,8 @@ import Data.ByteString (ByteString)
 import Data.Functor (void)
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.String (IsString(..))
-import Data.Fixed (Pico)
-import Data.Ratio ((%))
 import Data.Text (Text)
+import Data.Word (Word8)
 import Data.Void (Void)
 import Numeric.Natural (Natural)
 import Prelude hiding (exponent, takeWhile)
@@ -943,37 +942,37 @@ dateMday = do
         then return day
         else fail "Invalid day"
 
-timeHour :: Parser Int
+timeHour :: Parser Word8
 timeHour = do
     digits <- replicateM 2 (satisfy digit)
 
     let hour = digits `base` 10
 
-    if 0 <= hour && hour < 24
+    if hour < 24
         then return hour
         else fail "Invalid hour"
 
-timeMinute :: Parser Int
+timeMinute :: Parser Word8
 timeMinute = do
     digits <- replicateM 2 (satisfy digit)
 
     let minute = digits `base` 10
 
-    if 0 <= minute && minute < 60
+    if minute < 60
         then return minute
         else fail "Invalid minute"
 
-timeSecond :: Parser Pico
+timeSecond :: Parser Word8
 timeSecond = do
     digits <- replicateM 2 (satisfy digit)
 
     let second = digits `base` 10
 
-    if 0 <= second && second < 60
+    if second < 60
         then return second
         else fail "Invalid second"
 
-timeSecFrac :: Parser (Pico, Int)
+timeSecFrac :: Parser (Integer, Int)
 timeSecFrac = do
     "."
 
@@ -981,7 +980,7 @@ timeSecFrac = do
 
     let precision = length digits
 
-    return (fromRational ((digits `base` 10) % (10 ^ precision)), precision)
+    return (digits `base` 10, precision)
 
 timeNumOffset :: Parser Expression
 timeNumOffset = do
@@ -993,7 +992,7 @@ timeNumOffset = do
 
     minute <- timeMinute
 
-    let minutes = s (hour * 60 + minute)
+    let minutes = s (fromIntegral hour * 60 + fromIntegral minute)
 
     return (TimeZoneLiteral (Time.TimeZone minutes Prelude.False ""))
 
@@ -1019,9 +1018,7 @@ partialTime = do
 
     (fraction, precision) <- timeSecFrac <|> pure (0, 0)
 
-    let time = Time.TimeOfDay hour minute (second + fraction)
-
-    return (TimeLiteral time precision)
+    return (TimeLiteral hour minute second fraction precision)
 
 fullDate :: Parser Expression
 fullDate = do
