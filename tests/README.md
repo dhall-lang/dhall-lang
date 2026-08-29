@@ -126,12 +126,20 @@ The tests should:
   consisting of the relative path from the parent directory of this repository
   to the test file (for example:
   `./dhall-lang/tests/import/success/asLocationA.dhall`)
-- the results should match
+- compare the resolve product of `A` to `B` up to β-equivalence
+  (β-normalize both sides, or equivalently: `B` is *a* normal form of the
+  resolved `A`)
 
 Where `A` and `B` are:
 - `A`: text with unresolved imports
-- `B`: text where all the imports have been resolved, normalized and replaced with their value
-(the expression in `B` should not contain any imports, so it is not necessary to resolve any imports in it)
+- `B`: an import-free expression that is β-equivalent to the resolve product of `A`
+
+`B` is often written in β-normal form for readability.  That does not require
+the implementation to β-normalize unhashed imports at resolve time;
+implementations MAY leave imported `let`s and unsaturated applications in
+place so long as the resolved expression is β-equivalent to `B`.  (The
+expression in `B` should not contain any imports, so it is not necessary to
+resolve any imports in it.)
 
 The ancestor ensures that the `as Location` tests chain in the expected way.
 

@@ -659,6 +659,12 @@ resolve imports within the retrieved expression:
 Carefully note that the fully resolved import must successfully type-check with
 an empty context.  Imported expressions may not contain any free variables.
 
+The substituted expression `e₁` need only be transitively import-free and
+well-typed.  It need not be β-normalized or α-normalized when inserted into
+the parent.  Implementations MAY still β-normalize (and even α-normalize)
+unhashed imports before substituting them; that is an optimization or
+presentation choice, not part of the meaning of import resolution.
+
 Also note that the `child ∉ Δ` forbids cyclic imports to prevent
 non-termination from being (trivially) introduced via the import system.  An
 import cycle is an import resolution error.
@@ -872,6 +878,13 @@ expression protected by a semantic integrity check:
   hash and then decode the expression from the bytes using the `decode` judgment
   instead of importing the expression
 * Otherwise, import the expression as normal
+
+Hash verification and the semantic-cache bytes are always the encoded
+αβ-normal form of the import.  The miss-path judgments below substitute the
+pre-normalization `e₁`.  Implementations MAY instead substitute the
+αβ-normal form (`e₃`) so that a cache miss and a cache hit of the same
+hashed import produce the same abstract syntax tree.  Both choices are
+β-equivalent.
 
 An implementation MUST fail and alert the user if hash verification fails,
 either when importing an expression for the first time or importing from the
