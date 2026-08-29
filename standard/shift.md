@@ -628,7 +628,7 @@ shift _d _x _m (DateLiteral d) = DateLiteral d
 
 
 ```haskell
-shift _d _x _m (TimeLiteral t p) = TimeLiteral t p
+shift _d _x _m (TimeLiteral hh mm ss frac p) = TimeLiteral hh mm ss frac p
 ```
 
 

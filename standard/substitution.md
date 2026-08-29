@@ -619,7 +619,7 @@ substitute (DateLiteral n) _x _n _e = DateLiteral n
 
 
 ```haskell
-substitute (TimeLiteral n p) _x _n _e = TimeLiteral n p
+substitute (TimeLiteral hh mm ss frac p) _x _n _e = TimeLiteral hh mm ss frac p
 ```
 
 

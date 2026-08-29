@@ -17,6 +17,7 @@ import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.Ord           as Ord
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Text.Printf        as Printf
 ```
 
 β-normalization is a function of the following form:
@@ -2594,9 +2595,9 @@ betaNormalize (Builtin TimeZone) = Builtin TimeZone
 
 
 ```haskell
-betaNormalize (DateLiteral d    ) = DateLiteral d
-betaNormalize (TimeLiteral t p  ) = TimeLiteral t p
-betaNormalize (TimeZoneLiteral z) = TimeZoneLiteral z
+betaNormalize (DateLiteral d                ) = DateLiteral d
+betaNormalize (TimeLiteral hh mm ss frac p  ) = TimeLiteral hh mm ss frac p
+betaNormalize (TimeZoneLiteral z            ) = TimeZoneLiteral z
 ```
 
 To normalize the three `{Date,Time,TimeZone}/show` functions, render the
@@ -2623,10 +2624,15 @@ betaNormalize (Application f a)
     renderDate = Text.pack . Time.formatTime Time.defaultTimeLocale "%0Y-%m-%d"
 betaNormalize (Application f a)
     | Builtin TimeShow <- betaNormalize f
-    , TimeLiteral d _ <- betaNormalize a =
-        TextLiteral (Chunks [] (renderTime d))
+    , TimeLiteral hh mm ss fraction precision <- betaNormalize a =
+        TextLiteral (Chunks [] (renderTime hh mm ss fraction precision))
   where
-    renderTime = Text.pack . Time.formatTime Time.defaultTimeLocale "%H:%M:%S%Q"
+    renderTime hh mm ss fraction precision =
+        Text.pack (Printf.printf "%02d:%02d:%02d" hh mm ss <> suffix)
+      where
+        suffix
+            | precision == 0 = ""
+            | otherwise      = Printf.printf ".%0*d" precision fraction
 betaNormalize (Application f a)
     | Builtin TimeZoneShow <- betaNormalize f
     , TimeZoneLiteral d <- betaNormalize a =
