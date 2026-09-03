@@ -508,26 +508,6 @@ fixedSymbols =
     , "Sort"
     ]
 
-keyword :: Parser ()
-keyword =
-        if_
-    <|> then_
-    <|> else_
-    <|> let_
-    <|> in_
-    <|> using
-    <|> void missing
-    <|> assert
-    <|> as
-    <|> _Infinity
-    <|> _NaN
-    <|> merge
-    <|> _Some
-    <|> toMap
-    <|> forallKeyword
-    <|> with
-    <|> showConstructor
-
 if_ :: Parser ()
 if_ = void "if"
 
