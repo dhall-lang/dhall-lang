@@ -111,9 +111,18 @@ with each variable disambiguates which type annotation in the context to use:
 
 If the natural number associated with the variable is greater than or equal to
 the number of type annotations in the context matching the variable then that is
-a type error.
-For example, if the context has a single type annotation (say, `x : T`)
-then `x@0` is valid but `x@1` is a type error.
+a type error, **except** for a free `x@0` that names a predefined function
+(for example `Natural/isZero`).
+In that case the type is the same as in the corresponding built-in function rule
+below, as if the identifier denoted that primitive.
+Binding the name in `Γ` shadows the predefined function.
+
+For example, `ε ⊢ Natural/isZero : Natural → Bool`, and
+`ε, Natural/isZero : Natural ⊢ Natural/isZero : Natural`.
+
+Fixed symbols (`Bool`, `Natural`, `None`, `Type`, …) are not variables: they
+cannot be bound (quoted or not) and cannot carry a De Bruijn index.
+Keywords (`if`, `merge`, `Some`, …) may be bound only when quoted.
 
 ## `Bool`
 
@@ -1136,8 +1145,10 @@ The rules of the `freeVars` judgment are standard for lambda-calculus (see, for 
 The set of free variables is empty for:
 
 - all literals that contain no other terms (numerical, date or time, bytes, etc. literals, but not text literals with interpolations and not record literals or record types)
-- for built-in terms such as `List` or `Natural/show`
-- for built-in constant symbols such as `Type`, `True` or `False`
+- for fixed symbols such as `List`, `Type`, `True` or `False`
+- for predefined function primitives such as `Natural/show` when represented
+  as a dedicated built-in node (a free identifier `Natural/show` is a variable
+  and is included in `freeVars`)
 - and for imports without a `using headers` option, as imported expressions may not contain free variables
 
 

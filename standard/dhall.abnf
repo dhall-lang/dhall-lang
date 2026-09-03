@@ -401,7 +401,8 @@ keyword =
 
 ; Note that there is a corresponding parser test in
 ; `tests/parser/success/builtinsA.dhall`. Please update it when
-; you modify this `builtin` rule.
+; you modify this `builtin` rule.  These names are fixed symbols:
+; they are never bindable, even when quoted.
 builtin =
       Bool
     / True
@@ -555,11 +556,9 @@ partial-time    = time-hour ":" time-minute ":" time-second
 full-date       = date-fullyear "-" date-month "-" date-mday
 
 ; If the identifier matches one of the names in the `builtin` rule, then it is a
-; builtin, and should be treated as the corresponding item in the list of
-; "Reserved identifiers for builtins" specified in the `standard/README.md` document.
-; It is a syntax error to specify a de Bruijn index in this case.
-; Non-fixed names (including `Natural/isZero`) are variables.
-; Otherwise, this is a variable with name and index matching the label and index.
+; fixed symbol (see `syntax.md`), and a de Bruijn index is a syntax error.
+; Any other name, including predefined function names such as `Natural/isZero`,
+; is a variable with that name and index.
 identifier = variable / builtin
 
 variable = nonreserved-label [ whsp "@" whsp natural-literal ]

@@ -48,6 +48,9 @@ betaNormalize
 
     List/length Integer ⇥ List/length Integer
 
+A free identifier that names a predefined function (for example `Natural/isZero`)
+normalizes as that primitive.  If the name is bound, it is an ordinary variable.
+
 β-normalization works under λ, meaning that the body of an unapplied
 λ-expression can be normalized:
 

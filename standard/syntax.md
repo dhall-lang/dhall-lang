@@ -109,7 +109,30 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / env:x                             ; Environment variable import
   / Some a                            ; Constructor for a present Optional value
 
-                                      ; Reserved identifiers for builtins
+                                      ; Fixed symbols: never bindable, even when
+                                      ; quoted.  A de Bruijn index on these names
+                                      ; is a syntax error.
+  / Bool                              ; Bool type
+  / Optional                          ; Optional type
+  / Natural                           ; Natural type
+  / Integer                           ; Integer type
+  / Double                            ; Double type
+  / Text                              ; Text type
+  / Bytes                             ; Bytes type
+  / List                              ; List type
+  / True                              ; True term
+  / False                             ; False term
+  / None                              ; Absent Optional value
+  / Type                              ; Type of terms
+  / Kind                              ; Type of types
+  / Sort                              ; Type of kinds
+
+                                      ; Predefined functions.  In source these
+                                      ; names are ordinary identifiers (`x` /
+                                      ; `x@n`) and may be bound, quoted or not.
+                                      ; When they occur free they denote the
+                                      ; corresponding primitive; the judgments
+                                      ; write that primitive as a constant.
   / Natural/build                     ; Natural introduction
   / Natural/fold                      ; Natural elimination
   / Natural/isZero                    ; Test if zero
@@ -137,21 +160,8 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Text/replace                      ; Replace a section of a Text literal
   / Time/show                         ; Convert Time to Text representation
   / TimeZone/show                     ; Convert TimeZone to Text representation
-  / Bool                              ; Bool type
-  / Optional                          ; Optional type
-  / Natural                           ; Natural type
-  / Integer                           ; Integer type
-  / Double                            ; Double type
-  / Text                              ; Text type
-  / Bytes                             ; Bytes type
-  / List                              ; List type
-  / True                              ; True term
-  / False                             ; False term
-  / None                              ; Absent Optional value
-  / Type                              ; Type of terms
-  / Kind                              ; Type of types
-  / Sort                              ; Type of kinds
 ```
+
 
 ```haskell
 {-| This module contains the data types used to represent the syntax tree for
