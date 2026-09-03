@@ -254,11 +254,9 @@ label = (do "`"; l <- quotedLabel; "`"; return l)
 
 nonreservedLabel :: Parser Text
 nonreservedLabel = do
-    notFollowedBy do
-        void builtin <|> void constant <|> keyword
-        notFollowedBy (satisfy simpleLabelNextChar)
-
-    label
+    l <- label
+    guard (l `notElem` fixedSymbols)
+    pure l
 
 anyLabel :: Parser Text
 anyLabel = label
@@ -489,6 +487,27 @@ reservedKeywords =
     , "showConstructor"
     ]
 
+fixedSymbols :: [Text]
+fixedSymbols =
+    [ "Bool"
+    , "True"
+    , "False"
+    , "Optional"
+    , "None"
+    , "Natural"
+    , "Integer"
+    , "Double"
+    , "Text"
+    , "Bytes"
+    , "List"
+    , "Date"
+    , "Time"
+    , "TimeZone"
+    , "Type"
+    , "Kind"
+    , "Sort"
+    ]
+
 keyword :: Parser ()
 keyword =
         if_
@@ -573,32 +592,7 @@ showConstructor = void "showConstructor"
 
 builtin :: Parser Builtin
 builtin =
-        _NaturalFold
-    <|> _NaturalBuild
-    <|> _NaturalIsZero
-    <|> _NaturalEven
-    <|> _NaturalOdd
-    <|> _NaturalToInteger
-    <|> _NaturalShow
-    <|> _IntegerToDouble
-    <|> _IntegerShow
-    <|> _IntegerNegate
-    <|> _IntegerClamp
-    <|> _NaturalSubtract
-    <|> _DoubleShow
-    <|> _ListBuild
-    <|> _ListFold
-    <|> _ListLength
-    <|> _ListHead
-    <|> _ListLast
-    <|> _ListIndexed
-    <|> _ListReverse
-    <|> _TextShow
-    <|> _TextReplace
-    <|> _DateShow
-    <|> _TimeShow
-    <|> _TimeZoneShow
-    <|> _Bool
+        _Bool
     <|> _True
     <|> _False
     <|> _Optional
@@ -612,81 +606,6 @@ builtin =
     <|> _Date
     <|> _TimeZone
     <|> _Time
-
-_NaturalFold :: Parser Builtin
-_NaturalFold = do "Natural/fold"; return NaturalFold
-
-_NaturalBuild :: Parser Builtin
-_NaturalBuild = do "Natural/build"; return NaturalBuild
-
-_NaturalIsZero :: Parser Builtin
-_NaturalIsZero = do "Natural/isZero"; return NaturalIsZero
-
-_NaturalEven :: Parser Builtin
-_NaturalEven = do "Natural/even"; return NaturalEven
-
-_NaturalOdd :: Parser Builtin
-_NaturalOdd = do "Natural/odd"; return NaturalOdd
-
-_NaturalToInteger :: Parser Builtin
-_NaturalToInteger = do "Natural/toInteger"; return NaturalToInteger
-
-_NaturalShow :: Parser Builtin
-_NaturalShow = do "Natural/show"; return NaturalShow
-
-_IntegerToDouble :: Parser Builtin
-_IntegerToDouble = do "Integer/toDouble"; return IntegerToDouble
-
-_IntegerShow :: Parser Builtin
-_IntegerShow = do "Integer/show"; return IntegerShow
-
-_IntegerNegate :: Parser Builtin
-_IntegerNegate = do "Integer/negate"; return IntegerNegate
-
-_IntegerClamp :: Parser Builtin
-_IntegerClamp = do "Integer/clamp"; return IntegerClamp
-
-_NaturalSubtract :: Parser Builtin
-_NaturalSubtract = do "Natural/subtract"; return NaturalSubtract
-
-_DoubleShow :: Parser Builtin
-_DoubleShow = do "Double/show"; return DoubleShow
-
-_ListBuild :: Parser Builtin
-_ListBuild = do "List/build"; return ListBuild
-
-_ListFold :: Parser Builtin
-_ListFold = do "List/fold"; return ListFold
-
-_ListLength :: Parser Builtin
-_ListLength = do "List/length"; return ListLength
-
-_ListHead :: Parser Builtin
-_ListHead = do "List/head"; return ListHead
-
-_ListLast :: Parser Builtin
-_ListLast = do "List/last"; return ListLast
-
-_ListIndexed :: Parser Builtin
-_ListIndexed = do "List/indexed"; return ListIndexed
-
-_ListReverse :: Parser Builtin
-_ListReverse = do "List/reverse"; return ListReverse
-
-_TextShow :: Parser Builtin
-_TextShow = do "Text/show"; return TextShow
-
-_TextReplace :: Parser Builtin
-_TextReplace = do "Text/replace"; return TextReplace
-
-_DateShow :: Parser Builtin
-_DateShow = do "Date/show"; return DateShow
-
-_TimeShow :: Parser Builtin
-_TimeShow = do "Time/show"; return TimeShow
-
-_TimeZoneShow :: Parser Builtin
-_TimeZoneShow = do "TimeZone/show"; return TimeZoneShow
 
 _Bool :: Parser Builtin
 _Bool = do "Bool"; return Bool

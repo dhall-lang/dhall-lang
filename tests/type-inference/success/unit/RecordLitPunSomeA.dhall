@@ -1,1 +1,1 @@
-let `None` = 0 let `Some` = \(_: Bool) -> 1 in { None, Some }
+let `Some` = \(_: Bool) -> 1 in { None = 0, Some }
