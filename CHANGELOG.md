@@ -5,7 +5,26 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
-## `v23.2.0`
+## `v24.0.0`
+
+New features:
+
+  * Treat slash-function names as ordinary identifiers
+
+    Names such as `Natural/isZero` may now be bound (whether or not backquoted).
+    When they occur free they still denote the built-in functions.
+
+  * Fixed symbols (`Type`, `Natural`, `None`, `True`, `Infinity`, `NaN`, …)
+    cannot be bound even when backquoted.
+ 
+  * Encode free variables `x@0` as naked CBOR strings;
+    decode non-fixed-symbol strings as variables.
+
+  * Built-in functions are now variables in the reference implementation
+
+    Saturated reduction matches on `Variable "Natural/isZero" 0` (and so on).
+    Types are the map `predefinedFunctionTypes` in `syntax.md`.
+
 
 Other changes:
 

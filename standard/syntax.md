@@ -43,10 +43,11 @@ x, y              ; Variables
 ; Note that these are only informal mnemonics.  Dhall is a pure type system,
 ; which means that many places in the syntax permit terms, types, kinds, and
 ; sorts. The typing judgments are the authoritative rules for what expressions
-, are permitted and forbidden.
+; are permitted and forbidden.
 a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
-  = x@n                               ; Identifier
-                                      ; (`x` is short-hand for `x@0`)
+  = x@n                               ; Identifier (`x` is short-hand for `x@0`).
+                                      ; Slash-names such as `Natural/isZero`
+                                      ; are identifiers, not extra forms.
   / λ(x : A) → b                      ; Anonymous function
   / ∀(x : A) → B                      ; Function type
                                       ; (`A → B` is short-hand for `∀(_ : A) → B`)
@@ -109,34 +110,9 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / env:x                             ; Environment variable import
   / Some a                            ; Constructor for a present Optional value
 
-                                      ; Reserved identifiers for builtins
-  / Natural/build                     ; Natural introduction
-  / Natural/fold                      ; Natural elimination
-  / Natural/isZero                    ; Test if zero
-  / Natural/even                      ; Test if even
-  / Natural/odd                       ; Test if odd
-  / Natural/toInteger                 ; Convert Natural to Integer
-  / Natural/show                      ; Convert Natural to Text representation
-  / Natural/subtract                  ; Perform truncated subtraction on two Naturals
-  / Integer/toDouble                  ; Convert Integer to Double
-  / Integer/show                      ; Convert Integer to Text representation
-  / Integer/negate                    ; Invert sign of Integers, with positive
-                                      ; values becoming negative and vice-versa
-  / Integer/clamp                     ; Convert Integer to Natural by clamping
-                                      ; negative values to zero
-  / Date/show                         ; Convert Date to Text representation
-  / Double/show                       ; Convert Double to Text representation
-  / List/build                        ; List introduction
-  / List/fold                         ; List elimination
-  / List/length                       ; Length of list
-  / List/head                         ; First element of list
-  / List/last                         ; Last element of list
-  / List/indexed                      ; Tag elements with index
-  / List/reverse                      ; Reverse list
-  / Text/show                         ; Convert Text to its own representation
-  / Text/replace                      ; Replace a section of a Text literal
-  / Time/show                         ; Convert Time to Text representation
-  / TimeZone/show                     ; Convert TimeZone to Text representation
+                                      ; Fixed symbols: never bindable, even when
+                                      ; backquoted.  A de Bruijn index on these names
+                                      ; is a syntax error.
   / Bool                              ; Bool type
   / Optional                          ; Optional type
   / Natural                           ; Natural type
@@ -147,11 +123,52 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List                              ; List type
   / True                              ; True term
   / False                             ; False term
+  / Infinity                          ; Double infinity
+  / -Infinity                         ; Double negative infinity
+  / NaN                               ; Double NaN
   / None                              ; Absent Optional value
   / Type                              ; Type of terms
   / Kind                              ; Type of types
   / Sort                              ; Type of kinds
 ```
+
+Names in source syntax fall into three classes:
+
+* **Keywords** (`if`, `then`, `else`, `let`, `in`, `using`, `missing`, `as`,
+  `merge`, `Some`, `toMap`, `assert`, `forall`, `with`,
+  `showConstructor`) are part of the grammar.  They are not identifiers unless
+  written in backquotes, which turns the keyword into an ordinary label that may
+  be bound or used as a field or union constructor name.  Unquoted, keywords cannot
+  be bound and also cannot be record field or union constructor
+  names, except `Some`, which the grammar allows as a label via
+  `any-label-or-some`. 
+
+* **Fixed symbols** are the `Bool`, `Natural`, `None`, `Type`, … forms above,
+  together with the `Double` literals `Infinity`, `-Infinity`, and `NaN` (like `True` /
+  `False` for `Bool`).  They are values (or type-checking constants) but not
+  identifiers: they cannot be bound (even if backquoted), and they cannot carry a De
+  Bruijn index.  A quoted fixed symbol (`` `Bool` ``, `` `Infinity` ``) is still
+  the same value.  Names of fixed symbols may be used as record field names or union
+  constructor names without backticks.  `-Infinity` is not a label (it begins
+  with `-`); the unbindable name is `Infinity`.
+
+Note:  `Some` is currently a keyword (it introduces `Some a`); `None` is
+  a fixed symbol. However, `Some` has fixed-symbol-like properties: it cannot be bound (even in backquotes), and it can be used without backquotes as a record field name or a union constructor name.
+
+* **Built-in functions** (`Natural/isZero`, `List/length`, …) look like ordinary
+  identifiers.  They may be bound (even without backquotes) and used as field or
+  constructor names (with or without backquotes).  When such a name is **free** (De Bruijn
+  index `0` at the top level, or the leftover index after peeling binders of
+  that name), it denotes the built-in function of that name; see
+  [type inference](./type-inference.md) and
+  [β-normalization](./beta-normalization.md) for the list, types, and reduction
+  rules for built-in functions.  Binding the name using `λ`, `∀`, or `let` will shadow the built-in function. In that case, the initial predefined meaning of the built-in function will remain
+  available via a higher De Bruijn index, for example:
+  `let List/length = "blah" in List/length@1 Natural [ 1, 2, 3 ]`.
+
+  In the AST, a built-in function may be encoded simply as `Variable "Natural/isZero" 0`.
+  In older versions of the Dhall standard, each built-in function had to be a special AST node in the syntax. A conforming implementation of Dhall may still use dedicated AST nodes for built-in functions but MUST treat those nodes as equivalent to the corresponding free variables.
+
 
 ```haskell
 {-| This module contains the data types used to represent the syntax tree for
@@ -172,6 +189,8 @@ module Syntax
     , FilePrefix(..)
     , File(..)
     , PathComponent(..)
+    , predefinedFunctionNames
+    , predefinedFunctionTypes
 
       -- * Re-exports
     , Natural
@@ -181,16 +200,22 @@ module Syntax
 import Crypto.Hash (Digest, SHA256)
 import Data.ByteString (ByteString)
 import Data.List.NonEmpty (NonEmpty)
+import Data.Map (Map)
 import Data.Text (Text)
 import Data.Word (Word8)
 import Numeric.Natural (Natural)
 
+import qualified Data.Map  as Map
 import qualified Data.Time as Time
 
 -- | Top-level type representing a Dhall expression
 data Expression
     = Variable Text Natural
       -- ^ > x@n
+      --
+      -- Includes slash-names such as @Natural/isZero@ when they occur as
+      -- identifiers.  A free @Variable "Natural/isZero" 0@ is the built-in
+      -- function of that name.
     | Lambda Text Expression Expression
       -- ^ > λ(x : A) → b
     | Forall Text Expression Expression
@@ -314,34 +339,9 @@ instance Semigroup TextLiteral where
 instance Monoid TextLiteral where
     mempty = Chunks [] ""
 
--- | Builtin values
+-- | Fixed symbols (never bindable, even when quoted)
 data Builtin
-    = DateShow
-    | DoubleShow
-    | IntegerClamp
-    | IntegerNegate
-    | IntegerShow
-    | IntegerToDouble
-    | ListBuild
-    | ListFold
-    | ListHead
-    | ListIndexed
-    | ListLast
-    | ListLength
-    | ListReverse
-    | NaturalBuild
-    | NaturalEven
-    | NaturalFold
-    | NaturalIsZero
-    | NaturalOdd
-    | NaturalShow
-    | NaturalSubtract
-    | NaturalToInteger
-    | TextReplace
-    | TextShow
-    | TimeShow
-    | TimeZoneShow
-    | Bool
+    = Bool
     | Bytes
     | Date
     | Double
@@ -428,4 +428,66 @@ data PathComponent
     = Label Text
     | DescendOptional
     deriving (Show)
+
+-- | Names of predefined functions.  A free @x@/@x@0 of one of these names
+-- denotes the corresponding primitive.
+predefinedFunctionNames :: [Text]
+predefinedFunctionNames = Map.keys predefinedFunctionTypes
+
+-- | Types of predefined functions, used when a free @x@0 is not bound in Γ.
+predefinedFunctionTypes :: Map Text Expression
+predefinedFunctionTypes = Map.fromList
+    [ ("Natural/isZero"    , Builtin Natural --> Builtin Bool)
+    , ("Natural/even"      , Builtin Natural --> Builtin Bool)
+    , ("Natural/odd"       , Builtin Natural --> Builtin Bool)
+    , ("Natural/toInteger" , Builtin Natural --> Builtin Integer)
+    , ("Natural/show"      , Builtin Natural --> Builtin Text)
+    , ("Natural/subtract"  , Builtin Natural --> Builtin Natural --> Builtin Natural)
+    , ("Natural/build"     , naturalBuildType --> Builtin Natural)
+    , ("Natural/fold"      , Builtin Natural --> naturalBuildType)
+    , ("Integer/show"      , Builtin Integer --> Builtin Text)
+    , ("Integer/toDouble"  , Builtin Integer --> Builtin Double)
+    , ("Integer/negate"    , Builtin Integer --> Builtin Integer)
+    , ("Integer/clamp"     , Builtin Integer --> Builtin Natural)
+    , ("Double/show"       , Builtin Double --> Builtin Text)
+    , ("Text/show"         , Builtin Text --> Builtin Text)
+    , ("Text/replace"      , Forall "needle" (Builtin Text)
+                               (Forall "replacement" (Builtin Text)
+                                   (Forall "haystack" (Builtin Text) (Builtin Text))))
+    , ("Date/show"         , Builtin Date --> Builtin Text)
+    , ("Time/show"         , Builtin Time --> Builtin Text)
+    , ("TimeZone/show"     , Builtin TimeZone --> Builtin Text)
+    , ("List/build"        , Forall "a" (Constant Type) (listBuildBody --> listA))
+    , ("List/fold"         , Forall "a" (Constant Type) (listA --> listBuildBody))
+    , ("List/length"       , Forall "a" (Constant Type) (listA --> Builtin Natural))
+    , ("List/head"         , Forall "a" (Constant Type) (listA --> optionalA))
+    , ("List/last"         , Forall "a" (Constant Type) (listA --> optionalA))
+    , ("List/reverse"      , Forall "a" (Constant Type) (listA --> listA))
+    , ("List/indexed"      , Forall "a" (Constant Type)
+                               (listA --> Application (Builtin List) indexedRecord))
+    ]
+  where
+    infixr 5 -->
+    a --> b = Forall "_" a b
+
+    naturalBuildType =
+        Forall "natural" (Constant Type)
+            (Forall "succ" (Variable "natural" 0 --> Variable "natural" 0)
+                (Forall "zero" (Variable "natural" 0) (Variable "natural" 0)))
+
+    listA = Application (Builtin List) (Variable "a" 0)
+
+    optionalA = Application (Builtin Optional) (Variable "a" 0)
+
+    listBuildBody =
+        Forall "list" (Constant Type)
+            (Forall "cons" (Variable "a" 1 --> Variable "list" 0 --> Variable "list" 0)
+                (Forall "nil" (Variable "list" 0) (Variable "list" 0)))
+
+    indexedRecord =
+        RecordType
+            [ ("index", Builtin Natural)
+            , ("value", Variable "a" 0)
+            ]
+
 ```
