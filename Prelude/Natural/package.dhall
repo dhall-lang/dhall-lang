@@ -86,4 +86,11 @@
       missing
         sha256:b9277ac637d09142a3a3ac79137ef5955c42f8b33b6746d59db2c9d75ccdd745
     ? ./subtract.dhall
+, showHex =
+      missing
+        sha256:f0b69ed10fec21f1e8a17e95fe0235fade172f45ebd8bce99630da5d8045efe4
+    ? ./showHex.dhall
+, digitsInBase = missing
+      sha256:33c39ad3ae7467e9b27718e0f678723e62f4803c24fbaa552cf8a0c0481b57c7
+  ? ./digitsInBase.dhall
 }
