@@ -267,6 +267,24 @@ Built-in functions such as `Natural/isZero` are **not** fixed symbols and
 are not encoded by this rule.  Instead, they are encoded as variables according
 to the rules shown in section [Variables](#variables).
 
+```haskell
+encode (Builtin Bool    ) = TString "Bool"
+encode (Builtin Optional) = TString "Optional"
+encode (Builtin None    ) = TString "None"
+encode (Builtin Natural ) = TString "Natural"
+encode (Builtin Integer ) = TString "Integer"
+encode (Builtin Double  ) = TString "Double"
+encode (Builtin Text    ) = TString "Text"
+encode (Builtin Bytes   ) = TString "Bytes"
+encode (Builtin List    ) = TString "List"
+encode (Builtin Date    ) = TString "Date"
+encode (Builtin Time    ) = TString "Time"
+encode (Builtin TimeZone) = TString "TimeZone"
+encode (Constant Type   ) = TString "Type"
+encode (Constant Kind   ) = TString "Kind"
+encode (Constant Sort   ) = TString "Sort"
+```
+
 ### Function application
 
 Function application is encoded as a heterogeneous array where a function

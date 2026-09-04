@@ -189,6 +189,8 @@ module Syntax
     , FilePrefix(..)
     , File(..)
     , PathComponent(..)
+    , predefinedFunctionNames
+    , predefinedFunctionTypes
 
       -- * Re-exports
     , Natural
@@ -198,10 +200,12 @@ module Syntax
 import Crypto.Hash (Digest, SHA256)
 import Data.ByteString (ByteString)
 import Data.List.NonEmpty (NonEmpty)
+import Data.Map (Map)
 import Data.Text (Text)
 import Data.Word (Word8)
 import Numeric.Natural (Natural)
 
+import qualified Data.Map  as Map
 import qualified Data.Time as Time
 
 -- | Top-level type representing a Dhall expression
@@ -424,4 +428,66 @@ data PathComponent
     = Label Text
     | DescendOptional
     deriving (Show)
+
+-- | Names of predefined functions.  A free @x@/@x@0 of one of these names
+-- denotes the corresponding primitive.
+predefinedFunctionNames :: [Text]
+predefinedFunctionNames = Map.keys predefinedFunctionTypes
+
+-- | Types of predefined functions, used when a free @x@0 is not bound in Γ.
+predefinedFunctionTypes :: Map Text Expression
+predefinedFunctionTypes = Map.fromList
+    [ ("Natural/isZero"    , Builtin Natural --> Builtin Bool)
+    , ("Natural/even"      , Builtin Natural --> Builtin Bool)
+    , ("Natural/odd"       , Builtin Natural --> Builtin Bool)
+    , ("Natural/toInteger" , Builtin Natural --> Builtin Integer)
+    , ("Natural/show"      , Builtin Natural --> Builtin Text)
+    , ("Natural/subtract"  , Builtin Natural --> Builtin Natural --> Builtin Natural)
+    , ("Natural/build"     , naturalBuildType --> Builtin Natural)
+    , ("Natural/fold"      , Builtin Natural --> naturalBuildType)
+    , ("Integer/show"      , Builtin Integer --> Builtin Text)
+    , ("Integer/toDouble"  , Builtin Integer --> Builtin Double)
+    , ("Integer/negate"    , Builtin Integer --> Builtin Integer)
+    , ("Integer/clamp"     , Builtin Integer --> Builtin Natural)
+    , ("Double/show"       , Builtin Double --> Builtin Text)
+    , ("Text/show"         , Builtin Text --> Builtin Text)
+    , ("Text/replace"      , Forall "needle" (Builtin Text)
+                               (Forall "replacement" (Builtin Text)
+                                   (Forall "haystack" (Builtin Text) (Builtin Text))))
+    , ("Date/show"         , Builtin Date --> Builtin Text)
+    , ("Time/show"         , Builtin Time --> Builtin Text)
+    , ("TimeZone/show"     , Builtin TimeZone --> Builtin Text)
+    , ("List/build"        , Forall "a" (Constant Type) (listBuildBody --> listA))
+    , ("List/fold"         , Forall "a" (Constant Type) (listA --> listBuildBody))
+    , ("List/length"       , Forall "a" (Constant Type) (listA --> Builtin Natural))
+    , ("List/head"         , Forall "a" (Constant Type) (listA --> optionalA))
+    , ("List/last"         , Forall "a" (Constant Type) (listA --> optionalA))
+    , ("List/reverse"      , Forall "a" (Constant Type) (listA --> listA))
+    , ("List/indexed"      , Forall "a" (Constant Type)
+                               (listA --> Application (Builtin List) indexedRecord))
+    ]
+  where
+    infixr 5 -->
+    a --> b = Forall "_" a b
+
+    naturalBuildType =
+        Forall "natural" (Constant Type)
+            (Forall "succ" (Variable "natural" 0 --> Variable "natural" 0)
+                (Forall "zero" (Variable "natural" 0) (Variable "natural" 0)))
+
+    listA = Application (Builtin List) (Variable "a" 0)
+
+    optionalA = Application (Builtin Optional) (Variable "a" 0)
+
+    listBuildBody =
+        Forall "list" (Constant Type)
+            (Forall "cons" (Variable "a" 1 --> Variable "list" 0 --> Variable "list" 0)
+                (Forall "nil" (Variable "list" 0) (Variable "list" 0)))
+
+    indexedRecord =
+        RecordType
+            [ ("index", Builtin Natural)
+            , ("value", Variable "a" 0)
+            ]
+
 ```

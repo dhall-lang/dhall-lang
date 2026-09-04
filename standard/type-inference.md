@@ -110,9 +110,11 @@ with each variable disambiguates which type annotation in the context to use:
 
 If the natural number associated with the variable is greater than or equal to
 the number of type annotations in the context matching the variable then that is
-a type error, **except** for the case where it is a free variable with De Bruijn index `0` at top level that names a built-in function (for example `Natural/isZero`).
-In that case the type is the same as in the corresponding built-in function rule
-below.
+a type error, **except** for the case where it is a free variable with De Bruijn
+index `0` at top level (or the leftover index after peeling binders of that
+name) that names a built-in function (for example `Natural/isZero`).
+In that case the type is `predefinedFunctionTypes ! x` from
+[`syntax.md`](./syntax.md), which matches the built-in function rules below.
 
 A built-in function will be shadowed if its name is bound in `Γ`.
 For example, `ε ⊢ Natural/isZero : Natural → Bool`, and

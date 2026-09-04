@@ -444,7 +444,7 @@ betaNormalize (NaturalLiteral n) = NaturalLiteral n
 
 ```haskell
 betaNormalize (Application f g)
-    | Builtin NaturalBuild <- betaNormalize f = b
+    | Variable "Natural/build" 0 <- betaNormalize f = b
   where
     b = betaNormalize
             (Application
@@ -478,7 +478,7 @@ betaNormalize (Application f b)
     | Application
         (Application
             (Application
-                (Builtin NaturalFold)
+                (Variable "Natural/fold" 0)
                 (NaturalLiteral m)
             )
             _B
@@ -493,7 +493,7 @@ betaNormalize (Application f b)
                             (Application
                                 (Application
                                     (Application
-                                        (Application (Builtin NaturalFold)
+                                        (Application (Variable "Natural/fold" 0)
                                             (NaturalLiteral (m - 1))
                                         )
                                         _B
@@ -636,10 +636,10 @@ betaNormalize (Operator l₀ Times r₀)
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin NaturalIsZero <- betaNormalize f
+    | Variable "Natural/isZero" 0 <- betaNormalize f
     , NaturalLiteral 0      <- betaNormalize a = Builtin True
 
-    | Builtin NaturalIsZero <- betaNormalize f
+    | Variable "Natural/isZero" 0 <- betaNormalize f
     , NaturalLiteral _      <- betaNormalize a = Builtin False
 ```
 
@@ -665,7 +665,7 @@ betaNormalize (Application f a)
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin NaturalEven <- betaNormalize f
+    | Variable "Natural/even" 0 <- betaNormalize f
     , NaturalLiteral m    <- betaNormalize a =
         Builtin (if even m then True else False)
 ```
@@ -692,7 +692,7 @@ betaNormalize (Application f a)
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin NaturalOdd <- betaNormalize f
+    | Variable "Natural/odd" 0 <- betaNormalize f
     , NaturalLiteral m   <- betaNormalize a =
         Builtin (if odd m then True else False)
 ```
@@ -708,7 +708,7 @@ betaNormalize (Application f a)
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin NaturalToInteger <- betaNormalize f
+    | Variable "Natural/toInteger" 0 <- betaNormalize f
     , NaturalLiteral n         <- betaNormalize a =
         IntegerLiteral (fromIntegral n)
 ```
@@ -724,7 +724,7 @@ valid Dhall code for representing that `Natural` number:
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin NaturalShow <- betaNormalize f
+    | Variable "Natural/show" 0 <- betaNormalize f
     , NaturalLiteral n    <- betaNormalize a =
         TextLiteral (Chunks [] (renderNatural n))
   where
@@ -779,34 +779,34 @@ Otherwise, normalize each argument:
 
 ```haskell
 betaNormalize (Application f b)
-    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    | Application (Variable "Natural/subtract" 0) a <- betaNormalize f
     , NaturalLiteral m                        <- betaNormalize a
     , NaturalLiteral n                        <- betaNormalize b
     , m <= n =
         NaturalLiteral (n - m)
 
-    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    | Application (Variable "Natural/subtract" 0) a <- betaNormalize f
     , NaturalLiteral m                        <- betaNormalize a
     , NaturalLiteral n                        <- betaNormalize b
     , n < m =
         NaturalLiteral 0
 
-    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    | Application (Variable "Natural/subtract" 0) a <- betaNormalize f
     , NaturalLiteral 0                        <- betaNormalize a =
         betaNormalize b
 
-    | Application (Builtin NaturalSubtract) _a <- betaNormalize f
+    | Application (Variable "Natural/subtract" 0) _a <- betaNormalize f
     , NaturalLiteral 0                         <- betaNormalize b =
         NaturalLiteral 0
 
-    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    | Application (Variable "Natural/subtract" 0) a <- betaNormalize f
     , equivalent a b =
         NaturalLiteral 0
 
-    | Application (Builtin NaturalSubtract) a <- betaNormalize f
+    | Application (Variable "Natural/subtract" 0) a <- betaNormalize f
     , let a₁ = betaNormalize a
     , let b₁ = betaNormalize b =
-        Application (Application (Builtin NaturalSubtract) a₁) b₁
+        Application (Application (Variable "Natural/subtract" 0) a₁) b₁
 ```
 
 All of the built-in functions on `Natural` numbers are in normal form:
@@ -844,16 +844,9 @@ All of the built-in functions on `Natural` numbers are in normal form:
     Natural/subtract ⇥ Natural/subtract
 
 
-```haskell
-betaNormalize (Builtin NaturalBuild    ) = Builtin NaturalBuild
-betaNormalize (Builtin NaturalFold     ) = Builtin NaturalFold
-betaNormalize (Builtin NaturalIsZero   ) = Builtin NaturalIsZero
-betaNormalize (Builtin NaturalEven     ) = Builtin NaturalEven
-betaNormalize (Builtin NaturalOdd      ) = Builtin NaturalOdd
-betaNormalize (Builtin NaturalToInteger) = Builtin NaturalToInteger
-betaNormalize (Builtin NaturalShow     ) = Builtin NaturalShow
-betaNormalize (Builtin NaturalSubtract ) = Builtin NaturalSubtract
-```
+These names are ordinary variables, so they are already in normal form
+by the [Variables](#variables) rule (`x@n ⇥ x@n`).
+
 
 ## `Text`
 
@@ -991,7 +984,7 @@ Or in other words:
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin TextShow           <- betaNormalize f
+    | Variable "Text/show" 0           <- betaNormalize f
     , TextLiteral (Chunks [] s₀) <- betaNormalize a
     , let s₁ =
               "\"" <> ( Text.replace "\"" "\\\""
@@ -1036,13 +1029,13 @@ is performed:
 ```haskell
 betaNormalize (Application f a₀)
     | Application
-        (Application (Builtin TextReplace) (TextLiteral (Chunks [] "")))
+        (Application (Variable "Text/replace" 0) (TextLiteral (Chunks [] "")))
         _replacement <- betaNormalize f
     , let a₁ = betaNormalize a₀ =
         a₁
     | Application
         (Application
-            (Builtin TextReplace)
+            (Variable "Text/replace" 0)
             (TextLiteral (Chunks [] needle))
         )
         replacement <- betaNormalize f
@@ -1067,10 +1060,9 @@ All of the built-in functions on `Text` are in normal form:
     Text/replace ⇥ Text/replace
 
 
-```haskell
-betaNormalize (Builtin TextShow   ) = Builtin TextShow
-betaNormalize (Builtin TextReplace) = Builtin TextReplace
-```
+These names are ordinary variables, so they are already in normal form
+by the [Variables](#variables) rule.
+
 
 ## `Bytes`
 
@@ -1147,7 +1139,7 @@ Dhall does not impose time complexity requirements on list operations.
 
 ```haskell
 betaNormalize (Application f g)
-    | Application (Builtin ListBuild) _A₀ <- betaNormalize f
+    | Application (Variable "List/build" 0) _A₀ <- betaNormalize f
     , let _A₁ = shift 1 "a" 0 _A₀
     , let b = betaNormalize
                   (Application
@@ -1186,7 +1178,7 @@ betaNormalize (Application f b₀)
     | Application
         (Application
             (Application
-                (Application (Builtin ListFold) _A₀)
+                (Application (Variable "List/fold" 0) _A₀)
                 (EmptyList _A₁)
             )
             _B
@@ -1199,7 +1191,7 @@ betaNormalize (Application f b₀)
     | Application
         (Application
             (Application
-                (Application (Builtin ListFold) _A₀)
+                (Application (Variable "List/fold" 0) _A₀)
                 (NonEmptyList (a :| as))
             )
             _B
@@ -1216,7 +1208,7 @@ betaNormalize (Application f b₀)
                       (Application
                           (Application
                               (Application
-                                  (Application (Builtin ListFold) _A₀)
+                                  (Application (Variable "List/fold" 0) _A₀)
                                   rest
                               )
                               g
@@ -1294,11 +1286,11 @@ betaNormalize (Operator ls₀ ListAppend rs₀)
 
 ```haskell
 betaNormalize (Application f a)
-    | Application (Builtin ListLength) _A₀ <- betaNormalize f
+    | Application (Variable "List/length" 0) _A₀ <- betaNormalize f
     , EmptyList _A₁                        <- betaNormalize a =
         NaturalLiteral 0
 
-    | Application (Builtin ListLength) _A₀ <- betaNormalize f
+    | Application (Variable "List/length" 0) _A₀ <- betaNormalize f
     , NonEmptyList as₀                     <- betaNormalize a =
         NaturalLiteral (fromIntegral (length as₀))
 ```
@@ -1318,11 +1310,11 @@ betaNormalize (Application f a)
 
 ```haskell
 betaNormalize (Application f as)
-    | Application (Builtin ListHead) _A₀ <- betaNormalize f
+    | Application (Variable "List/head" 0) _A₀ <- betaNormalize f
     , EmptyList _A₁                      <- betaNormalize as =
         Application (Builtin None) _A₀
 
-    | Application (Builtin ListHead) _A₀ <- betaNormalize f
+    | Application (Variable "List/head" 0) _A₀ <- betaNormalize f
     , NonEmptyList (a :| _)              <- betaNormalize as =
         Some a
 ```
@@ -1342,11 +1334,11 @@ betaNormalize (Application f as)
 
 ```haskell
 betaNormalize (Application f as)
-    | Application (Builtin ListLast) _A₀ <- betaNormalize f
+    | Application (Variable "List/last" 0) _A₀ <- betaNormalize f
     , EmptyList _A₁                      <- betaNormalize as =
         Application (Builtin None) _A₀
 
-    | Application (Builtin ListLast) _A₀ <- betaNormalize f
+    | Application (Variable "List/last" 0) _A₀ <- betaNormalize f
     , NonEmptyList as₁                   <- betaNormalize as =
         Some (NonEmpty.last as₁)
 ```
@@ -1366,7 +1358,7 @@ betaNormalize (Application f as)
 
 ```haskell
 betaNormalize (Application f as)
-    | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
+    | Application (Variable "List/indexed" 0) _A₀ <- betaNormalize f
     , EmptyList _A₁                         <- betaNormalize as =
         EmptyList
             (Application
@@ -1374,7 +1366,7 @@ betaNormalize (Application f as)
                 (RecordType [("index", Builtin Natural), ("value", _A₀)])
             )
 
-    | Application (Builtin ListIndexed) _A₀ <- betaNormalize f
+    | Application (Variable "List/indexed" 0) _A₀ <- betaNormalize f
     , NonEmptyList as₁                      <- betaNormalize as
     , let combine index value =
               RecordLiteral
@@ -1398,11 +1390,11 @@ betaNormalize (Application f as)
 
 ```haskell
 betaNormalize (Application f as)
-    | Application (Builtin ListReverse) _A₀ <- betaNormalize f
+    | Application (Variable "List/reverse" 0) _A₀ <- betaNormalize f
     , EmptyList _A₁                         <- betaNormalize as =
         EmptyList _A₁
 
-    | Application (Builtin ListReverse) _A₀ <- betaNormalize f
+    | Application (Variable "List/reverse" 0) _A₀ <- betaNormalize f
     , NonEmptyList as₁                      <- betaNormalize as =
         NonEmptyList (NonEmpty.reverse as₁)
 ```
@@ -1438,15 +1430,9 @@ All of the built-in functions on `List`s are in normal form:
     List/reverse ⇥ List/reverse
 
 
-```haskell
-betaNormalize (Builtin ListBuild  ) = Builtin ListBuild
-betaNormalize (Builtin ListFold   ) = Builtin ListFold
-betaNormalize (Builtin ListLength ) = Builtin ListLength
-betaNormalize (Builtin ListHead   ) = Builtin ListHead
-betaNormalize (Builtin ListLast   ) = Builtin ListLast
-betaNormalize (Builtin ListIndexed) = Builtin ListIndexed
-betaNormalize (Builtin ListReverse) = Builtin ListReverse
-```
+These names are ordinary variables, so they are already in normal form
+by the [Variables](#variables) rule.
+
 
 ## `Optional`
 
@@ -2395,7 +2381,7 @@ betaNormalize (IntegerLiteral n) = IntegerLiteral n
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin IntegerToDouble <- betaNormalize f
+    | Variable "Integer/toDouble" 0 <- betaNormalize f
     , IntegerLiteral n <- betaNormalize a =
         DoubleLiteral (fromInteger n)
 ```
@@ -2417,7 +2403,7 @@ Dhall code for representing that `Integer` number:
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin IntegerShow <- betaNormalize f
+    | Variable "Integer/show" 0 <- betaNormalize f
     , IntegerLiteral n <- betaNormalize a =
         TextLiteral (Chunks [] (renderInteger n))
   where
@@ -2451,7 +2437,7 @@ the number is negative.
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin IntegerNegate <- betaNormalize f
+    | Variable "Integer/negate" 0 <- betaNormalize f
     , IntegerLiteral n      <- betaNormalize a =
         IntegerLiteral (negate n)
 ```
@@ -2472,7 +2458,7 @@ numbers becoming `0`:
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin IntegerClamp <- betaNormalize f
+    | Variable "Integer/clamp" 0 <- betaNormalize f
     , IntegerLiteral n <- betaNormalize a =
         NaturalLiteral (fromInteger (max 0 n))
 ```
@@ -2496,12 +2482,9 @@ All of the built-in functions on `Integer`s are in normal form:
     Integer/clamp ⇥ Integer/clamp
 
 
-```haskell
-betaNormalize (Builtin IntegerShow    ) = Builtin IntegerShow
-betaNormalize (Builtin IntegerToDouble) = Builtin IntegerToDouble
-betaNormalize (Builtin IntegerNegate  ) = Builtin IntegerNegate
-betaNormalize (Builtin IntegerClamp   ) = Builtin IntegerClamp
-```
+These names are ordinary variables, so they are already in normal form
+by the [Variables](#variables) rule.
+
 
 ## `Double`
 
@@ -2538,7 +2521,7 @@ Dhall code for representing that `Double` number:
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin DoubleShow <- betaNormalize f
+    | Variable "Double/show" 0 <- betaNormalize f
     , DoubleLiteral n    <- betaNormalize a =
         TextLiteral (Chunks [] (renderDouble n))
   where
@@ -2552,9 +2535,8 @@ The `Double/show` function is in normal form:
     Double/show ⇥ Double/show
 
 
-```haskell
-betaNormalize (Builtin DoubleShow) = Builtin DoubleShow
-```
+This name is an ordinary variable, so it is already in normal form by the
+[Variables](#variables) rule.
 
 The following 2 properties must hold for `Double/show`:
 
@@ -2629,13 +2611,13 @@ value as valid Dhall source code:
 
 ```haskell
 betaNormalize (Application f a)
-    | Builtin DateShow <- betaNormalize f
+    | Variable "Date/show" 0 <- betaNormalize f
     , DateLiteral d <- betaNormalize a =
         TextLiteral (Chunks [] (renderDate d))
   where
     renderDate = Text.pack . Time.formatTime Time.defaultTimeLocale "%0Y-%m-%d"
 betaNormalize (Application f a)
-    | Builtin TimeShow <- betaNormalize f
+    | Variable "Time/show" 0 <- betaNormalize f
     , TimeLiteral hh mm ss fraction precision <- betaNormalize a =
         TextLiteral (Chunks [] (renderTime hh mm ss fraction precision))
   where
@@ -2646,7 +2628,7 @@ betaNormalize (Application f a)
             | precision == 0 = ""
             | otherwise      = Printf.printf ".%0*d" precision fraction
 betaNormalize (Application f a)
-    | Builtin TimeZoneShow <- betaNormalize f
+    | Variable "TimeZone/show" 0 <- betaNormalize f
     , TimeZoneLiteral d <- betaNormalize a =
         TextLiteral (Chunks [] (renderTimeZone d))
   where
@@ -2669,11 +2651,9 @@ form:
     TimeZone/show ⇥ TimeZone/show
 
 
-```haskell
-betaNormalize (Builtin DateShow    ) = Builtin DateShow
-betaNormalize (Builtin TimeShow    ) = Builtin TimeShow
-betaNormalize (Builtin TimeZoneShow) = Builtin TimeZoneShow
-```
+These names are ordinary variables, so they are already in normal form
+by the [Variables](#variables) rule.
+
 
 ### The precision of seconds in `TimeLiteral`
 
