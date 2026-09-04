@@ -765,6 +765,32 @@ referentially transparent, if it honours CORS, no header forwarding necessary,
 etc.  Canonicalization and chaining are the only transformations applied to the
 import.
 
+If an import ends with `as Source`, resolve the import graph without
+alpha-beta-normalizing each imported expression at every import boundary.
+Instead:
+
+* unfrozen transitive imports are recursively resolved and inlined as Dhall
+  syntax
+* frozen transitive imports remain as hash-protected import references in
+  cached results
+* the resulting non-normalized import tree is the one that is encoded and
+  hashed for semantic integrity checks
+
+This option is designed to preserve the original imported code and to avoid
+building large intermediate normal forms while processing transitive imports.
+
+If an `as Source` import contains an import alternative `e₀ ? e₁`, then the
+branch that successfully resolves determines whether the cached result preserves
+an import reference or inlines the imported expression:
+
+* if the chosen branch is protected by an integrity check, then that chosen
+  branch remains as a hash-protected import reference in the cached result
+* if the chosen branch is not protected by an integrity check, then that chosen
+  branch is recursively resolved and inlined into the cached result
+
+In particular, an import alternative is not treated as hash-protected merely
+because one branch is protected. The chosen branch determines the behavior.
+
 When requesting a remote resource, include headers according to the user's
 configuration. This configuration has the type:
 
@@ -1026,6 +1052,20 @@ Formally:
     ────────────────────────────────────  ; if `e₀` successfully resolves or
     (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁  ; fails for any other reason
 
+
+If an `as Source` import resolves an import alternative `e₀ ? e₁`, then the
+chosen branch determines whether the cached source-preserving result keeps an
+import reference or inlines the imported expression:
+
+* if the chosen branch is protected by an integrity check, then the cached
+  source-preserving result keeps that chosen branch as a hash-protected import
+  reference
+* if the chosen branch is not protected by an integrity check, then the cached
+  source-preserving result recursively resolves and inlines that chosen branch
+
+In particular, an import alternative is not treated as hash-protected merely
+because one branch is protected. The behavior depends on which branch actually
+resolves.
 
 For all other cases, recursively descend into sub-expressions:
 
