@@ -82,9 +82,6 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / assert : T                        ; Assert judgemental equality
   / e with k.ks… = v                  ; Nested record update
   / n.n                               ; Double-precision floating point literal
-  / Infinity                          ; Double infinity (fixed symbol)
-  / -Infinity                         ; Double negative infinity
-  / NaN                               ; Double NaN (fixed symbol)
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
   / "s"                               ; Uninterpolated text literal
@@ -114,7 +111,7 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Some a                            ; Constructor for a present Optional value
 
                                       ; Fixed symbols: never bindable, even when
-                                      ; quoted.  A de Bruijn index on these names
+                                      ; backquoted.  A de Bruijn index on these names
                                       ; is a syntax error.
   / Bool                              ; Bool type
   / Optional                          ; Optional type
@@ -126,47 +123,51 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / List                              ; List type
   / True                              ; True term
   / False                             ; False term
+  / Infinity                          ; Double infinity
+  / -Infinity                         ; Double negative infinity
+  / NaN                               ; Double NaN
   / None                              ; Absent Optional value
   / Type                              ; Type of terms
   / Kind                              ; Type of types
   / Sort                              ; Type of kinds
 ```
 
-Names in source fall into three classes:
+Names in source syntax fall into three classes:
 
 * **Keywords** (`if`, `then`, `else`, `let`, `in`, `using`, `missing`, `as`,
   `merge`, `Some`, `toMap`, `assert`, `forall`, `with`,
   `showConstructor`) are part of the grammar.  They are not identifiers unless
-  written in backticks, which turns the keyword into an ordinary label that may
-  be bound or used as a field or union constructor name.  Unquoted, they cannot
-  be bound.  Unquoted they also cannot be record field or union constructor
+  written in backquotes, which turns the keyword into an ordinary label that may
+  be bound or used as a field or union constructor name.  Unquoted, keywords cannot
+  be bound and also cannot be record field or union constructor
   names, except `Some`, which the grammar allows as a label via
-  `any-label-or-some`.  `Some` is a keyword (it introduces `Some a`); `None` is
-  a fixed symbol.
+  `any-label-or-some`. 
 
 * **Fixed symbols** are the `Bool`, `Natural`, `None`, `Type`, … forms above,
-  plus the Double literals `Infinity`, `-Infinity`, and `NaN` (like `True` /
+  together with the `Double` literals `Infinity`, `-Infinity`, and `NaN` (like `True` /
   `False` for `Bool`).  They are values (or type-checking constants) but not
-  identifiers: they cannot be bound, quoted or not, and they cannot carry a De
+  identifiers: they cannot be bound (even if backquoted), and they cannot carry a De
   Bruijn index.  A quoted fixed symbol (`` `Bool` ``, `` `Infinity` ``) is still
-  that value.  Their names may be used as record field names or union
+  the same value.  Names of fixed symbols may be used as record field names or union
   constructor names without backticks.  `-Infinity` is not a label (it begins
   with `-`); the unbindable name is `Infinity`.
 
-* **Predefined functions** (`Natural/isZero`, `List/length`, …) are ordinary
-  identifiers.  They may be bound, quoted or not, and used as field or
-  constructor names without backticks.  When such a name is **free** (De Bruijn
+Note:  `Some` is currently a keyword (it introduces `Some a`); `None` is
+  a fixed symbol. However, `Some` has fixed-symbol-like properties: it cannot be bound (even in backquotes), and it can be used without backquotes as a record field name or a union constructor name.
+
+* **Built-in functions** (`Natural/isZero`, `List/length`, …) look like ordinary
+  identifiers.  They may be bound (even without backquotes) and used as field or
+  constructor names (with or without backquotes).  When such a name is **free** (De Bruijn
   index `0` at the top level, or the leftover index after peeling binders of
-  that name), it denotes the primitive of that name; see
+  that name), it denotes the built-in function of that name; see
   [type inference](./type-inference.md) and
   [β-normalization](./beta-normalization.md) for the list, types, and reduction
-  rules.  Binding the name shadows the primitive; the outer meaning remains
-  available at a higher index, for example
+  rules for built-in functions.  Binding the name using `λ`, `∀`, or `let` will shadow the built-in function. In that case, the initial predefined meaning of the built-in function will remain
+  available via a higher De Bruijn index, for example:
   `let List/length = "blah" in List/length@1 Natural [ 1, 2, 3 ]`.
 
-  In the AST a free predefined function is `Variable "Natural/isZero" 0`, not a
-  dedicated constructor.  Implementations that still use dedicated nodes MUST
-  treat those nodes as equivalent to the corresponding free variable.
+  In the AST, a built-in function may be encoded simply as `Variable "Natural/isZero" 0`.
+  In older versions of the Dhall standard, each built-in function had to be a special AST node in the syntax. A conforming implementation of Dhall may still use dedicated AST nodes for built-in functions but MUST treat those nodes as equivalent to the corresponding free variables.
 
 
 ```haskell
@@ -209,7 +210,7 @@ data Expression
       -- ^ > x@n
       --
       -- Includes slash-names such as @Natural/isZero@ when they occur as
-      -- identifiers.  A free @Variable "Natural/isZero" 0@ is the predefined
+      -- identifiers.  A free @Variable "Natural/isZero" 0@ is the built-in
       -- function of that name.
     | Lambda Text Expression Expression
       -- ^ > λ(x : A) → b

@@ -19,7 +19,7 @@ Other changes:
   * Treat slash-function names as ordinary identifiers
 
     Names such as `Natural/isZero` parse as variables and may be bound (quoted
-    or not).  When they occur free they still denote the predefined functions.
+    or not).  When they occur free they still denote the built-in functions.
     Fixed symbols (`Type`, `Natural`, `None`, `True`, `Infinity`, `NaN`, …)
     remain unbindable even when quoted.  Encode `x@0` as a naked CBOR string;
     decode non-fixed-symbol strings as variables.

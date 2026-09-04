@@ -183,7 +183,7 @@ Do not construe these optimizations to mean that you need to resolve imports
 or αβ-normalize expressions.  You may encode or decode expressions that have
 not been resolved in any way.
 
-### Variables
+### Variables and built-in functions
 
 Encode a variable named `"_"` as its index, using the smallest numeric
 representation available for a naked CBOR integer:
@@ -238,18 +238,22 @@ encode (Variable x n)
     | otherwise              = TList [ TString x, TInteger (fromIntegral n) ]
 ```
 
-### Built-in constants
+Note that all built-in functions are represented by variables and are encoded in CBOR as variables.
+A variable that has not been bound (is free) and whose name coincides with one of the built-in function names (such as `List/length`) is treated as the corresponding built-in function with standardized type and evaluation rules (in this example, the built-in function that computes the length of a list).
 
-This section encodes **fixed symbols**: names that are not identifiers and
-cannot be bound (`Bool`, `Natural`, `None`, `Type`, and so on).  `True` and
-`False` are also fixed symbols, but they use CBOR booleans; see
-[`Bool`](#bool).  `Infinity`, `-Infinity`, and `NaN` are fixed symbols in
-source but encode as `Double` literals; see [`Double`](#double).
+### Built-in fixed symbols
 
-Encode every other fixed symbol as a naked CBOR string equal to its identifier:
+The **fixed symbols**  are names that are not identifiers and cannot be bound even with backticks.
+Examples are: `Bool`, `Natural`, `None`, `Type`, `True`, `Infinity`.
+
+The fixed symbols  `True` and `False` represent values of type `Bool` and use CBOR booleans for encoding; see [`Bool`](#bool).
+
+The fixed symbols `Infinity`, `-Infinity`, and `NaN` represent values of type `Double` and use CBOR `Double` literals for encoding; see [`Double`](#double).
+
+Every other fixed symbol is encoded as a naked CBOR string equal to its identifier:
 
 
-    ─────────────  ; c is a fixed symbol, c ∉ { True, False }
+    ─────────────  ; c is a fixed symbol, c ∉ { True, False, Infinity, -Infinity, Nan }
     encode(c) = "c"
 
 
@@ -259,37 +263,9 @@ The fixed symbols covered by that rule are: `Bool`, `Optional`, `None`,
 
 For example, `Type` is encoded as the naked CBOR string `"Type"`.
 
-Predefined functions such as `Natural/isZero` are **not** fixed symbols and
-are not encoded here.  In source they are ordinary identifiers.  A free
-occurrence is the variable `x@0` whose name is the function name, which the
-[Variables](#variables) section already encodes as a naked string:
-
-    encode(x@0) = "x"   ; for example, encode(Natural/isZero@0) = "Natural/isZero"
-
-A bound occurrence uses the same variable rules (`[ "x", n ]` when `n > 0`).
-There is no separate CBOR form for those functions.
-
-Implementations that still use a dedicated AST node for a predefined function
-MUST encode that node as the same naked string as the corresponding free
-variable `x@0`, so that hashes and caches match.
-
-```haskell
-encode (Builtin Bool    ) = TString "Bool"
-encode (Builtin Optional) = TString "Optional"
-encode (Builtin None    ) = TString "None"
-encode (Builtin Natural ) = TString "Natural"
-encode (Builtin Integer ) = TString "Integer"
-encode (Builtin Double  ) = TString "Double"
-encode (Builtin Text    ) = TString "Text"
-encode (Builtin Bytes   ) = TString "Bytes"
-encode (Builtin List    ) = TString "List"
-encode (Builtin Date    ) = TString "Date"
-encode (Builtin Time    ) = TString "Time"
-encode (Builtin TimeZone) = TString "TimeZone"
-encode (Constant Type   ) = TString "Type"
-encode (Constant Kind   ) = TString "Kind"
-encode (Constant Sort   ) = TString "Sort"
-```
+Built-in functions such as `Natural/isZero` are **not** fixed symbols and
+are not encoded by this rule.  Instead, they are encoded as variables according
+to the rules shown in section [Variables](#variables).
 
 ### Function application
 
@@ -1408,7 +1384,7 @@ A naked CBOR string that matches a fixed symbol decodes as that primitive:
 
 A naked CBOR string `"_"` is a decoding error.
 
-Any other naked CBOR string `"x"` (including predefined function names such as
+Any other naked CBOR string `"x"` (including built-in function names such as
 `"Natural/isZero"`) decodes as the variable `x@0`:
 
 
@@ -1416,9 +1392,10 @@ Any other naked CBOR string `"x"` (including predefined function names such as
     decode("x") = x@0
 
 
-Implementations that use dedicated AST nodes for predefined functions MAY
-decode those names as the corresponding primitive instead.  The two
+Implementations that use dedicated AST nodes for built-in functions MAY
+decode those names as the corresponding AST nodes instead of variables.  The two
 representations are equivalent when the name is free.
+(However, a free variable with the same name must be considered equal to the corresponding AST node.)
 
 ### Variables
 

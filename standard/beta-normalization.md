@@ -48,7 +48,7 @@ betaNormalize
 
     List/length Integer ⇥ List/length Integer
 
-A free variable whose name coincides with the name of a predefined built-in function (for example, `Natural/isZero` or `List/length`)
+A free variable whose name coincides with the standard name of a built-in function (for example, `Natural/isZero` or `List/length`)
 is normalized to that built-in function.
 
 Names of built-in functions can be bound as ordinary variables and then will be normalized as every other bound variable. For example, the following expression is β-normalized to `124` because `List/length` is a bound variable in that expression:
@@ -2743,6 +2743,8 @@ betaNormalize (Application f a₀)
     , let b₃ = betaNormalize b₂ =
         b₃
 ```
+
+If the function normalizes to a free variable whose name coincides with one of the predefined built-in function names (such as `List/length`) then that free variable is treated as the corresponding built-in function. The previous sections show the rules for beta-normalizing function applications of the built-in functions to appropriate arguments.
 
 Function application falls back on normalizing both sub-expressions if none of
 the preceding function application rules apply:

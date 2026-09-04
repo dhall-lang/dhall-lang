@@ -746,109 +746,11 @@ shift d x m (Some a₀) = Some a₁
     a₁ = shift d x m a₀
 ```
 
+Shifting does not change fixed symbols:
+
 
     ───────────────────────
     ↑(d, x, m, None) = None
-
-
-    ─────────────────────────────────────────
-    ↑(d, x, m, Natural/build) = Natural/build
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, Natural/fold) = Natural/fold
-
-
-    ───────────────────────────────────────────
-    ↑(d, x, m, Natural/isZero) = Natural/isZero
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, Natural/even) = Natural/even
-
-
-    ─────────────────────────────────────
-    ↑(d, x, m, Natural/odd) = Natural/odd
-
-
-    ─────────────────────────────────────────────────
-    ↑(d, x, m, Natural/toInteger) = Natural/toInteger
-
-
-    ───────────────────────────────────────────────
-    ↑(d, x, m, Natural/subtract) = Natural/subtract
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, Natural/show) = Natural/show
-
-
-    ───────────────────────────────────────────────
-    ↑(d, x, m, Integer/toDouble) = Integer/toDouble
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, Integer/show) = Integer/show
-
-
-    ───────────────────────────────────────────
-    ↑(d, x, m, Integer/negate) = Integer/negate
-
-
-    ─────────────────────────────────────────
-    ↑(d, x, m, Integer/clamp) = Integer/clamp
-
-
-    ─────────────────────────────────────
-    ↑(d, x, m, Double/show) = Double/show
-
-
-    ───────────────────────────────────
-    ↑(d, x, m, List/build) = List/build
-
-
-    ─────────────────────────────────
-    ↑(d, x, m, List/fold) = List/fold
-
-
-    ─────────────────────────────────────
-    ↑(d, x, m, List/length) = List/length
-
-
-    ─────────────────────────────────
-    ↑(d, x, m, List/head) = List/head
-
-
-    ─────────────────────────────────
-    ↑(d, x, m, List/last) = List/last
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, List/indexed) = List/indexed
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, List/reverse) = List/reverse
-
-
-    ─────────────────────────────────
-    ↑(d, x, m, Text/show) = Text/show
-
-
-    ───────────────────────────────────────
-    ↑(d, x, m, Text/replace) = Text/replace
-
-
-    ─────────────────────────────────
-    ↑(d, x, m, Date/show) = Date/show
-
-
-    ─────────────────────────────────
-    ↑(d, x, m, Time/show) = Time/show
-
-
-    ─────────────────────────────────────────
-    ↑(d, x, m, TimeZone/show) = TimeZone/show
 
 
     ───────────────────────

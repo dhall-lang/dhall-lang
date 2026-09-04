@@ -68,10 +68,10 @@ However, you can freely simplify things when actually implementing Dhall.
 Dhall's type system is a variation on [CCω][ccw], implemented using a pure type
 system (see the ["Function check"](#function-check) section for more details).
 Type abstraction and type application are explicit and not inferred.  Dhall also
-supports additional predefined functions, operators, and constants for efficiency.
-Predefined function names (such as `Natural/isZero`) are ordinary identifiers
-that may be bound; when they occur free they denote the corresponding primitive.
-Fixed symbols (such as `Natural`, `Type`, `True`, and `Infinity`) cannot be bound.
+supports additional built-in functions, operators, and constants for efficiency.
+Built-in function names (such as `Natural/isZero`) are ordinary identifiers
+that may be bound; when they occur free they denote the corresponding built-in primitive.
+Certain fixed symbols (such as `Natural`, `Type`, `True`, and `Infinity`) are not variables and cannot be bound as variables.
 
 Dhall also supports referencing shadowed variables through the use of De Bruijn
 indices.  This document spells out in detail how to implement these
