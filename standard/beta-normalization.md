@@ -48,8 +48,17 @@ betaNormalize
 
     List/length Integer ⇥ List/length Integer
 
-A free identifier that names a predefined function (for example `Natural/isZero`)
-normalizes as that primitive.  If the name is bound, it is an ordinary variable.
+A free variable whose name coincides with the name of a predefined built-in function (for example, `Natural/isZero` or `List/length`)
+is normalized to that built-in function.
+
+Names of built-in functions can be bound as ordinary variables and then will be normalized as every other bound variable. For example, the following expression is β-normalized to `124` because `List/length` is a bound variable in that expression:
+
+    let List/length = 123 in 1 + List/length
+
+Similarly, one may use `List/length` as the name of a bound variable under λ or ∀. Such usage
+may be confusing unless the purpose is really to redefine a built-in function.
+
+This feature provides forward compatibility: a Dhall program that defines `List/specialBlah` will continue working even if `List/specialBlah` becomes a built-in function in a later version of Dhall.
 
 β-normalization works under λ, meaning that the body of an unapplied
 λ-expression can be normalized:

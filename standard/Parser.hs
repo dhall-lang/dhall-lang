@@ -477,8 +477,6 @@ reservedKeywords =
     , "missing"
     , "assert"
     , "as"
-    , "Infinity"
-    , "NaN"
     , "merge"
     , "Some"
     , "toMap"
@@ -506,6 +504,8 @@ fixedSymbols =
     , "Type"
     , "Kind"
     , "Sort"
+    , "Infinity"
+    , "NaN"
     ]
 
 if_ :: Parser ()
@@ -936,7 +936,22 @@ fullDate = do
         Just d  -> return (DateLiteral d)
 
 identifier :: Parser Expression
-identifier = variable <|> fmap Constant constant <|> fmap Builtin builtin
+identifier =
+        variable
+    <|> fmap Constant constant
+    <|> fmap Builtin builtin
+    <|> quotedDoubleFixedSymbol
+
+-- `` `Infinity` `` / `` `NaN` `` are still the Double literals, like `` `True` ``.
+quotedDoubleFixedSymbol :: Parser Expression
+quotedDoubleFixedSymbol = try do
+    "`"
+    x <- quotedLabel
+    "`"
+    case x of
+        "Infinity" -> return (DoubleLiteral (1/0))
+        "NaN"      -> return (DoubleLiteral (0/0))
+        _          -> empty
 
 variable :: Parser Expression
 variable = do

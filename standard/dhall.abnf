@@ -214,7 +214,7 @@ quoted-label = *quoted-label-char
 ; for code obfuscation
 label = ("`" quoted-label "`" / simple-label)
 
-; A nonreserved-label cannot be any fixed symbol, quoted or unquoted.
+; A nonreserved-label cannot be any `fixed-symbol`, quoted or unquoted.
 ; The only place where this restriction applies is bound variables.
 ; A PEG parser could use negative lookahead to avoid parsing those identifiers,
 ; e.g. as follows:
@@ -374,8 +374,6 @@ as                    = %x61.73
 using                 = %x75.73.69.6e.67
 merge                 = %x6d.65.72.67.65
 missing               = %x6d.69.73.73.69.6e.67
-Infinity              = %x49.6e.66.69.6e.69.74.79
-NaN                   = %x4e.61.4e
 Some                  = %x53.6f.6d.65
 toMap                 = %x74.6f.4d.61.70
 assert                = %x61.73.73.65.72.74
@@ -393,16 +391,21 @@ keyword =
     / let / in
     / using / missing
     / assert / as
-    / Infinity / NaN
     / merge / Some / toMap
     / forall-keyword
     / with
     / showConstructor
 
+; Double literals that are also fixed symbols (never bindable, even when
+; quoted).  `-Infinity` is the same class of value but is not a label.
+Infinity              = %x49.6e.66.69.6e.69.74.79
+NaN                   = %x4e.61.4e
+
 ; Note that there is a corresponding parser test in
 ; `tests/parser/success/builtinsA.dhall`. Please update it when
 ; you modify this `builtin` rule.  These names are fixed symbols:
-; they are never bindable, even when quoted.
+; they are never bindable, even when quoted.  `True` / `False` are Bool
+; literals; `Infinity` / `NaN` are Double literals (see `fixed-symbol`).
 builtin =
       Bool
     / True
@@ -421,6 +424,10 @@ builtin =
     / Type
     / Kind
     / Sort
+
+; All unbindable names: `builtin` plus the Double literals `Infinity` and `NaN`.
+; Used as negative lookahead for bound variables (`nonreserved-label`).
+fixed-symbol = builtin / Infinity / NaN
 
 ; Reserved identifiers, needed for some special cases of parsing
 Optional              = %x4f.70.74.69.6f.6e.61.6c
@@ -555,10 +562,11 @@ partial-time    = time-hour ":" time-minute ":" time-second
                   [time-secfrac]
 full-date       = date-fullyear "-" date-month "-" date-mday
 
-; If the identifier matches one of the names in the `builtin` rule, then it is a
-; fixed symbol (see `syntax.md`), and a de Bruijn index is a syntax error.
-; Any other name, including predefined function names such as `Natural/isZero`,
-; is a variable with that name and index.
+; If the identifier matches a `fixed-symbol` other than `Infinity` / `NaN`
+; (those are `double-literal`s), then it is a fixed symbol (see `syntax.md`),
+; and a de Bruijn index is a syntax error.  Any other name, including
+; predefined function names such as `Natural/isZero`, is a variable with that
+; name and index.
 identifier = variable / builtin
 
 variable = nonreserved-label [ whsp "@" whsp natural-literal ]

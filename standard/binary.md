@@ -186,15 +186,15 @@ not been resolved in any way.
 ### Variables
 
 Encode a variable named `"_"` as its index, using the smallest numeric
-representation available:
+representation available for a naked CBOR integer:
 
 
     ───────────────  ; n < 2^64
     encode(_@n) = n
 
 
-    ────────────────  ; 2^64 <= n
-    encode(_@n) = nn
+    ────────────────  ; 2^64 <= nn
+    encode(_@nn) = nn
 
 
 ```haskell
@@ -205,13 +205,13 @@ encode (Variable "_" n)
 
 This optimization takes advantage of the fact that α-normalized expressions
 only use variables named `_`.  Encoding an α-normalized expression is equivalent
-to using De-Bruijn indices to label variables.
+to using De Bruijn indices to label variables.
 
 The reason for this optimization is because expressions are commonly
 α-normalized before encoding them, such as when computing their semantic
 integrity check and also when caching them.
 
-Encode a variable that is not named `"_"` as a naked CBOR string when the
+Encode a variable that is not named `"_"` as a naked CBOR string when the De Bruijn
 index is `0`, and otherwise as a two-element CBOR array of the name and index
 (using the smallest numeric representation available):
 
@@ -240,212 +240,55 @@ encode (Variable x n)
 
 ### Built-in constants
 
-Encode all built-in constants (except boolean values) as naked strings
-matching their identifier.  Predefined function names encoded as free
-variables `x@0` use the same naked-string form.
+This section encodes **fixed symbols**: names that are not identifiers and
+cannot be bound (`Bool`, `Natural`, `None`, `Type`, and so on).  `True` and
+`False` are also fixed symbols, but they use CBOR booleans; see
+[`Bool`](#bool).  `Infinity`, `-Infinity`, and `NaN` are fixed symbols in
+source but encode as `Double` literals; see [`Double`](#double).
 
+Encode every other fixed symbol as a naked CBOR string equal to its identifier:
 
-    ───────────────────────────────────────
-    encode(Natural/build) = "Natural/build"
 
+    ─────────────  ; c is a fixed symbol, c ∉ { True, False }
+    encode(c) = "c"
 
-    ─────────────────────────────────────
-    encode(Natural/fold) = "Natural/fold"
 
+The fixed symbols covered by that rule are: `Bool`, `Optional`, `None`,
+`Natural`, `Integer`, `Double`, `Text`, `Bytes`, `List`, `Date`, `Time`,
+`TimeZone`, `Type`, `Kind`, and `Sort`.
 
-    ─────────────────────────────────────────
-    encode(Natural/isZero) = "Natural/isZero"
+For example, `Type` is encoded as the naked CBOR string `"Type"`.
 
+Predefined functions such as `Natural/isZero` are **not** fixed symbols and
+are not encoded here.  In source they are ordinary identifiers.  A free
+occurrence is the variable `x@0` whose name is the function name, which the
+[Variables](#variables) section already encodes as a naked string:
 
-    ─────────────────────────────────────
-    encode(Natural/even) = "Natural/even"
+    encode(x@0) = "x"   ; for example, encode(Natural/isZero@0) = "Natural/isZero"
 
+A bound occurrence uses the same variable rules (`[ "x", n ]` when `n > 0`).
+There is no separate CBOR form for those functions.
 
-    ───────────────────────────────────
-    encode(Natural/odd) = "Natural/odd"
-
-
-    ───────────────────────────────────────────────
-    encode(Natural/toInteger) = "Natural/toInteger"
-
-
-    ─────────────────────────────────────
-    encode(Natural/show) = "Natural/show"
-
-
-    ─────────────────────────────────────────────
-    encode(Natural/subtract) = "Natural/subtract"
-
-
-    ─────────────────────────────────────────────
-    encode(Integer/toDouble) = "Integer/toDouble"
-
-
-    ─────────────────────────────────────
-    encode(Integer/show) = "Integer/show"
-
-
-    ─────────────────────────────────────────
-    encode(Integer/negate) = "Integer/negate"
-
-
-    ───────────────────────────────────────
-    encode(Integer/clamp) = "Integer/clamp"
-
-
-    ───────────────────────────────────
-    encode(Double/show) = "Double/show"
-
-
-    ─────────────────────────────────
-    encode(List/build) = "List/build"
-
-
-    ───────────────────────────────
-    encode(List/fold) = "List/fold"
-
-
-    ───────────────────────────────────
-    encode(List/length) = "List/length"
-
-
-    ───────────────────────────────
-    encode(List/head) = "List/head"
-
-
-    ───────────────────────────────
-    encode(List/last) = "List/last"
-
-
-    ─────────────────────────────────────
-    encode(List/indexed) = "List/indexed"
-
-
-    ─────────────────────────────────────
-    encode(List/reverse) = "List/reverse"
-
-
-    ───────────────────────────────
-    encode(Text/show) = "Text/show"
-
-
-    ─────────────────────────────────────
-    encode(Text/replace) = "Text/replace"
-
-
-    ───────────────────────────────
-    encode(Date/show) = "Date/show"
-
-
-    ───────────────────────────────
-    encode(Time/show) = "Time/show"
-
-
-    ───────────────────────────────────────
-    encode(TimeZone/show) = "TimeZone/show"
-
-
-    ─────────────────────
-    encode(Bool) = "Bool"
-
-
-    ─────────────────────────────
-    encode(Optional) = "Optional"
-
-
-    ─────────────────────
-    encode(None) = "None"
-
-
-    ───────────────────────────
-    encode(Natural) = "Natural"
-
-
-    ───────────────────────────
-    encode(Integer) = "Integer"
-
-
-    ─────────────────────────
-    encode(Double) = "Double"
-
-
-    ─────────────────────
-    encode(Text) = "Text"
-
-
-    ───────────────────────
-    encode(Bytes) = "Bytes"
-
-
-    ─────────────────────
-    encode(List) = "List"
-
-
-    ─────────────────────
-    encode(Date) = "Date"
-
-
-    ─────────────────────
-    encode(Time) = "Time"
-
-
-    ─────────────────────────────
-    encode(TimeZone) = "TimeZone"
-
-
-    ─────────────────────
-    encode(Type) = "Type"
-
-
-    ─────────────────────
-    encode(Kind) = "Kind"
-
-
-    ─────────────────────
-    encode(Sort) = "Sort"
-
+Implementations that still use a dedicated AST node for a predefined function
+MUST encode that node as the same naked string as the corresponding free
+variable `x@0`, so that hashes and caches match.
 
 ```haskell
-encode (Builtin NaturalBuild    ) = TString "Natural/build"
-encode (Builtin NaturalFold     ) = TString "Natural/fold"
-encode (Builtin NaturalIsZero   ) = TString "Natural/isZero"
-encode (Builtin NaturalEven     ) = TString "Natural/even"
-encode (Builtin NaturalOdd      ) = TString "Natural/odd"
-encode (Builtin NaturalToInteger) = TString "Natural/toInteger"
-encode (Builtin NaturalShow     ) = TString "Natural/show"
-encode (Builtin NaturalSubtract ) = TString "Natural/subtract"
-encode (Builtin IntegerToDouble ) = TString "Integer/toDouble"
-encode (Builtin IntegerShow     ) = TString "Integer/show"
-encode (Builtin IntegerNegate   ) = TString "Integer/negate"
-encode (Builtin IntegerClamp    ) = TString "Integer/clamp"
-encode (Builtin DoubleShow      ) = TString "Double/show"
-encode (Builtin ListBuild       ) = TString "List/build"
-encode (Builtin ListFold        ) = TString "List/fold"
-encode (Builtin ListLength      ) = TString "List/length"
-encode (Builtin ListHead        ) = TString "List/head"
-encode (Builtin ListLast        ) = TString "List/last"
-encode (Builtin ListIndexed     ) = TString "List/indexed"
-encode (Builtin ListReverse     ) = TString "List/reverse"
-encode (Builtin TextShow        ) = TString "Text/show"
-encode (Builtin TextReplace     ) = TString "Text/replace"
-encode (Builtin DateShow        ) = TString "Date/show"
-encode (Builtin TimeShow        ) = TString "Time/show"
-encode (Builtin TimeZoneShow    ) = TString "TimeZone/show"
-encode (Builtin Bool            ) = TString "Bool"
-encode (Builtin Optional        ) = TString "Optional"
-encode (Builtin None            ) = TString "None"
-encode (Builtin Natural         ) = TString "Natural"
-encode (Builtin Integer         ) = TString "Integer"
-encode (Builtin Double          ) = TString "Double"
-encode (Builtin Text            ) = TString "Text"
-encode (Builtin Bytes           ) = TString "Bytes"
-encode (Builtin List            ) = TString "List"
-encode (Builtin Date            ) = TString "Date"
-encode (Builtin Time            ) = TString "Time"
-encode (Builtin TimeZone        ) = TString "TimeZone"
-encode (Constant Type           ) = TString "Type"
-encode (Constant Kind           ) = TString "Kind"
-encode (Constant Sort           ) = TString "Sort"
+encode (Builtin Bool    ) = TString "Bool"
+encode (Builtin Optional) = TString "Optional"
+encode (Builtin None    ) = TString "None"
+encode (Builtin Natural ) = TString "Natural"
+encode (Builtin Integer ) = TString "Integer"
+encode (Builtin Double  ) = TString "Double"
+encode (Builtin Text    ) = TString "Text"
+encode (Builtin Bytes   ) = TString "Bytes"
+encode (Builtin List    ) = TString "List"
+encode (Builtin Date    ) = TString "Date"
+encode (Builtin Time    ) = TString "Time"
+encode (Builtin TimeZone) = TString "TimeZone"
+encode (Constant Type   ) = TString "Type"
+encode (Constant Kind   ) = TString "Kind"
+encode (Constant Sort   ) = TString "Sort"
 ```
 
 ### Function application

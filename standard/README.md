@@ -71,7 +71,7 @@ Type abstraction and type application are explicit and not inferred.  Dhall also
 supports additional predefined functions, operators, and constants for efficiency.
 Predefined function names (such as `Natural/isZero`) are ordinary identifiers
 that may be bound; when they occur free they denote the corresponding primitive.
-Fixed symbols (such as `Natural` and `Type`) cannot be bound.
+Fixed symbols (such as `Natural`, `Type`, `True`, and `Infinity`) cannot be bound.
 
 Dhall also supports referencing shadowed variables through the use of De Bruijn
 indices.  This document spells out in detail how to implement these

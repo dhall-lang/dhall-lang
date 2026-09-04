@@ -43,10 +43,11 @@ x, y              ; Variables
 ; Note that these are only informal mnemonics.  Dhall is a pure type system,
 ; which means that many places in the syntax permit terms, types, kinds, and
 ; sorts. The typing judgments are the authoritative rules for what expressions
-, are permitted and forbidden.
+; are permitted and forbidden.
 a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
-  = x@n                               ; Identifier
-                                      ; (`x` is short-hand for `x@0`)
+  = x@n                               ; Identifier (`x` is short-hand for `x@0`).
+                                      ; Slash-names such as `Natural/isZero`
+                                      ; are identifiers, not extra forms.
   / λ(x : A) → b                      ; Anonymous function
   / ∀(x : A) → B                      ; Function type
                                       ; (`A → B` is short-hand for `∀(_ : A) → B`)
@@ -81,6 +82,9 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / assert : T                        ; Assert judgemental equality
   / e with k.ks… = v                  ; Nested record update
   / n.n                               ; Double-precision floating point literal
+  / Infinity                          ; Double infinity (fixed symbol)
+  / -Infinity                         ; Double negative infinity
+  / NaN                               ; Double NaN (fixed symbol)
   / n                                 ; Natural number literal
   / ±n                                ; Integer literal
   / "s"                               ; Uninterpolated text literal
@@ -126,41 +130,43 @@ a, b, f, l, r, e, t, u, A, B, E, T, U, c, i, o
   / Type                              ; Type of terms
   / Kind                              ; Type of types
   / Sort                              ; Type of kinds
-
-                                      ; Predefined functions.  In source these
-                                      ; names are ordinary identifiers (`x` /
-                                      ; `x@n`) and may be bound, quoted or not.
-                                      ; When they occur free they denote the
-                                      ; corresponding primitive; the judgments
-                                      ; write that primitive as a constant.
-  / Natural/build                     ; Natural introduction
-  / Natural/fold                      ; Natural elimination
-  / Natural/isZero                    ; Test if zero
-  / Natural/even                      ; Test if even
-  / Natural/odd                       ; Test if odd
-  / Natural/toInteger                 ; Convert Natural to Integer
-  / Natural/show                      ; Convert Natural to Text representation
-  / Natural/subtract                  ; Perform truncated subtraction on two Naturals
-  / Integer/toDouble                  ; Convert Integer to Double
-  / Integer/show                      ; Convert Integer to Text representation
-  / Integer/negate                    ; Invert sign of Integers, with positive
-                                      ; values becoming negative and vice-versa
-  / Integer/clamp                     ; Convert Integer to Natural by clamping
-                                      ; negative values to zero
-  / Date/show                         ; Convert Date to Text representation
-  / Double/show                       ; Convert Double to Text representation
-  / List/build                        ; List introduction
-  / List/fold                         ; List elimination
-  / List/length                       ; Length of list
-  / List/head                         ; First element of list
-  / List/last                         ; Last element of list
-  / List/indexed                      ; Tag elements with index
-  / List/reverse                      ; Reverse list
-  / Text/show                         ; Convert Text to its own representation
-  / Text/replace                      ; Replace a section of a Text literal
-  / Time/show                         ; Convert Time to Text representation
-  / TimeZone/show                     ; Convert TimeZone to Text representation
 ```
+
+Names in source fall into three classes:
+
+* **Keywords** (`if`, `then`, `else`, `let`, `in`, `using`, `missing`, `as`,
+  `merge`, `Some`, `toMap`, `assert`, `forall`, `with`,
+  `showConstructor`) are part of the grammar.  They are not identifiers unless
+  written in backticks, which turns the keyword into an ordinary label that may
+  be bound or used as a field or union constructor name.  Unquoted, they cannot
+  be bound.  Unquoted they also cannot be record field or union constructor
+  names, except `Some`, which the grammar allows as a label via
+  `any-label-or-some`.  `Some` is a keyword (it introduces `Some a`); `None` is
+  a fixed symbol.
+
+* **Fixed symbols** are the `Bool`, `Natural`, `None`, `Type`, … forms above,
+  plus the Double literals `Infinity`, `-Infinity`, and `NaN` (like `True` /
+  `False` for `Bool`).  They are values (or type-checking constants) but not
+  identifiers: they cannot be bound, quoted or not, and they cannot carry a De
+  Bruijn index.  A quoted fixed symbol (`` `Bool` ``, `` `Infinity` ``) is still
+  that value.  Their names may be used as record field names or union
+  constructor names without backticks.  `-Infinity` is not a label (it begins
+  with `-`); the unbindable name is `Infinity`.
+
+* **Predefined functions** (`Natural/isZero`, `List/length`, …) are ordinary
+  identifiers.  They may be bound, quoted or not, and used as field or
+  constructor names without backticks.  When such a name is **free** (De Bruijn
+  index `0` at the top level, or the leftover index after peeling binders of
+  that name), it denotes the primitive of that name; see
+  [type inference](./type-inference.md) and
+  [β-normalization](./beta-normalization.md) for the list, types, and reduction
+  rules.  Binding the name shadows the primitive; the outer meaning remains
+  available at a higher index, for example
+  `let List/length = "blah" in List/length@1 Natural [ 1, 2, 3 ]`.
+
+  In the AST a free predefined function is `Variable "Natural/isZero" 0`, not a
+  dedicated constructor.  Implementations that still use dedicated nodes MUST
+  treat those nodes as equivalent to the corresponding free variable.
 
 
 ```haskell
@@ -201,6 +207,10 @@ import qualified Data.Time as Time
 data Expression
     = Variable Text Natural
       -- ^ > x@n
+      --
+      -- Includes slash-names such as @Natural/isZero@ when they occur as
+      -- identifiers.  A free @Variable "Natural/isZero" 0@ is the predefined
+      -- function of that name.
     | Lambda Text Expression Expression
       -- ^ > λ(x : A) → b
     | Forall Text Expression Expression
@@ -324,34 +334,9 @@ instance Semigroup TextLiteral where
 instance Monoid TextLiteral where
     mempty = Chunks [] ""
 
--- | Builtin values
+-- | Fixed symbols (never bindable, even when quoted)
 data Builtin
-    = DateShow
-    | DoubleShow
-    | IntegerClamp
-    | IntegerNegate
-    | IntegerShow
-    | IntegerToDouble
-    | ListBuild
-    | ListFold
-    | ListHead
-    | ListIndexed
-    | ListLast
-    | ListLength
-    | ListReverse
-    | NaturalBuild
-    | NaturalEven
-    | NaturalFold
-    | NaturalIsZero
-    | NaturalOdd
-    | NaturalShow
-    | NaturalSubtract
-    | NaturalToInteger
-    | TextReplace
-    | TextShow
-    | TimeShow
-    | TimeZoneShow
-    | Bool
+    = Bool
     | Bytes
     | Date
     | Double

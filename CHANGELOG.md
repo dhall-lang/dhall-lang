@@ -20,9 +20,14 @@ Other changes:
 
     Names such as `Natural/isZero` parse as variables and may be bound (quoted
     or not).  When they occur free they still denote the predefined functions.
-    Fixed symbols (`Type`, `Natural`, `None`, …) remain unbindable even when
-    quoted.  Encode `x@0` as a naked CBOR string; decode non-fixed-symbol
-    strings as variables.
+    Fixed symbols (`Type`, `Natural`, `None`, `True`, `Infinity`, `NaN`, …)
+    remain unbindable even when quoted.  Encode `x@0` as a naked CBOR string;
+    decode non-fixed-symbol strings as variables.
+
+  * Treat `Infinity` and `NaN` as fixed symbols, like `True` / `False`
+
+    They remain `Double` literals (`-Infinity` is the negative spelling).  They
+    cannot be bound, quoted or not, and may be used as record field names.
 
   * Clarify that unhashed imports need not be αβ-normalized when inlined
 
