@@ -214,7 +214,7 @@ alphaNormalize (Let x Nothing a₀ b₀) = Let "_" Nothing a₁ b₄
     b₄ = alphaNormalize b₃
 ```
 
-## Variables
+## Variables and built-in functions
 
 Variables are already in α-normal form:
 
@@ -231,6 +231,8 @@ If they are free variables then there is nothing to do because α-normalization
 does not affect free variables.  If they were originally bound variables there
 is still nothing to do because would have been renamed to `_` along the way by
 one of the preceding rules.
+
+Built-in functions are treated as variables and are already in α-normal form.
 
 ## Imports
 
@@ -683,175 +685,23 @@ alphaNormalize (Some a₀) = Some a₁
     a₁ = alphaNormalize a₀
 ```
 
-
-    ───────────
-    None ↦ None
-
-
-    ─────────────────────────────
-    Natural/build ↦ Natural/build
-
-
-    ───────────────────────────
-    Natural/fold ↦ Natural/fold
-
-
-    ───────────────────────────────
-    Natural/isZero ↦ Natural/isZero
-
-
-    ───────────────────────────
-    Natural/even ↦ Natural/even
-
-
-    ─────────────────────────
-    Natural/odd ↦ Natural/odd
-
-
-    ─────────────────────────────────────
-    Natural/toInteger ↦ Natural/toInteger
-
-
-    ───────────────────────────
-    Natural/show ↦ Natural/show
-
-
-    ───────────────────────────────────
-    Natural/subtract ↦ Natural/subtract
-
-
-    ───────────────────────────────────
-    Integer/toDouble ↦ Integer/toDouble
-
-
-    ───────────────────────────
-    Integer/show ↦ Integer/show
-
-
-    ───────────────────────────────
-    Integer/negate ↦ Integer/negate
-
-
-    ─────────────────────────────
-    Integer/clamp ↦ Integer/clamp
-
-
-    ─────────────────────────
-    Double/show ↦ Double/show
-
-
-    ───────────────────────
-    List/build ↦ List/build
-
-
-    ─────────────────────
-    List/fold ↦ List/fold
-
-
-    ─────────────────────────
-    List/length ↦ List/length
-
-
-    ─────────────────────
-    List/head ↦ List/head
-
-
-    ─────────────────────
-    List/last ↦ List/last
-
-
-    ───────────────────────────
-    List/indexed ↦ List/indexed
-
-
-    ───────────────────────────
-    List/reverse ↦ List/reverse
-
-
-    ─────────────────────
-    Text/show ↦ Text/show
-
-
-    ───────────────────────────
-    Text/replace ↦ Text/replace
- 
- 
-    ─────────────────────
-    Date/show ↦ Date/show
-
-
-    ─────────────────────
-    Time/show ↦ Time/show
-
-
-    ─────────────────────────────
-    TimeZone/show ↦ TimeZone/show
-
-
-    ───────────
-    Bool ↦ Bool
-
-
-    ───────────────────
-    Optional ↦ Optional
-
-
-    ─────────────────
-    Natural ↦ Natural
-
-
-    ─────────────────
-    Integer ↦ Integer
-
-
-    ───────────────
-    Double ↦ Double
-
-
-    ───────────
-    Text ↦ Text
-
-
-    ───────────
-    List ↦ List
-
-
-    ───────────
-    Date ↦ Date
-
-
-    ───────────
-    Time ↦ Time
-
-
-    ───────────────────
-    TimeZone ↦ TimeZone
-
-
-    ───────────
-    True ↦ True
-
-
-    ─────────────
-    False ↦ False
+All fixed symbols are already in α-normalized form.
+
+    ───── ; x ∈ fixed symbols
+    x ↦ x
+
+This rule covers the following fixed symbols:
+`Bool`, `Date`, `Double`, `False`, `Integer`,
+`Kind`, `List`, `Natural`, `Optional`, `Sort`,
+`Text`, `Time`, `TimeZone`, `True`, `Type`.
 
 
 ```haskell
 alphaNormalize (Builtin b) = Builtin b
 ```
 
-
-    ───────────
-    Type ↦ Type
-
-
-    ───────────
-    Kind ↦ Kind
-
-
-    ───────────
-    Sort ↦ Sort
-
+The type constants `Type`, `Kind`, `Sort` are fixed symbols
+that are already in α-normalized form (represented as a `Constant` in the reference implementation).
 
 ```haskell
 alphaNormalize (Constant c) = Constant c

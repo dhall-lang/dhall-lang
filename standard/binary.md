@@ -183,18 +183,18 @@ Do not construe these optimizations to mean that you need to resolve imports
 or αβ-normalize expressions.  You may encode or decode expressions that have
 not been resolved in any way.
 
-### Variables
+### Variables and built-in functions
 
 Encode a variable named `"_"` as its index, using the smallest numeric
-representation available:
+representation available for a naked CBOR integer:
 
 
     ───────────────  ; n < 2^64
     encode(_@n) = n
 
 
-    ────────────────  ; 2^64 <= n
-    encode(_@n) = nn
+    ────────────────  ; 2^64 <= nn
+    encode(_@nn) = nn
 
 
 ```haskell
@@ -205,238 +205,84 @@ encode (Variable "_" n)
 
 This optimization takes advantage of the fact that α-normalized expressions
 only use variables named `_`.  Encoding an α-normalized expression is equivalent
-to using De-Bruijn indices to label variables.
+to using De Bruijn indices to label variables.
 
 The reason for this optimization is because expressions are commonly
 α-normalized before encoding them, such as when computing their semantic
 integrity check and also when caching them.
 
-Encode a variable that is not named `"_"` as a two-element CBOR array where
-the first element is the identifier and the second element is the encoded
-index (using the smallest numeric representation available):
+Encode a variable that is not named `"_"` as a naked CBOR string when the De Bruijn
+index is `0`, and otherwise as a two-element CBOR array of the name and index
+(using the smallest numeric representation available):
 
 
-    ────────────────────────  ; n < 2^64
+    ───────────────────  ; x ≠ "_"
+    encode(x@0) = "x"
+
+
+    ────────────────────────  ; n < 2^64, 0 < n
     encode(x@n) = [ "x", n ]
 
 
-    ─────────────────────────  ; 2^64 <= nn
+    ─────────────────────────  ; 2^64 <= n
     encode(x@n) = [ "x", nn ]
 
 
+A decoder MUST reject a naked CBOR string `"_"`.  Variables named `_` MUST
+use the integer encoding above.
+
 ```haskell
+encode (Variable x 0) = TString x
 encode (Variable x n)
     | n < 0xFFFFFFFFFFFFFFFF = TList [ TString x, TInt (fromIntegral n) ]
     | otherwise              = TList [ TString x, TInteger (fromIntegral n) ]
 ```
 
-### Built-in constants
+Note that all built-in functions are represented by variables and are encoded in CBOR as variables.
+A variable that has not been bound (is free) and whose name coincides with one of the built-in function names (such as `List/length`) is treated as the corresponding built-in function with standardized type and evaluation rules (in this example, the built-in function that computes the length of a list).
 
-Encode all built-in constants (except boolean values) as naked strings
-matching their identifier.
+### Built-in fixed symbols
 
+The **fixed symbols**  are names that are not identifiers and cannot be bound even with backticks.
+Examples are: `Bool`, `Natural`, `None`, `Type`, `True`, `Infinity`.
 
-    ───────────────────────────────────────
-    encode(Natural/build) = "Natural/build"
+The fixed symbols  `True` and `False` represent values of type `Bool` and use CBOR booleans for encoding; see [`Bool`](#bool).
 
+The fixed symbols `Infinity`, `-Infinity`, and `NaN` represent values of type `Double` and use CBOR `Double` literals for encoding; see [`Double`](#double).
 
-    ─────────────────────────────────────
-    encode(Natural/fold) = "Natural/fold"
+Every other fixed symbol is encoded as a naked CBOR string equal to its identifier:
 
 
-    ─────────────────────────────────────────
-    encode(Natural/isZero) = "Natural/isZero"
+    ─────────────  ; c is a fixed symbol, c ∉ { True, False, Infinity, -Infinity, Nan }
+    encode(c) = "c"
 
 
-    ─────────────────────────────────────
-    encode(Natural/even) = "Natural/even"
+The fixed symbols covered by that rule are: `Bool`, `Optional`, `None`,
+`Natural`, `Integer`, `Double`, `Text`, `Bytes`, `List`, `Date`, `Time`,
+`TimeZone`, `Type`, `Kind`, and `Sort`.
 
+For example, `Type` is encoded as the naked CBOR string `"Type"`.
 
-    ───────────────────────────────────
-    encode(Natural/odd) = "Natural/odd"
-
-
-    ───────────────────────────────────────────────
-    encode(Natural/toInteger) = "Natural/toInteger"
-
-
-    ─────────────────────────────────────
-    encode(Natural/show) = "Natural/show"
-
-
-    ─────────────────────────────────────────────
-    encode(Natural/subtract) = "Natural/subtract"
-
-
-    ─────────────────────────────────────────────
-    encode(Integer/toDouble) = "Integer/toDouble"
-
-
-    ─────────────────────────────────────
-    encode(Integer/show) = "Integer/show"
-
-
-    ─────────────────────────────────────────
-    encode(Integer/negate) = "Integer/negate"
-
-
-    ───────────────────────────────────────
-    encode(Integer/clamp) = "Integer/clamp"
-
-
-    ───────────────────────────────────
-    encode(Double/show) = "Double/show"
-
-
-    ─────────────────────────────────
-    encode(List/build) = "List/build"
-
-
-    ───────────────────────────────
-    encode(List/fold) = "List/fold"
-
-
-    ───────────────────────────────────
-    encode(List/length) = "List/length"
-
-
-    ───────────────────────────────
-    encode(List/head) = "List/head"
-
-
-    ───────────────────────────────
-    encode(List/last) = "List/last"
-
-
-    ─────────────────────────────────────
-    encode(List/indexed) = "List/indexed"
-
-
-    ─────────────────────────────────────
-    encode(List/reverse) = "List/reverse"
-
-
-    ───────────────────────────────
-    encode(Text/show) = "Text/show"
-
-
-    ─────────────────────────────────────
-    encode(Text/replace) = "Text/replace"
-
-
-    ───────────────────────────────
-    encode(Date/show) = "Date/show"
-
-
-    ───────────────────────────────
-    encode(Time/show) = "Time/show"
-
-
-    ───────────────────────────────────────
-    encode(TimeZone/show) = "TimeZone/show"
-
-
-    ─────────────────────
-    encode(Bool) = "Bool"
-
-
-    ─────────────────────────────
-    encode(Optional) = "Optional"
-
-
-    ─────────────────────
-    encode(None) = "None"
-
-
-    ───────────────────────────
-    encode(Natural) = "Natural"
-
-
-    ───────────────────────────
-    encode(Integer) = "Integer"
-
-
-    ─────────────────────────
-    encode(Double) = "Double"
-
-
-    ─────────────────────
-    encode(Text) = "Text"
-
-
-    ───────────────────────
-    encode(Bytes) = "Bytes"
-
-
-    ─────────────────────
-    encode(List) = "List"
-
-
-    ─────────────────────
-    encode(Date) = "Date"
-
-
-    ─────────────────────
-    encode(Time) = "Time"
-
-
-    ─────────────────────────────
-    encode(TimeZone) = "TimeZone"
-
-
-    ─────────────────────
-    encode(Type) = "Type"
-
-
-    ─────────────────────
-    encode(Kind) = "Kind"
-
-
-    ─────────────────────
-    encode(Sort) = "Sort"
-
+Built-in functions such as `Natural/isZero` are **not** fixed symbols and
+are not encoded by this rule.  Instead, they are encoded as variables according
+to the rules shown in section [Variables](#variables).
 
 ```haskell
-encode (Builtin NaturalBuild    ) = TString "Natural/build"
-encode (Builtin NaturalFold     ) = TString "Natural/fold"
-encode (Builtin NaturalIsZero   ) = TString "Natural/isZero"
-encode (Builtin NaturalEven     ) = TString "Natural/even"
-encode (Builtin NaturalOdd      ) = TString "Natural/odd"
-encode (Builtin NaturalToInteger) = TString "Natural/toInteger"
-encode (Builtin NaturalShow     ) = TString "Natural/show"
-encode (Builtin NaturalSubtract ) = TString "Natural/subtract"
-encode (Builtin IntegerToDouble ) = TString "Integer/toDouble"
-encode (Builtin IntegerShow     ) = TString "Integer/show"
-encode (Builtin IntegerNegate   ) = TString "Integer/negate"
-encode (Builtin IntegerClamp    ) = TString "Integer/clamp"
-encode (Builtin DoubleShow      ) = TString "Double/show"
-encode (Builtin ListBuild       ) = TString "List/build"
-encode (Builtin ListFold        ) = TString "List/fold"
-encode (Builtin ListLength      ) = TString "List/length"
-encode (Builtin ListHead        ) = TString "List/head"
-encode (Builtin ListLast        ) = TString "List/last"
-encode (Builtin ListIndexed     ) = TString "List/indexed"
-encode (Builtin ListReverse     ) = TString "List/reverse"
-encode (Builtin TextShow        ) = TString "Text/show"
-encode (Builtin TextReplace     ) = TString "Text/replace"
-encode (Builtin DateShow        ) = TString "Date/show"
-encode (Builtin TimeShow        ) = TString "Time/show"
-encode (Builtin TimeZoneShow    ) = TString "TimeZone/show"
-encode (Builtin Bool            ) = TString "Bool"
-encode (Builtin Optional        ) = TString "Optional"
-encode (Builtin None            ) = TString "None"
-encode (Builtin Natural         ) = TString "Natural"
-encode (Builtin Integer         ) = TString "Integer"
-encode (Builtin Double          ) = TString "Double"
-encode (Builtin Text            ) = TString "Text"
-encode (Builtin Bytes           ) = TString "Bytes"
-encode (Builtin List            ) = TString "List"
-encode (Builtin Date            ) = TString "Date"
-encode (Builtin Time            ) = TString "Time"
-encode (Builtin TimeZone        ) = TString "TimeZone"
-encode (Constant Type           ) = TString "Type"
-encode (Constant Kind           ) = TString "Kind"
-encode (Constant Sort           ) = TString "Sort"
+encode (Builtin Bool    ) = TString "Bool"
+encode (Builtin Optional) = TString "Optional"
+encode (Builtin None    ) = TString "None"
+encode (Builtin Natural ) = TString "Natural"
+encode (Builtin Integer ) = TString "Integer"
+encode (Builtin Double  ) = TString "Double"
+encode (Builtin Text    ) = TString "Text"
+encode (Builtin Bytes   ) = TString "Bytes"
+encode (Builtin List    ) = TString "List"
+encode (Builtin Date    ) = TString "Date"
+encode (Builtin Time    ) = TString "Time"
+encode (Builtin TimeZone) = TString "TimeZone"
+encode (Constant Type   ) = TString "Type"
+encode (Constant Kind   ) = TString "Kind"
+encode (Constant Sort   ) = TString "Sort"
 ```
 
 ### Function application
@@ -1491,103 +1337,7 @@ tag.  Therefore this tag should be allowed by decoders, and ignored:
 
 ### Built-in constants
 
-A naked CBOR string represents a built-in identifier.  Decode the string as
-a built-in identifier if it matches any of the following strings:
-
-    ───────────────────────────────────────────
-    decode("Natural/build") = Natural/build
-
-
-    ─────────────────────────────────────────
-    decode("Natural/fold") = Natural/fold
-
-
-    ─────────────────────────────────────────────
-    decode("Natural/isZero") = Natural/isZero
-
-
-    ─────────────────────────────────────────
-    decode("Natural/even") = Natural/even
-
-
-    ───────────────────────────────────────
-    decode("Natural/odd") = Natural/odd
-
-
-    ───────────────────────────────────────────────────
-    decode("Natural/toInteger") = Natural/toInteger
-
-
-    ─────────────────────────────────────────
-    decode("Natural/show") = Natural/show
-
-
-    ─────────────────────────────────────────────────
-    decode("Integer/toDouble") = Integer/toDouble
-
-
-    ─────────────────────────────────────────
-    decode("Integer/show") = Integer/show
-
-
-    ─────────────────────────────────────────────
-    decode("Integer/negate") = Integer/negate
-
-
-    ───────────────────────────────────────────
-    decode("Integer/clamp") = Integer/clamp
-
-
-    ───────────────────────────────────────
-    decode("Double/show") = Double/show
-
-
-    ─────────────────────────────────────
-    decode("List/build") = List/build
-
-
-    ───────────────────────────────────
-    decode("List/fold") = List/fold
-
-
-    ───────────────────────────────────────
-    decode("List/length") = List/length
-
-
-    ───────────────────────────────────
-    decode("List/head") = List/head
-
-
-    ───────────────────────────────────
-    decode("List/last") = List/last
-
-
-    ─────────────────────────────────────────
-    decode("List/indexed") = List/indexed
-
-
-    ─────────────────────────────────────────
-    decode("List/reverse") = List/reverse
-
-
-    ─────────────────────────────────────
-    decode("Text/replace") = Text/replace
-
-
-    ───────────────────────────────
-    decode("Text/show") = Text/show
-
-
-    ───────────────────────────────
-    decode("Date/show") = Date/show
-
-
-    ───────────────────────────────
-    decode("Time/show") = Time/show
-
-
-    ───────────────────────────────────────
-    decode("TimeZone/show") = TimeZone/show
+A naked CBOR string that matches a fixed symbol decodes as that primitive:
 
 
     ─────────────────────────
@@ -1650,7 +1400,20 @@ a built-in identifier if it matches any of the following strings:
     decode("Sort") = Sort
 
 
-Otherwise, there is a decoding error.
+A naked CBOR string `"_"` is a decoding error.
+
+Any other naked CBOR string `"x"` (including built-in function names such as
+`"Natural/isZero"`) decodes as the variable `x@0`:
+
+
+    ───────────────────  ; x is not a fixed symbol, x ≠ "_"
+    decode("x") = x@0
+
+
+Implementations that use dedicated AST nodes for built-in functions MAY
+decode those names as the corresponding AST nodes instead of variables.  The two
+representations are equivalent when the name is free.
+(However, a free variable with the same name must be considered equal to the corresponding AST node.)
 
 ### Variables
 
