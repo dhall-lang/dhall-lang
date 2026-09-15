@@ -259,7 +259,11 @@ nonreservedLabel = do
         void builtin <|> void constant <|> keyword
         notFollowedBy (satisfy simpleLabelNextChar)
 
-    label
+    l <- label
+
+    guard (l /= "Some")
+
+    return l
 
 anyLabel :: Parser Text
 anyLabel = label

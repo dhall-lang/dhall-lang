@@ -1,1 +1,1 @@
-{ None : Natural, Some : Bool → Natural }
+{ None : Natural, Some : Natural }
