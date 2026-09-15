@@ -3,18 +3,36 @@
 This document is a pedagogical companion to `imports.md` that explains step
 by step the import mechanism specified by the Dhall standard.
 
-## What are imports and import resolution
+## Overview of imports and import resolution
+
+### Kinds of imports
 
 An import is a Dhall expression that references an external resource that needs
 to be read. The external resource may be a local file, an environment variable,
 or an Internet URL. For example:
 
 ```dhall
-let user = env:USER as Text        -- the local username from the shell
-let privateEnv = ./env.dhall       -- local file by relative path
-let lessThan = https://prelude.dhall-lang.org/Natural/lessThan
+let user = env:USER as Text        -- get the local username from the shell; the import expression is `env:USER as Text`
+let privateEnv = ./env.dhall       -- read a local file by relative path; the import expression is `./env.dhall`
+let lessThan = https://prelude.dhall-lang.org/Natural/lessThan -- read from the Web; the import expression is the URL
 in ...
 ```
+
+"Code imports" interpret the contents of the external resource as Dhall code.
+That code could again contain imports. Code imports either have an `as Source`
+qualifier or do not have an `as NNN` qualifier.
+
+"Data imports" read the contents of the external resource as data rather than as
+Dhall code. Data imports have a qualifier `as Text` or `as Bytes`.
+
+"Location imports" have a qualifier `as Location` and do not read the contents
+of the external resource at all.
+
+"Void imports" are represented by the keyword `missing`. A void import means a
+resource that is missing _by definition_; no attempt will be made to fetch
+anything.
+
+### Import resolution
 
 Import resolution takes a Dhall expression that may contain imports and
 replaces those imports with expressions or data fetched from the external
