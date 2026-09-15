@@ -18,7 +18,7 @@ New features:
     cannot be bound even when backquoted.
  
   * Encode free variables `x@0` as naked CBOR strings;
-    decode non-fixed-symbol strings as variables.
+    decode non-fixed-symbol strings as variables (rather than as AST constructors).
 
   * Built-in functions are now variables in the reference implementation
 
