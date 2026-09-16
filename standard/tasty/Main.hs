@@ -146,6 +146,9 @@ discoverFiles predicate makeTest directory = do
 isDhallFile :: FilePath -> Bool
 isDhallFile path = FilePath.takeExtension path == ".dhall"
 
+isDhallbFile :: FilePath -> Bool
+isDhallbFile path = FilePath.takeExtension path == ".dhallb"
+
 -- | Parser success: parse @*A.dhall@, encode, compare to @*B.dhallb@.
 parserSuccessCase :: FilePath -> TestTree
 parserSuccessCase prefix = do
@@ -293,6 +296,37 @@ betaNormalizationCase prefix = do
                     output
                     (BetaNormalization.betaNormalize input)
 
+-- | Binary decode: deserialise @*A.dhallb@, decode, parse @*B.dhall@, compare.
+binaryDecodeSuccessCase :: FilePath -> TestTree
+binaryDecodeSuccessCase prefix = do
+    let inputFile  = prefix <> "A.dhallb"
+    let outputFile = prefix <> "B.dhall"
+
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name do
+        term <- Serialise.readFileDeserialise inputFile
+
+        decoded <- case Binary.decode term of
+            Nothing         -> fail "Binary decode failed"
+            Just expression -> return expression
+
+        expected <- expectParsed outputFile
+
+        assertEncodedEqual "Binary decode mismatch" expected decoded
+
+-- | Binary decode failure: the CBOR must not decode to an expression.
+binaryDecodeFailureCase :: FilePath -> TestTree
+binaryDecodeFailureCase path = do
+    let name = FilePath.takeBaseName path
+
+    HUnit.testCase name do
+        term <- Serialise.readFileDeserialise path
+
+        case Binary.decode term of
+            Nothing -> return ()
+            Just _  -> HUnit.assertFailure "Unexpected successful decode"
+
 main :: IO ()
 main = do
     Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
@@ -332,6 +366,14 @@ main = do
     let withTimeout =
             Tasty.localOption (Tasty.mkTimeout 3000000)  -- 3 seconds
 
+    binaryDecodeSuccess <-
+        discoverBySuffix "A.dhallb" binaryDecodeSuccessCase
+            (testsRoot </> "binary-decode/success")
+
+    binaryDecodeFailure <-
+        discoverFiles isDhallbFile binaryDecodeFailureCase
+            (testsRoot </> "binary-decode/failure")
+
     Tasty.defaultMain
         (Tasty.testGroup "Dhall acceptance tests"
             [ Tasty.testGroup "parser"
@@ -351,5 +393,9 @@ main = do
                 , betaNormalizationCase
                     (testsRoot </> "normalization/success/remoteSystems")
                 ])
+            , Tasty.testGroup "binary-decode"
+                [ binaryDecodeSuccess
+                , binaryDecodeFailure
+                ]
             ]
         )

@@ -4,7 +4,9 @@
 module Binary where
 
 import Codec.CBOR.Term (Term(..))
+import Crypto.Hash (Digest, SHA256)
 import Data.List.NonEmpty (NonEmpty(..))
+import Numeric.Natural (Natural)
 import Prelude hiding (Bool(..))
 
 import Syntax
@@ -22,9 +24,12 @@ import Syntax
     , PathComponent(..)
     )
 
+import qualified Crypto.Hash        as Hash
 import qualified Data.ByteArray     as ByteArray
+import qualified Data.ByteString    as ByteString
 import qualified Data.List          as List
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.Text          as Text
 import qualified Data.Time          as Time
 import qualified Data.Ord           as Ord
 import qualified GHC.Float          as Float
@@ -1476,6 +1481,41 @@ You can decode a Dhall expression using the following judgment:
 * `cbor` (the input) is a CBOR expression
 * `dhall` (the output) is a Dhall expression
 
+```haskell
+decode :: Term -> Maybe Expression
+```
+
+Helpers used by the decoding equations:
+
+```haskell
+integerFromTerm :: Term -> Maybe Integer
+integerFromTerm (TInt n)      = Just (fromIntegral n)
+integerFromTerm (TInteger n)  = Just n
+integerFromTerm _             = Nothing
+
+naturalFromTerm :: Term -> Maybe Natural
+naturalFromTerm term = do
+    n <- integerFromTerm term
+    if n < 0
+        then Nothing
+        else Just (fromInteger n)
+
+intFromTerm :: Term -> Maybe Int
+intFromTerm term = do
+    n <- integerFromTerm term
+    if toInteger (minBound :: Int) <= n && n <= toInteger (maxBound :: Int)
+        then Just (fromInteger n)
+        else Nothing
+
+isSelfDescribe :: Term -> Prelude.Bool
+isSelfDescribe (TTagged 55799 _) = Prelude.True
+isSelfDescribe _                 = Prelude.False
+
+stripSelfDescribe :: Term -> Term
+stripSelfDescribe (TTagged 55799 t) = stripSelfDescribe t
+stripSelfDescribe t                 = t
+```
+
 ### CBOR Tags
 
 Dhall does not currently recognize any CBOR tags that add semantics to data
@@ -2189,6 +2229,382 @@ Decode a CBOR array beginning with a `25` as a `let` expression:
     ────────────────────────────────────
     decode([32, false, HH, MM]) = -HH:MM
 
+
+```haskell
+decode (TTagged 55799 term) =
+    decode term
+
+decode (TList ts)
+    | any isSelfDescribe ts =
+        decode (TList (map stripSelfDescribe ts))
+
+decode (TString "Natural/build"    ) = Just (Builtin NaturalBuild)
+decode (TString "Natural/fold"     ) = Just (Builtin NaturalFold)
+decode (TString "Natural/isZero"   ) = Just (Builtin NaturalIsZero)
+decode (TString "Natural/even"     ) = Just (Builtin NaturalEven)
+decode (TString "Natural/odd"      ) = Just (Builtin NaturalOdd)
+decode (TString "Natural/toInteger") = Just (Builtin NaturalToInteger)
+decode (TString "Natural/show"     ) = Just (Builtin NaturalShow)
+decode (TString "Natural/subtract" ) = Just (Builtin NaturalSubtract)
+decode (TString "Integer/toDouble" ) = Just (Builtin IntegerToDouble)
+decode (TString "Integer/show"     ) = Just (Builtin IntegerShow)
+decode (TString "Integer/negate"   ) = Just (Builtin IntegerNegate)
+decode (TString "Integer/clamp"    ) = Just (Builtin IntegerClamp)
+decode (TString "Double/show"      ) = Just (Builtin DoubleShow)
+decode (TString "List/build"       ) = Just (Builtin ListBuild)
+decode (TString "List/fold"        ) = Just (Builtin ListFold)
+decode (TString "List/length"      ) = Just (Builtin ListLength)
+decode (TString "List/head"        ) = Just (Builtin ListHead)
+decode (TString "List/last"        ) = Just (Builtin ListLast)
+decode (TString "List/indexed"     ) = Just (Builtin ListIndexed)
+decode (TString "List/reverse"     ) = Just (Builtin ListReverse)
+decode (TString "Text/replace"     ) = Just (Builtin TextReplace)
+decode (TString "Text/show"        ) = Just (Builtin TextShow)
+decode (TString "Date/show"        ) = Just (Builtin DateShow)
+decode (TString "Time/show"        ) = Just (Builtin TimeShow)
+decode (TString "TimeZone/show"    ) = Just (Builtin TimeZoneShow)
+decode (TString "Bool"             ) = Just (Builtin Bool)
+decode (TString "Optional"         ) = Just (Builtin Optional)
+decode (TString "None"             ) = Just (Builtin None)
+decode (TString "Natural"          ) = Just (Builtin Natural)
+decode (TString "Integer"          ) = Just (Builtin Integer)
+decode (TString "Double"           ) = Just (Builtin Double)
+decode (TString "Text"             ) = Just (Builtin Text)
+decode (TString "Bytes"            ) = Just (Builtin Bytes)
+decode (TString "List"             ) = Just (Builtin List)
+decode (TString "Date"             ) = Just (Builtin Date)
+decode (TString "Time"             ) = Just (Builtin Time)
+decode (TString "TimeZone"         ) = Just (Builtin TimeZone)
+decode (TString "Type"             ) = Just (Constant Type)
+decode (TString "Kind"             ) = Just (Constant Kind)
+decode (TString "Sort"             ) = Just (Constant Sort)
+
+decode (TList [ TString x, n ])
+    | x /= "_"
+    , Just i <- naturalFromTerm n =
+        Just (Variable x i)
+
+decode term
+    | Just n <- naturalFromTerm term =
+        Just (Variable "_" n)
+
+decode (TList (TInt 0 : f : a : as)) = do
+    f₀ <- decode f
+    args <- traverse decode (a : as)
+    return (List.foldl' Application f₀ args)
+
+decode (TList [ TInt 1, _A₁, b₁ ]) = do
+    _A₀ <- decode _A₁
+    b₀  <- decode b₁
+    return (Lambda "_" _A₀ b₀)
+
+decode (TList [ TInt 1, TString x, _A₁, b₁ ])
+    | x /= "_" = do
+        _A₀ <- decode _A₁
+        b₀  <- decode b₁
+        return (Lambda x _A₀ b₀)
+
+decode (TList [ TInt 2, _A₁, _B₁ ]) = do
+    _A₀ <- decode _A₁
+    _B₀ <- decode _B₁
+    return (Forall "_" _A₀ _B₀)
+
+decode (TList [ TInt 2, TString x, _A₁, _B₁ ])
+    | x /= "_" = do
+        _A₀ <- decode _A₁
+        _B₀ <- decode _B₁
+        return (Forall x _A₀ _B₀)
+
+decode (TList [ TInt 3, TInt op, l₁, r₁ ]) = do
+    l₀ <- decode l₁
+    r₀ <- decode r₁
+    case op of
+        0  -> Just (Operator l₀ Or r₀)
+        1  -> Just (Operator l₀ And r₀)
+        2  -> Just (Operator l₀ Equal r₀)
+        3  -> Just (Operator l₀ NotEqual r₀)
+        4  -> Just (Operator l₀ Plus r₀)
+        5  -> Just (Operator l₀ Times r₀)
+        6  -> Just (Operator l₀ TextAppend r₀)
+        7  -> Just (Operator l₀ ListAppend r₀)
+        8  -> Just (Operator l₀ CombineRecordTerms r₀)
+        9  -> Just (Operator l₀ Prefer r₀)
+        10 -> Just (Operator l₀ CombineRecordTypes r₀)
+        11 -> Just (Operator l₀ Alternative r₀)
+        12 -> Just (Operator l₀ Equivalent r₀)
+        13 -> Just (Completion l₀ r₀)
+        _  -> Nothing
+
+decode (TList [ TInt 4, _T₁ ]) = do
+    _T₀ <- decode _T₁
+    return (EmptyList (Application (Builtin List) _T₀))
+
+decode (TList [ TInt 28, _T₁ ]) = do
+    _T₀ <- decode _T₁
+    return (EmptyList _T₀)
+
+decode (TList (TInt 4 : TNull : a₁ : as₁)) = do
+    a₀  <- decode a₁
+    as₀ <- traverse decode as₁
+    return (NonEmptyList (a₀ :| as₀))
+
+decode (TList [ TInt 5, TNull, t₁ ]) = do
+    t₀ <- decode t₁
+    return (Some t₀)
+
+decode (TList [ TInt 6, t₁, u₁ ]) = do
+    t₀ <- decode t₁
+    u₀ <- decode u₁
+    return (Merge t₀ u₀ Nothing)
+
+decode (TList [ TInt 6, t₁, u₁, _T₁ ]) = do
+    t₀ <- decode t₁
+    u₀ <- decode u₁
+    _T₀ <- decode _T₁
+    return (Merge t₀ u₀ (Just _T₀))
+
+decode (TList [ TInt 27, t₁ ]) = do
+    t₀ <- decode t₁
+    return (ToMap t₀ Nothing)
+
+decode (TList [ TInt 27, t₁, _T₁ ]) = do
+    t₀ <- decode t₁
+    _T₀ <- decode _T₁
+    return (ToMap t₀ (Just _T₀))
+
+decode (TList [ TInt 34, t₁ ]) = do
+    t₀ <- decode t₁
+    return (ShowConstructor t₀)
+
+decode (TList [ TInt 7, TMap pairs ]) = do
+    fields <- traverse decodeMapField pairs
+    return (RecordType fields)
+
+decode (TList [ TInt 8, TMap pairs ]) = do
+    fields <- traverse decodeMapField pairs
+    return (RecordLiteral fields)
+
+decode (TList [ TInt 9, t₁, TString x ]) = do
+    t₀ <- decode t₁
+    return (Field t₀ x)
+
+decode (TList (TInt 10 : t₁ : TList [ _T₁ ] : [])) = do
+    t₀ <- decode t₁
+    _T₀ <- decode _T₁
+    return (ProjectByType t₀ _T₀)
+
+decode (TList (TInt 10 : t₁ : labels)) = do
+    t₀ <- decode t₁
+    xs <- traverse decodeLabel labels
+    return (ProjectByLabels t₀ xs)
+
+decode (TList [ TInt 11, TMap pairs ]) = do
+    alternatives <- traverse decodeUnionField pairs
+    return (UnionType alternatives)
+
+decode (TBool Prelude.True ) = Just (Builtin True)
+decode (TBool Prelude.False) = Just (Builtin False)
+
+decode (TList [ TInt 14, t₁, l₁, r₁ ]) = do
+    t₀ <- decode t₁
+    l₀ <- decode l₁
+    r₀ <- decode r₁
+    return (If t₀ l₀ r₀)
+
+decode (TList [ TInt 15, n ]) = do
+    i <- naturalFromTerm n
+    return (NaturalLiteral i)
+
+decode (TList [ TInt 16, n ]) = do
+    i <- integerFromTerm n
+    return (IntegerLiteral i)
+
+decode (THalf n)   = Just (DoubleLiteral (realToFrac n))
+decode (TFloat n)  = Just (DoubleLiteral (Float.float2Double n))
+decode (TDouble n) = Just (DoubleLiteral n)
+
+decode (TList (TInt 18 : chunks)) = do
+    literal <- decodeTextChunks chunks
+    return (TextLiteral literal)
+
+decode (TList [ TInt 33, TBytes bytes ]) =
+    Just (BytesLiteral bytes)
+
+decode (TList [ TInt 19, _T₁ ]) = do
+    _T₀ <- decode _T₁
+    return (Assert _T₀)
+
+decode (TList (TInt 24 : hash₁ : mode₁ : rest)) = do
+    hash₀ <- decodeIntegrity hash₁
+    mode₀ <- decodeImportMode mode₁
+    importType₀ <- decodeImportType rest
+    return (Import importType₀ mode₀ hash₀)
+
+decode (TList (TInt 25 : rest)) =
+    decodeLet rest
+
+decode (TList [ TInt 26, t₁, _T₁ ]) = do
+    t₀ <- decode t₁
+    _T₀ <- decode _T₁
+    return (Annotation t₀ _T₀)
+
+decode (TList [ TInt 29, e₁, TList keys, v₁ ]) = do
+    e₀ <- decode e₁
+    v₀ <- decode v₁
+    ks <- traverse decodePathComponent keys
+    case ks of
+        k : rest -> return (With e₀ (k :| rest) v₀)
+        []       -> Nothing
+
+decode (TList [ TInt 30, yyyy, mm, dd ]) = do
+    year  <- integerFromTerm yyyy
+    month <- intFromTerm mm
+    day   <- intFromTerm dd
+    DateLiteral <$> Time.fromGregorianValid year month day
+
+decode (TList [ TInt 31, hh, mm, TTagged 4 (TList [ e₁, m₁ ]) ]) = do
+    hour   <- intFromTerm hh
+    minute <- intFromTerm mm
+    e      <- intFromTerm e₁
+    mantissa <- integerFromTerm m₁
+    let precision = negate e
+    if precision < 0
+        then Nothing
+        else do
+            let seconds = fromInteger mantissa / fromInteger (10 ^ precision)
+            return (TimeLiteral (Time.TimeOfDay hour minute seconds) precision)
+
+decode (TList [ TInt 32, TBool sign, hh, mm ]) = do
+    hour   <- intFromTerm hh
+    minute <- intFromTerm mm
+    let total = hour * 60 + minute
+    let minutes = if sign then total else negate total
+    return (TimeZoneLiteral (Time.TimeZone minutes Prelude.False ""))
+
+decode _ =
+    Nothing
+
+decodeMapField :: (Term, Term) -> Maybe (Text.Text, Expression)
+decodeMapField (TString x, t₁) = do
+    t₀ <- decode t₁
+    return (x, t₀)
+decodeMapField _ =
+    Nothing
+
+decodeUnionField :: (Term, Term) -> Maybe (Text.Text, Maybe Expression)
+decodeUnionField (TString x, TNull) =
+    Just (x, Nothing)
+decodeUnionField (TString x, t₁) = do
+    t₀ <- decode t₁
+    return (x, Just t₀)
+decodeUnionField _ =
+    Nothing
+
+decodeLabel :: Term -> Maybe Text.Text
+decodeLabel (TString x) = Just x
+decodeLabel _           = Nothing
+
+decodeTextChunks :: [Term] -> Maybe TextLiteral
+decodeTextChunks [ TString z ] =
+    Just (Chunks [] z)
+decodeTextChunks (TString s : t₁ : rest) = do
+    t₀ <- decode t₁
+    Chunks xys z <- decodeTextChunks rest
+    return (Chunks ((s, t₀) : xys) z)
+decodeTextChunks _ =
+    Nothing
+
+decodeIntegrity :: Term -> Maybe (Maybe (Digest SHA256))
+decodeIntegrity TNull =
+    Just Nothing
+decodeIntegrity (TBytes bytes)
+    | ByteString.length bytes == 34
+    , ByteString.take 2 bytes == "\x12\x20" = do
+        digest <- Hash.digestFromByteString (ByteString.drop 2 bytes)
+        return (Just digest)
+decodeIntegrity _ =
+    Nothing
+
+decodeImportMode :: Term -> Maybe ImportMode
+decodeImportMode (TInt 0) = Just Code
+decodeImportMode (TInt 1) = Just RawText
+decodeImportMode (TInt 2) = Just Location
+decodeImportMode (TInt 3) = Just RawBytes
+-- Mode 4 is `as Source` (A23).  Until binary.md assigns a number, reject it.
+decodeImportMode _        = Nothing
+
+decodeImportType :: [Term] -> Maybe ImportType
+decodeImportType (scheme₁ : headers₁ : TString auth : rest)
+    | Just scheme₀ <- decodeScheme scheme₁
+    , Just (dir, fileName, queryText) <- splitRemotePath rest = do
+        headers₀ <- case headers₁ of
+            TNull -> Just Nothing
+            h     -> Just <$> decode h
+        return (Remote (URL scheme₀ auth (File dir fileName) queryText) headers₀)
+decodeImportType (prefix₁ : rest)
+    | Just prefix₀ <- decodeFilePrefix prefix₁
+    , Just (dir, fileName) <- splitLocalPath rest =
+        Just (Path prefix₀ (File dir fileName))
+decodeImportType [ TInt 6, TString x ] =
+    Just (Env x)
+decodeImportType [ TInt 7 ] =
+    Just Missing
+decodeImportType _ =
+    Nothing
+
+decodeScheme :: Term -> Maybe Scheme
+decodeScheme (TInt 0) = Just HTTP
+decodeScheme (TInt 1) = Just HTTPS
+decodeScheme _        = Nothing
+
+decodeFilePrefix :: Term -> Maybe FilePrefix
+decodeFilePrefix (TInt 2) = Just Absolute
+decodeFilePrefix (TInt 3) = Just Here
+decodeFilePrefix (TInt 4) = Just Parent
+decodeFilePrefix (TInt 5) = Just Home
+decodeFilePrefix _        = Nothing
+
+splitRemotePath :: [Term] -> Maybe ([Text.Text], Text.Text, Maybe Text.Text)
+splitRemotePath terms = do
+    (pathTerms, query₁) <- unsnoc terms
+    (dirTerms, file₁) <- unsnoc pathTerms
+    fileName <- decodeLabel file₁
+    queryText <- case query₁ of
+        TNull      -> Just Nothing
+        TString q  -> Just (Just q)
+        _          -> Nothing
+    dir <- traverse decodeLabel dirTerms
+    return (reverse dir, fileName, queryText)
+
+splitLocalPath :: [Term] -> Maybe ([Text.Text], Text.Text)
+splitLocalPath terms = do
+    (dirTerms, file₁) <- unsnoc terms
+    fileName <- decodeLabel file₁
+    dir <- traverse decodeLabel dirTerms
+    return (reverse dir, fileName)
+
+unsnoc :: [a] -> Maybe ([a], a)
+unsnoc [] = Nothing
+unsnoc xs = Just (init xs, last xs)
+
+decodePathComponent :: Term -> Maybe PathComponent
+decodePathComponent (TInt 0)    = Just DescendOptional
+decodePathComponent (TString k) = Just (Label k)
+decodePathComponent _           = Nothing
+
+decodeLet :: [Term] -> Maybe Expression
+decodeLet [ body₁ ] =
+    decode body₁
+decodeLet (TString x : type₁ : value₁ : rest) = do
+    type₀ <- case type₁ of
+        TNull -> Just Nothing
+        t     -> Just <$> decode t
+    value₀ <- decode value₁
+    body₀  <- decodeLet rest
+    return (Let x type₀ value₀ body₀)
+decodeLet _ =
+    Nothing
+```
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5
 [multihash]: https://github.com/multiformats/multihash
