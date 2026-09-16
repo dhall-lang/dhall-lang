@@ -1544,7 +1544,9 @@ import_ = do
     let location = do
             try (do whsp; as; whsp1)
 
-            (do _Text; return RawText) <|> (do _Location; return Location)
+            (do _Text; return RawText)
+                <|> (do _Bytes; return RawBytes)
+                <|> (do _Location; return Location)
 
     l <- location <|> return Code
 

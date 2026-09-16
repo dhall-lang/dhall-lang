@@ -22,6 +22,7 @@ import qualified Codec.CBOR.Write          as CBOR.Write
 import qualified Codec.Serialise           as Serialise
 import qualified Crypto.Hash               as Hash
 import qualified Data.ByteString           as ByteString
+import qualified Data.List                 as List
 import qualified Data.Text                 as Text
 import qualified Data.Text.Encoding        as Text.Encoding
 import qualified Data.Text.IO              as Text.IO
@@ -506,6 +507,15 @@ importFailureCase path = do
                     Left _  -> return ()
                     Right _ -> HUnit.assertFailure "Unexpected successful import resolution")
 
+importPathReady :: FilePath -> Bool
+importPathReady path =
+    let needle n = n `List.isInfixOf` path
+    in  not (any needle ["cors", "Hash", "DontCacheIfHash"])
+
+isImportFailureFile :: FilePath -> Bool
+isImportFailureFile path =
+    isDhallFile path && importPathReady path && not (Text.isSuffixOf "ENV.dhall" (Text.pack path))
+
 main :: IO ()
 main = do
     Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
@@ -585,15 +595,19 @@ main = do
         discoverFilesHere isDhallFile typeInferenceFailureCase
             (testsRoot </> "type-inference/failure")
 
-    importSuccessAsLocation <-
-        discoverBySuffix "A.dhall" importSuccessCase
-            (testsRoot </> "import/success/unit/asLocation")
+    importSuccessUnit <-
+        discoverFiles
+            (\path ->
+                case stripSuffix "A.dhall" path of
+                    Just prefix -> importPathReady (prefix <> "A.dhall")
+                    Nothing     -> False)
+            (\path ->
+                importSuccessCase (maybe path id (stripSuffix "A.dhall" path)))
+            (testsRoot </> "import/success/unit")
 
-    importSuccessQuotedPath <-
-        return (importSuccessCase (testsRoot </> "import/success/unit/QuotedPath"))
-
-    importSuccessSpaces <-
-        return (importSuccessCase (testsRoot </> "import/success/unit/FilenameWithSpaces"))
+    importFailureUnit <-
+        discoverFiles isImportFailureFile importFailureCase
+            (testsRoot </> "import/failure/unit")
 
     TestServer.withServers testsRoot
         (Tasty.defaultMain
@@ -636,9 +650,8 @@ main = do
                         ]
                     ])
                 , Tasty.testGroup "import"
-                    [ importSuccessAsLocation
-                    , importSuccessQuotedPath
-                    , importSuccessSpaces
+                    [ importSuccessUnit
+                    , importFailureUnit
                     ]
                 ]
             )
