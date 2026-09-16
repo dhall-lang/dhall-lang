@@ -38,6 +38,15 @@ Other changes:
     point in a `Time` literal (including trailing zeros). `Time/show` renders the
     complete precision as given. Clarify in comments that this extends RFC 3339.
 
+  * Clarify that unhashed imports need not be αβ-normalized when inlined
+
+    Import resolution still type-checks each imported expression in an empty
+    context.  Integrity checks and the semantic cache are unchanged: they hash
+    and store the encoded αβ-normal form.  Implementations MAY skip
+    β-normalization (and α-normalization) of unhashed imports when substituting
+    them into the parent; the final program is still normalized when the
+    caller asks for a normal form.
+
 ## `v23.1.0`
 
 New features:

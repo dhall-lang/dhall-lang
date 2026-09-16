@@ -294,6 +294,15 @@ A Dhall interpreter processes expressions in five phases:
   Example: `https://prelude.dhall-lang.org/v15.0.0/Bool/not False` resolves to
   `(\(b : Bool) -> b == False) False`
 
+  Import resolution type-checks each imported file, but it need not
+  β-normalize unhashed imports before inlining them.  For example, a file
+  whose contents are `let x = 1 in x` may resolve to `let x = 1 in x` rather
+  than `1`.  Hash-protected imports are still verified against the
+  αβ-normal form.  Implementations MAY still normalize unhashed imports at
+  resolve time; that is optional.  `dhall resolve` prints the import-free
+  expression, which may still contain `let`s from imported files.
+  Normalization of the whole program is a later phase.
+
   <br/>
 
 * **Type checking**
