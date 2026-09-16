@@ -1,1 +1,0 @@
-beta-normalization.md

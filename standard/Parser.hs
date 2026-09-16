@@ -60,7 +60,6 @@ import qualified Control.Monad.Combinators.NonEmpty as Combinators.NonEmpty
 import qualified Crypto.Hash                        as Hash
 import qualified Data.ByteArray.Encoding            as ByteArray.Encoding
 import qualified Data.ByteString.Char8              as ByteString8
-import qualified Data.ByteString.Base16             as Base16
 import qualified Data.Char                          as Char
 import qualified Data.List.NonEmpty                 as NonEmpty
 import qualified Data.Map                           as Map
@@ -465,9 +464,9 @@ bytesLiteral = hexadecimal
 
         char '"'
 
-        case Base16.decodeBase16 $ ByteString8.pack $ concat chunks of
-            Left e -> fail $ Text.unpack e
-            Right bytes -> return bytes
+        case ByteArray.Encoding.convertFromBase Base16 $ ByteString8.pack $ concat chunks of
+            Left e -> fail e
+            Right bytes -> return (bytes :: ByteString)
 
 reservedKeywords :: [Text]
 reservedKeywords =

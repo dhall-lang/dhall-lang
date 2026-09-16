@@ -160,6 +160,7 @@ pkgsNew: pkgsOld: {
                     postPatch = (old.postPatch or "") +
                     ''
                     ${pkgsNew.gnused}/bin/sed -i 's_../tests_${../tests}_' tasty/Main.hs
+                    ${pkgsNew.bash}/bin/bash ./link-literate.sh
                     '';
                   });
             };

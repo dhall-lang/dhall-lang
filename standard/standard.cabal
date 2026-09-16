@@ -6,7 +6,24 @@ description:         The Dhall semantics are written in literate Haskell,
                      meaning that the logical judgments are written side-by-side
                      with the equivalent Haskell code in order to minimize
                      ambiguity.
-build-type:          Simple
+build-type:          Custom
+
+extra-source-files:    link-literate.sh
+                     , syntax.md
+                     , alpha-normalization.md
+                     , beta-normalization.md
+                     , binary.md
+                     , equivalence.md
+                     , function-check.md
+                     , multiline.md
+                     , shift.md
+                     , substitution.md
+
+custom-setup
+  setup-depends:       base >= 4.9 && < 5
+                     , Cabal
+                     , directory
+                     , process
 
 library
   build-depends:       base

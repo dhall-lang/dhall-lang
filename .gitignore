@@ -2,3 +2,8 @@ docs/_site/
 dist-newstyle/
 /result
 .history
+
+# Literate Haskell modules are generated as symlinks to kebab-case .md files
+# (see standard/link-literate.sh). Keep Equivalence.lhs-boot tracked.
+standard/*.lhs
+!standard/Equivalence.lhs-boot

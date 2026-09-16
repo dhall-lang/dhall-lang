@@ -9,11 +9,17 @@ The details of how to do so are left open to each implementation, including
 supported integer ranges or how to idiomatically encode unions.
 
 Some of these standard documents are literate Haskell code showing how to
-translate the natural deduction notation to executable code.  You can build the
-Haskell code by running (in this directory):
+translate the natural deduction notation to executable code.  The committed
+source is the kebab-case `.md` file (for example `alpha-normalization.md`).
+GHC still compiles a `Module.lhs` path via `markdown-unlit`, so those names
+are created as **untracked symlinks** by `./link-literate.sh` (Cabal's
+`Setup.hs` runs that script before configure; Nix runs it in `postPatch`).
+
+You can build the Haskell code by running (in this directory):
 
 ```bash
 $ nix-shell  # Optional, if you want to use the exact same environment as CI
+$ ./link-literate.sh  # needed if you skipped nix-shell / Cabal's Setup.hs
 $ cabal build
 ```
 
