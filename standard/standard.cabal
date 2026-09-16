@@ -73,6 +73,7 @@ test-suite tasty
   build-depends:       base
                      , bytestring
                      , cborg
+                     , cryptonite
                      , directory
                      , filepath
                      , megaparsec

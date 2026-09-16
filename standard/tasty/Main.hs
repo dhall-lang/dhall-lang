@@ -9,6 +9,7 @@
 module Main where
 
 import Codec.CBOR.Term (Term(..))
+import Crypto.Hash (Digest, SHA256)
 import Data.List.NonEmpty (NonEmpty(..))
 import System.FilePath ((</>))
 import Test.Tasty (TestTree)
@@ -16,10 +17,14 @@ import Test.Tasty (TestTree)
 import qualified AlphaNormalization
 import qualified BetaNormalization
 import qualified Binary
+import qualified Codec.CBOR.Term           as CBOR.Term
+import qualified Codec.CBOR.Write          as CBOR.Write
 import qualified Codec.Serialise           as Serialise
+import qualified Crypto.Hash               as Hash
 import qualified Data.ByteString           as ByteString
 import qualified Data.Text                 as Text
 import qualified Data.Text.Encoding        as Text.Encoding
+import qualified Data.Text.IO              as Text.IO
 import qualified Parser
 import qualified Syntax
 import qualified System.Directory          as Directory
@@ -315,7 +320,38 @@ binaryDecodeSuccessCase prefix = do
 
         assertEncodedEqual "Binary decode mismatch" expected decoded
 
--- | Binary decode failure: the CBOR must not decode to an expression.
+-- | SHA-256 of the CBOR encoding of the α-normalized β-normal form.
+semanticHash :: Syntax.Expression -> Text.Text
+semanticHash expression = "sha256:" <> Text.pack (show digest)
+  where
+    normalized =
+        AlphaNormalization.alphaNormalize
+            (BetaNormalization.betaNormalize expression)
+
+    bytes =
+        CBOR.Write.toStrictByteString
+            (CBOR.Term.encodeTerm (Binary.encode normalized))
+
+    digest = Hash.hash bytes :: Digest SHA256
+
+semanticHashCase :: FilePath -> TestTree
+semanticHashCase prefix = do
+    let inputFile  = prefix <> "A.dhall"
+    let outputFile = prefix <> "B.hash"
+
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name do
+        input <- expectParsed inputFile
+
+        if containsImport input
+            then putStrLn ("Skipping import case: " <> name)
+            else do
+                expected <- Text.IO.readFile outputFile
+                HUnit.assertEqual
+                    "Semantic hash mismatch"
+                    (Text.strip expected)
+                    (semanticHash input)
 binaryDecodeFailureCase :: FilePath -> TestTree
 binaryDecodeFailureCase path = do
     let name = FilePath.takeBaseName path
@@ -374,6 +410,18 @@ main = do
         discoverFiles isDhallbFile binaryDecodeFailureCase
             (testsRoot </> "binary-decode/failure")
 
+    semanticHashSimple <-
+        discoverBySuffix "A.dhall" semanticHashCase
+            (testsRoot </> "semantic-hash/success/simple")
+
+    semanticHashSimplifications <-
+        discoverBySuffix "A.dhall" semanticHashCase
+            (testsRoot </> "semantic-hash/success/simplifications")
+
+    semanticHashTutorial <-
+        discoverBySuffix "A.dhall" semanticHashCase
+            (testsRoot </> "semantic-hash/success/haskell-tutorial")
+
     Tasty.defaultMain
         (Tasty.testGroup "Dhall acceptance tests"
             [ Tasty.testGroup "parser"
@@ -396,6 +444,11 @@ main = do
             , Tasty.testGroup "binary-decode"
                 [ binaryDecodeSuccess
                 , binaryDecodeFailure
+                ]
+            , Tasty.testGroup "semantic-hash"
+                [ semanticHashSimple
+                , semanticHashSimplifications
+                , semanticHashTutorial
                 ]
             ]
         )
