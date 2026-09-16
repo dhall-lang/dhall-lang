@@ -1430,13 +1430,13 @@ encode (DateLiteral d) = TList [ TInt 30, TInt (fromInteger _YYYY), TInt _MM, TI
 
 
 ```haskell
-encode (TimeLiteral (Time.TimeOfDay hh mm ss) precision) =
-    TList [ TInt 31, TInt hh, TInt mm, TTagged 4 (TList [ TInt e, m ]) ]
+encode (TimeLiteral hh mm ss fraction precision) =
+    TList [ TInt 31, TInt (fromIntegral hh), TInt (fromIntegral mm), TTagged 4 (TList [ TInt e, m ]) ]
   where
     e = negate precision
 
     mantissa :: Integer
-    mantissa = truncate (ss * 10^precision)
+    mantissa = fromIntegral ss * 10^precision + fraction
 
     m   |   fromIntegral (minBound :: Int) <= mantissa
         &&  mantissa <= fromIntegral (maxBound :: Int) =

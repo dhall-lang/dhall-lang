@@ -182,6 +182,7 @@ import Crypto.Hash (Digest, SHA256)
 import Data.ByteString (ByteString)
 import Data.List.NonEmpty (NonEmpty)
 import Data.Text (Text)
+import Data.Word (Word8)
 import Numeric.Natural (Natural)
 
 import qualified Data.Time as Time
@@ -240,9 +241,16 @@ data Expression
       -- ^ > 0x"abcdef0123456789"
     | DateLiteral Time.Day
     | TimeLiteral
-        Time.TimeOfDay
+        Word8
+        -- ^ Hour (0–23)
+        Word8
+        -- ^ Minute (0–59)
+        Word8
+        -- ^ Second, integer part (0–59)
+        Integer
+        -- ^ Fractional digits as a base-10 integer
         Int
-        -- ^ Precision
+        -- ^ Number of fractional digits (0 if there is no '.')
     | TimeZoneLiteral Time.TimeZone
     | RecordType [(Text, Expression)]
       -- ^ > {}
