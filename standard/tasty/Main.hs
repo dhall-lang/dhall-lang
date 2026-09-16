@@ -313,6 +313,22 @@ main = do
         discoverBySuffix "A.dhall" betaNormalizationCase
             (testsRoot </> "normalization/success/unit")
 
+    betaNormalizationSimple <-
+        discoverBySuffix "A.dhall" betaNormalizationCase
+            (testsRoot </> "normalization/success/simple")
+
+    betaNormalizationSimplifications <-
+        discoverBySuffix "A.dhall" betaNormalizationCase
+            (testsRoot </> "normalization/success/simplifications")
+
+    betaNormalizationTutorial <-
+        discoverBySuffix "A.dhall" betaNormalizationCase
+            (testsRoot </> "normalization/success/haskell-tutorial")
+
+    betaNormalizationRegression <-
+        discoverBySuffix "A.dhall" betaNormalizationCase
+            (testsRoot </> "normalization/success/regression")
+
     let withTimeout =
             Tasty.localOption (Tasty.mkTimeout 3000000)  -- 3 seconds
 
@@ -326,6 +342,14 @@ main = do
                 [ alphaNormalization ]
             , withTimeout (Tasty.testGroup "normalization"
                 [ Tasty.testGroup "unit" [ betaNormalizationUnit ]
+                , betaNormalizationSimple
+                , betaNormalizationSimplifications
+                , betaNormalizationTutorial
+                , betaNormalizationRegression
+                , betaNormalizationCase
+                    (testsRoot </> "normalization/success/WithRecordValue")
+                , betaNormalizationCase
+                    (testsRoot </> "normalization/success/remoteSystems")
                 ])
             ]
         )
