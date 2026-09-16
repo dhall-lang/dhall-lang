@@ -142,7 +142,7 @@ pkgsNew: pkgsOld: {
       ${pkgsNew.coreutils}/bin/chmod --recursive u+w "$out"
 
       for FILE in $(${pkgsNew.findutils}/bin/find "$out" -type f -name '*.dhallb'); do
-        ${pkgsNew.cbor-diag}/bin/cbor2diag.rb "$FILE" > "''${FILE%.dhallb}.diag"
+        ${pkgsNew.haskellPackages.standard}/bin/dhall --from-cbor --diag "''${FILE%.dhallb}.diag" < "$FILE" >/dev/null
       done
 
       ${pkgsNew.dhall}/bin/dhall --unicode type --no-cache --file "${../.}/tests/type-inference/success/preludeA.dhall" > "$out/type-inference/success/preludeB.dhall"

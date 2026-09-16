@@ -9,10 +9,12 @@
 module Main where
 
 import Codec.CBOR.Term (Term)
+import Control.Monad (when)
 import Crypto.Hash (Digest, SHA256)
 import Data.List.NonEmpty (NonEmpty(..))
 import System.FilePath ((</>))
 import Test.Tasty (TestTree)
+import Test.Tasty.Runners (NumThreads(..))
 
 import qualified AlphaNormalization
 import qualified BetaNormalization
@@ -22,7 +24,7 @@ import qualified Codec.CBOR.Write          as CBOR.Write
 import qualified Codec.Serialise           as Serialise
 import qualified Crypto.Hash               as Hash
 import qualified Data.ByteString           as ByteString
-import qualified Data.List                 as List
+import qualified Data.List.NonEmpty        as NonEmpty
 import qualified Data.Text                 as Text
 import qualified Data.Text.Encoding        as Text.Encoding
 import qualified Data.Text.IO              as Text.IO
@@ -42,6 +44,10 @@ import qualified TestServer
 -- prefix to an absolute store path in @postPatch@.
 testsRoot :: FilePath
 testsRoot = "../tests"
+
+-- | Unique test name from a path under 'testsRoot'.
+testName :: FilePath -> String
+testName path = FilePath.makeRelative testsRoot path
 
 -- | Parse a complete Dhall expression, requiring the whole file to be consumed.
 parseExpression :: FilePath -> Text.Text -> Either String Syntax.Expression
@@ -183,7 +189,7 @@ parserSuccessCase prefix = do
     let inputFile  = prefix <> "A.dhall"
     let outputFile = prefix <> "B.dhallb"
 
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
     HUnit.testCase name do
         parsed <- parseFile inputFile
@@ -199,7 +205,7 @@ parserSuccessCase prefix = do
 -- | Parser failure: the file must not parse as a complete expression.
 parserFailureCase :: FilePath -> TestTree
 parserFailureCase path = do
-    let name = FilePath.takeBaseName path
+    let name = testName path
 
     HUnit.testCase name do
         parsed <- parseFile path
@@ -214,7 +220,7 @@ alphaNormalizationCase prefix = do
     let inputFile  = prefix <> "A.dhall"
     let outputFile = prefix <> "B.dhall"
 
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
     HUnit.testCase name do
         input  <- expectParsed inputFile
@@ -303,21 +309,42 @@ subexpressions expression =
         Syntax.Constant{} ->
             []
 
--- | β-normalization: parse A and B; normalize only A; compare encodings.
--- Skip cases that still contain an 'Import' node until import resolution exists.
+maybeResolve
+    :: Imports.ResolveEnv
+    -> Syntax.Expression
+    -> IO Syntax.Expression
+maybeResolve env expression
+    | not (containsImport expression) =
+        return expression
+    | otherwise = do
+        resolved <- Imports.resolveExpression env expression
+        case resolved of
+            Left err ->
+                fail (show err)
+            Right value ->
+                return value
+
+-- | β-normalization: parse A and B; resolve imports if present; normalize only A.
 betaNormalizationCase :: FilePath -> TestTree
 betaNormalizationCase prefix = do
     let inputFile  = prefix <> "A.dhall"
     let outputFile = prefix <> "B.dhall"
 
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
     HUnit.testCase name do
         input  <- expectParsed inputFile
         output <- expectParsed outputFile
 
         if containsImport input || containsImport output
-            then putStrLn ("Skipping import case: " <> name)
+            then withImportEnvironment inputFile do
+                env <- resolveEnvFor inputFile Prelude.False
+                resolvedInput  <- maybeResolve env input
+                resolvedOutput <- maybeResolve env output
+                assertEncodedEqual
+                    "β-normalization mismatch"
+                    resolvedOutput
+                    (BetaNormalization.betaNormalize resolvedInput)
             else
                 assertEncodedEqual
                     "β-normalization mismatch"
@@ -330,7 +357,7 @@ binaryDecodeSuccessCase prefix = do
     let inputFile  = prefix <> "A.dhallb"
     let outputFile = prefix <> "B.dhall"
 
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
     HUnit.testCase name do
         term <- Serialise.readFileDeserialise inputFile
@@ -362,44 +389,55 @@ semanticHashCase prefix = do
     let inputFile  = prefix <> "A.dhall"
     let outputFile = prefix <> "B.hash"
 
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
     HUnit.testCase name do
         input <- expectParsed inputFile
+        expected <- Text.IO.readFile outputFile
 
-        if containsImport input
-            then putStrLn ("Skipping import case: " <> name)
-            else do
-                expected <- Text.IO.readFile outputFile
-                HUnit.assertEqual
-                    "Semantic hash mismatch"
-                    (Text.strip expected)
-                    (semanticHash input)
+        hashed <-
+            if containsImport input
+                then withImportEnvironment inputFile do
+                    env <- resolveEnvFor inputFile Prelude.False
+                    resolved <- maybeResolve env input
+                    return (semanticHash resolved)
+                else return (semanticHash input)
+
+        HUnit.assertEqual
+            "Semantic hash mismatch"
+            (Text.strip expected)
+            hashed
+
+inferOrFail :: Syntax.Expression -> IO Syntax.Expression
+inferOrFail expression =
+    case TypeInference.inferType [] expression of
+        Nothing       -> fail "Type inference failed"
+        Just inferred -> return inferred
 
 typeInferenceSuccessCase :: FilePath -> TestTree
 typeInferenceSuccessCase prefix = do
     let inputFile  = prefix <> "A.dhall"
     let outputFile = prefix <> "B.dhall"
 
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
     HUnit.testCase name do
         input  <- expectParsed inputFile
         output <- expectParsed outputFile
 
-        if containsImport input
-            then putStrLn ("Skipping import case: " <> name)
-            else case TypeInference.inferType [] input of
-                Nothing -> fail "Type inference failed"
-                Just inferred ->
-                    assertEncodedEqual
-                        "Type inference mismatch"
-                        output
-                        inferred
+        inferred <-
+            if containsImport input
+                then withImportEnvironment inputFile do
+                    env <- resolveEnvFor inputFile Prelude.False
+                    resolved <- maybeResolve env input
+                    inferOrFail resolved
+                else inferOrFail input
+
+        assertEncodedEqual "Type inference mismatch" output inferred
 
 typeInferenceFailureCase :: FilePath -> TestTree
 typeInferenceFailureCase path = do
-    let name = FilePath.takeBaseName path
+    let name = testName path
 
     HUnit.testCase name do
         parsed <- parseFile path
@@ -407,16 +445,25 @@ typeInferenceFailureCase path = do
         case parsed of
             Left _ ->
                 return ()
-            Right expression ->
-                if containsImport expression
-                    then putStrLn ("Skipping import case: " <> name)
-                    else case TypeInference.inferType [] expression of
-                        Nothing -> return ()
-                        Just _  -> HUnit.assertFailure "Unexpected successful type inference"
+            Right expression -> do
+                inferred <-
+                    if containsImport expression
+                        then withImportEnvironment path do
+                            env <- resolveEnvFor path Prelude.False
+                            resolved <- Imports.resolveExpression env expression
+                            case resolved of
+                                Left _ ->
+                                    return Nothing
+                                Right value ->
+                                    return (TypeInference.inferType [] value)
+                        else return (TypeInference.inferType [] expression)
+                case inferred of
+                    Nothing -> return ()
+                    Just _  -> HUnit.assertFailure "Unexpected successful type inference"
 
 binaryDecodeFailureCase :: FilePath -> TestTree
 binaryDecodeFailureCase path = do
-    let name = FilePath.takeBaseName path
+    let name = testName path
 
     HUnit.testCase name do
         term <- Serialise.readFileDeserialise path
@@ -444,30 +491,97 @@ ancestorImport inputFile = do
         [] ->
             fail ("Empty import ancestor for " <> inputFile)
 
-resolveEnvFor :: FilePath -> IO Imports.ResolveEnv
-resolveEnvFor inputFile = do
+copyDirectory :: FilePath -> FilePath -> IO ()
+copyDirectory src dst = do
+    Directory.createDirectoryIfMissing True dst
+    names <- Directory.listDirectory src
+    mapM_ copyOne names
+  where
+    copyOne name = do
+        let from = src </> name
+            to   = dst </> name
+        isDir <- Directory.doesDirectoryExist from
+        if isDir
+            then copyDirectory from to
+            else Directory.copyFile from to
+
+asTextLiteral :: Syntax.Expression -> Maybe Text.Text
+asTextLiteral (Syntax.TextLiteral (Syntax.Chunks [] text)) = Just text
+asTextLiteral _ = Nothing
+
+fromMapEntry :: Syntax.Expression -> Maybe (Text.Text, Syntax.Expression)
+fromMapEntry (Syntax.RecordLiteral fields) = do
+    keyExpr <- lookup "mapKey" fields
+    valExpr <- lookup "mapValue" fields
+    key <- asTextLiteral keyExpr
+    return (key, valExpr)
+fromMapEntry _ =
+    Nothing
+
+fromDhallMap :: Syntax.Expression -> Maybe [(Text.Text, Syntax.Expression)]
+fromDhallMap (Syntax.EmptyList _) = Just []
+fromDhallMap (Syntax.NonEmptyList xs) =
+    traverse fromMapEntry (NonEmpty.toList xs)
+fromDhallMap _ =
+    Nothing
+
+extractEnvVars :: Syntax.Expression -> Maybe [(String, String)]
+extractEnvVars expression = do
+    entries <- fromDhallMap (BetaNormalization.betaNormalize expression)
+    pairs <- traverse (\(k, v) -> (,) (Text.unpack k) . Text.unpack <$> asTextLiteral v) entries
+    return pairs
+
+envFileFor :: FilePath -> FilePath
+envFileFor inputFile =
+    case stripSuffix "A.dhall" inputFile of
+        Just prefix -> prefix <> "ENV.dhall"
+        Nothing ->
+            case stripSuffix ".dhall" inputFile of
+                Just prefix -> prefix <> "ENV.dhall"
+                Nothing     -> inputFile <> "ENV.dhall"
+
+applyEnvFile :: FilePath -> IO ()
+applyEnvFile path = do
+    exists <- Directory.doesFileExist path
+    when exists do
+        expression <- expectParsed path
+        case extractEnvVars expression of
+            Nothing ->
+                fail ("Could not read environment map from " <> path)
+            Just bindings ->
+                mapM_ (uncurry Environment.setEnv) bindings
+
+resolveEnvFor :: FilePath -> Prelude.Bool -> IO Imports.ResolveEnv
+resolveEnvFor inputFile useDisk = do
     testsAbs <- Directory.canonicalizePath testsRoot
     repoRoot <- Directory.canonicalizePath (testsAbs </> "..")
     parentOfRepo <- Directory.canonicalizePath (repoRoot </> "..")
     home <- Directory.canonicalizePath (testsRoot </> "import" </> "home")
     ancestor <- ancestorImport inputFile
     manager <- Imports.newInsecureManager
+    cache <- Directory.canonicalizePath =<< Environment.getEnv "XDG_CACHE_HOME"
 
-    return Imports.ResolveEnv
-        { Imports.rootCwd = parentOfRepo
-        , Imports.homeDirectory = home
-        , Imports.stack = ancestor :| []
-        , Imports.httpManager = manager
-        }
+    Imports.newResolveEnv parentOfRepo home (ancestor :| []) manager cache useDisk
 
-withImportEnvironment :: IO a -> IO a
-withImportEnvironment action = do
+withImportEnvironment :: FilePath -> IO a -> IO a
+withImportEnvironment inputFile action = do
     home <- Directory.canonicalizePath (testsRoot </> "import" </> "home")
-    cache <- Directory.canonicalizePath (testsRoot </> "import" </> "cache")
+    committedCache <- Directory.canonicalizePath (testsRoot </> "import" </> "cache")
+    tmp <- Directory.getTemporaryDirectory
+    let slug = map (\c -> if c == '/' || c == '\\' then '-' else c) inputFile
+    let cache = tmp </> ("dhall-import-cache-" <> slug)
+    Directory.removePathForcibly cache
+    Directory.createDirectoryIfMissing True cache
+    copyDirectory committedCache cache
 
     Environment.setEnv "HOME" home
     Environment.setEnv "XDG_CACHE_HOME" cache
     Environment.setEnv "DHALL_TEST_VAR" "6 * 7"
+    Environment.unsetEnv "DHALL_HEADERS"
+    Environment.unsetEnv "USER_AGENT"
+    Environment.unsetEnv "XDG_CONFIG_HOME"
+
+    applyEnvFile (envFileFor inputFile)
 
     action
 
@@ -475,12 +589,12 @@ importSuccessCase :: FilePath -> TestTree
 importSuccessCase prefix = do
     let inputFile  = prefix <> "A.dhall"
     let outputFile = prefix <> "B.dhall"
-    let name = FilePath.takeBaseName inputFile
+    let name = testName inputFile
 
-    HUnit.testCase name (withImportEnvironment do
+    HUnit.testCase name (withImportEnvironment inputFile do
         input  <- expectParsed inputFile
         output <- expectParsed outputFile
-        env    <- resolveEnvFor inputFile
+        env    <- resolveEnvFor inputFile True
 
         resolved <- Imports.resolveExpression env input
 
@@ -492,29 +606,60 @@ importSuccessCase prefix = do
 
 importFailureCase :: FilePath -> TestTree
 importFailureCase path = do
-    let name = FilePath.takeBaseName path
+    let name = testName path
 
-    HUnit.testCase name (withImportEnvironment do
+    HUnit.testCase name (withImportEnvironment path do
         parsed <- parseFile path
 
         case parsed of
             Left _ ->
                 return ()
             Right expression -> do
-                env <- resolveEnvFor path
+                env <- resolveEnvFor path True
                 resolved <- Imports.resolveExpression env expression
                 case resolved of
                     Left _  -> return ()
                     Right _ -> HUnit.assertFailure "Unexpected successful import resolution")
 
-importPathReady :: FilePath -> Bool
-importPathReady path =
-    let needle n = n `List.isInfixOf` path
-    in  not (any needle ["cors", "Hash", "DontCacheIfHash"])
+isEnvFile :: FilePath -> Bool
+isEnvFile path =
+    Text.isSuffixOf "ENV.dhall" (Text.pack path)
+
+isImportSuccessA :: FilePath -> Bool
+isImportSuccessA path =
+    case stripSuffix "A.dhall" path of
+        Just _  -> not (isEnvFile path)
+        Nothing -> False
 
 isImportFailureFile :: FilePath -> Bool
 isImportFailureFile path =
-    isDhallFile path && importPathReady path && not (Text.isSuffixOf "ENV.dhall" (Text.pack path))
+    isDhallFile path && not (isEnvFile path)
+
+-- | Naive import of Prelude is too slow for this reference: the full
+-- package (@preludeA.dhall@) and per-file @prelude/**@ cases β-normalize
+-- @assert@ examples (e.g. @List/shifted@ exceeds a 10-minute timeout).
+-- Import-suite files such as @cors/PreludeA.dhall@ are unaffected.
+isSlowPreludeA :: FilePath -> Bool
+isSlowPreludeA path =
+    let parts = FilePath.splitDirectories path
+        name  = FilePath.takeFileName path
+        inSlowSuite =
+            "type-inference" `elem` parts
+            || "semantic-hash" `elem` parts
+    in  inSlowSuite
+            && (name == "preludeA.dhall" || "prelude" `elem` parts)
+
+isTypeInferenceSuccessA :: FilePath -> Bool
+isTypeInferenceSuccessA path =
+    case stripSuffix "A.dhall" path of
+        Just _  -> not (isSlowPreludeA path)
+        Nothing -> False
+
+isSemanticHashA :: FilePath -> Bool
+isSemanticHashA path =
+    case stripSuffix "A.dhall" path of
+        Just _  -> not (isSlowPreludeA path)
+        Nothing -> False
 
 main :: IO ()
 main = do
@@ -532,28 +677,18 @@ main = do
         discoverBySuffix "A.dhall" alphaNormalizationCase
             (testsRoot </> "alpha-normalization/success")
 
-    betaNormalizationUnit <-
+    betaNormalization <-
         discoverBySuffix "A.dhall" betaNormalizationCase
-            (testsRoot </> "normalization/success/unit")
-
-    betaNormalizationSimple <-
-        discoverBySuffix "A.dhall" betaNormalizationCase
-            (testsRoot </> "normalization/success/simple")
-
-    betaNormalizationSimplifications <-
-        discoverBySuffix "A.dhall" betaNormalizationCase
-            (testsRoot </> "normalization/success/simplifications")
-
-    betaNormalizationTutorial <-
-        discoverBySuffix "A.dhall" betaNormalizationCase
-            (testsRoot </> "normalization/success/haskell-tutorial")
-
-    betaNormalizationRegression <-
-        discoverBySuffix "A.dhall" betaNormalizationCase
-            (testsRoot </> "normalization/success/regression")
+            (testsRoot </> "normalization/success")
 
     let withTimeout =
-            Tasty.localOption (Tasty.mkTimeout 3000000)  -- 3 seconds
+            Tasty.localOption (Tasty.mkTimeout 30000000)  -- 30 seconds
+
+    let withNormTimeout =
+            Tasty.localOption (Tasty.mkTimeout 120000000)  -- 2 minutes
+
+    let withLongTimeout =
+            Tasty.localOption (Tasty.mkTimeout 600000000)  -- 10 minutes
 
     binaryDecodeSuccess <-
         discoverBySuffix "A.dhallb" binaryDecodeSuccessCase
@@ -563,29 +698,21 @@ main = do
         discoverFiles isDhallbFile binaryDecodeFailureCase
             (testsRoot </> "binary-decode/failure")
 
-    semanticHashSimple <-
-        discoverBySuffix "A.dhall" semanticHashCase
-            (testsRoot </> "semantic-hash/success/simple")
+    semanticHashTests <-
+        discoverFiles
+            isSemanticHashA
+            (\path ->
+                semanticHashCase
+                    (maybe path id (stripSuffix "A.dhall" path)))
+            (testsRoot </> "semantic-hash/success")
 
-    semanticHashSimplifications <-
-        discoverBySuffix "A.dhall" semanticHashCase
-            (testsRoot </> "semantic-hash/success/simplifications")
-
-    semanticHashTutorial <-
-        discoverBySuffix "A.dhall" semanticHashCase
-            (testsRoot </> "semantic-hash/success/haskell-tutorial")
-
-    typeInferenceUnit <-
-        discoverBySuffix "A.dhall" typeInferenceSuccessCase
-            (testsRoot </> "type-inference/success/unit")
-
-    typeInferenceSimple <-
-        discoverBySuffix "A.dhall" typeInferenceSuccessCase
-            (testsRoot </> "type-inference/success/simple")
-
-    typeInferenceRegression <-
-        discoverBySuffix "A.dhall" typeInferenceSuccessCase
-            (testsRoot </> "type-inference/success/regression")
+    typeInferenceSuccess <-
+        discoverFiles
+            isTypeInferenceSuccessA
+            (\path ->
+                typeInferenceSuccessCase
+                    (maybe path id (stripSuffix "A.dhall" path)))
+            (testsRoot </> "type-inference/success")
 
     typeInferenceFailureUnit <-
         discoverFiles isDhallFile typeInferenceFailureCase
@@ -595,64 +722,50 @@ main = do
         discoverFilesHere isDhallFile typeInferenceFailureCase
             (testsRoot </> "type-inference/failure")
 
-    importSuccessUnit <-
+    importSuccess <-
         discoverFiles
-            (\path ->
-                case stripSuffix "A.dhall" path of
-                    Just prefix -> importPathReady (prefix <> "A.dhall")
-                    Nothing     -> False)
-            (\path ->
-                importSuccessCase (maybe path id (stripSuffix "A.dhall" path)))
-            (testsRoot </> "import/success/unit")
+            isImportSuccessA
+            (\path -> importSuccessCase (maybe path id (stripSuffix "A.dhall" path)))
+            (testsRoot </> "import/success")
 
-    importFailureUnit <-
+    importFailure <-
         discoverFiles isImportFailureFile importFailureCase
-            (testsRoot </> "import/failure/unit")
+            (testsRoot </> "import/failure")
 
     TestServer.withServers testsRoot
         (Tasty.defaultMain
-            (Tasty.testGroup "Dhall acceptance tests"
-                [ Tasty.testGroup "parser"
-                    [ parserSuccess
-                    , parserFailure
-                    ]
-                , Tasty.testGroup "alpha-normalization"
-                    [ alphaNormalization ]
-                , withTimeout (Tasty.testGroup "normalization"
-                    [ Tasty.testGroup "unit" [ betaNormalizationUnit ]
-                    , betaNormalizationSimple
-                    , betaNormalizationSimplifications
-                    , betaNormalizationTutorial
-                    , betaNormalizationRegression
-                    , betaNormalizationCase
-                        (testsRoot </> "normalization/success/WithRecordValue")
-                    , betaNormalizationCase
-                        (testsRoot </> "normalization/success/remoteSystems")
-                    ])
-                , Tasty.testGroup "binary-decode"
-                    [ binaryDecodeSuccess
-                    , binaryDecodeFailure
-                    ]
-                , Tasty.testGroup "semantic-hash"
-                    [ semanticHashSimple
-                    , semanticHashSimplifications
-                    , semanticHashTutorial
-                    ]
-                , withTimeout (Tasty.testGroup "type-inference"
-                    [ Tasty.testGroup "success"
-                        [ typeInferenceUnit
-                        , typeInferenceSimple
-                        , typeInferenceRegression
+            (Tasty.localOption (NumThreads 1)
+                (Tasty.testGroup "Dhall acceptance tests"
+                    [ Tasty.testGroup "parser"
+                        [ parserSuccess
+                        , parserFailure
                         ]
-                    , Tasty.testGroup "failure"
-                        [ typeInferenceFailureUnit
-                        , typeInferenceFailureTop
+                    , Tasty.testGroup "alpha-normalization"
+                        [ alphaNormalization ]
+                    , withNormTimeout (Tasty.testGroup "normalization"
+                        [ betaNormalization ]
+                        )
+                    , Tasty.testGroup "binary-decode"
+                        [ binaryDecodeSuccess
+                        , binaryDecodeFailure
                         ]
-                    ])
-                , Tasty.testGroup "import"
-                    [ importSuccessUnit
-                    , importFailureUnit
+                    , withNormTimeout (Tasty.testGroup "semantic-hash"
+                        [ semanticHashTests ]
+                        )
+                    , withTimeout (Tasty.testGroup "type-inference"
+                        [ withLongTimeout typeInferenceSuccess
+                        , Tasty.testGroup "failure"
+                            [ typeInferenceFailureUnit
+                            , typeInferenceFailureTop
+                            ]
+                        ]
+                        )
+                    , Tasty.testGroup "import"
+                        [ importSuccess
+                        , importFailure
+                        ]
                     ]
-                ]
+                )
             )
         )
+

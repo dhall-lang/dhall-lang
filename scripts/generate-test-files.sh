@@ -1,13 +1,24 @@
 set -eu
 
-my_nix() {
-    nix --extra-experimental-features 'nix-command flakes' "${@}"
-}
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-my_rsync() {
-    my_nix run 'nixpkgs#rsync' -- "${@}"
-}
+if [ -z "${DHALL:-}" ]; then
+    (
+        cd "${ROOT}/standard"
+        cabal build exe:dhall
+    )
+    DHALL="$(cd "${ROOT}/standard" && cabal list-bin exe:dhall)"
+fi
 
-my_nix build --file ./release.nix expected-test-files
-my_rsync --archive --checksum --delete result/ ./tests
-chmod -R u+w ./tests
+# Parser success fixtures: encode the parsed expression.
+find "${ROOT}/tests/parser/success" -type f -name '*A.dhall' | while read -r FILE; do
+    PREFIX="${FILE%A.dhall}"
+    "${DHALL}" --parse-only "${PREFIX}B.dhallb" < "${FILE}" >/dev/null
+    "${DHALL}" --parse-only --diag "${PREFIX}B.diag" < "${FILE}" >/dev/null
+done
+
+# Diagnostic notation for every committed CBOR file, including hand-written
+# binary-decode inputs.  Do not rewrite those *.dhallb files.
+find "${ROOT}/tests" -type f -name '*.dhallb' | while read -r FILE; do
+    "${DHALL}" --from-cbor --diag "${FILE%.dhallb}.diag" < "${FILE}" >/dev/null
+done

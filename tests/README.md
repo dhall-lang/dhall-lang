@@ -59,10 +59,10 @@ Where `A` and `B` are:
 - `B`: the binary representation of the Dhall-CBOR-encoded expression
 
 *Note*: Each `B.dhallb` file has a matching `B.diag` file containing the
-CBOR diagnostic notation for the encoded expression.  You can generate
-the `.diag` file using the `./scripts/generate-test-files.sh` script
-and our continuous integration will remind you to do so (by failing if you
-don't keep the diagnostic file up-to-date).
+CBOR diagnostic notation for the encoded expression.  Generate both from the
+Haskell reference (`./scripts/generate-test-files.sh`, which runs
+`standard`'s `dhall --parse-only` / `dhall --from-cbor --diag`).  Continuous
+integration will fail if the diagnostic files drift from the encoder.
 
 ### Running `normalization` tests
 

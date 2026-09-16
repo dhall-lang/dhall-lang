@@ -27,14 +27,19 @@ import Syntax
 import qualified Crypto.Hash        as Hash
 import qualified Data.ByteArray     as ByteArray
 import qualified Data.ByteString    as ByteString
+import qualified Data.ByteString.Lazy as ByteString.Lazy
+import qualified Data.Char          as Char
 import qualified Data.List          as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text          as Text
+import qualified Data.Text.Lazy     as Text.Lazy
 import qualified Data.Time          as Time
 import qualified Data.Ord           as Ord
 import qualified GHC.Float          as Float
+import qualified Numeric            as Numeric
 import qualified Numeric.Half       as Half
 import qualified Prelude
+import qualified Text.Printf        as Printf
 ```
 
 This document formalizes the semantics for encoding and decoding Dhall
@@ -1275,11 +1280,14 @@ encode (Import importType₀ importMode₀ hash₀) =
         Just digest -> TBytes ("\x12\x20" <> ByteArray.convert digest)
         Nothing     -> TNull
 
+    -- Import mode 4 is `as Source`.  The as-Source standard PR has not
+    -- assigned a CBOR integer yet; this reference uses 4 pending that.
     importMode₁ = case importMode₀ of
         Code     -> TInt 0
         RawText  -> TInt 1
-        RawBytes -> TInt 3
         Location -> TInt 2
+        RawBytes -> TInt 3
+        Source   -> TInt 4
 
     importType₁ = case importType₀ of
         Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀) headers₀ ->
@@ -2530,7 +2538,7 @@ decodeImportMode (TInt 0) = Just Code
 decodeImportMode (TInt 1) = Just RawText
 decodeImportMode (TInt 2) = Just Location
 decodeImportMode (TInt 3) = Just RawBytes
--- Mode 4 is `as Source` (A23).  Until binary.md assigns a number, reject it.
+decodeImportMode (TInt 4) = Just Source
 decodeImportMode _        = Nothing
 
 decodeImportType :: [Term] -> Maybe ImportType
@@ -2604,6 +2612,117 @@ decodeLet (TString x : type₁ : value₁ : rest) = do
     return (Let x type₀ value₀ body₀)
 decodeLet _ =
     Nothing
+
+-- | RFC 8949 diagnostic notation for the CBOR subset Dhall uses.
+-- Golden output is the committed @*.diag@ files in @tests/@.
+diag :: Term -> Text.Text
+diag term =
+    case term of
+        TInt n ->
+            Text.pack (show n)
+        TInteger n ->
+            Text.pack (show n)
+        TBytes bytes ->
+            "h'" <> hexUpper bytes <> "'"
+        TBytesI bytes ->
+            diag (TBytes (ByteString.Lazy.toStrict bytes))
+        TString text ->
+            quoteString text
+        TStringI text ->
+            quoteString (Text.Lazy.toStrict text)
+        TList xs ->
+            "[" <> Text.intercalate ", " (map diag xs) <> "]"
+        TListI xs ->
+            diag (TList xs)
+        TMap pairs ->
+            "{" <> Text.intercalate ", " (map diagPair pairs) <> "}"
+        TMapI pairs ->
+            diag (TMap pairs)
+        TTagged tag inner ->
+            Text.pack (show tag) <> "(" <> diag inner <> ")"
+        TBool Prelude.True ->
+            "true"
+        TBool Prelude.False ->
+            "false"
+        TNull ->
+            "null"
+        TSimple n ->
+            "simple(" <> Text.pack (show n) <> ")"
+        THalf n ->
+            diagFloat (Float.float2Double n)
+        TFloat n ->
+            diagFloat (Float.float2Double n)
+        TDouble n ->
+            diagFloat n
+  where
+    diagPair (TString key, value) =
+        quoteString key <> ": " <> diag value
+    diagPair (key, value) =
+        diag key <> ": " <> diag value
+
+diagFloat :: Prelude.Double -> Text.Text
+diagFloat n
+    | Prelude.isNaN n =
+        "NaN"
+    | Prelude.isInfinite n && n > 0 =
+        "Infinity"
+    | Prelude.isInfinite n =
+        "-Infinity"
+    | Prelude.isNegativeZero n =
+        "-0.0"
+    | otherwise =
+        Text.pack (stripFloat (Printf.printf "%.16f" n :: String))
+  where
+    stripFloat digits =
+        case break (== '.') digits of
+            (whole, '.' : frac) ->
+                let frac' = reverse (dropWhile (== '0') (reverse frac))
+                in  whole ++ "." ++ if null frac' then "0" else frac'
+            _ ->
+                digits
+
+hexUpper :: ByteString.ByteString -> Text.Text
+hexUpper bytes =
+    Text.pack (concatMap nibble (ByteString.unpack bytes))
+  where
+    nibble w =
+        [ Char.toUpper ((Numeric.showHex (w `Prelude.div` 16) "") !! 0)
+        , Char.toUpper ((Numeric.showHex (w `Prelude.mod` 16) "") !! 0)
+        ]
+
+quoteString :: Text.Text -> Text.Text
+quoteString text =
+    "\"" <> Text.concatMap escapeChar text <> "\""
+
+escapeChar :: Char -> Text.Text
+escapeChar c =
+    case c of
+        '"'  -> "\\\""
+        '\\' -> "\\\\"
+        '\a' -> "\\a"
+        '\b' -> "\\b"
+        '\f' -> "\\f"
+        '\n' -> "\\n"
+        '\r' -> "\\r"
+        '\t' -> "\\t"
+        '\v' -> "\\v"
+        _
+            | Char.ord c < 0x20 ->
+                "\\u" <> pad4 (hexCode (Char.ord c))
+            | Char.isAscii c && Char.isPrint c ->
+                Text.singleton c
+            | Char.ord c <= 0xFFFF ->
+                "\\u" <> pad4 (hexCode (Char.ord c))
+            | otherwise ->
+                "\\u{" <> hexCode (Char.ord c) <> "}"
+
+hexCode :: Int -> Text.Text
+hexCode n =
+    Text.pack (map Char.toUpper (Numeric.showHex n ""))
+
+pad4 :: Text.Text -> Text.Text
+pad4 digits =
+    Text.replicate (4 - Text.length digits) "0" <> digits
 ```
 
 [self-describe-cbor]: https://tools.ietf.org/html/rfc7049#section-2.4.5

@@ -15,6 +15,13 @@ GHC still compiles a `Module.lhs` path via `markdown-unlit`, so those names
 are created as **untracked symlinks** by `./link-literate.sh` (Cabal's
 `Setup.hs` runs that script before configure; Nix runs it in `postPatch`).
 
+A complete changelog of the executable reference on this branch (slices
+A00–A28: packaging, parser, normalization, CBOR, type inference, imports,
+`as Source`, the `dhall` CLI, and the acceptance-test driver), including
+what is still uncommitted, is in:
+
+* [Haskell reference implementation](./haskell-reference.md)
+
 You can build the Haskell code by running (in this directory):
 
 ```bash

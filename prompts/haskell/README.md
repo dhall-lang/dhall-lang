@@ -2,6 +2,10 @@
 
 Run in this order. Shared preamble: [`00-shared.md`](./00-shared.md).
 
+What was actually implemented on `complete-reference-implementation`
+(including uncommitted A23–A28 work) is documented in
+[`standard/haskell-reference.md`](../../standard/haskell-reference.md).
+
 | File | Summary | Tests unblocked |
 |---|---|---|
 | [A00](./A00-md-only-packaging.md) | Delete `.lhs` copies; symlink at build | `cabal build` |

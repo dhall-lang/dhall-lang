@@ -363,7 +363,8 @@ data ImportMode
     | RawText   -- ^ @as Text@: import the path as raw text
     | Location  -- ^ @as Location@: don't import and instead represent the path
                 --   as a Dhall expression
-    deriving (Eq, Show)
+    | Source    -- ^ @as Source@: import as code, preserving source structure
+    deriving (Eq, Ord, Show)
 
 -- | Where to locate the import
 data ImportType
@@ -393,7 +394,7 @@ data URL = URL
 data Scheme
     = HTTP  -- ^ > http:\/\/
     | HTTPS -- ^ > https:\/\/
-    deriving (Show)
+    deriving (Eq, Show)
 
 -- | The anchor for a local filepath
 data FilePrefix

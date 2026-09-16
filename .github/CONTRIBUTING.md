@@ -159,8 +159,8 @@ sketch of the following four soundness rules:
 
 There are two sets of files you may need to update in the course of a change:
 
-* If you add or modify any `.cbor` files in the test suite then you will need to
-  generate the matching `.diag` files
+* If you add or modify any parser `@*.dhallb@` / `@*.diag@` files in the test
+  suite then regenerate them from the literate Haskell reference encoder
 
 * If you add or update any Prelude utilities then you will need to lint them
   and re-freeze downstream files
@@ -187,8 +187,10 @@ following these instructions:
 
 Once you do that, you can run the following scripts:
 
-* `./scripts/generate-test-files.sh` - This generates `.diag` files from `.cbor`
-  files
+* `./scripts/generate-test-files.sh` - This uses the `standard` package's `dhall`
+  executable to regenerate parser `*.dhallb` / `*.diag` files and diagnostic
+  notation for every committed `*.dhallb` (including hand-written binary-decode
+  inputs).  Do not use Ruby `cbor2diag.rb`.
 
 * `./scripts/lint-prelude.sh` - This freezes and lints the Prelude
 

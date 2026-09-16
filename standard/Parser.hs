@@ -49,6 +49,7 @@ import Text.Megaparsec
     ( MonadParsec
     , Parsec
     , count
+    , chunk
     , notFollowedBy
     , satisfy
     , takeWhileP
@@ -229,6 +230,11 @@ simpleLabelFirstChar c = alpha c || c == '_'
 
 simpleLabelNextChar :: Char -> Bool
 simpleLabelNextChar c = alphaNum c || c `elem` [ '-', '/', '_' ]
+
+keywordToken :: Text -> Parser ()
+keywordToken token = try do
+    _ <- chunk token
+    notFollowedBy (satisfy simpleLabelNextChar)
 
 simpleLabel :: Parser Text
 simpleLabel = try do
@@ -510,28 +516,28 @@ keyword =
     <|> showConstructor
 
 if_ :: Parser ()
-if_ = void "if"
+if_ = keywordToken "if"
 
 then_ :: Parser ()
-then_ = void "then"
+then_ = keywordToken "then"
 
 else_ :: Parser ()
-else_ = void "else"
+else_ = keywordToken "else"
 
 let_ :: Parser ()
-let_ = void "let"
+let_ = keywordToken "let"
 
 in_ :: Parser ()
-in_ = void "in"
+in_ = keywordToken "in"
 
 as :: Parser ()
-as = void "as"
+as = keywordToken "as"
 
 using :: Parser ()
-using = void "using"
+using = keywordToken "using"
 
 merge :: Parser ()
-merge = void "merge"
+merge = keywordToken "merge"
 
 missing :: Parser ImportType
 missing = try do
@@ -542,22 +548,22 @@ missing = try do
     return Missing
 
 _Infinity :: Parser ()
-_Infinity = void "Infinity"
+_Infinity = keywordToken "Infinity"
 
 _NaN :: Parser ()
-_NaN = void "NaN"
+_NaN = keywordToken "NaN"
 
 _Some :: Parser ()
-_Some = void "Some"
+_Some = keywordToken "Some"
 
 toMap :: Parser ()
-toMap = void "toMap"
+toMap = keywordToken "toMap"
 
 assert :: Parser ()
-assert = void "assert"
+assert = keywordToken "assert"
 
 forallKeyword :: Parser ()
-forallKeyword = void "forall"
+forallKeyword = keywordToken "forall"
 
 forallSymbol :: Parser ()
 forallSymbol = void "∀"
@@ -566,10 +572,10 @@ forall_ :: Parser ()
 forall_ = forallSymbol <|> forallKeyword
 
 with :: Parser ()
-with = void "with"
+with = keywordToken "with"
 
 showConstructor :: Parser ()
-showConstructor = void "showConstructor"
+showConstructor = keywordToken "showConstructor"
 
 builtin :: Parser Builtin
 builtin =
@@ -731,7 +737,10 @@ _TimeZone :: Parser Builtin
 _TimeZone = do "TimeZone"; return TimeZone
 
 _Location :: Parser ()
-_Location = void "Location"
+_Location = keywordToken "Location"
+
+_Source :: Parser ()
+_Source = keywordToken "Source"
 
 constant :: Parser Constant
 constant =
@@ -1547,6 +1556,7 @@ import_ = do
             (do _Text; return RawText)
                 <|> (do _Bytes; return RawBytes)
                 <|> (do _Location; return Location)
+                <|> (do _Source; return Source)
 
     l <- location <|> return Code
 
