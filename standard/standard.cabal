@@ -19,6 +19,8 @@ extra-source-files:    link-literate.sh
                      , shift.md
                      , substitution.md
                      , type-inference.md
+                     , test-server/cert/cert.pem
+                     , test-server/cert/key.pem
 
 custom-setup
   setup-depends:       base >= 4.9 && < 5
@@ -72,19 +74,25 @@ executable dhall
 test-suite tasty
   type:                exitcode-stdio-1.0
   main-is:             Main.hs
-  build-depends:       base
+  other-modules:       TestServer
+  build-depends:       async
+                     , base
                      , bytestring
                      , cborg
                      , cryptonite
                      , directory
                      , filepath
+                     , http-types
                      , megaparsec
                      , serialise
                      , standard
                      , tasty
                      , tasty-hunit
                      , text
+                     , wai
+                     , warp
+                     , warp-tls
   hs-source-dirs:      tasty
   default-extensions:  OverloadedStrings
   default-language:    Haskell2010
-  ghc-options:         -Wall
+  ghc-options:         -Wall -threaded

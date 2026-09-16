@@ -34,6 +34,7 @@ import qualified System.FilePath           as FilePath
 import qualified Text.Megaparsec           as Megaparsec
 import qualified Test.Tasty.HUnit          as HUnit
 import qualified Test.Tasty                as Tasty
+import qualified TestServer
 
 -- | Relative to @standard/@ when running @cabal test@.  Nix rewrites this
 -- prefix to an absolute store path in @postPatch@.
@@ -501,44 +502,46 @@ main = do
         discoverFilesHere isDhallFile typeInferenceFailureCase
             (testsRoot </> "type-inference/failure")
 
-    Tasty.defaultMain
-        (Tasty.testGroup "Dhall acceptance tests"
-            [ Tasty.testGroup "parser"
-                [ parserSuccess
-                , parserFailure
-                ]
-            , Tasty.testGroup "alpha-normalization"
-                [ alphaNormalization ]
-            , withTimeout (Tasty.testGroup "normalization"
-                [ Tasty.testGroup "unit" [ betaNormalizationUnit ]
-                , betaNormalizationSimple
-                , betaNormalizationSimplifications
-                , betaNormalizationTutorial
-                , betaNormalizationRegression
-                , betaNormalizationCase
-                    (testsRoot </> "normalization/success/WithRecordValue")
-                , betaNormalizationCase
-                    (testsRoot </> "normalization/success/remoteSystems")
-                ])
-            , Tasty.testGroup "binary-decode"
-                [ binaryDecodeSuccess
-                , binaryDecodeFailure
-                ]
-            , Tasty.testGroup "semantic-hash"
-                [ semanticHashSimple
-                , semanticHashSimplifications
-                , semanticHashTutorial
-                ]
-            , withTimeout (Tasty.testGroup "type-inference"
-                [ Tasty.testGroup "success"
-                    [ typeInferenceUnit
-                    , typeInferenceSimple
-                    , typeInferenceRegression
+    TestServer.withServers testsRoot
+        (Tasty.defaultMain
+            (Tasty.testGroup "Dhall acceptance tests"
+                [ Tasty.testGroup "parser"
+                    [ parserSuccess
+                    , parserFailure
                     ]
-                , Tasty.testGroup "failure"
-                    [ typeInferenceFailureUnit
-                    , typeInferenceFailureTop
+                , Tasty.testGroup "alpha-normalization"
+                    [ alphaNormalization ]
+                , withTimeout (Tasty.testGroup "normalization"
+                    [ Tasty.testGroup "unit" [ betaNormalizationUnit ]
+                    , betaNormalizationSimple
+                    , betaNormalizationSimplifications
+                    , betaNormalizationTutorial
+                    , betaNormalizationRegression
+                    , betaNormalizationCase
+                        (testsRoot </> "normalization/success/WithRecordValue")
+                    , betaNormalizationCase
+                        (testsRoot </> "normalization/success/remoteSystems")
+                    ])
+                , Tasty.testGroup "binary-decode"
+                    [ binaryDecodeSuccess
+                    , binaryDecodeFailure
                     ]
-                ])
-            ]
+                , Tasty.testGroup "semantic-hash"
+                    [ semanticHashSimple
+                    , semanticHashSimplifications
+                    , semanticHashTutorial
+                    ]
+                , withTimeout (Tasty.testGroup "type-inference"
+                    [ Tasty.testGroup "success"
+                        [ typeInferenceUnit
+                        , typeInferenceSimple
+                        , typeInferenceRegression
+                        ]
+                    , Tasty.testGroup "failure"
+                        [ typeInferenceFailureUnit
+                        , typeInferenceFailureTop
+                        ]
+                    ])
+                ]
+            )
         )
