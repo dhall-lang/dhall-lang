@@ -19,6 +19,8 @@ extra-source-files:    link-literate.sh
                      , shift.md
                      , substitution.md
                      , type-inference.md
+                     , imports-implementation.md
+                     , imports-implementation-notes.md
                      , test-server/cert/cert.pem
                      , test-server/cert/key.pem
 
@@ -35,7 +37,13 @@ library
                      , cborg
                      , containers
                      , cryptonite
+                     , directory
+                     , filepath
                      , half
+                     , http-client
+                     , http-client-tls
+                     , http-types
+                     , connection
                      , megaparsec
                      , memory
                      , parser-combinators
@@ -47,6 +55,7 @@ library
                      , Binary
                      , Equivalence
                      , FunctionCheck
+                     , Imports
                      , Interpret
                      , Multiline
                      , Parser

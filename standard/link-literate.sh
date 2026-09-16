@@ -35,3 +35,4 @@ link Multiline.lhs multiline.md
 link Shift.lhs shift.md
 link Substitution.lhs substitution.md
 link TypeInference.lhs type-inference.md
+link Imports.lhs imports-implementation.md

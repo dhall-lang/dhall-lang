@@ -363,7 +363,7 @@ data ImportMode
     | RawText   -- ^ @as Text@: import the path as raw text
     | Location  -- ^ @as Location@: don't import and instead represent the path
                 --   as a Dhall expression
-    deriving (Show)
+    deriving (Eq, Show)
 
 -- | Where to locate the import
 data ImportType

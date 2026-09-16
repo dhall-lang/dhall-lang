@@ -25,6 +25,7 @@ import qualified Data.ByteString           as ByteString
 import qualified Data.Text                 as Text
 import qualified Data.Text.Encoding        as Text.Encoding
 import qualified Data.Text.IO              as Text.IO
+import qualified Imports
 import qualified Parser
 import qualified TypeInference
 import qualified Syntax
@@ -423,6 +424,88 @@ binaryDecodeFailureCase path = do
             Nothing -> return ()
             Just _  -> HUnit.assertFailure "Unexpected successful decode"
 
+splitPath :: FilePath -> [Text.Text]
+splitPath path =
+    filter (/= ".") (map Text.pack (FilePath.splitDirectories path))
+
+ancestorImport :: FilePath -> IO Syntax.ImportType
+ancestorImport inputFile = do
+    testsAbs <- Directory.canonicalizePath testsRoot
+    inputAbs <- Directory.canonicalizePath inputFile
+
+    let relative = FilePath.makeRelative testsAbs inputAbs
+    let components = splitPath relative
+    let virtual = "dhall-lang" : "tests" : components
+
+    case reverse virtual of
+        fileName : dirRev ->
+            return (Syntax.Path Syntax.Here (Syntax.File dirRev fileName))
+        [] ->
+            fail ("Empty import ancestor for " <> inputFile)
+
+resolveEnvFor :: FilePath -> IO Imports.ResolveEnv
+resolveEnvFor inputFile = do
+    testsAbs <- Directory.canonicalizePath testsRoot
+    repoRoot <- Directory.canonicalizePath (testsAbs </> "..")
+    parentOfRepo <- Directory.canonicalizePath (repoRoot </> "..")
+    home <- Directory.canonicalizePath (testsRoot </> "import" </> "home")
+    ancestor <- ancestorImport inputFile
+    manager <- Imports.newInsecureManager
+
+    return Imports.ResolveEnv
+        { Imports.rootCwd = parentOfRepo
+        , Imports.homeDirectory = home
+        , Imports.stack = ancestor :| []
+        , Imports.httpManager = manager
+        }
+
+withImportEnvironment :: IO a -> IO a
+withImportEnvironment action = do
+    home <- Directory.canonicalizePath (testsRoot </> "import" </> "home")
+    cache <- Directory.canonicalizePath (testsRoot </> "import" </> "cache")
+
+    Environment.setEnv "HOME" home
+    Environment.setEnv "XDG_CACHE_HOME" cache
+    Environment.setEnv "DHALL_TEST_VAR" "6 * 7"
+
+    action
+
+importSuccessCase :: FilePath -> TestTree
+importSuccessCase prefix = do
+    let inputFile  = prefix <> "A.dhall"
+    let outputFile = prefix <> "B.dhall"
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name (withImportEnvironment do
+        input  <- expectParsed inputFile
+        output <- expectParsed outputFile
+        env    <- resolveEnvFor inputFile
+
+        resolved <- Imports.resolveExpression env input
+
+        case resolved of
+            Left err ->
+                fail (show err)
+            Right expression ->
+                assertEncodedEqual "Import resolution mismatch" output expression)
+
+importFailureCase :: FilePath -> TestTree
+importFailureCase path = do
+    let name = FilePath.takeBaseName path
+
+    HUnit.testCase name (withImportEnvironment do
+        parsed <- parseFile path
+
+        case parsed of
+            Left _ ->
+                return ()
+            Right expression -> do
+                env <- resolveEnvFor path
+                resolved <- Imports.resolveExpression env expression
+                case resolved of
+                    Left _  -> return ()
+                    Right _ -> HUnit.assertFailure "Unexpected successful import resolution")
+
 main :: IO ()
 main = do
     Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
@@ -502,6 +585,16 @@ main = do
         discoverFilesHere isDhallFile typeInferenceFailureCase
             (testsRoot </> "type-inference/failure")
 
+    importSuccessAsLocation <-
+        discoverBySuffix "A.dhall" importSuccessCase
+            (testsRoot </> "import/success/unit/asLocation")
+
+    importSuccessQuotedPath <-
+        return (importSuccessCase (testsRoot </> "import/success/unit/QuotedPath"))
+
+    importSuccessSpaces <-
+        return (importSuccessCase (testsRoot </> "import/success/unit/FilenameWithSpaces"))
+
     TestServer.withServers testsRoot
         (Tasty.defaultMain
             (Tasty.testGroup "Dhall acceptance tests"
@@ -542,6 +635,11 @@ main = do
                         , typeInferenceFailureTop
                         ]
                     ])
+                , Tasty.testGroup "import"
+                    [ importSuccessAsLocation
+                    , importSuccessQuotedPath
+                    , importSuccessSpaces
+                    ]
                 ]
             )
         )
