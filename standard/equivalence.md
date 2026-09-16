@@ -7,6 +7,9 @@ import AlphaNormalization (alphaNormalize)
 import BetaNormalization (betaNormalize)
 import Binary (encode)
 import Syntax (Expression)
+
+import qualified Codec.CBOR.Term  as Term
+import qualified Codec.CBOR.Write as Write
 ```
 
 Equivalence is a relationship between two expression of the form:
@@ -34,13 +37,16 @@ Two expressions are equivalent if they are identical after β-normalization,
 
 
 ```haskell
-equivalent l₀ r₀ = encode x == encode y
+equivalent l₀ r₀ = encoded x == encoded y
   where
     l₁ = betaNormalize l₀
     r₁ = betaNormalize r₀
 
     x = alphaNormalize l₁
     y = alphaNormalize r₁
+
+    encoded expression =
+        Write.toStrictByteString (Term.encodeTerm (encode expression))
 ```
 
 Note that this definition of equivalence does not include η-equivalence, so

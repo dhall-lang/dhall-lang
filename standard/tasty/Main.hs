@@ -8,7 +8,7 @@
 -}
 module Main where
 
-import Codec.CBOR.Term (Term(..))
+import Codec.CBOR.Term (Term)
 import Crypto.Hash (Digest, SHA256)
 import Data.List.NonEmpty (NonEmpty(..))
 import System.FilePath ((</>))
@@ -26,6 +26,7 @@ import qualified Data.Text                 as Text
 import qualified Data.Text.Encoding        as Text.Encoding
 import qualified Data.Text.IO              as Text.IO
 import qualified Parser
+import qualified TypeInference
 import qualified Syntax
 import qualified System.Directory          as Directory
 import qualified System.Environment        as Environment
@@ -76,21 +77,22 @@ expectParsed path = do
         Left  errors     -> fail errors
         Right expression -> return expression
 
--- | We need this because @NaN /= NaN@.
-assertEqualIncludingNaN :: String -> Term -> Term -> IO ()
-assertEqualIncludingNaN _ (THalf l) (THalf r)
-    | isNaN l && isNaN r =
-        return ()
-assertEqualIncludingNaN message expected actual =
-    HUnit.assertEqual message expected actual
+-- | Compare CBOR encodings as bytes so NaN equals itself and @-0.0@ differs
+-- from @+0.0@, matching 'Equivalence.equivalent'.
+encodedBytes :: Term -> ByteString.ByteString
+encodedBytes term =
+    CBOR.Write.toStrictByteString (CBOR.Term.encodeTerm term)
 
 assertEncodedTermEqual :: String -> Term -> Syntax.Expression -> IO ()
 assertEncodedTermEqual message expected actual =
-    assertEqualIncludingNaN message expected (Binary.encode actual)
+    HUnit.assertEqual message (encodedBytes expected) (encodedBytes (Binary.encode actual))
 
 assertEncodedEqual :: String -> Syntax.Expression -> Syntax.Expression -> IO ()
 assertEncodedEqual message expected actual =
-    assertEqualIncludingNaN message (Binary.encode expected) (Binary.encode actual)
+    HUnit.assertEqual
+        message
+        (encodedBytes (Binary.encode expected))
+        (encodedBytes (Binary.encode actual))
 
 stripSuffix :: Text.Text -> FilePath -> Maybe FilePath
 stripSuffix suffix path =
@@ -147,6 +149,24 @@ discoverFiles predicate makeTest directory = do
     let tests = map makeTest (filter predicate files)
 
     return (Tasty.testGroup name tests)
+
+-- | Non-recursive: only files directly in @directory@, not subdirectories.
+discoverFilesHere
+    :: (FilePath -> Bool)
+    -> (FilePath -> TestTree)
+    -> FilePath
+    -> IO TestTree
+discoverFilesHere predicate makeTest directory = do
+    let name = FilePath.takeBaseName directory
+
+    children <- Directory.listDirectory directory
+
+    let files = do
+            child <- children
+            let childPath = directory </> child
+            [ childPath | predicate childPath ]
+
+    return (Tasty.testGroup name (map makeTest files))
 
 isDhallFile :: FilePath -> Bool
 isDhallFile path = FilePath.takeExtension path == ".dhall"
@@ -352,6 +372,45 @@ semanticHashCase prefix = do
                     "Semantic hash mismatch"
                     (Text.strip expected)
                     (semanticHash input)
+
+typeInferenceSuccessCase :: FilePath -> TestTree
+typeInferenceSuccessCase prefix = do
+    let inputFile  = prefix <> "A.dhall"
+    let outputFile = prefix <> "B.dhall"
+
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name do
+        input  <- expectParsed inputFile
+        output <- expectParsed outputFile
+
+        if containsImport input
+            then putStrLn ("Skipping import case: " <> name)
+            else case TypeInference.inferType [] input of
+                Nothing -> fail "Type inference failed"
+                Just inferred ->
+                    assertEncodedEqual
+                        "Type inference mismatch"
+                        output
+                        inferred
+
+typeInferenceFailureCase :: FilePath -> TestTree
+typeInferenceFailureCase path = do
+    let name = FilePath.takeBaseName path
+
+    HUnit.testCase name do
+        parsed <- parseFile path
+
+        case parsed of
+            Left _ ->
+                return ()
+            Right expression ->
+                if containsImport expression
+                    then putStrLn ("Skipping import case: " <> name)
+                    else case TypeInference.inferType [] expression of
+                        Nothing -> return ()
+                        Just _  -> HUnit.assertFailure "Unexpected successful type inference"
+
 binaryDecodeFailureCase :: FilePath -> TestTree
 binaryDecodeFailureCase path = do
     let name = FilePath.takeBaseName path
@@ -422,6 +481,26 @@ main = do
         discoverBySuffix "A.dhall" semanticHashCase
             (testsRoot </> "semantic-hash/success/haskell-tutorial")
 
+    typeInferenceUnit <-
+        discoverBySuffix "A.dhall" typeInferenceSuccessCase
+            (testsRoot </> "type-inference/success/unit")
+
+    typeInferenceSimple <-
+        discoverBySuffix "A.dhall" typeInferenceSuccessCase
+            (testsRoot </> "type-inference/success/simple")
+
+    typeInferenceRegression <-
+        discoverBySuffix "A.dhall" typeInferenceSuccessCase
+            (testsRoot </> "type-inference/success/regression")
+
+    typeInferenceFailureUnit <-
+        discoverFiles isDhallFile typeInferenceFailureCase
+            (testsRoot </> "type-inference/failure/unit")
+
+    typeInferenceFailureTop <-
+        discoverFilesHere isDhallFile typeInferenceFailureCase
+            (testsRoot </> "type-inference/failure")
+
     Tasty.defaultMain
         (Tasty.testGroup "Dhall acceptance tests"
             [ Tasty.testGroup "parser"
@@ -450,5 +529,16 @@ main = do
                 , semanticHashSimplifications
                 , semanticHashTutorial
                 ]
+            , withTimeout (Tasty.testGroup "type-inference"
+                [ Tasty.testGroup "success"
+                    [ typeInferenceUnit
+                    , typeInferenceSimple
+                    , typeInferenceRegression
+                    ]
+                , Tasty.testGroup "failure"
+                    [ typeInferenceFailureUnit
+                    , typeInferenceFailureTop
+                    ]
+                ])
             ]
         )

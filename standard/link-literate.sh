@@ -34,5 +34,4 @@ link FunctionCheck.lhs function-check.md
 link Multiline.lhs multiline.md
 link Shift.lhs shift.md
 link Substitution.lhs substitution.md
-# TypeInference.lhs is added in slice A11 once type-inference.md is literate.
-# Imports.lhs is added in later import slices.
+link TypeInference.lhs type-inference.md

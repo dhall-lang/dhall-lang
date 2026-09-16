@@ -1,5 +1,31 @@
 # Type inference
 
+```haskell
+module TypeInference
+    ( -- * Type inference
+      inferType
+    , freeVars
+    ) where
+
+import Control.Applicative ((<|>))
+import Control.Monad (guard)
+import Data.List.NonEmpty (NonEmpty(..))
+import Data.Set (Set)
+import FunctionCheck (functionCheck)
+import Prelude hiding (Bool(..))
+import Shift (shift)
+import Substitution (substitute)
+import Syntax
+
+import qualified BetaNormalization
+import qualified Data.List          as List
+import qualified Data.Map           as Map
+import qualified Data.Ord           as Ord
+import qualified Data.Set           as Set
+import qualified Equivalence
+import qualified Prelude
+```
+
 Type inference is a judgment of the form:
 
     Γ ⊢ t : T
@@ -1259,3 +1285,679 @@ For terms of all other forms, `freeVars` is computed as the union of the sets of
     freeVars(T) = V₁
     ────────────────────────
     freeVars(assert: T) = V₁
+
+```haskell
+type Context = [(Text, Expression)]
+
+inferType
+    :: Context     -- ^ @Γ@
+    -> Expression  -- ^ @t@
+    -> Maybe Expression  -- ^ @T@
+
+nf :: Expression -> Expression
+nf = BetaNormalization.betaNormalize
+
+eq :: Expression -> Expression -> Prelude.Bool
+eq = Equivalence.equivalent
+
+arr :: Expression -> Expression -> Expression
+arr a b = Forall "_" a b
+
+pi_ :: Text -> Expression -> Expression -> Expression
+pi_ = Forall
+
+extend :: Text -> Expression -> Context -> Context
+extend x t ctx = shiftContext 1 x 0 ((x, t) : ctx)
+
+shiftContext :: Integer -> Text -> Natural -> Context -> Context
+shiftContext _d _x _m [] = []
+shiftContext d x m ((y, t) : ctx) =
+    (y, shift d x m t) : shiftContext d x m ctx
+
+lookupVariable :: Text -> Natural -> Context -> Maybe Expression
+lookupVariable _x _n [] =
+    Nothing
+lookupVariable x n ((y, t) : ctx)
+    | x == y && n == 0 =
+        -- @T@ was checked when the binder was added; re-checking the
+        -- already-shifted type in the remaining context is wrong under
+        -- intervening same-name binders (see @mergeEquivalence@).
+        Just t
+    | x == y =
+        lookupVariable x (n - 1) ctx
+    | Prelude.otherwise =
+        lookupVariable x n ctx
+
+inferUniverse :: Context -> Expression -> Maybe Constant
+inferUniverse ctx t = do
+    k <- inferType ctx t
+    case k of
+        Constant c -> Just c
+        _          -> Nothing
+
+vee :: Constant -> Constant -> Constant
+vee = max
+
+sortedRecordType :: [(Text, Expression)] -> Expression
+sortedRecordType fields =
+    RecordType (List.sortBy (Ord.comparing fst) fields)
+
+uniqueKeys :: [(Text, a)] -> Prelude.Bool
+uniqueKeys kvs =
+    List.sort (map fst kvs) == List.nub (List.sort (map fst kvs))
+
+asRecordType :: Expression -> Maybe [(Text, Expression)]
+asRecordType t =
+    case nf t of
+        RecordType fields -> Just fields
+        _                 -> Nothing
+
+asUnionType :: Expression -> Maybe [(Text, Maybe Expression)]
+asUnionType t =
+    case nf t of
+        UnionType alts -> Just alts
+        _              -> Nothing
+
+textMapType :: Expression -> Expression
+textMapType t =
+    Application (Builtin List)
+        (RecordType [("mapKey", Builtin Text), ("mapValue", t)])
+
+inferType _ctx (Constant Type) = Just (Constant Kind)
+inferType _ctx (Constant Kind) = Just (Constant Sort)
+inferType _   (Constant Sort) = Nothing
+
+inferType ctx (Variable x n) =
+    lookupVariable x n ctx
+
+inferType _ctx (Builtin Bool)     = Just (Constant Type)
+inferType _ctx (Builtin True)     = Just (Builtin Bool)
+inferType _ctx (Builtin False)    = Just (Builtin Bool)
+
+inferType ctx (If t l r) = do
+    tT <- inferType ctx t
+    guard (eq tT (Builtin Bool))
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    _  <- inferUniverse ctx lT
+    _  <- inferUniverse ctx rT
+    guard (eq lT rT)
+    return (nf lT)
+
+inferType ctx (Operator l Or r) = inferBoolOp ctx l r
+inferType ctx (Operator l And r) = inferBoolOp ctx l r
+inferType ctx (Operator l Equal r) = inferBoolOp ctx l r
+inferType ctx (Operator l NotEqual r) = inferBoolOp ctx l r
+
+inferType _ctx (Builtin Natural) = Just (Constant Type)
+inferType _ctx (NaturalLiteral _) = Just (Builtin Natural)
+inferType ctx (Operator l Plus r) = inferNaturalOp ctx l r
+inferType ctx (Operator l Times r) = inferNaturalOp ctx l r
+
+inferType _ctx (Builtin NaturalBuild) = Just $
+    arr (pi_ "natural" (Constant Type)
+            (pi_ "succ" (arr (Variable "natural" 0) (Variable "natural" 0))
+                (pi_ "zero" (Variable "natural" 0) (Variable "natural" 0))))
+        (Builtin Natural)
+
+inferType _ctx (Builtin NaturalFold) = Just $
+    arr (Builtin Natural)
+        (pi_ "natural" (Constant Type)
+            (pi_ "succ" (arr (Variable "natural" 0) (Variable "natural" 0))
+                (pi_ "zero" (Variable "natural" 0) (Variable "natural" 0))))
+
+inferType _ctx (Builtin NaturalIsZero)    = Just (arr (Builtin Natural) (Builtin Bool))
+inferType _ctx (Builtin NaturalEven)      = Just (arr (Builtin Natural) (Builtin Bool))
+inferType _ctx (Builtin NaturalOdd)       = Just (arr (Builtin Natural) (Builtin Bool))
+inferType _ctx (Builtin NaturalToInteger) = Just (arr (Builtin Natural) (Builtin Integer))
+inferType _ctx (Builtin NaturalShow)      = Just (arr (Builtin Natural) (Builtin Text))
+inferType _ctx (Builtin NaturalSubtract)  =
+    Just (arr (Builtin Natural) (arr (Builtin Natural) (Builtin Natural)))
+
+inferType _ctx (Builtin Text) = Just (Constant Type)
+inferType ctx (TextLiteral (Chunks chunks _z)) = do
+    mapM_ (\(_, t) -> do
+        tT <- inferType ctx t
+        guard (eq tT (Builtin Text))) chunks
+    return (Builtin Text)
+inferType _ctx (Builtin TextShow) = Just (arr (Builtin Text) (Builtin Text))
+inferType _ctx (Builtin TextReplace) = Just $
+    pi_ "needle" (Builtin Text)
+        (pi_ "replacement" (Builtin Text)
+            (pi_ "haystack" (Builtin Text) (Builtin Text)))
+inferType ctx (Operator l TextAppend r) = do
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    guard (eq lT (Builtin Text) && eq rT (Builtin Text))
+    return (Builtin Text)
+
+inferType _ctx (Builtin Date)     = Just (Constant Type)
+inferType _ctx (Builtin Time)     = Just (Constant Type)
+inferType _ctx (Builtin TimeZone) = Just (Constant Type)
+inferType _ctx (DateLiteral _)     = Just (Builtin Date)
+inferType _ctx (TimeLiteral _ _)   = Just (Builtin Time)
+inferType _ctx (TimeZoneLiteral _) = Just (Builtin TimeZone)
+inferType _ctx (Builtin DateShow)     = Just (arr (Builtin Date) (Builtin Text))
+inferType _ctx (Builtin TimeShow)     = Just (arr (Builtin Time) (Builtin Text))
+inferType _ctx (Builtin TimeZoneShow) = Just (arr (Builtin TimeZone) (Builtin Text))
+
+inferType _ctx (Builtin Bytes) = Just (Constant Type)
+inferType _ctx (BytesLiteral _) = Just (Builtin Bytes)
+
+inferType _ctx (Builtin List) = Just (arr (Constant Type) (Constant Type))
+inferType ctx (EmptyList t0) = do
+    _  <- inferUniverse ctx t0
+    let t1 = nf t0
+    case t1 of
+        Application (Builtin List) tElem -> do
+            k <- inferType ctx tElem
+            guard (eq k (Constant Type))
+            return (Application (Builtin List) (nf tElem))
+        _ -> Nothing
+
+inferType ctx (NonEmptyList (t :| ts)) = do
+    tT <- inferType ctx t
+    k  <- inferType ctx tT
+    guard (eq k (Constant Type))
+    mapM_ (\u -> do
+        uT <- inferType ctx u
+        guard (eq tT uT)) ts
+    return (Application (Builtin List) (nf tT))
+
+inferType ctx (Operator l ListAppend r) = do
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    case (nf lT, nf rT) of
+        (Application (Builtin List) a0, Application (Builtin List) a1) -> do
+            guard (eq a0 a1)
+            return (Application (Builtin List) (nf a0))
+        _ -> Nothing
+
+inferType _ctx (Builtin ListBuild) = Just $
+    pi_ "a" (Constant Type)
+        (arr (pi_ "list" (Constant Type)
+                (pi_ "cons" (arr (Variable "a" 0) (arr (Variable "list" 0) (Variable "list" 0)))
+                    (pi_ "nil" (Variable "list" 0) (Variable "list" 0))))
+             (Application (Builtin List) (Variable "a" 0)))
+
+inferType _ctx (Builtin ListFold) = Just $
+    pi_ "a" (Constant Type)
+        (arr (Application (Builtin List) (Variable "a" 0))
+             (pi_ "list" (Constant Type)
+                 (pi_ "cons" (arr (Variable "a" 0) (arr (Variable "list" 0) (Variable "list" 0)))
+                     (pi_ "nil" (Variable "list" 0) (Variable "list" 0)))))
+
+inferType _ctx (Builtin ListLength) = Just $
+    pi_ "a" (Constant Type)
+        (arr (Application (Builtin List) (Variable "a" 0)) (Builtin Natural))
+
+inferType _ctx (Builtin ListHead) = Just $
+    pi_ "a" (Constant Type)
+        (arr (Application (Builtin List) (Variable "a" 0))
+             (Application (Builtin Optional) (Variable "a" 0)))
+
+inferType _ctx (Builtin ListLast) = Just $
+    pi_ "a" (Constant Type)
+        (arr (Application (Builtin List) (Variable "a" 0))
+             (Application (Builtin Optional) (Variable "a" 0)))
+
+inferType _ctx (Builtin ListIndexed) = Just $
+    pi_ "a" (Constant Type)
+        (arr (Application (Builtin List) (Variable "a" 0))
+             (Application (Builtin List)
+                 (RecordType [("index", Builtin Natural), ("value", Variable "a" 0)])))
+
+inferType _ctx (Builtin ListReverse) = Just $
+    pi_ "a" (Constant Type)
+        (arr (Application (Builtin List) (Variable "a" 0))
+             (Application (Builtin List) (Variable "a" 0)))
+
+inferType _ctx (Builtin Optional) = Just (arr (Constant Type) (Constant Type))
+inferType ctx (Some a) = do
+    aT <- inferType ctx a
+    k  <- inferType ctx aT
+    guard (eq k (Constant Type))
+    return (Application (Builtin Optional) (nf aT))
+inferType _ctx (Builtin None) = Just $
+    pi_ "A" (Constant Type) (Application (Builtin Optional) (Variable "A" 0))
+
+inferType _ctx (RecordType []) = Just (Constant Type)
+inferType ctx (RecordType fields) = do
+    guard (uniqueKeys fields)
+    universes <- mapM (\(_, t) -> inferUniverse ctx t) fields
+    return (Constant (List.foldl1' vee universes))
+
+inferType _ctx (RecordLiteral []) = Just (RecordType [])
+inferType ctx (RecordLiteral fields) = do
+    guard (uniqueKeys fields)
+    typed <- mapM (\(x, t) -> do
+        tT <- inferType ctx t
+        return (x, tT)) fields
+    let recordType = sortedRecordType typed
+    _ <- inferType ctx recordType
+    return recordType
+
+inferType ctx (Field e x) = do
+    eT <- inferType ctx e
+    case asRecordType eT of
+        Just fields -> do
+            t <- lookup x fields
+            return (nf t)
+        Nothing ->
+            case asUnionType e of
+                Just alts | Just (Just t) <- lookup x alts -> do
+                    let u = nf e
+                    let u1 = shift 1 x 0 u
+                    return (pi_ x t u1)
+                Just alts | Just Nothing <- lookup x alts ->
+                    return (nf e)
+                _ -> Nothing
+
+inferType ctx (ProjectByLabels e []) = do
+    eT <- inferType ctx e
+    guard (case asRecordType eT of
+        Just _  -> Prelude.True
+        Nothing -> Prelude.False)
+    return (RecordType [])
+inferType ctx (ProjectByLabels e (x:xs)) = do
+    eT <- inferType ctx e
+    fields <- asRecordType eT
+    t <- lookup x fields
+    RecordType rest <- inferType ctx (ProjectByLabels e xs)
+    guard (x `notElem` map fst rest)
+    return (sortedRecordType ((x, t) : rest))
+
+inferType ctx (ProjectByType e s) = do
+    eT <- inferType ctx e
+    _  <- inferUniverse ctx s
+    srcFields <- asRecordType eT
+    case nf s of
+        RecordType [] -> return (RecordType [])
+        RecordType ((x, t1):ss) -> do
+            t0 <- lookup x srcFields
+            guard (eq t0 t1)
+            RecordType rest <- inferType ctx (ProjectByType e (RecordType ss))
+            return (sortedRecordType ((x, t1) : rest))
+        _ -> Nothing
+
+inferType ctx (Operator l Prefer r) = do
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    ls <- asRecordType lT
+    rs <- asRecordType rT
+    return (sortedRecordType (preferFields ls rs))
+
+inferType ctx (Operator l CombineRecordTypes r) = do
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    c0 <- case lT of
+        Constant c -> Just c
+        _          -> Nothing
+    c1 <- case rT of
+        Constant c -> Just c
+        _          -> Nothing
+    ls <- asRecordType l
+    rs <- asRecordType r
+    _  <- checkCombineRecordTypes ctx ls rs
+    return (Constant (vee c0 c1))
+
+inferType ctx (Operator l CombineRecordTerms r) = do
+    t0 <- inferType ctx l
+    t1 <- inferType ctx r
+    _  <- inferType ctx (Operator t0 CombineRecordTypes t1)
+    return (nf (Operator t0 CombineRecordTypes t1))
+
+inferType ctx (ToMap e Nothing) = do
+    eT <- inferType ctx e
+    fields <- asRecordType eT
+    case fields of
+        [] -> Nothing
+        (_, t):rest -> do
+            k <- inferType ctx t
+            guard (eq k (Constant Type))
+            mapM_ (\(_, t') -> guard (eq t t')) rest
+            return (textMapType (nf t))
+
+inferType ctx (ToMap e (Just t0)) = do
+    _ <- inferUniverse ctx t0
+    inferred <- inferType ctx (ToMap e Nothing) <|> emptyAnnotatedToMap ctx t0
+    guard (eq inferred t0)
+    return (nf inferred)
+
+inferType ctx (Completion t r) =
+    inferType ctx
+        (Annotation
+            (Operator (Field t "default") Prefer r)
+            (Field t "Type"))
+
+inferType _ctx (UnionType []) = Just (Constant Type)
+inferType ctx (UnionType alts) = do
+    guard (uniqueKeys alts)
+    universes <- mapM inferAltUniverse alts
+    return (Constant (List.foldl1' vee universes))
+  where
+    inferAltUniverse (_, Nothing) = Just Type
+    inferAltUniverse (_, Just t)  = inferUniverse ctx t
+
+inferType ctx (Merge t u Nothing) =
+    inferMerge ctx t u Nothing
+inferType ctx (Merge t u (Just annotation)) = do
+    _ <- inferType ctx annotation
+    result <- inferMerge ctx t u (Just annotation)
+    guard (eq result annotation)
+    return (nf result)
+
+inferType ctx (ShowConstructor e) = do
+    eT <- inferType ctx e
+    case asUnionType eT of
+        Just _ -> return (Builtin Text)
+        Nothing ->
+            case nf eT of
+                Application (Builtin Optional) _ -> return (Builtin Text)
+                _ -> Nothing
+
+inferType ctx (With e (k :| ks) v) =
+    inferWith ctx e (k :| ks) v
+
+inferType _ctx (Builtin Integer) = Just (Constant Type)
+inferType _ctx (IntegerLiteral _) = Just (Builtin Integer)
+inferType _ctx (Builtin IntegerShow)     = Just (arr (Builtin Integer) (Builtin Text))
+inferType _ctx (Builtin IntegerToDouble) = Just (arr (Builtin Integer) (Builtin Double))
+inferType _ctx (Builtin IntegerNegate)   = Just (arr (Builtin Integer) (Builtin Integer))
+inferType _ctx (Builtin IntegerClamp)    = Just (arr (Builtin Integer) (Builtin Natural))
+
+inferType _ctx (Builtin Double) = Just (Constant Type)
+inferType _ctx (DoubleLiteral _) = Just (Builtin Double)
+inferType _ctx (Builtin DoubleShow) = Just (arr (Builtin Double) (Builtin Text))
+
+inferType ctx (Forall x a b) = do
+    i <- inferUniverse ctx a
+    let ctx1 = extend x (nf a) ctx
+    o <- inferUniverse ctx1 b
+    return (Constant (functionCheck i o))
+
+inferType ctx (Lambda x a0 b) = do
+    _  <- inferUniverse ctx a0
+    let a1 = nf a0
+    let ctx1 = extend x a1 ctx
+    bodyT <- inferType ctx1 b
+    let functionType = pi_ x a1 bodyT
+    _ <- inferType ctx functionType
+    return functionType
+
+inferType ctx (Application f a0) = do
+    fT <- inferType ctx f
+    case nf fT of
+        Forall x aExpected b0 -> do
+            aActual <- inferType ctx a0
+            guard (eq aExpected aActual)
+            let a2 = shift 1 x 0 a0
+            let b1 = substitute b0 x 0 a2
+            let b2 = shift (-1) x 0 b1
+            return (nf b2)
+        _ -> Nothing
+
+inferType ctx (Let x (Just a0) aBound b0) = do
+    a1 <- inferType ctx aBound
+    _  <- inferUniverse ctx a0
+    guard (eq a0 a1)
+    let aN = nf aBound
+    let a2 = shift 1 x 0 aN
+    let b1 = substitute b0 x 0 a2
+    let b2 = shift (-1) x 0 b1
+    inferType ctx b2
+
+inferType ctx (Let x Nothing aBound b0) = do
+    _  <- inferType ctx aBound
+    let aN = nf aBound
+    let a2 = shift 1 x 0 aN
+    let b1 = substitute b0 x 0 a2
+    let b2 = shift (-1) x 0 b1
+    inferType ctx b2
+
+inferType ctx (Annotation t (Constant Sort)) = do
+    tT <- inferType ctx t
+    guard (eq tT (Constant Sort))
+    return (Constant Sort)
+inferType ctx (Annotation t t0) = do
+    _  <- inferUniverse ctx t0
+    t1 <- inferType ctx t
+    guard (eq t0 t1)
+    return t1
+
+inferType ctx (Assert t) = do
+    k <- inferType ctx t
+    guard (eq k (Constant Type))
+    case nf t of
+        Operator x Equivalent y -> do
+            guard (eq x y)
+            return (nf t)
+        _ -> Nothing
+
+inferType ctx (Operator x Equivalent y) = do
+    a0 <- inferType ctx x
+    a1 <- inferType ctx y
+    k0 <- inferType ctx a0
+    k1 <- inferType ctx a1
+    guard (eq k0 (Constant Type) && eq k1 (Constant Type))
+    guard (eq a0 a1)
+    return (Constant Type)
+
+inferType ctx (Operator l Alternative r) = do
+    _ <- inferType ctx l
+    inferType ctx r
+
+inferType _ Import{} = Nothing
+
+inferBoolOp :: Context -> Expression -> Expression -> Maybe Expression
+inferBoolOp ctx l r = do
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    guard (eq lT (Builtin Bool) && eq rT (Builtin Bool))
+    return (Builtin Bool)
+
+inferNaturalOp :: Context -> Expression -> Expression -> Maybe Expression
+inferNaturalOp ctx l r = do
+    lT <- inferType ctx l
+    rT <- inferType ctx r
+    guard (eq lT (Builtin Natural) && eq rT (Builtin Natural))
+    return (Builtin Natural)
+
+preferFields :: [(Text, Expression)] -> [(Text, Expression)] -> [(Text, Expression)]
+preferFields ls rs =
+    let rMap = Map.fromList rs
+        kept = [ kv | kv@(k, _) <- ls, not (Map.member k rMap) ]
+    in kept <> rs
+
+checkCombineRecordTypes
+    :: Context
+    -> [(Text, Expression)]
+    -> [(Text, Expression)]
+    -> Maybe ()
+checkCombineRecordTypes ctx ls rs = do
+    let rMap = Map.fromList rs
+    mapM_
+        (\(k, a) -> case Map.lookup k rMap of
+            Nothing -> return ()
+            Just b  -> do
+                _ <- inferType ctx (Operator a CombineRecordTypes b)
+                return ())
+        ls
+
+emptyAnnotatedToMap :: Context -> Expression -> Maybe Expression
+emptyAnnotatedToMap ctx t0 = do
+    eT <- inferType ctx (RecordLiteral [])
+    guard (eq eT (RecordType []))
+    case nf t0 of
+        Application (Builtin List) (RecordType kvs)
+            | Just t1 <- lookup "mapValue" kvs
+            , maybe Prelude.False (`eq` Builtin Text) (lookup "mapKey" kvs) -> do
+                k <- inferType ctx t1
+                guard (eq k (Constant Type))
+                return (nf t0)
+        _ -> Nothing
+
+inferMerge
+    :: Context
+    -> Expression
+    -> Expression
+    -> Maybe Expression
+    -> Maybe Expression
+inferMerge ctx t u maybeAnn = do
+    tT <- inferType ctx t
+    uT <- inferType ctx u
+    handlers <- asRecordType tT
+    case asUnionType uT of
+        Just alts ->
+            mergeHandlers ctx handlers alts maybeAnn
+        Nothing ->
+            case nf uT of
+                Application (Builtin Optional) a ->
+                    mergeHandlers ctx handlers
+                        [("None", Nothing), ("Some", Just a)] maybeAnn
+                _ -> Nothing
+
+mergeHandlers
+    :: Context
+    -> [(Text, Expression)]
+    -> [(Text, Maybe Expression)]
+    -> Maybe Expression
+    -> Maybe Expression
+mergeHandlers ctx handlers alts maybeAnn = do
+    guard (List.sort (map fst handlers) == List.sort (map fst alts))
+    outputs <- mapM (handlerOutput ctx) alts
+    case outputs of
+        [] ->
+            case maybeAnn of
+                Just ann -> do
+                    k <- inferType ctx ann
+                    guard (eq k (Constant Type))
+                    return (nf ann)
+                Nothing -> Nothing
+        o:os -> do
+            mapM_ (\o' -> guard (eq o o')) os
+            case maybeAnn of
+                Just ann -> do
+                    guard (eq o ann)
+                    return (nf o)
+                Nothing -> return (nf o)
+  where
+    handlerMap = Map.fromList handlers
+    handlerOutput _ctx (y, Just a1) = do
+        handler <- Map.lookup y handlerMap
+        case nf handler of
+            Forall x a0 t0 -> do
+                guard (eq a0 a1)
+                guard (not (Set.member x (freeVars t0)))
+                return (shift (-1) x 0 t0)
+            _ -> Nothing
+    handlerOutput _ctx (y, Nothing) =
+        Map.lookup y handlerMap
+
+inferWith
+    :: Context
+    -> Expression
+    -> NonEmpty PathComponent
+    -> Expression
+    -> Maybe Expression
+inferWith ctx e (Label k :| []) v = do
+    eT <- inferType ctx e
+    vT <- inferType ctx v
+    fields <- asRecordType eT
+    let fields' = Map.insert k vT (Map.fromList fields)
+    return (sortedRecordType (Map.toList fields'))
+inferWith ctx e (Label k0 :| (k1:ks)) v = do
+    eT <- inferType ctx e
+    fields <- asRecordType eT
+    nested <- case lookup k0 fields of
+        Just _ ->
+            inferWith ctx (Field e k0) (k1 :| ks) v
+        Nothing ->
+            inferWith ctx (RecordLiteral []) (k1 :| ks) v
+    let fields' = Map.insert k0 nested (Map.fromList fields)
+    return (sortedRecordType (Map.toList fields'))
+inferWith ctx e (DescendOptional :| []) v = do
+    eT <- inferType ctx e
+    vT <- inferType ctx v
+    case nf eT of
+        Application (Builtin Optional) t0 -> do
+            guard (eq t0 vT)
+            return (nf eT)
+        _ -> Nothing
+inferWith ctx e (DescendOptional :| (k:ks)) v = do
+    eT <- inferType ctx e
+    case nf eT of
+        Application (Builtin Optional) t0 -> do
+            let ctx1 = extend "x" (nf t0) ctx
+            inner <- inferWith ctx1 (Variable "x" 0) (k :| ks) (shift 1 "x" 0 v)
+            guard (eq t0 inner)
+            guard (not (Set.member "x" (freeVars v)))
+            return (nf eT)
+        _ -> Nothing
+
+freeVars :: Expression -> Set Text
+freeVars (Variable x 0) = Set.singleton x
+freeVars (Variable _ _) = Set.empty
+freeVars (Lambda x t a0) =
+    let v0 = freeVars t
+        a1 = shift 1 x 0 a0
+        v1 = Set.delete x (freeVars a1)
+    in  Set.union v0 v1
+freeVars (Forall x t a0) =
+    let v0 = freeVars t
+        a1 = shift 1 x 0 a0
+        v1 = Set.delete x (freeVars a1)
+    in  Set.union v0 v1
+freeVars (Let x (Just t) b0 a0) =
+    let v0 = freeVars t
+        a1 = shift 1 x 0 a0
+        v1 = Set.delete x (freeVars a1)
+        v3 = freeVars b0
+    in  v0 `Set.union` v1 `Set.union` v3
+freeVars (Let x Nothing b0 a0) =
+    let a1 = shift 1 x 0 a0
+        v1 = Set.delete x (freeVars a1)
+        v3 = freeVars b0
+    in  v1 `Set.union` v3
+freeVars e =
+    Set.unions (map freeVars (subterms e))
+
+subterms :: Expression -> [Expression]
+subterms expression =
+    case expression of
+        Variable{} -> []
+        Lambda _ a b -> [a, b]
+        Forall _ a b -> [a, b]
+        Let _ maybeType a b -> maybe [] pure maybeType ++ [a, b]
+        If a b c -> [a, b, c]
+        Merge a b maybeType -> a : b : maybe [] pure maybeType
+        ToMap a maybeType -> a : maybe [] pure maybeType
+        EmptyList a -> [a]
+        NonEmptyList (t :| ts) -> t : ts
+        Annotation a b -> [a, b]
+        Operator a _ b -> [a, b]
+        Application a b -> [a, b]
+        Field a _ -> [a]
+        ProjectByLabels a _ -> [a]
+        ProjectByType a b -> [a, b]
+        Completion a b -> [a, b]
+        Assert a -> [a]
+        With a _ b -> [a, b]
+        DoubleLiteral{} -> []
+        NaturalLiteral{} -> []
+        IntegerLiteral{} -> []
+        TextLiteral (Chunks chunks _) -> map snd chunks
+        BytesLiteral{} -> []
+        DateLiteral{} -> []
+        TimeLiteral{} -> []
+        TimeZoneLiteral{} -> []
+        RecordType fields -> map snd fields
+        RecordLiteral fields -> map snd fields
+        UnionType alts -> [ t | (_, Just t) <- alts ]
+        ShowConstructor a -> [a]
+        Import (Remote _ (Just headers)) _ _ -> [headers]
+        Import{} -> []
+        Some a -> [a]
+        Builtin{} -> []
+        Constant{} -> []
+```

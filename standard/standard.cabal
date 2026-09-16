@@ -18,6 +18,7 @@ extra-source-files:    link-literate.sh
                      , multiline.md
                      , shift.md
                      , substitution.md
+                     , type-inference.md
 
 custom-setup
   setup-depends:       base >= 4.9 && < 5
@@ -50,6 +51,7 @@ library
                      , Syntax
                      , Shift
                      , Substitution
+                     , TypeInference
   hs-source-dirs:      ./.
   default-language:    Haskell2010
   default-extensions:  BlockArguments

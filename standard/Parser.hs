@@ -789,7 +789,9 @@ numericDoubleLiteral = do
     digits0 <- atLeast 1 (satisfy digit)
 
     let toDouble sci = do
-            let n = Scientific.toRealFloat sci :: Double
+            -- Apply the sign to the 'Double' so that @-0.0@ stays a negative
+            -- zero.  Negating the integer coefficient maps both zeros to @0@.
+            let n = s (Scientific.toRealFloat sci :: Double)
 
             -- Overflow is not a numeric Double literal.  `Infinity` /
             -- `-Infinity` are separate keywords (see the ABNF).
@@ -804,14 +806,14 @@ numericDoubleLiteral = do
 
             e <- exponent <|> pure 0
 
-            let c = s ((digits0 <> digits1) `base` 10)
+            let c = (digits0 <> digits1) `base` 10
 
             toDouble (Scientific.scientific c (e - length digits1))
 
     let withoutRadix = do
             e <- exponent
 
-            let c = s (fromInteger (digits0 `base` 10))
+            let c = fromInteger (digits0 `base` 10)
 
             toDouble (Scientific.scientific c e)
 
