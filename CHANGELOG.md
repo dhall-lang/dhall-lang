@@ -17,8 +17,10 @@ New features:
 
   This is a backwards-compatible change: programs that previously failed to
   parse now succeed. `Some e` remains the Optional special form. Unquoted
-  `let Some = …` is still a parse error. Quoted `` let `Some` = … `` is
-  unchanged (still a valid binder, like other quoted keywords).
+  `let Some = …` is still a parse error. Quoted `` let `Some` = … `` is also
+  a parse error: `Some` is a fixed symbol even when backtick-quoted, so it is
+  not a valid binder or identifier. Quoted `` `Some` `` remains valid as a
+  record or union label.
 
   Examples:
 
