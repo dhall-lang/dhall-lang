@@ -1,0 +1,1 @@
+λ(`Some` : Natural) → `Some`

@@ -934,7 +934,10 @@ completion-expression =
 ; the function `foo` to the relative path `./bar`)
 selector-expression = primitive-expression *(whsp "." whsp selector)
 
-selector = any-label / labels / type-selector
+; Use any-label-or-some so `e.Some` is field/union selection (like record and
+; union entries), not the Optional `Some e` keyword. `Some e` is still parsed
+; only as first-application-expression.
+selector = any-label-or-some / labels / type-selector
 
 labels =
     "{" whsp [ "," whsp ] [ any-label-or-some whsp *("," whsp any-label-or-some whsp) [ "," whsp ] ] "}"

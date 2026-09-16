@@ -258,7 +258,11 @@ nonreservedLabel = do
         void builtin <|> void constant <|> keyword
         notFollowedBy (satisfy simpleLabelNextChar)
 
-    label
+    l <- label
+
+    guard (l /= "Some")
+
+    return l
 
 anyLabel :: Parser Text
 anyLabel = label
@@ -1957,7 +1961,7 @@ selectorExpression = do
 
 selector :: Parser (Expression -> Expression)
 selector =
-        (do x  <- anyLabel    ; return (\e -> Field           e x ))
+        (do x  <- anyLabelOrSome; return (\e -> Field           e x ))
     <|> (do ks <- labels      ; return (\e -> ProjectByLabels e ks))
     <|> (do t  <- typeSelector; return (\e -> ProjectByType   e t ))
 
