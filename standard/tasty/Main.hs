@@ -9,10 +9,12 @@
 module Main where
 
 import Codec.CBOR.Term (Term(..))
+import Data.List.NonEmpty (NonEmpty(..))
 import System.FilePath ((</>))
 import Test.Tasty (TestTree)
 
 import qualified AlphaNormalization
+import qualified BetaNormalization
 import qualified Binary
 import qualified Codec.Serialise           as Serialise
 import qualified Data.ByteString           as ByteString
@@ -192,6 +194,105 @@ alphaNormalizationCase prefix = do
             (AlphaNormalization.alphaNormalize output)
             (AlphaNormalization.alphaNormalize input)
 
+-- | Whether an expression still contains an unresolved import node.
+containsImport :: Syntax.Expression -> Bool
+containsImport Syntax.Import{} = True
+containsImport expression =
+    any containsImport (subexpressions expression)
+
+subexpressions :: Syntax.Expression -> [Syntax.Expression]
+subexpressions expression =
+    case expression of
+        Syntax.Variable{} ->
+            []
+        Syntax.Lambda _ a b ->
+            [a, b]
+        Syntax.Forall _ a b ->
+            [a, b]
+        Syntax.Let _ maybeType a b ->
+            maybe [] pure maybeType ++ [a, b]
+        Syntax.If a b c ->
+            [a, b, c]
+        Syntax.Merge a b maybeType ->
+            a : b : maybe [] pure maybeType
+        Syntax.ToMap a maybeType ->
+            a : maybe [] pure maybeType
+        Syntax.EmptyList a ->
+            [a]
+        Syntax.NonEmptyList (t :| ts) ->
+            t : ts
+        Syntax.Annotation a b ->
+            [a, b]
+        Syntax.Operator a _ b ->
+            [a, b]
+        Syntax.Application a b ->
+            [a, b]
+        Syntax.Field a _ ->
+            [a]
+        Syntax.ProjectByLabels a _ ->
+            [a]
+        Syntax.ProjectByType a b ->
+            [a, b]
+        Syntax.Completion a b ->
+            [a, b]
+        Syntax.Assert a ->
+            [a]
+        Syntax.With a _ b ->
+            [a, b]
+        Syntax.DoubleLiteral{} ->
+            []
+        Syntax.NaturalLiteral{} ->
+            []
+        Syntax.IntegerLiteral{} ->
+            []
+        Syntax.TextLiteral (Syntax.Chunks chunks _) ->
+            map snd chunks
+        Syntax.BytesLiteral{} ->
+            []
+        Syntax.DateLiteral{} ->
+            []
+        Syntax.TimeLiteral{} ->
+            []
+        Syntax.TimeZoneLiteral{} ->
+            []
+        Syntax.RecordType fields ->
+            map snd fields
+        Syntax.RecordLiteral fields ->
+            map snd fields
+        Syntax.UnionType alternatives ->
+            [ t | (_, Just t) <- alternatives ]
+        Syntax.ShowConstructor a ->
+            [a]
+        Syntax.Import{} ->
+            []
+        Syntax.Some a ->
+            [a]
+        Syntax.Builtin{} ->
+            []
+        Syntax.Constant{} ->
+            []
+
+-- | β-normalization: parse A and B; normalize only A; compare encodings.
+-- Skip cases that still contain an 'Import' node until import resolution exists.
+betaNormalizationCase :: FilePath -> TestTree
+betaNormalizationCase prefix = do
+    let inputFile  = prefix <> "A.dhall"
+    let outputFile = prefix <> "B.dhall"
+
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name do
+        input  <- expectParsed inputFile
+        output <- expectParsed outputFile
+
+        if containsImport input || containsImport output
+            then putStrLn ("Skipping import case: " <> name)
+            else
+                assertEncodedEqual
+                    "β-normalization mismatch"
+                    output
+                    (BetaNormalization.betaNormalize input)
+
 main :: IO ()
 main = do
     Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
@@ -208,6 +309,13 @@ main = do
         discoverBySuffix "A.dhall" alphaNormalizationCase
             (testsRoot </> "alpha-normalization/success")
 
+    betaNormalizationUnit <-
+        discoverBySuffix "A.dhall" betaNormalizationCase
+            (testsRoot </> "normalization/success/unit")
+
+    let withTimeout =
+            Tasty.localOption (Tasty.mkTimeout 3000000)  -- 3 seconds
+
     Tasty.defaultMain
         (Tasty.testGroup "Dhall acceptance tests"
             [ Tasty.testGroup "parser"
@@ -216,5 +324,8 @@ main = do
                 ]
             , Tasty.testGroup "alpha-normalization"
                 [ alphaNormalization ]
+            , withTimeout (Tasty.testGroup "normalization"
+                [ Tasty.testGroup "unit" [ betaNormalizationUnit ]
+                ])
             ]
         )

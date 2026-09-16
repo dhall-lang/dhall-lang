@@ -17,6 +17,8 @@ import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.Ord           as Ord
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.Char          as Char
+import qualified Numeric            as Numeric
 ```
 
 β-normalization is a function of the following form:
@@ -196,6 +198,8 @@ Otherwise, normalize the predicate and both branches of the `if` expression:
 betaNormalize (If t₀ l₀ r₀)
     | Builtin True  <- t₁ = l₁
     | Builtin False <- t₁ = r₁
+    | Builtin True  <- l₁
+    , Builtin False <- r₁ = t₁
     | equivalent l₀ r₀    = l₁
     | otherwise           = If t₁ l₁ r₁
   where
@@ -980,16 +984,21 @@ Or in other words:
 betaNormalize (Application f a)
     | Builtin TextShow           <- betaNormalize f
     , TextLiteral (Chunks [] s₀) <- betaNormalize a
-    , let s₁ =
-              "\"" <> ( Text.replace "\"" "\\\""
-              . Text.replace "$"  "\\u0024"
-              . Text.replace "\b" "\\b"
-              . Text.replace "\f" "\\f"
-              . Text.replace "\n" "\\n"
-              . Text.replace "\r" "\\r"
-              . Text.replace "\t" "\\t"
-              . Text.replace "\\" "\\\\"
-              ) s₀ <> "\"" =
+    , let escape c
+              | c == '"'          = "\\\""
+              | c == '$'          = "\\u0024"
+              | c == '\b'         = "\\b"
+              | c == '\f'         = "\\f"
+              | c == '\n'         = "\\n"
+              | c == '\r'         = "\\r"
+              | c == '\t'         = "\\t"
+              | c == '\\'         = "\\\\"
+              | Char.ord c < 0x20 =
+                    let hex = Numeric.showHex (Char.ord c) ""
+                        pad = replicate (4 - length hex) '0'
+                    in  "\\u" <> Text.pack (pad <> hex)
+              | otherwise         = Text.singleton c
+    , let s₁ = "\"" <> Text.concatMap escape s₀ <> "\"" =
         TextLiteral (Chunks [] s₁)
 ```
 
@@ -1150,7 +1159,7 @@ betaNormalize (Application f g)
                               )
                           )
                       )
-                      (EmptyList _A₀)
+                      (EmptyList (Application (Builtin List) _A₀))
                   ) =
         b
 ```
@@ -1194,7 +1203,7 @@ betaNormalize (Application f b₀)
         g <- betaNormalize f
     , let rest =
               case as of
-                  []    -> EmptyList _A₀
+                  []    -> EmptyList (Application (Builtin List) _A₀)
                   h : t -> NonEmptyList (h :| t)
     , let b₁ =
               betaNormalize
@@ -1203,8 +1212,11 @@ betaNormalize (Application f b₀)
                       (Application
                           (Application
                               (Application
-                                  (Application (Builtin ListFold) _A₀)
-                                  rest
+                                  (Application
+                                      (Application (Builtin ListFold) _A₀)
+                                      rest
+                                  )
+                                  _B
                               )
                               g
                           )
@@ -2178,7 +2190,7 @@ betaNormalize (Merge t₀ u₀ _T)
         v
 
     | otherwise =
-       Merge t₁ u₁ _T
+       Merge t₁ u₁ (fmap betaNormalize _T)
   where
     t₁ = betaNormalize t₀
 
@@ -2685,7 +2697,7 @@ betaNormalize (Forall x _A₀ _B₀) = Forall x _A₁ _B₁
   where
     _A₁ = betaNormalize _A₀
 
-    _B₁ = betaNormalize _B₁
+    _B₁ = betaNormalize _B₀
 ```
 
 You can introduce an anonymous function using a λ:
