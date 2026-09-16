@@ -73,7 +73,7 @@ large as the lower bound:
 
 ```haskell
 shift d x m (Variable x' n) | x == x' && m <= n =
-    Variable x' (n + fromInteger d)
+    Variable x' (fromInteger (toInteger n + d))
 ```
 
 Don't shift the index if the index falls short of the lower bound:

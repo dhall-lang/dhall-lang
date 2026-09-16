@@ -12,6 +12,7 @@ import Codec.CBOR.Term (Term(..))
 import System.FilePath ((</>))
 import Test.Tasty (TestTree)
 
+import qualified AlphaNormalization
 import qualified Binary
 import qualified Codec.Serialise           as Serialise
 import qualified Data.ByteString           as ByteString
@@ -60,6 +61,14 @@ parseFile path = do
 
     return (decoded >>= parseExpression path)
 
+expectParsed :: FilePath -> IO Syntax.Expression
+expectParsed path = do
+    parsed <- parseFile path
+
+    case parsed of
+        Left  errors     -> fail errors
+        Right expression -> return expression
+
 -- | We need this because @NaN /= NaN@.
 assertEqualIncludingNaN :: String -> Term -> Term -> IO ()
 assertEqualIncludingNaN _ (THalf l) (THalf r)
@@ -71,6 +80,10 @@ assertEqualIncludingNaN message expected actual =
 assertEncodedTermEqual :: String -> Term -> Syntax.Expression -> IO ()
 assertEncodedTermEqual message expected actual =
     assertEqualIncludingNaN message expected (Binary.encode actual)
+
+assertEncodedEqual :: String -> Syntax.Expression -> Syntax.Expression -> IO ()
+assertEncodedEqual message expected actual =
+    assertEqualIncludingNaN message (Binary.encode expected) (Binary.encode actual)
 
 stripSuffix :: Text.Text -> FilePath -> Maybe FilePath
 stripSuffix suffix path =
@@ -162,6 +175,23 @@ parserFailureCase path = do
             Left  _ -> return ()
             Right _ -> HUnit.assertFailure "Unexpected successful parse"
 
+-- | α-normalization: parse A and B, α-normalize both, compare encodings.
+alphaNormalizationCase :: FilePath -> TestTree
+alphaNormalizationCase prefix = do
+    let inputFile  = prefix <> "A.dhall"
+    let outputFile = prefix <> "B.dhall"
+
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name do
+        input  <- expectParsed inputFile
+        output <- expectParsed outputFile
+
+        assertEncodedEqual
+            "α-normalization mismatch"
+            (AlphaNormalization.alphaNormalize output)
+            (AlphaNormalization.alphaNormalize input)
+
 main :: IO ()
 main = do
     Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
@@ -174,13 +204,17 @@ main = do
         discoverFiles isDhallFile parserFailureCase
             (testsRoot </> "parser/failure")
 
-    -- Remaining suites are registered by later slices (A02+).  Keep this
-    -- driver as the single place that walks @tests/@.
+    alphaNormalization <-
+        discoverBySuffix "A.dhall" alphaNormalizationCase
+            (testsRoot </> "alpha-normalization/success")
+
     Tasty.defaultMain
         (Tasty.testGroup "Dhall acceptance tests"
             [ Tasty.testGroup "parser"
                 [ parserSuccess
                 , parserFailure
                 ]
+            , Tasty.testGroup "alpha-normalization"
+                [ alphaNormalization ]
             ]
         )
