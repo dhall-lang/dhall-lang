@@ -1,5 +1,11 @@
 {-# LANGUAGE BlockArguments #-}
 
+{-| Acceptance-test driver for the literate Haskell reference.
+
+    Helpers here are shared across slices: walk a directory, pair @*A@/@*B@
+    fixtures, parse a complete expression, compare via 'Binary.encode'.
+    Later slices register additional groups without rewriting discovery.
+-}
 module Main where
 
 import Codec.CBOR.Term (Term(..))
@@ -8,9 +14,11 @@ import Test.Tasty (TestTree)
 
 import qualified Binary
 import qualified Codec.Serialise           as Serialise
+import qualified Data.ByteString           as ByteString
 import qualified Data.Text                 as Text
-import qualified Data.Text.IO              as Text.IO
+import qualified Data.Text.Encoding        as Text.Encoding
 import qualified Parser
+import qualified Syntax
 import qualified System.Directory          as Directory
 import qualified System.Environment        as Environment
 import qualified System.FilePath           as FilePath
@@ -18,35 +26,41 @@ import qualified Text.Megaparsec           as Megaparsec
 import qualified Test.Tasty.HUnit          as HUnit
 import qualified Test.Tasty                as Tasty
 
-fileToTestTree :: FilePath -> TestTree
-fileToTestTree prefix = do
-    let inputFile  = prefix <> "A.dhall"
-    let outputFile = prefix <> "B.dhallb"
+-- | Relative to @standard/@ when running @cabal test@.  Nix rewrites this
+-- prefix to an absolute store path in @postPatch@.
+testsRoot :: FilePath
+testsRoot = "../tests"
 
-    let name = FilePath.takeBaseName inputFile
+-- | Parse a complete Dhall expression, requiring the whole file to be consumed.
+parseExpression :: FilePath -> Text.Text -> Either String Syntax.Expression
+parseExpression sourcePath input = do
+    let parser = Parser.unParser do
+            e <- Parser.completeExpression
 
-    HUnit.testCase name do
+            Megaparsec.eof
 
-        input <- Text.IO.readFile inputFile
+            return e
 
-        let parser = Parser.unParser do
-                e <- Parser.completeExpression
+    case Megaparsec.runParser parser sourcePath input of
+        Left  errors     -> Left (Megaparsec.errorBundlePretty errors)
+        Right expression -> Right expression
 
-                Megaparsec.eof
+-- | Read a @.dhall@ file as UTF-8.  Invalid encoding is a parse failure.
+readDhallFile :: FilePath -> IO (Either String Text.Text)
+readDhallFile path = do
+    bytes <- ByteString.readFile path
 
-                return e
+    case Text.Encoding.decodeUtf8' bytes of
+        Left  exception -> return (Left (show exception))
+        Right text      -> return (Right text)
 
-        expression <- case Megaparsec.runParser parser inputFile input of
-           Left  errors     -> fail (Megaparsec.errorBundlePretty errors)
-           Right expression -> return expression
+parseFile :: FilePath -> IO (Either String Syntax.Expression)
+parseFile path = do
+    decoded <- readDhallFile path
 
-        expectedTerm <- Serialise.readFileDeserialise outputFile
+    return (decoded >>= parseExpression path)
 
-        let actualTerm = Binary.encode expression
-
-        assertEqualIncludingNaN "Parsing test failure" expectedTerm actualTerm
-
--- | We need this because `NaN /= NaN`.  Grr…
+-- | We need this because @NaN /= NaN@.
 assertEqualIncludingNaN :: String -> Term -> Term -> IO ()
 assertEqualIncludingNaN _ (THalf l) (THalf r)
     | isNaN l && isNaN r =
@@ -54,14 +68,17 @@ assertEqualIncludingNaN _ (THalf l) (THalf r)
 assertEqualIncludingNaN message expected actual =
     HUnit.assertEqual message expected actual
 
-inputFileToPrefix :: FilePath -> Maybe FilePath
-inputFileToPrefix inputFile =
-    fmap Text.unpack (Text.stripSuffix "A.dhall" (Text.pack inputFile))
+assertEncodedTermEqual :: String -> Term -> Syntax.Expression -> IO ()
+assertEncodedTermEqual message expected actual =
+    assertEqualIncludingNaN message expected (Binary.encode actual)
 
-directoryToTestTree :: FilePath -> IO TestTree
-directoryToTestTree directory = do
-    let name = FilePath.takeBaseName directory
+stripSuffix :: Text.Text -> FilePath -> Maybe FilePath
+stripSuffix suffix path =
+    fmap Text.unpack (Text.stripSuffix suffix (Text.pack path))
 
+-- | Recursively collect files under a directory.
+listFilesRecursive :: FilePath -> IO [FilePath]
+listFilesRecursive directory = do
     children <- Directory.listDirectory directory
 
     let process child = do
@@ -70,27 +87,100 @@ directoryToTestTree directory = do
             isDirectory <- Directory.doesDirectoryExist childPath
 
             if isDirectory
-                then do
-                    testTree <- directoryToTestTree childPath
+                then listFilesRecursive childPath
+                else return [ childPath ]
 
-                    return [ testTree ]
+    concat <$> traverse process children
 
-                else do
-                    case inputFileToPrefix childPath of
-                        Just prefix -> do
-                            return [ fileToTestTree prefix ]
+-- | Build a 'TestTree' from every file whose name ends in the given suffix.
+-- The callback receives the path with the suffix stripped (a \"prefix\").
+discoverBySuffix
+    :: Text.Text
+    -> (FilePath -> TestTree)
+    -> FilePath
+    -> IO TestTree
+discoverBySuffix suffix makeTest directory = do
+    let name = FilePath.takeBaseName directory
 
-                        Nothing -> do
-                            return [ ]
+    files <- listFilesRecursive directory
 
-    testTrees <- traverse process children
+    let tests = do
+            file <- files
 
-    return (Tasty.testGroup name (concat testTrees))
+            prefix <- maybe [] (\p -> [p]) (stripSuffix suffix file)
+
+            return (makeTest prefix)
+
+    return (Tasty.testGroup name tests)
+
+-- | Same as 'discoverBySuffix', but the callback receives the full path.
+discoverFiles
+    :: (FilePath -> Bool)
+    -> (FilePath -> TestTree)
+    -> FilePath
+    -> IO TestTree
+discoverFiles predicate makeTest directory = do
+    let name = FilePath.takeBaseName directory
+
+    files <- listFilesRecursive directory
+
+    let tests = map makeTest (filter predicate files)
+
+    return (Tasty.testGroup name tests)
+
+isDhallFile :: FilePath -> Bool
+isDhallFile path = FilePath.takeExtension path == ".dhall"
+
+-- | Parser success: parse @*A.dhall@, encode, compare to @*B.dhallb@.
+parserSuccessCase :: FilePath -> TestTree
+parserSuccessCase prefix = do
+    let inputFile  = prefix <> "A.dhall"
+    let outputFile = prefix <> "B.dhallb"
+
+    let name = FilePath.takeBaseName inputFile
+
+    HUnit.testCase name do
+        parsed <- parseFile inputFile
+
+        expression <- case parsed of
+            Left  errors     -> fail errors
+            Right expression -> return expression
+
+        expectedTerm <- Serialise.readFileDeserialise outputFile
+
+        assertEncodedTermEqual "Parsing test failure" expectedTerm expression
+
+-- | Parser failure: the file must not parse as a complete expression.
+parserFailureCase :: FilePath -> TestTree
+parserFailureCase path = do
+    let name = FilePath.takeBaseName path
+
+    HUnit.testCase name do
+        parsed <- parseFile path
+
+        case parsed of
+            Left  _ -> return ()
+            Right _ -> HUnit.assertFailure "Unexpected successful parse"
 
 main :: IO ()
 main = do
     Environment.setEnv "TASTY_HIDE_SUCCESSES" "true"
 
-    testTree <- directoryToTestTree "../tests/parser/success"
+    parserSuccess <-
+        discoverBySuffix "A.dhall" parserSuccessCase
+            (testsRoot </> "parser/success")
 
-    Tasty.defaultMain testTree
+    parserFailure <-
+        discoverFiles isDhallFile parserFailureCase
+            (testsRoot </> "parser/failure")
+
+    -- Remaining suites are registered by later slices (A02+).  Keep this
+    -- driver as the single place that walks @tests/@.
+    Tasty.defaultMain
+        (Tasty.testGroup "Dhall acceptance tests"
+            [ Tasty.testGroup "parser"
+                [ parserSuccess
+                , parserFailure
+                ]
+            ]
+        )

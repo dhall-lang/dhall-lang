@@ -788,6 +788,15 @@ numericDoubleLiteral = do
 
     digits0 <- atLeast 1 (satisfy digit)
 
+    let toDouble sci = do
+            let n = Scientific.toRealFloat sci :: Double
+
+            -- Overflow is not a numeric Double literal.  `Infinity` /
+            -- `-Infinity` are separate keywords (see the ABNF).
+            if isInfinite n
+                then fail "double out of bounds"
+                else return n
+
     let withRadix = do
             "."
 
@@ -797,14 +806,14 @@ numericDoubleLiteral = do
 
             let c = s ((digits0 <> digits1) `base` 10)
 
-            return (Scientific.toRealFloat (Scientific.scientific c (e - length digits1)))
+            toDouble (Scientific.scientific c (e - length digits1))
 
     let withoutRadix = do
             e <- exponent
 
             let c = s (fromInteger (digits0 `base` 10))
 
-            return (Scientific.toRealFloat (Scientific.scientific c e))
+            toDouble (Scientific.scientific c e)
 
     withRadix <|> withoutRadix
 
@@ -1440,9 +1449,9 @@ http = do
     url <- httpRaw
 
     headers <- optional do
-        try (do whsp; using)
+        try (do whsp1; using)
 
-        whsp
+        whsp1
 
         importExpression
 
