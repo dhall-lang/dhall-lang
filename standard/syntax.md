@@ -371,6 +371,7 @@ data ImportMode
     | RawText   -- ^ @as Text@: import the path as raw text
     | Location  -- ^ @as Location@: don't import and instead represent the path
                 --   as a Dhall expression
+    | Source    -- ^ @as Source@: preserve the non-normalized imported structure
     deriving (Show)
 
 -- | Where to locate the import
