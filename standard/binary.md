@@ -329,7 +329,31 @@ matching their identifier.
 
 
     ───────────────────────────────
+    encode(Date/year) = "Date/year"
+
+
+    ────────────────────────────────
+    encode(Date/month) = "Date/month"
+
+
+    ─────────────────────────────
+    encode(Date/day) = "Date/day"
+
+
+    ───────────────────────────────
     encode(Time/show) = "Time/show"
+
+
+    ───────────────────────────────
+    encode(Time/hour) = "Time/hour"
+
+
+    ───────────────────────────────────
+    encode(Time/minute) = "Time/minute"
+
+
+    ───────────────────────────────────
+    encode(Time/second) = "Time/second"
 
 
     ───────────────────────────────────────
@@ -420,7 +444,13 @@ encode (Builtin ListReverse     ) = TString "List/reverse"
 encode (Builtin TextShow        ) = TString "Text/show"
 encode (Builtin TextReplace     ) = TString "Text/replace"
 encode (Builtin DateShow        ) = TString "Date/show"
+encode (Builtin DateYear        ) = TString "Date/year"
+encode (Builtin DateMonth       ) = TString "Date/month"
+encode (Builtin DateDay         ) = TString "Date/day"
 encode (Builtin TimeShow        ) = TString "Time/show"
+encode (Builtin TimeHour        ) = TString "Time/hour"
+encode (Builtin TimeMinute      ) = TString "Time/minute"
+encode (Builtin TimeSecond      ) = TString "Time/second"
 encode (Builtin TimeZoneShow    ) = TString "TimeZone/show"
 encode (Builtin Bool            ) = TString "Bool"
 encode (Builtin Optional        ) = TString "Optional"

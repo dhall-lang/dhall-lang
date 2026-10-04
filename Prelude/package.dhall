@@ -4,7 +4,7 @@
     ? ./Bool/package.dhall
 , Date =
       missing
-        sha256:fc0c5efc924fa99aa8e5dea5d78c3dc1a24cb550028342b90149ea78cb5ca873
+        sha256:575b0753d16cbd7fd139d9e19a31db1bb5fee708203522468c1176e8124e4c7e
     ? ./Date/package.dhall
 , Double =
       missing
@@ -60,7 +60,7 @@
     ? ./Text/package.dhall
 , Time =
       missing
-        sha256:6715c4c71a113429fef8b94e4561a93c288942dad9dfd75ac545de96c5b5652a
+        sha256:fbe656aed32ef451ff79af427b946ad5ff7180a3bdfb07bfb34beb08b8d6bb10
     ? ./Time/package.dhall
 , TimeZone =
       missing
