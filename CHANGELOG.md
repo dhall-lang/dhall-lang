@@ -5,6 +5,26 @@ file.
 
 For more info about our versioning policy, see [versioning.md](standard/versioning.md).
 
+## `v23.2.0`
+
+Other changes:
+
+* Fixes and improvements to the standard:
+  * Require unlimited fractional-second precision in `TimeLiteral`
+
+    Implementations must parse and preserve every digit after the decimal point
+    in a `Time` literal (including trailing zeros). `Time/show` renders the
+    complete precision. The grammar previously allowed storing only 9 digits.
+
+  * Clarify that unhashed imports need not be αβ-normalized when inlined
+
+    Import resolution still type-checks each imported expression in an empty
+    context.  Integrity checks and the semantic cache are unchanged: they hash
+    and store the encoded αβ-normal form.  Implementations MAY skip
+    β-normalization (and α-normalization) of unhashed imports when substituting
+    them into the parent; the final program is still normalized when the
+    caller asks for a normal form.
+
 ## `v23.1.0`
 
 New features:
