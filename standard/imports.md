@@ -765,6 +765,36 @@ referentially transparent, if it honours CORS, no header forwarding necessary,
 etc.  Canonicalization and chaining are the only transformations applied to the
 import.
 
+If an import ends with `as Source`, resolve the import graph without
+alpha-beta-normalizing each imported expression at every import boundary.
+Instead:
+
+* unfrozen transitive imports are recursively resolved and inlined as Dhall
+  syntax
+* frozen transitive imports remain as hash-protected import references in
+  internal source-preserving results
+* for a frozen import `as Source`, the finalized import-free result, without an
+  additional alpha-beta-normalization pass, is the value encoded and hashed for
+  semantic integrity checks
+
+This option is designed to preserve the original imported code and to avoid
+building large intermediate normal forms while processing transitive imports.
+
+If an `as Source` import contains an import alternative `e₀ ? e₁`, then the
+branch that successfully resolves determines whether the internal
+source-preserving traversal preserves an import reference or inlines the
+imported expression:
+
+* if the chosen branch is protected by an integrity check, then that chosen
+  branch remains as a hash-protected import reference in the internal
+  source-preserving result
+* if the chosen branch is not protected by an integrity check, then that chosen
+  branch is recursively resolved and inlined into the internal
+  source-preserving result
+
+In particular, an import alternative is not treated as hash-protected merely
+because one branch is protected. The chosen branch determines the behavior.
+
 When requesting a remote resource, include headers according to the user's
 configuration. This configuration has the type:
 
@@ -843,7 +873,10 @@ versions of dhall or users without custom configuration.
 
 If the import is protected with a `sha256:base16Hash` integrity check, then:
 
-* the import's normal form is encoded to a binary representation
+* for an ordinary import, the import's normal form is encoded to a binary
+  representation
+* for an import `as Source`, the finalized import-free result is encoded to a
+  binary representation without an additional alpha-beta-normalization pass
 * the binary representation is hashed using SHA-256
 * the SHA-256 hash is base16-encoded
 * the base16-encoded result has to match the integrity check
@@ -852,7 +885,10 @@ An implementation MUST attempt to cache imports protected with an integrity
 check using the hash as the lookup key.  An implementation that caches imports
 in this way so MUST:
 
-* Cache the fully resolved, αβ-normalized expression, and encoded expression
+* Cache the encoded expression determined by the import mode:
+  * for ordinary imports, the fully resolved, αβ-normalized expression
+  * for imports `as Source`, the finalized import-free result without an
+    additional αβ-normalization pass
 * Store the cached expression in `"${XDG_CACHE_HOME}/dhall/1220${base16Hash}"` if
   the `$XDG_CACHE_HOME` environment variable is defined and the path is readable
   and writeable
@@ -1026,6 +1062,20 @@ Formally:
     ────────────────────────────────────  ; if `e₀` successfully resolves or
     (Δ, here) × Γ₀ ⊢ (e₀ ? e₁) ⇒ e₂ ⊢ Γ₁  ; fails for any other reason
 
+
+If an `as Source` import resolves an import alternative `e₀ ? e₁`, then the
+chosen branch determines whether the cached source-preserving result keeps an
+import reference or inlines the imported expression:
+
+* if the chosen branch is protected by an integrity check, then the cached
+  source-preserving result keeps that chosen branch as a hash-protected import
+  reference
+* if the chosen branch is not protected by an integrity check, then the cached
+  source-preserving result recursively resolves and inlines that chosen branch
+
+In particular, an import alternative is not treated as hash-protected merely
+because one branch is protected. The behavior depends on which branch actually
+resolves.
 
 For all other cases, recursively descend into sub-expressions:
 

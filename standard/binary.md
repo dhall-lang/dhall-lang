@@ -1244,6 +1244,15 @@ instead of `0`:
     encode(import as Text) = [ 24, x, 1, xs… ]
 
 
+If you import `as Location`, then the third element encoding the import type is
+`2` instead of `0`:
+
+
+    encode(import) = [ 24, x, 0, xs… ]
+    ──────────────────────────────────────────
+    encode(import as Location) = [ 24, x, 2, xs… ]
+
+
 If you import `as Bytes`, then the third element encoding the import type is `3`
 instead of `0`:
 
@@ -1253,13 +1262,13 @@ instead of `0`:
     encode(import as Bytes) = [ 24, x, 3, xs… ]
 
 
-If you import `as Location`, then the third element encoding the import type is
-`2` instead of `0`:
+If you import `as Source`, then the third element encoding the import type is
+`4` instead of `0`:
 
 
     encode(import) = [ 24, x, 0, xs… ]
-    ──────────────────────────────────────────
-    encode(import as Location) = [ 24, x, 2, xs… ]
+    ─────────────────────────────────────────
+    encode(import as Source) = [ 24, x, 4, xs… ]
 
 
 ```haskell
@@ -1275,6 +1284,7 @@ encode (Import importType₀ importMode₀ hash₀) =
         RawText  -> TInt 1
         RawBytes -> TInt 3
         Location -> TInt 2
+        Source   -> TInt 4
 
     importType₁ = case importType₀ of
         Remote (URL scheme₀ authority₀ (File directory₀ file₀) query₀) headers₀ ->
@@ -2124,6 +2134,10 @@ The decoding rules are the exact opposite of the encoding rules:
     decode([ 24, x, 0, xs… ]) = import
     ──────────────────────────────────────────────
     decode([ 24, x, 2, xs… ]) = import as Location
+
+    decode([ 24, x, 0, xs… ]) = import
+    ────────────────────────────────────────────
+    decode([ 24, x, 4, xs… ]) = import as Source
 
 
     decode([ 24, null, x, xs… ]) = import

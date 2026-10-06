@@ -733,6 +733,9 @@ _TimeZone = do "TimeZone"; return TimeZone
 _Location :: Parser ()
 _Location = void "Location"
 
+_Source :: Parser ()
+_Source = void "Source"
+
 constant :: Parser Constant
 constant =
         _Type
@@ -1531,7 +1534,9 @@ import_ = do
     let location = do
             try (do whsp; as; whsp1)
 
-            (do _Text; return RawText) <|> (do _Location; return Location)
+            (do _Text; return RawText)
+                <|> (do _Location; return Location)
+                <|> (do _Source; return Source)
 
     l <- location <|> return Code
 
