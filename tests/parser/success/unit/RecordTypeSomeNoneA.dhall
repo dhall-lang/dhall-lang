@@ -1,0 +1,1 @@
+{ Some: Natural, None: Natural }
