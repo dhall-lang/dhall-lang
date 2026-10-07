@@ -6,7 +6,7 @@ let Bool/not =
 
 let lessThanEqual =
         missing
-          sha256:e3cca9f3942f81fa78a2bea23c0c24519c67cfe438116c38e797e12dcd26f6bc
+          sha256:9325300826d708bdc1d86dabba599b93c375e2c8db20176bed272a8256482555
       ? ./lessThanEqual.dhall
 
 let greaterThan

@@ -1,12 +1,12 @@
 --| `sort` sorts a `List` of `Natural`s in ascending order
 let greaterThanEqual =
         missing
-          sha256:30ebfab0febd7aa0ccccfdf3dc36ee6d50f0117f35dd4a9b034750b7e885a1a4
+          sha256:33319c5defc5b556a2e0355cdc6369b0138c5d0de787a85c98e35dc307c855e7
       ? ./greaterThanEqual.dhall
 
 let listMin =
         missing
-          sha256:ee70b0d010bbca6012162e8ae1f6e9d9bd10a152675509b0f23145b98b5d43c6
+          sha256:de0ffc7476fbfd7084bc314b1a0d394966c2c52d669e0e06b1ce74a0631e2446
       ? ./listMin.dhall
 
 let List/partition =

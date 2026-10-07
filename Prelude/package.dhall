@@ -16,7 +16,7 @@
     ? ./Function/package.dhall
 , Integer =
       missing
-        sha256:d1a572ca3a764781496847e4921d7d9a881c18ffcfac6ae28d0e5299066938a0
+        sha256:f7bda587988158d2a1346b052dca7a5e34450e7b3b181724fa669bfa7187a860
     ? ./Integer/package.dhall
 , JSON =
       missing
@@ -24,7 +24,7 @@
     ? ./JSON/package.dhall
 , List =
       missing
-        sha256:26d1b4cd800219d8b67043c638926aa6e5517ea74a0bd3e371974514621bca04
+        sha256:14a20dc7409d1790b882e5922c1165e080780bb073b65ff6ea50bad91b2c0bcc
     ? ./List/package.dhall
 , Location =
       missing
@@ -40,11 +40,11 @@
     ? ./Monoid.dhall
 , Natural =
       missing
-        sha256:ee9ed2b28a417ed4e9a0c284801b928bf91b3fbdc1a68616347678c1821f1ddf
+        sha256:6eed47df8b1c2b3dcad035bbcd22856e28e486bebbccb2d352b8bc2dc469118e
     ? ./Natural/package.dhall
 , NonEmpty =
       missing
-        sha256:c24686a230a4b3cd51e5a57cd4510b4f8242f813d7823d41bac5954e7af56f7a
+        sha256:a9de758006f76c048fd128e37b282e34f9afd6fa6f91b9fc66c8bbdc64672d08
     ? ./NonEmpty/package.dhall
 , Operator =
       missing
