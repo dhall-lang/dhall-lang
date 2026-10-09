@@ -8,7 +8,7 @@
     ? ./enumerate.dhall
 , even =
       missing
-        sha256:b85b8b56892dfef881e1c0e79eade0b949528f792aac0ea42432b315ede4ee66
+        sha256:4f0613754359587a52512a2b9a204aa814ca6951eeb8be7a52bb3f5813facfdc
     ? ./even.dhall
 , fold =
       missing
@@ -20,8 +20,12 @@
     ? ./isZero.dhall
 , odd =
       missing
-        sha256:ab3c729262c642ec1cdb72a81e910fcfaf2aea13e3961d0bf1bec83efea5aac5
+        sha256:3960a9a5ffe05bdec4a39e2993b067e4ab9de364cf80b8918275c6ec1480294b
     ? ./odd.dhall
+, divMod =
+      missing
+        sha256:5b354b1872d2cb3a4a85cc0a56508e2aec7716ae8976891d248acf4648601115
+    ? ./divMod.dhall
 , product =
       missing
         sha256:e3e6fd76207875b81d39f79fdbc90b5e640444c04fb3d84c2c9326748f0b26e6
